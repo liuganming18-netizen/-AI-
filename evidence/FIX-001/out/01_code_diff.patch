@@ -1,0 +1,207 @@
+diff --git "a/\346\241\206\346\236\266/backend/accum_early_entry.py" "b/\346\241\206\346\236\266/backend/accum_early_entry.py"
+index 4157b98c..b0ba5ef9 100644
+--- "a/\346\241\206\346\236\266/backend/accum_early_entry.py"
++++ "b/\346\241\206\346\236\266/backend/accum_early_entry.py"
+@@ -2125,12 +2125,131 @@ def run_identity(cfg: dict, feed: Optional[DataFeed] = None) -> dict:
+     return ident
+ 
+ 
++def _timeline_events(per_symbol: Sequence[dict]) -> List[dict]:
++    """把各标的的候选拍平成统一时间轴事件；顺序**完全确定**，与输入币种顺序无关。
++
++    排序键 `(时间戳, symbol, scheme, signal_uid)`：
++      · 时间戳取成交 bar 开盘时刻（`entry_bar_open_ms`）——这是「同一时刻」的唯一判据；
++      · `symbol` 字母升序，满足「同刻多个候选竞争槽位」时的确定性要求；
++      · `scheme`/`signal_uid` 只作兜底，正常不会同时命中。
++
++    为什么用 `entry_bar_open_ms` 而不是 `confirm_close_ms`：委托的尝试时刻就是成交 bar
++    开盘（见 `try_open` 里的 `attempt_ms` 注释），用别的时刻排序会与引擎的
++    `bar_after_attempt_clock_no_lookahead` 闸门口径不一致。
++    """
++    ev: List[dict] = []
++    for rec in per_symbol:
++        sym = rec.get("symbol")
++        for c in (rec.get("candidates") or []):
++            t = c.get("entry_bar_open_ms") or c.get("earliest_entry_ms")
++            if t is None:
++                continue
++            ev.append({"t": int(t), "symbol": str(sym),
++                       "scheme": str(c.get("scheme")),
++                       "signal_uid": str(c.get("signal_uid")),
++                       "cand": c})
++    ev.sort(key=lambda e: (e["t"], e["symbol"], e["scheme"], e["signal_uid"]))
++    return ev
++
++
++def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int,
++                            legacy_4h_exit: bool = False, store=None,
++                            cache: Dict[str, List[int]]) -> List[dict]:
++    """把各方案存量持仓推进到 `until_ms`（含），返回本次新增的退出记录。
++
++    `drive_position_exit` 每根 15m 先上移 4h 跟踪止损、再判退出，所以一次调用同时完成
++    工单要求的第一步与第二步：
++      ① 触发的持仓立即平仓落账 ⇒ **返回后槽位即可复用**（`pre_open_check` 查库判槽位）；
++      ② 未触发的持仓把跟踪止损推进到该时刻。
++
++    仍开着的持仓留在 `cache` 里供下一轮继续推进；已平仓、已找不到、缺合约规格的一律移出，
++    避免同一笔被反复重试。**不重写任何止损/退出口径**，只重排调用时机。
++    """
++    out: List[dict] = []
++    for scheme in schemes:
++        keep: List[int] = []
++        for pid in list(cache.get(scheme) or []):
++            try:
++                r = drive_position_exit(scheme, int(pid), feed, cfg=cfg,
++                                        end_ms=int(until_ms),
++                                        legacy_4h_exit=legacy_4h_exit, store=store)
++            except Exception as exc:                          # noqa: BLE001
++                keep.append(int(pid))
++                out.append({"ok": False, "scheme": scheme, "position_id": int(pid),
++                            "reason": "drive_error", "error": repr(exc)})
++                continue
++            if "exit_ts" in r:
++                out.append(r)                                 # 已平仓
++            elif r.get("reason") == "open_at_window_end":
++                keep.append(int(pid))                         # 仍开着，继续推进
++            else:
++                out.append(r)                                 # 已平/找不到/缺规格：不再重试
++        cache[scheme] = keep
++    return out
++
++
++def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
++                     schemes=SCHEMES, store, legacy_4h_exit: bool = False,
++                     ) -> Tuple[List[dict], dict]:
++    """统一时间轴回放：同一时刻先退出释放槽位，再分配槽位开新仓。
++
++    每个时间戳严格按工单要求的三步执行：
++      ① 处理存量持仓的平仓/退出事件，并**立即释放仓位槽位**；
++      ② 更新剩余存量持仓状态（跟踪止损上移，与 ① 在同一次 `drive_position_exit` 内完成）；
++      ③ 评估新入场信号并分配可用槽位（同刻按 `symbol` 升序，与输入顺序无关）。
++
++    只对「该时刻确实有候选」的方案推进持仓——没有候选的方案在这一刻不需要最新权益，
++    省掉大量无意义推进，不影响结果（下一次它有候选时会补推）。
++    """
++    events = _timeline_events(per_symbol)
++    # 预先把「同一时刻涉及哪些方案」算好（一次遍历），避免在每个时间戳上重扫全表
++    schemes_at: Dict[int, List[str]] = {}
++    for e in events:
++        bucket = schemes_at.setdefault(e["t"], [])
++        if e["scheme"] not in bucket:
++            bucket.append(e["scheme"])
++    for ts in schemes_at:
++        schemes_at[ts] = [s for s in schemes if s in schemes_at[ts]]   # 按方案固定顺序
++
++    cache: Dict[str, List[int]] = {}
++    for s in schemes:
++        try:
++            cache[s] = [int(p["position_id"]) for p in open_positions(s)]
++        except Exception:                                     # noqa: BLE001
++            cache[s] = []
++
++    exits: List[dict] = []
++    opened = 0
++    last_t: Optional[int] = None
++    for e in events:
++        if e["t"] != last_t:
++            # 只推进「这一刻有候选」的方案：先退出释放槽位，再轮到入场
++            exits.extend(_advance_open_positions(
++                feed, cfg=cfg, schemes=schemes_at[e["t"]],
++                until_ms=e["t"], legacy_4h_exit=legacy_4h_exit,
++                store=store, cache=cache))
++            last_t = e["t"]
++        res = try_open(e["scheme"], e["symbol"], e["cand"], cfg, store)
++        e["cand"]["open_result"] = res
++        if res.get("ok"):
++            pid = (res.get("paper_result") or {}).get("position_id")
++            if pid is not None:
++                cache.setdefault(e["scheme"], []).append(int(pid))
++                opened += 1
++
++    stats = {"events": len(events), "opened": opened,
++             "distinct_timestamps": len({e["t"] for e in events}),
++             "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid"}
++    return exits, stats
++
++
+ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms: int,
+                  schemes=SCHEMES, max_boxes: int = 3, open_candidates: bool = True,
+                  drive_exits: bool = True, legacy_4h_exit: bool = False,
+                  walk_days: int = 30, warmup_days: int = 60,
+                  observe_db=None, now_ms: Optional[int] = None,
+-                 feed: Optional[DataFeed] = None, store=None) -> dict:
++                 feed: Optional[DataFeed] = None, store=None,
++                 timeline_entries: bool = True) -> dict:
+     """统一研究入口：观察 → 候选 → 委托 → 成交 → 退出 → 账本，一次跑完。
+ 
+     参数
+@@ -2142,15 +2261,21 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms:
+     drive_exits   是否对未平仓逐 15m 推进退出
+     legacy_4h_exit  退出对照臂：True = 旧行为（4h 低点判退出、4h 收盘即生效）
+     walk_days     退出推进最多看多少天（从入场起）
++    timeline_entries  **FIX-001**：True（默认）= 统一时间轴推进，扫描与开仓分两段，
++                  同一时刻先退出释放槽位再入场；False = 旧行为（按标的顺序边扫边开、
++                  退出全部后置）。旧行为只保留用于复现历史证据，**不要用于出成绩**。
+ 
+     返回 dict（键固定，05-C 直接读）：
+       identity / config / per_symbol / exits / ledgers / errors
++      （timeline 模式下多一个 `timeline` 键，记录事件数/成交数/排序键）
+     """
+     cfg = load_config(config)
+     own_store = store is None
+     st = store or open_store(observe_db)
+     own_feed = feed is None
+     fd = feed or DataFeed()
++    # 两段式只在「真的会开仓」且调用方没显式要求旧行为时启用
++    use_timeline = bool(open_candidates and timeline_entries)
+     out = {"identity": run_identity(cfg, fd),
+            "config": {k: v for k, v in cfg.items() if k != "doc"},
+            "window": {"start_utc": _iso(start_ms), "end_utc": _iso(end_ms),
+@@ -2160,22 +2285,45 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms:
+            "flags": {"open_candidates": bool(open_candidates),
+                      "drive_exits": bool(drive_exits),
+                      "legacy_4h_exit": bool(legacy_4h_exit),
++                     "timeline_entries": bool(timeline_entries),
++                     "entry_order": ("timeline" if use_timeline else "symbol_major"),
+                      "walk_days": int(walk_days)}}
+     try:
++        # ── 第一段：扫描。timeline 模式下**不开仓**，只收集候选 ────────────
++        # `scan_symbol` 内部唯一与仓位相关的调用是 `try_open`（受 open_candidates 控制）；
++        # 箱体、状态机、候选判定都不读仓位 ⇒ 关掉开仓后候选产出逐条相同。
++        scan_open = bool(open_candidates) and not use_timeline
+         for sym in symbols:
+             try:
+                 r = scan_symbol(sym, cfg, fd, st, start_ms=start_ms, end_ms=end_ms,
+                                 max_boxes=max_boxes, warmup_days=warmup_days,
+-                                open_candidates=open_candidates, now_ms=now_ms,
++                                open_candidates=scan_open, now_ms=now_ms,
+                                 schemes=schemes)
+                 out["per_symbol"].append(r)
+             except Exception as exc:                          # noqa: BLE001
+                 out["errors"].append({"symbol": sym, "stage": "scan", "error": repr(exc)})
++
++        # ── 第二段：统一时间轴回放（同刻先退出释放槽位，再入场）────────────
++        if use_timeline:
++            try:
++                tl_exits, tl_stats = _replay_timeline(
++                    fd, cfg=cfg, per_symbol=out["per_symbol"], schemes=schemes,
++                    store=st, legacy_4h_exit=legacy_4h_exit)
++                out["exits"] = tl_exits
++                out["timeline"] = tl_stats
++            except Exception as exc:                          # noqa: BLE001
++                out["errors"].append({"stage": "timeline_replay", "error": repr(exc)})
++
++        # ── 收尾：把仍开着的持仓推进到窗口末（两段式与旧行为共用）──────────
+         if drive_exits:
+             try:
+-                out["exits"] = drive_all_exits(
++                tail = drive_all_exits(
+                     fd, cfg=cfg, end_ms=int(end_ms) + int(walk_days) * DAY,
+                     schemes=schemes, legacy_4h_exit=legacy_4h_exit, store=st)
++                if use_timeline:
++                    out["exits"].extend(tail)
++                else:
++                    out["exits"] = tail
+             except Exception as exc:                          # noqa: BLE001
+                 out["errors"].append({"stage": "drive_exits", "error": repr(exc)})
+         for scheme in schemes:
