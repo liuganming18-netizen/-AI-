@@ -61,6 +61,24 @@ EXECUTION_VALIDITY_REASONS = frozenset({
     "notional_below_min",                    # 名义额 < minNotional
 })
 
+# [FIX-002] 标准化门禁与校验原因码（大写规范 + 小写兼容）
+REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
+REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
+REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
+REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
+
+FIX002_VALIDITY_REASONS = frozenset({
+    REJECT_MISSING_CONTRACT_SPEC,
+    "missing_contract_spec",
+    "missing_or_invalid_contract_limits",
+    REJECT_FALLBACK_TICK_BLOCKED,
+    "fallback_tick_blocked",
+    REJECT_EXEC_PRICE_OUT_OF_RANGE,
+    "exec_price_out_of_range",
+    REJECT_INVALID_QTY_PRECISION,
+    "invalid_qty_precision",
+})
+
 # ── 策略 / 风控取消（**不得**判无效）──
 #    用前缀匹配：`decide_entry` 的若干原因带括号实参（如
 #    `canceled_fell_back_into_box (open=100.0 < H=101.0)`），精确集合会漏。
@@ -98,7 +116,7 @@ UNREGISTERED_KNOWN_REASONS = frozenset({
 def classify_reject(reason: str) -> str:
     """把一条拒单原因归到三类之一。未登记 ⇒ `unregistered`（不判无效）。"""
     r = str(reason or "")
-    if r in EXECUTION_VALIDITY_REASONS:
+    if r in EXECUTION_VALIDITY_REASONS or r in FIX002_VALIDITY_REASONS:
         return REJECT_CLASS_EXECUTION
     for p in STRATEGY_CANCEL_PREFIXES:
         if r.startswith(p):
@@ -136,7 +154,9 @@ __all__ = [
     "STAGE_ENTRY_FILL", "STAGE_ENTRY_QTY", "STAGE_ENTRY_NOTIONAL",
     "STAGE_EXIT_GAP", "STAGE_EXIT_INTRABAR", "STAGE_EXIT_EOD",
     "EXECUTION_VALIDITY_REASONS", "STRATEGY_CANCEL_PREFIXES",
-    "UNREGISTERED_KNOWN_REASONS",
+    "UNREGISTERED_KNOWN_REASONS", "FIX002_VALIDITY_REASONS",
+    "REJECT_MISSING_CONTRACT_SPEC", "REJECT_FALLBACK_TICK_BLOCKED",
+    "REJECT_EXEC_PRICE_OUT_OF_RANGE", "REJECT_INVALID_QTY_PRECISION",
     "classify_reject", "is_execution_validity", "mark_if_execution_invalid",
     "invalid_reason_stages",
 ]

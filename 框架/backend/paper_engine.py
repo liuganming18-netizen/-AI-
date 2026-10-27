@@ -1179,8 +1179,9 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         # 彻底关闭“数量按3×ATR计算，实际止损又改成百分比”的口径分叉：
         # FT-LOW4H 使用同一份冻结配置与同一个实际初始止损距离 (stoploss_s) 完成数量计算及风险检查。
         limits = contract_limits(symbol)
-        if limits is None:
-            return _reject(arm, symbol, signal_uid, "missing_contract_spec")
+        if (limits is None or float(limits.get("price_step") or 0.0) <= 0
+                or float(limits.get("quantity_step") or 0.0) <= 0):
+            return _reject(arm, symbol, signal_uid, "MISSING_CONTRACT_SPEC")
         eq = equity(con, arm, con_mkt, params)
         if eq["equity"] is None:
             return _reject(arm, symbol, signal_uid, "equity_unavailable")
@@ -1786,8 +1787,8 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
         # 与回测共用成交精度算法，避免平仓价与净盈亏出现亚 tick 分叉。
         from 策略.WyckoffMaster.trading_core.fill import price_breakdown
         limits = contract_limits(pos["symbol"])
-        if not limits or not limits.get("price_step"):
-            return {"ok": False, "reason": "missing_contract_spec"}
+        if not limits or not limits.get("price_step") or float(limits.get("price_step") or 0.0) <= 0:
+            return {"ok": False, "reason": "MISSING_CONTRACT_SPEC"}
         fill = float(price_breakdown(raw_price=raw, is_buy=direction == "short",
                      price_step=limits["price_step"], slippage_rate=slip)["post_round_price"])
         if direction == "short":
@@ -2576,8 +2577,17 @@ def advance_position_trailing(arm: str, position_id: int, candle_4h: dict = None
                 "position_id": position_id
             }
 
-    limits = contract_limits(symbol) or {"price_step": 0.01}
-    step_val = float(limits.get("price_step") or 0.0)
+    # [FIX-002] 强门禁：严禁回退默认 0.01 tick，缺失合约规格必须显式拒绝中止
+    limits = contract_limits(symbol)
+    if not limits or not limits.get("price_step") or float(limits.get("price_step") or 0.0) <= 0:
+        return {
+            "ok": False,
+            "reason": "FALLBACK_TICK_BLOCKED",
+            "spec_status": "MISSING_CONTRACT_SPEC",
+            "detail": "missing_or_invalid_contract_spec_fallback_tick_blocked",
+            "position_id": position_id,
+        }
+    step_val = float(limits["price_step"])
 
     # 4h K 线数据
     ref_open_ms = int(candle_4h["open_time"])

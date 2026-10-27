@@ -119,12 +119,41 @@ def _limits_for(symbol: str) -> Optional[dict]:
     return PE.contract_limits(symbol)
 
 
+# ══════════════════════════ [FIX-002] 标准拒单原因码与门禁工具 ══════════════════════════
+
+REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
+REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
+REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
+REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
+
+
+def validate_execution_price_in_bar(fill_price: float, bar_low: float, bar_high: float,
+                                    tol: float = 0.001) -> tuple[bool, float, Optional[str]]:
+    """校验成交价格是否落在对应执行 K 线的 [low, high] 合理区间内（含相对容差 0.1%）。
+
+    返回: (is_valid, deviation, reject_code)
+    """
+    if fill_price is None or bar_low is None or bar_high is None:
+        return False, 0.0, REJECT_EXEC_PRICE_OUT_OF_RANGE
+    px = float(fill_price)
+    lo = float(bar_low)
+    hi = float(bar_high)
+    if px < lo * (1.0 - tol) or px > hi * (1.0 + tol):
+        span = hi - lo if hi > lo else (hi or 1.0)
+        dev = (px - hi) / span if px > hi else (px - lo) / span
+        return False, float(dev), REJECT_EXEC_PRICE_OUT_OF_RANGE
+    return True, 0.0, None
+
+
 # ══════════════════════════ ① 入场（唯一实现）══════════════════════════
 
 def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[float],
                equity: float, gross_open_notional: float, free_cash: float,
                portfolio_risk_open: float, caliber: dict,
-               direction: str = "long") -> dict:
+               direction: str = "long",
+               bar_low: Optional[float] = None,
+               bar_high: Optional[float] = None,
+               tol: float = 0.001) -> dict:
     """入场计划：价 / 止损 / 数量 / 名义额 / 手续费，**一次算完**。
 
     直接调用获批实现 `apply_order_rounding`。它内部顺序就是工单要求的顺序：
@@ -133,6 +162,7 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
         ③ 由**同一个** `stop_dist = entry_price − stop_price` 算风险数量
         ④ 参与率 / 单名 / 总敞口 / 预留现金各上限取最小 ⇒ 步进向下截断
         ⑤ 最小量、最小金额、单笔与组合风险复核 ⇒ 任一超限**整单拒绝**
+        ⑥ [FIX-002] 强门禁：成交价格与对应执行 K 线区间 [bar_low, bar_high] 核对
 
     所以「两套滑点各自完整执行」是**结构保证**的：换一个滑点值，止损、数量、
     名义额、手续费会一起变，不可能出现「价变了但数量没变」的分叉。
@@ -140,10 +170,11 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
     from strategies.wx_execution import apply_order_rounding
 
     limits = _limits_for(symbol)
-    if limits is None:
-        return {"status": "rejected", "reject": "missing_contract_spec",
+    if limits is None or float(limits.get("price_step") or 0.0) <= 0 or float(limits.get("quantity_step") or 0.0) <= 0:
+        return {"status": "rejected", "reject": REJECT_MISSING_CONTRACT_SPEC,
+                "code": REJECT_MISSING_CONTRACT_SPEC,
                 "symbol": symbol,
-                "说明": "该币没有合约规格 CSV 行 ⇒ 按获批规则拒单，不设默认步进"}
+                "说明": "该币缺少明确合约规格（price_step/quantity_step缺失或非正）⇒ 强门禁拒绝，严禁采用默认0.01或猜测值"}
     rr = apply_order_rounding(
         raw_open=float(raw_open),
         limits=limits,
@@ -165,10 +196,35 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
         direction=direction,
     )
     if rr.get("reject"):
-        return {"status": "rejected", "reject": str(rr["reject"]), "symbol": symbol,
+        rej_str = str(rr["reject"])
+        # 标准化映射
+        rej_code = rej_str
+        if rej_str in ("quantity_below_step", "below_min_orderable_qty", "missing_min_orderable_inputs"):
+            rej_code = REJECT_INVALID_QTY_PRECISION
+        elif rej_str in ("missing_or_invalid_contract_limits", "missing_contract_spec"):
+            rej_code = REJECT_MISSING_CONTRACT_SPEC
+        return {"status": "rejected", "reject": rej_code, "code": rej_code,
+                "raw_reject": rej_str, "symbol": symbol,
                 "detail": {k: v for k, v in rr.items() if k != "limits"},
                 "说明": "获批实现判定的拒单原因；拒单 ⇒ 无持仓、无盈亏，不得按全额计"}
     entry_price = float(rr["entry_price"])
+    qty = float(rr["qty"])
+    if qty <= 0.0 or not math.isfinite(qty):
+        return {"status": "rejected", "reject": REJECT_INVALID_QTY_PRECISION,
+                "code": REJECT_INVALID_QTY_PRECISION, "symbol": symbol,
+                "detail": {"qty": qty}, "说明": "下单数量非正或非有限数"}
+
+    # [FIX-002] 强门禁：成交价格落在对应执行 K 线区间 [low, high] 校验
+    if bar_low is not None and bar_high is not None:
+        valid_px, dev, rej_px_code = validate_execution_price_in_bar(
+            entry_price, bar_low, bar_high, tol=tol)
+        if not valid_px:
+            return {"status": "rejected", "reject": rej_px_code, "code": rej_px_code,
+                    "symbol": symbol,
+                    "detail": {"entry_price": entry_price, "bar_low": bar_low,
+                               "bar_high": bar_high, "deviation": dev},
+                    "说明": f"成交价格 {entry_price} 超出执行 K 线范围 [{bar_low}, {bar_high}]"}
+
     notional = float(rr["notional"])
     fee = notional * float(caliber["fee_each_side"])
     # 参与率是不是**真正把数量压下来的那个约束**：把参与率上限关掉再算一遍，
@@ -272,7 +328,8 @@ def build_stop_path(*, entry_ms: int, initial_stop: float, bars_4h: List[dict],
 
 def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
               stop_path: List[dict], initial_stop: float,
-              gap_model: str = "stop_price") -> dict:
+              gap_model: str = "stop_price",
+              tol: float = 0.001) -> dict:
     """逐 15m 判定退出，**跳空与盘中分开**，**初始止损与跟踪止损分开**。
 
     相位顺序（与共享引擎一致，不可换）：
@@ -301,9 +358,10 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
         while pi < len(path) and path[pi]["effective_ms"] <= ot:
             cur_stop = float(path[pi]["stop"])
             pi += 1
-        o, lo = _f(b.get("open")), _f(b.get("low"))
+        o, lo, hi = _f(b.get("open")), _f(b.get("low")), _f(b.get("high"))
         if o is None or lo is None:
             continue
+        bar_hi = hi if hi is not None else max(o, cur_stop)
         if o <= cur_stop:
             if gap_model == "bar_open":
                 fill = o
@@ -311,28 +369,37 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
                 fill = (o + cur_stop) / 2.0
             else:
                 fill = cur_stop
+            valid_px, dev, rej_px_code = validate_execution_price_in_bar(fill, lo, bar_hi, tol=tol)
             return {"hit": True, "kind": "gap",
                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
-                    "bar_open": o, "bar_low": lo,
+                    "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
                     "stop_used": cur_stop,
                     "stop_kind": ("init" if abs(cur_stop - initial_stop) < 1e-15 else "trail"),
                     "exit_fill": float(fill),
                     "gap_model": gap_model,
                     "gap_size": float(cur_stop - o),
+                    "price_valid": valid_px,
+                    "price_deviation": dev,
+                    "reject_code": rej_px_code,
                     "note": ("开盘已越过止损 ⇒ 跳空；成交价由跳空模型决定"
                              if gap_model != "stop_price"
                              else "开盘已越过止损，但按止损价成交（默认口径，偏乐观）")}
         if lo <= cur_stop:
+            valid_px, dev, rej_px_code = validate_execution_price_in_bar(cur_stop, lo, bar_hi, tol=tol)
             return {"hit": True, "kind": "intrabar",
                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
-                    "bar_open": o, "bar_low": lo,
+                    "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
                     "stop_used": cur_stop,
                     "stop_kind": ("init" if abs(cur_stop - initial_stop) < 1e-15 else "trail"),
                     "exit_fill": float(cur_stop),
                     "gap_model": gap_model,
                     "gap_size": 0.0,
+                    "price_valid": valid_px,
+                    "price_deviation": dev,
+                    "reject_code": rej_px_code,
                     "note": "盘中触及 ⇒ 按止损价成交"}
     return {"hit": False, "kind": "no_exit_in_window",
+            "price_valid": True, "reject_code": None,
             "note": "窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值"}
 
 

@@ -193,6 +193,15 @@ def _run_facts(run_dir: Path, need_window: bool = False) -> Dict[str, Any]:
         or bool(run_doc.get("research_period"))
     )
 
+    # [FIX-002] 账本隔离：将旧版回测、规格未证明或未获正式放行的运行统一标记为历史研究数据
+    is_hist_only = (
+        is_research
+        or run_doc.get("historical_research_only") is True
+        or summary.get("historical_research_only") is True
+        or sa.get("formal_pass_allowed") is False
+        or summary.get("formal_pass_allowed") is False
+    )
+
     return {
         "run_id": run_dir.name,
         "symbol": summary.get("symbol") or inputs.get("symbol") or run_doc.get("symbol"),
@@ -211,6 +220,7 @@ def _run_facts(run_dir: Path, need_window: bool = False) -> Dict[str, Any]:
         "has_trades": has_trades,
         "has_chart": (run_dir / "chart.json").is_file(),
         "research_period": is_research,
+        "historical_research_only": is_hist_only,
         "funnel": summary.get("funnel") if isinstance(summary.get("funnel"), dict) else None,
     }
 
@@ -284,6 +294,7 @@ def _manifest_facts(batch_id: str, bdir: Path, m: Dict[str, Any],
         "window_source": "batch_meta.json（由 runs.jsonl 的 start/end 现算）",
         "symbols_count": _i("symbols_count"),
         "formal_pass_allowed_any": None,
+        "historical_research_only": True,
         "funnel_sum": None,
         "derived_from": m.get("derived_from"),
         "is_default_root": False,
@@ -421,6 +432,7 @@ def _batch_facts(batch_id: str, full: bool = True) -> Dict[str, Any]:
         "registered": f["has_run_json"],
         # FT-REPLAY-01：研究期重建标记（不是本引擎成绩，不能算进当前策略）
         "research_period": f.get("research_period", False),
+        "historical_research_only": f.get("historical_research_only", False),
     } for f in facts]
 
     return {
@@ -445,6 +457,7 @@ def _batch_facts(batch_id: str, full: bool = True) -> Dict[str, Any]:
         "window_source": window_source,
         "symbols_count": len({f["symbol"] for f in facts if f["symbol"]}),
         "formal_pass_allowed_any": any(f["formal_pass_allowed"] is True for f in with_summary),
+        "historical_research_only": not any(f["formal_pass_allowed"] is True for f in with_summary),
         "funnel_sum": funnel_sum or None,
         "derived_from": "各 run 的 summary.json(summary_variant_a) + inputs.json(data_summary.time_range_1h) 现算",
         "is_default_root": batch_id == "runs",
