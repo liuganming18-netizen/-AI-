@@ -1,5 +1,9 @@
 # [AUDIT-003] 针对提交 d472c244 的独立只读复核与真实验收报告
 
+> [!NOTE] 最新进展更新（2026-10-27）
+> Work 针对本审计提出的 BLK-01 与 BLK-02 阻塞缺陷已于提交 `d26f33fb` 完成定点补修，主代理二次只读复核已通过代码级技术验收：
+> 详见二次复核报告：[AUDIT-003-RECHECK.md](./RECHECK.md) 以及 Work 补丁交付证据：[evidence/AUDIT-003-PATCH/README.md](../AUDIT-003-PATCH/README.md)。
+
 - **对比基线**：`e5e82640` $\rightarrow$ `d472c244`（分支 `wyckoff-v3.1-main`）
 - **审计角色**：主代理 / 独立只读复核方
 - **执行原则**：基于真实调用链与实际运行结果取证，零代码/配置/账本修改
