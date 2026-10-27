@@ -1,0 +1,373 @@
+{
+  "生成时刻": "2026-10-27T08:52:33Z",
+  "代码事实": {
+    "运行时主文件": {
+      "path": "框架/backend/unified_runtime.py",
+      "imports_event_state_machine": [
+        {
+          "line": 6,
+          "text": "2. 真实信号引擎驱动：复用可运行的确定性状态机（EventStateMachine），严禁直接调用开仓函数；"
+        },
+        {
+          "line": 53,
+          "text": "from 策略.WyckoffMaster.event_trend_v0_1.state_machine import EventStateMachine"
+        },
+        {
+          "line": 348,
+          "text": "\"\"\"复用确定性事件状态机（EventStateMachine），杜绝任何伪造信号。\"\"\""
+        },
+        {
+          "line": 374,
+          "text": "self.sm = EventStateMachine("
+        },
+        {
+          "line": 465,
+          "text": "self.sm = EventStateMachine.restore_state(st[\"sm_state\"], self.config)"
+        },
+        {
+          "line": 1695,
+          "text": "· 判据逐条取自 `EventTrendConfig` 与 `EventStateMachine.process_1h_bar`"
+        }
+      ],
+      "imports_paper_engine": [
+        {
+          "line": 41,
+          "text": "import paper_engine as PE"
+        }
+      ],
+      "身份常量": [
+        {
+          "line": 68,
+          "text": "EXCHANGE = \"binance\""
+        },
+        {
+          "line": 69,
+          "text": "MARKET = \"um\""
+        },
+        {
+          "line": 70,
+          "text": "TIMEFRAME = \"1h\""
+        },
+        {
+          "line": 71,
+          "text": "STRATEGY_KEY = \"wyckoff_v0_1\"      # 真实策略键（此前误用 arm 名占位）"
+        },
+        {
+          "line": 72,
+          "text": "ARM_ENTRY_ROLE = \"enterable_arm_entry\""
+        }
+      ]
+    },
+    "策略包": {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "幂等键构造": [
+        {
+          "line": 605,
+          "text": "cand_id = f\"cand_{event.event_id}_{close_time_ms}\""
+        }
+      ],
+      "候选生成处": [
+        {
+          "line": 612,
+          "text": "snapshot = CandidateSnapshot.create("
+        }
+      ],
+      "config_strategy_version": [
+        {
+          "line": 15,
+          "text": "strategy_version: str = \"v0.1.0\""
+        }
+      ]
+    },
+    "持久化": {
+      "path": "框架/backend/unified_runtime.py",
+      "写入函数": [
+        {
+          "line": 2114,
+          "text": "def persist_candidates(self, candidates: List[CandidateSnapshot], origin: str = \"live\", now_ms: Optional[int] = None) -> dict:"
+        }
+      ],
+      "冲突策略": [
+        {
+          "line": 2122,
+          "text": "现改为 `ON CONFLICT(signal_uid) DO UPDATE`：只补 payload/可执行态/更新时间，"
+        },
+        {
+          "line": 2146,
+          "text": "\"ON CONFLICT(signal_uid) DO UPDATE SET \""
+        }
+      ],
+      "调用点": [
+        {
+          "line": 2114,
+          "text": "def persist_candidates(self, candidates: List[CandidateSnapshot], origin: str = \"live\", now_ms: Optional[int] = None) -> dict:"
+        },
+        {
+          "line": 2529,
+          "text": "st = self.router.persist_candidates(rec, origin=\"recovered\", now_ms=now)"
+        },
+        {
+          "line": 2802,
+          "text": "self.router.persist_candidates(new_cands, origin=origin, now_ms=now)"
+        }
+      ]
+    },
+    "API路由": {
+      "path": "框架/backend/api/routes.py",
+      "信号路由": [
+        {
+          "line": 242,
+          "text": "Route(\"/api/v1/signals\", lambda c: (ns[\"_v1_signals_merged\"](c[\"params\"]), 200),"
+        },
+        {
+          "line": 244,
+          "text": "Route(\"/api/v1/signals/{signal_id}\","
+        },
+        {
+          "line": 247,
+          "text": "Route(\"/api/v1/signals/observe\","
+        }
+      ],
+      "观察路由": [
+        {
+          "line": 74,
+          "text": "\"\"\"`/api/v1/signals/observe`：处于观察状态的事件逐条明细（只读）。"
+        },
+        {
+          "line": 247,
+          "text": "Route(\"/api/v1/signals/observe\","
+        }
+      ]
+    },
+    "当前区白名单": {
+      "path": "框架/backend/live_api.py",
+      "来源白名单": [
+        {
+          "line": 336,
+          "text": "where.append(\"origin IN ('live','recovered')\")"
+        }
+      ],
+      "可执行态": [
+        {
+          "line": 208,
+          "text": "#   ② `executable_state='enterable'`        —— 排除仅展示 / 非本臂结构 / 阻断"
+        },
+        {
+          "line": 337,
+          "text": "where.append(\"executable_state='enterable'\")"
+        },
+        {
+          "line": 354,
+          "text": "where.append(\"executable_state='enterable'\")"
+        },
+        {
+          "line": 733,
+          "text": "\"AND executable_state='enterable' AND confirmed_at < ?\","
+        }
+      ],
+      "角色判据": [
+        {
+          "line": 222,
+          "text": "ARM_ENTRY_ROLE = \"enterable_arm_entry\""
+        },
+        {
+          "line": 343,
+          "text": "args.append(ARM_ENTRY_ROLE)"
+        },
+        {
+          "line": 425,
+          "text": "\"FROM live_signal\", (int(floor_ms), ARM_ENTRY_ROLE)).fetchone()"
+        }
+      ]
+    },
+    "旧链边界": {
+      "live_signal_engine_是否被unified_runtime引用": "无引用（0 处）",
+      "谁引用旧链": [
+        {
+          "line": 51,
+          "text": "import live_signal_engine as SE                            # noqa: E402"
+        }
+      ],
+      "LEGACY_PIPELINE_AVAILABLE": [
+        {
+          "line": 48,
+          "text": "# 本来就是 fail-soft（见下方 `LEGACY_PIPELINE_AVAILABLE`）。"
+        },
+        {
+          "line": 69,
+          "text": "LEGACY_PIPELINE_AVAILABLE = False"
+        },
+        {
+          "line": 73,
+          "text": "LEGACY_PIPELINE_AVAILABLE = True"
+        }
+      ],
+      "结论": "`live_signal_engine.py` 只被 `live_worker.py` 引用；`unified_runtime.py` 0 处引用 ⇒ 当前运行链不是旧唐奇安 3a/3b 链"
+    }
+  },
+  "运行事实": {
+    "runtime_pid": 91947,
+    "runtime_status": "running",
+    "identity_matched": true,
+    "pid_file_identity": "91947",
+    "proc_identity": {
+      "pid": 91947,
+      "alive": true,
+      "lsof_lines": 81,
+      "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+      "executable": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3.13",
+      "open_dbs": [],
+      "open_dbs_n": 0,
+      "argv_note": "命令行逐字不可得（ps 被沙箱禁止）；以 pid 文件 + 运行时自报 + lsof 可执行文件/cwd 三处对撞代替"
+    },
+    "signal_engine_status": "active",
+    "universe": 526,
+    "watermark_1h": 1793084400000,
+    "bootstrap_recovered_candidates": 0,
+    "bootstrap_history_candidates_discarded": 0,
+    "data_source": "merged_cold_hot",
+    "order_processing": {
+      "status": "ready",
+      "orders_routed_total": 0,
+      "orders_rejected_total": 0,
+      "orders_waiting_gate": 0,
+      "new_entry_gate": {
+        "allow_new_entries": true,
+        "gate_reason": "new_entry_allowed",
+        "reason": "user_ui_resumed",
+        "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+        "gate_scope": "server_side_new_entry_only",
+        "exits_fees_funding_health_unaffected": true,
+        "set_by": "user_ui_control",
+        "since_ms": 1792753532432
+      },
+      "current_pending_in_db": 0
+    },
+    "execution_daemon": {
+      "status": "running",
+      "open_positions": 0,
+      "pending_matched_total": 0,
+      "trailing_updates_total": 0,
+      "exits_triggered_total": 0,
+      "last_error": null
+    },
+    "observe_file": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks/paper_runtime_3a_observe.json",
+      "pid": 91947,
+      "arm": "3a",
+      "cycle_count": 17214,
+      "generated_at": "2026-10-27T08:47:57Z",
+      "counts": {
+        "BOX": 302,
+        "SWEEP": 11,
+        "RETEST": 21
+      },
+      "observing_total": 334,
+      "universe": 526,
+      "pid_equals_runtime": true
+    }
+  },
+  "接口事实": {
+    "signals_current": {
+      "total": 0,
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule_version": "FT-LOW4H",
+      "param_hash": "82dec362c182",
+      "param_hash_basis": "frozen_view_sha256",
+      "params_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+      "missing_reason": null,
+      "as_of": null
+    },
+    "signals_current_quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "scope": "current",
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000,
+      "effective_floor_ms": 1792748844240,
+      "paper_ledger_attached_arms": [
+        "3a",
+        "3b",
+        "3c",
+        "3d"
+      ],
+      "n_arm_rows": 0,
+      "n_cards": 0,
+      "excluded_n": 0,
+      "excluded_breakdown": {
+        "db_rows_total": 0,
+        "kept": 0,
+        "excluded": 0,
+        "by_reason": {
+          "not_current_origin": 0,
+          "not_enterable": 0,
+          "missing_time": 0,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 0,
+          "test_synthetic": 0
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "note": "当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 0 条（仍保留在库/审计通道）"
+    },
+    "signals_all_total": 0,
+    "registered_identity": {
+      "view_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+      "expected_view_sha256": "6d18d222d1991f99dd2ba0cdf80b35fbc57f4f482904c945f43d66ebb9df9501",
+      "view_sha_ok": false,
+      "registered_sha256": null,
+      "expected_registered_sha256": "194d8915f041bbf0b4df3de50b97c8c7775cc178a6c9db8de10db0b0fc4494d8",
+      "registered_ok": false,
+      "effective_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "expected_effective_sha256": "1e1737d1900d4645246da3ec0b601e12e5ff0ed5e0225b57b3d3559f65f7b3cc",
+      "effective_ok": false,
+      "identity_ok": false,
+      "problems": [
+        "生效视图 SHA 与固定接受值不一致（得到 82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53）",
+        "registered_configs canonical hash 漂移",
+        "18 配置生效身份 canonical hash 漂移"
+      ]
+    },
+    "registered_count": 0,
+    "gate_binding": {
+      "gates": {
+        "G01": "pending",
+        "G02": "pending",
+        "G03": "pending",
+        "G04": "pending",
+        "G05": "pending"
+      },
+      "all_pass": false,
+      "self_check": "no_ledger",
+      "reason": "运行绑定台账不存在：/Users/boos/Desktop/威科夫因子共振趋势/框架/最新唐奇安威科夫接通与收尾_2026-10-11/接线路整改3/运行绑定_G01_G05.json（视为 G01–G05 全 pending，不放行）"
+    },
+    "run_frozen": false,
+    "capital": {
+      "initial_equity_USDT": 5000,
+      "shared_across_exchanges": [
+        "binance",
+        "okx"
+      ],
+      "per_arm_independent_replay": true,
+      "note": "跨所共用一个 5000 USDT 虚拟研究账户；各研究臂独立回放同一本金，不叠加"
+    }
+  },
+  "判定": {
+    "checks": {
+      "运行时导入 EventStateMachine（代码）": true,
+      "运行时未引用旧链 live_signal_engine": true,
+      "幂等键由 candidate_id 构造（代码有定义）": true,
+      "写入用 ON CONFLICT(signal_uid) DO UPDATE（幂等，非 INSERT OR IGNORE）": true,
+      "运行进程 pid 与 pid 文件一致": true,
+      "观察明细写者 pid == 运行时 pid": true,
+      "接口身份 strategy_version == FT-LOW4H-EXP-V2.2": true,
+      "接口 param_hash == 生效视图 sha256 前 12 位": true,
+      "配置身份自检 identity_ok": false,
+      "G01–G05 全通过（放行门禁）": false,
+      "运行已冻结 run_frozen": false
+    },
+    "pass_n": 8,
+    "total_n": 11,
+    "结论": "路由与策略身份可确认：V3.1 入口 = unified_runtime + EventStateMachine，信号落点 = live_signal(signal_uid=candidate_id)，旧链未参与运行。但配置身份与门禁不成立：identity_ok=false、G01–G05 全 pending、run_frozen=false ⇒ 任何信号只能带研究/未批准标识，不得标成正式获批信号。"
+  }
+}

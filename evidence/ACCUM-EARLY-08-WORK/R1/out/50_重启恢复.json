@@ -1,0 +1,91 @@
+{
+  "生成时刻": "2026-10-27T09:32:05Z",
+  "重跑前": {
+    "行数": 289,
+    "身份哈希": "16c166fdd2d75d85cb1a93620504949b0ecc78407322bfa03ecd787ed7cfd750",
+    "first_seen_样本": {
+      "accum05_4a_ACTUSDT_1784116799999": 1793092488418,
+      "accum05_4a_ACTUSDT_1786813199999": 1793092488418,
+      "accum05_4a_API3USDT_1784728799999": 1793092488418
+    }
+  },
+  "重跑": {
+    "run_id": "antigravity_08_arm_b",
+    "run_status": "OK",
+    "rows_built": 289,
+    "stats": {
+      "target_db": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+      "rows_in": 289,
+      "apply": true,
+      "rows_before": 289,
+      "existing_research_rows": 289,
+      "would_new": 0,
+      "would_update": 289,
+      "new": 0,
+      "updated": 289,
+      "rows_after": 289,
+      "research_rows_after": 289,
+      "by_scheme": {
+        "ACCUM-RESEARCH-v0::4a": 105,
+        "ACCUM-RESEARCH-v0::4b": 87,
+        "ACCUM-RESEARCH-v0::4c": 97
+      },
+      "distinct_executable_state": [
+        "historical_not_executable"
+      ],
+      "current_area_rows": 0
+    },
+    "manifest_head": {
+      "manifest_version": "accum08-research-signal/v1",
+      "run_id": "antigravity_08_arm_b",
+      "approved": false,
+      "origin": "historical_research",
+      "executable_state": "historical_not_executable",
+      "rows_built": 289
+    },
+    "rc": 0,
+    "pid": "子进程（新解释器）"
+  },
+  "重跑后": {
+    "行数": 289,
+    "身份哈希": "16c166fdd2d75d85cb1a93620504949b0ecc78407322bfa03ecd787ed7cfd750",
+    "first_seen_样本": {
+      "accum05_4a_ACTUSDT_1784116799999": 1793092488418,
+      "accum05_4a_ACTUSDT_1786813199999": 1793092488418,
+      "accum05_4a_API3USDT_1784728799999": 1793092488418
+    }
+  },
+  "比对": {
+    "first_seen 被改写的条数": 0,
+    "updated_at 推进的条数": 289,
+    "updated_at 没推进的条数": 0,
+    "身份列逐条一致": true,
+    "行数变化": 0
+  },
+  "HTTP_重读": {
+    "status": 200,
+    "items_n": 289,
+    "has_more": false,
+    "uid集合一致": true
+  },
+  "判定": {
+    "checks": {
+      "新进程导入 rc=0": true,
+      "新进程未新增行（new=0）": true,
+      "新进程全部按更新处理（updated=289）": true,
+      "行数不变（289）": true,
+      "first_seen 一条都没被改写": true,
+      "身份列逐条逐位一致（含 payload）": true,
+      "updated_at 全部推进（证明真写了）": true,
+      "HTTP 重读仍是 289 条": true,
+      "HTTP 重读的 uid 集合与库内一致": true
+    },
+    "pass_n": 9,
+    "total_n": 9,
+    "结论": "新进程重放幂等：不新增、不改写首次出现时刻与身份，只推进 updated_at；HTTP 仍读得到 289 条。"
+  },
+  "未验证": [
+    "生产后端进程**未重启**（工单禁止中断健康服务）⇒ 「重启后 API 恢复」只在存储侧与新进程侧验证，进程级未验证",
+    "重启后守护器能否自行恢复扫描（route_pending_orders 依赖运行中的守护循环）未验证"
+  ]
+}

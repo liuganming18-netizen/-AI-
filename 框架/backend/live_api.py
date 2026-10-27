@@ -458,7 +458,7 @@ def live_signals(params) -> dict:
             payload = json.loads(d.get("payload_json") or "{}")
         except ValueError:
             payload = {}
-        items.append({
+        item = {
             "signal_id": d["signal_uid"],
             "exchange": d["exchange"], "market_id": d["symbol"], "symbol": d["symbol"],
             "status": st,
@@ -493,7 +493,32 @@ def live_signals(params) -> dict:
             "admission": d.get("admission"),
             # ── 事件角色（当前区判据之一）：`enterable_arm_entry` = 真实臂入场 ──
             "role": payload.get("role"),
-        })
+        }
+        # ── 09-WORK：研究信号的可追溯身份（**只给 historical_research 行加子对象**）──
+        # 为什么单开一个 `research` 子对象而不是平铺：平铺会在 live 行上多出十几个
+        # 永远为 null 的键，既有消费方要逐个防 null；子对象只出现在研究行上，
+        # 其它行的响应与改动前**逐字节等价**（既有字段一个没动）。
+        if d.get("origin") == "historical_research":
+            _ts = payload.get("timestamps") or {}
+            item["research"] = {
+                "run_id": payload.get("run_id"),
+                "scheme": payload.get("scheme"),
+                "approved": payload.get("approved"),
+                "config_kind": payload.get("config_kind"),
+                "config_sha256": payload.get("config_sha256"),
+                "engine_view_sha256": payload.get("engine_view_sha256"),
+                "code_hashes_n": len(payload.get("code_hashes") or {}),
+                "code_drift": payload.get("code_drift"),
+                "approval_blockers": payload.get("approval_blockers"),
+                "gaps": payload.get("gaps"),
+                "available_at_status": _ts.get("available_at_status"),
+                "available_at_reason": _ts.get("available_at_reason"),
+                "entry_bar_open_ms": _ts.get("entry_bar_open_ms"),
+                "data_version_note": payload.get("data_version_note"),
+                "source_file": payload.get("source_file"),
+                "source_file_sha256": payload.get("source_file_sha256"),
+            }
+        items.append(item)
     n_rows = len(items)
     n_live = sum(1 for i in items if i["origin"] == "live")
     note = (f"实时信号层（scope={scope}）：live={n_live}/{n_rows}；"

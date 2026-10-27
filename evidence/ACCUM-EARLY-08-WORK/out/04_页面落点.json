@@ -1,0 +1,136 @@
+{
+  "生成时刻": "2026-10-27T08:52:36Z",
+  "页面请求": {
+    "交易信号区": {
+      "file": "UI界面/web/src/api/useMarketData.ts",
+      "hits": [
+        {
+          "line": 702,
+          "text": "const env = await apiGet<Envelope<RawSignal>>('/signals?scope=current&limit=500', ctrl.signal);"
+        }
+      ],
+      "轮询": [
+        {
+          "line": 365,
+          "text": "const [pollMs, setPollMs] = useState(REFRESH_MS);"
+        },
+        {
+          "line": 740,
+          "text": "}, pollMs);"
+        },
+        {
+          "line": 747,
+          "text": "}, [pollMs]);"
+        }
+      ]
+    },
+    "观察区": {
+      "file": "UI界面/web/src/api/liveTrading.ts",
+      "hits": [
+        {
+          "line": 586,
+          "text": "* 明细走 `GET /signals/observe`（独立低频文件），原因见后端 `observe_summary`。"
+        },
+        {
+          "line": 865,
+          "text": "* 页面用 `useEndpoint('/signals/observe')` 直接拿原始信封时也走这里，"
+        },
+        {
+          "line": 905,
+          "text": "* `GET /signals/observe` 观察中事件明细（SIGNAL-OBSERVE-FIX-12）。"
+        },
+        {
+          "line": 917,
+          "text": "`/signals/observe?arm=${encodeURIComponent(arm)}`,"
+        }
+      ]
+    },
+    "故障分类器": {
+      "file": "UI界面/web/src/api/signalsState.ts",
+      "hits": [
+        {
+          "line": 14,
+          "text": "*     · `no_watermark`  —— 有效下限（`max(live_start, paper epoch)`）缺失 ⇒ 无法判定「当前」；"
+        },
+        {
+          "line": 15,
+          "text": "*     · `not_connected` —— 实时信号层不可用（模块导入失败 / 数据源未接通）；"
+        },
+        {
+          "line": 32,
+          "text": "| 'no_watermark'"
+        },
+        {
+          "line": 34,
+          "text": "| 'not_connected'"
+        },
+        {
+          "line": 36,
+          "text": "| 'error'"
+        },
+        {
+          "line": 60,
+          "text": "no_watermark: 'no_watermark',"
+        },
+        {
+          "line": 61,
+          "text": "not_connected: 'not_connected',"
+        },
+        {
+          "line": 62,
+          "text": "error: 'error',"
+        }
+      ]
+    }
+  },
+  "后端放行口径": {
+    "交易信号区": {
+      "file": "框架/backend/live_api.py",
+      "来源白名单": [
+        {
+          "line": 336,
+          "text": "where.append(\"origin IN ('live','recovered')\")"
+        }
+      ],
+      "可执行态": [
+        {
+          "line": 337,
+          "text": "where.append(\"executable_state='enterable'\")"
+        },
+        {
+          "line": 354,
+          "text": "where.append(\"executable_state='enterable'\")"
+        }
+      ],
+      "角色": [
+        {
+          "line": 222,
+          "text": "ARM_ENTRY_ROLE = \"enterable_arm_entry\""
+        }
+      ]
+    },
+    "观察区": {
+      "file": "框架/backend/unified_runtime.py",
+      "读取入口": [
+        {
+          "line": 3026,
+          "text": "def get_observe_events(arm: str = \"3a\", max_age_sec: float = 900.0) -> dict:"
+        }
+      ],
+      "文件落点": [
+        {
+          "line": 164,
+          "text": "def observe_file_path(arm: str) -> Path:"
+        }
+      ]
+    }
+  },
+  "结构性结论": {
+    "页面只请求 scope=current": true,
+    "当前区只放行 live/recovered": true,
+    "研究/回放信号能否出现在现有信号页面": false,
+    "研究/观察信号的现有可见落点": "观察区 /api/v1/signals/observe（页面已渲染 334 条观察事件）",
+    "结论": "现有信号页面（SignalListPanel，请求 `/signals?scope=current&limit=500`）**结构上只显示 origin∈{live,recovered} 的臂入场信号**。带 research / replay / historical_research 等研究标识的信号**不会**出现在该页面，只能在审计通道 `scope=all` 读到。这是设计上的隔离（防止研究信号冒充可交易信号），不是缺陷。",
+    "对本次接入的含义": "「研究信号在现有信号页面显示」这一层**不能按原样成立**：要么研究信号只落审计通道（页面不可见，需另开审计入口 = 改前端架构，本单禁止），要么把研究观察事件接到已有的观察区（页面已渲染，属同一只读通道）。两条路都需要主代理裁决，本单不擅自选择。"
+  }
+}

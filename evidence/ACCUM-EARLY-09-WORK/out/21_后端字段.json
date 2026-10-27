@@ -1,0 +1,277 @@
+{
+  "生成时间": "2026-10-27T10:18:31Z",
+  "服务": {
+    "ok": true,
+    "pid": 94881,
+    "port": 8899,
+    "elapsed_s": 0.46,
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3",
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/paper",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "ADAPTER_RESP_CACHE_TTL": "0（关闭大响应字节缓存，保证跨进程读回不是陈旧字节）",
+    "ready": {
+      "pid": 94881,
+      "port": 8899,
+      "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3",
+      "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/paper",
+      "adapter_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+      "live_api_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py"
+    },
+    "tail": [
+      "@@READY@@{\"pid\": 94881, \"port\": 8899, \"LIVE_DB\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3\", \"PAPER_LEDGER_DIR\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/paper\", \"adapter_file\": \"/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py\", \"live_api_file\": \"/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py\"}"
+    ],
+    "http": {
+      "ok": true,
+      "status": 200,
+      "elapsed_s": 1.28
+    }
+  },
+  "查询": {
+    "path": "/api/v1/signals?scope=all&origin=historical_research&limit=1000",
+    "隔离": {
+      "status": 200,
+      "bytes": 751951,
+      "elapsed_s": 0.03,
+      "has_more": false,
+      "total": 289,
+      "items": 289
+    },
+    "生产8787": {
+      "status": 200,
+      "has_more": false,
+      "total": 289,
+      "items": 289
+    }
+  },
+  "样例条目": {
+    "signal_id": "accum05_4c_MAVUSDT_1793005199999",
+    "exchange": "binance",
+    "market_id": "MAVUSDT",
+    "symbol": "MAVUSDT",
+    "status": "undecided",
+    "direction": "long",
+    "current_direction": null,
+    "actionable": false,
+    "actionable_reason": "approved=false｜研究/未批准配置（反重力 fixture 配置，G01–G05 全 pending）⇒ 只展示、不可执行、不进入当前交易区",
+    "strength": null,
+    "created_at": "2026-10-27T09:14:48Z",
+    "confirmed_at": "2026-10-26T08:59:59Z",
+    "event_time": "2026-10-26T08:59:59Z",
+    "available_at": null,
+    "expires_at": null,
+    "timeframe": "1h",
+    "strategy_key": "ACCUM-RESEARCH-v0::4c",
+    "strategy_version": "accum-early-05::v1::4c",
+    "config_hash": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+    "data_version": null,
+    "source_id": null,
+    "source_masks": [
+      "accum_early_entry"
+    ],
+    "execution_label": null,
+    "origin": "historical_research",
+    "arm": "4c",
+    "display_state": "displayable",
+    "executable_state": "historical_not_executable",
+    "structural_kind": "accum_early_entry",
+    "bar_open_time": 1793001600000,
+    "bar_close_time": 1793005199999,
+    "detection_low": null,
+    "detection_atr": null,
+    "admission": null,
+    "role": "research_only",
+    "research": {
+      "run_id": "antigravity_08_arm_b",
+      "scheme": "4c",
+      "approved": false,
+      "config_kind": "fixture",
+      "config_sha256": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+      "engine_view_sha256": "82dec362c182",
+      "code_hashes_n": 8,
+      "code_drift": [],
+      "approval_blockers": [
+        "G01–G05 全 pending（run_frozen=false）",
+        "config approved=false / kind=fixture"
+      ],
+      "gaps": [
+        "available_at 无证据：反重力产物未记录 OI/交易所发布延迟 ⇒ 标 unproven，不用 confirmed_at 代替",
+        "data_version 未提供：反重力只给窗口，未给数据内容哈希 ⇒ 落 null，不编造",
+        "signal_uid 不含 run_id：两臂候选 uid 完全相同 ⇒ 只导入一个臂（arm_b, run_status=OK）",
+        "config 为 fixture（approved=false, kind=fixture）：只能作研究，不得当批准配置",
+        "G01–G05 全 pending：正式回测门禁未过"
+      ],
+      "available_at_status": "unproven",
+      "available_at_reason": "反重力产物未提供 OI/交易所发布延迟证据；不得用 confirmed_at 代替可得时刻",
+      "entry_bar_open_ms": 1793006100000,
+      "data_version_note": "反重力未提供数据内容哈希；仅给窗口 2026-06-27T08:00:00Z→2026-10-26T09:00:00Z",
+      "source_file": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-ANTIGRAVITY/runs/antigravity_08_arm_b/raw.json",
+      "source_file_sha256": "6df33544bae3eb9cca3ee21080d5cb2368cee1d8b6133d8212994e5cec419cca"
+    }
+  },
+  "库内样例": {
+    "accum05_4a_ACTUSDT_1784116799999": {
+      "signal_uid": "accum05_4a_ACTUSDT_1784116799999",
+      "source": "antigravity_08_backtest",
+      "origin": "historical_research",
+      "exchange": "binance",
+      "market": "um",
+      "symbol": "ACTUSDT",
+      "timeframe": "1h",
+      "strategy_key": "ACCUM-RESEARCH-v0::4a",
+      "strategy_version": "accum-early-05::v1::4a",
+      "config_hash": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+      "data_version": null,
+      "structural_kind": "accum_early_entry",
+      "direction": "long",
+      "event_time": 1784116799999,
+      "confirmed_at": 1784116799999,
+      "available_at": null,
+      "bar_open_time": 1784113200000,
+      "bar_close_time": 1784116799999,
+      "detection_low": null,
+      "detection_atr": null,
+      "display_state": "displayable",
+      "executable_state": "historical_not_executable",
+      "executable_reason": "approved=false｜研究/未批准配置（反重力 fixture 配置，G01–G05 全 pending）⇒ 只展示、不可执行、不进入当前交易区",
+      "admission": null,
+      "rank": null,
+      "daily_list_version": null,
+      "payload_json": "{\"manifest_version\": \"accum08-research-signal/v1\", \"uid\": \"accum05_4a_ACTUSDT_1784116799999\", \"run_id\": \"antigravity_08_arm_b\", \"scheme\": \"4a\", \"strategy_id\": \"ACCUM-RESEARCH-v0::4a\", \"rule_version\": \"accum-early-05::v1::4a\", \"strategy_label\": \"甲\", \"entry_version\": \"accum_early_05b_v1\", \"exit_rules\": \"accum-exit-05/v1\", \"config_sha256\": \"0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755\", \"config_path\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/AUDIT-003-PATCH/config/fixture_rules_06w2_gap_bar_open.json\", \"config_kind\": \"fixture\", \"config_approved\": false, \"config_approval_ref\": \"06-03 时序整改测试配置：由 ACCUM-EARLY-05-B/config/fixture_rules_05.json 复制，仅改本句说明，规则/阈值/倍率一字未改（见 01 单 out/02 的逐项对撞）；仍是未经用户批准的工程自测配置\", \"engine_view_sha256\": \"82dec362c182\", \"engine_strategy_version\": \"FT-LOW4H-EXP-V2.2\", \"code_hashes\": {\"框架/backend/accum_early_entry.py\": \"8dd8036ed16354a1c94e27fcea94f4bdb9aa4425572dbf7f995c0522fe1a886e\", \"框架/backend/replay_calc.py\": \"5df25a8496592d86c851c75e3aea9cde31807b1ca22020e6712c579e59550a6f\", \"框架/backend/paper_engine.py\": \"01c1572a1187e434d76933b70d526b2f13d822b947de7ddc9f4aaf7991821066\", \"框架/backend/live_store.py\": \"02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6\", \"框架/backend/research_15m.py\": \"0c00ab0e11a72396be5c70521983b250f8e6ee26158a1bcfb0e1d5b673dd815f\", \"框架/backend/accum_research.py\": \"5e464de3ffe4b0ca2e88006a6acef0c9457099b31bb9d684aef38857462857d8\", \"框架/backend/observe_store.py\": \"280210b32e906f4119682fb669f4721242e99a7cb50a12b25134a92c25573011\", \"框架/backend/pool_scope.py\": \"f281b8c7397b1bf58eb84ff2774b1ac4e38eadca8f7a06360a54de38e2e504c5\"}, \"code_drift\": [], \"approved\": false, \"approval_blockers\": [\"G01–G05 全 pending（run_frozen=false）\", \"config approved=false / kind=fixture\"], \"source\": \"antigravity_08_backtest\", \"origin\": \"historical_research\", \"origin_semantics\": \"研究导入：只展示、恒不可执行、不进入当前交易区\", \"role\": \"research_only\", \"arm\": \"4a\", \"executable_state\": \"historical_not_executable\", \"timestamps\": {\"event_time_ms\": 1784116799999, \"confirmed_at_ms\": 1784116799999, \"available_at_ms\": null, \"bar_open_time_ms\": 1784113200000, \"bar_close_time_ms\": 1784116799999, \"available_at_status\": \"unproven\", \"available_at_reason\": \"反重力产物未提供 OI/交易所发布延迟证据；不得用 confirmed_at 代替可得时刻\", \"bar_open_time_meaning\": \"1h 确认 bar 开盘（列语义与既有链路一致）\", \"bar_close_time_meaning\": \"1h 确认 bar 收盘（事件确认时刻）\", \"entry_bar_open_ms\": 1784117700000, \"entry_bar_open_meaning\": \"15m 入场 bar 开盘（回测撮合最早可执行时点，非信号 bar 开盘）\"}, \"data_version\": null, \"data_version_note\": \"反重力未提供数据内容哈希；仅给窗口 2026-06-27T08:00:00Z→2026-10-26T09:00:00Z\", \"window\": {\"start_utc\": \"2026-06-27T08:00:00Z\", \"end_utc\": \"2026-10-26T09:00:00Z\", \"start_ms\": 1782547200000, \"end_ms\": 1793005200000}, \"pool_n_symbols\": 40, \"flags\": {\"open_candidates\": true, \"drive_exits\": true, \"legacy_4h_exit\": false, \"timeline_entries\": true, \"entry_order\": \"timeline\", \"walk_days\": 30}, \"gaps\": [\"available_at 无证据：反重力产物未记录 OI/交易所发布延迟 ⇒ 标 unproven，不用 confirmed_at 代替\", \"data_version 未提供：反重力只给窗口，未给数据内容哈希 ⇒ 落 null，不编造\", \"signal_uid 不含 run_id：两臂候选 uid 完全相同 ⇒ 只导入一个臂（arm_b, run_status=OK）\", \"config 为 fixture（approved=false, kind=fixture）：只能作研究，不得当批准配置\", \"G01–G05 全 pending：正式回测门禁未过\"], \"raw_candidate\": {\"scheme\": \"4a\", \"signal_uid\": \"accum05_4a_ACTUSDT_1784116799999\", \"confirm_close_ms\": 1784116799999, \"entry_bar_open_ms\": 1784117700000, \"resistance\": 0.00858, \"entry_ref_price\": 0.00866, \"open_result\": {\"ok\": true, \"reason\": null, \"called_paper_engine\": true, \"paper_reason\": \"filled\", \"paper_detail\": {}}}, \"source_file\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-ANTIGRAVITY/runs/antigravity_08_arm_b/raw.json\", \"source_file_sha256\": \"6df33544bae3eb9cca3ee21080d5cb2368cee1d8b6133d8212994e5cec419cca\"}",
+      "first_seen_at": 1793092488418,
+      "updated_at": 1793093525078
+    }
+  },
+  "等价性比对": {
+    "比对条数": 289,
+    "差异条数": 0,
+    "差异样例": null,
+    "口径": "隔离条目去掉 research 键后与生产 8787 同 uid 条目 sort_keys 序列化逐字节比"
+  },
+  "当前区": {
+    "items": 0,
+    "has_more": false,
+    "missing_reason": null,
+    "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "scope": "current",
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000,
+      "effective_floor_ms": 1792748844240,
+      "paper_ledger_attached_arms": [
+        "3a",
+        "3b",
+        "3c",
+        "3d"
+      ],
+      "n_arm_rows": 0,
+      "n_cards": 0,
+      "excluded_n": 289,
+      "excluded_breakdown": {
+        "db_rows_total": 289,
+        "kept": 0,
+        "excluded": 289,
+        "by_reason": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "note": "当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 289 条（仍保留在库/审计通道）"
+    }
+  },
+  "停服务": {
+    "stopped": true,
+    "returncode": 0,
+    "pid": 94881,
+    "probe": {
+      "signal": 15,
+      "probe": {
+        "连接过的库": {
+          "file:///Users/boos/Desktop/%E5%A8%81%E7%A7%91%E5%A4%AB%E5%9B%A0%E5%AD%90%E5%85%B1%E6%8C%AF%E8%B6%8B%E5%8A%BF/%E6%95%B0%E6%8D%AE/%E5%B8%82%E5%9C%BA%E6%95%B0%E6%8D%AE/db/market_v2.sqlite3?mode=ro": 1,
+          "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3": 2,
+          "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3?mode=ro": 16
+        },
+        "语句总数（含读）": 68,
+        "写语句总数": 0,
+        "写语句按库": {},
+        "写语句分类（前4词）": {},
+        "非幂等建表写语句数": 0,
+        "非幂等建表写语句样本": [],
+        "写语句是否全为幂等建表": false,
+        "写语句样本": [],
+        "写语句样本是否被截断": false,
+        "ATTACH/DETACH 次数": 4,
+        "判定口径": "本进程内通过 sqlite3.connect 打开的连接全部挂了 trace；写语句数为 0 ⇒ 本进程对该库未发过任何写语句。总数/按库/分类/非幂等数均为独立计数（不封顶），样本列表只保留前 200 条。`CREATE … IF NOT EXISTS` 属幂等建表 DDL，与 INSERT/UPDATE/DELETE 业务写分开计。"
+      }
+    },
+    "tail": [
+      "@@READY@@{\"pid\": 94881, \"port\": 8899, \"LIVE_DB\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3\", \"PAPER_LEDGER_DIR\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/paper\", \"adapter_file\": \"/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py\", \"live_api_file\": \"/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py\"}",
+      "@@PROBE@@{\"signal\": 15, \"probe\": {\"连接过的库\": {\"file:///Users/boos/Desktop/%E5%A8%81%E7%A7%91%E5%A4%AB%E5%9B%A0%E5%AD%90%E5%85%B1%E6%8C%AF%E8%B6%8B%E5%8A%BF/%E6%95%B0%E6%8D%AE/%E5%B8%82%E5%9C%BA%E6%95%B0%E6%8D%AE/db/market_v2.sqlite3?mode=ro\": 1, \"/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3\": 2, \"file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/live/live_signals.sqlite3?mode=ro\": 16}, \"语句总数（含读）\": 68, \"写语句总数\": 0, \"写语句按库\": {}, \"写语句分类（前4词）\": {}, \"非幂等建表写语句数\": 0, \"非幂等建表写语句样本\": [], \"写语句是否全为幂等建表\": false, \"写语句样本\": [], \"写语句样本是否被截断\": false, \"ATTACH/DETACH 次数\": 4, \"判定口径\": \"本进程内通过 sqlite3.connect 打开的连接全部挂了 trace；写语句数为 0 ⇒ 本进程对该库未发过任何写语句。总数/按库/分类/非幂等数均为独立计数（不封顶），样本列表只保留前 200 条。`CREATE … IF NOT EXISTS` 属幂等建表 DDL，与 INSERT/UPDATE/DELETE 业务写分开计。\"}}"
+    ]
+  },
+  "判定": {
+    "checks": {
+      "隔离服务已就绪": true,
+      "隔离服务 LIVE_DB 指向 isolated/": true,
+      "隔离服务账本指向 isolated/": true,
+      "隔离服务用的是生产同一份 adapter.py": true,
+      "隔离服务端口 = 8899": true,
+      "端口占用者 = 本脚本起的 pid": true,
+      "隔离服务 HTTP 200": true,
+      "隔离侧研究条目数 = 289": true,
+      "隔离侧 has_more = false（分页已取尽）": true,
+      "signal_id 无重复": true,
+      "全部 origin=historical_research": true,
+      "全部 executable_state=historical_not_executable": true,
+      "全部 approved=false": true,
+      "全部 actionable=false（不可执行）": true,
+      "全部 available_at 为 null（可得时刻未证）": true,
+      "全部带 research 子对象": true,
+      "research 字段齐全（16 键）": true,
+      "research.run_id 全部非空": true,
+      "research.scheme 全部非空": true,
+      "research.config_sha256 全部非空": true,
+      "research.engine_view_sha256 全部非空": true,
+      "research.available_at_status 全部有值": true,
+      "research.available_at_reason 全部有值": true,
+      "research.entry_bar_open_ms 全部非空": true,
+      "research.code_drift 有值（非 None）": true,
+      "条目 confirmed_at 全部非空": true,
+      "条目 event_time 全部非空": true,
+      "API uid 集合 == 库内 uid 集合": true,
+      "API research 身份字段 == 库内 payload（逐条 289）": true,
+      "生产 8787 也能取到同批研究条目": true,
+      "生产条目键数 34（改动前结构）": true,
+      "隔离条目键数 35（= 34 + research）": true,
+      "摘掉 research 后与生产逐字节等价（289/289）": true,
+      "当前区（scope=current）不含研究行": true,
+      "当前区 has_more=false": true,
+      "当前区条目数 0（生产库内无 live/recovered 行）": true,
+      "当前区给出口径说明（missing_reason/quality 非空）": true,
+      "limit=50 时 has_more=true": true,
+      "limit=50 时返回 50 条": true,
+      "limit=50 时 total 不等于库内总数（total 只按本页/合并口径）": true,
+      "limit=1000 时 has_more=false 且条数=289": true,
+      "两次取数 uid 集合一致": true,
+      "隔离服务退出码 0": true,
+      "探针报告已取到": true,
+      "对生产信号库写语句 = 0": true,
+      "对生产账本目录写语句 = 0": true,
+      "对生产行情库写语句 = 0": true,
+      "服务确实读过隔离信号库（连接数 > 0）": true,
+      "隔离信号库连接为只读 URI（mode=ro）": true,
+      "进程内写语句总数 = 0（对任何库都没写）": true,
+      "行情库以只读方式打开（无写语句）": true,
+      "账本 ATTACH 4 次（四臂，非写操作）": true
+    },
+    "pass_n": 52,
+    "total_n": 52,
+    "fail": [],
+    "结论": "后端字段验收通过：研究身份可逐条追溯、live 行响应零改动"
+  }
+}

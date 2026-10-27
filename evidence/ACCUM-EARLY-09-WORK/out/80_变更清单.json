@@ -1,0 +1,267 @@
+{
+  "生成时间": "2026-10-27T10:22:54Z",
+  "触及文件": {
+    "后端_API字段映射": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py",
+      "开工前": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py",
+        "exists": true,
+        "size": 113929,
+        "mtime_utc": "2026-10-25T10:12:12Z",
+        "sha256": "312ecf9cfdd4329b7ad91493e9f2d5bc5b3d709ed91521602d67673cde3d75ed"
+      },
+      "现在": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py",
+        "exists": true,
+        "size": 115527,
+        "mtime_utc": "2026-10-27T09:52:22Z",
+        "sha256": "7175dae612579ddfcb4d666cda2da946f11e4444a569216c65db57e812a4a0f2"
+      },
+      "有变化": true,
+      "变化类型": "修改"
+    },
+    "前端_研究区组件(新建)": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/ResearchSignalSection.tsx",
+      "开工前": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/ResearchSignalSection.tsx",
+        "exists": false
+      },
+      "现在": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/ResearchSignalSection.tsx",
+        "exists": true,
+        "size": 12229,
+        "mtime_utc": "2026-10-27T10:11:35Z",
+        "sha256": "8026a91e5092571dc336fbbc9b675353cd1cf5ed502057adbd269d51bdee0280"
+      },
+      "有变化": true,
+      "变化类型": "新建"
+    },
+    "前端_信号面板接线": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/SignalListPanel.tsx",
+      "开工前": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/SignalListPanel.tsx",
+        "exists": true,
+        "size": 48281,
+        "mtime_utc": "2026-10-25T16:03:26Z",
+        "sha256": "0a6b1330ac1582e88246519129cf80191ffaa273fd1ac680132fb413b73bec82"
+      },
+      "现在": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/SignalListPanel.tsx",
+        "exists": true,
+        "size": 48767,
+        "mtime_utc": "2026-10-27T09:53:24Z",
+        "sha256": "dd2433d9f353fcd950997169625981c22d9bd671376936f18772553949a5a583"
+      },
+      "有变化": true,
+      "变化类型": "修改"
+    }
+  },
+  "改动定位": {
+    "后端_live_api.py_09WORK块": [
+      {
+        "line": 497,
+        "text": "        # ── 09-WORK：研究信号的可追溯身份（**只给 historical_research 行加子对象**）──"
+      }
+    ],
+    "前端_SignalListPanel_引用": [
+      {
+        "line": 17,
+        "text": "// 09-WORK：历史研究信号只读折叠区（与当前交易区物理分离，无任何执行入口）\nimport ResearchSignalSection from './ResearchSignalSection';\nimport {"
+      },
+      {
+        "line": 778,
+        "text": "            研究记录只可能出现在 `research-signal-row` 上。 */}\n        <ResearchSignalSection />\n      </div>"
+      }
+    ],
+    "前端_SignalListPanel_研究区说明": [
+      {
+        "line": 777,
+        "text": "        </div>\n        {/* 历史研究信号（09-WORK）：**放在当前区列表容器之外**的只读折叠区。\n            这样当前区的 `signal-row` 与 `currentSignals.length` 完全不受研究行影响，\n            研究记录只可能出现在 `research-signal-row` 上。 */}\n        <ResearchSignalSection />\n      </div>\n"
+      }
+    ],
+    "前端_新组件": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src/components/ResearchSignalSection.tsx",
+      "行数": 267,
+      "是否只有 GET": true,
+      "是否有执行按钮": false,
+      "testid 前缀": [
+        "research-identity-missing",
+        "research-signal-row",
+        "research-signals",
+        "research-signals-error",
+        "research-signals-meta"
+      ],
+      "出现 apiPost 的位置": "注释里提到（不算调用）"
+    }
+  },
+  "写探针正反例": {
+    "write": {
+      "mode": "write",
+      "returncode": 0,
+      "stderr": "",
+      "probe": {
+        "mode": "write",
+        "probe": {
+          "连接过的库": {
+            "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3": 1
+          },
+          "语句总数（含读）": 6,
+          "写语句总数": 4,
+          "写语句按库": {
+            "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3": 4
+          },
+          "写语句分类（前4词）": {
+            "CREATE TABLE T(ID INTEGER": 1,
+            "INSERT INTO T(V) VALUES('A')": 1,
+            "INSERT INTO T(V) VALUES('B')": 1,
+            "UPDATE T SET V='C'": 1
+          },
+          "非幂等建表写语句数": 4,
+          "非幂等建表写语句样本": [
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "CREATE TABLE t(id INTEGER PRIMARY KEY, v TEXT)"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "INSERT INTO t(v) VALUES('a')"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "INSERT INTO t(v) VALUES('b')"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "UPDATE t SET v='c' WHERE id=1"
+            }
+          ],
+          "写语句是否全为幂等建表": false,
+          "写语句样本": [
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "CREATE TABLE t(id INTEGER PRIMARY KEY, v TEXT)"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "INSERT INTO t(v) VALUES('a')"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "INSERT INTO t(v) VALUES('b')"
+            },
+            {
+              "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3",
+              "sql": "UPDATE t SET v='c' WHERE id=1"
+            }
+          ],
+          "写语句样本是否被截断": false,
+          "ATTACH/DETACH 次数": 0,
+          "判定口径": "本进程内通过 sqlite3.connect 打开的连接全部挂了 trace；写语句数为 0 ⇒ 本进程对该库未发过任何写语句。总数/按库/分类/非幂等数均为独立计数（不封顶），样本列表只保留前 200 条。`CREATE … IF NOT EXISTS` 属幂等建表 DDL，与 INSERT/UPDATE/DELETE 业务写分开计。"
+        }
+      }
+    },
+    "read": {
+      "mode": "read",
+      "returncode": 0,
+      "stderr": "",
+      "read": {
+        "rows": 2
+      },
+      "probe": {
+        "mode": "read",
+        "probe": {
+          "连接过的库": {
+            "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/isolated/probe_ctl/control.sqlite3?mode=ro": 1
+          },
+          "语句总数（含读）": 2,
+          "写语句总数": 0,
+          "写语句按库": {},
+          "写语句分类（前4词）": {},
+          "非幂等建表写语句数": 0,
+          "非幂等建表写语句样本": [],
+          "写语句是否全为幂等建表": false,
+          "写语句样本": [],
+          "写语句样本是否被截断": false,
+          "ATTACH/DETACH 次数": 0,
+          "判定口径": "本进程内通过 sqlite3.connect 打开的连接全部挂了 trace；写语句数为 0 ⇒ 本进程对该库未发过任何写语句。总数/按库/分类/非幂等数均为独立计数（不封顶），样本列表只保留前 200 条。`CREATE … IF NOT EXISTS` 属幂等建表 DDL，与 INSERT/UPDATE/DELETE 业务写分开计。"
+        }
+      }
+    }
+  },
+  "调用路径图": {
+    "链路A_研究信号到页面": [
+      "evidence/ACCUM-EARLY-08-ANTIGRAVITY/runs/antigravity_08_arm_b/raw.json（289 候选）",
+      "→ 框架/backend/research_signal_import.py::load_run/build_rows/import_rows（写 live_signal，origin=historical_research）",
+      "→ 框架/backend/live/live_signals.sqlite3（live_signal 表，289 行）",
+      "→ 框架/backend/live_api.py::live_signals（scope=all&origin=historical_research）〔09-WORK 新增：仅对研究行附 research 子对象〕",
+      "→ 框架/backend/adapter.py::_v1_signals_merged → route_v1('/api/v1/signals')",
+      "→ UI界面/web/src/api/client.ts::apiGet",
+      "→ UI界面/web/src/components/ResearchSignalSection.tsx（折叠区，只读）",
+      "→ UI界面/web/src/components/SignalListPanel.tsx（挂在列表容器之外）"
+    ],
+    "链路B_研究信号到订单（只读追踪，本单未改）": [
+      "框架/backend/unified_runtime.py::SignalPersistenceAndRouter.route_pending_orders（生产调用方只传 origin=None 或 'replay'）",
+      "→ _scan_actionable（6 条谓词：executable_state / exchange+market+timeframe / role / arm / confirmed_at+available_at / origin）",
+      "→ 框架/backend/paper_engine.py::open_position（配置契约→闸门→行情→成交时钟）",
+      "→ 隔离账本 paper_pending / paper_order / paper_position"
+    ],
+    "当前实际状态": "生产库 289 行全是 historical_research，executable_state=historical_not_executable、role=research_only、available_at=NULL、payload.arm∈{4a,4b,4c} ≠ 3a ⇒ 链路B 的 4 条谓词各自独立即可挡住（见 60 单因素矩阵）。"
+  },
+  "生产页面现状": {
+    "url": "http://127.0.0.1:3000",
+    "screenshot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-09-WORK/out/80_生产页面_现状.png",
+    "研究区存在": true,
+    "展开后行数": 289,
+    "当前区行数": 0,
+    "研究行混入当前区": 0,
+    "身份字段缺失提示": true,
+    "后端是否已给 research 子对象": false,
+    "首条研究行文本": "MAVUSDT 历史研究 research_only historical_not_executable accum05_4c_MAVUSDT_1793005199999 来源 historical_research 角色 research_only 运行 未提供 方案 4c 策略 ACCUM-RESEARCH-v0::4c 规则版本 accum-early-05::v1::4c 配置哈希 0b24353d4f72b4… 配置类型 未提供 引擎视图 — 批准 未提供 事件 2026-10-26 08:59:59 UTC 确认 2026-10-26 08:59:59 UTC 可得 空（未提供） ",
+    "console_errors": []
+  },
+  "最小补丁方案": {
+    "结论": "现状**已经**挡得住：五层里任意一层单独有效即可让研究行不被扫描（60 单因素矩阵 14 格）。所以本单**不建议**为了「防研究行开仓」去改执行路径 —— 那是无证据的改动。",
+    "为什么仍建议补一处（可选，需裁决）": "现状的防护是「四个字段碰巧都不满足」的**隐式**防护：只要有人把 executable_state/role/arm/available_at 中任一改错，或未来导入器把研究行写成可执行态，防护立刻消失，且没有任何测试会报警。把它变成**显式拒绝**，才能让「研究行永不可交易」成为可断言的性质。",
+    "补丁P-01（推荐，最小）": {
+      "文件": "框架/backend/unified_runtime.py",
+      "函数": "SignalPersistenceAndRouter._scan_actionable",
+      "改动": "在 where 列表增加一条 `origin <> 'historical_research'`（或在 SQL 前对`origin` 做白名单 `origin IN ('live','recovered','replay')`），位置在现有 6 条谓词之后，不改任何现有条件。",
+      "行为影响": "研究行从「被 4 条谓词分别挡住」变成「被来源显式拒绝」；对 live/recovered/replay 行零影响（它们的 origin 不在被排除集合里）。",
+      "回归证据要求": "重跑 60 单因素矩阵：L/N 两格应从「被扫描到」变成「不被扫描到」；同时补一格 `origin='live' 的合法信号` 仍应被扫描到（防误杀）。",
+      "风险": "若未来有别的模块用 `historical_research` 走回放路由，会被这条一并挡住 —— 目前全库检索无此调用方（只有导入器写入、页面读取）。"
+    },
+    "补丁P-02（更硬，需产品裁决）": {
+      "文件": "框架/backend/paper_engine.py",
+      "函数": "open_position",
+      "改动": "入口处读 `signal_payload`（该参数已存在）里的 `approved`；`approved is False` ⇒ 直接 `_reject(..., 'research_not_approved')`，排在配置契约校验之前。",
+      "行为影响": "任何未批准来源（含研究信号、含未来回放）在**开仓入口**被拒；现有自动/手工/挂单三路都经过此函数 ⇒ 一处覆盖三路。",
+      "回归证据要求": "正例：approved=true 的信号仍能挂单；反例：approved=false 必被拒且`paper_order.reject_reason='research_not_approved'`。",
+      "风险": "`route_pending_orders` 当前**不传** `signal_payload` ⇒ 需同时改调用方；属「改变执行行为」的改动，**必须**单独工单 + 用户裁决。"
+    },
+    "本单立场": "两条补丁都**没有实施**。理由：工单明确要求本单不得实施对现有执行行为有影响的改动、不关闭全局开仓闸门、不改变原策略行为。60 单因素矩阵已用隔离负例证明现状可挡住。"
+  },
+  "判定": {
+    "checks": {
+      "开工前指纹已存在（10 现状快照）": true,
+      "研究区组件为新建": true,
+      "后端字段映射为修改": true,
+      "信号面板接线为修改": true,
+      "本单只动了 3 个文件": true,
+      "新组件不含 apiPost（只读）": true,
+      "新组件不含执行/下单按钮": true,
+      "新组件 testid 全部以 research- 开头": true,
+      "后端改动只有一处 09-WORK 标记块": true,
+      "正例：探针抓到了建表/插入/更新": true,
+      "正例：写语句按库指向临时库": true,
+      "反例：只读同一库时写语句 = 0": true,
+      "反例：确实读到了数据（不是没连上）": true,
+      "生产页面出现研究区": true,
+      "生产页面研究行不混入当前区": true,
+      "生产后端未重载 ⇒ 页面如实降级（不伪造身份）": true
+    },
+    "pass_n": 16,
+    "total_n": 16,
+    "fail": [],
+    "结论": "变更清单与路径图齐备；探针正反例成立；补丁只出方案未实施"
+  }
+}

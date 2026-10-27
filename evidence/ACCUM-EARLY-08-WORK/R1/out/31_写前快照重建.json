@@ -1,0 +1,47 @@
+{
+  "生成时刻": "2026-10-27T09:31:59Z",
+  "性质": "重建件（原件已被 20 的 reset_iso 误删）",
+  "08-WORK记录的写前行数": 0,
+  "08-WORK出处": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/out/03_隔离与空链路.json",
+  "30当前记录的写前行数（复跑值，仅对照）": 289,
+  "30记录的原件sha256": "bb80e36f0e0427de55f535a39b8bd7b650f82996c9e802095934d9d4b364d995",
+  "拷贝": {
+    "src": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "dst": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/isolated/pre_import/live_signals_before_import.sqlite3",
+    "bytes": 1507328
+  },
+  "重建结果": {
+    "拷贝时行数": 289,
+    "删除的研究行数": 289,
+    "删除后行数": 0,
+    "文件": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/isolated/pre_import/live_signals_before_import.sqlite3",
+    "bytes": 45056,
+    "sha256": "bb80e36f0e0427de55f535a39b8bd7b650f82996c9e802095934d9d4b364d995",
+    "与08-WORK记录的写前行数一致": true
+  },
+  "重建说明": {
+    "性质": "重建件",
+    "为什么重建": "20_隔离演练.py 早期版本 reset_iso() 会删掉整个 isolated/，把 30 写的写前快照一起删除（脚本缺陷，已修：reset_iso 现在保留 pre_import/）",
+    "重建方式": "拷贝当前生产库 → 精确删除 origin='historical_research' 且 payload.source='antigravity_08_backtest' 的行 → VACUUM",
+    "可验证的等价性": "删除后剩余 0 行，与 08-WORK 只读探测记录的写前行数 0 一致（出处 /Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/out/03_隔离与空链路.json）",
+    "不等价的地方": [
+      "文件字节布局（页分配、freelist、sqlite_sequence）与原件不可能逐位相同",
+      "原件 sha256 = 18de9c2fbb553deeb956c51c2dbfdc448588b4e97f58dc22954c09f3e47e6449（45,056 B，第一次接入时记在 30 的产出里；该记录已被复跑覆盖，此值为**转引**）",
+      "因此本件只用于「把库恢复到写前的内容状态」，不能用来证明「原件未被篡改」"
+    ],
+    "生成时刻": "2026-10-27T09:31:59Z",
+    "sha256": "bb80e36f0e0427de55f535a39b8bd7b650f82996c9e802095934d9d4b364d995"
+  },
+  "判定": {
+    "checks": {
+      "删除的研究行数 = 289": true,
+      "删除后行数 = 0": true,
+      "与 08-WORK 只读探测记录的写前行数一致": true,
+      "重建件已落盘且有 sha256": true,
+      "重建说明已落盘": true
+    },
+    "pass_n": 5,
+    "total_n": 5,
+    "结论": "写前状态已重建并与 08-WORK 的只读探测记录对齐（0 行）；但这是重建件，原件 sha256 只能从 30 的记录里查，不能冒充原件。"
+  }
+}

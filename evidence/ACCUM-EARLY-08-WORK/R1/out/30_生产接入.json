@@ -1,0 +1,198 @@
+{
+  "生成时刻": "2026-10-27T09:31:59Z",
+  "后端进程_前": {
+    "pid_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/backend.pid",
+    "pid": "91940",
+    "alive": true,
+    "lsof_ok": true,
+    "holds_live_db": false
+  },
+  "生产信号库_前": {
+    "指纹": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+      "exists": true,
+      "size": 1507328,
+      "mtime_utc": "2026-10-27T09:30:21Z",
+      "sha256": "7936d96acb1c217011d6a5c45a9e119a8fcb58c7d9658be0d45aac0492330d12"
+    },
+    "状态": {
+      "rows_total": 289,
+      "by_origin": {
+        "historical_research": 289
+      },
+      "by_exec": {
+        "historical_not_executable": 289
+      },
+      "by_scheme": {
+        "ACCUM-RESEARCH-v0::4a": 105,
+        "ACCUM-RESEARCH-v0::4b": 87,
+        "ACCUM-RESEARCH-v0::4c": 97
+      },
+      "current_area_rows": 0
+    }
+  },
+  "写前快照": {
+    "kept_existing": true,
+    "dst": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/isolated/pre_import/live_signals_before_import.sqlite3",
+    "bytes": 45056,
+    "sha256": "bb80e36f0e0427de55f535a39b8bd7b650f82996c9e802095934d9d4b364d995",
+    "note": "已存在，未覆盖（覆盖会把「已写过」的库当写前状态）"
+  },
+  "回滚方式": {
+    "首选（精确删除本单写入的研究行，不动 live 行）": "DELETE FROM live_signal WHERE origin='historical_research' AND json_extract(payload_json,'$.source')='antigravity_08_backtest';",
+    "兜底（整库还原，会丢掉快照之后的 live 行，需先确认无新 live 信号）": "cp /Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/isolated/pre_import/live_signals_before_import.sqlite3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3"
+  },
+  "导入": {
+    "run_id": "antigravity_08_arm_b",
+    "run_status": "OK",
+    "rows_built": 289,
+    "stats": {
+      "target_db": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+      "rows_in": 289,
+      "apply": true,
+      "rows_before": 289,
+      "existing_research_rows": 289,
+      "would_new": 0,
+      "would_update": 289,
+      "new": 0,
+      "updated": 289,
+      "rows_after": 289,
+      "research_rows_after": 289,
+      "by_scheme": {
+        "ACCUM-RESEARCH-v0::4a": 105,
+        "ACCUM-RESEARCH-v0::4b": 87,
+        "ACCUM-RESEARCH-v0::4c": 97
+      },
+      "distinct_executable_state": [
+        "historical_not_executable"
+      ],
+      "current_area_rows": 0
+    },
+    "manifest_head": {
+      "manifest_version": "accum08-research-signal/v1",
+      "run_id": "antigravity_08_arm_b",
+      "approved": false,
+      "origin": "historical_research",
+      "executable_state": "historical_not_executable",
+      "rows_built": 289
+    },
+    "rc": 0,
+    "elapsed_s": 0.04
+  },
+  "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/out/manifest_antigravity_08_arm_b.json",
+  "manifest_sha256": "5290a734c56015a39fb246e197c1845d4a9544cc9a21745f5938534a054d1722",
+  "生产信号库_后": {
+    "指纹": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+      "exists": true,
+      "size": 1507328,
+      "mtime_utc": "2026-10-27T09:31:59Z",
+      "sha256": "71da931065b90a9f188dd4c708651f6a21557555309ee85774c09df0a21fb298"
+    },
+    "状态": {
+      "rows_total": 289,
+      "by_origin": {
+        "historical_research": 289
+      },
+      "by_exec": {
+        "historical_not_executable": 289
+      },
+      "by_scheme": {
+        "ACCUM-RESEARCH-v0::4a": 105,
+        "ACCUM-RESEARCH-v0::4b": 87,
+        "ACCUM-RESEARCH-v0::4c": 97
+      },
+      "current_area_rows": 0
+    },
+    "单条样本": {
+      "signal_uid": "accum05_4a_ACTUSDT_1784116799999",
+      "symbol": "ACTUSDT",
+      "timeframe": "1h",
+      "origin": "historical_research",
+      "executable_state": "historical_not_executable",
+      "strategy_key": "ACCUM-RESEARCH-v0::4a",
+      "strategy_version": "accum-early-05::v1::4a",
+      "config_hash": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+      "data_version": null,
+      "event_time": 1784116799999,
+      "confirmed_at": 1784116799999,
+      "available_at": null,
+      "bar_open_time": 1784113200000,
+      "bar_close_time": 1784116799999,
+      "payload_role": "research_only",
+      "payload_run_id": "antigravity_08_arm_b",
+      "payload_approved": false,
+      "available_at_status": "unproven",
+      "entry_bar_open_ms": 1784117700000
+    }
+  },
+  "后端进程_后": {
+    "pid_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/backend.pid",
+    "pid": "91940",
+    "alive": true,
+    "lsof_ok": true,
+    "holds_live_db": false
+  },
+  "非目标库零写入": {
+    "逐文件": {
+      "行情库": {
+        "same": true,
+        "method": "size+mtime（>64MB 不算 sha）",
+        "sha_same": null,
+        "size_same": true,
+        "mtime_same": true
+      },
+      "纸面账本_3a": {
+        "same": true,
+        "method": "sha256",
+        "sha_same": true,
+        "size_same": true,
+        "mtime_same": null
+      },
+      "纸面账本_3b": {
+        "same": true,
+        "method": "sha256",
+        "sha_same": true,
+        "size_same": true,
+        "mtime_same": null
+      },
+      "纸面账本_3c": {
+        "same": true,
+        "method": "sha256",
+        "sha_same": true,
+        "size_same": true,
+        "mtime_same": null
+      },
+      "纸面账本_3d": {
+        "same": true,
+        "method": "sha256",
+        "sha_same": true,
+        "size_same": true,
+        "mtime_same": null
+      }
+    },
+    "全部未变": true
+  },
+  "判定": {
+    "checks": {
+      "导入进程 rc=0": true,
+      "写前库内行数与导入器自报一致": true,
+      "净增 = 289 − 写前已有研究行": true,
+      "写后总行数 = 写前行数 + 净增": true,
+      "写后研究行恰好 289（不是累加）": true,
+      "写后全部 executable_state=historical_not_executable": true,
+      "三方案 105/87/97": true,
+      "当前交易区仍为 0 行": true,
+      "样本 available_at 为空": true,
+      "样本 available_at 标 unproven": true,
+      "样本 bar_open < bar_close（列语义正确）": true,
+      "行情库与四本账本零写入": true,
+      "后端进程未重启（pid 未变且存活）": true,
+      "写前快照已生成": true,
+      "manifest 已落盘": true
+    },
+    "pass_n": 15,
+    "total_n": 15,
+    "结论": "生产接入完成：289 条研究信号已入库，全部标不可执行；行情库与账本零写入；后端未重启。"
+  }
+}

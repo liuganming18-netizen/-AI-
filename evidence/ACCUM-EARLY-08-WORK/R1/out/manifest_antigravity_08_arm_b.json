@@ -1,0 +1,66 @@
+{
+  "manifest_version": "accum08-research-signal/v1",
+  "generated_utc": "2026-10-27T09:31:59Z",
+  "run_id": "antigravity_08_arm_b",
+  "run_status": "OK",
+  "raw_json_sha256": "6df33544bae3eb9cca3ee21080d5cb2368cee1d8b6133d8212994e5cec419cca",
+  "config": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/AUDIT-003-PATCH/config/fixture_rules_06w2_gap_bar_open.json",
+    "sha256": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+    "kind": "fixture",
+    "approved": false
+  },
+  "engine": {
+    "view_sha256": "82dec362c182",
+    "strategy_version": "FT-LOW4H-EXP-V2.2"
+  },
+  "code_hashes": {
+    "框架/backend/accum_early_entry.py": "8dd8036ed16354a1c94e27fcea94f4bdb9aa4425572dbf7f995c0522fe1a886e",
+    "框架/backend/replay_calc.py": "5df25a8496592d86c851c75e3aea9cde31807b1ca22020e6712c579e59550a6f",
+    "框架/backend/paper_engine.py": "01c1572a1187e434d76933b70d526b2f13d822b947de7ddc9f4aaf7991821066",
+    "框架/backend/live_store.py": "02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6",
+    "框架/backend/research_15m.py": "0c00ab0e11a72396be5c70521983b250f8e6ee26158a1bcfb0e1d5b673dd815f",
+    "框架/backend/accum_research.py": "5e464de3ffe4b0ca2e88006a6acef0c9457099b31bb9d684aef38857462857d8",
+    "框架/backend/observe_store.py": "280210b32e906f4119682fb669f4721242e99a7cb50a12b25134a92c25573011",
+    "框架/backend/pool_scope.py": "f281b8c7397b1bf58eb84ff2774b1ac4e38eadca8f7a06360a54de38e2e504c5"
+  },
+  "code_drift": [],
+  "approved": false,
+  "origin": "historical_research",
+  "executable_state": "historical_not_executable",
+  "window": {
+    "start_utc": "2026-06-27T08:00:00Z",
+    "end_utc": "2026-10-26T09:00:00Z",
+    "start_ms": 1782547200000,
+    "end_ms": 1793005200000
+  },
+  "n_symbols": 40,
+  "candidates_by_scheme": null,
+  "rows_built": 289,
+  "input_coverage": {
+    "participating": [
+      "4h K线（箱体/阻力/吸收阳线/4h 跟踪止损）",
+      "1h K线（Spring/Breakout/Retest 状态机）",
+      "15m K线（撮合价/盘中止损/跳空判定）",
+      "合约交易规范（手数/步进/最小名义）",
+      "前15m成交额（1% 参与率上限）",
+      "资金费结算（8h，缺口段由 06-06 补齐）"
+    ],
+    "not_participating": [
+      "持仓量 OI（未订阅）",
+      "多空持仓比（未读取）",
+      "CVD 主动买卖量（只读 volume，未读 taker_buy_volume）",
+      "聪明钱/大户持仓（无历史时序，不可补）",
+      "实时深度盘口（回测不适用，用滑点替代）",
+      "流通市值 / 板块字典 / OI-市值比 / 5m·30m·8h·12h·1d K线（未参与）"
+    ],
+    "source": "evidence/ACCUM-EARLY-08-ANTIGRAVITY/README.md §三（17 项逐项审计）"
+  },
+  "gaps": [
+    "available_at 无证据：反重力产物未记录 OI/交易所发布延迟 ⇒ 标 unproven，不用 confirmed_at 代替",
+    "data_version 未提供：反重力只给窗口，未给数据内容哈希 ⇒ 落 null，不编造",
+    "signal_uid 不含 run_id：两臂候选 uid 完全相同 ⇒ 只导入一个臂（arm_b, run_status=OK）",
+    "config 为 fixture（approved=false, kind=fixture）：只能作研究，不得当批准配置",
+    "G01–G05 全 pending：正式回测门禁未过"
+  ]
+}

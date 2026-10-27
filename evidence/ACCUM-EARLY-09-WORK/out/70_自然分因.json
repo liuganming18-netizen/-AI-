@@ -1,0 +1,337 @@
+{
+  "生成时刻": "2026-10-27T10:21:19Z",
+  "运行身份": {
+    "快照路径": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks/paper_runtime_3a_status.json",
+    "快照年龄秒": 0.7,
+    "runtime_identity": {
+      "arm": "3a",
+      "symbol": "all(526)",
+      "pid": 91947,
+      "status": "running",
+      "started_at": 1793012957491,
+      "cycle_count": 18386,
+      "overall_health": "healthy"
+    },
+    "market_data": {
+      "status": "connected",
+      "symbol": "all(526)",
+      "latest_15m_close_time": 1793096099999,
+      "latest_1h_close_time": 1793095199999,
+      "latest_4h_close_time": 1793087999999
+    }
+  },
+  "扫描范围": {
+    "universe": 526,
+    "universe_declared": 526,
+    "引擎数": 526,
+    "已预热": 525,
+    "未预热": 1,
+    "箱体门开": 525,
+    "ATR 口径": "4h Wilder ATR(14)，连续递推 + ≥atr_warmup_bars 预热（冻结规则第 17 行）",
+    "预热根数要求": 200,
+    "回放窗口小时": 2908
+  },
+  "水位": {
+    "口径": "open_time（区间起点）；close 口径另列 `*_close`，不混用",
+    "global_1h": "2026-10-27T09:00:00Z",
+    "processed_1h_max": "2026-10-27T09:00:00Z",
+    "db_1h_max": "2026-10-27T09:00:00Z",
+    "aligned_1h": true,
+    "lag_1h_bars": 0,
+    "global_4h": "2026-10-27T04:00:00Z",
+    "processed_4h_max_open": "2026-10-27T04:00:00Z",
+    "processed_4h_max_close": "2026-10-27T07:59:59Z",
+    "aligned_4h": true,
+    "lag_4h_bars": 0,
+    "per_symbol_n": 526,
+    "lag_1h_histogram": {
+      "0": 526
+    },
+    "n_lag_1h_gt1": 0
+  },
+  "独立复算_1h水位": {
+    "耗时秒": 0.01,
+    "标的数": 526,
+    "行情库最大 1h open": "2026-10-27T09:00:00Z",
+    "lag 分布（本脚本算）": {
+      "0": 526
+    },
+    "运行时自报 lag 分布": {
+      "0": 526
+    },
+    "无 1h 数据的标的": []
+  },
+  "漏斗_迁移次数": {
+    "since_start": {
+      "BOX": 86,
+      "SWEEP": 22,
+      "RETEST": 19,
+      "CANDIDATE": 0,
+      "VOLUME_REJECTED": 0,
+      "OI_UNAVAILABLE": 0,
+      "OI_REJECTED": 0,
+      "INVALIDATED": 40,
+      "EXPIRED": 74,
+      "MISSED_WITHOUT_RETEST": 0
+    },
+    "history_48天回放": {
+      "BOX": 8061,
+      "SWEEP": 2008,
+      "RETEST": 1220,
+      "CANDIDATE": 0,
+      "VOLUME_REJECTED": 7,
+      "OI_UNAVAILABLE": 51,
+      "OI_REJECTED": 0,
+      "INVALIDATED": 4220,
+      "EXPIRED": 3398,
+      "MISSED_WITHOUT_RETEST": 33
+    },
+    "读法": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。",
+    "强调": "这些是**状态迁移次数**（同一标的可反复进入 BOX/RETEST），不是独立事件数；不得当作「事件总数」或「候选数」使用。"
+  },
+  "独立单位_标的": {
+    "per_symbol_state": {
+      "IDLE": 202,
+      "BOX": 297,
+      "RETEST": 16,
+      "SWEEP": 11
+    },
+    "state_counter": {
+      "IDLE": 202,
+      "BOX": 297,
+      "RETEST": 16,
+      "SWEEP": 11
+    },
+    "标的数": 526,
+    "说明": "独立单位是「标的」（526 个），每标的一处当前状态；与上面的迁移次数不是同一个量，禁止相加或互相换算。"
+  },
+  "零候选定位": {
+    "本进程": {
+      "BOX": 86,
+      "SWEEP": 22,
+      "RETEST": 19,
+      "CANDIDATE": 0,
+      "后续关卡拒绝": {
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0
+      },
+      "失效": {
+        "INVALIDATED": 40,
+        "EXPIRED": 74,
+        "MISSED_WITHOUT_RETEST": 0
+      }
+    },
+    "48天回放": {
+      "BOX": 8061,
+      "SWEEP": 2008,
+      "RETEST": 1220,
+      "CANDIDATE": 0,
+      "后续关卡拒绝": {
+        "VOLUME_REJECTED": 7,
+        "OI_UNAVAILABLE": 51,
+        "OI_REJECTED": 0
+      },
+      "失效": {
+        "INVALIDATED": 4220,
+        "EXPIRED": 3398,
+        "MISSED_WITHOUT_RETEST": 33
+      }
+    },
+    "结论口径": "两条时间尺度的漏斗都显示：扫低(SWEEP)与回踩(RETEST)都发生过，而 CANDIDATE 在两个尺度上都是 0 ⇒ 零候选发生在 **RETEST→CANDIDATE** 这一层。量价量能拒绝(VOLUME_REJECTED)/OI 不可用(OI_UNAVAILABLE)数量远小于 RETEST，不足以解释 0 候选。",
+    "本单不下结论的部分": "RETEST→CANDIDATE 的判定链为什么一条都没通过，本单只读、不改规则、不注入候选，因此**无法**给出根因；需要单独立项核查该判定链。"
+  },
+  "异常与缺数": {
+    "scan_errors_total": 0,
+    "scan_errors": {},
+    "skipped_reasons": {},
+    "data_quality_规则": "连续 ≥3 根 1h 为「volume==0 且 O=H=L=C」的交易所占位行 ⇒ 该标的**禁止决策**（不建档、不推进状态机）；只跳过决策，不删行、不改价",
+    "data_quality_被拦标的数": 6,
+    "data_quality_明细": {
+      "1000000BOBUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-05T11:00:00Z",
+        "zero_flat_run": 529,
+        "skipped_bars": 527,
+        "box_skipped_invalid": 131
+      },
+      "EPICUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-20T12:00:00Z",
+        "zero_flat_run": 168,
+        "skipped_bars": 166,
+        "box_skipped_invalid": 41
+      },
+      "MITOUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-23T11:00:00Z",
+        "zero_flat_run": 97,
+        "skipped_bars": 95,
+        "box_skipped_invalid": 23
+      },
+      "PROMPTUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-05T12:00:00Z",
+        "zero_flat_run": 528,
+        "skipped_bars": 526,
+        "box_skipped_invalid": 131
+      },
+      "PTBUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-23T12:00:00Z",
+        "zero_flat_run": 96,
+        "skipped_bars": 94,
+        "box_skipped_invalid": 23
+      },
+      "PUMPBTCUSDT": {
+        "reason": "zero_volume_flat_run(3)",
+        "since_utc": "2026-10-05T12:00:00Z",
+        "zero_flat_run": 528,
+        "skipped_bars": 526,
+        "box_skipped_invalid": 131
+      }
+    },
+    "ATR_未预热标的": 1,
+    "ATR_预热根数区间": [
+      157,
+      773
+    ]
+  },
+  "阻断原因_空转分因": {
+    "counts": {
+      "IDLE_WAIT_BOX": 73,
+      "IDLE_COOLING": 117,
+      "IDLE_READY_BOX": 12
+    },
+    "idle_total": 202,
+    "与独立标的数一致": true,
+    "样例": {
+      "0GUSDT": {
+        "reason": "IDLE_WAIT_BOX",
+        "actual": "宽度=8.85A, ER=0.2064",
+        "threshold": "2.0~8.0A, ER<=0.3",
+        "unmet": [
+          "宽度 8.85A 不在 2.0~8.0A"
+        ]
+      },
+      "1000BONKUSDT": {
+        "reason": "IDLE_COOLING",
+        "actual": "2026-10-27T16:00:00Z",
+        "threshold": "冷却 24h",
+        "remaining_hours": 6.0
+      },
+      "1000CHEEMSUSDT": {
+        "reason": "IDLE_COOLING",
+        "actual": "2026-10-28T08:00:00Z",
+        "threshold": "冷却 24h",
+        "remaining_hours": 22.0
+      },
+      "1000FLOKIUSDT": {
+        "reason": "IDLE_COOLING",
+        "actual": "2026-10-28T00:00:00Z",
+        "threshold": "冷却 24h",
+        "remaining_hours": 14.0
+      },
+      "1000XECUSDT": {
+        "reason": "IDLE_COOLING",
+        "actual": "2026-10-28T08:00:00Z",
+        "threshold": "冷却 24h",
+        "remaining_hours": 22.0
+      }
+    },
+    "说明": "IDLE_WAIT_BOX=箱体宽度/ER 不满足；IDLE_COOLING=冷却未到；IDLE_READY_BOX=箱体就绪但未扫低。三类都是「还没到可推进的状态」，不是扫描失败。"
+  },
+  "生产信号库": {
+    "总行数": 289,
+    "live/recovered 行数": 0,
+    "研究行数": 289
+  },
+  "订单与执行": {
+    "orders_routed_total": 0,
+    "orders_rejected_total": 0,
+    "orders_waiting_gate": 0,
+    "current_pending_in_db": 0,
+    "open_positions": 0,
+    "last_error": null,
+    "new_entry_gate_allow": true
+  },
+  "HTTP": {
+    "当前交易区": {
+      "status": 200,
+      "items_n": 0
+    },
+    "观察区": {
+      "status": 200,
+      "items_n": 324
+    }
+  },
+  "本单未干预的证据": {
+    "生产信号库 sha256 前": "98247fe02e6069f5707e48881ffd55bcd8cf0593b5ae7d8492db6b192a357ebe",
+    "生产信号库 sha256 后": "98247fe02e6069f5707e48881ffd55bcd8cf0593b5ae7d8492db6b192a357ebe",
+    "冻结规则文件": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+      "exists": true,
+      "size": 13315,
+      "mtime_utc": "2026-10-16T15:02:04Z",
+      "sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab"
+    },
+    "冻结规则 sha256 期望值": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+    "config.py": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/config.py",
+      "exists": false
+    },
+    "闸门文件": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+      "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5",
+      "content": {
+        "allow_new_entries": true,
+        "reason": "user_ui_resumed",
+        "set_by": "user_ui_control",
+        "since_ms": 1792753532432,
+        "scope": "server_side_new_entry_only",
+        "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+      }
+    },
+    "说明": "本单全程只读：没有向 live_signal 写入任何候选、没有改阈值/规则/闸门。"
+  },
+  "判定": {
+    "checks": {
+      "状态快照新鲜（<180s）": true,
+      "信号引擎 status=running": true,
+      "执行守护 status=running": true,
+      "1h 水位与库内最大一致（lag=0）": true,
+      "4h 水位与库内最大一致（lag=0）": true,
+      "全池无落后标的（自报 lag>1 为 0）": true,
+      "扫描范围 526 标的（universe == declared）": true,
+      "独立复算：行情库最大 1h open == 运行时 db_1h_max": true,
+      "独立复算：lag 分布与运行时自报一致": true,
+      "独立复算：无 1h 数据的标的 = 0": true,
+      "per_symbol_state 合计 == 526": true,
+      "state_counter 合计 == 526": true,
+      "per_symbol_state 分布 == state_counter": true,
+      "本进程候选数 = 0": true,
+      "自然信号生成总数 = 0": true,
+      "本进程 RETEST>0 而 CANDIDATE=0（定位在 RETEST→CANDIDATE）": true,
+      "48天回放 RETEST>0 而 CANDIDATE=0": true,
+      "量价/OI 拒绝数不足以解释 0 候选（远小于 RETEST）": true,
+      "扫描错误 = 0": true,
+      "跳过原因为空": true,
+      "空转分因合计 == IDLE 标的数": true,
+      "空转分因三类齐全": true,
+      "数据质量拦截标的已如实列出（6 个）": true,
+      "生产库 live 行 = 0（只有研究行）": true,
+      "生产库研究行 = 289": true,
+      "当前交易区 HTTP 0 条": true,
+      "观察区 HTTP 有数据（扫描链路在跑）": true,
+      "路由挂单 0、持仓 0": true,
+      "执行守护无错误": true,
+      "生产信号库在本脚本运行期间未被写入": true,
+      "冻结规则文件存在": true,
+      "冻结规则 sha256 未变（1f1167de…9a8ab）": true
+    },
+    "pass_n": 32,
+    "total_n": 32,
+    "fail": [],
+    "结论": "自然零候选已定位：扫描链路在跑（水位对齐、观察区有数据），零候选发生在 RETEST→CANDIDATE 层"
+  }
+}

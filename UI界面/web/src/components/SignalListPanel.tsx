@@ -13,6 +13,8 @@ import type {
   PaperPositionView,
 } from '../api/liveTrading';
 import ObservePanel from './ObservePanel';
+// 09-WORK：历史研究信号只读折叠区（与当前交易区物理分离，无任何执行入口）
+import ResearchSignalSection from './ResearchSignalSection';
 import {
   SIGNALS_FAULT_TEXT,
   signalsStateKey,
@@ -770,6 +772,10 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
             })
           )}
         </div>
+        {/* 历史研究信号（09-WORK）：**放在当前区列表容器之外**的只读折叠区。
+            这样当前区的 `signal-row` 与 `currentSignals.length` 完全不受研究行影响，
+            研究记录只可能出现在 `research-signal-row` 上。 */}
+        <ResearchSignalSection />
       </div>
 
       {/* 底部紧凑状态 */}

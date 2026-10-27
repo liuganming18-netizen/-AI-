@@ -1,0 +1,259 @@
+{
+  "生成时刻": "2026-10-27T09:31:59Z",
+  "HTTP": {
+    "研究范围(scope=all&origin=historical_research&limit=1000)": {
+      "status": 200,
+      "bytes": 341806,
+      "elapsed_s": 0.046,
+      "total": 289,
+      "items_n": 289,
+      "has_more": false,
+      "quality_note": "审计通道(scope=all)：实时层 live=0、历史研究=289；库内 signals 表=0。展示(display_state)与可执行(executable_state)分列；不适用 G01–G05 正式回测门禁；信号输出 != 下单",
+      "顶层身份": {
+        "strategy_version": "FT-LOW4H-EXP-V2.2",
+        "rule_version": "FT-LOW4H",
+        "param_hash": "82dec362c182",
+        "data_version": null
+      },
+      "首条": {
+        "signal_id": "accum05_4c_MAVUSDT_1793005199999",
+        "exchange": "binance",
+        "market_id": "MAVUSDT",
+        "symbol": "MAVUSDT",
+        "status": "undecided",
+        "direction": "long",
+        "current_direction": null,
+        "actionable": false,
+        "actionable_reason": "approved=false｜研究/未批准配置（反重力 fixture 配置，G01–G05 全 pending）⇒ 只展示、不可执行、不进入当前交易区",
+        "strength": null,
+        "created_at": "2026-10-27T09:14:48Z",
+        "confirmed_at": "2026-10-26T08:59:59Z",
+        "event_time": "2026-10-26T08:59:59Z",
+        "available_at": null,
+        "expires_at": null,
+        "timeframe": "1h",
+        "strategy_key": "ACCUM-RESEARCH-v0::4c",
+        "strategy_version": "accum-early-05::v1::4c",
+        "config_hash": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+        "data_version": null,
+        "source_id": null,
+        "source_masks": [
+          "accum_early_entry"
+        ],
+        "execution_label": null,
+        "origin": "historical_research",
+        "arm": "4c",
+        "display_state": "displayable",
+        "executable_state": "historical_not_executable",
+        "structural_kind": "accum_early_entry",
+        "bar_open_time": 1793001600000,
+        "bar_close_time": 1793005199999,
+        "detection_low": null,
+        "detection_atr": null,
+        "admission": null,
+        "role": "research_only"
+      }
+    },
+    "当前交易区(scope=current&limit=500)": {
+      "status": 200,
+      "items_n": 0,
+      "total": 0,
+      "quality_status": "ok",
+      "excluded_n": 289,
+      "excluded_breakdown": {
+        "db_rows_total": 289,
+        "kept": 0,
+        "excluded": 289,
+        "by_reason": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "live_start_ms": 1792748844240,
+      "effective_floor_ms": 1792748844240,
+      "as_of": null
+    },
+    "负向对照(scope=all&origin=live)": {
+      "status": 200,
+      "items_n": 0,
+      "quality_note": "审计通道(scope=all)：实时层 live=0、历史研究=0；库内 signals 表=0。展示(display_state)与可执行(executable_state)分列；不适用 G01–G05 正式回测门禁；信号输出 != 下单"
+    },
+    "审计全量(scope=all)": {
+      "status": 200,
+      "items_n": 289
+    },
+    "分页语义(limit=1)": {
+      "status": 200,
+      "total": 1,
+      "items_n": 1,
+      "has_more": true
+    }
+  },
+  "逐条核对": {
+    "n": 289,
+    "origin_ok": 289,
+    "exec_ok": 289,
+    "actionable_false": 289,
+    "reason_present": 289,
+    "avail_null": 289,
+    "role_research": 289,
+    "bar_order_ok": 289,
+    "uid_hit_db": 289,
+    "schemes": [
+      "ACCUM-RESEARCH-v0::4a",
+      "ACCUM-RESEARCH-v0::4b",
+      "ACCUM-RESEARCH-v0::4c"
+    ],
+    "config_hashes": [
+      "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755"
+    ]
+  },
+  "当前区是否混入研究信号": false,
+  "页面取证_样本symbol": [
+    "ACTUSDT",
+    "API3USDT",
+    "ARKUSDT",
+    "AVAUSDT",
+    "AXLUSDT",
+    "CFXUSDT"
+  ],
+  "页面取证_样本uid": [
+    "accum05_4a_ACTUSDT_1784116799999",
+    "accum05_4a_ACTUSDT_1786813199999",
+    "accum05_4a_API3USDT_1784728799999"
+  ],
+  "页面": {
+    "rc": 0,
+    "elapsed_s": 5.13,
+    "stderr_tail": "",
+    "结果": {
+      "url": "http://127.0.0.1:3000/",
+      "started_utc": "2026-10-27T09:32:00.049Z",
+      "panel_found": true,
+      "rows": {
+        "count": 0,
+        "sample": []
+      },
+      "empty": {
+        "count": 1,
+        "sample": [
+          "暂无交易信号 查看诊断与历史候选明细 ▼"
+        ]
+      },
+      "error_state": {
+        "count": 0,
+        "sample": []
+      },
+      "not_connected": {
+        "count": 0,
+        "sample": []
+      },
+      "diag_expanded": true,
+      "diag_state": "loaded",
+      "empty_diagnostics": {
+        "count": 1,
+        "sample": [
+          "最近处理到 1h 10-27 08:00 UTC · 4h 10-27 04:00 UTC 行情最新 1h 10-27 08:59 UTC · 4h 10-27 07:59 UTC 当前阶段 箱体观察 301 · 空转 193 · 待突破 22 · 已扫低 10 本进程漏斗 箱体 86 → 扫低 19 → 回踩 19 → 候选 0 历史回放 箱体 8061 → 扫低 2008 → 回踩 1220 → 候选 0（丢弃 0 · 恢复 0） 最近候选 本次启动后没有产生候选 空转原因 箱体条件未满足（宽度或 ER 超阈） 73；冷却中（距上次事件不足 24h） 108；条件已满足，等下一根 4h 收"
+        ]
+      },
+      "discarded_toggle": {
+        "count": 0,
+        "sample": []
+      },
+      "discarded_rows": {
+        "count": 0,
+        "sample": []
+      },
+      "panel_text_len": 12663,
+      "panel_symbol_hits": [
+        "ACTUSDT"
+      ],
+      "panel_uid_hits": [],
+      "panel_text_head": "交易信号 0 笔 运行中 清理 全部形态 突破 Spring 恐慌SC 观察区 观察中 333 箱体 301 · 已扫低 10 · 待突破 22 ▲ 更新于 10-27 09:28 观察 ≠ 交易信号：这些标的正在等入场条件，本身不构成下单。条件满足且通过执行门禁后， 才会进入模拟交易；不必等观察期结束。 全部 333 待突破 22 已扫低 10 箱体 301 1000000MOGUSDT 待突破 剩 7.0 天 最近更新 10-26 05:00·最近处理 1h 10-27 09:00 条件 证据 主动买卖 0.53·多空比 3.74/1.37/3.59·阶段均价 0.10369 指标停更 297h（旧市场） 未满足：首次上穿 0.10830297（前一根 close <= 门槛、当前 close > 门槛）（当前 prev=0.099 cur=0.0986） ACHUSDT 待突破 剩 ",
+      "body_len": 20133,
+      "body_symbol_hits": [
+        "ACTUSDT"
+      ],
+      "body_hits_explained": [
+        {
+          "symbol": "ACTUSDT",
+          "in_observe_list": true,
+          "note": "出现在「观察区」（来源 /api/v1/signals/observe，与本次研究信号无关）"
+        }
+      ],
+      "observe_symbols_n": 333,
+      "has_hist_word": false,
+      "body_head": "趋势研判系统 交易工作台 数据中心 策略管理 回测复盘 浅色主题 Light WebSocket 11s BTC 79,744 -0.84% ETH 2,311 -0.74% 模拟盘权益 5,000.00 行情连接 正常 （11 秒前） 电报提醒 未配置 09:32:04 UTC 只读 交易信号 0 笔 运行中 清理 全部形态 突破 Spring 恐慌SC 观察区 观察中 333 箱体 301 · 已扫低 10 · 待突破 22 ▲ 更新于 10-27 09:28 观察 ≠ 交易信号：这些标的正在等入场条件，本身不构成下单。条件满足且通过执行门禁后， 才会进入模拟交易；不必等观察期结束。 全部 333 待突破 22 已扫低 10 箱体 301 1000000MOGUSDT 待突破 剩 7.0 天 最近更新 10-26 05:00·最近处理 1h 10-27 09:00 条件 证据 主动买卖 0.53·多空比 3.74/1.37/3.59·阶段均价 0.10369 指标停更 297h（旧市场） 未满足：首次上穿 0.10830297（前一根 close <= 门槛、当前 close > 门槛）（当前 prev=0.099 cur=0.0986） ACHUSDT 待突破 剩 7.0 天 最近更新 10-27 05:00·最近处理 1h 10-27 09:00 条件 证据 主动买卖 0.",
+      "signals_responses": [
+        {
+          "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+          "status": 200,
+          "total": 0,
+          "items_n": 0,
+          "has_more": false,
+          "scope": "current",
+          "quality_status": "ok",
+          "excluded_n": 289
+        }
+      ],
+      "console_errors": [],
+      "screenshot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/out/40_页面_当前交易区.png",
+      "finished_utc": "2026-10-27T09:32:04.804Z"
+    },
+    "截图": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-08-WORK/R1/out/40_页面_当前交易区.png",
+      "exists": true,
+      "bytes": 421136
+    }
+  },
+  "判定": {
+    "checks": {
+      "HTTP 研究范围 200": true,
+      "研究范围一次读全 289 条（has_more=false）": true,
+      "289 条全为 historical_research": true,
+      "289 条全为 historical_not_executable": true,
+      "289 条 actionable 全 false": true,
+      "289 条都带不可执行原因": true,
+      "289 条 available_at 全为空": true,
+      "289 条 role=research_only": true,
+      "289 条 bar_open<bar_close": true,
+      "289 条 signal_id 都能在库里对上": true,
+      "HTTP 当前交易区 0 条": true,
+      "当前区质量状态 ok（不是异常空表）": true,
+      "当前区排除明细里 289 条被排除": true,
+      "当前区未混入任何研究信号": true,
+      "负向对照 origin=live 返回 0（过滤真的生效）": true,
+      "页面信号面板已渲染": true,
+      "页面当前区 0 行（无 signal-row）": true,
+      "页面空态是「暂无交易信号」而非报错": true,
+      "页面自己请求的 scope=current 返回 total=0": true,
+      "页面请求同时报告 289 条被排除（同一本库）": true,
+      "页面面板内不出现任何研究信号 uid": true,
+      "页面面板内 symbol 命中都能归因到观察区（非研究信号）": true,
+      "页面 body 命中项都能归因到观察区（非研究信号）": true,
+      "诊断明细已加载并展开（不是一直转圈）": true,
+      "诊断明细展开后未列出研究信号": true,
+      "页面无 console 错误": true,
+      "截图已生成": true
+    },
+    "pass_n": 27,
+    "total_n": 27,
+    "结论": "研究信号可经真实 HTTP 按研究范围查得（289 条、全不可执行、原因可见）；当前交易区 HTTP 与页面均为 0 行、未混入；页面读的同一本库报告 289 条被排除。"
+  },
+  "待裁决": {
+    "顶层身份 vs 条目身份": {
+      "现象": "响应顶层 strategy_version/rule_version/param_hash 是运行时身份（FT-LOW4H-EXP-V2.2 / FT-LOW4H / 82dec362c182），而研究信号条目自带 ACCUM-RESEARCH-v0::4x 身份",
+      "风险": "只读顶层的消费方会把研究信号误标成 FT-LOW4H",
+      "本单处置": "不改接口结构（属前端/接口契约改动，需裁决）；条目级身份已逐条正确"
+    },
+    "研究信号在页面无可视入口": {
+      "现象": "前端只请求 scope=current，没有研究/审计视图",
+      "本单处置": "未改前端架构；研究展示走 scope=all&origin=historical_research 的 HTTP 查询"
+    }
+  }
+}
