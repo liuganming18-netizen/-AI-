@@ -197,8 +197,20 @@ for r in res["per_symbol"]:
                         "entry_bar_open_ms": c.get("entry_bar_open_ms"),
                         "resistance": c.get("resistance"),
                         "entry_ref_price": c.get("entry_ref_price"),
-                        "open_result": {k: (c.get("open_result") or {}).get(k)
-                                        for k in ("ok", "reason", "called_paper_engine")}}
+                        "open_result": {
+                            "ok": (c.get("open_result") or {}).get("ok"),
+                            "reason": (c.get("open_result") or {}).get("reason"),
+                            "called_paper_engine":
+                                (c.get("open_result") or {}).get("called_paper_engine"),
+                            "paper_reason": (((c.get("open_result") or {})
+                                              .get("paper_result")) or {}).get("reason"),
+                            "paper_detail": {k: v for k, v in
+                                             ((((c.get("open_result") or {})
+                                                .get("paper_result")) or {})
+                                              .get("detail") or {}).items()
+                                             if k in ("max_positions", "cap", "need",
+                                                      "have", "limit", "notional",
+                                                      "qty", "reason")}}}
                        for c in r["candidates"]],
     })
 out = {
@@ -530,7 +542,9 @@ def main(argv=None) -> int:
             if orr.get("ok"):
                 opened[s] += 1
             else:
-                k = orr.get("reason") or "no_result"
+                # 优先记引擎给的拒单原因（max_positions / participation / cash / risk …），
+                # 其次才是配置闸门的原因；两者都没有才算 no_result
+                k = (orr.get("paper_reason") or orr.get("reason") or "no_result")
                 open_reasons[s][k] = open_reasons[s].get(k, 0) + 1
 
     cfg_brief = raw["config"]
@@ -665,6 +679,18 @@ def write_table(path: Path, result: dict, a) -> None:
     ]
     for name, fn in rows:
         L.append("| " + name + " | " + " | ".join(fn(m[s]) for s in ("4a", "4b", "4c")) + " |")
+    L.append("")
+    L.append("### 1.1 候选 → 成交：被拦在哪一步")
+    L.append("")
+    L.append("| 拦截原因 | 甲 4a | 乙 4b | 丙 4c |")
+    L.append("|---|---|---|---|")
+    rej = ident.get("open_reject_reasons") or {}
+    allk = sorted({k for s in rej for k in rej.get(s, {})})
+    if not allk:
+        L.append("| （无拦截） | 0 | 0 | 0 |")
+    for k in allk:
+        L.append(f"| `{k}` | " + " | ".join(
+            str((rej.get(s) or {}).get(k, 0)) for s in ("4a", "4b", "4c")) + " |")
     L.append("")
     L.append("## 二、退出原因分布")
     L.append("")
