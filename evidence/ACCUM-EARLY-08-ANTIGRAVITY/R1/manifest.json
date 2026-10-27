@@ -1,0 +1,155 @@
+{
+  "manifest_version": "1.0.0",
+  "strategy_identity": "Wyckoff_Accum_Early_Entry_V3.1",
+  "code_commit_hash": "8127b8ad",
+  "approved": false,
+  "config": {
+    "arm_a_path": "evidence/ACCUM-EARLY-06-W2/01/config/fixture_rules_06w2.json",
+    "arm_a_hash": "203d9b316583d4c16ca185cee08ee759f11bcdf00ee691cc83adfaeb97440e58",
+    "arm_b_path": "evidence/AUDIT-003-PATCH/config/fixture_rules_06w2_gap_bar_open.json",
+    "arm_b_hash": "0b24353d4f72b4dcff74842675a878533517b74258ff850eddf9128056e48755",
+    "approved": false,
+    "kind": "fixture"
+  },
+  "time_window": {
+    "start_ms": 1782547200000,
+    "start_utc": "2026-06-27T08:00:00Z",
+    "end_ms": 1793005200000,
+    "end_utc": "2026-10-26T09:00:00Z",
+    "duration_days": 121
+  },
+  "symbols_pool": {
+    "count": 40,
+    "source": "既有固定 40 标的名单",
+    "symbols": [
+      "XTZUSDT",
+      "FLUXUSDT",
+      "DOLOUSDT",
+      "ZORAUSDT",
+      "GTCUSDT",
+      "POLYXUSDT",
+      "ONGUSDT",
+      "ZETAUSDT",
+      "TREEUSDT",
+      "SKYUSDT",
+      "LISTAUSDT",
+      "VIRTUALUSDT",
+      "METUSDT",
+      "HOTUSDT",
+      "ARKUSDT",
+      "AXLUSDT",
+      "SENTUSDT",
+      "CTRUSDT",
+      "IOTAUSDT",
+      "ZENUSDT",
+      "API3USDT",
+      "MINAUSDT",
+      "CFXUSDT",
+      "IDUSDT",
+      "JOEUSDT",
+      "UMAUSDT",
+      "MAVUSDT",
+      "SEIUSDT",
+      "WAXPUSDT",
+      "LSKUSDT",
+      "PIXELUSDT",
+      "POPCATUSDT",
+      "RPLUSDT",
+      "HMSTRUSDT",
+      "DIAUSDT",
+      "ACTUSDT",
+      "AVAUSDT",
+      "VTHOUSDT",
+      "HYPERUSDT",
+      "HYPEUSDT"
+    ]
+  },
+  "data_channels_provenance": [
+    {
+      "channel": "15m_candles",
+      "source": "parquet_and_hot_sqlite_merged",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": true,
+      "impact_path": "触发入场、回踩确认、逐根高低点区间门禁"
+    },
+    {
+      "channel": "4h_candles",
+      "source": "parquet_and_hot_sqlite_merged",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": true,
+      "impact_path": "大周期箱体识别、ATR计算与跟踪止损更新"
+    },
+    {
+      "channel": "1h_candles",
+      "source": "parquet_and_hot_sqlite_merged",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": true,
+      "impact_path": "中周期结构过滤"
+    },
+    {
+      "channel": "funding_rate",
+      "source": "hot_sqlite_passthrough_only",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": true,
+      "impact_path": "持仓存续期资金费用扣除、账户净值与回撤计算"
+    },
+    {
+      "channel": "contract_spec",
+      "source": "csv_single_snapshot_20261011",
+      "available_at": "2026-10-11T12:48:51Z",
+      "availability": "static_snapshot_unproven_historical_change",
+      "actual_in_decision": true,
+      "impact_path": "订单数量舍入、价格步长对齐、最小名义价值门禁"
+    },
+    {
+      "channel": "open_interest_oi",
+      "source": "parquet_cold_storage",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": false,
+      "impact_path": "未接入策略判断链"
+    },
+    {
+      "channel": "top_trader_long_short_ratio",
+      "source": "parquet_cold_storage",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": false,
+      "impact_path": "未接入策略判断链"
+    },
+    {
+      "channel": "taker_long_short_vol_ratio_cvd",
+      "source": "parquet_cold_storage",
+      "available_at": null,
+      "availability": "unproven",
+      "actual_in_decision": false,
+      "impact_path": "未接入策略判断链"
+    }
+  ],
+  "work_coordination_contract": {
+    "required_input_fields": [
+      "strategy_identity",
+      "code_commit_hash",
+      "config_hash",
+      "approved",
+      "event_time",
+      "confirmed_at",
+      "available_at",
+      "bar_close_time",
+      "uid",
+      "symbol",
+      "action",
+      "price",
+      "low",
+      "high",
+      "status",
+      "reject_reason"
+    ],
+    "time_field_null_rule": "available_at 无确凿证据时强制填 null，且设置 availability=unproven，禁止将字符串填入时间戳字段",
+    "execution_state_rule": "回测或信号生成异常时必须强制置 FAILED，阻断下游实盘或模拟成交"
+  }
+}

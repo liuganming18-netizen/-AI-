@@ -1,0 +1,74 @@
+{
+  "audit_summary": "资金费在 MergedMarket 中未接入 Parquet 冷档，完全穿透至 SQLite 热库。热库中 2026-10-15 前的历史资金费由 archive 批量补齐，fetched_at 统一为 2026-10-15，缺乏历史实时点当时可得证明。",
+  "cold_archive_parquet_connected": false,
+  "passthrough_to_hot_sqlite": true,
+  "sources_breakdown": [
+    {
+      "source": "binance.archive.fundingRate",
+      "count": 783,
+      "min_funding_time_ms": 1659225600022,
+      "min_funding_time_utc": "2022-07-31T00:00:00.022000+00:00",
+      "max_funding_time_ms": 1692547200000,
+      "max_funding_time_utc": "2023-08-20T16:00:00+00:00",
+      "min_fetched_at_ms": 1792035104993,
+      "min_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "max_fetched_at_ms": 1792035104993,
+      "max_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "availability_status": "unproven_historical_backfill"
+    },
+    {
+      "source": "binance.archive.fundingRate+fapi",
+      "count": 7213,
+      "min_funding_time_ms": 1707148800000,
+      "min_funding_time_utc": "2024-02-05T16:00:00+00:00",
+      "max_funding_time_ms": 1788379200000,
+      "max_funding_time_utc": "2026-09-02T20:00:00+00:00",
+      "min_fetched_at_ms": 1792035104993,
+      "min_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "max_fetched_at_ms": 1792035104993,
+      "max_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "availability_status": "unproven_historical_backfill"
+    },
+    {
+      "source": "binance.archive.fundingRate+mark1h",
+      "count": 1943915,
+      "min_funding_time_ms": 1640995200006,
+      "min_funding_time_utc": "2022-01-01T00:00:00.006000+00:00",
+      "max_funding_time_ms": 1788390000002,
+      "max_funding_time_utc": "2026-09-02T23:00:00.002000+00:00",
+      "min_fetched_at_ms": 1792035104993,
+      "min_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "max_fetched_at_ms": 1792035104993,
+      "max_fetched_at_utc": "2026-10-15T03:31:44.993000+00:00",
+      "availability_status": "unproven_historical_backfill"
+    },
+    {
+      "source": "binance.fapi",
+      "count": 115271,
+      "min_funding_time_ms": 1788307200000,
+      "min_funding_time_utc": "2026-09-02T00:00:00+00:00",
+      "max_funding_time_ms": 1793070000000,
+      "max_funding_time_utc": "2026-10-27T03:00:00+00:00",
+      "min_fetched_at_ms": 1791175516517,
+      "min_fetched_at_utc": "2026-10-05T04:45:16.517000+00:00",
+      "max_fetched_at_ms": 1793072211508,
+      "max_fetched_at_utc": "2026-10-27T03:36:51.508000+00:00",
+      "availability_status": "live_proven"
+    },
+    {
+      "source": "okx.v5",
+      "count": 61027,
+      "min_funding_time_ms": 1788307200000,
+      "min_funding_time_utc": "2026-09-02T00:00:00+00:00",
+      "max_funding_time_ms": 1793059200000,
+      "max_funding_time_utc": "2026-10-27T00:00:00+00:00",
+      "min_fetched_at_ms": 1791176109754,
+      "min_fetched_at_utc": "2026-10-05T04:55:09.754000+00:00",
+      "max_fetched_at_ms": 1793072436080,
+      "max_fetched_at_utc": "2026-10-27T03:40:36.080000+00:00",
+      "availability_status": "unproven_historical_backfill"
+    }
+  ],
+  "backtest_40_symbols_funding_gap_rows": 0,
+  "note": "回测窗口期（2026-06-27 至 2026-10-26）事件在库内虽有记录，但在 2026-10-15 前属于事后回补，不能伪称当时可得。"
+}
