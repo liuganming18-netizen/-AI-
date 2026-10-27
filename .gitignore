@@ -61,10 +61,10 @@ logs/
 **/*.gz
 
 # 重型数据仓库目录（本地保存，不上传 GitHub）
+# 注意：git 不会进入被排除的目录，所以 !数据/xxx 这类例外规则是无效的（已实测 check-ignore 验证）。
+# 该目录下确有少量核验脚本与审计文档需要入库，统一用 `git add -f` 显式强制添加；
+# 一旦被强制添加成为已跟踪文件，后续改动照常被跟踪，不受本规则影响。
 数据/
-!数据/市场数据/MANIFEST.md
-!数据/研究输入/WyckoffMaster_v31/pool.json
-!数据/研究输入/WyckoffMaster_v31/schema.json
 
 # 临时下载、缓存与重型恢复目录
 _dl/
@@ -88,4 +88,42 @@ _backup/
 回测日志/legacy_archive/
 .workbuddy-ai/
 UI界面/web/_archive/
+
+# ===== 环境变量与密钥（绝对不入库）=====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+*credentials*.json
+.netrc
+id_rsa
+id_ed25519
+*.pub
+!**/tests/fixtures/**/*.pub
+
+# ===== 测试与覆盖率缓存 =====
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# ===== 构建产物（dist/ 已在上面，此处补齐）=====
+build/
+**/build/
+# 注意：不能忽略 out/ —— evidence/*/out/ 是审计交付物，必须入库
+
+# ===== 备份与恢复目录 =====
+backups/
+backup/
+**/_backup_*/
+**/*.orig
+**/*.rej
 
