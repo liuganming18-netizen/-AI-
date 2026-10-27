@@ -1,0 +1,193 @@
+{
+  "generated_at_utc": "2026-10-26T15:37:22Z",
+  "cold_dirs": {
+    "binance_um_count": 528,
+    "okx_top_dirs": [
+      "swap"
+    ],
+    "binance_um_has_okx": true
+  },
+  "metadata": {
+    "symbol_pool_rows": [
+      {
+        "exchange": "binance",
+        "market": "um",
+        "status": "TRADING",
+        "contract_type": "PERPETUAL",
+        "n": 528
+      },
+      {
+        "exchange": "okx",
+        "market": "swap",
+        "status": "live",
+        "contract_type": "SWAP",
+        "n": 286
+      }
+    ],
+    "classification_rows": [
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "CN_EQUITY",
+        "in_active_range": 0,
+        "n": 2
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "COIN",
+        "in_active_range": 0,
+        "n": 178
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "COIN",
+        "in_active_range": 1,
+        "n": 526
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "COMMODITY",
+        "in_active_range": 0,
+        "n": 8
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "EQUITY",
+        "in_active_range": 0,
+        "n": 175
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "FX",
+        "in_active_range": 0,
+        "n": 1
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "HK_EQUITY",
+        "in_active_range": 0,
+        "n": 15
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "INDEX",
+        "in_active_range": 0,
+        "n": 3
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "KR_EQUITY",
+        "in_active_range": 0,
+        "n": 8
+      },
+      {
+        "exchange": "binance",
+        "market": "um",
+        "instrument_category": "PREMARKET",
+        "in_active_range": 0,
+        "n": 4
+      },
+      {
+        "exchange": "okx",
+        "market": "swap",
+        "instrument_category": "1",
+        "in_active_range": 0,
+        "n": 15
+      },
+      {
+        "exchange": "okx",
+        "market": "swap",
+        "instrument_category": "1",
+        "in_active_range": 1,
+        "n": 286
+      },
+      {
+        "exchange": "okx",
+        "market": "swap",
+        "instrument_category": "3",
+        "in_active_range": 0,
+        "n": 190
+      },
+      {
+        "exchange": "okx",
+        "market": "swap",
+        "instrument_category": "4",
+        "in_active_range": 0,
+        "n": 9
+      }
+    ],
+    "other_categories": {
+      "EQUITY": 175,
+      "PREMARKET": 4,
+      "HK_EQUITY": 15,
+      "COMMODITY": 8,
+      "CN_EQUITY": 2,
+      "KR_EQUITY": 8,
+      "FX": 1
+    }
+  },
+  "index_rule": {
+    "index_symbols": [
+      "ALLUSDT",
+      "BTCDOMUSDT",
+      "DEFIUSDT"
+    ],
+    "in_cold_dirs": [
+      "ALLUSDT",
+      "BTCDOMUSDT"
+    ],
+    "excluded_by_04A": [
+      "ALLUSDT",
+      "BTCDOMUSDT"
+    ],
+    "not_excluded_but_no_data": [
+      "DEFIUSDT"
+    ],
+    "conclusion": "指数共 3 个；04-A 只显式排除 2 个，第 3 个（无 K 线目录）因无数据而未进入池 ⇒ 排除规则不完整但本次无实际影响"
+  },
+  "delisted": {
+    "count": 178,
+    "reason_sample": [
+      "不在活动范围：contractType=PERPETUAL quote=USDC status=TRADING",
+      "不在活动范围：contractType=PERPETUAL quote=USDC status=TRADING",
+      "不在活动范围：contractType=PERPETUAL quote=USDC status=TRADING",
+      "不在活动范围：contractType=PERPETUAL quote=USDT status=SETTLING",
+      "不在活动范围：contractType=PERPETUAL quote=USDT status=SETTLING"
+    ],
+    "in_cold_dirs": 0,
+    "in_hot_candles": 0,
+    "hot_detail_sample": [],
+    "delist_time_available": false,
+    "delist_time_note": "元数据只有上线时刻 onboard_time，没有下架/交割时刻字段；分类表的 excluded_reason 只写 status=SETTLING，所以「这些标的在观察窗口内是否还活着」无法从本地数据判定"
+  },
+  "pool_cross_check": {
+    "active_missing_dirs": [],
+    "dirs_unclassified": [],
+    "inactive_in_dirs": []
+  },
+  "denominators": {
+    "冷档目录_binance_um": 528,
+    "元数据_COIN_active": 526,
+    "元数据_COIN_inactive_SETTLING": 178,
+    "元数据_INDEX": 3,
+    "元数据_其他类别(股票/商品/外汇/盘前)": 213,
+    "04A_实际扫描池": 526,
+    "05C_symbols_口径": 528,
+    "symbol_pool_全表": 814
+  },
+  "survivorship": {
+    "pool_used_by_04A": 526,
+    "historical_union_upper_bound": 704,
+    "excluded_fraction_pct": 25.28,
+    "direction": "对只做多策略，排除已退市标的会高估收益（幸存者偏差）",
+    "magnitude": "方向明确、大小不可量化：退市时刻未知，无法判断它们在窗口内贡献过多少候选"
+  }
+}

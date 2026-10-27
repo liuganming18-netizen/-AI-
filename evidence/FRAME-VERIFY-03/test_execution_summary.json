@@ -1,0 +1,186 @@
+{
+  "suite": "FRAME-VERIFY-03",
+  "generated_at": "2026-10-18T17:55:35.967460+00:00",
+  "duration_seconds": 0.03,
+  "total_tests": 12,
+  "passed": 9,
+  "failed": 2,
+  "not_tested": 1,
+  "records": [
+    {
+      "test_id": "VERIFY-A1-PURE-GUARD-DEADLOCK-EXCLUSION",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "FAIL",
+      "expected": "首次正式实验在前置条件完美满足时应允许启动 (ok=True)",
+      "actual": "已彻底消除身份/窗口/分组混杂；blockers 排他性仅包含：'尚无已登记运行（试验次数为 0，不能宣称有结果）'",
+      "blockers": [
+        "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+      ],
+      "conclusion": "确凿证实死锁：实现方混淆'实验启动准入资格'与'实验成果交付资格'，使首个正式实验物理上无法创建",
+      "issue_owner": "FRAME-FIT-01",
+      "timestamp": "2026-10-18T17:55:35.945901+00:00"
+    },
+    {
+      "test_id": "VERIFY-A2-API-CONTROLLER-DEADLOCK-EXCLUSION",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/backtest_api.py::create_run",
+      "invocation_type": "控制器函数调用 (In-process Controller API Invocation)",
+      "status": "FAIL",
+      "expected": "控制器应受理合法首次正式实验创建 (HTTP 202)",
+      "actual": "返回 HTTP 409 Conflict, 错误排他性为: ['尚无已登记运行（试验次数为 0，不能宣称有结果）']",
+      "blockers": [
+        "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+      ],
+      "conclusion": "正式实验创建入口在 API 控制器层被 guard_create 拦截并抛出 409 异常，业务流阻断",
+      "issue_owner": "FRAME-FIT-01",
+      "timestamp": "2026-10-18T17:55:35.950142+00:00"
+    },
+    {
+      "test_id": "VERIFY-A3-1-REJECT-UNREGISTERED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "PASS",
+      "expected": "未登记实验必须被拒绝并指出'实验未登记'",
+      "actual": "ok=False, blockers=['实验未登记：exp_non_existent_999']",
+      "blockers": [
+        "实验未登记：exp_non_existent_999"
+      ],
+      "conclusion": "守卫正确拦截未登记的非法实验",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.951067+00:00"
+    },
+    {
+      "test_id": "VERIFY-A3-2-REJECT-UNFROZEN",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "PASS",
+      "expected": "未冻结实验必须被拒绝并指出'配置未冻结'",
+      "actual": "ok=False, blockers=['配置未冻结', '尚无已登记运行（试验次数为 0，不能宣称有结果）', '当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 f13e47665fd1… / 当前 a76070e60639…）⇒ 请登记新实验版本，不得沿用旧身份']",
+      "blockers": [
+        "配置未冻结",
+        "尚无已登记运行（试验次数为 0，不能宣称有结果）",
+        "当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 f13e47665fd1… / 当前 a76070e60639…）⇒ 请登记新实验版本，不得沿用旧身份"
+      ],
+      "conclusion": "守卫正确拦截未冻结的正式实验",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.953565+00:00"
+    },
+    {
+      "test_id": "VERIFY-A3-3-REJECT-IDENTITY-DRIFT",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "PASS",
+      "expected": "设计身份漂移必须被拒绝并提示登记身份不一致",
+      "actual": "ok=False, blockers=['尚无已登记运行（试验次数为 0，不能宣称有结果）', '当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 41833fca0c13… / 当前 a76070e60639…）⇒ 请登记新实验版本，不得沿用旧身份']",
+      "blockers": [
+        "尚无已登记运行（试验次数为 0，不能宣称有结果）",
+        "当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 41833fca0c13… / 当前 a76070e60639…）⇒ 请登记新实验版本，不得沿用旧身份"
+      ],
+      "conclusion": "守卫正确拦截代码/参数与冻结身份不一致的请求",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.957068+00:00"
+    },
+    {
+      "test_id": "VERIFY-A3-4-REJECT-SCOPE-MISMATCH",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "PASS",
+      "expected": "请求窗口与执行链写死窗口不一致时必须提示阻断",
+      "actual": "ok=False, scope_mismatch=请求窗口 2024-02-01 ~ 2024-05-31，但执行链写死为 2024-01-01 ~ 2024-06-30（框架/backend/backtest_runner.py::_run_event_trend 写死窗口）⇒ 实际样本范围与登记不符",
+      "blockers": [
+        "尚无已登记运行（试验次数为 0，不能宣称有结果）",
+        "当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 a76070e60639… / 当前 e9b758b21495…）⇒ 请登记新实验版本，不得沿用旧身份",
+        "请求窗口 2024-02-01 ~ 2024-05-31，但执行链写死为 2024-01-01 ~ 2024-06-30（框架/backend/backtest_runner.py::_run_event_trend 写死窗口）⇒ 实际样本范围与登记不符"
+      ],
+      "conclusion": "守卫正确检测并拦截请求窗口与底层写死窗口的不一致",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.958831+00:00"
+    },
+    {
+      "test_id": "VERIFY-A4-GUARD-EXECUTE-IDENTITY-CHECK",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_execute",
+      "invocation_type": "函数级守卫调用 (Function Guard Call)",
+      "status": "PASS",
+      "expected": "guard_execute 在实验已冻结且身份一致时应允许执行 (返回 None)",
+      "actual": "exec_err=None",
+      "blockers": [],
+      "conclusion": "执行阶段闸门设计正常：仅检查冻结与身份一致性，不要求预先存在历史运行",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.959520+00:00"
+    },
+    {
+      "test_id": "VERIFY-B1-NON-EMPTY-FUTURE-PERTURBATION",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py::process_1h_bar",
+      "invocation_type": "策略状态机真实决策函数调用",
+      "status": "PASS",
+      "expected": "基准候选非空 (>=1) 且未来数据剧烈扰动后，过去候选所有字段 100% 绝对一致",
+      "actual": "基准产生候选数=1; 扰动后差异字段数=0",
+      "blockers": [],
+      "conclusion": "确凿证实真实策略决策逻辑满足未来扰动不变性（消除原先 0==0 空候选漏洞）",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.964142+00:00"
+    },
+    {
+      "test_id": "VERIFY-B2-TRUNCATION-FULL-EQUIVALENCE",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py::process_1h_bar",
+      "invocation_type": "策略状态机真实决策函数调用",
+      "status": "PASS",
+      "expected": "截断输入产生的决策与完整输入在决策时刻产生的决策逐字段完全全等",
+      "actual": "差异字段数=0",
+      "blockers": [],
+      "conclusion": "证实系统决策完全只依赖决策时点及此前已收盘/已发布信息，未来截断前后完全等价",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.964721+00:00"
+    },
+    {
+      "test_id": "VERIFY-B3-EMPTY-CANDIDATE-SUPPLEMENTARY",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py::process_1h_bar",
+      "invocation_type": "策略状态机真实决策函数调用",
+      "status": "PASS",
+      "expected": "平淡无事件时候选为 0，作为辅助对比案例",
+      "actual": "候选数=0 (符合无事件预期)",
+      "blockers": [],
+      "conclusion": "【补充用例】确认平淡行情下不误发候选，仅作为辅助对比，不代替主验证",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.964756+00:00"
+    },
+    {
+      "test_id": "VERIFY-B4-RUNNER-UNCLOSED-CANDLE-REJECTION",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/runner.py::run_state_machine_simulation",
+      "invocation_type": "回放仿真 Runner 端到端入口调用",
+      "status": "PASS",
+      "expected": "未收盘 K 线输入真实 Runner 必须抛出 PitViolation 物理拒绝",
+      "actual": "抛出异常=True, 原因: [SOLUSDT] 1h bar 未收盘即被用于决策：close_time=1600097200000 +1ms > decision_time=1600093600000",
+      "blockers": [],
+      "conclusion": "真实策略 Runner 入口具备强 PIT 防护，物理杜绝未来蜡烛穿透",
+      "issue_owner": "NONE",
+      "timestamp": "2026-10-18T17:55:35.966911+00:00"
+    },
+    {
+      "test_id": "VERIFY-C1-PIT-02-RECEIPT-DISCOVERY",
+      "domain": "FRAME-PIT-02",
+      "entrypoint": "evidence/FRAME-PIT-02/",
+      "invocation_type": "文件系统交付清单核验",
+      "status": "NOT_TESTED",
+      "expected": "收到 FRAME-PIT-02 明确版本回执后再行复验；未收到前严格保持 NOT_TESTED",
+      "actual": "目录 /Users/boos/Desktop/威科夫因子共振趋势/evidence/FRAME-PIT-02 不存在或无交付文件；代码层存在开发中未冻结修改: flow_script(50126ea0..), pit_features(a338480a..)",
+      "blockers": [
+        "FRAME-PIT-02 官方版本回执尚未交付"
+      ],
+      "conclusion": "【纪律保持】未收到版本回执时严格保持'待测 (NOT_TESTED)'，绝不提前宣告通过，杜绝跨版本抢跑",
+      "issue_owner": "FRAME-PIT-02 (待交付)",
+      "timestamp": "2026-10-18T17:55:35.967445+00:00"
+    }
+  ]
+}

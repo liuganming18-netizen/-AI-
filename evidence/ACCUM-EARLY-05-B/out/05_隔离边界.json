@@ -1,0 +1,290 @@
+{
+ "generated_utc": "2026-10-26T16:33:49Z",
+ "run_id": "20261026T163349Z",
+ "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z",
+ "why_note": "每次运行落在 runs/05_isolation/<运行号>/ 下，不删除任何既有目录：环境的安全删除守卫按单轮累计文件数拦截，删目录会让复跑莫名失败；不删反而能留历史对照。",
+ "why": "证明隔离运行没有以可写方式连生产库：用连接探针逐次记录打开方式，再配生产指纹前后对照与三条负向用例（每条都带正向对照）。",
+ "prod_before": {
+  "ledgers": {
+   "3a": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+    "exists": true,
+    "bytes": 163840,
+    "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a",
+    "hashed_bytes": 163840
+   },
+   "3b": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+    "exists": true,
+    "bytes": 163840,
+    "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+    "hashed_bytes": 163840
+   },
+   "3c": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+    "exists": true,
+    "bytes": 163840,
+    "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+    "hashed_bytes": 163840
+   },
+   "3d": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+    "exists": true,
+    "bytes": 163840,
+    "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+    "hashed_bytes": 163840
+   }
+  },
+  "live": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+   "exists": true,
+   "bytes": 45056,
+   "sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+   "hashed_bytes": 45056
+  }
+ },
+ "prod_market_note": "行情库 sha 必然变化（采集器实时写），不作为泄漏判据；只统计本进程对它的打开方式",
+ "worker_json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/worker_iso.json",
+ "x1_conn_probe": {
+  "total": 70,
+  "by_kind": {
+   "isolated": {
+    "n": 54,
+    "readonly": 9,
+    "writable": 45
+   },
+   "prod_market": {
+    "n": 16,
+    "readonly": 16,
+    "writable": 0
+   }
+  },
+  "prod_ledger_or_live_writable": 0,
+  "prod_market_writable": 0,
+  "isolated_writable": 45,
+  "violations": [],
+  "classifier_selfcheck": {
+   "rows": [
+    {
+     "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+     "want": "prod_ledger",
+     "got": "prod_ledger",
+     "ok": true
+    },
+    {
+     "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3?mode=ro",
+     "want": "prod_ledger",
+     "got": "prod_ledger",
+     "ok": true
+    },
+    {
+     "db": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+     "want": "prod_live",
+     "got": "prod_live",
+     "ok": true
+    },
+    {
+     "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3?mode=ro",
+     "want": "prod_live",
+     "got": "prod_live",
+     "ok": true
+    },
+    {
+     "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+     "want": "prod_market",
+     "got": "prod_market",
+     "ok": true
+    },
+    {
+     "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "want": "prod_market",
+     "got": "prod_market",
+     "ok": true
+    },
+    {
+     "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4a.sqlite3",
+     "want": "isolated",
+     "got": "isolated",
+     "ok": true
+    },
+    {
+     "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4b.sqlite3?mode=ro",
+     "want": "isolated",
+     "got": "isolated",
+     "ok": true
+    },
+    {
+     "db": "/tmp/__不存在的库__.sqlite3",
+     "want": "other",
+     "got": "other",
+     "ok": true
+    }
+   ],
+   "ok": true
+  },
+  "ok": true,
+  "note": "两个正向对照：① `isolated_writable > 0` 证明探针确实看得见可写打开；② `classifier_selfcheck` 证明生产路径不会被归成「其它」而漏判"
+ },
+ "x2_gate_boundary": {
+  "negative": {
+   "raised": true,
+   "type": "SystemExit",
+   "msg": "拒绝：闸门目录 /Users/boos/Desktop/威科夫因子共振趋势/数据/paper 不在隔离运行根 /Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs 之下（禁止把放行闸门写到生产目录）",
+   "gate_written_into_prod": false
+  },
+  "positive": {
+   "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/gate_pos/gate.json",
+   "inside_run_dir": true,
+   "allow": true
+  },
+  "positive_ok": true,
+  "ok": true,
+  "note": "只断言「被拒」不够：还要断言生产目录里**没有**多出 gate.json"
+ },
+ "x3_unknown_arm": {
+  "negative": {
+   "raised": true,
+   "type": "ValueError",
+   "msg": "未知臂：'9z'"
+  },
+  "positive": {
+   "ok": true,
+   "positions": 1,
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4a.sqlite3"
+  },
+  "arms": [
+   "3a",
+   "3b",
+   "3c",
+   "3d"
+  ],
+  "research_arms": [
+   "4a",
+   "4b",
+   "4c"
+  ],
+  "ok": true,
+  "note": "负向（未知臂被拒）必须配正向（已知研究臂在隔离目录里真能打开），否则拒得过头也看不出来"
+ },
+ "x4_research_arms_not_in_production": {
+  "ARMS": [
+   "3a",
+   "3b",
+   "3c",
+   "3d"
+  ],
+  "RESEARCH_ARMS": [
+   "4a",
+   "4b",
+   "4c"
+  ],
+  "overlap": [],
+  "ok": true
+ },
+ "x5_prod_fingerprint": {
+  "ledgers_unchanged": {
+   "3a": true,
+   "3b": true,
+   "3c": true,
+   "3d": true
+  },
+  "live_unchanged": true,
+  "ok": true
+ },
+ "x6_ledger_location": {
+  "production_dir_research_ledgers": {
+   "dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+   "research_ledger_files": [],
+   "count": 0
+  },
+  "run_ledgers": [
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_cold/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_cold/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_cold/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_hot/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_hot/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_hot/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_cold/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_cold/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_cold/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_hot/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_hot/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_hot/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_legacy/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_legacy/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162759Z/run_legacy/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_cold/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_cold/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_cold/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_hot/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_hot/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_hot/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_legacy/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_legacy/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T163343Z/run_legacy/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162738Z/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162738Z/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162738Z/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162804Z/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162804Z/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T162804Z/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/20261026T163349Z/paper/paper_4c.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/paper/paper_4a.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/paper/paper_4b.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/05_isolation/paper/paper_4c.sqlite3"
+  ],
+  "run_ledgers_inside_runs": true,
+  "prior_research_unchanged": {
+   "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/ledger/paper_4a.sqlite3": true,
+   "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/ledger/paper_4b.sqlite3": true,
+   "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/ledger/paper_4c.sqlite3": true
+  },
+  "ok": true
+ },
+ "x7_isolated_ledgers_written": {
+  "files": {
+   "paper_4a.sqlite3": {
+    "positions": 1,
+    "orders": 2,
+    "bytes": 163840
+   },
+   "paper_4b.sqlite3": {
+    "positions": 1,
+    "orders": 2,
+    "bytes": 163840
+   },
+   "paper_4c.sqlite3": {
+    "positions": 0,
+    "orders": 0,
+    "bytes": 163840
+   }
+  },
+  "total_positions": 2,
+  "ok": true,
+  "note": "三个研究臂各一本账本，且至少有一笔持仓 —— 否则「没写生产」只是「什么都没写」"
+ },
+ "summary": {
+  "x1_conn_probe": true,
+  "x2_gate_boundary": true,
+  "x3_unknown_arm": true,
+  "x4_research_arms": true,
+  "x5_prod_fingerprint": true,
+  "x6_ledger_location": true,
+  "x7_isolated_written": true,
+  "all_ok": true
+ }
+}

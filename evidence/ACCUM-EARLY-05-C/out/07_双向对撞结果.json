@@ -1,0 +1,83 @@
+{
+ "probe": "07_正文数字双向对撞",
+ "generated_at_utc": "2026-10-26T15:56:07Z",
+ "ledger_count": 102,
+ "forward_recalc": {
+  "checked": 102,
+  "match": 102,
+  "mismatch": 0,
+  "mismatch_detail": [],
+  "note": "台账里记的值与产物当前值逐条比对；不一致说明产物已变或台账抄错。"
+ },
+ "reverse_scan": {
+  "numbers_found": 294,
+  "accepted_forms": 309,
+  "unexplained_count": 0,
+  "unexplained": [],
+  "scan_rule": "扫描前已剔除三反引号代码块与行内反引号内容（文件名/字段名/脚本序号），只核正文与表格里手写的数字。",
+  "note": "台账里没有、也不在白名单里的数字。为 0 才说明正文没有手写数。"
+ },
+ "assertions": [
+  {
+   "name": "逐笔对撞 102 笔全部命中",
+   "pass": true,
+   "detail": "found=102, mismatch=0"
+  },
+  {
+   "name": "与 04-C 汇总三项一致",
+   "pass": true,
+   "detail": "{'executed_count': '一致', 'positive_count': '一致', 'negative_count': '一致', 'total_realized_net': '一致', 'max_drawdown': '本单不产出该字段：04-C 的「最大回撤」是按候选顺序累加 realized_net 得到的伪回撤，不是组合账户回撤。见 03 脚本的顺序敏感性与并发重叠证据。'}"
+  },
+  {
+   "name": "伪回撤可复现（说明它确实是顺序累加）",
+   "pass": true,
+   "detail": "两套口径都能复现 04-C 的 max_drawdown"
+  },
+  {
+   "name": "伪回撤的顺序极差 > 伪回撤本身（⇒ 不是账户属性）",
+   "pass": true,
+   "detail": "极差=478.384988 vs 伪回撤=346.235886"
+  },
+  {
+   "name": "同时在仓峰值 > 1（⇒ 顺序累加的单仓假设不成立）",
+   "pass": true,
+   "detail": "峰值=9"
+  },
+  {
+   "name": "51 条候选全部落在已泄露区间（⇒ 只能当机制对照）",
+   "pass": true,
+   "detail": "区间分布={'区间一_研究集': 0, '区间二_已泄露验证集': 51, '区间三_真样本外': 0}"
+  },
+  {
+   "name": "拒单标的是 CARVUSDT（与 04-C/04-D 正文都不符）",
+   "pass": true,
+   "detail": "['CARVUSDT']"
+  },
+  {
+   "name": "母集事件数 > 51（⇒ 确实不限于 51 个候选）",
+   "pass": true,
+   "detail": "events_total=1178"
+  },
+  {
+   "name": "母集与 51 候选覆盖率 > 90%",
+   "pass": true,
+   "detail": "coverage=94.12%"
+  },
+  {
+   "name": "期末持仓与拒单都被保留（不补齐）",
+   "pass": true,
+   "detail": "rejected=1, open=0"
+  },
+  {
+   "name": "组合回撤字段在本单产物里不存在",
+   "pass": true,
+   "detail": "02 产物的「本单」段 max_drawdown 全为 null"
+  }
+ ],
+ "verdict": {
+  "forward_recalc": "通过",
+  "reverse_scan": "通过",
+  "assertions": "11/11 通过",
+  "overall": "通过"
+ }
+}

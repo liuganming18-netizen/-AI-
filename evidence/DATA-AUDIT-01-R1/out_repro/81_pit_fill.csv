@@ -1,0 +1,10 @@
+﻿dataset,field,rows,filled,fill_pct,semantic
+冷档 candles,available_at,114466846,0,0.0,K 线可得时间（交易所发布时刻或本地入库时刻，需另证）
+冷档 oi,fetched_at,128566270,0,0.0,采集时刻
+冷档 funding,fetched_at（列不存在）,2189855,0,0.0,冷档 funding 只有 5 列（funding_time/funding_rate/mark_price/rate_type/source），**没有 fetched_at、也没有 exchange/market/symbol** ⇒ 冷档资金费无法自证采集时刻
+冷档 metrics,（无采集/发布时刻列）,127973455,0,0.0,只有 ts（5m 槽位），没有 fetched_at / published_at ⇒ 无法判断何时可得
+热库 candle_versions,available_at,9137679,4586423,50.19,K 线可得时间（实测=入库时刻）
+热库 oi_history,fetched_at,7136972,3206165,44.92,OI 采集时刻
+热库 funding_history,fetched_at,2123808,2123808,100.0,资金费采集时刻
+热库 realtime_quotes,fetched_at,814,814,100.0,行情快照采集时刻
+热库 oi_history（池内 526）,fetched_at,6898066,2967259,43.02,OI 采集时刻（池内口径）

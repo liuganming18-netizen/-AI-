@@ -1,0 +1,171 @@
+{
+  "task": "ACCUM-EARLY-04-C",
+  "generated_at_utc": "2026-10-26T14:09:55.945038+00:00",
+  "input_fixed_manifest": {
+    "window": {
+      "start_utc": "2026-06-27T00:00:00Z",
+      "end_utc": "2026-10-26T09:00:00Z",
+      "warmup_start_utc": "2026-05-20T00:00:00Z",
+      "description": "拟采用的首轮历史验证窗口，含 4h 状态机预热（Wilder ATR 与 42 根箱体）"
+    },
+    "universe": {
+      "historical_candidate_symbols_count": 48,
+      "historical_candidate_symbols": [
+        "1000PEPEUSDT",
+        "AGTUSDT",
+        "AIGENSYNUSDT",
+        "ASTERUSDT",
+        "AXSUSDT",
+        "BABYUSDT",
+        "BBUSDT",
+        "BLURUSDT",
+        "BNBUSDT",
+        "CARVUSDT",
+        "CHZUSDT",
+        "COLLECTUSDT",
+        "COOKIEUSDT",
+        "CROSSUSDT",
+        "DOTUSDT",
+        "DUSKUSDT",
+        "ETHWUSDT",
+        "EVAAUSDT",
+        "GOATUSDT",
+        "HYPERUSDT",
+        "IRYSUSDT",
+        "JELLYJELLYUSDT",
+        "KATUSDT",
+        "KMNOUSDT",
+        "KOMAUSDT",
+        "METISUSDT",
+        "METUSDT",
+        "NEARUSDT",
+        "NILUSDT",
+        "PEOPLEUSDT",
+        "PIXELUSDT",
+        "PLUMEUSDT",
+        "PORTALUSDT",
+        "PROVEUSDT",
+        "PYTHUSDT",
+        "SAFEUSDT",
+        "SANDUSDT",
+        "SKRUSDT",
+        "SUSDT",
+        "TNSRUSDT",
+        "UAIUSDT",
+        "VELVETUSDT",
+        "WALUSDT",
+        "WUSDT",
+        "XLMUSDT",
+        "YGGUSDT",
+        "ZECUSDT",
+        "ZKUSDT"
+      ],
+      "current_observing_total": 359,
+      "current_observing_symbols_count": 359,
+      "total_symbols_in_db": 814
+    },
+    "data_sources": {
+      "hot_db": "数据/市场数据/db/market_v2.sqlite3",
+      "cold_parquet_dir": "数据/市场数据/parquet",
+      "reader_implementation": "research_15m.py (Merged15m 门面，支持 15m 与 4h 双周期冷热无缝合并)",
+      "arithmetic_engine": "框架/backend/replay_calc.py (唯一获批复算实现)"
+    },
+    "data_sufficiency": {
+      "check_result": "足够支撑本次对照实验",
+      "require_full_pool_download": false,
+      "missing_symbols_in_candidates": [],
+      "tested_candidate_symbols_count": 48,
+      "total_gaps_in_samples": 0,
+      "action_on_download": "坚决不启动全池补下载，遵守无越权数据原则"
+    },
+    "gaps_and_provenance": {
+      "cold_available_at": "冷档 Parquet 缺失真实抓取时刻 fetched_at，统一保留 available_at_missing=True，按探索性结果定性，不冒充当时可得",
+      "hot_available_at": "热库根据 fetched_at 逐行判定 proven/late/unknown/future",
+      "funding_order_uncertainty": "资金费结算时间与平仓退出时刻间隔 <= 15 分钟的事件标记为 funding_order_uncertain，不静默填零",
+      "metrics_ratio_cutoff": "主动买卖与多空比归档停在 2026-10-14T23:55Z，历史对照不强加未获批之指标门槛"
+    },
+    "version_and_calibers": {
+      "strategy_version": "策略/WyckoffMaster/event_trend_v0_1 (代码与参数一字不动，冻结状态机)",
+      "calibers": {
+        "生效视图_5bps": {
+          "来源": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+          "initial_equity": 5000.0,
+          "risk_per_trade_fraction": 0.005,
+          "fee_each_side": 0.0005,
+          "slippage_each_side": 0.0005,
+          "single_name_notional_cap": 0.1,
+          "gross_long_notional_cap": 0.8,
+          "participation_cap": 0.01,
+          "leverage": 1.0,
+          "cash_reserve_fraction": 0.2,
+          "portfolio_risk_cap": 0.05
+        },
+        "策略包_3bps": {
+          "来源": "策略/WyckoffMaster/event_trend_v0_1/config.py · make_ft_low4h_config()",
+          "initial_equity": 2000.0,
+          "risk_per_trade_fraction": 0.005,
+          "fee_each_side": 0.0005,
+          "slippage_each_side": 0.0003,
+          "single_name_notional_cap": 0.3,
+          "gross_long_notional_cap": 0.9,
+          "participation_cap": 0.001,
+          "leverage": 1.0,
+          "cash_reserve_fraction": 0.2,
+          "portfolio_risk_cap": 0.015
+        }
+      },
+      "conflict_notice": "滑点 (3bps vs 5bps)、风险配置 (0.5% vs 1.5%)、参与率上限 (1% vs 0.1%) 为已知两套冲突口径，本次并列报告，未获批准前不作为单一正式成绩"
+    }
+  },
+  "coverage_sample_summary": {
+    "total_candidates_examined": 48,
+    "all_candidates_covered": true,
+    "sample_coverage": [
+      {
+        "symbol": "1000PEPEUSDT",
+        "15m_sample_bars": 1112,
+        "15m_cold_rows": 1112,
+        "15m_hot_rows": 0,
+        "15m_gaps": 0,
+        "4h_sample_bars": 209,
+        "has_funding": true
+      },
+      {
+        "symbol": "AGTUSDT",
+        "15m_sample_bars": 1112,
+        "15m_cold_rows": 1112,
+        "15m_hot_rows": 0,
+        "15m_gaps": 0,
+        "4h_sample_bars": 209,
+        "has_funding": true
+      },
+      {
+        "symbol": "AIGENSYNUSDT",
+        "15m_sample_bars": 1112,
+        "15m_cold_rows": 1112,
+        "15m_hot_rows": 0,
+        "15m_gaps": 0,
+        "4h_sample_bars": 209,
+        "has_funding": true
+      },
+      {
+        "symbol": "ASTERUSDT",
+        "15m_sample_bars": 1112,
+        "15m_cold_rows": 1112,
+        "15m_hot_rows": 0,
+        "15m_gaps": 0,
+        "4h_sample_bars": 209,
+        "has_funding": true
+      },
+      {
+        "symbol": "AXSUSDT",
+        "15m_sample_bars": 1112,
+        "15m_cold_rows": 1112,
+        "15m_hot_rows": 0,
+        "15m_gaps": 0,
+        "4h_sample_bars": 209,
+        "has_funding": true
+      }
+    ]
+  }
+}

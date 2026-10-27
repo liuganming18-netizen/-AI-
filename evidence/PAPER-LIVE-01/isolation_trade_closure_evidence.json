@@ -1,0 +1,96 @@
+{
+  "test_suite": "PAPER-LIVE-01",
+  "isolation_mode": true,
+  "verified_at": "2026-10-23T11:37:10Z",
+  "pipeline_verification": {
+    "step_1_breakout_detection": {
+      "symbol": "BTCUSDT",
+      "strategy_version": "wyckoff_v0_1",
+      "event_type": "breakout",
+      "direction": "long",
+      "candidate_id": "cand_test_01",
+      "box_high_h": 52000.0,
+      "box_low_l": 50000.0,
+      "breakout_close": 53000.0,
+      "initial_stop_price": 50750.0,
+      "table": "live_signal",
+      "status": "persisted",
+      "executable_state": "enterable"
+    },
+    "step_2_order_routing": {
+      "router": "SignalPersistenceAndRouter",
+      "origin": "test",
+      "registered": 1,
+      "table": "paper_pending",
+      "pending_order": {
+        "pending_id": 1,
+        "account_id": "paper43_3a",
+        "arm": "3a",
+        "symbol": "BTCUSDT",
+        "direction": "long",
+        "status": "pending",
+        "requested_at": 1792609202000,
+        "earliest_fill_ms": 1792610102000
+      }
+    },
+    "step_3_fill_matching": {
+      "engine": "paper_engine.advance_pending",
+      "fill_trigger_bar": {
+        "timeframe": "15m",
+        "open_time": 1792611000000,
+        "open": 53000.0,
+        "high": 53300.0,
+        "low": 52900.0,
+        "close": 53100.0
+      },
+      "result": {
+        "ok": true,
+        "position_id": 1,
+        "fill_price": 53026.5,
+        "qty": 0.188,
+        "entry_fee": 4.984491,
+        "status": "open"
+      },
+      "table": "paper_position"
+    },
+    "step_4_trailing_stop_update": {
+      "trigger_4h_bar": {
+        "timeframe": "4h",
+        "open_time": 1792609200000,
+        "close_time": 1792623599999,
+        "open": 54500.0,
+        "high": 56000.0,
+        "low": 54000.0,
+        "close": 55500.0
+      },
+      "trailing_rule": "FT-LOW4H (low_4h * (1 - trail_d))",
+      "trail_d": 0.05,
+      "initial_stop": 50375.1,
+      "updated_stop": 51300.0,
+      "monotonic_increase_verified": true,
+      "table": "paper_stop_history"
+    },
+    "step_5_stop_loss_exit": {
+      "exit_trigger_15m_bar": {
+        "timeframe": "15m",
+        "open": 51350.0,
+        "high": 51350.0,
+        "low": 51050.0,
+        "close": 51100.0
+      },
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 50349.91,
+      "exit_fee": 4.73289,
+      "net_pnl": -512.9158,
+      "position_status_after": "closed",
+      "open_positions_count": 0,
+      "table": "paper_realized"
+    }
+  },
+  "production_zero_pollution_assertion": {
+    "market_v2_sqlite3_bytes_changed": 0,
+    "live_signals_sqlite3_signals_count_changed": 0,
+    "paper_production_dir_modifications": 0,
+    "conclusion": "完全零污染，隔离测试数据与自然市场数据边界清晰"
+  }
+}

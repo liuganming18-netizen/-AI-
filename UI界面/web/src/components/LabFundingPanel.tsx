@@ -20,13 +20,14 @@
  *   表格**复用旧热力图** `MonthlyReturnsHeatmap`。
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   AreaSeries,
   ColorType,
   CrosshairMode,
   LineSeries,
   LineStyle,
+  LineType,
   createChart,
   type IChartApi,
   type ISeriesApi,
@@ -37,6 +38,10 @@ import {
 import { AlertCircle, TrendingUp } from 'lucide-react';
 import type { LabBenchmark, LabEquityPoint, LabMetrics, LabMonthlyReturns } from '../api/labBacktest';
 import { MonthlyReturnsHeatmap } from './BacktestReviewView';
+import { useThemeOptional } from '../theme/ThemeProvider';
+import { readChartPalette, withAlpha } from '../design/chartTheme';
+import { nearestByTime, type CrosshairBus } from '../utils/crosshairBus';
+import { buildGridAnchor } from './LightweightChart';
 
 const fmtNum = (v: number | null | undefined, digits = 2): string =>
   v === null || v === undefined || !Number.isFinite(v)
@@ -67,6 +72,12 @@ export interface LabFundingPanelProps {
   monthly: LabMonthlyReturns | null;
   loading: boolean;
   error: string | null;
+  /**
+   * 没有净值序列时的说明文案。
+   * 研究期登记的 run 是「按成交重建」，本来就没有引擎落盘的净值序列 ⇒
+   * 传一句「未记录」比显示「取数错误」诚实，也不会让人以为数据坏了。
+   */
+  emptyHint?: string | null;
   /** 该月**平仓笔数**（按平仓时间，来自逐笔账本；仅用于复用旧热力图的补充事实列）。 */
   monthCloseCounts?: Record<string, number> | null;
   /** 所选 run 的真实窗口（UTC 毫秒）——用于判定每个自然月是否被区间截断。 */
@@ -77,6 +88,20 @@ export interface LabFundingPanelProps {
    * 只吃**真实**进出场时间戳（来自逐笔账本），不推断、不外推。
    */
   focusTrade?: { tradeId: string; entryMs: number; exitMs: number } | null;
+  /**
+   * 单图模式（设计稿把「净值曲线」「回撤曲线」拆成两张并排卡）：
+   *   `equity`   → 只画策略净值 + 买入持有基准，标题「净值曲线」
+   *   `drawdown` → 只画水下回撤，标题「回撤曲线」
+   * 不传 = 旧行为（一张卡切页签），保证其它调用点零改动。
+   */
+  variant?: 'equity' | 'drawdown';
+  /**
+   * 跨图十字线总线：与 K 线 / 成交量 / 持仓量三张图共享。
+   * 不传 ⇒ 行为完全不变（只在自身图内响应鼠标）。
+   */
+  crosshairBus?: CrosshairBus | null;
+  /** 两图共享的真实时间点并集（UTC 秒）：本图补纯 whitespace 锚点补齐到它 */
+  gridTimes?: number[];
 }
 
 /** 定位某笔时前后各留 1h 上下文（与执行视图 `PAD_MS` 同一口径）。 */
@@ -99,16 +124,29 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
   monthly,
   loading,
   error,
+  emptyHint = null,
   monthCloseCounts,
   windowStartMs = null,
   windowEndMs = null,
   focusTrade = null,
+  variant,
+  crosshairBus = null,
+  gridTimes = null,
 }) => {
   const [mode, setMode] = useState<'both' | 'underwater'>('both');
+  /** 当前主题：图表画布必须跟着明暗走（lightweight-charts 的 layout 是 JS 选项，
+   *  不吃 CSS 变量）⇒ 深色下不能留一块白底。
+   *  颜色本身在 effect 里由 `readChartPalette()` 从 `--ds-chart-*` 读出；
+   *  这里只把它当作「重建实例」的触发键。 */
+  const theme = useThemeOptional()?.theme ?? 'light';
+  /** 单图模式下的实际模式：variant 优先，其次才是页签状态。 */
+  const effMode: 'both' | 'underwater' =
+    variant === 'drawdown' ? 'underwater' : variant === 'equity' ? 'both' : mode;
   const [hover, setHover] = useState<MergedPoint | null>(null);
   const [viewLabel, setViewLabel] = useState<string | null>(null);
   /** 已定位的 trade_id（仅在联动生效后出现；未定位时为 null，不占位）。 */
   const [focusedTradeId, setFocusedTradeId] = useState<string | null>(null);
+  const [crosshairTargetMs, setCrosshairTargetMs] = useState<number | null>(null);
   /** 待落实的定位请求：图表/数据尚未就绪时挂起，就绪后自动补做（避免静默失败）。 */
   const pendingFocusRef = useRef<{ tradeId: string; fromMs: number; toMs: number } | null>(null);
 
@@ -117,7 +155,27 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
   const stratRef = useRef<ISeriesApi<'Line'> | null>(null);
   const benchRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ddRef = useRef<ISeriesApi<'Area'> | null>(null);
+  const gridSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const byTimeRef = useRef<Map<number, MergedPoint>>(new Map());
+
+  /* ── 跨图十字线联动 ────────────────────────────────────────────────────
+   * 本面板是独立实例（自己 `createChart`），与 K 线区没有任何共享状态；
+   * 通过总线按「时点」互通：别人悬停 ⇒ 本图把十字线落到最近的真实数据点。
+   *
+   * `busId` 用 `useId` 生成而不是写死 `lab-funding`：净值与回撤是**两个实例**，
+   * 写死同一个 id 会让两者互相跳过对方的广播。 */
+  const busId = `lab-funding-${useId()}`;
+  /** 图表创建时的闭包要能读到最新总线，但不该因总线变化而重建实例 */
+  const busRef = useRef<CrosshairBus | null>(crosshairBus);
+  busRef.current = crosshairBus;
+  const busIdRef = useRef(busId);
+  busIdRef.current = busId;
+  /** 静默期时间戳：接收外部程序化视窗写入时不反向回环广播 */
+  const programmaticQuietUntilRef = useRef<number>(0);
+  const targetViewportRef = useRef<{ fromMs: number; toMs: number } | null>(null);
+  /** 用户手势交互防抖与防回环标记 */
+  const isUserInteractingRef = useRef<boolean>(false);
+  const userInteractingUntilRef = useRef<number>(0);
 
   /** 合并策略线 + 基准线（按真实时间戳对齐；基准缺失的时点保持 null，不插值）。 */
   const merged: MergedPoint[] = useMemo(() => {
@@ -185,29 +243,76 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     const container = containerRef.current;
     if (!container || chartRef.current) return undefined;
 
+    /* 画布配色统一走 `--ds-chart-*` 令牌（由 chartTheme 读出）：
+       网格是装饰（对底色 1.13–1.15:1），轴文字要能读（4.6–5.9:1），
+       两者都不许落在 3–4:1 的「中间地带」。 */
+    const palette = readChartPalette();
+    const cBg = palette.background;
+    const cText = palette.text;
+    const cGridV = palette.gridVert;
+    const cGridH = palette.gridHorz;
+    const cAxis = palette.border;
+    const cCross = palette.crosshair;
+
     const chart = createChart(container, {
       autoSize: true,
       layout: {
-        background: { type: ColorType.Solid, color: '#ffffff' },
-        textColor: '#586880',
+        background: { type: ColorType.Solid, color: cBg },
+        textColor: cText,
+        // 轴文字 12px + 真实字体栈（canvas 不解析 CSS 变量）
+        fontSize: 12,
+        fontFamily: palette.font,
         attributionLogo: false,
       },
-      grid: { vertLines: { color: '#eef2f8' }, horzLines: { color: '#e7ecf3' } },
+      grid: {
+        // 净值曲线需要横线；竖线是纯噪声，一律关
+        horzLines: { color: cGridH, style: LineStyle.Solid, visible: true },
+        vertLines: { color: cGridV, style: LineStyle.Solid, visible: false },
+      },
       crosshair: {
         mode: CrosshairMode.Normal,
-        vertLine: { color: '#94a3b8', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#334155' },
-        horzLine: { color: '#94a3b8', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#334155' },
+        vertLine: {
+          color: cCross,
+          width: 1,
+          style: LineStyle.Dashed,
+          labelBackgroundColor: palette.crosshairLabel,
+        },
+        horzLine: {
+          color: cCross,
+          width: 1,
+          style: LineStyle.Dashed,
+          labelBackgroundColor: palette.crosshairLabel,
+        },
       },
-      rightPriceScale: { borderColor: '#d4dbe6', minimumWidth: 76 },
+      rightPriceScale: {
+        // 价格轴竖线是装饰，去掉后绘图区更宽
+        borderVisible: false,
+        borderColor: cAxis,
+        minimumWidth: 78,
+        // 顶/底角标不画被裁一半的文字
+        entireTextOnly: true,
+        // 刻度更稀一点
+        tickMarkDensity: 2.8,
+        // 曲线不贴边，末值标签不被裁
+        scaleMargins: { top: 0.14, bottom: 0.06 },
+      },
       /* `minBarSpacing` 默认 0.5px ⇒ 17376 个 15m 净值点在这块 ~510px 宽的面板里
          最多只能放下 ~1020 个 ⇒ `fitContent()` 被夹到「只剩最后约 10 天」，
          标着「净值对比」却看不到整段。这里是**线图**（不是 K 线柱），亚像素密度没问题，
-         故把下限收到 0.01px，`fitContent()` 才能真的铺满所选 run 的完整窗口。 */
+         故把下限收到 0.01px，`fitContent()` 才能真的铺满所选 run 的完整窗口。
+         ★ 这个值**必须保留**，删了整条曲线只剩末尾一小段。 */
       timeScale: {
-        borderColor: '#d4dbe6',
+        borderVisible: true,
+        borderColor: cAxis,
         timeVisible: true,
         secondsVisible: false,
-        rightOffset: 0,
+        // 最新一点右侧留 4 根空档：与主图 K 线保持完全一致，避免 fitContent 或两端视窗出现错位
+        rightOffset: 4,
+        // 不能拖到第一根左侧的空白；右侧保留呼吸
+        fixLeftEdge: true,
+        fixRightEdge: false,
+        // 窗口尺寸变化时视窗不跳
+        lockVisibleTimeRangeOnResize: true,
         minBarSpacing: 0.01,
       },
       handleScroll: true,
@@ -215,16 +320,18 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     });
 
     const strat = chart.addSeries(LineSeries, {
-      color: '#10b981',
+      color: palette.up,
       lineWidth: 2,
+      lineType: LineType.Simple,
       priceLineVisible: false,
       lastValueVisible: true,
       title: '策略净值',
     });
     const bench = chart.addSeries(LineSeries, {
-      color: '#94a3b8',
+      color: palette.neutral,
       lineWidth: 1,
       lineStyle: LineStyle.Dashed,
+      lineType: LineType.Simple,
       priceLineVisible: false,
       /* 图上不再挂标签：价格轴右侧同时出现「策略净值 / 买入持有基准」两个色块会压住
          轴上的刻度数字。两条线在下方读数条里都有同色标记 + 末值，此处留白更干净。 */
@@ -234,50 +341,119 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     // 回撤：负值 + 独立价格轴；`invertFilledArea` ⇒ 填充到 0 线一侧（经典水下图观感）
     const dd = chart.addSeries(AreaSeries, {
       priceScaleId: 'dd',
-      lineColor: '#f43f5e',
-      topColor: 'rgba(244, 63, 94, 0.22)',
-      bottomColor: 'rgba(244, 63, 94, 0.02)',
+      lineColor: palette.down,
+      topColor: withAlpha(palette.down, 0.22),
+      bottomColor: withAlpha(palette.down, 0.02),
       invertFilledArea: true,
       lineWidth: 2,
+      lineType: LineType.Simple,
       priceLineVisible: false,
       lastValueVisible: true,
       title: '回撤 %',
     });
     chart.priceScale('dd').applyOptions({ visible: false, scaleMargins: { top: 0.08, bottom: 0.02 } });
 
+    // 时间轴网格对齐锚点：不可见折线，用于注入与主图完全一致的 1h Whitespace 采样点，消除点集差异
+    const gridSeries = chart.addSeries(LineSeries, {
+      lineVisible: false,
+      priceLineVisible: false,
+      lastValueVisible: false,
+      crosshairMarkerVisible: false,
+    });
+
     chartRef.current = chart;
     stratRef.current = strat;
     benchRef.current = bench;
     ddRef.current = dd;
+    gridSeriesRef.current = gridSeries;
+    if (typeof window !== 'undefined') {
+      if (variant === 'equity') {
+        (window as any).__labEquityChart = chart;
+      }
+      (window as any).__getFundingTimeCoordinate = (timeSec: number) => {
+        try {
+          return chart.timeScale().timeToCoordinate(timeSec as Time);
+        } catch {
+          return null;
+        }
+      };
+    }
 
     const handler = (param: MouseEventParams<Time>) => {
       const sec = typeof param.time === 'number' ? (param.time as number) : null;
+      /* 先广播给其它图（总线统一用**毫秒**，与图表内部秒制在此处换算一次）。
+         程序化 `setCrosshairPosition` 会让官方库再派发一次本回调，
+         此时总线处于 emitting 状态，嵌套广播会被丢弃，不会回环。 */
+      busRef.current?.emit(busIdRef.current, sec === null ? null : sec * 1000);
       if (sec === null) {
         setHover(null);
+        setCrosshairTargetMs(null);
         return;
       }
+      setCrosshairTargetMs(null);
       const p = byTimeRef.current.get(sec);
       setHover(p ?? null);
     };
     chart.subscribeCrosshairMove(handler);
 
+    let reportTimer: number | null = null;
     const reportView = () => {
       const r = chart.timeScale().getVisibleRange();
       if (r && typeof r.from === 'number' && typeof r.to === 'number') {
-        setViewLabel(`${fmtUtcDay((r.from as number) * 1000)} → ${fmtUtcDay((r.to as number) * 1000)}`);
+        const fromMs = (r.from as number) * 1000;
+        const toMs = (r.to as number) * 1000;
+        setViewLabel(`${fmtUtcDay(fromMs)} → ${fmtUtcDay(toMs)}`);
+        // 核心铁律：只有用户亲自在资金图上进行物理手势交互（拖拽、缩放）时，才允许向外广播给主图！
+        // 彻底杜绝程序化写入、动画重算等非用户手势引起的反弹回环
+        const isUserDriven = isUserInteractingRef.current || performance.now() < userInteractingUntilRef.current;
+        if (!isUserDriven) return;
+        if (performance.now() < programmaticQuietUntilRef.current) return;
+        if (reportTimer !== null) window.clearTimeout(reportTimer);
+        reportTimer = window.setTimeout(() => {
+          reportTimer = null;
+          const stillUserDriven = isUserInteractingRef.current || performance.now() < userInteractingUntilRef.current;
+          if (!stillUserDriven) return;
+          if (performance.now() < programmaticQuietUntilRef.current) return;
+          busRef.current?.emitViewport(busIdRef.current, fromMs, toMs);
+        }, 100);
       }
     };
     chart.timeScale().subscribeVisibleTimeRangeChange(reportView);
 
+    const handlePointerDown = () => {
+      isUserInteractingRef.current = true;
+      userInteractingUntilRef.current = performance.now() + 300;
+    };
+    const handlePointerUp = () => {
+      userInteractingUntilRef.current = performance.now() + 200;
+      setTimeout(() => {
+        isUserInteractingRef.current = false;
+      }, 200);
+    };
+    const handleWheel = (e: WheelEvent) => {
+      // 必须是直接作用于资金图容器的滚轮才标记交互
+      if (e.target && container.contains(e.target as Node)) {
+        userInteractingUntilRef.current = performance.now() + 300;
+      }
+    };
+    container.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
+    container.addEventListener('wheel', handleWheel, { passive: true });
+
     return () => {
+      container.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointerup', handlePointerUp);
+      container.removeEventListener('wheel', handleWheel);
+      if (reportTimer !== null) window.clearTimeout(reportTimer);
       chart.unsubscribeCrosshairMove(handler);
       chart.remove();
       chartRef.current = null;
       stratRef.current = null;
       benchRef.current = null;
       ddRef.current = null;
+      gridSeriesRef.current = null;
     };
-  }, [hasData]);
+  }, [hasData, theme]);
 
   /* ── 落数据（真实序列；每次 run 切换整表替换后 fitContent）── */
   useEffect(() => {
@@ -303,8 +479,38 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     strat.setData(stratData);
     bench.setData(benchData);
     dd.setData(ddData);
-    if (stratData.length > 0) chart.timeScale().fitContent();
-  }, [merged]);
+
+    const gridSeries = gridSeriesRef.current;
+    if (gridSeries && gridTimes && gridTimes.length > 0) {
+      const ownTimes = stratData.map((d) => Number(d.time));
+      const gridData = buildGridAnchor(gridTimes, ownTimes);
+      gridSeries.setData(gridData);
+    }
+
+    if (targetViewportRef.current && Number.isFinite(targetViewportRef.current.fromMs) && Number.isFinite(targetViewportRef.current.toMs)) {
+      const from = Math.floor(targetViewportRef.current.fromMs / 1000);
+      const to = Math.ceil(targetViewportRef.current.toMs / 1000);
+      const ts = chart.timeScale();
+      const fromIdx = ts.timeToIndex(from);
+      const toIdx = ts.timeToIndex(to);
+      if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
+        ts.setVisibleLogicalRange({ from: fromIdx, to: toIdx });
+      } else {
+        ts.setVisibleRange({ from: from as UTCTimestamp, to: to as UTCTimestamp });
+      }
+    } else if (stratData.length > 0) {
+      chart.timeScale().fitContent();
+    }
+  }, [merged, gridTimes]);
+
+  /* ── 补齐网格对齐锚点：单独监听 gridTimes 变化 ── */
+  useEffect(() => {
+    const gridSeries = gridSeriesRef.current;
+    if (!gridSeries || !gridTimes || gridTimes.length === 0) return;
+    const ownTimes = merged.map((p) => Math.floor(p.t / 1000));
+    const gridData = buildGridAnchor(gridTimes, ownTimes);
+    gridSeries.setData(gridData);
+  }, [gridTimes, merged]);
 
   /* ── 模式切换（官方 visible + 价格轴可见性；不重建图表）── */
   useEffect(() => {
@@ -313,7 +519,7 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     const bench = benchRef.current;
     const dd = ddRef.current;
     if (!chart || !strat || !bench || !dd) return;
-    const both = mode === 'both';
+    const both = effMode === 'both';
     strat.applyOptions({ visible: both });
     bench.applyOptions({ visible: both && hasBench });
     dd.applyOptions({ visible: !both });
@@ -321,7 +527,87 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
     chart.priceScale('dd').applyOptions({ visible: !both });
     // 依赖含 `hasData`：图表是在数据到达后才创建的，模式必须在其后重新应用一次，
     // 否则「净值对比」模式下回撤 Area 会沿用默认 visible=true 一起画出来。
-  }, [mode, hasBench, hasData]);
+  }, [effMode, hasBench, hasData]);
+
+  /* ── 接收总线：别的图悬停 ⇒ 本图把十字线落到最近的真实数据点 ──
+   * 净值的点密度远高于 K 线（1.7 万点 / 分钟级），容差给一天：
+   * 即使 K 线是小时粒度、净值是分钟粒度，也不会错配到相差很远的位置。 */
+  useEffect(() => {
+    if (!crosshairBus) return undefined;
+    return crosshairBus.register(busId, (timeMs) => {
+      const chart = chartRef.current;
+      if (!chart) return;
+      if (timeMs === null) {
+        setHover(null);
+        setCrosshairTargetMs(null);
+        try {
+          chart.clearCrosshairPosition();
+        } catch {
+          /* 实例销毁竞态 */
+        }
+        return;
+      }
+      setCrosshairTargetMs(timeMs);
+      const point = nearestByTime(merged, timeMs, (p) => p.t, 86_400_000);
+      const series = effMode === 'underwater' ? ddRef.current : stratRef.current;
+      if (!point || !series) {
+        setHover(null);
+        try {
+          chart.clearCrosshairPosition();
+        } catch {
+          /* 同上 */
+        }
+        return;
+      }
+      /* 读数条必须在这里同步更新：官方库的 `setCrosshairPosition` 只画线，
+         **不会**派发 crosshairMove 事件，指望图表回调来刷新读数会一直是末值。 */
+      setHover(point);
+      /* 回撤序列画的是负值（水下），定位时同样取负，否则十字线会跳到 0 轴上方 */
+      const value = effMode === 'underwater' ? -point.drawdownPct : point.strat;
+      try {
+        // 十字线垂直虚线精确对齐广播的目标时点
+        chart.setCrosshairPosition(value, Math.floor(timeMs / 1000) as UTCTimestamp, series);
+      } catch {
+        /* 时点落在视窗外或实例已销毁：静默跳过，不影响本图自身交互 */
+      }
+    });
+  }, [crosshairBus, busId, merged, effMode]);
+
+  /* ── 视窗联动：K 线区可见范围变化 ⇒ 本图跟到同一段真实时间 ──
+   * 五张图的默认视窗并不相同（K 线只铺最近若干根，净值图铺满整个 run），
+   * 不跟随的话十字线时点常年落在本图可见范围之外，联动等于失效。 */
+  useEffect(() => {
+    if (!crosshairBus) return undefined;
+    return crosshairBus.registerViewport(busId, (fromMs, toMs) => {
+      // 仅当用户正在本图进行手势物理交互（拖拽/滚轮）时，才跳过外部覆盖
+      if (isUserInteractingRef.current || performance.now() < userInteractingUntilRef.current) {
+        return;
+      }
+      const chart = chartRef.current;
+      if (!chart) return;
+      targetViewportRef.current = { fromMs, toMs };
+      const from = Math.floor(fromMs / 1000);
+      const to = Math.ceil(toMs / 1000);
+      if (!(to > from)) return;
+      try {
+        // 静默 500ms：接收主图视窗广播落位期间不反向触发 reportView 回环
+        programmaticQuietUntilRef.current = performance.now() + 500;
+        const ts = chart.timeScale();
+        const fromIdx = ts.timeToIndex(from);
+        const toIdx = ts.timeToIndex(to);
+        if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
+          ts.setVisibleLogicalRange({ from: fromIdx, to: toIdx });
+        } else {
+          chart.timeScale().setVisibleRange({
+            from: from as UTCTimestamp,
+            to: to as UTCTimestamp,
+          });
+        }
+      } catch {
+        /* 数据范围覆盖不到该窗口时官方库会抛错：保持原视窗即可 */
+      }
+    });
+  }, [crosshairBus, busId]);
 
   /* ── 逐笔明细 → 本面板联动 ────────────────────────────────────────────────
    * 用户在「⑤ 逐笔明细」点中某一笔 ⇒ 这里做两件事：
@@ -494,27 +780,33 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
         data-testid="lab-funding-panel"
       >
         <AlertCircle className="w-4 h-4 text-neutral-400" />
-        <span>{loading ? '正在读取真实净值曲线…' : '暂无真实净值曲线（后台未返回 equity / benchmark）'}</span>
-        {error && <span className="text-rose-600">取数错误：{error}</span>}
+        <span>
+          {loading
+            ? '正在读取真实净值曲线…'
+            : (emptyHint ?? '暂无真实净值曲线（后台未返回 equity / benchmark）')}
+        </span>
+        {error && !emptyHint && <span className="text-rose-600">取数错误：{error}</span>}
         <span className="text-[10px] text-neutral-400">不绘制任何合成 / 兜底曲线</span>
       </div>
     );
   }
 
   return (
-    <div
-      className="bg-white border border-neutral-200 rounded-lg shadow-sm overflow-hidden text-neutral-100"
-      data-testid="lab-funding-panel"
-    >
-      <div className="px-3 py-2 border-b border-neutral-200 bg-neutral-50 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <TrendingUp className="w-4 h-4 text-neutral-400" />
-          <h3
-            className="text-xs font-bold text-neutral-100"
-            title="基准为同标的、同期、同成本（手续费 + 滑点 + 真实资金费）的买入持有"
-          >
-            ③ 资金分析
-          </h3>
+    <div className="ds-card" data-testid="lab-funding-panel">
+      <div className="ds-card__head">
+        <span
+          className="ds-card__title"
+          title="已实现净值曲线：按逐笔平仓净额与初始资金累加展开，不含持仓期间的未实现浮盈浮亏；基准为同期买入持有"
+        >
+          {variant === 'drawdown' ? '回撤曲线' : variant === 'equity' ? '已实现净值曲线（平仓结算口径，不含在途浮盈浮亏）' : '净值 · 回撤'}
+        </span>
+        <div className="ds-card__hint" style={{ flex: '1 1 auto' }}>
+          {variant === 'drawdown'
+            ? '从最高点回落'
+            : variant === 'equity'
+              ? '绿：策略已实现净值（逐笔平仓） 灰虚线：买入持有基准'
+              : `${merged.length} 点`}
+        </div>
           {/* 状态类**只报异常**：一致时不再常驻「✓」徽章（口径原文在 title） */}
           {ddCheck && ddCheck.match !== true && (
             <span
@@ -541,95 +833,115 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
               {tailCheck.benchOk === null ? '' : tailCheck.benchOk ? '' : ' · 基准≠汇总'}
             </span>
           )}
-        </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center bg-white border border-neutral-200 rounded p-0.5 text-[11px] shrink-0">
+          {!variant && (
+          <div className="ds-tfgroup" role="group" aria-label="视图">
             <button
+              type="button"
               onClick={() => setMode('both')}
-              className={`px-2 py-0.5 rounded font-medium whitespace-nowrap ${mode === 'both' ? 'bg-[var(--ds-accent)] text-white font-bold' : 'text-neutral-400 hover:text-neutral-100'}`}
+              className={`ds-tfgroup__item${mode === 'both' ? ' is-on' : ''}`}
             >
               净值对比
             </button>
             <button
+              type="button"
               onClick={() => setMode('underwater')}
-              className={`px-2 py-0.5 rounded font-medium whitespace-nowrap ${mode === 'underwater' ? 'bg-[var(--ds-accent)] text-white font-bold' : 'text-neutral-400 hover:text-neutral-100'}`}
+              className={`ds-tfgroup__item${mode === 'underwater' ? ' is-on' : ''}`}
             >
               水下回撤
             </button>
           </div>
-          {/* 联动定位徽章：只有真的从「⑤ 逐笔明细」定位过某一笔才出现 */}
-          {focusedTradeId && (
+          )}
+          {/* 联动定位徽章：只有真的从「单条记录回放」定位过某一笔才出现。
+              只在回撤卡显示（水下回撤就是这张图）；净值卡不重复一遍。 */}
+          {variant !== 'equity' && focusedTradeId && (
             <button
               onClick={() => applyQuickRange(null)}
-              className="px-1.5 py-0.5 rounded border border-[var(--ds-accent)] bg-[var(--ds-accent-50)] text-[10px] font-mono text-[var(--ds-accent-700)] hover:brightness-95 whitespace-nowrap"
+              className="px-1.5 py-0.5 rounded border border-[var(--ds-accent)] bg-[var(--ds-accent-50)] text-[10px] font-mono text-[var(--ds-accent-text)] hover:brightness-95 whitespace-nowrap"
               title="已按逐笔明细选中的那一笔定位时间轴；点击恢复全区间"
               data-testid="lab-funding-focus"
             >
               已定位 {focusedTradeId.length > 16 ? `${focusedTradeId.slice(0, 8)}…${focusedTradeId.slice(-4)}` : focusedTradeId} ✕
             </button>
           )}
-          <div className="flex items-center bg-white border border-neutral-200 rounded p-0.5 text-[11px] shrink-0">
-            <button
-              onClick={() => applyQuickRange(null)}
-              className="px-2 py-0.5 rounded text-neutral-400 hover:text-neutral-100 whitespace-nowrap"
-            >
+          {!variant && (
+          <div className="ds-tfgroup" role="group" aria-label="时间范围">
+            <button type="button" onClick={() => applyQuickRange(null)} className="ds-tfgroup__item">
               全部
             </button>
             <button
+              type="button"
               onClick={() => applyQuickRange(96)}
-              className="px-2 py-0.5 rounded text-neutral-400 hover:text-neutral-100 whitespace-nowrap"
+              className="ds-tfgroup__item"
               title="最近 96 根 15m（约 1 天）"
             >
-              最近1天
+              近 1 天
             </button>
             <button
+              type="button"
               onClick={() => applyQuickRange(288)}
-              className="px-2 py-0.5 rounded text-neutral-400 hover:text-neutral-100 whitespace-nowrap"
+              className="ds-tfgroup__item"
               title="最近 288 根 15m（约 3 天）"
             >
-              最近3天
+              近 3 天
             </button>
           </div>
-          {/* 视窗范围常显；交互提示移到 title，避免挤压分段控件 */}
-          <span
-            className="text-[10px] text-neutral-400 font-mono whitespace-nowrap"
-            data-testid="lab-funding-viewport"
-            title="滚轮缩放 / 拖动平移（走项目既有 lightweight-charts 官方时间轴）"
-          >
-            {viewLabel ? `视窗 ${viewLabel}` : `${merged.length} 点`}
-          </span>
+          )}
         </div>
       </div>
 
-      {/* 读数条 */}
-      <div className="px-3 py-1.5 border-b border-neutral-200 bg-white text-[11px] font-mono flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="text-neutral-500">时刻 {cur ? fmtUtcDay(cur.t) : '—'} UTC</span>
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-          <span className="text-neutral-400">策略净值</span>
-          <b className="text-neutral-100">{cur ? `$${fmtNum(cur.strat, 2)}` : '—'}</b>
-          <span className={stratRet !== null && stratRet >= 0 ? 'text-emerald-600' : 'text-rose-600'}>({fmtPct(stratRet, 2)})</span>
+      {/* 读数条：单图模式只留这张图自己的值（净值卡不报回撤、回撤卡不报净值），
+          否则两行挤成三行，设计稿里这两张卡本来只有标题 + 曲线。 */}
+      <div className="ds-hoverbar">
+        <span className="text-neutral-500">
+          {(() => {
+            if (!cur) return '时刻 — UTC';
+            if (crosshairTargetMs !== null) {
+              const diffMs = Math.abs(cur.t - crosshairTargetMs);
+              if (diffMs === 0) {
+                return `时刻 ${fmtUtcDay(crosshairTargetMs)} UTC`;
+              }
+              if (diffMs <= 3_600_000) {
+                return `时刻 ${fmtUtcDay(crosshairTargetMs)} UTC（采样 ${fmtUtcDay(cur.t)}）`;
+              }
+              return `时刻 ${fmtUtcDay(crosshairTargetMs)} UTC（无精确采样，最近采样 ${fmtUtcDay(cur.t)}）`;
+            }
+            return `时刻 ${fmtUtcDay(cur.t)} UTC`;
+          })()}
         </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-0.5 bg-neutral-400 inline-block" />
-          <span className="text-neutral-500">买入持有基准</span>
-          {cur?.bench === null || cur === null ? (
-            <span className="text-neutral-400">该时点无基准数据</span>
-          ) : (
-            <>
-              <span className="text-neutral-300">${fmtNum(cur.bench, 2)}</span>
-              <span className={benchRet !== null && benchRet >= 0 ? 'text-neutral-400' : 'text-rose-500'}>({fmtPct(benchRet, 2)})</span>
-            </>
-          )}
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="text-neutral-500">水下回撤</span>
-          <b className="text-rose-600">-{cur ? cur.drawdownPct.toFixed(3) : '—'}%</b>
-        </span>
+        {variant !== 'drawdown' && (
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+            <span className="text-neutral-400">策略净值</span>
+            <b className="text-neutral-100">{cur ? `$${fmtNum(cur.strat, 2)}` : '—'}</b>
+            <span className={stratRet !== null && stratRet >= 0 ? 'text-emerald-600' : 'text-rose-600'}>({fmtPct(stratRet, 2)})</span>
+          </span>
+        )}
+        {!variant && (
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-0.5 bg-neutral-400 inline-block" />
+            <span className="text-neutral-500">买入持有基准</span>
+            {cur?.bench === null || cur === null ? (
+              <span className="text-neutral-400">该时点无基准数据</span>
+            ) : (
+              <>
+                <span className="text-neutral-300">${fmtNum(cur.bench, 2)}</span>
+                <span className={benchRet !== null && benchRet >= 0 ? 'text-neutral-400' : 'text-rose-500'}>({fmtPct(benchRet, 2)})</span>
+              </>
+            )}
+          </span>
+        )}
+        {variant !== 'equity' && (
+          <span className="flex items-center gap-1">
+            <span className="text-neutral-500">水下回撤</span>
+            <b className="text-rose-600">-{cur ? cur.drawdownPct.toFixed(3) : '—'}%</b>
+          </span>
+        )}
         {/* 联动定位时补一行「该笔区间」：面板窄、时间轴有最小 bar 间距，
-            视图能放到的宽度有物理上限 ⇒ 精确区间在这里给出，不依赖图形缩放精度。 */}
-        {focusedTradeId && focusTrade && (
-          <span className="flex items-center gap-1 text-[var(--ds-accent-700)]">
+            视图能放到的宽度有物理上限 ⇒ 精确区间在这里给出，不依赖图形缩放精度。
+            只在回撤卡显示（两张卡各来一遍就是噪音）。 */}
+        {variant !== 'equity' && focusedTradeId && focusTrade && (
+          <span className="flex items-center gap-1 text-[var(--ds-accent-text)]">
             <span>该笔区间</span>
             <b>
               {fmtUtcDay(focusTrade.entryMs)} → {fmtUtcDay(focusTrade.exitMs)} UTC
@@ -638,9 +950,16 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
         )}
       </div>
 
-      <div ref={containerRef} className="w-full h-[195px] bg-white" data-testid="lab-funding-chart" />
+      <div
+        ref={containerRef}
+        className="w-full h-[195px]"
+        style={{ background: 'var(--ds-n-900)' }}
+        data-testid="lab-funding-chart"
+      />
 
-      {/* 口径 / 一致性说明：**异常默认可见，明细默认收起**（渐进披露） */}
+      {/* 口径 / 一致性说明：**异常默认可见，明细默认收起**（渐进披露）。
+          单图模式下这两块不渲染 —— 设计稿的「净值曲线」「回撤曲线」只有标题 + 曲线。 */}
+      {!variant && (
       <div className="px-3 py-1.5 border-t border-neutral-200 bg-neutral-50 text-[10px] text-neutral-400 space-y-0.5">
         {!hasBench && <div className="text-amber-700">后台未返回基准序列 ⇒ 只画策略线，不合成基准。</div>}
         {hasBench && !benchComplete && (
@@ -667,9 +986,11 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
           </div>
         </details>
       </div>
+      )}
 
       {/* 月度收益：复用旧热力图（**复合年累计口径**）+ 后台完整性/基准说明。
           一屏布局下默认收起，点开才是完整热力图与逐月明细。 */}
+      {!variant && (
       <div className="px-3 py-1.5 border-t border-neutral-200">
         <details className="ds-details" data-testid="lab-monthly-panel">
           <summary>月度收益热力图与逐月完整性核对（{monthRows.length} 个月）</summary>
@@ -752,6 +1073,7 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
           </div>
         </details>
       </div>
+      )}
     </div>
   );
 };

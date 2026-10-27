@@ -1,0 +1,128 @@
+{
+  "task": "ACCUM-EARLY-06-W6-01",
+  "step": "01_母集与版本清单复核",
+  "generated_at_utc": "2026-10-26T17:58:20Z",
+  "universe_audit": {
+    "symbol_count": 48,
+    "symbols": [
+      "1000PEPEUSDT",
+      "AGTUSDT",
+      "AIGENSYNUSDT",
+      "ASTERUSDT",
+      "AXSUSDT",
+      "BABYUSDT",
+      "BBUSDT",
+      "BLURUSDT",
+      "BNBUSDT",
+      "CARVUSDT",
+      "CHZUSDT",
+      "COLLECTUSDT",
+      "COOKIEUSDT",
+      "CROSSUSDT",
+      "DOTUSDT",
+      "DUSKUSDT",
+      "ETHWUSDT",
+      "EVAAUSDT",
+      "GOATUSDT",
+      "HYPERUSDT",
+      "IRYSUSDT",
+      "JELLYJELLYUSDT",
+      "KATUSDT",
+      "KMNOUSDT",
+      "KOMAUSDT",
+      "METISUSDT",
+      "METUSDT",
+      "NEARUSDT",
+      "NILUSDT",
+      "PEOPLEUSDT",
+      "PIXELUSDT",
+      "PLUMEUSDT",
+      "PORTALUSDT",
+      "PROVEUSDT",
+      "PYTHUSDT",
+      "SAFEUSDT",
+      "SANDUSDT",
+      "SKRUSDT",
+      "SUSDT",
+      "TNSRUSDT",
+      "UAIUSDT",
+      "VELVETUSDT",
+      "WALUSDT",
+      "WUSDT",
+      "XLMUSDT",
+      "YGGUSDT",
+      "ZECUSDT",
+      "ZKUSDT"
+    ],
+    "symbols_source": "51 条候选涉及的标的（去重）",
+    "full_pool_contrast": {
+      "full_pool_symbols": 526,
+      "coverage_pct_of_full_pool": 9.13,
+      "mother_set_anomalies": 0,
+      "full_pool_late_start_anomalies": 10,
+      "statement": "严禁推广全池：48 标的母集仅占全池 9.12%，系从 51 条历史候选反向筛选所得，存在严重的选择性/幸存者偏倚。母集 48 标的的 0 异常不能推广为全池覆盖通过。"
+    },
+    "events_total": 1178,
+    "events_with_candidate": 46,
+    "events_without_candidate": 1132,
+    "stage_hits": {
+      "BOX": 1178,
+      "INVALIDATED": 608,
+      "EXPIRED": 485,
+      "SWEEP": 337,
+      "RETEST": 220,
+      "CANDIDATE": 46,
+      "MISSED_WITHOUT_RETEST": 2,
+      "VOLUME_REJECTED": 1
+    },
+    "terminal_states": {
+      "INVALIDATED": 608,
+      "EXPIRED": 485,
+      "ACTIVE(窗口末仍观察中)": 36,
+      "CANDIDATE": 46,
+      "MISSED_WITHOUT_RETEST": 2,
+      "VOLUME_REJECTED": 1
+    },
+    "coverage_vs_51": {
+      "candidates_total": 51,
+      "covered_by_replay_events": 48,
+      "coverage_pct": 94.12,
+      "covered_and_reached_candidate": 44,
+      "covered_but_stopped_earlier": 4,
+      "not_covered_due_to_path_dependency": 3,
+      "limitation_note": "重放母集基于单标的单活跃事件+24h冷却规则，具备强路径依赖，确定性复现仅限于给定回放起点与事件流。"
+    }
+  },
+  "code_versions": {
+    "all_code_matched_05c": true,
+    "files": [
+      {
+        "path": "框架/backend/replay_calc.py",
+        "current_sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+        "locked_05c_sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+        "matched": true,
+        "mtime_utc": "2026-10-26T14:11:50Z"
+      },
+      {
+        "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+        "current_sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+        "locked_05c_sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+        "matched": true,
+        "mtime_utc": "2026-10-26T10:29:24Z"
+      },
+      {
+        "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+        "current_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+        "locked_05c_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+        "matched": true,
+        "mtime_utc": "2026-10-26T05:45:20Z"
+      }
+    ]
+  },
+  "discipline_assertions": {
+    "re_select_mother_set": false,
+    "rule_frozen": true,
+    "can_generalize_to_full_pool": false,
+    "verdict": "母集 48 标的/1178 事件与版本清单完全复核一致，严格锁定适用范围，严禁外推全池。"
+  }
+}

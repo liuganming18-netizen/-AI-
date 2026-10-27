@@ -1,0 +1,28 @@
+{
+  "stats_at_utc": "2026-10-26T03:37:54Z",
+  "population": "全量（read_parquet 全目录 GROUP BY symbol，无抽样）",
+  "query": "SELECT symbol, COUNT(*) AS n, MIN(ts) AS min_ts, MAX(ts) AS max_ts\n    FROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/metrics/**/*.parquet', union_by_name = true)\n    GROUP BY symbol",
+  "symbols": 526,
+  "pool_symbols": 526,
+  "pool_missing": [],
+  "rows_total": 127973455,
+  "max_ts_all": "2026-10-14T23:55:00Z",
+  "min_ts_all": "2020-09-01T00:00:00Z",
+  "stale_days_pool": {
+    "n": 526,
+    "min": 11.154792118055555,
+    "p10": 11.154792118055555,
+    "p50": 11.154792118055555,
+    "p90": 11.154792118055555,
+    "max": 18.154792118055557,
+    "mean": 11.2322
+  },
+  "pool_stale_gt_1d": 526,
+  "pool_stale_gt_7d": 526,
+  "pool_stale_gt_30d": 0,
+  "max_ts_by_symbol_hist": {
+    "2026-10-14": 518,
+    "2026-10-07": 5,
+    "2026-10-13": 3
+  }
+}

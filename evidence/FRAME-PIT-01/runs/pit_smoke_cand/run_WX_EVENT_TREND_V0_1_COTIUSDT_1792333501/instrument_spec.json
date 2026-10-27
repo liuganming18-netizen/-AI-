@@ -1,0 +1,130 @@
+{
+  "instrument_spec": {
+    "applicability": "unverified_historical",
+    "applicability_note": "窗口结束早于全部快照 ⇒ 规格数值取自最早的未来快照 exchangeInfo_futures_2026-10-05T015512Z.json（serverTime=1790941589240），仅作参考，不构成窗口内证据。没有任何快照的 serverTime 早于窗口开始 1638316800000 ⇒ 窗口起点之前无证据",
+    "blocking": true,
+    "change_evidence": [],
+    "contradiction_samples": [],
+    "coverage": {
+      "chain": [
+        {
+          "file_mtime_ms": 1791165312652,
+          "file_saved_ms": 1791165312000,
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T015512Z.json",
+          "request_fetched_ms": 1791165254984,
+          "role": "anchor",
+          "same_as_anchor": true,
+          "sha256": "07445c2f07ef9670bc92fdb6d175ab745040d8bf3c6bb7c3c9d44cda34d99cef",
+          "snapshot_server_ms": 1790941589240,
+          "spec_signature": "price_step=0.000001|qty_step=1|min_qty=1|max_qty=7000000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+        }
+      ],
+      "change_evidence": [],
+      "note": "没有任何快照的 serverTime 早于窗口开始 1638316800000 ⇒ 窗口起点之前无证据",
+      "numeric_source": null,
+      "reason": "no_snapshot_before_window_start",
+      "verdict": "unverified_historical"
+    },
+    "evidence_chain": [
+      {
+        "file_mtime_ms": 1791165312652,
+        "file_saved_ms": 1791165312000,
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T015512Z.json",
+        "request_fetched_ms": 1791165254984,
+        "role": "anchor",
+        "same_as_anchor": true,
+        "sha256": "07445c2f07ef9670bc92fdb6d175ab745040d8bf3c6bb7c3c9d44cda34d99cef",
+        "snapshot_server_ms": 1790941589240,
+        "spec_signature": "price_step=0.000001|qty_step=1|min_qty=1|max_qty=7000000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+      }
+    ],
+    "evidence_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T015512Z.json",
+    "evidence_sha256": "07445c2f07ef9670bc92fdb6d175ab745040d8bf3c6bb7c3c9d44cda34d99cef",
+    "fetched_at_ms": 1791165254984,
+    "file_mtime_ms": 1791165312652,
+    "file_saved_ms": 1791165312000,
+    "formal_pass_allowed": false,
+    "market": "um",
+    "max_qty": "7000000",
+    "min_notional": "5",
+    "min_qty": "1",
+    "onboard_ms": 1615273200000,
+    "order_type": "MARKET",
+    "price_precision": 7,
+    "price_step": "0.000001",
+    "qty_constraints": [
+      {
+        "applies": "always",
+        "filter": "LOT_SIZE",
+        "max": "70000000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "market_only",
+        "filter": "MARKET_LOT_SIZE",
+        "max": "7000000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "always",
+        "filter": "MIN_NOTIONAL",
+        "notional": "5"
+      }
+    ],
+    "qty_step": "1",
+    "quantity_precision": 0,
+    "request_fetched_ms": 1791165254984,
+    "snapshot_server_ms": 1790941589240,
+    "source_kind": "exchange_public_rest:exchangeInfo",
+    "source_url": "https://fapi.binance.com/fapi/v1/exchangeInfo",
+    "spec_effective_ms": null,
+    "symbol": "COTIUSDT",
+    "venue": "binance",
+    "window_end_ms": 1656547200000,
+    "window_start_ms": 1638316800000
+  },
+  "precision": {
+    "audit": [
+      {
+        "is_buy": true,
+        "post_round_price": "0.405572",
+        "post_slip_price": "0.405571635",
+        "price_step": "0.000001",
+        "raw_price": "0.40545",
+        "round_delta": "0.000000365",
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COTIUSDT_1639900800000_1640228400000",
+        "slip_delta": "0.000121635",
+        "stage": "entry",
+        "symbol": "COTIUSDT",
+        "timestamp": 1640229300000
+      }
+    ],
+    "audit_count": 1,
+    "invalid_reasons": [],
+    "price_steps": {
+      "COTIUSDT": "0.000001"
+    },
+    "rejects": [],
+    "rejects_count": 0,
+    "run_valid": true,
+    "spec_status": "spec_applied",
+    "specs": {
+      "COTIUSDT": {
+        "applicability": "unverified_historical",
+        "evidence_sha256": "07445c2f07ef9670bc92fdb6d175ab745040d8bf3c6bb7c3c9d44cda34d99cef",
+        "market": "um",
+        "min_notional": "5",
+        "min_qty": "1",
+        "order_type": "MARKET",
+        "price_step": "0.000001",
+        "qty_step": "1",
+        "symbol": "COTIUSDT",
+        "venue": "binance"
+      }
+    },
+    "unclosed_positions": []
+  },
+  "spec_status": "spec_applied"
+}

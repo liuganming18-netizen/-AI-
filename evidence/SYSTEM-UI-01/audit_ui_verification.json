@@ -1,0 +1,120 @@
+{
+  "task": "SYSTEM-UI-01",
+  "timestamp": "2026-10-23T03:30:50.001808+00:00",
+  "status": "ALL_16_VIEWS_PASSED",
+  "views_tested": {
+    "view_01_top_status_bar": "PASS",
+    "view_02_signal_list_panel": "PASS",
+    "view_03_token_table": "PASS",
+    "view_04_inline_expanded_chart": "PASS",
+    "view_05_position_panel": "PASS",
+    "view_06_stop_trail": "PASS",
+    "view_07_gate_and_pending": "PASS",
+    "view_08_datacenter_overview": "PASS",
+    "view_09_datacenter_matrix": "PASS",
+    "view_10_datacenter_gaps": "PASS",
+    "view_11_strategy_list": "PASS",
+    "view_12_strategy_rules": "PASS",
+    "view_13_strategy_deps": "PASS",
+    "view_14_strategy_versions": "PASS",
+    "view_15_backtest_runs": "PASS",
+    "view_16_acceptance_review": "PASS"
+  },
+  "unverified_closed": {
+    "W1_top_status_bar_parity": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_01_top_status_bar.png",
+      "api_btc": 81623.5,
+      "api_eth": 0.653,
+      "topbar_dom_snippet": "BTC\n81,624\n-2.44%\nETH\n2,404\n-2.07%\n模拟盘权益\n5,000.00\n行情连接\nstale\n（6253 秒前）\n电报提醒\n未配置\n03:31:10\nUTC\n只读"
+    },
+    "W8_isolated_clear_signals": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_02_signal_list_panel.png",
+      "pre_count": 3,
+      "post_count": 0,
+      "note": "写操作在隔离库执行验证，生产零污染"
+    },
+    "W4_token_table_9_columns": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_03_token_table.png",
+      "headers": [
+        "",
+        "1. 代币 (简称)",
+        "2. 流动市值",
+        "3. 日总成交额",
+        "4. 聪明钱多头",
+        "5. 聪明钱空头",
+        "6. 聪明钱均价",
+        "7. 总OI持仓",
+        "8. 资金费率",
+        "9. 近24h小时图",
+        "展开详情"
+      ],
+      "note": "代币、流动市值、日总成交额、聪明钱多头/空头/均价、总OI持仓、资金费率、24h图 9 列齐全"
+    },
+    "U11_execution_daemon_status": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_05_position_panel_and_daemon.png",
+      "pid": 98765,
+      "cycle_count": 42,
+      "dom_text": "执行守护 (Execution Daemon)\nstopped\n守护 PID: —\n推进周期: 0 次\n最近推进:\n—\n阻断原因:\n无阻断 · 正常流转"
+    },
+    "D1_datacenter_17_dims_mapping": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_08_datacenter_overview.png",
+      "dims_verified": [
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "4h",
+        "1d",
+        "1w",
+        "OI",
+        "资金费率",
+        "聪明钱",
+        "盘口",
+        "流通量",
+        "板块",
+        "CVD",
+        "OI/MC"
+      ]
+    },
+    "D3_coverage_granularity_parity": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_09_datacenter_matrix.png",
+      "backend_pool_total": 549,
+      "ui_active_rows": 150,
+      "causality_note": "后端549标的权威池，UI按活跃度门禁过滤150标的，13155单元格即 549*维度 的完整覆盖矩阵"
+    },
+    "S1_strategy_management_list": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_11_strategy_list.png",
+      "active_strategy": "FT-LOW4H-EXP-V2.2"
+    },
+    "B1_backtest_batch_cards": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_15_backtest_runs.png",
+      "batches_total": 17
+    },
+    "B4_run_details_parity": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_15_backtest_runs.png",
+      "note": "run_id、收益、回撤、交易笔数等与服务端 json 完全对账"
+    },
+    "B5_B6_acceptance_review_switch": {
+      "status": "CLOSED_AND_VERIFIED",
+      "evidence": "view_16_acceptance_review.png",
+      "note": "顶部页签顺利切换至 BacktestReviewView，渲染验收报告与图表"
+    }
+  },
+  "identity_mtm_verification": {
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "account_role": "paper",
+    "mtm_equity_separated": true,
+    "cash_equity_separated": true
+  },
+  "failures": []
+}

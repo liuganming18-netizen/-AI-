@@ -1,0 +1,173 @@
+{
+ "sample": {
+  "runs_rerun": 253,
+  "trade_instances_A": 285,
+  "unique_signals": 206,
+  "paired_signals": 206,
+  "missing_variant_signals": 0,
+  "signals_with_multiple_window_outcomes": 57,
+  "note": "同一候选信号在多个重叠窗口里会得到不同退出（窗口末尾强平）。本表按 signal_id 去重，每个信号只保留一个规范实例，且 A/B/C 必须取自同一个 run。"
+ },
+ "A": {
+  "n": 206,
+  "net_sum": 55.308694,
+  "net_mean": 0.268489,
+  "win_rate": 0.4029,
+  "avg_win": 12.298493,
+  "avg_loss": -7.849319,
+  "profit_factor": 1.0573,
+  "worst": -10.752223,
+  "best": 188.255443,
+  "worst5_sum": -52.58773,
+  "loss_tail_sum": -965.466253,
+  "p05": -10.164444,
+  "hold_mean_h": 190.376,
+  "hold_median_h": 240.0,
+  "net_R_sum": 7.449726,
+  "net_R_mean": 0.0362,
+  "exit_reason_counts": {
+   "max_holding_expired": 109,
+   "intrabar_stop": 92,
+   "force_close_eod": 5
+  }
+ },
+ "B": {
+  "n": 206,
+  "net_sum": 12.32438,
+  "net_mean": 0.059827,
+  "win_rate": 0.3786,
+  "avg_win": 11.374681,
+  "avg_loss": -6.835162,
+  "profit_factor": 1.0141,
+  "worst": -10.752223,
+  "best": 188.255443,
+  "worst5_sum": -52.301455,
+  "loss_tail_sum": -874.900736,
+  "p05": -10.137841,
+  "hold_mean_h": 177.682,
+  "hold_median_h": 208.0,
+  "net_R_sum": 3.547466,
+  "net_R_mean": 0.0172,
+  "exit_reason_counts": {
+   "max_holding_expired": 95,
+   "intrabar_stop": 108,
+   "force_close_eod": 3
+  }
+ },
+ "C": {
+  "n": 206,
+  "net_sum": 58.356723,
+  "net_mean": 0.283285,
+  "win_rate": 0.4029,
+  "avg_win": 12.298493,
+  "avg_loss": -7.824538,
+  "profit_factor": 1.0606,
+  "worst": -10.752223,
+  "best": 188.255443,
+  "worst5_sum": -52.58773,
+  "loss_tail_sum": -962.418224,
+  "p05": -10.164444,
+  "hold_mean_h": 190.299,
+  "hold_median_h": 240.0,
+  "net_R_sum": 7.758287,
+  "net_R_mean": 0.0377,
+  "exit_reason_counts": {
+   "max_holding_expired": 109,
+   "intrabar_stop": 92,
+   "force_close_eod": 5
+  }
+ },
+ "B_vs_A": {
+  "triggered_n": 75,
+  "triggered_rate": 0.3641,
+  "triggered_A_profit_n": 63,
+  "triggered_A_loss_n": 12,
+  "triggered_delta_mean": -0.574623,
+  "delta_sum": -42.984314,
+  "delta_mean": -0.208662,
+  "saved_loss_sum": 95.35115,
+  "extra_loss_sum": 138.335464,
+  "improved_n": 13,
+  "worsened_n": 16,
+  "unchanged_n": 177,
+  "early_exit_n": 28,
+  "early_exit_and_A_profit_n": 16,
+  "forgone_profit_sum": 138.335464,
+  "be_trigger_but_net_negative_n": 17,
+  "be_trigger_but_net_negative_sum": -1.381614,
+  "be_trigger_but_not_stop_exit_n": 37,
+  "hold_mean_h": 177.682,
+  "loss_tail_sum": -874.900736,
+  "worst5_sum": -52.301455,
+  "worst": -10.752223
+ },
+ "C_vs_A": {
+  "triggered_n": 26,
+  "triggered_rate": 0.1262,
+  "triggered_A_profit_n": 25,
+  "triggered_A_loss_n": 1,
+  "triggered_delta_mean": 0.117232,
+  "delta_sum": 3.048029,
+  "delta_mean": 0.014796,
+  "saved_loss_sum": 3.048029,
+  "extra_loss_sum": 0.0,
+  "improved_n": 1,
+  "worsened_n": 0,
+  "unchanged_n": 205,
+  "early_exit_n": 1,
+  "early_exit_and_A_profit_n": 0,
+  "forgone_profit_sum": 0,
+  "be_trigger_but_net_negative_n": 1,
+  "be_trigger_but_net_negative_sum": -0.023171,
+  "be_trigger_but_not_stop_exit_n": 13,
+  "hold_mean_h": 190.299,
+  "loss_tail_sum": -962.418224,
+  "worst5_sum": -52.58773,
+  "worst": -10.752223
+ },
+ "consistency": {
+  "B_checked": 131,
+  "B_bad_n": 0,
+  "C_checked": 180,
+  "C_bad_n": 0,
+  "B_bad_ids": [],
+  "C_bad_ids": [],
+  "B_cascade_n": 1,
+  "C_cascade_n": 0,
+  "B_cascade": [
+   {
+    "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_OPUSDT_1704499200000_1705068000000",
+    "symbol": "OPUSDT",
+    "entry_time_utc": "2024-01-12 14:15",
+    "net_A": -9.327116,
+    "net_variant": -9.214741,
+    "qty_A": 8.3,
+    "qty_variant": 8.2,
+    "原因": "同 run 内前一笔被保本提前平仓 ⇒ 本笔权益/仓位改变（串行资金耦合）"
+   }
+  ],
+  "C_cascade": []
+ },
+ "ambiguity_n": 0,
+ "runs": {
+  "total": 253,
+  "ok": 253,
+  "error": []
+ },
+ "repro": {
+  "checked": 285,
+  "matched": 284,
+  "mismatch_n": 1,
+  "mismatch_examples": [
+   {
+    "entry_time": 1705140900000,
+    "now": -3.858655645096991,
+    "orig": -3.840894,
+    "delta": -0.017761645096991074,
+    "group": 85,
+    "symbol": "TRXUSDT"
+   }
+  ]
+ },
+ "drawdown_note": "每个 run 是单标的独立 2000U 账户，彼此不共享资金；本单不计算、也不声明「账户最大回撤」。逐笔净额累加只能作样本内描述，不得当组合净值。"
+}

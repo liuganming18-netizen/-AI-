@@ -1,0 +1,234 @@
+{
+ "task": "ACCUM-EARLY-06-06",
+ "probe": "00_范围与身份锚定",
+ "generated_at_utc": "2026-10-26T18:26:17Z",
+ "depends_on": [
+  "ACCUM-EARLY-06-05",
+  "ACCUM-EARLY-05-C",
+  "ACCUM-EARLY-05-F"
+ ],
+ "A_窗口与母集": {
+  "start_utc": "2026-06-27T08:00:00Z",
+  "end_utc": "2026-10-26T09:00:00Z",
+  "start_ms": 1782547200000,
+  "end_ms": 1793005200000,
+  "warmup_start_utc": "2026-05-21T16:00:00Z",
+  "span_hours": 2905.0,
+  "exchange": "binance",
+  "market": "um",
+  "symbols_source": "05-C 04_统一观察母集.json universe.symbols（51 笔候选涉及的标的，去重）",
+  "symbol_count": 48,
+  "symbols": [
+   "1000PEPEUSDT",
+   "AGTUSDT",
+   "AIGENSYNUSDT",
+   "ASTERUSDT",
+   "AXSUSDT",
+   "BABYUSDT",
+   "BBUSDT",
+   "BLURUSDT",
+   "BNBUSDT",
+   "CARVUSDT",
+   "CHZUSDT",
+   "COLLECTUSDT",
+   "COOKIEUSDT",
+   "CROSSUSDT",
+   "DOTUSDT",
+   "DUSKUSDT",
+   "ETHWUSDT",
+   "EVAAUSDT",
+   "GOATUSDT",
+   "HYPERUSDT",
+   "IRYSUSDT",
+   "JELLYJELLYUSDT",
+   "KATUSDT",
+   "KMNOUSDT",
+   "KOMAUSDT",
+   "METISUSDT",
+   "METUSDT",
+   "NEARUSDT",
+   "NILUSDT",
+   "PEOPLEUSDT",
+   "PIXELUSDT",
+   "PLUMEUSDT",
+   "PORTALUSDT",
+   "PROVEUSDT",
+   "PYTHUSDT",
+   "SAFEUSDT",
+   "SANDUSDT",
+   "SKRUSDT",
+   "SUSDT",
+   "TNSRUSDT",
+   "UAIUSDT",
+   "VELVETUSDT",
+   "WALUSDT",
+   "WUSDT",
+   "XLMUSDT",
+   "YGGUSDT",
+   "ZECUSDT",
+   "ZKUSDT"
+  ]
+ },
+ "B_数据身份": {
+  "热库": {
+   "path": "数据/市场数据/db/market_v2.sqlite3",
+   "bytes": 13492064256,
+   "mtime_ns": 1793039153874587333,
+   "mtime_utc": "2026-10-26T18:25:53Z",
+   "blake2b_16": "67d29dddb06c830f8760c70f1a727537",
+   "hash_algo": "blake2b-128 (分块 8MiB)"
+  },
+  "冷档": {
+   "dir": "数据/市场数据/parquet/funding/binance/um",
+   "files": 526,
+   "bytes": 40134797,
+   "manifest_sha256": "a039c0f7995f707b30a3f62bbe1f729957dbc1b8497681f7d334da0347cce504",
+   "manifest_note": "按文件名排序，逐行 name\\tsize\\tmtime_ns；不含内容哈希"
+  }
+ },
+ "C_判别器前提P2": {
+  "hot_rows_total": 2125240,
+  "fetched_at_null_rows": 0,
+  "holds": true,
+  "usage": "若 holds，则 `fetched_at is None` 唯一标识 prefer='hot' 里混进来的冷档行；否则适配器的来源归属不成立，必须改用其它判别器。"
+ },
+ "D_热库事实": {
+  "rows_total": 2125240,
+  "by_exchange_market": [
+   {
+    "exchange": "binance",
+    "market": "um",
+    "n": 2065205
+   },
+   {
+    "exchange": "okx",
+    "market": "swap",
+    "n": 60035
+   }
+  ],
+  "range": {
+   "lo_ms": 1640995200006,
+   "lo_utc": "2022-01-01T00:00:00Z",
+   "hi_ms": 1793012400000,
+   "hi_utc": "2026-10-26T11:00:00Z"
+  },
+  "columns": [
+   "exchange",
+   "market",
+   "symbol",
+   "funding_time",
+   "funding_rate",
+   "mark_price",
+   "rate_type",
+   "source",
+   "fetched_at"
+  ],
+  "window_rows": 305174,
+  "window_mark_null": 0,
+  "window_rate_null": 0,
+  "mark_null_all": 60818,
+  "mark_null_binance_um": 783,
+  "mark_null_binance_um_range": {
+   "lo_utc": "2022-07-31T00:00:00Z",
+   "hi_utc": "2023-08-20T16:00:00Z",
+   "symbols": 124
+  },
+  "universe_rows_all_history": 197194,
+  "universe_mark_null": 69
+ },
+ "E_冷档事实": {
+  "files": 526,
+  "columns": [
+   "funding_time",
+   "funding_rate",
+   "mark_price",
+   "rate_type",
+   "source"
+  ],
+  "has_available_at": false,
+  "has_fetched_at": false,
+  "rows": 2189855,
+  "distinct_keys": 2189855,
+  "distinct_filename_time": 2189855,
+  "range": {
+   "lo_ms": 1577836800000,
+   "lo_utc": "2020-01-01T00:00:00Z",
+   "hi_ms": 1791979200000,
+   "hi_utc": "2026-10-14T12:00:00Z"
+  },
+  "mark_null": 1838,
+  "rate_null": 0,
+  "window_rows": 311726,
+  "top_source": [
+   {
+    "source": "binance.archive.fundingRate+mark1h",
+    "n": 2089604
+   },
+   {
+    "source": "binance.fapi",
+    "n": 75223
+   },
+   {
+    "source": "binance.archive.fundingRate(patch)+mark1h",
+    "n": 11643
+   },
+   {
+    "source": "binance.archive.fundingRate+fapi",
+    "n": 7533
+   },
+   {
+    "source": "binance.archive.fundingRate",
+    "n": 5722
+   },
+   {
+    "source": "binance.archive.fundingRate(patch)+fapi",
+    "n": 130
+   }
+  ]
+ },
+ "F_待复核claim": [
+  {
+   "id": "C1",
+   "src": "06-05 §1/§4",
+   "text": "热库缺口段 2026-09-02T20:00Z→2026-09-18T16:00Z（380h）",
+   "how": "02 用适配器逐 symbol 重算缺口段并聚类"
+  },
+  {
+   "id": "C2",
+   "src": "06-05 §4",
+   "text": "母集48 缺口 2,822 个（仅 39 个周期可靠标的）",
+   "how": "04/05 逐事件对账后重算"
+  },
+  {
+   "id": "C3",
+   "src": "06-05 §6",
+   "text": "holdout_final 1,523 笔里 104 笔资金费真缺口、冷档补回 104、残余 0",
+   "how": "本单不复算交易层，只核事件层可补性；交易层结论转引并标未复核"
+  },
+  {
+   "id": "C4",
+   "src": "06-05 §2",
+   "text": "冷档无 available_at / fetched_at 列",
+   "how": "00 直接列冷档 schema 核对"
+  },
+  {
+   "id": "C5",
+   "src": "06-05 §5",
+   "text": "同键冲突（rate/mark 不一致）全池 0",
+   "how": "04 逐事件对账统计 conflicts"
+  },
+  {
+   "id": "C6",
+   "src": "06-05 §7",
+   "text": "prefer='hot' 会混入冷档行",
+   "how": "00 的 P2 + 01 的泄漏计数断言"
+  }
+ ],
+ "env": {
+  "python": "3.13.12",
+  "executable": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "duckdb": "1.5.6"
+ },
+ "elapsed_sec": 22.0
+}

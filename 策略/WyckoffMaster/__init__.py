@@ -13,4 +13,5 @@ __version__ = "4.0.0-oi-resonance"
 __all__ = [
     "oi_resonance_v1",
     "trading_core",
+    "flow_oi",
 ]

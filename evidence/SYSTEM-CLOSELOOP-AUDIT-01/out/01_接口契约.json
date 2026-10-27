@@ -1,0 +1,732 @@
+{
+  "生成时刻": "2026-10-22T19:57:59+0800",
+  "后端": "http://127.0.0.1:8787",
+  "纪律": "本轮只读，不发写请求；写侧见 04_lifecycle_isolated.py",
+  "网络": "显式绕过环境代理（HTTP_PROXY 未设 no_proxy）",
+  "耗时_s": 8.02,
+  "计数": {
+    "通过": 17,
+    "不通过": 1
+  },
+  "明细": [
+    {
+      "id": "A1",
+      "title": "GET /api/v1/health",
+      "verdict": "通过",
+      "判据": "200 且 items 非空；失败项如实标非 ok（不得吞掉）",
+      "实测": {
+        "status": 200,
+        "n_items": 5,
+        "n_not_ok": 2,
+        "not_ok": [
+          {
+            "name": "公共 REST 网关（目录/端点）",
+            "status": "missing",
+            "age_seconds": null
+          },
+          {
+            "name": "账户/交易",
+            "status": "not_connected",
+            "age_seconds": null
+          }
+        ],
+        "elapsed_s": 0.025
+      },
+      "补充": {}
+    },
+    {
+      "id": "A2",
+      "title": "GET /api/v1/overview 与 /markets 口径",
+      "verdict": "通过",
+      "判据": "counts.markets_total == markets.items 条数 == markets.total",
+      "实测": {
+        "overview.markets_total": 549,
+        "markets.n_items": 549,
+        "markets.total": 549,
+        "markets.has_more": false,
+        "markets.quality": {
+          "status": "ok",
+          "age_seconds": null,
+          "note": "工作台活动池 = 币安 COIN ∪ 欧易仅补；加密指数另列；总池 ≠ 交易资格；被排除目录与旧数据仍保留在库"
+        }
+      },
+      "补充": {}
+    },
+    {
+      "id": "A3",
+      "title": "GET /api/v1/markets 字段非空率",
+      "verdict": "通过",
+      "判据": "条数>0 且 6 个身份字段无空值",
+      "实测": {
+        "n_items": 549,
+        "身份字段空值数": {
+          "exchange": 0,
+          "market_id": 0,
+          "symbol": 0,
+          "base": 0,
+          "quote": 0,
+          "contract_type": 0
+        },
+        "扩展字段空值数": {
+          "market_cap_usd": 24,
+          "price": 549,
+          "change_24h_pct": 549,
+          "quote_volume_24h": 549
+        },
+        "eligibility非空条数": 0,
+        "elapsed_s": 0.033
+      },
+      "补充": {
+        "说明": "eligibility 恒 null 是设计（数据总池 ≠ 交易资格），不计失败"
+      }
+    },
+    {
+      "id": "A4",
+      "title": "GET /markets/{ex}/{sym}/candles 参数生效",
+      "verdict": "通过",
+      "判据": "timeframe/limit 生效；返回 timeframe 回显一致；根数≤limit；时间严格递增无重复；间隔=周期",
+      "实测": {
+        "cases": [
+          {
+            "tf": "15m",
+            "limit": 100,
+            "status": 200,
+            "n": 100,
+            "returned_timeframe": "15m",
+            "le_limit": true,
+            "monotonic": true,
+            "dup": false,
+            "step_ms": 900000,
+            "step_ok": true,
+            "first": "2026-10-21T10:45:00Z",
+            "last": "2026-10-22T11:30:00Z",
+            "all_closed": true,
+            "elapsed_s": 0.213
+          },
+          {
+            "tf": "1h",
+            "limit": 50,
+            "status": 200,
+            "n": 50,
+            "returned_timeframe": "1h",
+            "le_limit": true,
+            "monotonic": true,
+            "dup": false,
+            "step_ms": 3600000,
+            "step_ok": true,
+            "first": "2026-10-20T09:00:00Z",
+            "last": "2026-10-22T10:00:00Z",
+            "all_closed": true,
+            "elapsed_s": 0.02
+          },
+          {
+            "tf": "4h",
+            "limit": 200,
+            "status": 200,
+            "n": 200,
+            "returned_timeframe": "4h",
+            "le_limit": true,
+            "monotonic": true,
+            "dup": false,
+            "step_ms": 14400000,
+            "step_ok": true,
+            "first": "2026-09-19T00:00:00Z",
+            "last": "2026-10-22T04:00:00Z",
+            "all_closed": true,
+            "elapsed_s": 0.022
+          }
+        ]
+      },
+      "补充": {
+        "说明": "参数名是 timeframe；传 tf 会被**静默忽略**并回落 1d（第一版实测），属宽松入参，不计失败但记入观察项"
+      }
+    },
+    {
+      "id": "A5",
+      "title": "GET /markets/{ex}/{sym}/oi 缺失不补 0",
+      "verdict": "通过",
+      "判据": "200；有数据；**不出现 open_interest==0 的伪造行**；缺失走 null",
+      "实测": {
+        "status": 200,
+        "n": 50,
+        "n_zero": 0,
+        "n_null": 0,
+        "quality": {
+          "status": "ok",
+          "age_seconds": null,
+          "note": null
+        },
+        "missing_reason": null,
+        "sample": [
+          {
+            "event_time": "2026-10-05T04:22:36Z",
+            "period": "snapshot",
+            "open_interest": "98433.414",
+            "open_interest_value": null,
+            "oi_ccy": "98433.414",
+            "oi_usd": null,
+            "source": "binance.fapi",
+            "fetched_at": 1791174164946
+          },
+          {
+            "event_time": "2026-10-05T04:39:45Z",
+            "period": "snapshot",
+            "open_interest": "98664.841",
+            "open_interest_value": null,
+            "oi_ccy": "98664.841",
+            "oi_usd": null,
+            "source": "binance.fapi",
+            "fetched_at": 1791175193225
+          }
+        ]
+      },
+      "补充": {
+        "说明": "open_interest 是字符串，需转 float 再判 0（第一版直接比 0 恒不命中）"
+      }
+    },
+    {
+      "id": "A6",
+      "title": "GET /markets/{ex}/{sym}/funding 符号保留",
+      "verdict": "通过",
+      "判据": "200；有数据；**存在负值且未被取绝对值**",
+      "实测": {
+        "status": 200,
+        "n": 50,
+        "n_rate": 50,
+        "n_negative": 13,
+        "min": -4.135e-05,
+        "max": 0.0001,
+        "quality": {
+          "status": "ok",
+          "age_seconds": null,
+          "note": null
+        },
+        "newest": "2026-10-05T16:00:00Z"
+      },
+      "补充": {
+        "说明": "若窗口内恰好无负费率，本条只能判未验证，不得判通过"
+      }
+    },
+    {
+      "id": "A7",
+      "title": "GET /api/v1/signals?scope=current 与库内一致",
+      "verdict": "通过",
+      "判据": "items 条数 == quality.n_cards；n_arm_rows ≥ n_cards（多臂合并）；每条 signal_uid 在库内可查到",
+      "实测": {
+        "status": 200,
+        "api_n": 2,
+        "n_cards": 2,
+        "n_arm_rows": 3,
+        "excluded_n": 0,
+        "db_live_signal_total": 3,
+        "db_enterable": 3,
+        "uids": [
+          "sig_closeloop_btc_1792668605",
+          "sig_closeloop_btc_1792668513"
+        ],
+        "每条库内命中": true,
+        "db_error": null,
+        "quality.note": "当前交易信号区（scope=current）：origin=live + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 2 张卡（原始 3 条臂行）；已从本区移出 0 条（仍保留在库/审计通道）"
+      },
+      "补充": {
+        "说明": "第一版判据写成 items == n_arm_rows，把「多臂合并成一张卡」误判为不一致；已按接口自身口径修正。scope=current 的过滤条件见 quality.note"
+      }
+    },
+    {
+      "id": "A8",
+      "title": "GET /api/v1/paper/accounts 账户闭合",
+      "verdict": "通过",
+      "判据": "账户数=账本臂数(4)；每臂 cash + unrealized_pnl == equity",
+      "实测": {
+        "status": 200,
+        "n_accounts": 4,
+        "arms": [
+          "3a",
+          "3b",
+          "3c",
+          "3d"
+        ],
+        "ledger_source": {
+          "kind": "paper_ledger",
+          "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+          "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+          "manifest_present": false,
+          "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+          "allow_init": false,
+          "all_present": true,
+          "any_present": true,
+          "arms": {
+            "3a": {
+              "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+              "exists": true,
+              "sha256": "1a9a2d8291f3bcdc97afceadc1e98a434ffb98f9e25ecd095320c524498c9933",
+              "rows": {
+                "paper_position": 3,
+                "paper_fill": 6,
+                "paper_funding": 0,
+                "paper_equity": 6,
+                "paper_realized": 3,
+                "paper_order": 3,
+                "paper_state": 1
+              },
+              "open_nonvoid": 0,
+              "identity": {
+                "account_id": "paper43_3a",
+                "initial_equity": null,
+                "spec_version": null
+              },
+              "readable": true
+            },
+            "3b": {
+              "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+              "exists": true,
+              "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+              "rows": {
+                "paper_position": 0,
+                "paper_fill": 0,
+                "paper_funding": 0,
+                "paper_equity": 0,
+                "paper_realized": 0,
+                "paper_order": 0,
+                "paper_state": 1
+              },
+              "open_nonvoid": 0,
+              "identity": {
+                "account_id": "paper43_3b",
+                "initial_equity": null,
+                "spec_version": null
+              },
+              "readable": true
+            },
+            "3c": {
+              "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+              "exists": true,
+              "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+              "rows": {
+                "paper_position": 0,
+                "paper_fill": 0,
+                "paper_funding": 0,
+                "paper_equity": 0,
+                "paper_realized": 0,
+                "paper_order": 0,
+                "paper_state": 1
+              },
+              "open_nonvoid": 0,
+              "identity": {
+                "account_id": "paper43_3c",
+                "initial_equity": null,
+                "spec_version": null
+              },
+              "readable": true
+            },
+            "3d": {
+              "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+              "exists": true,
+              "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+              "rows": {
+                "paper_position": 0,
+                "paper_fill": 0,
+                "paper_funding": 0,
+                "paper_equity": 0,
+                "paper_realized": 0,
+                "paper_order": 0,
+                "paper_state": 1
+              },
+              "open_nonvoid": 0,
+              "identity": {
+                "account_id": "paper43_3d",
+                "initial_equity": null,
+                "spec_version": null
+              },
+              "readable": true
+            }
+          }
+        },
+        "per_arm": [
+          {
+            "arm": "3a",
+            "initial_equity": 5000.0,
+            "cash": 4995.654545,
+            "equity": 4995.654545,
+            "unrealized_pnl": 0.0,
+            "used_margin": 0.0,
+            "gross_notional": 0.0,
+            "drawdown": 0.000695,
+            "peak_equity": 4999.129301,
+            "闭合差(cash+未实现-权益)": 0.0
+          },
+          {
+            "arm": "3b",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "equity": 5000.0,
+            "unrealized_pnl": 0.0,
+            "used_margin": 0.0,
+            "gross_notional": 0.0,
+            "drawdown": 0.0,
+            "peak_equity": 5000.0,
+            "闭合差(cash+未实现-权益)": 0.0
+          },
+          {
+            "arm": "3c",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "equity": 5000.0,
+            "unrealized_pnl": 0.0,
+            "used_margin": 0.0,
+            "gross_notional": 0.0,
+            "drawdown": 0.0,
+            "peak_equity": 5000.0,
+            "闭合差(cash+未实现-权益)": 0.0
+          },
+          {
+            "arm": "3d",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "equity": 5000.0,
+            "unrealized_pnl": 0.0,
+            "used_margin": 0.0,
+            "gross_notional": 0.0,
+            "drawdown": 0.0,
+            "peak_equity": 5000.0,
+            "闭合差(cash+未实现-权益)": 0.0
+          }
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "A9",
+      "title": "GET /api/v1/paper/positions 与账本逐笔一致",
+      "verdict": "通过",
+      "判据": "接口持仓条数 == 各臂账本 status='open' 且未作废的仓位数",
+      "实测": {
+        "status": 200,
+        "api_n": 0,
+        "api_per_arm": {},
+        "db_per_arm_open": {
+          "3a": 0,
+          "3b": 0,
+          "3c": 0,
+          "3d": 0
+        },
+        "db_total": 0,
+        "sample": []
+      },
+      "补充": {}
+    },
+    {
+      "id": "A10",
+      "title": "GET /api/v1/paper/orders 只读声明与写入口一致",
+      "verdict": "不通过",
+      "判据": "只读返回 not_connected ⇒ 写入口必须同样关闭（不得只读说未接通、写口仍可写）",
+      "实测": {
+        "read_status": "not_connected",
+        "read_note": "Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：不返回旧 3a–3d 订单/挂单（旧账本原件保留，可恢复只读归档）。写入口恒拒，不回退旧 exec_bridge。",
+        "read_items": 0,
+        "写路由存在": true,
+        "写实现指向": "_paper_order_post_legacy（其 docstring 自述「已退役、不再挂任何路由」）",
+        "写入口 docstring 自称": "已接通新共享核心",
+        "臂表": "ARMS = (\"3a\", \"3b\", \"3c\", \"3d\")"
+      },
+      "补充": {
+        "说明": "三处自相矛盾：① 只读侧声明 NOT_CONNECTED；② 写路由仍挂在 adapter 上；③ 写函数 docstring 写「已接通新共享核心」，函数体却直通「已退役、不再挂任何路由」的旧实现。实际拒绝理由是账本不可用（503），而不是未接通 ⇒ 声明与行为不一致。"
+      }
+    },
+    {
+      "id": "A12",
+      "title": "GET /api/v1/live/health worker 未运行必须 down",
+      "verdict": "通过",
+      "判据": "worker 无心跳 ⇒ quality.status == 'down'（不得因接口 200 报 ok）",
+      "实测": {
+        "status": 200,
+        "quality.status": "down",
+        "worker_status": "down",
+        "heartbeats": {
+          "signal_engine": {
+            "heartbeat_utc": null,
+            "age_seconds": null
+          },
+          "account_reader": {
+            "heartbeat_utc": null,
+            "age_seconds": null
+          }
+        },
+        "worker_ttl_seconds": 2250.0,
+        "missing_reason": "无 worker 心跳（live_run:signal_engine_state/account_state 均缺失）",
+        "items": [
+          {
+            "signal_engine": {},
+            "account_reader": {}
+          }
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "A13",
+      "title": "GET /api/v1/accounts 空态可解释",
+      "verdict": "通过",
+      "判据": "无快照 ⇒ not_connected 且 missing_reason 明确（不得伪造 0 余额）",
+      "实测": {
+        "status": 200,
+        "quality.status": "not_connected",
+        "missing_reason": "尚无实盘账户快照（live worker 未运行或未配置凭据）",
+        "n_items": 0
+      },
+      "补充": {}
+    },
+    {
+      "id": "A14",
+      "title": "GET /api/v1/strategies 条数与注册表一致",
+      "verdict": "通过",
+      "判据": "items 条数 == total == current + legacy",
+      "实测": {
+        "status": 200,
+        "n_items": 8,
+        "total": 8,
+        "n_current": 1,
+        "n_legacy": 7,
+        "current_keys": [
+          "wx_event_trend_v0_1"
+        ],
+        "legacy_keys": [
+          "3a",
+          "3b",
+          "3c",
+          "3d",
+          "A",
+          "B",
+          "wx_oi_resonance_v1"
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "A15",
+      "title": "GET /api/v1/data/feeds 17 项且状态如实",
+      "verdict": "通过",
+      "判据": "17 项；status 分布如实（停更项不得为正常）",
+      "实测": {
+        "status": 200,
+        "n_feeds": 17,
+        "total": 17,
+        "状态分布": {
+          "normal": 16,
+          "abnormal": 1
+        },
+        "非正常项": [
+          {
+            "code": "5m",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "15m",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "30m",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "1h",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "4h",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "8h",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "12h",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "1d",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "oi",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "funding",
+            "status": "abnormal",
+            "light": "red"
+          },
+          {
+            "code": "metrics_history",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "smart_money",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "realtime_quotes",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "supply",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "classification",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "cvd",
+            "status": "normal",
+            "light": "green"
+          },
+          {
+            "code": "oi_mc",
+            "status": "normal",
+            "light": "green"
+          }
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "A16",
+      "title": "GET /data/{oi|funding|smart-money|all-in-one} 信封与 limit",
+      "verdict": "通过",
+      "判据": "四个明细表统一 items+total 信封；limit 生效",
+      "实测": {
+        "oi": {
+          "status": 200,
+          "limit30_n": 30,
+          "limit10_n": 10,
+          "total": 30,
+          "has_items_key": true,
+          "has_total_key": true,
+          "limit_effective": true,
+          "elapsed_s": 0.092
+        },
+        "funding": {
+          "status": 200,
+          "limit30_n": 30,
+          "limit10_n": 10,
+          "total": 30,
+          "has_items_key": true,
+          "has_total_key": true,
+          "limit_effective": true,
+          "elapsed_s": 0.221
+        },
+        "smart-money": {
+          "status": 200,
+          "limit30_n": 30,
+          "limit10_n": 10,
+          "total": 30,
+          "has_items_key": true,
+          "has_total_key": true,
+          "limit_effective": true,
+          "elapsed_s": 0.111
+        },
+        "all-in-one": {
+          "status": 200,
+          "limit30_n": 30,
+          "limit10_n": 10,
+          "total": 30,
+          "has_items_key": true,
+          "has_total_key": true,
+          "limit_effective": true,
+          "elapsed_s": 1.791
+        }
+      },
+      "补充": {}
+    },
+    {
+      "id": "A17",
+      "title": "GET /api/v1/data/coverage 规模与分母",
+      "verdict": "通过",
+      "判据": "200 且有 cells；**分母字段（total_cells / coverage_ratio）不得凭空为 0**，缺失就留 null 并说明",
+      "实测": {
+        "status": 200,
+        "n_cells": 13155,
+        "n_combos": 551,
+        "total_cells": null,
+        "coverage_ratio": null,
+        "covered_cells": 13155,
+        "by_field": {
+          "klines": 4385,
+          "oi": 4385,
+          "funding": 4385
+        },
+        "elapsed_s": 0.114
+      },
+      "补充": {
+        "说明": "cells 的粒度是「标的×字段×周期」，不等于 /health 报的 (标的,周期) 组合数；分母两个字段均为 null ⇒ 前端无法算覆盖率，只能显示已覆盖数"
+      }
+    },
+    {
+      "id": "A18",
+      "title": "GET /api/v1/backtests 过滤在截断之前",
+      "verdict": "通过",
+      "判据": "limit 生效；truncated 如实；**第 6 条之后的 run 用 q 仍能搜到**（证明过滤先于截断）",
+      "实测": {
+        "status": 200,
+        "limit5_n": 5,
+        "returned": 5,
+        "total": 2263,
+        "truncated": true,
+        "runs_total_all": 2268,
+        "excluded_legacy_total": 5,
+        "all_n": 2263,
+        "deep_id": "run_FT_ENTRY_09_C1_Vs06_Z02_BCHUSDT",
+        "deep_found_by_q": true,
+        "status_done_n": 0,
+        "elapsed_s": 0.434
+      },
+      "补充": {}
+    },
+    {
+      "id": "A21",
+      "title": "未知路径 404（读侧）",
+      "verdict": "通过",
+      "判据": "三条未知路径均 404；写侧 404 与「不改状态」在隔离实例复验（见 04）",
+      "实测": [
+        {
+          "path": "/api/v1/__nope__",
+          "status": 404,
+          "body": {
+            "错误": "接口不存在"
+          }
+        },
+        {
+          "path": "/api/v1/paper/__nope__",
+          "status": 404,
+          "body": {
+            "错误": "接口不存在"
+          }
+        },
+        {
+          "path": "/api/v1/markets/binance/BTCUSDT/__nope__",
+          "status": 404,
+          "body": {
+            "错误": "接口不存在"
+          }
+        }
+      ],
+      "补充": {}
+    }
+  ]
+}

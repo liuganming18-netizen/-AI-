@@ -1,0 +1,28 @@
+{
+  "stats_at_utc": "2026-10-26T03:03:53Z",
+  "population": "全量（热库 oi_history 全表 GROUP BY symbol，无抽样）",
+  "query": "SELECT symbol,COUNT(*),MIN(ts),MAX(ts),SUM(fetched_at IS NOT NULL) FROM oi_history WHERE period='5m' GROUP BY symbol",
+  "approved_pool": 526,
+  "symbols_with_5m": 528,
+  "pool_symbols_with_5m": 526,
+  "pool_symbols_without_5m": [],
+  "freshness_sec_pool": {
+    "n": 526,
+    "min": 533.74,
+    "p10": 533.74,
+    "p50": 833.74,
+    "p90": 1133.74,
+    "max": 921833.74,
+    "mean": 7966.4396
+  },
+  "freshness_buckets_pool": {
+    "<=1h": 520,
+    ">3d": 4,
+    "1d~3d": 2
+  },
+  "fresh_le_1h": 520,
+  "fresh_le_1h_pct": 98.86,
+  "total_rows_5m": 6197631,
+  "min_ts_all": "2026-09-12T00:00:00Z",
+  "max_ts_all": "2026-10-26T02:55:00Z"
+}

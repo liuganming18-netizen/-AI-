@@ -1,0 +1,437 @@
+{
+ "code_after_fix": {
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+  "exists": true,
+  "bytes": 119895,
+  "sha256": "65b0ee70bb0283ff12381b4dcb13baf9f50993abdaddf9b8bec06f11f83d0394",
+  "hashed_bytes": 119895
+ },
+ "config_sha256": "203d9b316583d4c16ca185cee08ee759f11bcdf00ee691cc83adfaeb97440e58",
+ "static": {
+  "absorption_call_sites": [
+   {
+    "line": 1045,
+    "enclosing": [
+     "on_bar"
+    ],
+    "arg_i_repr": "i_sweep"
+   }
+  ],
+  "in_on_bar": true,
+  "in_confirm_actions": false,
+  "arg_i": [
+   "i_sweep"
+  ]
+ },
+ "cases": {
+  "A_扫低承接通过_突破根不通过": {
+   "expected": {
+    "n_candidates": 1,
+    "terminal_state": null,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 1,
+    "terminal_state": null,
+    "final_state": "SWEEP",
+    "candidate_status": "WAIT_ENTRY",
+    "absorption_call_indices": [
+     60
+    ],
+    "absorption_n_calls": 1,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "conditions": {
+     "sweep_lowest_below_reference": "pass",
+     "sweep_overshoot_within": "pass",
+     "sweep_recover_close": "pass",
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "pass",
+     "absorption_close_upper_half": "pass",
+     "sell_pressure_amount": "pass",
+     "confirm_bar_is_bull": "pass",
+     "observe_deadline_hours": "pass",
+     "entry_15m_bar_exists": "pass",
+     "entry_delay_respected": "pass",
+     "entry_price_deviation": "pass",
+     "entry_gap_up_within": "pass",
+     "entry_bar_available_at_proven": "not_proven",
+     "oi_role": "not_required"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     },
+     {
+      "to": "WAIT_ENTRY",
+      "at": "2026-06-03T13:59:59Z",
+      "reason": "候选生成"
+     }
+    ],
+    "closed_reason": null
+   },
+   "mismatches": [],
+   "verdict": "PASS",
+   "explain": {
+    "sweep_bar": {
+     "bar_i": 60,
+     "bar_close_utc": "2026-06-03T12:59:59Z",
+     "open": 103.5,
+     "high": 103.85,
+     "low": 103.1,
+     "close": 103.8,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": 700.0,
+     "buy_ratio": 0.7,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": true,
+     "sell_amount": 300.0,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": true,
+     "upper_half_threshold": 103.475,
+     "upper_half_ok": true
+    },
+    "confirm_bar": {
+     "bar_i": 61,
+     "bar_close_utc": "2026-06-03T13:59:59Z",
+     "open": 103.7,
+     "high": 104.1,
+     "low": 103.7,
+     "close": 104.0,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": 300.0,
+     "buy_ratio": 0.3,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": false,
+     "sell_amount": 700.0,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": false,
+     "upper_half_threshold": 103.9,
+     "upper_half_ok": true
+    }
+   },
+   "transition_payload_absorption": {
+    "absorption_bar_close_ms": 1780491599999,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "absorption_baseline_window": {
+     "from_ms": 1780416000000,
+     "to_ms": 1780487999999,
+     "n": 20
+    },
+    "absorption_ok": true,
+    "sweep_bar_i": 60
+   }
+  },
+  "B_扫低不通过_突破根通过": {
+   "expected": {
+    "n_candidates": 0,
+    "terminal_state": null,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 0,
+    "terminal_state": null,
+    "final_state": "SWEEP",
+    "candidate_status": null,
+    "absorption_call_indices": [
+     60
+    ],
+    "absorption_n_calls": 1,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "conditions": {
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "fail",
+     "absorption_close_upper_half": "pass",
+     "sell_pressure_amount": "fail",
+     "confirm_bar_is_bull": "pass"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     }
+    ],
+    "closed_reason": null
+   },
+   "mismatches": [],
+   "verdict": "PASS",
+   "explain": {
+    "sweep_bar": {
+     "bar_i": 60,
+     "bar_close_utc": "2026-06-03T12:59:59Z",
+     "open": 103.5,
+     "high": 103.85,
+     "low": 103.1,
+     "close": 103.8,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": 300.0,
+     "buy_ratio": 0.3,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": false,
+     "sell_amount": 700.0,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": false,
+     "upper_half_threshold": 103.475,
+     "upper_half_ok": true
+    },
+    "confirm_bar": {
+     "bar_i": 61,
+     "bar_close_utc": "2026-06-03T13:59:59Z",
+     "open": 103.7,
+     "high": 104.1,
+     "low": 103.7,
+     "close": 104.0,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": 700.0,
+     "buy_ratio": 0.7,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": true,
+     "sell_amount": 300.0,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": true,
+     "upper_half_threshold": 103.9,
+     "upper_half_ok": true
+    }
+   },
+   "transition_payload_absorption": {
+    "absorption_bar_close_ms": 1780491599999,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "absorption_baseline_window": {
+     "from_ms": 1780416000000,
+     "to_ms": 1780487999999,
+     "n": 20
+    },
+    "absorption_ok": false,
+    "sweep_bar_i": 60
+   }
+  },
+  "C_扫低根数据不足": {
+   "expected": {
+    "n_candidates": 0,
+    "terminal_state": "DATA_INSUFFICIENT",
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 0,
+    "terminal_state": "DATA_INSUFFICIENT",
+    "final_state": "DATA_INSUFFICIENT",
+    "candidate_status": null,
+    "absorption_call_indices": [
+     60
+    ],
+    "absorption_n_calls": 1,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "conditions": {
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "not_evaluable",
+     "confirm_bar_is_bull": "pass"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     },
+     {
+      "to": "DATA_INSUFFICIENT",
+      "at": "2026-06-04T14:59:59Z",
+      "reason": "承接在扫低根（2026-06-03T12:59:59Z）无法判定：quote_volume_or_taker_buy_missing"
+     }
+    ],
+    "closed_reason": "承接在扫低根（2026-06-03T12:59:59Z）无法判定：quote_volume_or_taker_buy_missing"
+   },
+   "mismatches": [],
+   "verdict": "PASS",
+   "explain": {
+    "sweep_bar": {
+     "bar_i": 60,
+     "bar_close_utc": "2026-06-03T12:59:59Z",
+     "open": 103.5,
+     "high": 103.85,
+     "low": 103.1,
+     "close": 103.8,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": null,
+     "buy_ratio": null,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": null,
+     "sell_amount": null,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": null,
+     "upper_half_threshold": 103.475,
+     "upper_half_ok": true
+    },
+    "confirm_bar": {
+     "bar_i": 86,
+     "bar_close_utc": "2026-06-04T14:59:59Z",
+     "open": 103.7,
+     "high": 104.1,
+     "low": 103.7,
+     "close": 104.0,
+     "quote_volume": 1000.0,
+     "taker_buy_quote_volume": 700.0,
+     "buy_ratio": 0.7,
+     "baseline_n": 20,
+     "baseline_filled": 20,
+     "baseline_median_ratio": 0.5,
+     "buy_ratio_threshold": 0.5,
+     "buy_ratio_ok": true,
+     "sell_amount": 300.0,
+     "baseline_median_sell": 500.0,
+     "sell_threshold": 400.0,
+     "sell_ok": true,
+     "upper_half_threshold": 103.9,
+     "upper_half_ok": true
+    }
+   },
+   "transition_payload_absorption": {
+    "absorption_bar_close_ms": 1780491599999,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z",
+    "absorption_baseline_window": {
+     "from_ms": 1780416000000,
+     "to_ms": 1780487999999,
+     "n": 20
+    },
+    "absorption_ok": null,
+    "sweep_bar_i": 60
+   }
+  }
+ },
+ "summary": {
+  "all_cases_pass_after_fix": true,
+  "integration_ok": true,
+  "verdict": "修后通过：三类全部相符且端到端落库"
+ },
+ "integration": {
+  "scan_events": [
+   {
+    "event_id": "ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4a",
+    "state": "SWEEP",
+    "reason": "扫低收回成立",
+    "at_ms": 1780491599999
+   },
+   {
+    "event_id": "ev_4b_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4b",
+    "state": "SWEEP",
+    "reason": "扫低收回成立",
+    "at_ms": 1780491599999
+   },
+   {
+    "event_id": "ev_4c_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4c",
+    "state": "SWEEP",
+    "reason": "扫低收回成立",
+    "at_ms": 1780491599999
+   },
+   {
+    "event_id": "ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4a",
+    "state": "CANDIDATE",
+    "reason": "甲：首次 1h 收盘收上局部压制位",
+    "at_ms": 1780495199999,
+    "candidate_id": "cd_ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999_s1"
+   },
+   {
+    "event_id": "ev_4b_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4b",
+    "state": "RETEST",
+    "reason": "乙：已收上压制位，等下一根 1h 收盘守位",
+    "at_ms": 1780495199999
+   },
+   {
+    "event_id": "ev_4c_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4c",
+    "state": "RETEST",
+    "reason": "丙：已收上压制位，等回抽到压制位附近后转强",
+    "at_ms": 1780495199999
+   },
+   {
+    "event_id": "ev_4b_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4b",
+    "state": "RETEST",
+    "reason": "窗口结束时仍在观察",
+    "at_ms": 1780495200000
+   },
+   {
+    "event_id": "ev_4c_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+    "scheme": "4c",
+    "state": "RETEST",
+    "reason": "窗口结束时仍在观察",
+    "at_ms": 1780495200000
+   }
+  ],
+  "scan_candidates": 1,
+  "accum05_candidate_rows": [
+   {
+    "scheme": "4a",
+    "candidate_id": "cd_ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999_s1",
+    "confirm_close_ms": 1780495199999,
+    "status": "WAIT_ENTRY",
+    "signal_uid": "accum05_4a_W2SYNTHUSDT_1780495199999",
+    "conditions_json": "[{\"name\": \"sweep_lowest_below_reference\", \"value\": 103.1, \"requirement\": \"< 103.4\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 103.1, \"requirement\": \">= 102.9\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 103.8, \"requirement\": \">= 103.5\", \"result\": \"pass\"}, {\"name\": \"local_resistance\", \"value\": 103.9, \"requirement\": {\"mode\": \"swing_high_k3_lookback48\", \"swing_k\": 3, \"lookback_bars\": 48, \"index_in_window\": 44, \"pivot\": true, \"window_bars\": 48, \"judged_at\": \"sweep_bar\", \"sweep_bar_i\": 60, \"sweep_bar_close_ms\": 1780491599999}, \"result\": \"pass\"}, {\"name\": \"resistance_qualified\", \"value\": 103.9, \"requirement\": \"L+0.5A <= R <= H-0.5A\", \"result\": \"pass\", \"note\": \"ok\"}, {\"name\": \"confirm_above_resistance\", \"value\": 104.0, \"requirement\": \"1h_close > 103.9\", \"result\": \"pass\"}, {\"name\": \"absorption_buy_ratio\", \"value\": 0.7, \"requirement\": \">= 基准 0.5 × 1.0 = 0.5\", \"result\": \"pass\", \"note\": \"baseline=v20_median,n=20\"}, {\"name\": \"absorption_close_upper_half\", \"value\": 103.8, \"requirement\": \">= low + 0.5*(high-low) = 103.475\", \"result\": \"pass\"}, {\"name\": \"sell_pressure_amount\", \"value\": 300.0, \"requirement\": \"<= 基准 500 × 0.8 = 400\", \"result\": \"pass\", \"note\": \"主动卖出额 = quote_volume − taker_buy_quote_volume（推导量）\"}, {\"name\": \"confirm_bar_is_bull\", \"value\": 104.0, \"requirement\": \">= open(103.7)\", \"result\": \"pass\"}, {\"name\": \"observe_deadline_hours\", \"value\": 11.0, \"requirement\": \"<= 336\", \"result\": \"pass\"}, {\"name\": \"entry_15m_bar_exists\", \"value\": \"2026-06-03T14:15:00Z\", \"requirement\": \"存在 open_time>=2026-06-03T14:14:59Z 的已闭合 15m bar\", \"result\": \"pass\"}, {\"name\": \"entry_delay_respected\", \"value\": \"2026-06-03T14:15:00Z\", \"requirement\": \"bar_open >= confirm+15min\", \"result\": \"pass\"}, {\"name\": \"entry_price_deviation\", \"value\": -0.002885, \"requirement\": \"|x| <= 0.015\", \"result\": \"pass\"}, {\"name\": \"entry_gap_up_within\", \"value\": 103.7, \"requirement\": \"<= confirm_close + 0.5A = 104.5\", \"result\": \"pass\"}, {\"name\": \"entry_bar_available_at_proven\", \"value\": null, \"requirement\": \"有值（否则只能声称计算不超前）\", \"result\": \"not_proven\", \"note\": \"成交 bar 来自 synthetic_06w2，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）\"}, {\"name\": \"oi_role\", \"value\": \"evidence_only\", \"requirement\": \"required ⇒ 必须通过；evidence_only ⇒ 只记录\", \"result\": \"not_required\", \"note\": \"本单未把 OI 接进入场门槛，角色由配置决定\"}]"
+   }
+  ],
+  "observe_candidate_rows": [
+   {
+    "scheme": "4a",
+    "candidate_id": "cd_ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999_s1",
+    "created_ms": 1780495199999,
+    "state": "WAIT_ENTRY"
+   }
+  ],
+  "cooldown_ms": 0,
+  "skipped": [],
+  "expected_confirm_close_ms": 1780495199999
+ }
+}

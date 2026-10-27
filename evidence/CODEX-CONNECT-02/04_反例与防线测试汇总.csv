@@ -1,0 +1,6 @@
+﻿反例场景,预期行为,实际结论,是否合规
+重复信号输入,拒绝下单,duplicate_signal_uid,合规
+坏配置/缺少必需参数,启动前阻断抛错,RuntimeError抛出拦截,合规
+未来行情防线,因果判定非法,future_candle_not_closed,合规
+缺少成交bar/数据失效,登记挂单不回填旧价,pending_future_fill,合规
+多进程并发争用同一Arm,文件锁拒绝多开,Lock Occupied,合规

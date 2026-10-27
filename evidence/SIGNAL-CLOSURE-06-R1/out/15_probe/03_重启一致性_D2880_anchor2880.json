@@ -1,0 +1,69 @@
+{
+ "generated_at_utc": "2026-10-25T06:27:00Z",
+ "upto_utc": "2026-10-25T04:59:59Z",
+ "depth_hours": 2880,
+ "depth_mode": "D2880_anchor2880",
+ "T0_utc": "2026-10-22T04:59:59Z",
+ "T1_utc": "2026-10-25T04:59:59Z",
+ "t0_hours": 72,
+ "restart_offsets_h": [
+  6
+ ],
+ "genuine_two_phase": [
+  "R6h"
+ ],
+ "n_symbols": 6,
+ "n_ready": {
+  "C": 6,
+  "R6h": 6,
+  "R2x": 6
+ },
+ "n_diff_vs_continuous": {
+  "R6h": 0,
+  "R2x": 0
+ },
+ "n_candidate_log_diff": {
+  "R6h": 0,
+  "R2x": 0
+ },
+ "candidate_log_note": "候选日志（candidate_ids）按构造随「有效重放深度」增长：C 的有效深度 = W + t0_hours，R{k}h = W + k。**它单独统计，不并入有效状态差异**；设了绝对锚点后两者深度完全相同，这一项也必须为 0。",
+ "anchor_utc": "2026-06-27T04:59:59Z",
+ "anchor_hours": 2880,
+ "restart_count_irrelevant": true,
+ "restart_state_change_at_Tr": {
+  "R6h": {
+   "n_symbols_compared": 6,
+   "n_diff_phase1_vs_direct": 0
+  }
+ },
+ "total_candidates": {
+  "C": 4,
+  "R6h": 4,
+  "R2x": 4
+ },
+ "state_distribution": {
+  "C": {
+   "BOX": 5,
+   "IDLE": 1
+  },
+  "R6h": {
+   "BOX": 5,
+   "IDLE": 1
+  },
+  "R2x": {
+   "BOX": 5,
+   "IDLE": 1
+  }
+ },
+ "elapsed_sec_per_scenario": {
+  "C": 1.6,
+  "R6h": 3.8,
+  "R2x": 3.4
+ },
+ "diff_detail": {
+  "R6h": [],
+  "R2x": []
+ },
+ "runner": "MultiSymbolSignalEngine（生产类）via 00_common.prod_session",
+ "definition": "重启 = 丢弃内存状态，按 [重启时刻-W, 重启时刻] 重建后继续。C 与各 R 共用同一 T0、同一 T1，只改最后一次重启的时刻 —— 这是生产重启的真实方向（重启让已覆盖历史变短，而不是变长）。"
+}

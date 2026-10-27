@@ -1,0 +1,211 @@
+{
+  "审计": "ENTRY-AUDIT-05",
+  "生成时刻": "2026-10-18 10:22:01",
+  "FE07 冻结版本": {
+    "目录": "evidence/FACTOR-ENTRY-07/",
+    "hashes.json sha256": "de920eb7ed8421dfbf3f48dffe254a452b1a05541f98496b188d8d6dc81e8bd9",
+    "表 csv sha256": "a68b8f97a5c9473da743ddbeb2159dc7062475b8d7c7b6d1546d1fc2197ca429",
+    "表 parquet sha256": "c76e3bf80b78674a134b8121a1436e1c2df694c4c2c40e9a13ad755bf99009b0",
+    "报告 md sha256": "f11ebfcf9341fcc77f0296bc8e940bf88352854e4c04b3f354cf4d2c550996dd"
+  },
+  "本窗口基准版本": {
+    "交接包 parquet sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+    "基准特征 parquet sha256": "dd394222b97896182c058c98ebfc2d0400eb328ba34e31fd0299415b20a12339"
+  },
+  "来源契约": {
+    "检查项": "⑦ 输入输出哈希与来源契约",
+    "输入清单文件": "evidence/FACTOR-ENTRY-07/00_freeze_inputs_manifest.json",
+    "输入条目数": 9,
+    "输入逐条核对": [
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/03_identity_full.csv",
+        "声明 sha": "18e28dd85f7fb856",
+        "磁盘实际 sha": "18e28dd85f7fb856",
+        "声明字节": 226443,
+        "磁盘实际字节": 226443,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/04_cost_reconcile.csv",
+        "声明 sha": "ac12c170963067eb",
+        "磁盘实际 sha": "ac12c170963067eb",
+        "声明字节": 87848,
+        "磁盘实际字节": 87848,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/04_cost_reconcile.json",
+        "声明 sha": "5d0524b2c52d56aa",
+        "磁盘实际 sha": "5d0524b2c52d56aa",
+        "声明字节": 6139,
+        "磁盘实际字节": 6139,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/01_coti_conflict.json",
+        "声明 sha": "eec047b9ea95183c",
+        "磁盘实际 sha": "eec047b9ea95183c",
+        "声明字节": 1833,
+        "磁盘实际字节": 1833,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/05_bridge.csv",
+        "声明 sha": "d308d6bd459c6b82",
+        "磁盘实际 sha": "d308d6bd459c6b82",
+        "声明字节": 15478,
+        "磁盘实际字节": 15478,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/ENTRY-AUDIT-03/01_cost_zero_rootcause.json",
+        "声明 sha": "29088f05be15ec53",
+        "磁盘实际 sha": "29088f05be15ec53",
+        "声明字节": 3184,
+        "磁盘实际字节": 3184,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/FACTOR-ENTRY-06/classification_contract.md",
+        "声明 sha": "7c358f2ffe156a9d",
+        "磁盘实际 sha": "7c358f2ffe156a9d",
+        "声明字节": 9128,
+        "磁盘实际字节": 9128,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/FACTOR-ENTRY-06/reconstructed_candidate_features.csv",
+        "声明 sha": "d8e8a387572a9e96",
+        "磁盘实际 sha": "d8e8a387572a9e96",
+        "声明字节": 219147,
+        "磁盘实际字节": 219147,
+        "一致": true
+      },
+      {
+        "输入文件": "evidence/FACTOR-ENTRY-06/discrepancy_summary.json",
+        "声明 sha": "8c248b64f1ee8823",
+        "磁盘实际 sha": "8c248b64f1ee8823",
+        "声明字节": 3110,
+        "磁盘实际字节": 3110,
+        "一致": true
+      }
+    ],
+    "输入是否全部与磁盘一致": true,
+    "是否读取 ENTRY-AUDIT-03": true,
+    "是否读取 ENTRY-AUDIT-04 交接包": false,
+    "来源契约说明": "FE07 的工单是「接入 ENTRY-AUDIT-03 校正账本」，读 EA03 符合它自己的工单；EA04 交接包按工单由 FE08 补齐来源。所以本项对 FE07 不判 FAIL，只如实记录「未读 EA04」这一事实",
+    "输出条目数": 18,
+    "输出是否全部与磁盘一致": true,
+    "判定": "PASS"
+  },
+  "输出哈希逐条": [
+    {
+      "输出文件": "00_freeze_inputs_manifest.json",
+      "自报 sha": "4a72343881505965",
+      "磁盘实际 sha": "4a72343881505965",
+      "一致": true
+    },
+    {
+      "输出文件": "01_match_and_bridge_report.md",
+      "自报 sha": "aa79f819418fa6b9",
+      "磁盘实际 sha": "aa79f819418fa6b9",
+      "一致": true
+    },
+    {
+      "输出文件": "discrepancy_old_vs_new.csv",
+      "自报 sha": "cdff2a997d65b721",
+      "磁盘实际 sha": "cdff2a997d65b721",
+      "一致": true
+    },
+    {
+      "输出文件": "discrepancy_summary.json",
+      "自报 sha": "e5811cd503dbabb5",
+      "磁盘实际 sha": "e5811cd503dbabb5",
+      "一致": true
+    },
+    {
+      "输出文件": "generate_factor_entry_07.py",
+      "自报 sha": "7279ecad38d26b65",
+      "磁盘实际 sha": "7279ecad38d26b65",
+      "一致": true
+    },
+    {
+      "输出文件": "reconstructed_candidate_features_07.csv",
+      "自报 sha": "a68b8f97a5c9473d",
+      "磁盘实际 sha": "a68b8f97a5c9473d",
+      "一致": true
+    },
+    {
+      "输出文件": "reconstructed_candidate_features_07.parquet",
+      "自报 sha": "c76e3bf80b78674a",
+      "磁盘实际 sha": "c76e3bf80b78674a",
+      "一致": true
+    },
+    {
+      "输出文件": "test_classification_and_cost_consistency.py",
+      "自报 sha": "331bcce57bcd8c6e",
+      "磁盘实际 sha": "331bcce57bcd8c6e",
+      "一致": true
+    },
+    {
+      "输出文件": "test_results.log",
+      "自报 sha": "1788a89740e06a15",
+      "磁盘实际 sha": "1788a89740e06a15",
+      "一致": true
+    },
+    {
+      "输出文件": "报告.md",
+      "自报 sha": "f11ebfcf9341fcc7",
+      "磁盘实际 sha": "f11ebfcf9341fcc7",
+      "一致": true
+    },
+    {
+      "输出文件": "tools/inspect_data.py",
+      "自报 sha": "3fb5b964d775473e",
+      "磁盘实际 sha": "3fb5b964d775473e",
+      "一致": true
+    },
+    {
+      "输出文件": ".pytest_cache/.gitignore",
+      "自报 sha": "3ed731b65d06150c",
+      "磁盘实际 sha": "3ed731b65d06150c",
+      "一致": true
+    },
+    {
+      "输出文件": ".pytest_cache/CACHEDIR.TAG",
+      "自报 sha": "37dc88ef9a0abedd",
+      "磁盘实际 sha": "37dc88ef9a0abedd",
+      "一致": true
+    },
+    {
+      "输出文件": ".pytest_cache/README.md",
+      "自报 sha": "73fd6fccdd802c41",
+      "磁盘实际 sha": "73fd6fccdd802c41",
+      "一致": true
+    },
+    {
+      "输出文件": ".pytest_cache/v/cache/lastfailed",
+      "自报 sha": "44136fa355b3678a",
+      "磁盘实际 sha": "44136fa355b3678a",
+      "一致": true
+    },
+    {
+      "输出文件": ".pytest_cache/v/cache/nodeids",
+      "自报 sha": "915500ce0e468276",
+      "磁盘实际 sha": "915500ce0e468276",
+      "一致": true
+    },
+    {
+      "输出文件": "__pycache__/generate_factor_entry_07.cpython-313.pyc",
+      "自报 sha": "6020a59b564e2e18",
+      "磁盘实际 sha": "6020a59b564e2e18",
+      "一致": true
+    },
+    {
+      "输出文件": "__pycache__/test_classification_and_cost_consistency.cpython-313-pytest-9.1.1.pyc",
+      "自报 sha": "50ce8d6c3eaafb53",
+      "磁盘实际 sha": "50ce8d6c3eaafb53",
+      "一致": true
+    }
+  ]
+}

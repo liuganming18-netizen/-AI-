@@ -1,0 +1,189 @@
+{
+  "timestamp_utc": "2026-10-26T17:52:21Z",
+  "schema_version": "accum-early-05/v1",
+  "evidence_tiers": {
+    "tier_1_function_test_only": [
+      {
+        "item": "承接与卖压指标单体计算 (_absorption)",
+        "code_ref": "accum_early_entry.py:815",
+        "behavior_evidence": "03_absorption_cases.json: 验证了主动买占比、卖压名义额上限、振幅上半区收盘的数学判定与基准中位数对比",
+        "limitation": "严重局限：该函数仅在单体测试中调用；在全链中被错误放在 _confirm_actions 突破确认根调用，状态机扫低根完全未接通",
+        "status": "FUNCTION_TESTED_BUT_PIPELINE_BROKEN"
+      },
+      {
+        "item": "局部压制位摆动高点计算 (swing_high_k3_lookback48)",
+        "code_ref": "accum_early_entry.py:719-737",
+        "behavior_evidence": "单测中对左右 k 根 K 线寻找高点，返回压制位价格",
+        "limitation": "需等待状态机从 SWEEP 进入 RETEST 阶段后实际提取",
+        "status": "FUNCTION_VERIFIED"
+      },
+      {
+        "item": "压制位空间合格性校验 (_resistance_qualified)",
+        "code_ref": "accum_early_entry.py:741-758",
+        "behavior_evidence": "校验 L + 0.5*ATR <= R <= H - 0.5*ATR，不合格返回原因",
+        "limitation": "单体函数逻辑成立，状态机在 _confirm_actions 前置检查",
+        "status": "FUNCTION_VERIFIED"
+      }
+    ],
+    "tier_2_state_machine_level": [
+      {
+        "item": "扫低对象约束 (s_loc > box['L'])",
+        "code_ref": "accum_early_entry.py:779-786",
+        "behavior_evidence": "02_original_events_retest.json: 在 SOLUSDT 案例中，ref <= low_l 阻断扫低成立，事件停留在 BOX 阶段或终结",
+        "scope": "已融入状态机 _sweep_check 迁移判定",
+        "status": "STATE_MACHINE_VERIFIED"
+      },
+      {
+        "item": "结构破位失效保护 (连续 2 根 1h 收盘破箱底)",
+        "code_ref": "accum_early_entry.py:1007-1040",
+        "behavior_evidence": "原 7 笔事件中有 6 笔（SOL 1~3, AVAX 4~6）在破位时刻由 _structural_invalid 正规迁移至 INVALIDATED 终态",
+        "scope": "已覆盖 BOX/SWEEP/RETEST 全周期状态机转移",
+        "status": "STATE_MACHINE_VERIFIED"
+      },
+      {
+        "item": "数据缺口表先查后写去重",
+        "code_ref": "accum_early_entry.py:650-670",
+        "behavior_evidence": "按 (event_id, field, start_ms, end_ms) 先查后写，重复扫描时缺口数保持不变",
+        "scope": "状态机观察事件与缺口持久化存储层",
+        "status": "STATE_MACHINE_VERIFIED"
+      }
+    ],
+    "tier_3_order_and_position_level": [
+      {
+        "item": "跨进程持久化恢复与幂等拦截 (duplicate_signal_uid)",
+        "code_ref": "live_store.py / paper_engine.py / accum_early_entry.py:try_open",
+        "behavior_evidence": "04_cross_process_evidence.json: 进程 A (PID 27923) 开仓退出，ps 确认死亡；独立进程 B (PID 27934) 读取账本再次提交同一 signal_uid，触发 duplicate_signal_uid 拒绝，订单/成交/持仓 +0",
+        "scope": "穿透至真实操作系统独立进程与 SQLite 磁盘账本",
+        "status": "ORDER_POSITION_VERIFIED"
+      },
+      {
+        "item": "未批准配置开仓硬阻断 (Approval Gate)",
+        "code_ref": "accum_early_entry.py:try_open / load_config",
+        "behavior_evidence": "05_gate_and_isolation.json: 传入 48 项空白未批准配置，open_allowed=False，try_open 返回 blocked_by_unapproved_config，called_paper_engine=False，账本零写入",
+        "scope": "订单委托前置闸门拦截",
+        "status": "ORDER_POSITION_VERIFIED"
+      },
+      {
+        "item": "生产环境物理隔离与越界拦截 (Isolation Protection)",
+        "code_ref": "accum_early_entry.py:try_open / production_ledger_dir",
+        "behavior_evidence": "05_gate_and_isolation.json: 试图将路径指向生产账本目录 数据/paper 时，100% 触发 isolation_violation，阻断在任何生产写入前",
+        "scope": "订单存储物理目录防护",
+        "status": "ORDER_POSITION_VERIFIED"
+      }
+    ],
+    "tier_4_declaration_only": [
+      {
+        "item": "冷档历史数据可得时间 (available_at)",
+        "code_ref": "accum_early_entry.py:DataFeed",
+        "behavior_evidence": "冷档无抓取挂钟证据，合规定性为 unknown / not_proven",
+        "limitation": "纯声明项：无法证明当时可得，仅能证明回测不使用未来时间",
+        "status": "DECLARATION_ONLY"
+      },
+      {
+        "item": "经济口径一致性声明 (strategy_package vs effective_view)",
+        "code_ref": "accum_early_entry.py:351-407",
+        "behavior_evidence": "配置中声明值与 paper_engine.approved_params 生效值比对，不符报 mismatch",
+        "limitation": "纯声明校验：依赖配置文本与引擎返回字典的比对，未在真实撮合滑点层面自适应",
+        "status": "DECLARATION_ONLY"
+      },
+      {
+        "item": "24 小时冷却时间 (cooldown_hours)",
+        "code_ref": "fixture_rules_05.json / 用户约定",
+        "behavior_evidence": "用户长期约定明确指出：24小时冷却仅为工程建议沿用值，不可推定为批准，严禁作为未经批准的通过条件",
+        "limitation": "纯规则参数属性：不能替代批准闸门，无论冷却设为多少小时，未获批准一律禁止开仓",
+        "status": "DECLARATION_ONLY"
+      },
+      {
+        "item": "自然行情下正式策略有效性与全链闭环",
+        "code_ref": "无（正式参数全未批准）",
+        "behavior_evidence": "自然候选 0，真实成交 0",
+        "limitation": "纯未验证声明：所有测试数据均为隔离测试用例，严禁宣称策略已通过验证",
+        "status": "UNPROVEN_DECLARATION"
+      }
+    ]
+  },
+  "reconciliation_of_original_7_events": {
+    "title": "纠正‘7笔均失效’与表中第7笔未找到的不一致",
+    "summary_of_inconsistency": "旧报告 05-E-R1 在第 0 节摘要中声称‘7 笔事件在破位时均正规触发连续 2 根 1h 收盘跌破箱体下沿 ⇒ INVALIDATED’，且案例 7 的详细报告模板套用了连续跌破箱底失效话术；但实测数据与详细对比表中，第 7 笔事件的 current_state 明确为 NOT_FOUND（current_event_id 为 null），两处表述严重矛盾！",
+    "detailed_case_reconciliation": [
+      {
+        "case_no": 1,
+        "symbol": "SOLUSDT",
+        "scheme": "4a",
+        "old_event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 2,
+        "symbol": "SOLUSDT",
+        "scheme": "4b",
+        "old_event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 3,
+        "symbol": "SOLUSDT",
+        "scheme": "4c",
+        "old_event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 4,
+        "symbol": "AVAXUSDT",
+        "scheme": "4a",
+        "old_event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 5,
+        "symbol": "AVAXUSDT",
+        "scheme": "4b",
+        "old_event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 6,
+        "symbol": "AVAXUSDT",
+        "scheme": "4c",
+        "old_event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "INVALIDATED",
+        "candidate_produced": false,
+        "actual_reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+        "category": "STRUCTURAL_INVALIDATED"
+      },
+      {
+        "case_no": 7,
+        "symbol": "AVAXUSDT",
+        "scheme": "4a",
+        "old_event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+        "old_status": "WAIT_ENTRY",
+        "current_state": "NOT_FOUND",
+        "candidate_produced": false,
+        "actual_reason": "前序事件（案例 4~6）在 2026-09-12T03:59:59Z 建档，其生命周期持续至 2026-09-16T00:59:59Z 才破位终结。在同标的单活跃事件与冷却约束下，旧版在 2026-09-15T11:59:59Z 探测的箱体（1789473599999）在新版运行中根本未被允许建档！新版后续建档的箱体时间为 2026-09-16T11:59:59Z（1789559999999）。因此旧事件在当前运行中并未生成，终态为 NOT_FOUND！",
+        "category": "NOT_FOUND_UNSPAWNED"
+      }
+    ],
+    "correct_verdict": "准确科学定性：原 7 笔事件在当前版本下均未产生提前入场候选；但终态构成为【6 笔结构破位失效 (INVALIDATED) + 1 笔前序事件占位未建档 (NOT_FOUND)】，绝非‘7笔均连续破位失效’。旧报告中的笼统断言已被本次独立复算正式纠偏。"
+  }
+}

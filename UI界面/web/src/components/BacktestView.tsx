@@ -32,18 +32,16 @@ export const BacktestView: React.FC = () => {
 
   return (
     <div className="ds-scope flex-1 min-h-0 flex flex-col">
-      {/* ── 页头：单行，sticky 常驻 ── */}
+      {/* ── 页头（对齐设计稿 `.top`：h1 + 页签条 + 右侧说明，同一行横排）── */}
       <header className="ds-pagehead shrink-0">
         <div className="ds-pagehead__row">
           <div className="ds-pagehead__title">
             <h1>回测复盘</h1>
-            <span className="ds-pagehead__sub">低频事件趋势研究 · WX_EVENT_TREND_V0_1</span>
           </div>
-          <div className="ds-pagehead__spacer" />
           <div className="ds-seg" role="tablist" aria-label="回测视图">
             {(
               [
-                ['workbench', '完整回测工作台'],
+                ['workbench', '历史回测（当前页）'],
                 ['review', '验收复盘'],
               ] as [BacktestPane, string][]
             ).map(([key, label]) => (
@@ -60,6 +58,8 @@ export const BacktestView: React.FC = () => {
               </button>
             ))}
           </div>
+          <span className="ds-pagehead__spacer" />
+          <span className="ds-pagehead__sub">历史回测与验收复盘分别查看</span>
         </div>
       </header>
 

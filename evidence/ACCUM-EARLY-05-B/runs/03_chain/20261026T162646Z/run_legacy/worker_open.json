@@ -1,0 +1,2889 @@
+{
+ "phase": null,
+ "env": {
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper",
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/live_signals.sqlite3",
+  "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/gate.json",
+  "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "WX_MARKET_MERGE": "1",
+  "ACCUM05_CONFIG": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json"
+ },
+ "market_mode": {
+  "merge_enabled": true,
+  "env_flag": "WX_MARKET_MERGE",
+  "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+  "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+ },
+ "errors": [],
+ "steps": [],
+ "run": {
+  "identity": {
+   "entry_version": "accum_early_05b_v1",
+   "config_schema": "accum-early-05/v1",
+   "rule_version": "accum-early-05::v1",
+   "exit_rules": "accum-exit-05/v1",
+   "generated_utc": "2026-10-26T16:26:48Z",
+   "config": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+    "kind": "fixture",
+    "approved": false,
+    "approval_ref": "工程自测配置（未经用户批准）：只用于验证接线与链路行为",
+    "sha256": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+    "open_allowed": true,
+    "open_scope": "fixture_chain_selfcheck",
+    "blocked_by": []
+   },
+   "engine": {
+    "view_sha256": "82dec362c182",
+    "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "fee_each_side": 0.0005,
+    "slippage_each_side": 0.0005,
+    "signal_execution_delay_minutes": 15
+   },
+   "fixed_rules": {
+    "confirm_timeframe": "1h",
+    "execution_timeframe": "15m",
+    "entry_delay_minutes": 15,
+    "initial_stop_pct": 0.05,
+    "trailing_low_pct": 0.05,
+    "trailing_trigger_r": 0.0,
+    "max_holding_days": null,
+    "taker_fee_bps": 5.0
+   },
+   "fixed_rules_check": {
+    "rows": [
+     {
+      "name": "confirm_timeframe",
+      "expected": "1h",
+      "actual": "1h",
+      "source": "本模块固定（1h 收盘确认）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "execution_timeframe",
+      "expected": "15m",
+      "actual": "15m",
+      "source": "本模块固定（15m 撮合）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "entry_delay_minutes",
+      "expected": 15,
+      "actual": 15,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": "引擎的 signal_execution_delay_minutes 必须等于 15，否则成交 bar 会回填确认根"
+     },
+     {
+      "name": "initial_stop_pct",
+      "expected": 0.05,
+      "actual": 0.05,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trailing_low_pct",
+      "expected": 0.05,
+      "actual": 0.05,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "taker_fee_bps",
+      "expected": 5.0,
+      "actual": 5.0,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trailing_trigger_r",
+      "expected": 0.0,
+      "actual": 0.0,
+      "source": "本模块固定（入场即跟踪，不读配置）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "max_holding_days",
+      "expected": null,
+      "actual": null,
+      "source": "本模块固定（退出驱动不调用到期强平）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trail_effective_mode",
+      "expected": "next_15m_after_4h_close",
+      "actual": "next_15m_after_4h_close",
+      "source": "本模块固定（4h 收盘后下一根 15m 生效）",
+      "ok": true,
+      "note": ""
+     }
+    ],
+    "ok": true,
+    "mismatches": [],
+    "engine": {
+     "_config_valid": true,
+     "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+     "view_sha256": "82dec362c182",
+     "strategy_version": "FT-LOW4H-EXP-V2.2"
+    }
+   },
+   "economic_caliber": {
+    "declared": {
+     "slippage_source": "effective_view",
+     "risk_config": "effective_view",
+     "participation_cap": "effective_view"
+    },
+    "engine": {
+     "slippage_each_side_bps": 5.0,
+     "initial_equity_USDT": 5000.0,
+     "max_positions": 10,
+     "single_name_notional_equity_cap": 0.1,
+     "entry_participation_previous_15m_quote_cap": 0.01,
+     "view_sha256": "82dec362c182",
+     "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared"
+    },
+    "mismatches": [],
+    "mismatch_details": {},
+    "declared_mismatch": null,
+    "note": "经济参数严格一致性校验：声明口径与引擎生效视图必须逐项吻合，不一致时硬阻断开仓并列明差异，绝不静默执行。"
+   },
+   "schemes": {
+    "4a": {
+     "strategy_id": "ACCUM-RESEARCH-v0::4a",
+     "label": "甲",
+     "rule_version": "accum-early-05::v1::4a",
+     "approved": false
+    },
+    "4b": {
+     "strategy_id": "ACCUM-RESEARCH-v0::4b",
+     "label": "乙",
+     "rule_version": "accum-early-05::v1::4b",
+     "approved": false
+    },
+    "4c": {
+     "strategy_id": "ACCUM-RESEARCH-v0::4c",
+     "label": "丙",
+     "rule_version": "accum-early-05::v1::4c",
+     "approved": false
+    }
+   },
+   "isolation": {
+    "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper",
+    "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "explicit_env": true,
+    "inside_production": false,
+    "isolated": true,
+    "account_ids": {
+     "4a": "paper43_4a",
+     "4b": "paper43_4b",
+     "4c": "paper43_4c"
+    }
+   },
+   "data": {
+    "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "merge": "1",
+    "provenance": {}
+   }
+  },
+  "flags": {
+   "open_candidates": true,
+   "drive_exits": true,
+   "legacy_4h_exit": true,
+   "walk_days": 40
+  },
+  "config": {
+   "schema_version": "accum-early-05/v1",
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+   "present": true,
+   "parse_ok": true,
+   "config_sha256": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+   "kind": "fixture",
+   "approved": false,
+   "approval_ref": "工程自测配置（未经用户批准）：只用于验证接线与链路行为",
+   "missing": [],
+   "unsupported": [],
+   "fixture": true,
+   "ready": true,
+   "open_allowed": true,
+   "blocked_by": [],
+   "fixed_rules": {
+    "rows": [
+     {
+      "name": "confirm_timeframe",
+      "expected": "1h",
+      "actual": "1h",
+      "source": "本模块固定（1h 收盘确认）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "execution_timeframe",
+      "expected": "15m",
+      "actual": "15m",
+      "source": "本模块固定（15m 撮合）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "entry_delay_minutes",
+      "expected": 15,
+      "actual": 15,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": "引擎的 signal_execution_delay_minutes 必须等于 15，否则成交 bar 会回填确认根"
+     },
+     {
+      "name": "initial_stop_pct",
+      "expected": 0.05,
+      "actual": 0.05,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trailing_low_pct",
+      "expected": 0.05,
+      "actual": 0.05,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "taker_fee_bps",
+      "expected": 5.0,
+      "actual": 5.0,
+      "source": "paper_engine.approved_params()",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trailing_trigger_r",
+      "expected": 0.0,
+      "actual": 0.0,
+      "source": "本模块固定（入场即跟踪，不读配置）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "max_holding_days",
+      "expected": null,
+      "actual": null,
+      "source": "本模块固定（退出驱动不调用到期强平）",
+      "ok": true,
+      "note": ""
+     },
+     {
+      "name": "trail_effective_mode",
+      "expected": "next_15m_after_4h_close",
+      "actual": "next_15m_after_4h_close",
+      "source": "本模块固定（4h 收盘后下一根 15m 生效）",
+      "ok": true,
+      "note": ""
+     }
+    ],
+    "ok": true,
+    "mismatches": [],
+    "engine": {
+     "_config_valid": true,
+     "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+     "view_sha256": "82dec362c182",
+     "strategy_version": "FT-LOW4H-EXP-V2.2"
+    }
+   },
+   "economic_caliber": {
+    "declared": {
+     "slippage_source": "effective_view",
+     "risk_config": "effective_view",
+     "participation_cap": "effective_view"
+    },
+    "engine": {
+     "slippage_each_side_bps": 5.0,
+     "initial_equity_USDT": 5000.0,
+     "max_positions": 10,
+     "single_name_notional_equity_cap": 0.1,
+     "entry_participation_previous_15m_quote_cap": 0.01,
+     "view_sha256": "82dec362c182",
+     "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared"
+    },
+    "mismatches": [],
+    "mismatch_details": {},
+    "declared_mismatch": null,
+    "note": "经济参数严格一致性校验：声明口径与引擎生效视图必须逐项吻合，不一致时硬阻断开仓并列明差异，绝不静默执行。"
+   },
+   "doc_sha256_declared": null,
+   "open_scope": "fixture_chain_selfcheck",
+   "reason": "允许开仓（fixture_chain_selfcheck）"
+  },
+  "scan": [
+   {
+    "symbol": "SOLUSDT",
+    "boxes_formed": 146,
+    "boxes_used": 3,
+    "actions": 18,
+    "cooldown_ms": 0,
+    "skipped": [],
+    "bars": {
+     "4h": 570,
+     "1h": 2280,
+     "4h_gaps": {
+      "expected_bars": 792,
+      "actual_bars": 792,
+      "gap_segments": [],
+      "gap_segment_count": 0,
+      "missing_bars_total": 0
+     },
+     "1h_gaps": {
+      "expected_bars": 3168,
+      "actual_bars": 3168,
+      "gap_segments": [],
+      "gap_segment_count": 0,
+      "missing_bars_total": 0
+     },
+     "available_at_4h": {
+      "hot_filled": 0,
+      "hot_missing": 151,
+      "cold_filled": 0,
+      "cold_missing": 668,
+      "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+     },
+     "available_at_1h": {
+      "hot_filled": 0,
+      "hot_missing": 552,
+      "cold_filled": 0,
+      "cold_missing": 2672,
+      "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+     }
+    },
+    "candidates": [
+     {
+      "scheme": "4a",
+      "symbol": "SOLUSDT",
+      "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999_s1",
+      "signal_uid": "accum05_4a_SOLUSDT_1786168799999",
+      "confirm_close_ms": 1786168799999,
+      "earliest_entry_ms": 1786169699999,
+      "entry_bar_open_ms": 1786169700000,
+      "entry_ref_price": 74.63,
+      "entry_bar_source": "cold",
+      "entry_bar_available_at": null,
+      "resistance": 74.06,
+      "deviation": -0.00013397642015012214,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托"
+     },
+     {
+      "scheme": "4b",
+      "symbol": "SOLUSDT",
+      "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999_s1",
+      "signal_uid": "accum05_4b_SOLUSDT_1786172399999",
+      "confirm_close_ms": 1786172399999,
+      "earliest_entry_ms": 1786173299999,
+      "entry_bar_open_ms": 1786173300000,
+      "entry_ref_price": 74.68,
+      "entry_bar_source": "cold",
+      "entry_bar_available_at": null,
+      "resistance": 74.06,
+      "deviation": 0.0,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托"
+     }
+    ],
+    "open_results": [
+     {
+      "scheme": "4a",
+      "result": {
+       "ok": true,
+       "paper_result": {
+        "ok": true,
+        "reason": "filled",
+        "position_id": 1,
+        "order_id": 1,
+        "qty": 6.68,
+        "entry_price": 74.67,
+        "raw_price": 74.63,
+        "stop_price": 70.93,
+        "initial_stop_price": 70.93,
+        "stop_dist": 3.739999999999995,
+        "planned_risk": 24.983199999999965,
+        "notional": 498.7956,
+        "fee": 0.2493978,
+        "slippage_cost": 0.26720000000004174,
+        "bar_open_time": 1786169700000,
+        "bar_close_time": 1786170599999,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+        "signal_uid": "accum05_4a_SOLUSDT_1786168799999",
+        "origin": "replay",
+        "event_time": 1786168799999,
+        "available_at": 1786168799999,
+        "requested_at": 1786168799999,
+        "earliest_fill_ms": 1786169699999,
+        "filled_at": 1786169700000,
+        "fill_lag_ms": 0,
+        "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+        "bar_provenance": {
+         "layer": "cold",
+         "available_at": null,
+         "available_at_proven": false
+        }
+       },
+       "called_paper_engine": true,
+       "isolation": {
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper",
+        "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "explicit_env": true,
+        "inside_production": false,
+        "isolated": true,
+        "account_ids": {
+         "4a": "paper43_4a",
+         "4b": "paper43_4b",
+         "4c": "paper43_4c"
+        }
+       }
+      }
+     },
+     {
+      "scheme": "4b",
+      "result": {
+       "ok": true,
+       "paper_result": {
+        "ok": true,
+        "reason": "filled",
+        "position_id": 1,
+        "order_id": 1,
+        "qty": 6.68,
+        "entry_price": 74.72,
+        "raw_price": 74.68,
+        "stop_price": 70.98,
+        "initial_stop_price": 70.98,
+        "stop_dist": 3.739999999999995,
+        "planned_risk": 24.983199999999965,
+        "notional": 499.1296,
+        "fee": 0.2495648,
+        "slippage_cost": 0.2671999999999468,
+        "bar_open_time": 1786173300000,
+        "bar_close_time": 1786174199999,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+        "signal_uid": "accum05_4b_SOLUSDT_1786172399999",
+        "origin": "replay",
+        "event_time": 1786172399999,
+        "available_at": 1786172399999,
+        "requested_at": 1786172399999,
+        "earliest_fill_ms": 1786173299999,
+        "filled_at": 1786173300000,
+        "fill_lag_ms": 0,
+        "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+        "bar_provenance": {
+         "layer": "cold",
+         "available_at": null,
+         "available_at_proven": false
+        }
+       },
+       "called_paper_engine": true,
+       "isolation": {
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper",
+        "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "explicit_env": true,
+        "inside_production": false,
+        "isolated": true,
+        "account_ids": {
+         "4a": "paper43_4a",
+         "4b": "paper43_4b",
+         "4c": "paper43_4c"
+        }
+       }
+      }
+     }
+    ],
+    "events": [
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4a",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785603599999
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4b",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785603599999
+     },
+     {
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4c",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785603599999
+     },
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4a",
+      "state": "INVALIDATED",
+      "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+      "at_ms": 1785610799999,
+      "terminal_reason": null
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4b",
+      "state": "INVALIDATED",
+      "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+      "at_ms": 1785610799999,
+      "terminal_reason": null
+     },
+     {
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4c",
+      "state": "INVALIDATED",
+      "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+      "at_ms": 1785610799999,
+      "terminal_reason": null
+     },
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4a",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785729599999
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4b",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785729599999
+     },
+     {
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4c",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1785729599999
+     },
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4a",
+      "state": "CANDIDATE",
+      "reason": "甲：首次 1h 收盘收上局部压制位",
+      "at_ms": 1786168799999,
+      "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999_s1"
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4b",
+      "state": "RETEST",
+      "reason": "乙：已收上压制位，等下一根 1h 收盘守位",
+      "at_ms": 1786168799999
+     },
+     {
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4c",
+      "state": "RETEST",
+      "reason": "丙：已收上压制位，等回抽到压制位附近后转强",
+      "at_ms": 1786168799999
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4b",
+      "state": "CANDIDATE",
+      "reason": "乙：下一根收盘守住压制位",
+      "at_ms": 1786172399999,
+      "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999_s1"
+     },
+     {
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785614399999_1785614399999",
+      "scheme": "4c",
+      "state": "EXPIRED",
+      "reason": "丙：回抽等待超期",
+      "at_ms": 1786345199999,
+      "terminal_reason": null
+     },
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1786175999999_1786175999999",
+      "scheme": "4a",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1786370399999
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1786175999999_1786175999999",
+      "scheme": "4b",
+      "state": "SWEEP",
+      "reason": "扫低收回成立",
+      "at_ms": 1786370399999
+     },
+     {
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1786175999999_1786175999999",
+      "scheme": "4a",
+      "state": "INVALIDATED",
+      "reason": "NO_RESISTANCE:too_close_to_H",
+      "at_ms": 1786373999999,
+      "terminal_reason": "NO_RESISTANCE"
+     },
+     {
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1786175999999_1786175999999",
+      "scheme": "4b",
+      "state": "INVALIDATED",
+      "reason": "NO_RESISTANCE:too_close_to_H",
+      "at_ms": 1786373999999,
+      "terminal_reason": "NO_RESISTANCE"
+     }
+    ]
+   }
+  ],
+  "exits": [
+   {
+    "ok": true,
+    "scheme": "4a",
+    "position_id": 1,
+    "symbol": "SOLUSDT",
+    "entry_ts": 1786169700000,
+    "exit_ts": 1787375699999,
+    "exit_class": "trailing_stop_loss",
+    "gap": false,
+    "gap_size": 0.0,
+    "gap_model": "stop_price",
+    "stop_used": 88.19,
+    "initial_stop": 70.93,
+    "raw_price": 88.19,
+    "fill_price": 88.14,
+    "net_pnl": 88.4998117264501,
+    "trail_updates": 19,
+    "trail_effective_mode": "same_15m_as_4h_close",
+    "bar_source": "cold",
+    "available_at_proven": false,
+    "legacy_path": null,
+    "bars_checked": 1340
+   },
+   {
+    "ok": true,
+    "scheme": "4b",
+    "position_id": 1,
+    "symbol": "SOLUSDT",
+    "entry_ts": 1786173300000,
+    "exit_ts": 1787375699999,
+    "exit_class": "trailing_stop_loss",
+    "gap": false,
+    "gap_size": 0.0,
+    "gap_model": "stop_price",
+    "stop_used": 88.19,
+    "initial_stop": 70.98,
+    "raw_price": 88.19,
+    "fill_price": 88.14,
+    "net_pnl": 88.16564472645011,
+    "trail_updates": 19,
+    "trail_effective_mode": "same_15m_as_4h_close",
+    "bar_source": "cold",
+    "available_at_proven": false,
+    "legacy_path": null,
+    "bars_checked": 1336
+   }
+  ],
+  "exit_details": [
+   {
+    "position_id": 1,
+    "scheme": "4a",
+    "updates": [],
+    "detail": {
+     "close_result": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 2,
+      "symbol": "SOLUSDT",
+      "exit_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.68,
+      "gross_pnl": 89.97959999999999,
+      "entry_fee": 0.2493978,
+      "exit_fee": 0.29438759999999997,
+      "funding_paid": 0.9360028735498911,
+      "funding_paid_this_close": 0.9360028735498911,
+      "n_funding_events": 42,
+      "n_funding_events_this_close": 42,
+      "funding_events": [
+       {
+        "funding_time": 1786176000000,
+        "funding_rate": 0.0001,
+        "mark_price": 74.79,
+        "qty": 6.68,
+        "amount": 0.049959720000000006,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786204800002,
+        "funding_rate": 0.0001,
+        "mark_price": 76.37432355,
+        "qty": 6.68,
+        "amount": 0.0510180481314,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786233600000,
+        "funding_rate": 0.0001,
+        "mark_price": 76.0,
+        "qty": 6.68,
+        "amount": 0.050768,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786262400005,
+        "funding_rate": 0.0001,
+        "mark_price": 76.34,
+        "qty": 6.68,
+        "amount": 0.050995120000000005,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786291200000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.4174394,
+        "qty": 6.68,
+        "amount": 0.05171484951920001,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786320000001,
+        "funding_rate": 0.0001,
+        "mark_price": 76.23416303,
+        "qty": 6.68,
+        "amount": 0.05092442090404,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786348800005,
+        "funding_rate": 9.534e-05,
+        "mark_price": 76.94098931,
+        "qty": 6.68,
+        "amount": 0.04900150019104688,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786377600000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.94,
+        "qty": 6.68,
+        "amount": 0.050727919999999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786406400000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.95,
+        "qty": 6.68,
+        "amount": 0.050734600000000005,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786435200006,
+        "funding_rate": -2.3e-07,
+        "mark_price": 75.65,
+        "qty": 6.68,
+        "amount": -0.00011622866,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786464000000,
+        "funding_rate": -5.533e-05,
+        "mark_price": 74.89096746,
+        "qty": 6.68,
+        "amount": -0.027680031093472824,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786492800001,
+        "funding_rate": 5.998e-05,
+        "mark_price": 76.27,
+        "qty": 6.68,
+        "amount": 0.030558826327999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786521600000,
+        "funding_rate": 8.133e-05,
+        "mark_price": 76.25,
+        "qty": 6.68,
+        "amount": 0.041425435499999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786550400000,
+        "funding_rate": -5.256e-05,
+        "mark_price": 75.71,
+        "qty": 6.68,
+        "amount": -0.026581841567999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786579200000,
+        "funding_rate": -6.47e-05,
+        "mark_price": 75.59,
+        "qty": 6.68,
+        "amount": -0.032669695639999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786608000000,
+        "funding_rate": 5.877e-05,
+        "mark_price": 76.41,
+        "qty": 6.68,
+        "amount": 0.029997312876,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786636800000,
+        "funding_rate": -4.9e-06,
+        "mark_price": 75.60043631,
+        "qty": 6.68,
+        "amount": -0.00247455348129892,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786665600000,
+        "funding_rate": 5.622e-05,
+        "mark_price": 76.23,
+        "qty": 6.68,
+        "amount": 0.028628146008,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786694400001,
+        "funding_rate": 2.264e-05,
+        "mark_price": 75.55,
+        "qty": 6.68,
+        "amount": 0.011425819359999999,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786723200001,
+        "funding_rate": -6.847e-05,
+        "mark_price": 75.61134247,
+        "qty": 6.68,
+        "amount": -0.03458308557439161,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786752000003,
+        "funding_rate": -0.00010912,
+        "mark_price": 75.37,
+        "qty": 6.68,
+        "amount": -0.054938820992,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786780800002,
+        "funding_rate": 6.794e-05,
+        "mark_price": 75.19471835,
+        "qty": 6.68,
+        "amount": 0.03412631082018932,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786809600000,
+        "funding_rate": -9.423e-05,
+        "mark_price": 75.49,
+        "qty": 6.68,
+        "amount": -0.04751766363599999,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786838400000,
+        "funding_rate": -4.786e-05,
+        "mark_price": 75.31393067,
+        "qty": 6.68,
+        "amount": -0.024078225142066215,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786867200002,
+        "funding_rate": -2.592e-05,
+        "mark_price": 75.43731035,
+        "qty": 6.68,
+        "amount": -0.013061638362936959,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786896000000,
+        "funding_rate": -1.428e-05,
+        "mark_price": 75.54,
+        "qty": 6.68,
+        "amount": -0.007205790816,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786924800001,
+        "funding_rate": -4.738e-05,
+        "mark_price": 74.57,
+        "qty": 6.68,
+        "amount": -0.023601285687999993,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786953600003,
+        "funding_rate": 4.746e-05,
+        "mark_price": 75.74820038,
+        "qty": 6.68,
+        "amount": 0.024014664061432465,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1786982400005,
+        "funding_rate": -1.69e-05,
+        "mark_price": 76.063489,
+        "qty": 6.68,
+        "amount": -0.008586959400188,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787011200006,
+        "funding_rate": 3.077e-05,
+        "mark_price": 75.99,
+        "qty": 6.68,
+        "amount": 0.015619258163999998,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787040000001,
+        "funding_rate": -4.037e-05,
+        "mark_price": 76.06,
+        "qty": 6.68,
+        "amount": -0.020511221896,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787068800003,
+        "funding_rate": 0.0001,
+        "mark_price": 77.17198251,
+        "qty": 6.68,
+        "amount": 0.05155088431668001,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787097600000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.03,
+        "qty": 6.68,
+        "amount": 0.05145604,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787126400000,
+        "funding_rate": 9.206e-05,
+        "mark_price": 76.92028574,
+        "qty": 6.68,
+        "amount": 0.047302960454898985,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787155200004,
+        "funding_rate": 4.058e-05,
+        "mark_price": 81.82991422,
+        "qty": 6.68,
+        "amount": 0.02218199489923797,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787184000001,
+        "funding_rate": 0.0001,
+        "mark_price": 85.37,
+        "qty": 6.68,
+        "amount": 0.05702716000000001,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787212800000,
+        "funding_rate": 0.0001,
+        "mark_price": 86.16,
+        "qty": 6.68,
+        "amount": 0.057554879999999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787241600005,
+        "funding_rate": 0.0001,
+        "mark_price": 87.34450119,
+        "qty": 6.68,
+        "amount": 0.058346126794919996,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787270400004,
+        "funding_rate": 0.0001,
+        "mark_price": 87.63,
+        "qty": 6.68,
+        "amount": 0.05853684,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787299200000,
+        "funding_rate": 0.0001,
+        "mark_price": 90.4,
+        "qty": 6.68,
+        "amount": 0.0603872,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787328000001,
+        "funding_rate": 0.0001,
+        "mark_price": 91.34622949,
+        "qty": 6.68,
+        "amount": 0.061019281299319994,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       },
+       {
+        "funding_time": 1787356800000,
+        "funding_rate": 0.0001,
+        "mark_price": 93.72244891,
+        "qty": 6.68,
+        "amount": 0.06260659587188,
+        "late_backfill": false,
+        "recorded_at": 1793032009298
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": 88.4998117264501,
+      "entry_ts": 1786169700000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     },
+     "updates": [
+      {
+       "ref_bar_open_ms": 1786190400000,
+       "bar4h_close_ms": 1786204799999,
+       "old_stop": 70.93,
+       "new_stop": 71.56,
+       "effective_at": 1786204799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786204800000,
+       "bar4h_close_ms": 1786219199999,
+       "old_stop": 71.56,
+       "new_stop": 72.14,
+       "effective_at": 1786219199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786262400000,
+       "bar4h_close_ms": 1786276799999,
+       "old_stop": 72.14,
+       "new_stop": 72.27,
+       "effective_at": 1786276799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786276800000,
+       "bar4h_close_ms": 1786291199999,
+       "old_stop": 72.27,
+       "new_stop": 72.45,
+       "effective_at": 1786291199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786291200000,
+       "bar4h_close_ms": 1786305599999,
+       "old_stop": 72.45,
+       "new_stop": 73.2,
+       "effective_at": 1786305599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787140800000,
+       "bar4h_close_ms": 1787155199999,
+       "old_stop": 73.2,
+       "new_stop": 73.52,
+       "effective_at": 1787155199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787155200000,
+       "bar4h_close_ms": 1787169599999,
+       "old_stop": 73.52,
+       "new_stop": 76.91,
+       "effective_at": 1787169599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787169600000,
+       "bar4h_close_ms": 1787183999999,
+       "old_stop": 76.91,
+       "new_stop": 78.13,
+       "effective_at": 1787183999999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787184000000,
+       "bar4h_close_ms": 1787198399999,
+       "old_stop": 78.13,
+       "new_stop": 79.77,
+       "effective_at": 1787198399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787198400000,
+       "bar4h_close_ms": 1787212799999,
+       "old_stop": 79.77,
+       "new_stop": 80.18,
+       "effective_at": 1787212799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787212800000,
+       "bar4h_close_ms": 1787227199999,
+       "old_stop": 80.18,
+       "new_stop": 81.72,
+       "effective_at": 1787227199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787227200000,
+       "bar4h_close_ms": 1787241599999,
+       "old_stop": 81.72,
+       "new_stop": 81.82000000000001,
+       "effective_at": 1787241599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787241600000,
+       "bar4h_close_ms": 1787255999999,
+       "old_stop": 81.82000000000001,
+       "new_stop": 82.29,
+       "effective_at": 1787255999999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787256000000,
+       "bar4h_close_ms": 1787270399999,
+       "old_stop": 82.29,
+       "new_stop": 82.82000000000001,
+       "effective_at": 1787270399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787270400000,
+       "bar4h_close_ms": 1787284799999,
+       "old_stop": 82.82000000000001,
+       "new_stop": 83.17,
+       "effective_at": 1787284799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787284800000,
+       "bar4h_close_ms": 1787299199999,
+       "old_stop": 83.17,
+       "new_stop": 84.41,
+       "effective_at": 1787299199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787299200000,
+       "bar4h_close_ms": 1787313599999,
+       "old_stop": 84.41,
+       "new_stop": 85.31,
+       "effective_at": 1787313599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787328000000,
+       "bar4h_close_ms": 1787342399999,
+       "old_stop": 85.31,
+       "new_stop": 86.21000000000001,
+       "effective_at": 1787342399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787356800000,
+       "bar4h_close_ms": 1787371199999,
+       "old_stop": 86.21000000000001,
+       "new_stop": 88.19,
+       "effective_at": 1787371199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      }
+     ],
+     "bar_open_time": 1787374800000,
+     "bar_low": 87.0,
+     "bar_open": 99.14
+    }
+   },
+   {
+    "position_id": 1,
+    "scheme": "4b",
+    "updates": [],
+    "detail": {
+     "close_result": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 2,
+      "symbol": "SOLUSDT",
+      "exit_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.68,
+      "gross_pnl": 89.6456,
+      "entry_fee": 0.2495648,
+      "exit_fee": 0.29438759999999997,
+      "funding_paid": 0.9360028735498911,
+      "funding_paid_this_close": 0.9360028735498911,
+      "n_funding_events": 42,
+      "n_funding_events_this_close": 42,
+      "funding_events": [
+       {
+        "funding_time": 1786176000000,
+        "funding_rate": 0.0001,
+        "mark_price": 74.79,
+        "qty": 6.68,
+        "amount": 0.049959720000000006,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786204800002,
+        "funding_rate": 0.0001,
+        "mark_price": 76.37432355,
+        "qty": 6.68,
+        "amount": 0.0510180481314,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786233600000,
+        "funding_rate": 0.0001,
+        "mark_price": 76.0,
+        "qty": 6.68,
+        "amount": 0.050768,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786262400005,
+        "funding_rate": 0.0001,
+        "mark_price": 76.34,
+        "qty": 6.68,
+        "amount": 0.050995120000000005,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786291200000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.4174394,
+        "qty": 6.68,
+        "amount": 0.05171484951920001,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786320000001,
+        "funding_rate": 0.0001,
+        "mark_price": 76.23416303,
+        "qty": 6.68,
+        "amount": 0.05092442090404,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786348800005,
+        "funding_rate": 9.534e-05,
+        "mark_price": 76.94098931,
+        "qty": 6.68,
+        "amount": 0.04900150019104688,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786377600000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.94,
+        "qty": 6.68,
+        "amount": 0.050727919999999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786406400000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.95,
+        "qty": 6.68,
+        "amount": 0.050734600000000005,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786435200006,
+        "funding_rate": -2.3e-07,
+        "mark_price": 75.65,
+        "qty": 6.68,
+        "amount": -0.00011622866,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786464000000,
+        "funding_rate": -5.533e-05,
+        "mark_price": 74.89096746,
+        "qty": 6.68,
+        "amount": -0.027680031093472824,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786492800001,
+        "funding_rate": 5.998e-05,
+        "mark_price": 76.27,
+        "qty": 6.68,
+        "amount": 0.030558826327999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786521600000,
+        "funding_rate": 8.133e-05,
+        "mark_price": 76.25,
+        "qty": 6.68,
+        "amount": 0.041425435499999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786550400000,
+        "funding_rate": -5.256e-05,
+        "mark_price": 75.71,
+        "qty": 6.68,
+        "amount": -0.026581841567999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786579200000,
+        "funding_rate": -6.47e-05,
+        "mark_price": 75.59,
+        "qty": 6.68,
+        "amount": -0.032669695639999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786608000000,
+        "funding_rate": 5.877e-05,
+        "mark_price": 76.41,
+        "qty": 6.68,
+        "amount": 0.029997312876,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786636800000,
+        "funding_rate": -4.9e-06,
+        "mark_price": 75.60043631,
+        "qty": 6.68,
+        "amount": -0.00247455348129892,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786665600000,
+        "funding_rate": 5.622e-05,
+        "mark_price": 76.23,
+        "qty": 6.68,
+        "amount": 0.028628146008,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786694400001,
+        "funding_rate": 2.264e-05,
+        "mark_price": 75.55,
+        "qty": 6.68,
+        "amount": 0.011425819359999999,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786723200001,
+        "funding_rate": -6.847e-05,
+        "mark_price": 75.61134247,
+        "qty": 6.68,
+        "amount": -0.03458308557439161,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786752000003,
+        "funding_rate": -0.00010912,
+        "mark_price": 75.37,
+        "qty": 6.68,
+        "amount": -0.054938820992,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786780800002,
+        "funding_rate": 6.794e-05,
+        "mark_price": 75.19471835,
+        "qty": 6.68,
+        "amount": 0.03412631082018932,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786809600000,
+        "funding_rate": -9.423e-05,
+        "mark_price": 75.49,
+        "qty": 6.68,
+        "amount": -0.04751766363599999,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786838400000,
+        "funding_rate": -4.786e-05,
+        "mark_price": 75.31393067,
+        "qty": 6.68,
+        "amount": -0.024078225142066215,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786867200002,
+        "funding_rate": -2.592e-05,
+        "mark_price": 75.43731035,
+        "qty": 6.68,
+        "amount": -0.013061638362936959,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786896000000,
+        "funding_rate": -1.428e-05,
+        "mark_price": 75.54,
+        "qty": 6.68,
+        "amount": -0.007205790816,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786924800001,
+        "funding_rate": -4.738e-05,
+        "mark_price": 74.57,
+        "qty": 6.68,
+        "amount": -0.023601285687999993,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786953600003,
+        "funding_rate": 4.746e-05,
+        "mark_price": 75.74820038,
+        "qty": 6.68,
+        "amount": 0.024014664061432465,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1786982400005,
+        "funding_rate": -1.69e-05,
+        "mark_price": 76.063489,
+        "qty": 6.68,
+        "amount": -0.008586959400188,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1787011200006,
+        "funding_rate": 3.077e-05,
+        "mark_price": 75.99,
+        "qty": 6.68,
+        "amount": 0.015619258163999998,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1787040000001,
+        "funding_rate": -4.037e-05,
+        "mark_price": 76.06,
+        "qty": 6.68,
+        "amount": -0.020511221896,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1787068800003,
+        "funding_rate": 0.0001,
+        "mark_price": 77.17198251,
+        "qty": 6.68,
+        "amount": 0.05155088431668001,
+        "late_backfill": false,
+        "recorded_at": 1793032009450
+       },
+       {
+        "funding_time": 1787097600000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.03,
+        "qty": 6.68,
+        "amount": 0.05145604,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787126400000,
+        "funding_rate": 9.206e-05,
+        "mark_price": 76.92028574,
+        "qty": 6.68,
+        "amount": 0.047302960454898985,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787155200004,
+        "funding_rate": 4.058e-05,
+        "mark_price": 81.82991422,
+        "qty": 6.68,
+        "amount": 0.02218199489923797,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787184000001,
+        "funding_rate": 0.0001,
+        "mark_price": 85.37,
+        "qty": 6.68,
+        "amount": 0.05702716000000001,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787212800000,
+        "funding_rate": 0.0001,
+        "mark_price": 86.16,
+        "qty": 6.68,
+        "amount": 0.057554879999999996,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787241600005,
+        "funding_rate": 0.0001,
+        "mark_price": 87.34450119,
+        "qty": 6.68,
+        "amount": 0.058346126794919996,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787270400004,
+        "funding_rate": 0.0001,
+        "mark_price": 87.63,
+        "qty": 6.68,
+        "amount": 0.05853684,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787299200000,
+        "funding_rate": 0.0001,
+        "mark_price": 90.4,
+        "qty": 6.68,
+        "amount": 0.0603872,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787328000001,
+        "funding_rate": 0.0001,
+        "mark_price": 91.34622949,
+        "qty": 6.68,
+        "amount": 0.061019281299319994,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       },
+       {
+        "funding_time": 1787356800000,
+        "funding_rate": 0.0001,
+        "mark_price": 93.72244891,
+        "qty": 6.68,
+        "amount": 0.06260659587188,
+        "late_backfill": false,
+        "recorded_at": 1793032009451
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": 88.16564472645011,
+      "entry_ts": 1786173300000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     },
+     "updates": [
+      {
+       "ref_bar_open_ms": 1786190400000,
+       "bar4h_close_ms": 1786204799999,
+       "old_stop": 70.98,
+       "new_stop": 71.56,
+       "effective_at": 1786204799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786204800000,
+       "bar4h_close_ms": 1786219199999,
+       "old_stop": 71.56,
+       "new_stop": 72.14,
+       "effective_at": 1786219199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786262400000,
+       "bar4h_close_ms": 1786276799999,
+       "old_stop": 72.14,
+       "new_stop": 72.27,
+       "effective_at": 1786276799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786276800000,
+       "bar4h_close_ms": 1786291199999,
+       "old_stop": 72.27,
+       "new_stop": 72.45,
+       "effective_at": 1786291199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1786291200000,
+       "bar4h_close_ms": 1786305599999,
+       "old_stop": 72.45,
+       "new_stop": 73.2,
+       "effective_at": 1786305599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787140800000,
+       "bar4h_close_ms": 1787155199999,
+       "old_stop": 73.2,
+       "new_stop": 73.52,
+       "effective_at": 1787155199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787155200000,
+       "bar4h_close_ms": 1787169599999,
+       "old_stop": 73.52,
+       "new_stop": 76.91,
+       "effective_at": 1787169599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787169600000,
+       "bar4h_close_ms": 1787183999999,
+       "old_stop": 76.91,
+       "new_stop": 78.13,
+       "effective_at": 1787183999999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787184000000,
+       "bar4h_close_ms": 1787198399999,
+       "old_stop": 78.13,
+       "new_stop": 79.77,
+       "effective_at": 1787198399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787198400000,
+       "bar4h_close_ms": 1787212799999,
+       "old_stop": 79.77,
+       "new_stop": 80.18,
+       "effective_at": 1787212799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787212800000,
+       "bar4h_close_ms": 1787227199999,
+       "old_stop": 80.18,
+       "new_stop": 81.72,
+       "effective_at": 1787227199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787227200000,
+       "bar4h_close_ms": 1787241599999,
+       "old_stop": 81.72,
+       "new_stop": 81.82000000000001,
+       "effective_at": 1787241599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787241600000,
+       "bar4h_close_ms": 1787255999999,
+       "old_stop": 81.82000000000001,
+       "new_stop": 82.29,
+       "effective_at": 1787255999999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787256000000,
+       "bar4h_close_ms": 1787270399999,
+       "old_stop": 82.29,
+       "new_stop": 82.82000000000001,
+       "effective_at": 1787270399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787270400000,
+       "bar4h_close_ms": 1787284799999,
+       "old_stop": 82.82000000000001,
+       "new_stop": 83.17,
+       "effective_at": 1787284799999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787284800000,
+       "bar4h_close_ms": 1787299199999,
+       "old_stop": 83.17,
+       "new_stop": 84.41,
+       "effective_at": 1787299199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787299200000,
+       "bar4h_close_ms": 1787313599999,
+       "old_stop": 84.41,
+       "new_stop": 85.31,
+       "effective_at": 1787313599999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787328000000,
+       "bar4h_close_ms": 1787342399999,
+       "old_stop": 85.31,
+       "new_stop": 86.21000000000001,
+       "effective_at": 1787342399999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      },
+      {
+       "ref_bar_open_ms": 1787356800000,
+       "bar4h_close_ms": 1787371199999,
+       "old_stop": 86.21000000000001,
+       "new_stop": 88.19,
+       "effective_at": 1787371199999,
+       "bar4h_source": "cold",
+       "available_at_proven": false
+      }
+     ],
+     "bar_open_time": 1787374800000,
+     "bar_low": 87.0,
+     "bar_open": 99.14
+    }
+   }
+  ],
+  "ledgers": {
+   "4a": {
+    "account_id": "paper43_4a",
+    "positions": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "status": "closed",
+      "qty": 6.68,
+      "entry_price": 74.67,
+      "entry_ts": 1786169700000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 88.14,
+      "stop_price": 88.19,
+      "initial_stop_price": 70.93,
+      "entry_fee": 0.2493978,
+      "exit_fee": 0.29438759999999997,
+      "funding_paid": 0.9360028735498911,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+     }
+    ],
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "accum05_4a_SOLUSDT_1786168799999",
+      "symbol": "SOLUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 74.67,
+      "bar_open_time": 1786169700000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:4a:1:1787375699999",
+      "symbol": "SOLUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 88.14,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 74.67,
+      "raw_price": 74.63,
+      "qty": 6.68,
+      "notional": 498.7956,
+      "fee": 0.2493978,
+      "bar_open_time": 1786169700000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.68,
+      "notional": 588.7751999999999,
+      "fee": 0.29438759999999997,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     }
+    ],
+    "stop_history": [
+     {
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 70.93,
+      "reason": "initial_stop",
+      "decision_at": 1786169700000,
+      "effective_at": 1786169700000,
+      "available_at": 1786168799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.93,
+      "new_stop": 71.56,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786204799999,
+      "effective_at": 1786204799999,
+      "available_at": 1786204799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 71.56,
+      "new_stop": 72.14,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786219199999,
+      "effective_at": 1786219199999,
+      "available_at": 1786219199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.14,
+      "new_stop": 72.27,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786276799999,
+      "effective_at": 1786276799999,
+      "available_at": 1786276799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.27,
+      "new_stop": 72.45,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786291199999,
+      "effective_at": 1786291199999,
+      "available_at": 1786291199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.45,
+      "new_stop": 73.2,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786305599999,
+      "effective_at": 1786305599999,
+      "available_at": 1786305599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.2,
+      "new_stop": 73.52,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787155199999,
+      "effective_at": 1787155199999,
+      "available_at": 1787155199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.52,
+      "new_stop": 76.91,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787169599999,
+      "effective_at": 1787169599999,
+      "available_at": 1787169599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 76.91,
+      "new_stop": 78.13,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787183999999,
+      "effective_at": 1787183999999,
+      "available_at": 1787183999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 78.13,
+      "new_stop": 79.77,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787198399999,
+      "effective_at": 1787198399999,
+      "available_at": 1787198399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 79.77,
+      "new_stop": 80.18,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787212799999,
+      "effective_at": 1787212799999,
+      "available_at": 1787212799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 80.18,
+      "new_stop": 81.72,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787227199999,
+      "effective_at": 1787227199999,
+      "available_at": 1787227199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.72,
+      "new_stop": 81.82000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787241599999,
+      "effective_at": 1787241599999,
+      "available_at": 1787241599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.82000000000001,
+      "new_stop": 82.29,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787255999999,
+      "effective_at": 1787255999999,
+      "available_at": 1787255999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.29,
+      "new_stop": 82.82000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787270399999,
+      "effective_at": 1787270399999,
+      "available_at": 1787270399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.82000000000001,
+      "new_stop": 83.17,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787284799999,
+      "effective_at": 1787284799999,
+      "available_at": 1787284799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 83.17,
+      "new_stop": 84.41,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787299199999,
+      "effective_at": 1787299199999,
+      "available_at": 1787299199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 84.41,
+      "new_stop": 85.31,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787313599999,
+      "effective_at": 1787313599999,
+      "available_at": 1787313599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 85.31,
+      "new_stop": 86.21000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787342399999,
+      "effective_at": 1787342399999,
+      "available_at": 1787342399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 86.21000000000001,
+      "new_stop": 88.19,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787371199999,
+      "effective_at": 1787371199999,
+      "available_at": 1787371199999
+     }
+    ],
+    "realized": [
+     {
+      "position_id": 1,
+      "net_pnl": 88.4998117264501,
+      "exit_reason": "trailing_stop_loss",
+      "entry_ts": 1786169700000,
+      "exit_ts": 1787375699999
+     }
+    ],
+    "state": [
+     {
+      "cash": 5088.4998117264495,
+      "realized_pnl": 88.4998117264501,
+      "fees_paid": 0.5437854,
+      "funding_paid": 0.9360028735498911
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   },
+   "4b": {
+    "account_id": "paper43_4b",
+    "positions": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "status": "closed",
+      "qty": 6.68,
+      "entry_price": 74.72,
+      "entry_ts": 1786173300000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 88.14,
+      "stop_price": 88.19,
+      "initial_stop_price": 70.98,
+      "entry_fee": 0.2495648,
+      "exit_fee": 0.29438759999999997,
+      "funding_paid": 0.9360028735498911,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+     }
+    ],
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "accum05_4b_SOLUSDT_1786172399999",
+      "symbol": "SOLUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 74.72,
+      "bar_open_time": 1786173300000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:4b:1:1787375699999",
+      "symbol": "SOLUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 88.14,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 74.72,
+      "raw_price": 74.68,
+      "qty": 6.68,
+      "notional": 499.1296,
+      "fee": 0.2495648,
+      "bar_open_time": 1786173300000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.68,
+      "notional": 588.7751999999999,
+      "fee": 0.29438759999999997,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance_um|merged.cold|available_at_unproven"
+     }
+    ],
+    "stop_history": [
+     {
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 70.98,
+      "reason": "initial_stop",
+      "decision_at": 1786173300000,
+      "effective_at": 1786173300000,
+      "available_at": 1786172399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.98,
+      "new_stop": 71.56,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786204799999,
+      "effective_at": 1786204799999,
+      "available_at": 1786204799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 71.56,
+      "new_stop": 72.14,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786219199999,
+      "effective_at": 1786219199999,
+      "available_at": 1786219199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.14,
+      "new_stop": 72.27,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786276799999,
+      "effective_at": 1786276799999,
+      "available_at": 1786276799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.27,
+      "new_stop": 72.45,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786291199999,
+      "effective_at": 1786291199999,
+      "available_at": 1786291199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.45,
+      "new_stop": 73.2,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1786305599999,
+      "effective_at": 1786305599999,
+      "available_at": 1786305599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.2,
+      "new_stop": 73.52,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787155199999,
+      "effective_at": 1787155199999,
+      "available_at": 1787155199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.52,
+      "new_stop": 76.91,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787169599999,
+      "effective_at": 1787169599999,
+      "available_at": 1787169599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 76.91,
+      "new_stop": 78.13,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787183999999,
+      "effective_at": 1787183999999,
+      "available_at": 1787183999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 78.13,
+      "new_stop": 79.77,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787198399999,
+      "effective_at": 1787198399999,
+      "available_at": 1787198399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 79.77,
+      "new_stop": 80.18,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787212799999,
+      "effective_at": 1787212799999,
+      "available_at": 1787212799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 80.18,
+      "new_stop": 81.72,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787227199999,
+      "effective_at": 1787227199999,
+      "available_at": 1787227199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.72,
+      "new_stop": 81.82000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787241599999,
+      "effective_at": 1787241599999,
+      "available_at": 1787241599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.82000000000001,
+      "new_stop": 82.29,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787255999999,
+      "effective_at": 1787255999999,
+      "available_at": 1787255999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.29,
+      "new_stop": 82.82000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787270399999,
+      "effective_at": 1787270399999,
+      "available_at": 1787270399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.82000000000001,
+      "new_stop": 83.17,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787284799999,
+      "effective_at": 1787284799999,
+      "available_at": 1787284799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 83.17,
+      "new_stop": 84.41,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787299199999,
+      "effective_at": 1787299199999,
+      "available_at": 1787299199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 84.41,
+      "new_stop": 85.31,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787313599999,
+      "effective_at": 1787313599999,
+      "available_at": 1787313599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 85.31,
+      "new_stop": 86.21000000000001,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787342399999,
+      "effective_at": 1787342399999,
+      "available_at": 1787342399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 86.21000000000001,
+      "new_stop": 88.19,
+      "reason": "ft_low4h_trail",
+      "decision_at": 1787371199999,
+      "effective_at": 1787371199999,
+      "available_at": 1787371199999
+     }
+    ],
+    "realized": [
+     {
+      "position_id": 1,
+      "net_pnl": 88.16564472645011,
+      "exit_reason": "trailing_stop_loss",
+      "entry_ts": 1786173300000,
+      "exit_ts": 1787375699999
+     }
+    ],
+    "state": [
+     {
+      "cash": 5088.1656447264495,
+      "realized_pnl": 88.16564472645011,
+      "fees_paid": 0.5439524,
+      "funding_paid": 0.9360028735498911
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   },
+   "4c": {
+    "account_id": "paper43_4c",
+    "positions": [],
+    "orders": [],
+    "fills": [],
+    "stop_history": [],
+    "realized": [],
+    "state": [
+     {
+      "cash": 5000.0,
+      "realized_pnl": 0.0,
+      "fees_paid": 0.0,
+      "funding_paid": 0.0
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   }
+  },
+  "errors": []
+ },
+ "duplicate_attempt": [],
+ "conn": {
+  "total": 72,
+  "log": [
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/live_signals.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/observe.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/live_signals.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/live_signals.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4c.sqlite3",
+    "readonly": false,
+    "uri_kw": null,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4a.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4b.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   },
+   {
+    "db": "file:/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/runs/03_chain/20261026T162646Z/run_legacy/paper/paper_4c.sqlite3?mode=ro",
+    "readonly": true,
+    "uri_kw": true,
+    "n_args": 0
+   }
+  ]
+ }
+}

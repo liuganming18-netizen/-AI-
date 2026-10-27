@@ -1,0 +1,144 @@
+{
+  "timestamp": "2026-10-24T09:33:03.342Z",
+  "target_run_c": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+  "target_run_d20": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D20_Vs04_Z02",
+  "total_checks": 13,
+  "passed_checks": 13,
+  "failed_checks": 0,
+  "verdict": "ALL_PASSED",
+  "checks": [
+    {
+      "id": "D01_RUN_LIST_DYNAMIC",
+      "name": "回测列表成功收录 Work 动态回测批次（FT_LOW4H_DYN01 系列）",
+      "pass": true,
+      "detail": "回测选择项与运行清单摘要=\"留存记录清单 仅显示有成交 (1465) 共 1465 条 / 全部 3000 条 更多列 归属：仅含当前策略 WX_EVENT_TREND_V0_1 · 已排除旧/存疑 run 284 条 标的 运行 ID 状态 净收益 笔数 PORTF\""
+    },
+    {
+      "id": "D02_INIT_DYNAMIC_LOAD",
+      "name": "动态回测结果页面完整渲染且主图默认 1h 周期",
+      "pass": true,
+      "detail": "body 文本长度=71187"
+    },
+    {
+      "id": "D03_PORTFOLIO_SYMBOL_DEFAULT",
+      "name": "组合回测默认提取第一标的 BCH 真实 K 线，拒绝空 candles",
+      "pass": true,
+      "detail": {
+        "active_symbol": "BCH",
+        "head_text": "K 线 · 成交量 · 持仓量（OI） BCHUSDT · 336 根（1h 原始） · 开平仓 1 笔 · 委托 42 条 ID: run_FT_LOW...04_Z02 | 策略: WX_EVEN"
+      }
+    },
+    {
+      "id": "D04_SYMBOL_SWITCH_COMP",
+      "name": "下拉切换至 COMP 标的，头部与图表即时刷新真实 COMP 蜡烛，绝非空 candles",
+      "pass": true,
+      "detail": {
+        "post_symbol": "COMP",
+        "head_text": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 619 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 ID: run_FT_LOW...04_Z02 | 策略: WX_EVE"
+      }
+    },
+    {
+      "id": "D05_CROSSHAIR_MULTI_SYNC",
+      "name": "十字线移动时 OHLC、成交量、OI 与组合资金曲线四位一体按时间同步响应",
+      "pass": true,
+      "detail": {
+        "kline_reading": "时刻 2021-12-16 23:00 UTC 开 441.86 高 441.94 低 436.87 收 438.20 量（base） 10.222K 持仓量 ",
+        "fund_reading": "时刻 12-17 00:00 UTC 策略净值 $2,003.66 (+0.18%)",
+        "has_ohlc": true,
+        "has_volume": true,
+        "has_oi": true
+      }
+    },
+    {
+      "id": "D06_TIMEFRAME_SWITCH",
+      "name": "灵活在 1h 主图、4h 背景与 15m 执行粒度间平滑切换",
+      "pass": true,
+      "detail": {
+        "tf4h": "4h",
+        "tf15m": "15m",
+        "tf1h": "1h"
+      }
+    },
+    {
+      "id": "D07_ORDER_CLICK_FOCUS_ENTRY",
+      "name": "点击开仓订单行高亮选中并精确定位归桶 22:00 与事件时刻 22:15",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "ts_ms": "1639433700000",
+        "selected": true,
+        "hoverbar": "时刻 2021-12-13 22:00 UTC 🎯 定位事件 2021-12-13 22:15 UTC (1h归桶 2021-12-13 22:00) 开 425.56 高 429.87 低 424.50 收 428.63 量（base） 10.158K 持仓量 —（5m 归档最近一条） 该根无真实信号记录"
+      }
+    },
+    {
+      "id": "D08_ORDER_CLICK_CROSS_SYMBOL",
+      "name": "点击 COMP 标的的订单行自动触发图表切币至 COMP 并精准高亮",
+      "pass": true,
+      "detail": {
+        "comp_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "active_symbol": "COMP",
+        "selected": true
+      }
+    },
+    {
+      "id": "D09_MARKER_INVERSE_LOOKUP",
+      "name": "点击图表条目反查关联订单，自动展开订单面板并高亮对应订单行",
+      "pass": true,
+      "detail": {
+        "target_sec": 1639432800,
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "selected": true
+      }
+    },
+    {
+      "id": "D10_PAN_ZOOM_SEMANTIC_ALIGN",
+      "name": "画布拖动缩放平滑响应，主图柱体物理跨度与净值图物理时间范围语义统一严格对齐",
+      "pass": true,
+      "detail": {
+        "pre_range": {
+          "fromMs": 1639918800000,
+          "toMs": 1639922400000,
+          "logicalToMs": 1639926000000
+        },
+        "post_range": {
+          "fromMs": 1639000800000,
+          "toMs": 1639922400000,
+          "logicalToMs": 1639926000000
+        },
+        "equity_range": {
+          "fromSec": 1639008000,
+          "toSec": 1639958400
+        },
+        "logical_to_sec": 1639926000,
+        "semantic_aligned": true
+      }
+    },
+    {
+      "id": "D11_CROSS_EXPERIMENT_SWITCH",
+      "name": "跨实验组切换到固定20%止损组，标题与数据状态彻底更新，无旧状态残留",
+      "pass": true,
+      "detail": {
+        "title_attr": "回测运行ID: run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D20_Vs04_Z02",
+        "group_d20_head": "K 线 · 成交量 · 持仓量（OI） BCHUSDT · 798 根（1h 原始） · 开平仓 1 笔 · 委托 42 条 ID: run_FT_LOW...04_Z02 | 策略: WX_EVENT_TREND_V0_1 | UTC |"
+      }
+    },
+    {
+      "id": "D12_DEEP_LINK_RELOAD",
+      "name": "新标签页深链直达动态回测 run，K 线与完整状态一致重开恢复",
+      "pass": true,
+      "detail": {
+        "deep_link_head": "K 线 · 成交量 · 持仓量（OI） BCHUSDT · 336 根（1h 原始） · 开平仓 1 笔 · 委托 42 条 ID: run_FT_LOW...04_Z02 | 策略: WX_EVENT_TREND_V0_1 | UTC |"
+      }
+    },
+    {
+      "id": "D13_EXPORT_ORDERS_CSV",
+      "name": "成功触发并下载委托订单 CSV 文件，文件落盘且内容包含真实订单行",
+      "pass": true,
+      "detail": {
+        "filename": "orders_run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02.csv",
+        "lines_count": 43,
+        "preview": "\"run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02\",\"WX_EVENT_TREND_V0_1\",\"BCH\",\"\",\"ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0\",\"trd_Wyckoff_C1_S05_D05_Vs04_Z02_0001\",\"buy\",\"MARKET\",\"\",\"FILLED\",\"\",429.45,0.461,,,\"\",1639433700000,\"2021-12-13 22:15\""
+      }
+    }
+  ]
+}

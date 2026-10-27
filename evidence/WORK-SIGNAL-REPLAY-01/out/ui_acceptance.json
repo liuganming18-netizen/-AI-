@@ -1,0 +1,101 @@
+{
+  "title": "WORK-SIGNAL-REPLAY-01 真实浏览器页面验收报告",
+  "target_run_id": "bt_20261023T162149Z_59f3c8fa",
+  "timestamp_utc": "2026-10-24T06:58:49.751Z",
+  "total_checks": 15,
+  "passed_checks": 15,
+  "failed_checks": 0,
+  "status": "ALL_PASSED",
+  "checks": [
+    {
+      "id": "V01",
+      "name": "回测复盘页面正常渲染（非白屏）",
+      "pass": true,
+      "detail": "body 文本长度=77219"
+    },
+    {
+      "id": "V02",
+      "name": "默认以小时线 (1h) 为主展示",
+      "pass": true,
+      "detail": "当前激活周期=\"1h\""
+    },
+    {
+      "id": "V03.1",
+      "name": "可切换至 4h 趋势背景",
+      "pass": true,
+      "detail": "点击后激活周期=\"4h\""
+    },
+    {
+      "id": "V03.2",
+      "name": "可平稳切回 1h 主图",
+      "pass": true,
+      "detail": "恢复后激活周期=\"1h\""
+    },
+    {
+      "id": "V04",
+      "name": "卡片头部展示 run_id、币种、UTC时区及策略版本",
+      "pass": true,
+      "detail": "卡片头部文本=\"K 线 · 成交量 · 持仓量（OI） VELVETUSDT · 696 根（1h 聚合） · 开平仓 1 笔 · 委托 2 条 ID: bt_2026102...f3c8fa | 策略: v0.1.0 | UTC | 2026-09-07 ~ 2026-10-06 ◀ 上一笔 0/1 下一笔 ▶ 日线 12h 8h \""
+    },
+    {
+      "id": "V05",
+      "name": "价格/成交量/OI/资金曲线多图联动面板齐全",
+      "pass": true,
+      "detail": "ChartPanel=true, FundingPanel=true"
+    },
+    {
+      "id": "V06",
+      "name": "逐笔交易汇总存在真实记录",
+      "pass": true,
+      "detail": "记录条数=9, 首行=\"2026-10-02 15:00\tVELVETUSDT\t做多\t0.0669\t0.0636\t+$19.73\t盘中止损\""
+    },
+    {
+      "id": "V07",
+      "name": "图表包含交易上一笔/下一笔导航按钮",
+      "pass": true,
+      "detail": "找到上一笔/下一笔按钮: true"
+    },
+    {
+      "id": "V08",
+      "name": "支持大图展开/收起切换",
+      "pass": true,
+      "detail": "展开后出现收起按钮: true"
+    },
+    {
+      "id": "V09.1",
+      "name": "可展开委托订单明细面板并查看真实订单",
+      "pass": true,
+      "detail": "订单行数=2"
+    },
+    {
+      "id": "V09.2",
+      "name": "点击订单行正常触发双向联动",
+      "pass": true,
+      "detail": "点击首行订单未发生报错并成功定位"
+    },
+    {
+      "id": "V10.1",
+      "name": "可展开逐次成交明细面板 (Fills) 并查看真实成交",
+      "pass": true,
+      "detail": "成交行数=2"
+    },
+    {
+      "id": "V10.2",
+      "name": "点击成交行正常触发双向联动",
+      "pass": true,
+      "detail": "点击首行成交未发生报错并成功定位"
+    },
+    {
+      "id": "V11",
+      "name": "页面提供逐笔与综合明细一键导出按钮",
+      "pass": true,
+      "detail": "逐笔CSV=true, 完整JSON=true"
+    },
+    {
+      "id": "V12",
+      "name": "页面刷新后仍可确定性重开并恢复该 run 图表与逐笔数据",
+      "pass": true,
+      "detail": "刷新后图表就绪=true, 标的匹配=true"
+    }
+  ]
+}

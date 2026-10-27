@@ -1,0 +1,43 @@
+{
+  "工单": "FT-STOP-20-AUDIT-01",
+  "登记时间": "2026-10-22T00:32:26",
+  "入口": "框架/backend/experiment_registry.py::ExperimentRegistry.observe（EV_OBSERVE）",
+  "存储": "框架/backend/data/experiments/events.jsonl（append-only + 哈希链）",
+  "sample_set_id": "FT-STOP-20-AUDIT-01/20%止损对照-9组C1逐笔配对",
+  "登记键数": 1371,
+  "基线键数": 740,
+  "20方案键数": 631,
+  "键样例": [
+    "基线|C1_Vs04_Z02|ev_FT_ENTRY_02_binance_BCHUSDT_1639209600000",
+    "基线|C1_Vs04_Z02|ev_FT_ENTRY_02_binance_CHZUSDT_1641513600000",
+    "基线|C1_Vs04_Z02|ev_FT_ENTRY_02_binance_COMPUSDT_1642017600000"
+  ],
+  "链状态_登记前": {
+    "count": 11,
+    "last_hash": "70cbafb7e5e094fb9d2accc0e6222e6c9db7627e62e40ab9181d9d84f5940a0b"
+  },
+  "链状态_登记后": {
+    "count": 12,
+    "last_hash": "d2c5798a9037bdf488c879862f94eb534159d9b2bdff3a4731d285ad2ec26dce"
+  },
+  "新事件": {
+    "seq": 11,
+    "type": "observe",
+    "at": "2026-10-21T16:32:26Z",
+    "by": "hharness/FT-STOP-20-AUDIT-01",
+    "rows": 1371,
+    "purpose": "止损与仓位效果独立审核：9 组 C1 与 20% 方案逐笔配对已核对，此后不得当未见样本",
+    "hash": "d2c5798a9037bdf488c879862f94eb534159d9b2bdff3a4731d285ad2ec26dce"
+  },
+  "链完整性复验": "通过（_require_intact 未抛 RegistryTampered）",
+  "证据文件": {
+    "out/03_逐笔对照.csv": "d1f3d00103737ca54f1953cac90c3fdef11953c08267dac1d7221207e6d83b49",
+    "out/04_逐笔核对.csv": "2f459d735891624e5629e6e4e0c90e9dfa8fdcad88185b9673da0a2cb7e72fdb"
+  },
+  "登记的语义": "「已观察」= 这 1371 条对照样本此后不得被当作未见样本；不改变任何运行结果。",
+  "未做的事": [
+    "未修改历史事件",
+    "未新建表或系统",
+    "未跑策略、未改账本、未改策略代码"
+  ]
+}

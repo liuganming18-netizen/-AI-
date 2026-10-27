@@ -1,0 +1,102 @@
+{
+ "生成时刻": "2026-10-23T13:43:06+08:00",
+ "基准文件": "evidence/SYSTEM-PARALLEL-AUDIT-01/out/00_基线.json",
+ "基准生成时刻": "2026-10-23T11:57:18+08:00",
+ "判定": "定量有效但身份已变：行为一致，需重新绑定版本号后再引用旧结论",
+ "文件": {
+  "未变": [
+   "框架/backend/strategies/wx_execution.py",
+   "框架/backend/unified_runtime.py",
+   "框架/backend/live_api.py",
+   "框架/backend/paper_loop.py",
+   "框架/backend/api/routes.py"
+  ],
+  "已变": [
+   "框架/backend/live_store.py",
+   "框架/backend/paper_engine.py",
+   "框架/backend/strategy_contracts.py"
+  ],
+  "明细": {
+   "框架/backend/live_store.py": {
+    "基准": "34fc60f78da6c90f",
+    "当前": "b19ea830aeb736e8"
+   },
+   "框架/backend/paper_engine.py": {
+    "基准": "0cd7ce21b3e20ba0",
+    "当前": "3cc2c06583add471"
+   },
+   "框架/backend/strategies/wx_execution.py": {
+    "基准": "2e652550949e7019",
+    "当前": "2e652550949e7019"
+   },
+   "框架/backend/strategy_contracts.py": {
+    "基准": "7b1ae9f68eff55ee",
+    "当前": "d0143f19d03b87b5"
+   },
+   "框架/backend/unified_runtime.py": {
+    "基准": "bb2ea4b86cf122e6",
+    "当前": "bb2ea4b86cf122e6"
+   },
+   "框架/backend/live_api.py": {
+    "基准": "652948fc9742593f",
+    "当前": "652948fc9742593f"
+   },
+   "框架/backend/paper_loop.py": {
+    "基准": "571e1929a1eb949f",
+    "当前": "571e1929a1eb949f"
+   },
+   "框架/backend/api/routes.py": {
+    "基准": "24cf06505217c941",
+    "当前": "24cf06505217c941"
+   }
+  }
+ },
+ "定量矩阵": {
+  "组数": 32,
+  "重算成功": true,
+  "重算错误": null,
+  "差异条数": 0,
+  "差异": [],
+  "结论": "行为未变"
+ },
+ "常量漂移": [],
+ "受影响项": {
+  "A-1_权益基准": [
+   "框架/backend/live_store.py",
+   "框架/backend/paper_engine.py"
+  ],
+  "A-1_绝对预算10vs25": [
+   "框架/backend/live_store.py",
+   "框架/backend/paper_engine.py"
+  ],
+  "C关_账本闭合": [
+   "框架/backend/live_store.py",
+   "框架/backend/paper_engine.py"
+  ],
+  "A-2_stop_price污染": [
+   "框架/backend/paper_engine.py"
+  ],
+  "A关_参数身份贯穿": [
+   "框架/backend/paper_engine.py",
+   "框架/backend/strategy_contracts.py"
+  ],
+  "C关_上移与退出": [
+   "框架/backend/paper_engine.py"
+  ],
+  "A关_缺配置拒单": [
+   "框架/backend/strategy_contracts.py"
+  ]
+ },
+ "不受影响项": [
+  "A关_客户端不能覆盖冻结参数",
+  "B任务_统一入口启动整链",
+  "B任务_进程状态",
+  "B任务_隔离与停止范围",
+  "B关_全链路风险重算",
+  "B关_数量唯一性",
+  "B关_止损唯一性",
+  "B关_风险比预算",
+  "C任务_UI数据同源",
+  "C关_自动成交"
+ ]
+}

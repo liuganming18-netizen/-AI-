@@ -451,6 +451,16 @@ const TokenRow = React.memo(function TokenRow({
     <tr
       data-token-id={token.id}
       onClick={handleToggle}
+      /* 键盘可达：整行可聚焦，Enter / Space 等同点击。
+         不加 role="button"（会破坏表格语义），用 aria-expanded 表达展开态。 */
+      tabIndex={0}
+      aria-expanded={isExpanded}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          handleToggle();
+        }
+      }}
       className={`cursor-pointer transition-colors ${
         isExpanded ? 'bg-neutral-850/90 font-medium' : 'hover:bg-neutral-850/50 bg-neutral-900/30'
       }`}
@@ -472,7 +482,7 @@ const TokenRow = React.memo(function TokenRow({
             <div className="font-bold text-neutral-100 flex items-center gap-1.5">
               <span>{token.symbol}</span>
               {token.activeSignalCount > 0 && (
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--ds-text-4)]"></span>
               )}
             </div>
             <div className="font-mono text-[11px] text-neutral-400 flex items-center gap-1.5">
@@ -486,7 +496,7 @@ const TokenRow = React.memo(function TokenRow({
       </td>
 
       {/* Col 2: Circulating Market Cap (流动市值) —— 2026-10-12 移除「流通率」子行 */}
-      <td className="py-3 px-3 font-mono">
+      <td className="py-3 px-3 font-mono text-right">
         <div
           className="text-neutral-100 font-bold text-xs"
           title={[
@@ -503,50 +513,66 @@ const TokenRow = React.memo(function TokenRow({
       </td>
 
       {/* Col 3: 日总成交额（USDT）—— 2026-10-12 去除周期滚动成交额 */}
-      <td className="py-3 px-3 font-mono">
+      <td className="py-3 px-3 font-mono text-right">
         <div className="text-neutral-100 font-bold text-xs" title={dailyVolumeTitle}>
           {formatWanYi(token.volume24hUsd)}
         </div>
       </td>
 
-      {/* Col 4: Smart Money Long —— 三个真实槽位（持仓额 / 巨鲸占比 / 均价），空值显式占位 */}
+      {/* Col 4: Smart Money Long —— 持仓额 / 巨鲸占比两行，空值显式占位。
+          2026-10-19：均价从三行混排里拆出去，改成 Col 6 的独立列；
+          腾出的纵向空间让「巨鲸占比」从 10px 提到 12px（与持仓额同字号，靠颜色分主次）。 */}
       <td className="py-3 px-3 font-mono">
-        <div className="text-emerald-400 font-bold">
+        <div className="text-[var(--ds-text)] font-medium">
           持仓额: {isNum(token.smartMoneyLong.amountUsd) ? `${formatWanYi(token.smartMoneyLong.amountUsd, '')} USD` : SMART_MONEY_EMPTY_TEXT}
         </div>
-        <div className="text-[10px] text-neutral-400">
+        <div className="text-xs text-[var(--ds-text-3)]">
           巨鲸占比: {fmtPercent(token.smartMoneyLong.ratioPercent, 1)}
-        </div>
-        <div className="text-[10px] text-neutral-400">
-          均价: {isNum(token.smartMoneyLong.avgPrice) ? `${fmtRaw(token.smartMoneyLong.avgPrice)} USDT` : SMART_MONEY_EMPTY_TEXT}
         </div>
       </td>
 
       {/* Col 5: Smart Money Short —— 同上 */}
       <td className="py-3 px-3 font-mono">
-        <div className="text-rose-400 font-bold">
+        <div className="text-[var(--ds-text)] font-medium">
           持仓额: {isNum(token.smartMoneyShort.amountUsd) ? `${formatWanYi(token.smartMoneyShort.amountUsd, '')} USD` : SMART_MONEY_EMPTY_TEXT}
         </div>
-        <div className="text-[10px] text-neutral-400">
+        <div className="text-xs text-[var(--ds-text-3)]">
           巨鲸占比: {fmtPercent(token.smartMoneyShort.ratioPercent, 1)}
-        </div>
-        <div className="text-[10px] text-neutral-400">
-          均价: {isNum(token.smartMoneyShort.avgPrice) ? `${fmtRaw(token.smartMoneyShort.avgPrice)} USDT` : SMART_MONEY_EMPTY_TEXT}
         </div>
       </td>
 
-      {/* Col 6: 总持仓 —— 主显示只放真实金额（万U）；
+      {/* Col 6: 聪明钱均价 —— 多头在上、空头在下，用「多 / 空」单字前缀区分。
+          列头已写明单位，行内不再重复 USDT；数字按量级自适应位数（与代币价格同一套规则），
+          完整原始值放在悬停提示里 —— 原样输出会有 14 位小数，窄列放不下也读不出意义。 */}
+      <td className="py-3 px-3 font-mono">
+        <div
+          className="text-xs text-[var(--ds-text-2)]"
+          title={isNum(token.smartMoneyLong.avgPrice) ? `多头均价原始值：${fmtRaw(token.smartMoneyLong.avgPrice)} USDT` : undefined}
+        >
+          <span className="text-[var(--ds-text-4)]">多</span>{' '}
+          {isNum(token.smartMoneyLong.avgPrice) ? fmtPrice(token.smartMoneyLong.avgPrice) : SMART_MONEY_EMPTY_TEXT}
+        </div>
+        <div
+          className="text-xs text-[var(--ds-text-2)]"
+          title={isNum(token.smartMoneyShort.avgPrice) ? `空头均价原始值：${fmtRaw(token.smartMoneyShort.avgPrice)} USDT` : undefined}
+        >
+          <span className="text-[var(--ds-text-4)]">空</span>{' '}
+          {isNum(token.smartMoneyShort.avgPrice) ? fmtPrice(token.smartMoneyShort.avgPrice) : SMART_MONEY_EMPTY_TEXT}
+        </div>
+      </td>
+
+      {/* Col 7: 总持仓 —— 主显示只放真实金额（万U）；
           数量/单位/来源/更新时间/覆盖全部移入原悬停说明，未新增任何模块。
           2026-10-12：金额配色由「近白/灰」改为**绿色**（有值即 emerald，仅「陈旧」保留琥珀告警；
           无值仍是中性灰空态，不用绿色冒充有数据）。 */}
-      <td className="py-3 px-3 font-mono">
+      <td className="py-3 px-3 font-mono text-right">
         <div
-          className={`font-bold text-sm ${
+          className={`font-semibold text-sm ${
             oiUsdState === 'stale'
-              ? 'text-amber-400'
+              ? 'text-[var(--ds-warn)]'
               : isNum(oiUsd)
-                ? 'text-emerald-400'
-                : 'text-neutral-500'
+                ? 'text-[var(--ds-text)]'
+                : 'text-[var(--ds-text-4)]'
           }`}
         >
           {formatWanU(oiUsd)}
@@ -556,7 +582,7 @@ const TokenRow = React.memo(function TokenRow({
         </div>
       </td>
 
-      {/* Col 7: Funding Rate — 按交易所实际费率显示（2026-10-12 取消 8h 口径闸门） */}
+      {/* Col 8: Funding Rate — 按交易所实际费率显示（2026-10-12 取消 8h 口径闸门） */}
       <td className="py-3 px-3 font-mono">
         <span
           className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
@@ -569,7 +595,7 @@ const TokenRow = React.memo(function TokenRow({
         </span>
       </td>
 
-      {/* Col 8: Sparkline mini chart */}
+      {/* Col 9: Sparkline mini chart */}
       <td className="py-3 px-3">
         <Sparkline values={token.sparkline24h} positive={(token.change24h ?? 0) >= 0} />
       </td>
@@ -649,6 +675,29 @@ export const TokenTable: React.FC<TokenTableProps> = ({
   /** 表格滚动容器：既是视口（虚拟化窗口来源），也是可见行上报的 root */
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  /**
+   * 表格是否真的需要横向滚动 —— **按容器实测，不按视口断点**。
+   *
+   * 这张表最小 1210px，但它嵌在工作台**中栏**里（左信号区 224px + 右持仓区），
+   * 所以 1600px 视口下中栏只有约 600px、表格照样溢出。原实现用
+   * `@media (max-width: 1199.98px)` 控制提示 ⇒ 1200–1600 这一段**溢出但没提示**，
+   * 用户会以为右边几列「不存在」。
+   *
+   * 改为监听容器尺寸与内容变化，`scrollWidth > clientWidth + 1` 才显示提示。
+   */
+  const [hScrollable, setHScrollable] = useState(false);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => setHScrollable(el.scrollWidth > el.clientWidth + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    const table = el.firstElementChild;
+    if (table) ro.observe(table);
+    return () => ro.disconnect();
+  }, []);
+
   const filteredTokens = useMemo(() => {
     if (!searchQuery) return tokens;
     const q = searchQuery.toLowerCase();
@@ -678,7 +727,7 @@ export const TokenTable: React.FC<TokenTableProps> = ({
    *
    * 表格是 `table-layout: fixed` + colgroup 合计 **1260px**，而滚动容器可视宽仅 ~1096px
    * （1800 视口实测：scroll clientWidth 1096 / scrollWidth 1260，横向溢出 164px）。
-   * 展开行是 `<td colSpan={10}>`，其宽度 = 整表宽 1260px，因此展开图被拉成 1208px，
+   * 展开行是 `<td colSpan={11}>`，其宽度 = 整表宽 1320px（2026-10-19 加均价列后），
    * 右侧 78px 价格轴画布落在 x 1573–1651，而滚动视口右缘只有 1524 ——
    * **刻度整段被裁在可视区外**，必须横向滚到底才能看到 OI / K 线的价格读数。
    *
@@ -882,12 +931,17 @@ export const TokenTable: React.FC<TokenTableProps> = ({
           <h2 className="text-base font-bold text-neutral-100 flex items-center gap-2">
             <span className="ai-gradient-text">全市场代币排序</span>
             <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-normal ai-shimmer">
-              7 组标准列结构
+              9 组标准列结构
             </span>
           </h2>
           <p className="text-[11px] text-neutral-400">
             代币简称已完成倍率映射去前缀；成交额按日总成交额展示
           </p>
+          {/* 容器实测溢出才显示（见 `hScrollable` 注释）：
+              不给提示的话用户会以为右边那些列「不存在」。 */}
+          {hScrollable && (
+            <p className="market-scroll-hint">← 左右滑动表格查看全部 9 组列 →</p>
+          )}
         </div>
 
         {/* Sort Indicator matching sketch: 按信号逻辑排序 ↓ */}
@@ -924,35 +978,41 @@ export const TokenTable: React.FC<TokenTableProps> = ({
           <colgroup>
             <col style={{ width: 40 }} />
             <col style={{ width: 158 }} />
-            <col style={{ width: 106 }} />
-            <col style={{ width: 168 }} />
-            <col style={{ width: 156 }} />
-            <col style={{ width: 156 }} />
-            <col style={{ width: 124 }} />
+            <col style={{ width: 100 }} />
+            <col style={{ width: 112 }} />
+            <col style={{ width: 162 }} />
+            <col style={{ width: 162 }} />
+            <col style={{ width: 116 }} />
+            <col style={{ width: 116 }} />
             <col style={{ width: 104 }} />
             <col style={{ width: 120 }} />
             <col style={{ width: 128 }} />
           </colgroup>
-          {/* 7 Columns Table Header matching sketch */}
-          <thead className="sticky top-0 z-20 bg-neutral-900 border-b border-neutral-800 text-neutral-300 font-semibold select-none shadow-sm">
+          {/* 11 Columns Table Header（2026-10-19 新增「聪明钱均价」，原 8 个数据列顺延编号） */}
+          <thead
+            className="sticky top-0 z-20 bg-[var(--ds-surface)] text-[var(--ds-text-4)] font-semibold select-none"
+            style={{ boxShadow: 'inset 0 -1px 0 var(--ds-border)' }}
+          >
             <tr>
               <th className="py-3 px-3 w-8"></th>
               {/* Col 1 */}
               <th className="py-3 px-3">1. 代币 (简称)</th>
               {/* Col 2: Circulating Market Cap (流动市值) */}
-              <th className="py-3 px-3">2. 流动市值</th>
+              <th className="py-3 px-3 text-right">2. 流动市值</th>
               {/* Col 3: 日总成交额（USDT） */}
-              <th className="py-3 px-3">3. 日总成交额</th>
+              <th className="py-3 px-3 text-right">3. 日总成交额</th>
               {/* Col 4 */}
-              <th className="py-3 px-3 text-emerald-400">4. 聪明钱多头</th>
+              <th className="py-3 px-3">4. 聪明钱多头</th>
               {/* Col 5 */}
-              <th className="py-3 px-3 text-rose-400">5. 聪明钱空头</th>
+              <th className="py-3 px-3">5. 聪明钱空头</th>
               {/* Col 6 */}
-              <th className="py-3 px-3">6. 总OI持仓</th>
+              <th className="py-3 px-3">6. 聪明钱均价</th>
               {/* Col 7 */}
-              <th className="py-3 px-3">7. 资金费率</th>
+              <th className="py-3 px-3 text-right">7. 总OI持仓</th>
               {/* Col 8 */}
-              <th className="py-3 px-3 text-center">8. 近24h小时图</th>
+              <th className="py-3 px-3">8. 资金费率</th>
+              {/* Col 9 */}
+              <th className="py-3 px-3 text-center">9. 近24h小时图</th>
               <th className="py-3 px-3 text-right">展开详情</th>
             </tr>
           </thead>
@@ -962,7 +1022,7 @@ export const TokenTable: React.FC<TokenTableProps> = ({
             {topPad > 0 && (
               <tr aria-hidden="true" style={{ borderTop: 'none' }}>
                 <td
-                  colSpan={10}
+                  colSpan={11}
                   style={{ height: topPad, padding: 0, border: 0, lineHeight: 0 }}
                 />
               </tr>
@@ -983,10 +1043,10 @@ export const TokenTable: React.FC<TokenTableProps> = ({
                     滚出窗口即卸载重图表、滚回即恢复（展开态由 expandedTokenId 保持）。 */}
                 {expandedTokenId === token.id && (
                   <tr ref={expandedRowRef}>
-                    <td colSpan={10} className="p-0 border-b border-neutral-700/80 bg-neutral-950">
+                    <td colSpan={11} className="p-0 border-b border-neutral-700/80 bg-neutral-950">
                       {/*
                         展开图外壳：`sticky left-0` + 滚动容器可视宽。
-                        展开行是 colSpan=10 的 td（宽 1260px），直接放图表会把右侧
+                        展开行是 colSpan=11 的 td（宽 1320px），直接放图表会把右侧
                         78px 价格轴推到可视区外（详见 scrollViewportW 注释）。
                         外壳宽度取 clientWidth 后，图表 + 价格轴完整可见；
                         横向滚动时外壳吸附在滚动视口左缘，不会跟着滑走。
@@ -1013,7 +1073,7 @@ export const TokenTable: React.FC<TokenTableProps> = ({
             {bottomPad > 0 && (
               <tr aria-hidden="true" style={{ borderTop: 'none' }}>
                 <td
-                  colSpan={10}
+                  colSpan={11}
                   style={{ height: bottomPad, padding: 0, border: 0, lineHeight: 0 }}
                 />
               </tr>

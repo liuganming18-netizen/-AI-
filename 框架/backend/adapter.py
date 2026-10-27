@@ -78,6 +78,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from data_hub.store import INTERVAL_MS, MarketStore, now_ms  # noqa: E402
+from infrastructure.repo.tail_store import store_tail  # noqa: E402
 from data_hub.http_api import read_route             # noqa: E402
 from strategies import common, registry              # noqa: E402
 from strategies import wx_config, wx_gate            # noqa: E402
@@ -120,6 +121,18 @@ try:                                                 # noqa: E402
 except Exception as _exc:                            # noqa: BLE001
     datacenter = None
     _DATACENTER_IMPORT_ERROR = f"{type(_exc).__name__}: {_exc}"
+
+# ── DATA-UI-01：指标字段矩阵（**加性**，只读）──────────────────────────────────
+# 独立模块：把一个标的的「主动买卖量/成交笔数/多空比/OI/资金费率」按字段摊开，
+# 并给出单位、统计周期、源时间、新鲜度、来源与缺失原因。
+# 只读：归档 parquet + 本机快照 + 只读库；**不联网、不写库、不写快照**。
+# 依赖 duckdb（读归档）；导入失败只影响 `/metrics` 与字段契约端点，既有接口零变化。
+try:                                                 # noqa: E402
+    import metrics_api                               # noqa: E402
+    _METRICS_IMPORT_ERROR = None
+except Exception as _exc:                            # noqa: BLE001
+    metrics_api = None
+    _METRICS_IMPORT_ERROR = f"{type(_exc).__name__}: {_exc}"
 
 
 
@@ -486,12 +499,21 @@ DB_STATS = {"opened": 0, "reused": 0}
 
 
 def _new_db_conn():
-    # check_same_thread=False 是**连接池的前提**：池会把同一连接先后交给不同请求线程。
-    # 安全性由池保证 —— 一个连接同一时刻只被一个线程持有（借出后归还才可再借）。
-    # 若不关掉该检查，跨线程复用会抛 ProgrammingError 并让接口 500。
-    con = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
+    # 第 3 期（2026-10-19）：web 进程对行情库**严格只读**。
+    #
+    # 为什么必须只读：原先 K 线读取路径会顺手把 REST 尾段写进库（`_tail_store`），
+    # 与采集器、历史下载器形成**三个写者抢同一个 SQLite 文件**，导致写锁排队、
+    # WAL 无法检查点、膨胀到 782MB，读请求从毫秒掉到秒级。
+    # 现在：写一律交给工作进程；web 用 `mode=ro` 打开，误写在驱动层直接失败，
+    # 再加 `query_only` 兜底（连临时表/PRAGMA 写也拦住）。
+    #
+    # 用 `Path.as_uri()` 而不是手拼 `file:`：工程路径含中文与空格，
+    # 不转义会被 SQLite 当成 URI 参数解析而打不开库。
+    uri = Path(DB_PATH).as_uri() + "?mode=ro"
+    con = sqlite3.connect(uri, uri=True, timeout=10, check_same_thread=False)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout=10000")
+    con.execute("PRAGMA query_only=1")
     # 只读侧页缓存：默认 2MB/连接。历史下载并发写、库已近 20GB 时，
     # 反复读 coverage_cache / sources / realtime_quotes 等小表也会被磁盘 I/O 拖慢，
     # 调大到 32MB/连接（池上限 24 ⇒ 峰值约 768MB 上限，实际按需占用）显著减少重复读。
@@ -1758,6 +1780,52 @@ def annotations_for(exchange, mid, tf, window_start, window_end, limit=2000):
 TAIL_TIMEFRAMES = ("1d", "12h", "8h", "4h", "1h", "30m", "15m", "5m")
 TAIL_LIMIT = {"binance": 1000, "okx": 300}
 TAIL_MIN_INTERVAL_MS = 60_000                 # 入库尝试节流（拉取仍走网关缓存）
+
+# ── 只读模式（第 3 期）───────────────────────────────────────────────────────
+# 默认开启：web 进程对行情库只读，缺尾改为投递后台任务。
+# `WEB_READONLY=0` 可回退到「请求路径直接写库」的旧行为（仅供比对/应急）。
+WEB_READONLY = os.environ.get("WEB_READONLY", "1") != "0"
+
+_JOBS_STORE = None
+_JOBS_STORE_LOCK = threading.Lock()
+
+
+def _jobs_store():
+    """任务库单例。每次请求新建连接会白白消耗 fd，这里复用一条。"""
+    global _JOBS_STORE
+    if _JOBS_STORE is None:
+        with _JOBS_STORE_LOCK:
+            if _JOBS_STORE is None:
+                from infrastructure.jobs.store import JobsStore
+                _JOBS_STORE = JobsStore()
+    return _JOBS_STORE
+
+
+def _enqueue_tail_sync(exchange, symbol, tf):
+    """把「拉尾段 + 补写」整体投给工作进程。返回给用户看的说明（None 表示无需补）。
+
+    为什么连拉取也要交后台：统一网关不是纯读——它要写 `api_calls` / `api_leases` /
+    `api_scope_state` 做共享缓存与限频。web 只读之后，在请求里拉取会直接报
+    `attempt to write a readonly database`（实测），只读就只做了一半。
+
+    幂等键按**分钟桶**：同一标的同一周期一分钟内只投一次，既不会刷屏，
+    也不会漏掉下一分钟的更新。
+    """
+    key = (exchange, symbol, tf)
+    with _TAIL_LOCK:
+        now = _now_ms()
+        if now - _TAIL_LAST.get(key, 0) < TAIL_MIN_INTERVAL_MS:
+            return None
+        _TAIL_LAST[key] = now
+    try:
+        _jobs_store().enqueue(
+            "tail_sync",
+            {"exchange": exchange, "symbol": symbol, "timeframe": tf},
+            idempotency_key=f"tail:{exchange}:{symbol}:{tf}:{now // 60000}",
+            max_attempts=2)
+    except Exception as exc:                                      # noqa: BLE001
+        return f"尾段补写任务投递失败（{type(exc).__name__}）：不影响已入库历史"
+    return "尾段补写已交后台任务（web 只读，不在请求里拉取或写库）"
 TAIL_FETCH_ENABLED = os.environ.get("MARKET_TAIL_FETCH", "1") != "0"
 _OKX_BAR = {"5m": "5m", "15m": "15m", "30m": "30m",
             "1h": "1H", "4h": "4H", "12h": "12Hutc", "1d": "1Dutc"}
@@ -1805,38 +1873,26 @@ def _gw_get_retry(gw, name, params, attempts=2):
 
 
 def _tail_fetch(exchange, symbol, tf):
-    """经统一网关拉取**有限近期原生尾段**；返回 (bars, source_url)。"""
-    gw = _tail_gateway()
-    fetched_at = _now_ms()
-    if exchange == "binance":
-        r = _gw_get_retry(gw, "binance.candles",
-                          {"symbol": symbol, "interval": tf, "limit": TAIL_LIMIT["binance"]})
-        out = [{"open_time": int(k[0]), "close_time": int(k[6]),
-                "open": k[1], "high": k[2], "low": k[3], "close": k[4],
-                "volume": k[5], "quote_volume": k[7], "trade_count": int(k[8]),
-                "taker_buy_volume": k[9], "taker_buy_quote_volume": k[10],
-                "is_closed": int(k[6]) < fetched_at, "available_at": fetched_at}
-               for k in (r["数据"] or [])]
-        src = f"https://fapi.binance.com/fapi/v1/klines?symbol={symbol}&interval={tf}"
-    else:
-        r = _gw_get_retry(gw, "okx.candles_recent",
-                          {"instId": symbol, "bar": _OKX_BAR.get(tf, tf),
-                           "limit": TAIL_LIMIT["okx"]})
-        iv = INTERVAL_MS[tf]
-        out = [{"open_time": int(c[0]), "close_time": int(c[0]) + iv - 1,
-                "open": c[1], "high": c[2], "low": c[3], "close": c[4],
-                # 欧易无 taker / trade_count 字段：占位并另行标注，不冒充真值
-                "volume": c[6], "quote_volume": c[7], "trade_count": 0,
-                "taker_buy_volume": "", "taker_buy_quote_volume": "",
-                "is_closed": c[8] == "1", "available_at": fetched_at}
-               for c in (r["数据"].get("data") or [])]
-        src = "https://www.okx.com/api/v5/market/candles"
-    out.sort(key=lambda b: b["open_time"])
-    return out, src
+    """经统一网关拉取**有限近期原生尾段**；返回 (bars, source_url)。
+
+    第 3 期：实现已搬至 `infrastructure/repo/tail_fetch.py`。
+    本函数只在 `WEB_READONLY=0` 的回退路径使用——正常路径下 web **不拉网络、
+    不写调用记录**，拉取与入库都由工作进程完成。
+    """
+    from infrastructure.repo.tail_fetch import fetch_tail
+    return fetch_tail(_tail_gateway(), exchange, symbol, tf)
 
 
 def _tail_store(exchange, symbol, tf, bars, src_url):
-    """把**已收盘**尾段入库（幂等：同内容 sha256 只入一次）。返回新增根数。"""
+    """把**已收盘**尾段入库（第 3 期：写库逻辑已移至 `infrastructure/repo/tail_store.py`）。
+
+    本函数只保留三件事：过滤已收盘、节流、开一个**独立写连接**。
+
+    为什么不再用连接池：第 3 期起 web 进程的连接池全部是只读连接（`mode=ro`）。
+    写必须走专用连接，否则会得到 `attempt to write a readonly database`。
+    请求路径不再调用本函数（缺尾改投后台任务）；它服务于 `WEB_READONLY=0`
+    的回退路径与既有测试。
+    """
     closed = sorted((b for b in bars if b["is_closed"]), key=lambda b: b["open_time"])
     if not closed:
         return 0
@@ -1848,89 +1904,24 @@ def _tail_store(exchange, symbol, tf, bars, src_url):
         if now - _TAIL_LAST.get(key, 0) < TAIL_MIN_INTERVAL_MS:
             return 0
         _TAIL_LAST[key] = now
-    market = "um" if exchange == "binance" else "swap"
-    with use_db() as con:
-        # REST 尾段只用于补缺；先剔除已有 candle_heads，避免新 REST source 抢走更新的
-        # WS/归档 head，也避免重复造 inactive candle_versions。
-        have = {r[0] for r in con.execute(
-            "SELECT open_time FROM candle_heads WHERE exchange=? AND market=? AND symbol=? "
-            "AND timeframe=? AND open_time BETWEEN ? AND ?",
-            (exchange, market, symbol, tf, closed[0]["open_time"], closed[-1]["open_time"]))}
-        todo = [b for b in closed if b["open_time"] not in have]
-        if not todo:
-            return 0
-        text = "\n".join("|".join(str(b[k]) for k in
-                                  ("open_time", "open", "high", "low", "close",
-                                   "volume", "quote_volume")) for b in todo)
-        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
-        old = con.execute("SELECT id FROM sources WHERE exchange=? AND market=? AND symbol=? "
-                          "AND timeframe=? AND sha256=?",
-                          (exchange, market, symbol, tf, digest)).fetchone()
-        if old:
-            return 0
-        cur = con.execute(
-            "INSERT INTO sources(exchange,market,symbol,timeframe,source_url,file_path,sha256,"
-            "imported_at,downloaded_at,first_open,last_close,row_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-            (exchange, market, symbol, tf, src_url, f"{exchange}:rest:tail",
-             digest, now, now, todo[0]["open_time"], todo[-1]["close_time"], len(todo)))
-        sid = cur.lastrowid
-        added = 0
-        for b in todo:
-            inserted = con.execute(
-                "INSERT OR IGNORE INTO candle_versions(exchange,market,symbol,timeframe,open_time,"
-                "close_time,open,high,low,close,volume,quote_volume,trade_count,taker_buy_volume,"
-                "taker_buy_quote_volume,source_id,available_at,is_closed) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)",
-                (exchange, market, symbol, tf, b["open_time"], b["close_time"],
-                 b["open"], b["high"], b["low"], b["close"], b["volume"], b["quote_volume"],
-                 b["trade_count"], b["taker_buy_volume"], b["taker_buy_quote_volume"], sid,
-                 b.get("available_at")))
-            if not inserted.rowcount:
-                continue
-            # 最近尾段 REST 不能因同 open_time 重新指向新来源：
-            # 已有的实时/归档 head 保持原值与原 source（尤其 available_at 语义不能被抹掉）。
-            head = con.execute("INSERT INTO candle_heads(exchange,market,symbol,timeframe,open_time,source_id)"
-                               " VALUES(?,?,?,?,?,?) ON CONFLICT(exchange,market,symbol,timeframe,open_time)"
-                               " DO NOTHING", (exchange, market, symbol, tf, b["open_time"], sid))
-            if not head.rowcount:
-                con.execute("DELETE FROM candle_versions WHERE exchange=? AND market=? AND symbol=? "
-                            "AND timeframe=? AND open_time=? AND source_id=?",
-                            (exchange, market, symbol, tf, b["open_time"], sid))
-                continue
-            added += 1
-        if added:
-            cov = con.execute("SELECT rows,first_open,last_close FROM coverage_cache WHERE "
-                              "exchange=? AND market=? AND symbol=? AND timeframe=?",
-                              (exchange, market, symbol, tf)).fetchone()
-            if cov:
-                first = min(int(cov["first_open"]) if cov["first_open"] is not None
-                            else todo[0]["open_time"], min(b["open_time"] for b in todo))
-                last = max(int(cov["last_close"]) if cov["last_close"] is not None
-                           else todo[-1]["close_time"], max(b["close_time"] for b in todo))
-                rows = int(cov["rows"] or 0) + added
-                expected = max(0, (last + 1 - first) // INTERVAL_MS[tf])
-                con.execute("UPDATE coverage_cache SET rows=?,first_open=?,last_close=?,expected=?,"
-                            "missing=?,source_count=source_count+?,updated_at=? WHERE exchange=? "
-                            "AND market=? AND symbol=? AND timeframe=?",
-                            (rows, first, last, expected, max(0, expected - rows),
-                             int(cur.rowcount), now, exchange, market, symbol, tf))
-        if exchange == "okx":
-            for f, stored, reason, impact in (
-                    ("taker_buy_volume", "", "欧易 K 线响应无该字段（币安有）",
-                     "B 策略数据不足"),
-                    ("trade_count", "0", "欧易 K 线响应无 trade_count 字段；本列 NOT NULL，"
-                                          "写 0 为占位符，非真值", "成交笔数类指标不可用")):
-                con.execute("INSERT OR REPLACE INTO candle_field_notes(exchange,market,symbol,"
-                            "timeframe,field,stored_as,reason,impact,source,updated_at) "
-                            "VALUES(?,?,?,?,?,?,?,?,?,?)",
-                            (exchange, market, symbol, tf, f, stored, reason, impact,
-                             "okx.v5/market-candles", now))
-        con.commit()
-    return added
+    con = sqlite3.connect(DB_PATH, timeout=30)
+    con.row_factory = sqlite3.Row
+    try:
+        con.execute("PRAGMA busy_timeout=30000")
+        return store_tail(con, exchange, symbol, tf, closed, src_url, now=now)
+    finally:
+        con.close()
 
 
 def _tail_bars(exchange, symbol, tf):
-    """编排：拉尾段 → 已收盘入库 → 返回 (新增根数, forming_bar|None, 说明)。"""
+    """编排：拉尾段 → （只读模式）投后台任务 / （旧模式）当场拉取并入库。
+
+    返回 `(新增根数, forming_bar|None, 说明)`。
+    只读模式下**不拉网络、不写库**：「新增根数」恒为 0，forming_bar 只来自
+    本地实时临时层（WS）；缺的部分由后台任务补，下一次请求自然读到。
+    """
+    if WEB_READONLY:
+        return 0, None, _enqueue_tail_sync(exchange, symbol, tf)
     try:
         bars, src = _tail_fetch(exchange, symbol, tf)
     except Exception as exc:                                       # noqa: BLE001
@@ -2223,7 +2214,7 @@ def _qint(params, name, default=None, lo=None, hi=None):
 
 def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=None,
              default_period=None, want=None, bucket_ms=None, limit=None,
-             from_ms=None, to_ms=None):
+             from_ms=None, to_ms=None, newest_first=None):
     """历史序列（**只读**）。
 
     `oi_history` 自 2026-10-08 起同时存放**两种采样周期**：
@@ -2239,6 +2230,16 @@ def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=N
       · `from` / `to` —— 时间闭区间（毫秒）；
       · `bucket_ms`   —— >0 时按该毫秒数分桶，每桶只取**桶内时间最晚的一条真实观测**
                          （抽样选择，不插值、不改数值、不改时间戳）。
+
+    **`newest_first`（2026-10-17 修复）**：`None`（默认）沿用旧判定
+    `bool(want_period) or bool(bms)`；显式传 `True` 时**从最新往旧取 limit 条**，
+    取完再恢复时间升序返回。
+
+    为什么需要它：`funding_history` 没有 `period_col`、调用方也不传 `bucket_ms`，
+    于是旧判定给出 `descending=False` ⇒ SQL 变成 `ORDER BY funding_time ASC LIMIT n`，
+    取的是**最老**的 n 条。实测 BTCUSDT 表内 5252 行覆盖 2022-01-01→2026-10-17，
+    接口却只返回 2022-01-01→2023-10-29 ⇒ 前端 `inferFundingPeriod` 拿 2022 年的
+    相邻间隔去判「**当前**结算周期」，且「最近结算时间」比真实值差近 3 年。
     """
     if mid.startswith(exchange + ":"):
         mid = mid[len(exchange) + 1:]
@@ -2265,6 +2266,8 @@ def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=N
         args.append(to)
 
     descending = bool(want_period) or bool(bms)
+    if newest_first is not None:
+        descending = bool(newest_first)
     if bms:
         # 分桶：`MAX(ts)` 是**唯一**聚合 ⇒ 命中 SQLite 的 bare-column 规则，
         # 其余列取「该最大值所在行」的值 ⇒ 每桶返回一条**真实观测**（非聚合均值）。
@@ -2552,8 +2555,21 @@ def v1_oi(exchange, mid, params):
 
 
 def v1_funding(exchange, mid, params):
+    """`/funding` —— 只读本机 `funding_history`（**最近 N 条**）。
+
+    修复（2026-10-17）：原实现**没把 `params` 传下去**，于是
+      · `limit` / `from` / `to` / `bucket_ms` 四个参数**全部静默失效**（恒取默认 2000）；
+      · 又因无 `period_col`/`bucket_ms`，排序退化为 `ASC` ⇒ 返回**最老**的 2000 条。
+
+    实测证据：前端 `FUNDING_HISTORY_LIMIT = 60`，请求 `?limit=60` 却拿到 2000 条
+    （395KB，约为应有的 33 倍）；BTCUSDT 首条 `2022-01-01T00:00:00Z`、末条
+    `2023-10-29T08:00:00Z`，而库里真实最新结算是 `2026-10-17T08:00:00Z`。
+
+    现在：透传 `params` + `newest_first=True` ⇒ 返回**最新** limit 条（仍按时间升序）。
+    """
     return _history("funding_history", exchange, mid, "funding_time",
-                    ["funding_rate", "mark_price", "rate_type", "source", "fetched_at"])
+                    ["funding_rate", "mark_price", "rate_type", "source", "fetched_at"],
+                    params=params, newest_first=True)
 
 
 def v1_public_extras(exchange, mid, params):
@@ -2612,7 +2628,7 @@ def v1_public_extras(exchange, mid, params):
     return out
 
 
-def v1_coverage():
+def v1_coverage(params=None):
     cov = covered()
     cells = []
     for c in cov:
@@ -2669,6 +2685,59 @@ def v1_coverage():
                               "unit": unit, "evidence_level": "缺失", "source_url": None,
                               "available_at": None, "available_at_known": False, "free": True,
                               "auth_required": False, "note": note})
+    # ── `?agg=1`：只返回聚合，不返回逐单元格明细 ──────────────────────
+    # 为什么要这个开关：完整响应约 7.68 MB（4385 个 (标的,周期) 组合 × 3 个字段），
+    # 但绝大多数调用方只想知道「有多少组合、按周期怎么分布、覆盖率多少」。
+    # 传 7.68 MB 只为读三个数字，在浏览器里光是 JSON.parse 就要几百毫秒。
+    #
+    # 默认行为**不变**（不传 agg 仍是完整明细）—— 加参数是 additive，
+    # 不改既有契约，避免动到已经在用 `cells` 的地方。
+    _agg = str((params or {}).get("agg", [""])[0]).lower() in ("1", "true", "yes")
+    if _agg:
+        # 字段口径（照抄 cell 的真实字段，不臆造）：
+        #   bars_expected  ← cell["expected"]（已存首末范围内按周期推算的应有根数）
+        #   bars_missing   ← cell["missing_within_observed_range"]（NULL=未逐段定位，不计入 0）
+        #   gaps_unknown   ← 该值为 NULL 的单元格数（缺根未知 ≠ 缺 0 根）
+        by_tf = {}
+        by_field = {}
+        by_ex = {}
+        tot = {"cells": 0, "bars_expected": 0, "bars_missing": 0,
+               "with_data": 0, "gaps_unknown": 0}
+        for c in cells:
+            tf = c.get("granularity") or "—"
+            f = c.get("field") or "—"
+            ex = c.get("exchange") or "—"
+            exp = c.get("expected")
+            # 键不存在（OI/费率这类不逐标的枚举的字段）≠ 键存在但值为 NULL（缺根未定位）
+            _has_key = "missing_within_observed_range" in c
+            miss = c.get("missing_within_observed_range")
+            has = 1 if c.get("latest") else 0
+            t = by_tf.setdefault(tf, {"cells": 0, "with_data": 0,
+                                      "bars_expected": 0, "bars_missing": 0,
+                                      "gaps_unknown": 0})
+            fd = by_field.setdefault(f, {"cells": 0, "with_data": 0,
+                                         "bars_expected": 0, "bars_missing": 0,
+                                         "gaps_unknown": 0})
+            for d in (t, fd, tot):
+                d["cells"] += 1
+                d["with_data"] += has
+                if isinstance(exp, int):
+                    d["bars_expected"] += exp
+                if _has_key and miss is None:
+                    d["gaps_unknown"] += 1
+                elif isinstance(miss, int):
+                    d["bars_missing"] += miss
+            by_ex[ex] = by_ex.get(ex, 0) + 1
+        return envelope(
+            cells=[], cells_count=len(cells), agg=True,
+            by_timeframe=by_tf, by_field=by_field, by_exchange=by_ex, totals=tot,
+            coverage_ratio=None, total_cells=None, covered_cells=tot["with_data"],
+            quality={"status": "ok", "age_seconds": None,
+                     "note": ("agg=1 聚合视图：只给计数与分布，不含逐单元格明细。"
+                              "需要明细请去掉 agg 参数（响应约 7.68 MB）。"
+                              "bars_missing 只统计已逐段定位过的缺根；gaps_unknown "
+                              "为缺根数未知的单元格数，二者不可混算。")})
+
     return envelope(cells=cells, coverage_ratio=None, total_cells=None, covered_cells=len(cells),
                     quality={"status": "ok", "age_seconds": None,
                              "note": "仅统计已入库组合；全市场宇宙未知，故覆盖率不下结论"})
@@ -3194,7 +3263,12 @@ def v1_stub_list(reason):
     return missing(reason, "not_connected", items=[], has_more=False, next_cursor=None, total=None)
 
 
-def route_v1(path, params):
+def _route_v1_legacy(path, params):
+    """旧分发实现（34 个 if/elif 分支）。**仅作回退路径保留**。
+
+    第 1 期起默认走 `api/routes.py` 的路由表；置 `LEGACY_ROUTER=1` 可回到这里。
+    待第 2–3 期把处理函数按资源搬走后，本函数连同 `route_v1` 的旧语义一并删除。
+    """
     seg = [unquote(p) for p in path.split("/") if p][2:]
     if seg == ["health"]:
         return v1_health(), 200
@@ -3249,6 +3323,32 @@ def route_v1(path, params):
         if seg == ["paper", "funding-audit"]:
             # 资金费符号口径 + 迟到补记缺口（只读）
             return live.paper_funding_audit(params), 200
+        if seg == ["paper", "identity"]:
+            return live.paper_identity_get()
+        if seg == ["paper", "execution_daemon", "status"]:
+            arm = (params.get("arm") or ["3a"])[0]
+            try:
+                import paper_loop as PL
+                st = PL.get_daemon_status(arm)
+                return live.envelope(item=st, quality={"status": "ok", "note": "execution_daemon_status"}), 200
+            except Exception as exc:
+                return live.envelope(missing_reason=f"获取守护进程状态失败: {exc}",
+                                     quality={"status": "error", "note": str(exc)}), 500
+        if len(seg) == 3 and seg[:2] == ["paper", "stops"]:
+            pos_id = seg[2]
+            arm = (params.get("arm") or ["3a"])[0]
+            try:
+                res = live.PE.get_stop_history(arm, int(pos_id))
+                if isinstance(res, dict) and not res.get("exists", True):
+                    return live.envelope(missing_reason=f"持仓 {pos_id} 不存在 (404 Not Found)",
+                                         quality={"status": "not_found", "note": "position_not_found"}), 404
+                hist = (res.get("items") if isinstance(res, dict) else res) or []
+                return live.envelope(items=hist, total=len(hist), mode="stop_history",
+                                     quality={"status": "ok", "age_seconds": None,
+                                              "note": f"持仓 {pos_id} 止损变更历史"}), 200
+            except Exception as exc:
+                return live.envelope(missing_reason=f"查询止损历史失败: {exc}",
+                                     quality={"status": "error", "note": str(exc)}), 500
         if seg == ["paper", "legacy-audit"]:
             # 旧版/未验收/规则违规 只读审计清单（2026-10-15 闭环整改·阶段A）
             return live.legacy_audit(), 200
@@ -3302,6 +3402,25 @@ def route_v1(path, params):
     if seg == ["data", "feeds"]:
         feeds = datacenter.get_data_feeds_status() if datacenter else []
         return envelope(feeds=feeds, total=len(feeds)), 200
+    # ── DATA-UI-01：加密池分母（官方分类口径）与机器可读字段契约 ────────────────
+    if seg == ["data", "pool-scope"]:
+        if metrics_api is None:
+            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
+                           "not_connected"), 200
+        return metrics_api.handle_pool_scope(params), 200
+    if seg == ["data", "cold-archive-status"]:
+        if metrics_api is None:
+            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}", "not_connected"), 200
+        return metrics_api.handle_cold_archive_status(params), 200
+    if seg == ["system-flow", "paper-reconciliation"]:
+        if metrics_api is None:
+            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}", "not_connected"), 200
+        return metrics_api.handle_paper_reconciliation_evidence(params), 200
+    if seg == ["data", "field-contract"]:
+        if metrics_api is None:
+            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
+                           "not_connected"), 200
+        return metrics_api.handle_field_contract(params), 200
     if seg in (["data", "whitelist"], ["data", "backfill"]):
         summary = datacenter.get_backfill_and_whitelist_summary() if datacenter else {}
         return envelope(**summary), 200
@@ -3322,8 +3441,44 @@ def route_v1(path, params):
             # 币安公开扩展字段：**只读本机快照**（采集器周期写入），不触发交易所请求。
             return v1_public_extras(seg[1], seg[2], params), 200
         if tail == "metrics":
-            return missing("指标模块尚未接通；本轮仅数据契约与策略模块", "not_connected"), 200
+            # DATA-UI-01：指标矩阵（主动买卖量/成交笔数/多空比/OI/资金费率）。
+            # 只读：归档 parquet + 本机快照 + 只读库，**不触发任何交易所请求**。
+            # 缺失一律 null + missing_reason，不用 0 / 模拟值 / 当前快照补历史。
+            if metrics_api is None:
+                return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
+                               "not_connected"), 200
+            return metrics_api.handle_metrics(seg[1], seg[2], params), 200
     raise LookupError("接口不存在")
+
+
+# ── 路由表分发（第 1 期）────────────────────────────────────────────────────
+# 目的：把「路径 → 处理函数」的映射从 3826 行文件里的 if/elif 长链，
+# 换成一个独立、可读、可扩展的路由表（`api/routes.py`）。
+#
+# · 默认走新表；`LEGACY_ROUTER=1` 回退旧长链（回滚只需一个环境变量）。
+# · 表在**首次请求时**才构造：此时模块已完全加载，`globals()` 里所有处理函数
+#   都已就位，避免导入期循环依赖。
+# · 匹配不到仍抛 `LookupError("接口不存在")`，与旧实现完全一致。
+_ROUTER = None
+_ROUTER_LOCK = threading.Lock()
+LEGACY_ROUTER = os.environ.get("LEGACY_ROUTER", "0") == "1"
+
+
+def _router():
+    global _ROUTER
+    if _ROUTER is None:
+        with _ROUTER_LOCK:
+            if _ROUTER is None:
+                from api.routes import build as _build_routes
+                _ROUTER = _build_routes(globals())
+    return _ROUTER
+
+
+def route_v1(path, params):
+    """`/api/v1` 统一分发入口。"""
+    if LEGACY_ROUTER:
+        return _route_v1_legacy(path, params)
+    return _router().resolve(path, params)
 
 
 def _v1_signals_merged(params):
@@ -3340,9 +3495,15 @@ def _v1_signals_merged(params):
     """
     base = v1_signals(params)
     if live is None:
-        base["quality"] = {"status": (base.get("quality") or {}).get("status", "ok"),
+        # 契约修复（SIGNAL-UI-LINK-07-R1）：原写法把 `status` 保留成旧适配层的 `ok`，
+        # 只在 `note` 里写「不可用」⇒ 前端按契约判 `status` 就会把它当**正常空列表**，
+        # 「数据源未连接」于是显示成「暂无信号」。现在三件事一起给：
+        # `status=not_connected` + `missing_reason` 明确写原因 + 保留原始说明。
+        _why = _LIVE_IMPORT_ERROR or "模块未加载（import 未完成或已被显式关闭）"
+        base["quality"] = {"status": "not_connected",
                            "age_seconds": None,
-                           "note": f"实时信号层不可用：{_LIVE_IMPORT_ERROR}"}
+                           "note": f"实时信号层不可用：{_why}"}
+        base["missing_reason"] = f"实时信号层不可用：{_why}"
         return base
     scope = live._scope_of(params)
     is_current = scope == live.CURRENT_SCOPE
@@ -3363,15 +3524,24 @@ def _v1_signals_merged(params):
     try:
         lv = live.live_signals(params)
     except Exception as exc:                          # noqa: BLE001
-        base["quality"] = {"status": (base.get("quality") or {}).get("status", "ok"),
+        # 同一条契约修复：读取异常必须让 `status=error` + `missing_reason` 落到响应里，
+        # 否则前端只能看到「200 + 0 条」，与「真的没有信号」不可区分。
+        base["quality"] = {"status": "error",
                            "age_seconds": None,
                            "note": f"实时信号层读取失败：{type(exc).__name__}: {exc}"}
+        base["missing_reason"] = f"实时信号层读取失败：{type(exc).__name__}: {exc}"
         return base
     live_items = lv.get("items") or []
     # 实时层自报的身份**优先**（它绑定的是这次真实读库所用的口径）
     for _k in _ident_keys:
         if lv.get(_k) is not None:
             base[_k] = lv[_k]
+    # `as_of` 例外（SIGNAL-UI-LINK-07）：实时层**明确给出 None**（当前区空表）时，
+    # 不得回落到旧适配层 `envelope()` 里那句 `iso(STORE.clock())` —— 那会把
+    # 「没有任何数据」显示成「数据截至 <现在>」，与「有数据但刚好在现在」不可区分。
+    # 只在当前区生效；审计通道仍用旧行为（历史表有数据，as_of 取 now 是合理的读库时刻）。
+    if is_current:
+        base["as_of"] = lv.get("as_of")
     # 当前交易信号区**不含**库内 `signals` 表（历史研究路径）；审计通道才合并。
     db_items = [] if is_current else (base.get("items") or [])
     merged = live_items + db_items
@@ -3438,7 +3608,7 @@ class Handler(BaseHTTPRequestHandler):
     _HEAVY_SEM = threading.BoundedSemaphore(_HEAVY_SLOTS)
     # 轻量（实时/纸面/健康）路径前缀：这些接口是「页面轮询 + 验收探针」的主路径
     _LIGHT_PREFIXES = ("/api/v1/health", "/api/v1/live/", "/api/v1/paper/",
-                       "/api/v1/accounts", "/api/v1/backtests", "/api/health", "/health")
+                       "/api/v1/accounts", "/api/v1/signals", "/api/v1/backtests", "/api/health", "/health")
     # 观测计数（供 /api/v1/health 暴露；只增不改任何业务语义）
     CLIENT_ABORTS = 0
     REQUESTS = 0
@@ -3625,6 +3795,24 @@ class Handler(BaseHTTPRequestHandler):
                             f"纸面模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
                     else:
                         body, status = live.paper_order_post(payload)
+                elif parsed.path == "/api/v1/paper/advance_trailing":
+                    if live is None:
+                        body, status = _live_missing(
+                            f"纸面模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
+                    else:
+                        body, status = live.paper_advance_trailing_post(payload)
+                elif parsed.path in ("/api/v1/paper/control", "/api/v1/paper/toggle_gate"):
+                    if live is None:
+                        body, status = _live_missing(
+                            f"纸面模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
+                    else:
+                        body, status = live.paper_toggle_gate(payload)
+                elif parsed.path == "/api/v1/signals/clear":
+                    if live is None:
+                        body, status = _live_missing(
+                            f"实时模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
+                    else:
+                        body, status = live.clear_signals(payload)
                 else:
                     body, status = {"错误": "接口不存在"}, 404
             except LookupError as exc:
@@ -3720,6 +3908,25 @@ def _prewarm():
             _ttl(key, ttl_s, g[fname])
         except Exception:                                  # noqa: BLE001
             pass
+    # `/api/v1/data/feeds` 首次冷查约 4.5 s（扫 oi_history 6.7M 行 +
+    # funding_history 2.1M 行，且进程刚起时 OS 页缓存是冷的）。
+    # 它自己已有「先给旧值、后台刷新」策略，但**进程启动后第一个请求**
+    # 仍然没有旧值可用。这里在预热阶段先把它跑一遍，让真实用户不吃这一次。
+    try:
+        _dc = g.get("datacenter")
+        if _dc is not None:
+            _dc.get_data_feeds_status()
+    except Exception as _exc:                              # noqa: BLE001
+        print(f"[adapter] 预热 data/feeds 失败（不影响服务）：{_exc}", flush=True)
+    # `/api/v1/data/cold-archive-status` 的整轮实检约 6.3 秒
+    # （全量 stat 0.03s + 全量 Parquet 行数 3.4s + 5% 哈希抽样 2.6s）。
+    # 它在画布第 3 段被读，且结果 TTL 600 秒，没有理由让用户吃这 6 秒。
+    try:
+        _m = g.get("metrics_api")
+        if _m is not None:
+            _m.handle_cold_archive_status()
+    except Exception as _exc:                              # noqa: BLE001
+        print(f"[adapter] 预热 cold-archive-status 失败（不影响服务）：{_exc}", flush=True)
     print(f"[adapter] 预热完成（库级索引已进 TTL 缓存）用时 {time.time()-t0:.2f}s",
           flush=True)
 

@@ -19,6 +19,11 @@ import type {
   RawSignal,
 } from './types';
 import { ApiError, apiGet, marketPath, unwrapItems } from './client';
+import {
+  classifySignalsEnvelope,
+  classifySignalsError,
+  type SignalsState,
+} from './signalsState';
 import { fetchSmartMoney } from './smartMoney';
 import { inferFundingPeriod } from './fundingPeriod';
 import {
@@ -259,6 +264,19 @@ export interface MarketData {
   tokens: TokenMarketItem[];
   publicExtras: Record<string, PublicExtrasView>;
   signals: CryptoSignal[];
+  /**
+   * **实时信号区的三态**（SIGNAL-UI-LINK-07-R1）。
+   *
+   * `loading` / `ok`（含正常 0 条）/ `fault`（六种故障，各自带原因）。
+   * 页面必须按这个字段分支，**不得**再用「`signalsError` 是否为空」来猜状态 ——
+   * 那正是「业务异常被显示成空列表」的来源。
+   */
+  signalsState: SignalsState;
+  /**
+   * 兼容字段：仅在 `signalsState.kind === 'fault'` 时有值（等于 `message`）。
+   * 新代码请读 `signalsState`。
+   */
+  signalsError: string | null;
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -279,6 +297,18 @@ export interface MarketData {
    */
   noteVisibleRows: (ids: string[]) => void;
   /**
+   * 声明「交易工作台是否在前台」。三个按行 pump（迷你图 / 资金费率周期 /
+   * public-extras）只在为 true 时取数 —— 它们服务的只有工作台那张行情表，
+   * 切到其它大类页后继续跑纯属空耗（且会拖慢后端单线程）。
+   * 由 false 切回 true 时会立刻补跑一轮，避免回来先看到过期数据。
+   */
+  setWorkbenchActive: (active: boolean) => void;
+  /**
+   * 设置全池轮询间隔。工作台/数据中心用 5s（要实时看盘），
+   * 策略管理/回测复盘用 30s（不展示行情表，只需顶部状态条不僵死）。
+   */
+  setRefreshInterval: (ms: number) => void;
+  /**
    * 逐合约的**已核对结算周期（小时）**快照，只包含已得出结论的合约。
    * `8` ⇒ 可输出「资金费率 (8h)」口径；其他值或缺失 ⇒ 该位空态。
    */
@@ -290,6 +320,11 @@ export interface MarketData {
 export function useMarketData(): MarketData {
   const [tokens, setTokens] = useState<TokenMarketItem[]>([]);
   const [signals, setSignals] = useState<CryptoSignal[]>([]);
+  /**
+   * 实时信号区状态。初值 `loading` —— 首次响应回来之前**不许**说「没有信号」。
+   * 旧实现只有 `signalsError`（初始 null）⇒ 首帧就落空态，等于替后端提前下了结论。
+   */
+  const [signalsState, setSignalsState] = useState<SignalsState>({ kind: 'loading' });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -306,6 +341,28 @@ export function useMarketData(): MarketData {
   const rawById = useRef<Map<string, RawMarket>>(new Map());
   const refreshBusy = useRef(false);
   const alive = useRef(true);
+  /**
+   * 「交易工作台是否在前台」闸门（2026-10-17 全局体检新增）。
+   *
+   * 三个 pump（迷你图 / 资金费率周期 / public-extras）都是**按行取数**，
+   * 只对工作台那张行情表有意义。它们由常驻定时器驱动，原先不看当前页面 ——
+   * 实测切到策略管理后 22 秒内仍发出 29 次 `/candles`、17 次 `/funding`，
+   * 全部是用户看不见的请求（后端单线程，会被这些请求拖慢真正要用的接口）。
+   *
+   * 用 ref 而不是 state：pump 是 `useCallback` + `setInterval` 驱动的，
+   * 放进依赖会重建定时器；这里只需要「读当下值」，ref 足够且零重渲染。
+   */
+  const workbenchActive = useRef(true);
+  /**
+   * 全池轮询间隔（毫秒）。默认 5s；切到不展示行情表的大类页时由
+   * `setRefreshInterval` 调到 30s。
+   *
+   * 为什么值得单独做：`/markets` 单次响应约 4.3MB（549 个合约 + 聚合字段），
+   * 5s 一轮 ≈ 860KB/s。回测复盘页首屏要等后端单线程扫 576 个 run 目录，
+   * 这些全池轮询会直接和它抢时间。降频只影响「多久刷新一次」，
+   * 不影响任何数值口径 —— 数据本身仍然来自同一次真实响应。
+   */
+  const [pollMs, setPollMs] = useState(REFRESH_MS);
 
   /**
    * 迷你图状态：按合约记录「上次成功时间 / 连续失败次数 / 下次可尝试时间」。
@@ -644,14 +701,32 @@ export function useMarketData(): MarketData {
          */
         const env = await apiGet<Envelope<RawSignal>>('/signals?scope=current&limit=500', ctrl.signal);
         if (!alive.current) return;
+
+        // ── 契约分类（SIGNAL-UI-LINK-07-R1）─────────────────────────────────
+        // 缺陷：原实现只要 HTTP 200 就 `setSignalsError(null)`，于是
+        //   `quality.status='no_watermark'`（有效下限缺失）/
+        //   `'not_connected'`（实时层未接通）/ `'error'`（后端读库抛异常）
+        // 全被压成「空列表」——用户看到「暂无信号」，真相却是「根本没法判定」。
+        // 现在按契约分流：正常 / 业务故障；`quality.note` 单独出现**不**算故障。
+        const st = classifySignalsEnvelope(env);
+        if (st.kind === 'fault') {
+          // 业务故障同样清空列表：绝不让上一轮的卡片继续冒充「当前有效信号」
+          setSignals([]);
+          setSignalsState(st);
+          return;
+        }
         const map = new Map<string, string>();
         rawById.current.forEach((r, id) => {
           if (r.base) map.set(id, r.base);
         });
         setSignals(adaptSignals(env, map));
-      } catch {
-        // 信号接口不可用时保持空列表（原版空态），不补造信号
-        if (alive.current) setSignals([]);
+        setSignalsState(st);
+      } catch (err: any) {
+        // 传输层失败（HTTP 非 2xx / 连不上 / 响应不是 JSON）：同样清空 + 分类，不冒充空态
+        if (!alive.current) return;
+        if (err?.name === 'AbortError') return; // 卸载或主动取消，不是故障
+        setSignals([]);
+        setSignalsState(classifySignalsError(err));
       }
     }
 
@@ -662,14 +737,14 @@ export function useMarketData(): MarketData {
       pull(false);
       pullSignals();
       pullHealth();
-    }, REFRESH_MS);
+    }, pollMs);
 
     return () => {
       alive.current = false;
       clearInterval(timer);
       ctrl.abort();
     };
-  }, []);
+  }, [pollMs]);
 
   /**
    * 有界明细刷新：只针对「当前展开的那一个合约」，全池明细不做任何扫描。
@@ -696,6 +771,7 @@ export function useMarketData(): MarketData {
    * - 每轮最多 SPARKLINE_MAX_PER_PUMP 行、节拍 20s，绝不对全池扫明细。
    */
   const pumpSparklines = useCallback(() => {
+    if (!workbenchActive.current) return; // 不在工作台：整批停（见 workbenchActive 注释）
     if (sparkPumping.current) return;
     const now = Date.now();
     const todo = Array.from(visibleRowIds.current)
@@ -772,6 +848,7 @@ export function useMarketData(): MarketData {
    * 不做全池高频扫描：一轮补扫 20 条 × 3 并发，全池约 7 分钟走完，之后 6 小时内不再请求。
    */
   const pumpFundingPeriods = useCallback(() => {
+    if (!workbenchActive.current) return; // 不在工作台：整批停
     if (fundingPumping.current) return;
     // 全池列表请求在途时让路，避免与 4.3MB 的 /markets 争抢单线程后端
     if (refreshBusy.current) return;
@@ -872,6 +949,7 @@ export function useMarketData(): MarketData {
    * 因此只覆盖当前屏幕上的行；滚动到新行时由 `noteVisibleRows` 触发。
    */
   const pumpPublicExtras = useCallback((force = false): void => {
+    if (!workbenchActive.current) return; // 不在工作台：整批停
     if (extrasPumping.current) return;
     if (extrasRouteAbsent.current) return; // 路由未接线：本会话不再探测
     if (refreshBusy.current) return; // 全池列表请求在途时让路
@@ -1073,6 +1151,24 @@ export function useMarketData(): MarketData {
     [pumpSparklines, pumpFundingPeriods, pumpPublicExtras],
   );
 
+  /**
+   * 前台开关：切出交易工作台时关掉三个按行 pump，切回来时立刻补一轮。
+   * 补一轮是必要的 —— 离开期间这些行可能已经 TTL 过期，回来若不补，
+   * 首屏会先显示旧迷你图/旧费率，直到下一个 20s tick 才更新。
+   */
+  const setWorkbenchActive = useCallback(
+    (active: boolean) => {
+      const was = workbenchActive.current;
+      workbenchActive.current = active;
+      if (active && !was) {
+        pumpSparklines();
+        pumpFundingPeriods();
+        pumpPublicExtras();
+      }
+    },
+    [pumpSparklines, pumpFundingPeriods, pumpPublicExtras],
+  );
+
   /** 定时重跑：覆盖 TTL 过期与退避到期的重试；节拍 20s，不是列表的 5s。 */
   useEffect(() => {
     const timer = setInterval(pumpSparklines, SPARKLINE_TICK_MS);
@@ -1131,6 +1227,9 @@ export function useMarketData(): MarketData {
     tokens: tokensWithExtras,
     publicExtras,
     signals,
+    signalsState,
+    // 兼容旧字段：只有真故障才有值，正常空列表恒 null（不再把「200 + 0 条」写成错误）
+    signalsError: signalsState.kind === 'fault' ? signalsState.message : null,
     loading,
     refreshing,
     error,
@@ -1140,6 +1239,8 @@ export function useMarketData(): MarketData {
     ensureDetail,
     setActiveDetailId,
     noteVisibleRows,
+    setWorkbenchActive,
+    setRefreshInterval: setPollMs,
     fundingPeriodHours,
     importedAt,
   };

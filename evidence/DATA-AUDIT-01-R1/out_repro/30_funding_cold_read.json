@@ -1,0 +1,15 @@
+{
+  "stats_at_utc": "2026-10-26T03:38:54Z",
+  "population": "全量（批准池 526 币逐个调用生产读接口，无抽样）",
+  "query": "repo = MarketDataRepository.from_archive(HOT_DB, ARCHIVE); repo.funding('binance','um',<sym>,prefer='cold',limit=500)",
+  "interface": "框架/backend/market_repository.py::MarketDataRepository.funding",
+  "shard_rule": "_flat_shards 拼 {archive}/funding/binance/um/{symbol}/ 再 glob *.parquet",
+  "symbols": 526,
+  "symbols_with_flat_file_on_disk": 526,
+  "symbols_with_cold_shards_found": 0,
+  "cold_rows_total": 0,
+  "hot_rows_total": 261364,
+  "symbols_cold_zero": 526,
+  "symbols_cold_zero_pct": 100.0,
+  "verdict": "冷读恒 0 行不是没数据：526 个币的平铺文件都在盘上，但 `_flat_shards` 找的是 `{SYMBOL}/` 目录 ⇒ 分片恒为空 ⇒ 返回 0 行"
+}

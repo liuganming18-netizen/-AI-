@@ -1,0 +1,235 @@
+{
+  "工单": "FT-LOW4H-GRID-AUDIT-01 开跑前核对",
+  "状态": "READY_有问题",
+  "上游已产出": false,
+  "问题数": 8,
+  "问题": [
+    "P2_止损取价/源码断言: ['取的是 low 列（不是 close/l10）', '不得出现 l10（本轮不是 L10 跟踪）']",
+    "P3_入场即跟踪/2R 门槛标识符命中: ['actual_r', 'trigger_2r']",
+    "P3_入场即跟踪/代码中 2R 字面量: ['2.0 * actual_r']",
+    "P3_入场即跟踪/首次调用即允许上移（无激活前置）: False",
+    "P8_属性贯通/派生类声明但基类全文未引用的属性: 这些属性对行为无影响：['trail_d']",
+    "P8_属性贯通/基类读取但派生类未声明（恒取默认值）: 这些属性在所有 144 组里取同一个默认值：['stoploss_pct']",
+    "P8_属性贯通/跟踪距离被基类读取的组合数: trail_d 未被读取 ⇒ 4 种跟踪距离全部无效",
+    "P8_属性贯通/各组实际风险占权益（应恒为 0.005）: 实际取值 [0.005, 0.006667, 0.01, 0.02]"
+  ],
+  "明细": {
+    "0_上游": {
+      "状态": {
+        "上游目录": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-LOW4H-GRID-01",
+        "目录存在": true,
+        "策略目录存在": true,
+        "结果目录存在": true,
+        "策略文件数": 145,
+        "逐笔结果文件数": 0,
+        "逐笔结果字节数": 0,
+        "报告文件": [],
+        "code 脚本": [
+          "00_generate_strategies.py",
+          "01_run_all_grid_backtests.py",
+          "02_reconcile_and_analyze.py",
+          "03_register_system_runs.py"
+        ],
+        "可用": false
+      },
+      "可用（有逐笔结果）": false
+    },
+    "D_数据": {
+      "文件分类": {
+        "15m-futures": 74,
+        "1h-funding_rate": 74,
+        "1h-futures": 74,
+        "1h-mark": 74,
+        "4h-futures": 74,
+        "5m-open_interest": 74,
+        "8h-funding_rate": 74
+      },
+      "4h K 线文件数": 74,
+      "15m K 线文件数": 74,
+      "4h 起点未对齐 4h 网格的文件": [],
+      "步长非 4h 的文件": [],
+      "存在重复时刻的文件": [],
+      "存在缺口的文件数": 0,
+      "缺口明细（前 10）": {},
+      "4h 总根数": 298310,
+      "上一轮冻结参数（作为本轮对照基线）": {
+        "max_open_trades": 3,
+        "dry_run_wallet": 2000,
+        "timeframe": "15m",
+        "fee": 0.0005,
+        "trading_mode": "futures",
+        "margin_mode": "cross",
+        "stake_amount": "unlimited",
+        "tradable_balance_ratio": 0.99
+      },
+      "上一轮 timerange（运行脚本内）": [
+        "20211201-20241231"
+      ]
+    },
+    "P1_规模": {
+      "策略文件数": 144,
+      "组合数": 16,
+      "组合名单": [
+        "S05_D05",
+        "S05_D10",
+        "S05_D15",
+        "S05_D20",
+        "S10_D05",
+        "S10_D10",
+        "S10_D15",
+        "S10_D20",
+        "S15_D05",
+        "S15_D10",
+        "S15_D15",
+        "S15_D20",
+        "S20_D05",
+        "S20_D10",
+        "S20_D15",
+        "S20_D20"
+      ],
+      "组合×参数组 去重格数": 144,
+      "缺失格": [],
+      "参数组名不在冻结名单内": [],
+      "逐文件参数错位": [],
+      "各类属性取值集合（组合间差异维度）": {
+        "stoploss_s": [
+          0.05,
+          0.1,
+          0.15,
+          0.2
+        ],
+        "trail_d": [
+          0.05,
+          0.1,
+          0.15,
+          0.2
+        ],
+        "c_vol_ratio_vs": [
+          0.4,
+          0.6,
+          0.8
+        ],
+        "c_retest_zone_atr": [
+          0.2,
+          0.4,
+          0.6
+        ]
+      }
+    },
+    "P2_止损取价": {
+      "基类文件": "WyckoffLow4hGridBase.py",
+      "基类SHA256": "82e2a3e1a9c494e00d6b16c67a56a5bb29455781efdef03b6503127360ce6db6",
+      "源码断言": {
+        "过滤条件含 close_ms <= 决策时刻": true,
+        "取的是 low 列（不是 close/l10）": false,
+        "取的是最后一根（iloc[-1] 或 tail）": true,
+        "止损 = 基准价 × (1 − 比例)": true,
+        "不得出现 l10（本轮不是 L10 跟踪）": false
+      },
+      "custom_stoploss 源码": "def custom_stoploss(self, pair: str, trade: Trade, current_time: datetime,\n                        current_rate: float, current_profit: float, after_fill: bool,\n                        **kwargs) -> Optional[float]:\n        cands = self.pair_candidates.get(pair, [])\n        cand = next((c for c in cands if c.candidate_id == trade.enter_tag), None)\n\n        if not cand or cand.initial_stop_price is None or math.isnan(cand.initial_stop_price) or cand.initial_stop_price <= 0:\n            err_msg = (f\"[{pair}] 持仓 trade_id={trade.id} 候选唯一绑定异常！\"\n                       f\"enter_tag={trade.enter_tag}, cand={cand}。严禁静默使用假止损！\")\n            logger.error(err_msg)\n            return -0.99\n\n        actual_entry = float(trade.open_rate)\n        pct = float(getattr(self, \"stoploss_pct\", 0.20))\n        \n        # FT-LOW4H-GRID-01: 初始止损与 1R 冻结\n        initial_stop = actual_entry * (1.0 - pct)\n        actual_r = actual_entry * pct\n        trigger_2r = actual_entry + 2.0 * actual_r  # 2R 启动价格，1R 永久冻结\n\n        t_id = trade.id or 0\n        state = self.active_trade_stop_state.get(t_id)\n        if state is None:\n            state = {\n                \"cand_id\": cand.candidate_id,\n                \"p0\": initial_stop,\n                \"current_stop\": initial_stop,\n                \"is_2r_activated\": False,\n                \"entry_time_ms\": _to_timestamp_ms(trade.open_date_utc)\n            }\n            self.active_trade_stop_state[t_id] = state\n\n        current_ms = _to_timestamp_ms(current_time)\n        entry_ms = state[\"entry_time_ms\"]\n\n        # 原版跟踪算法: 已收盘 4 小时 K 线判定 2R 激活与 4h L10 单向棘轮更新\n        df_4h_info = self.pair_4h_df.get(pair)\n        if df_4h_info is not None and not df_4h_info.empty:\n            sub_4h = df_4h_info[(df_4h_info[\"close_ms\"] <= current_ms) & (df_4h_info[\"close_ms\"] >= entry_ms)]\n            if not sub_4h.empty:\n                if not state[\"is_2r_activated\"]:\n                    max_4h_close = float(sub_4h[\"close\"].max())\n                    if max_4h_close >= trigger_2r:\n                        state[\"is_2r_activated\"] = True\n\n                if state[\"is_2r_activated\"]:\n                    latest_l10 = float(sub_4h[\"l10\"].iloc[-1])\n                    if math.isfinite(latest_l10) and latest_l10 > state[\"current_stop\"]:\n                        state[\"current_stop\"] = latest_l10\n\n        effective_stop = state[\"current_stop\"]\n\n        if current_rate <= effective_stop:\n            return 0.0\n\n        stoploss_ratio = (effective_stop - current_rate) / current_rate\n        return float(stoploss_ratio)"
+    },
+    "P3_入场即跟踪": {
+      "2R 门槛标识符命中": [
+        "actual_r",
+        "trigger_2r"
+      ],
+      "代码中 2R 字面量": [
+        "2.0 * actual_r"
+      ],
+      "首次调用即允许上移（无激活前置）": false
+    },
+    "P4_取消超时": {
+      "custom_exit 唯一语句是 return None": true,
+      "代码中 240h/持仓时长字面量": []
+    },
+    "P5_只上移": {
+      "对 current_stop 的赋值语句": [
+        "state[\"current_stop\"] = latest_l10"
+      ],
+      "赋值仅一处且紧跟严格上移判断": true,
+      "引擎 adjust_stop_loss 只上移": true,
+      "返回 0.0 语义 = 不改写（不是止损=现价）": true
+    },
+    "P6_仓位": {
+      "源码断言": {
+        "risk_budget = equity × 0.005": true,
+        "按 成交价−初始止损 的风险距离算数量": true,
+        "超预算/最小下单额硬性拒单（return 0.0）": true,
+        "单笔名义上限": true,
+        "流动性上限": true
+      },
+      "custom_stake_amount 源码": "def custom_stake_amount(self, pair: str, current_time: datetime, current_rate: float,\n                            proposed_stake: float, min_stake: Optional[float], max_stake: float,\n                            leverage: float, entry_tag: Optional[str], side: str,\n                            **kwargs) -> float:\n        if not entry_tag:\n            return 0.0\n\n        cands = self.pair_candidates.get(pair, [])\n        cand = next((c for c in cands if c.candidate_id == entry_tag), None)\n\n        if not cand:\n            return 0.0\n\n        # FT-STOP-GRID-01: 按各自止损档位比例估算风险距离\n        s = float(getattr(self, \"stoploss_s\", 0.05))\n        r_dist = current_rate * s\n        if r_dist <= 0:\n            return 0.0\n\n        equity = self.wallets.get_total_stake_amount()\n        risk_budget = equity * 0.005  # 每笔账户风险预算维持 0.5%\n        qty = risk_budget / r_dist\n        raw_stake = qty * current_rate  # = risk_budget / s\n\n        # FT-STOP-GRID-01 严格约束: 最小下单单位导致超过风险预算时硬性拒单，不能强行向上取整超额下单\n        if min_stake is not None and min_stake > 0:\n            if raw_stake < min_stake:\n                logger.info(f\"[{pair}] raw_stake={raw_stake:.4f} < min_stake={min_stake:.4f}，超出风险预算硬性拒单\")\n                return 0.0\n\n        max_single = equity * 0.30\n        stake = min(raw_stake, max_single)\n\n        qv_cache = self.quote_volume_cache.get(pair)\n        if qv_cache is not None and not qv_cache.empty:\n            curr_ms = _to_timestamp_ms(current_time)\n            prior_vols = qv_cache.loc[qv_cache.index < curr_ms]\n            if not prior_vols.empty:\n                prev_qv = prior_vols.iloc[-1]\n                if prev_qv > 0:\n                    liq_cap = prev_qv * 0.001\n                    stake = min(stake, liq_cap)\n\n        return float(stake)"
+    },
+    "P8_属性贯通": {
+      "custom_stoploss 读取的属性": [
+        "stoploss_pct"
+      ],
+      "custom_stake_amount 读取的属性": [
+        "stoploss_s"
+      ],
+      "基类类属性": {
+        "stoploss_pct": 0.2,
+        "stoploss_scheme": "S",
+        "INTERFACE_VERSION": 3,
+        "timeframe": "15m",
+        "can_short": false,
+        "minimal_roi": {
+          "0": 100.0
+        },
+        "stoploss": -0.99,
+        "use_custom_stoploss": true,
+        "use_exit_signal": true,
+        "exit_profit_only": false,
+        "ignore_roi_if_entry_signal": false,
+        "startup_candle_count": 800,
+        "timing_mode": "baseline",
+        "enable_oi_filter": true,
+        "a_entry_level_atr_offset": 0.5,
+        "a_volume_multiplier": 1.0,
+        "c_vol_ratio_vs": 0.8,
+        "c_retest_zone_atr": 0.5
+      },
+      "派生类声明的属性": [
+        "c_retest_zone_atr",
+        "c_vol_ratio_vs",
+        "stoploss_s",
+        "timing_mode",
+        "trail_d"
+      ],
+      "派生类声明但基类全文未引用的属性": [
+        "trail_d"
+      ],
+      "基类读取但派生类未声明（恒取默认值）": [
+        "stoploss_pct"
+      ],
+      "止损实际比例的取值集合": [
+        0.2
+      ],
+      "16 种组合是否真的产生 16 种不同止损比例": false,
+      "跟踪距离被基类读取的组合数": 0,
+      "各组实际风险占权益（应恒为 0.005）": [
+        0.005,
+        0.006667,
+        0.01,
+        0.02
+      ]
+    },
+    "P7_其余不变": {
+      "pair_eligibility_rules SHA 相同": true,
+      "FT-STOP-GRID-02 data 路径": {
+        "存在": true,
+        "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data"
+      },
+      "FT-LOW4H-GRID-01 data 路径": {
+        "存在": true,
+        "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/user_data/data"
+      },
+      "两轮数据文件数（ENTRY-02 / FACTOR-03）": [
+        518,
+        518
+      ],
+      "两轮数据逐文件 SHA-256 是否全同": true,
+      "说明": "FT-LOW4H-GRID-01 的 data 软链指向 FT-FACTOR-03，与 FT-STOP-GRID-02 指向的 FT-ENTRY-02 是两个目录但内容逐文件相同 ⇒ 数据可比"
+    }
+  }
+}

@@ -1,0 +1,4848 @@
+{
+ "工单": "ACCUM-EARLY-06-W4-R2",
+ "判据参数": {
+  "match_tol_ms": 1000,
+  "phase_min_support": 10,
+  "phase_min_frac": 0.98,
+  "context_days": 30,
+  "local_days": 7,
+  "boundary_ms": 900000,
+  "为什么容差 1s": "实测毫秒尾数最大 11ms（01 已登记）；1s 远大于抖动、远小于最小周期 1h",
+  "为什么局部 7 天": "判「持仓当时的周期」不能用 30 天：30 天内可能含别的周期段"
+ },
+ "汇总": {
+  "candidates": 51,
+  "completeness_dist": {
+   "NO_GAP_DETECTED": 51
+  },
+  "claim_dist": {
+   "PROVEN": 44,
+   "NOT_PROVEN": 7
+  },
+  "interval_basis_dist": {
+   "official_snapshot": 46,
+   "inferred_uniform": 5
+  },
+  "r1_missing_total": 188,
+  "r2_missing_total": 0,
+  "r1_would_flag_candidates": 38,
+  "r2_flag_candidates": 0,
+  "candidates_with_off_grid_events": 0,
+  "candidates_where_phase_shift_changes_grid": 0,
+  "candidates_with_field_defect": 0,
+  "candidates_with_boundary_jitter": 2,
+  "boundary_jitter_events": 2,
+  "boundary_dependent_candidates": 2,
+  "trivial_holds": 4
+ },
+ "per_candidate": [
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 47,
+   "local_interval_dist": {
+    "8.0": 46
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 47,
+   "phase_total": 47,
+   "phase_residues": {
+    "0": 185
+   },
+   "context_events": 185,
+   "context_lo_utc": "2026-06-26T07:15:00Z",
+   "context_hi_utc": "2026-08-26T22:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-26T08:00:00Z",
+    "2026-07-26T16:00:00Z",
+    "2026-07-27T00:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T16:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-07-26T08:00:00Z",
+    "2026-07-26T16:00:00Z",
+    "2026-07-27T00:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T16:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 10,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 3,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+   "symbol": "1000PEPEUSDT",
+   "entry_ms": 1785050100000,
+   "entry_utc": "2026-07-26T07:15:00Z",
+   "exit_ms": 1785191400000,
+   "exit_utc": "2026-07-27T22:30:00Z",
+   "hold_hours": 39.25,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1697703241715,
+    "update_utc": "2023-10-19T08:14:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3287,
+     "agree_with_official": 3287,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 89,
+   "local_interval_dist": {
+    "4.0": 88
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 89,
+   "phase_total": 89,
+   "phase_residues": {
+    "0": 365
+   },
+   "context_events": 365,
+   "context_lo_utc": "2026-08-08T09:15:00Z",
+   "context_hi_utc": "2026-10-08T07:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-07T12:00:00Z",
+    "2026-09-07T16:00:00Z",
+    "2026-09-07T20:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T04:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-09-07T12:00:00Z",
+    "2026-09-07T16:00:00Z",
+    "2026-09-07T20:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T04:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+   "symbol": "AGTUSDT",
+   "entry_ms": 1788772500000,
+   "entry_utc": "2026-09-07T09:15:00Z",
+   "exit_ms": 1788852600000,
+   "exit_utc": "2026-09-08T07:30:00Z",
+   "hold_hours": 22.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1747737424690,
+    "update_utc": "2025-05-20T10:37:04Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3101,
+     "agree_with_official": 3100,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 86,
+   "local_interval_dist": {
+    "4.0": 85
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 86,
+   "phase_total": 86,
+   "phase_residues": {
+    "0": 362
+   },
+   "context_events": 362,
+   "context_lo_utc": "2026-08-08T07:15:00Z",
+   "context_hi_utc": "2026-10-07T15:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 2,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T12:00:00Z"
+   ],
+   "actual_count_strict": 2,
+   "actual_count_with_boundary_tol": 2,
+   "actual_instants_utc": [
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T12:00:00Z"
+   ],
+   "matched_count": 2,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 2,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+   "symbol": "AIGENSYNUSDT",
+   "entry_ms": 1788765300000,
+   "entry_utc": "2026-09-07T07:15:00Z",
+   "exit_ms": 1788795900000,
+   "exit_utc": "2026-09-07T15:45:00Z",
+   "hold_hours": 8.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1777470361463,
+    "update_utc": "2026-04-29T13:46:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1036,
+     "agree_with_official": 1035,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 98,
+   "local_interval_dist": {
+    "4.0": 97
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 98,
+   "phase_total": 98,
+   "phase_residues": {
+    "0": 374
+   },
+   "context_events": 374,
+   "context_lo_utc": "2026-08-22T04:15:00Z",
+   "context_hi_utc": "2026-10-23T16:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 15,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z",
+    "2026-09-23T16:00:00Z"
+   ],
+   "actual_count_strict": 14,
+   "actual_count_with_boundary_tol": 15,
+   "actual_instants_utc": [
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 15,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "网格内无缺失，但 1 个预期时刻只由「端点毫秒抖动」事件满足（严格判据本不纳入）⇒ 退出同刻有歧义，不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [
+    {
+     "funding_time": 1790179200004,
+     "funding_utc": "2026-09-23T16:00:00Z",
+     "at": "exit",
+     "offset_ms": 4,
+     "strict_rule_includes": false
+    }
+   ],
+   "boundary_jitter_count": 1,
+   "boundary_dependent_count": 1,
+   "boundary_dependent_instants_utc": [
+    "2026-09-23T16:00:00Z"
+   ],
+   "boundary_status": "boundary_dependent",
+   "r1_口径对照": {
+    "expected_epoch0_count": 15,
+    "missing_exact_ms_count": 9,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+   "symbol": "AIGENSYNUSDT",
+   "entry_ms": 1789964100000,
+   "entry_utc": "2026-09-21T04:15:00Z",
+   "exit_ms": 1790179200000,
+   "exit_utc": "2026-09-23T16:00:00Z",
+   "hold_hours": 59.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1777470361463,
+    "update_utc": "2026-04-29T13:46:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1036,
+     "agree_with_official": 1035,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 95,
+   "local_interval_dist": {
+    "4.0": 94
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 95,
+   "phase_total": 95,
+   "phase_residues": {
+    "0": 371
+   },
+   "context_events": 371,
+   "context_lo_utc": "2026-07-20T21:15:00Z",
+   "context_hi_utc": "2026-09-20T19:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 11,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z"
+   ],
+   "actual_count_strict": 11,
+   "actual_count_with_boundary_tol": 11,
+   "actual_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z"
+   ],
+   "matched_count": 11,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 11,
+    "missing_exact_ms_count": 7,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+   "symbol": "ASTERUSDT",
+   "entry_ms": 1787174100000,
+   "entry_utc": "2026-08-19T21:15:00Z",
+   "exit_ms": 1787338800000,
+   "exit_utc": "2026-08-21T19:00:00Z",
+   "hold_hours": 45.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1758283340973,
+    "update_utc": "2025-09-19T12:02:20Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2368,
+     "agree_with_official": 2367,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 117,
+   "local_interval_dist": {
+    "4.0": 116
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 117,
+   "phase_total": 117,
+   "phase_residues": {
+    "0": 393
+   },
+   "context_events": 393,
+   "context_lo_utc": "2026-08-19T02:15:00Z",
+   "context_hi_utc": "2026-10-23T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 33,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-18T04:00:00Z",
+    "2026-09-18T08:00:00Z",
+    "2026-09-18T12:00:00Z",
+    "2026-09-18T16:00:00Z",
+    "2026-09-18T20:00:00Z",
+    "2026-09-19T00:00:00Z",
+    "2026-09-19T04:00:00Z",
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "actual_count_strict": 33,
+   "actual_count_with_boundary_tol": 33,
+   "actual_instants_utc": [
+    "2026-09-18T04:00:00Z",
+    "2026-09-18T08:00:00Z",
+    "2026-09-18T12:00:00Z",
+    "2026-09-18T16:00:00Z",
+    "2026-09-18T20:00:00Z",
+    "2026-09-19T00:00:00Z",
+    "2026-09-19T04:00:00Z",
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 33,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 33,
+    "missing_exact_ms_count": 14,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+   "symbol": "AXSUSDT",
+   "entry_ms": 1789697700000,
+   "entry_utc": "2026-09-18T02:15:00Z",
+   "exit_ms": 1790172000000,
+   "exit_utc": "2026-09-23T14:00:00Z",
+   "hold_hours": 131.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1769410860136,
+    "update_utc": "2026-01-26T07:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1596,
+     "agree_with_official": 1595,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 84,
+   "local_interval_dist": {
+    "4.0": 83
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 84,
+   "phase_total": 84,
+   "phase_residues": {
+    "0": 360
+   },
+   "context_events": 360,
+   "context_lo_utc": "2026-08-19T01:15:00Z",
+   "context_hi_utc": "2026-10-18T03:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 0,
+   "trivial": true,
+   "expected_instants_utc": [],
+   "actual_count_strict": 0,
+   "actual_count_with_boundary_tol": 0,
+   "actual_instants_utc": [],
+   "matched_count": 0,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 0,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+   "symbol": "BABYUSDT",
+   "entry_ms": 1789694100000,
+   "entry_utc": "2026-09-18T01:15:00Z",
+   "exit_ms": 1789702200000,
+   "exit_utc": "2026-09-18T03:30:00Z",
+   "hold_hours": 2.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1780891260662,
+    "update_utc": "2026-06-08T04:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 798,
+     "agree_with_official": 797,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 84,
+   "local_interval_dist": {
+    "4.0": 83
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 84,
+   "phase_total": 84,
+   "phase_residues": {
+    "0": 273
+   },
+   "context_events": 273,
+   "context_lo_utc": "2026-09-11T07:15:00Z",
+   "context_hi_utc": "2026-11-10T08:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-11T08:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-10-11T08:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+   "symbol": "BBUSDT",
+   "entry_ms": 1791702900000,
+   "entry_utc": "2026-10-11T07:15:00Z",
+   "exit_ms": 1791705600000,
+   "exit_utc": "2026-10-11T08:00:00Z",
+   "hold_hours": 0.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1715603493496,
+    "update_utc": "2024-05-13T12:31:33Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5332,
+     "agree_with_official": 5331,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 95,
+   "local_interval_dist": {
+    "4.0": 94
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 95,
+   "phase_total": 95,
+   "phase_residues": {
+    "0": 371
+   },
+   "context_events": 371,
+   "context_lo_utc": "2026-07-21T09:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 11,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 11,
+   "actual_count_with_boundary_tol": 11,
+   "actual_instants_utc": [
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 11,
+   "max_offset_ms": 5,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 11,
+    "missing_exact_ms_count": 6,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+   "symbol": "BLURUSDT",
+   "entry_ms": 1787217300000,
+   "entry_utc": "2026-08-20T09:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 43.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1775235660198,
+    "update_utc": "2026-04-03T17:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1191,
+     "agree_with_official": 1190,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "inferred_uniform",
+   "interval_evidence_note": "局部观测间隔恒定，仅能推断",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 48,
+   "local_interval_dist": {
+    "8.0": 47
+   },
+   "official_covers_hold": false,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 48,
+   "phase_total": 48,
+   "phase_residues": {
+    "0": 155
+   },
+   "context_events": 155,
+   "context_lo_utc": "2026-09-05T03:15:00Z",
+   "context_hi_utc": "2026-11-06T02:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 6,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-05T08:00:00Z",
+    "2026-10-05T16:00:00Z",
+    "2026-10-06T00:00:00Z",
+    "2026-10-06T08:00:00Z",
+    "2026-10-06T16:00:00Z",
+    "2026-10-07T00:00:00Z"
+   ],
+   "actual_count_strict": 6,
+   "actual_count_with_boundary_tol": 6,
+   "actual_instants_utc": [
+    "2026-10-05T08:00:00Z",
+    "2026-10-05T16:00:00Z",
+    "2026-10-06T00:00:00Z",
+    "2026-10-06T08:00:00Z",
+    "2026-10-06T16:00:00Z",
+    "2026-10-07T00:00:00Z"
+   ],
+   "matched_count": 6,
+   "max_offset_ms": 3,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 6,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+   "symbol": "BNBUSDT",
+   "entry_ms": 1791170100000,
+   "entry_utc": "2026-10-05T03:15:00Z",
+   "exit_ms": 1791338400000,
+   "exit_utc": "2026-10-07T02:00:00Z",
+   "hold_hours": 46.75,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 108,
+   "local_interval_dist": {
+    "4.0": 107
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 108,
+   "phase_total": 108,
+   "phase_residues": {
+    "0": 384
+   },
+   "context_events": 384,
+   "context_lo_utc": "2026-08-20T13:15:00Z",
+   "context_hi_utc": "2026-10-23T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 24,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "actual_count_strict": 24,
+   "actual_count_with_boundary_tol": 24,
+   "actual_instants_utc": [
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 24,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 24,
+    "missing_exact_ms_count": 11,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+   "symbol": "CARVUSDT",
+   "entry_ms": 1789823700000,
+   "entry_utc": "2026-09-19T13:15:00Z",
+   "exit_ms": 1790172000000,
+   "exit_utc": "2026-09-23T14:00:00Z",
+   "hold_hours": 96.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1754585124450,
+    "update_utc": "2025-08-07T16:45:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2625,
+     "agree_with_official": 2624,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 48,
+   "local_interval_dist": {
+    "8.0": 47
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 48,
+   "phase_total": 48,
+   "phase_residues": {
+    "0": 161
+   },
+   "context_events": 161,
+   "context_lo_utc": "2026-09-03T04:15:00Z",
+   "context_hi_utc": "2026-11-04T04:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 6,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-03T08:00:00Z",
+    "2026-10-03T16:00:00Z",
+    "2026-10-04T00:00:00Z",
+    "2026-10-04T08:00:00Z",
+    "2026-10-04T16:00:00Z",
+    "2026-10-05T00:00:00Z"
+   ],
+   "actual_count_strict": 6,
+   "actual_count_with_boundary_tol": 6,
+   "actual_instants_utc": [
+    "2026-10-03T08:00:00Z",
+    "2026-10-03T16:00:00Z",
+    "2026-10-04T00:00:00Z",
+    "2026-10-04T08:00:00Z",
+    "2026-10-04T16:00:00Z",
+    "2026-10-05T00:00:00Z"
+   ],
+   "matched_count": 6,
+   "max_offset_ms": 2,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 6,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+   "symbol": "CHZUSDT",
+   "entry_ms": 1791000900000,
+   "entry_utc": "2026-10-03T04:15:00Z",
+   "exit_ms": 1791174600000,
+   "exit_utc": "2026-10-05T04:30:00Z",
+   "hold_hours": 48.25,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1698655916366,
+    "update_utc": "2023-10-30T08:51:56Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3254,
+     "agree_with_official": 3254,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 361
+   },
+   "context_events": 361,
+   "context_lo_utc": "2026-07-22T05:15:00Z",
+   "context_hi_utc": "2026-09-20T08:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-21T08:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-08-21T08:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+   "symbol": "COLLECTUSDT",
+   "entry_ms": 1787289300000,
+   "entry_utc": "2026-08-21T05:15:00Z",
+   "exit_ms": 1787300100000,
+   "exit_utc": "2026-08-21T08:15:00Z",
+   "hold_hours": 3.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767185851416,
+    "update_utc": "2025-12-31T12:57:31Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1750,
+     "agree_with_official": 1749,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 88,
+   "local_interval_dist": {
+    "4.0": 87
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 88,
+   "phase_total": 88,
+   "phase_residues": {
+    "0": 364
+   },
+   "context_events": 364,
+   "context_lo_utc": "2026-06-27T04:15:00Z",
+   "context_hi_utc": "2026-08-26T22:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 4,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T12:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-27T20:00:00Z"
+   ],
+   "actual_count_strict": 4,
+   "actual_count_with_boundary_tol": 4,
+   "actual_instants_utc": [
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T12:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-27T20:00:00Z"
+   ],
+   "matched_count": 4,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 4,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+   "symbol": "COOKIEUSDT",
+   "entry_ms": 1785125700000,
+   "entry_utc": "2026-07-27T04:15:00Z",
+   "exit_ms": 1785192300000,
+   "exit_utc": "2026-07-27T22:45:00Z",
+   "hold_hours": 18.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1736249460645,
+    "update_utc": "2025-01-07T11:31:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3899,
+     "agree_with_official": 3898,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 86,
+   "local_interval_dist": {
+    "4.0": 85
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 86,
+   "phase_total": 86,
+   "phase_residues": {
+    "0": 362
+   },
+   "context_events": 362,
+   "context_lo_utc": "2026-08-10T09:15:00Z",
+   "context_hi_utc": "2026-10-09T17:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 2,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-09T12:00:00Z",
+    "2026-09-09T16:00:00Z"
+   ],
+   "actual_count_strict": 2,
+   "actual_count_with_boundary_tol": 2,
+   "actual_instants_utc": [
+    "2026-09-09T12:00:00Z",
+    "2026-09-09T16:00:00Z"
+   ],
+   "matched_count": 2,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 2,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+   "symbol": "CROSSUSDT",
+   "entry_ms": 1788945300000,
+   "entry_utc": "2026-09-09T09:15:00Z",
+   "exit_ms": 1788975000000,
+   "exit_utc": "2026-09-09T17:30:00Z",
+   "hold_hours": 8.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752143509921,
+    "update_utc": "2025-07-10T10:31:49Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2795,
+     "agree_with_official": 2794,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "inferred_uniform",
+   "interval_evidence_note": "局部观测间隔恒定，仅能推断",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 52,
+   "local_interval_dist": {
+    "8.0": 51
+   },
+   "official_covers_hold": false,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 52,
+   "phase_total": 52,
+   "phase_residues": {
+    "0": 190
+   },
+   "context_events": 190,
+   "context_lo_utc": "2026-07-05T02:15:00Z",
+   "context_hi_utc": "2026-09-06T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 10,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-04T08:00:00Z",
+    "2026-08-04T16:00:00Z",
+    "2026-08-05T00:00:00Z",
+    "2026-08-05T08:00:00Z",
+    "2026-08-05T16:00:00Z",
+    "2026-08-06T00:00:00Z",
+    "2026-08-06T08:00:00Z",
+    "2026-08-06T16:00:00Z",
+    "2026-08-07T00:00:00Z",
+    "2026-08-07T08:00:00Z"
+   ],
+   "actual_count_strict": 10,
+   "actual_count_with_boundary_tol": 10,
+   "actual_instants_utc": [
+    "2026-08-04T08:00:00Z",
+    "2026-08-04T16:00:00Z",
+    "2026-08-05T00:00:00Z",
+    "2026-08-05T08:00:00Z",
+    "2026-08-05T16:00:00Z",
+    "2026-08-06T00:00:00Z",
+    "2026-08-06T08:00:00Z",
+    "2026-08-06T16:00:00Z",
+    "2026-08-07T00:00:00Z",
+    "2026-08-07T08:00:00Z"
+   ],
+   "matched_count": 10,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 10,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+   "symbol": "DOTUSDT",
+   "entry_ms": 1785809700000,
+   "entry_utc": "2026-08-04T02:15:00Z",
+   "exit_ms": 1786111200000,
+   "exit_utc": "2026-08-07T14:00:00Z",
+   "hold_hours": 83.75,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 97,
+   "local_interval_dist": {
+    "4.0": 96
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 97,
+   "phase_total": 97,
+   "phase_residues": {
+    "0": 373
+   },
+   "context_events": 373,
+   "context_lo_utc": "2026-08-22T08:15:00Z",
+   "context_hi_utc": "2026-10-23T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 13,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "actual_count_strict": 13,
+   "actual_count_with_boundary_tol": 13,
+   "actual_instants_utc": [
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 13,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 13,
+    "missing_exact_ms_count": 7,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+   "symbol": "DUSKUSDT",
+   "entry_ms": 1789978500000,
+   "entry_utc": "2026-09-21T08:15:00Z",
+   "exit_ms": 1790172000000,
+   "exit_utc": "2026-09-23T14:00:00Z",
+   "hold_hours": 53.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1769209260111,
+    "update_utc": "2026-01-23T23:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1610,
+     "agree_with_official": 1609,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 98,
+   "local_interval_dist": {
+    "4.0": 97
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 98,
+   "phase_total": 98,
+   "phase_residues": {
+    "0": 374
+   },
+   "context_events": 374,
+   "context_lo_utc": "2026-07-20T21:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 14,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 14,
+   "actual_count_with_boundary_tol": 14,
+   "actual_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 14,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 14,
+    "missing_exact_ms_count": 8,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+   "symbol": "ETHWUSDT",
+   "entry_ms": 1787174100000,
+   "entry_utc": "2026-08-19T21:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 55.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1701174684534,
+    "update_utc": "2023-11-28T12:31:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6334,
+     "agree_with_official": 6333,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 84,
+   "local_interval_dist": {
+    "4.0": 83
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 84,
+   "phase_total": 84,
+   "phase_residues": {
+    "0": 360
+   },
+   "context_events": 360,
+   "context_lo_utc": "2026-08-19T15:15:00Z",
+   "context_hi_utc": "2026-10-18T15:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 0,
+   "trivial": true,
+   "expected_instants_utc": [],
+   "actual_count_strict": 0,
+   "actual_count_with_boundary_tol": 0,
+   "actual_instants_utc": [],
+   "matched_count": 0,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 0,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+   "symbol": "EVAAUSDT",
+   "entry_ms": 1789744500000,
+   "entry_utc": "2026-09-18T15:15:00Z",
+   "exit_ms": 1789744500000,
+   "exit_utc": "2026-09-18T15:15:00Z",
+   "hold_hours": 0.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1759487831783,
+    "update_utc": "2025-10-03T10:37:11Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2285,
+     "agree_with_official": 2284,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 93,
+   "local_interval_dist": {
+    "4.0": 92
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 93,
+   "phase_total": 93,
+   "phase_residues": {
+    "0": 369
+   },
+   "context_events": 369,
+   "context_lo_utc": "2026-08-14T00:15:00Z",
+   "context_hi_utc": "2026-10-14T12:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 9,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-13T04:00:00Z",
+    "2026-09-13T08:00:00Z",
+    "2026-09-13T12:00:00Z",
+    "2026-09-13T16:00:00Z",
+    "2026-09-13T20:00:00Z",
+    "2026-09-14T00:00:00Z",
+    "2026-09-14T04:00:00Z",
+    "2026-09-14T08:00:00Z",
+    "2026-09-14T12:00:00Z"
+   ],
+   "actual_count_strict": 9,
+   "actual_count_with_boundary_tol": 9,
+   "actual_instants_utc": [
+    "2026-09-13T04:00:00Z",
+    "2026-09-13T08:00:00Z",
+    "2026-09-13T12:00:00Z",
+    "2026-09-13T16:00:00Z",
+    "2026-09-13T20:00:00Z",
+    "2026-09-14T00:00:00Z",
+    "2026-09-14T04:00:00Z",
+    "2026-09-14T08:00:00Z",
+    "2026-09-14T12:00:00Z"
+   ],
+   "matched_count": 9,
+   "max_offset_ms": 7,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 9,
+    "missing_exact_ms_count": 3,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+   "symbol": "GOATUSDT",
+   "entry_ms": 1789258500000,
+   "entry_utc": "2026-09-13T00:15:00Z",
+   "exit_ms": 1789389000000,
+   "exit_utc": "2026-09-14T12:30:00Z",
+   "hold_hours": 36.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1729776706404,
+    "update_utc": "2024-10-24T13:31:46Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4348,
+     "agree_with_official": 4347,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 98,
+   "local_interval_dist": {
+    "4.0": 97
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 98,
+   "phase_total": 98,
+   "phase_residues": {
+    "0": 374
+   },
+   "context_events": 374,
+   "context_lo_utc": "2026-07-20T21:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 14,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 14,
+   "actual_count_with_boundary_tol": 14,
+   "actual_instants_utc": [
+    "2026-08-20T00:00:00Z",
+    "2026-08-20T04:00:00Z",
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 14,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 14,
+    "missing_exact_ms_count": 8,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+   "symbol": "HYPERUSDT",
+   "entry_ms": 1787174100000,
+   "entry_utc": "2026-08-19T21:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 55.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752854488832,
+    "update_utc": "2025-07-18T16:01:28Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2745,
+     "agree_with_official": 2744,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "inferred_uniform",
+   "interval_evidence_note": "官方当前为 1h，但 updateTime 2026-10-23T20:01:00Z 晚于持仓，持仓期观测为 4.0h ⇒ 说明期间发生过变更，历史段按观测推断",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 86,
+   "local_interval_dist": {
+    "4.0": 85
+   },
+   "official_covers_hold": false,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 86,
+   "phase_total": 86,
+   "phase_residues": {
+    "0": 362
+   },
+   "context_events": 362,
+   "context_lo_utc": "2026-08-21T00:15:00Z",
+   "context_hi_utc": "2026-10-20T11:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 2,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z"
+   ],
+   "actual_count_strict": 2,
+   "actual_count_with_boundary_tol": 2,
+   "actual_instants_utc": [
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z"
+   ],
+   "matched_count": 2,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 2,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+   "symbol": "IRYSUSDT",
+   "entry_ms": 1789863300000,
+   "entry_utc": "2026-09-20T00:15:00Z",
+   "exit_ms": 1789902000000,
+   "exit_utc": "2026-09-20T11:00:00Z",
+   "hold_hours": 10.75,
+   "official": {
+    "interval_hours": 1,
+    "update_ms": 1792785660605,
+    "update_utc": "2026-10-23T20:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 0,
+     "agree_with_official": 0,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 361
+   },
+   "context_events": 361,
+   "context_lo_utc": "2026-08-27T09:15:00Z",
+   "context_hi_utc": "2026-10-26T14:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-26T12:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-09-26T12:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+   "symbol": "JELLYJELLYUSDT",
+   "entry_ms": 1790414100000,
+   "entry_utc": "2026-09-26T09:15:00Z",
+   "exit_ms": 1790432100000,
+   "exit_utc": "2026-09-26T14:15:00Z",
+   "hold_hours": 5.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1773190860163,
+    "update_utc": "2026-03-11T01:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1333,
+     "agree_with_official": 1332,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 89,
+   "local_interval_dist": {
+    "4.0": 88
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 89,
+   "phase_total": 89,
+   "phase_residues": {
+    "0": 365
+   },
+   "context_events": 365,
+   "context_lo_utc": "2026-07-22T09:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+   "symbol": "KATUSDT",
+   "entry_ms": 1787303700000,
+   "entry_utc": "2026-08-21T09:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 19.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1772425755582,
+    "update_utc": "2026-03-02T04:29:15Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1386,
+     "agree_with_official": 1385,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 361
+   },
+   "context_events": 361,
+   "context_lo_utc": "2026-07-08T03:15:00Z",
+   "context_hi_utc": "2026-09-06T04:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-07T04:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-08-07T04:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+   "symbol": "KMNOUSDT",
+   "entry_ms": 1786072500000,
+   "entry_utc": "2026-08-07T03:15:00Z",
+   "exit_ms": 1786077900000,
+   "exit_utc": "2026-08-07T04:45:00Z",
+   "hold_hours": 1.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1734721279925,
+    "update_utc": "2024-12-20T19:01:19Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4005,
+     "agree_with_official": 4004,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 84,
+   "local_interval_dist": {
+    "4.0": 83
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 84,
+   "phase_total": 84,
+   "phase_residues": {
+    "0": 360
+   },
+   "context_events": 360,
+   "context_lo_utc": "2026-08-06T13:15:00Z",
+   "context_hi_utc": "2026-10-05T13:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 0,
+   "trivial": true,
+   "expected_instants_utc": [],
+   "actual_count_strict": 0,
+   "actual_count_with_boundary_tol": 0,
+   "actual_instants_utc": [],
+   "matched_count": 0,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 0,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+   "symbol": "KOMAUSDT",
+   "entry_ms": 1788614100000,
+   "entry_utc": "2026-09-05T13:15:00Z",
+   "exit_ms": 1788615000000,
+   "exit_utc": "2026-09-05T13:30:00Z",
+   "hold_hours": 0.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1733833060968,
+    "update_utc": "2024-12-10T12:17:40Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4066,
+     "agree_with_official": 4065,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 88,
+   "local_interval_dist": {
+    "4.0": 87
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 88,
+   "phase_total": 88,
+   "phase_residues": {
+    "0": 269
+   },
+   "context_events": 269,
+   "context_lo_utc": "2026-09-11T20:15:00Z",
+   "context_hi_utc": "2026-11-11T13:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 4,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-12T00:00:00Z",
+    "2026-10-12T04:00:00Z",
+    "2026-10-12T08:00:00Z",
+    "2026-10-12T12:00:00Z"
+   ],
+   "actual_count_strict": 4,
+   "actual_count_with_boundary_tol": 4,
+   "actual_instants_utc": [
+    "2026-10-12T00:00:00Z",
+    "2026-10-12T04:00:00Z",
+    "2026-10-12T08:00:00Z",
+    "2026-10-12T12:00:00Z"
+   ],
+   "matched_count": 4,
+   "max_offset_ms": 6,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 4,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+   "symbol": "METISUSDT",
+   "entry_ms": 1791749700000,
+   "entry_utc": "2026-10-11T20:15:00Z",
+   "exit_ms": 1791810900000,
+   "exit_utc": "2026-10-12T13:15:00Z",
+   "hold_hours": 17.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1710232428071,
+    "update_utc": "2024-03-12T08:33:48Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5705,
+     "agree_with_official": 5704,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 87,
+   "local_interval_dist": {
+    "4.0": 86
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 87,
+   "phase_total": 87,
+   "phase_residues": {
+    "0": 363
+   },
+   "context_events": 363,
+   "context_lo_utc": "2026-08-12T09:15:00Z",
+   "context_hi_utc": "2026-10-11T21:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 3,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-11T12:00:00Z",
+    "2026-09-11T16:00:00Z",
+    "2026-09-11T20:00:00Z"
+   ],
+   "actual_count_strict": 3,
+   "actual_count_with_boundary_tol": 3,
+   "actual_instants_utc": [
+    "2026-09-11T12:00:00Z",
+    "2026-09-11T16:00:00Z",
+    "2026-09-11T20:00:00Z"
+   ],
+   "matched_count": 3,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 3,
+    "missing_exact_ms_count": 1,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+   "symbol": "METUSDT",
+   "entry_ms": 1789118100000,
+   "entry_utc": "2026-09-11T09:15:00Z",
+   "exit_ms": 1789163100000,
+   "exit_utc": "2026-09-11T21:45:00Z",
+   "hold_hours": 12.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1760184817190,
+    "update_utc": "2025-10-11T12:13:37Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2236,
+     "agree_with_official": 2235,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 51,
+   "local_interval_dist": {
+    "8.0": 50
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 51,
+   "phase_total": 51,
+   "phase_residues": {
+    "0": 189
+   },
+   "context_events": 189,
+   "context_lo_utc": "2026-08-05T20:15:00Z",
+   "context_hi_utc": "2026-10-07T22:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 9,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-05T00:00:00Z",
+    "2026-09-05T08:00:00Z",
+    "2026-09-05T16:00:00Z",
+    "2026-09-06T00:00:00Z",
+    "2026-09-06T08:00:00Z",
+    "2026-09-06T16:00:00Z",
+    "2026-09-07T00:00:00Z",
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T16:00:00Z"
+   ],
+   "actual_count_strict": 9,
+   "actual_count_with_boundary_tol": 9,
+   "actual_instants_utc": [
+    "2026-09-05T00:00:00Z",
+    "2026-09-05T08:00:00Z",
+    "2026-09-05T16:00:00Z",
+    "2026-09-06T00:00:00Z",
+    "2026-09-06T08:00:00Z",
+    "2026-09-06T16:00:00Z",
+    "2026-09-07T00:00:00Z",
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T16:00:00Z"
+   ],
+   "matched_count": 9,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 9,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+   "symbol": "NEARUSDT",
+   "entry_ms": 1788552900000,
+   "entry_utc": "2026-09-04T20:15:00Z",
+   "exit_ms": 1788820200000,
+   "exit_utc": "2026-09-07T22:30:00Z",
+   "hold_hours": 74.25,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1760927510785,
+    "update_utc": "2025-10-20T02:31:50Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1092,
+     "agree_with_official": 1092,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 89,
+   "local_interval_dist": {
+    "4.0": 88
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 89,
+   "phase_total": 89,
+   "phase_residues": {
+    "0": 365
+   },
+   "context_events": 365,
+   "context_lo_utc": "2026-06-27T01:15:00Z",
+   "context_hi_utc": "2026-08-26T23:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-27T04:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T12:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-27T20:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-07-27T04:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T12:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-27T20:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+   "symbol": "NILUSDT",
+   "entry_ms": 1785114900000,
+   "entry_utc": "2026-07-27T01:15:00Z",
+   "exit_ms": 1785195000000,
+   "exit_utc": "2026-07-27T23:30:00Z",
+   "hold_hours": 22.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1742821311662,
+    "update_utc": "2025-03-24T13:01:51Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3442,
+     "agree_with_official": 3441,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 53,
+   "local_interval_dist": {
+    "8.0": 52
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 53,
+   "phase_total": 53,
+   "phase_residues": {
+    "0": 191
+   },
+   "context_events": 191,
+   "context_lo_utc": "2026-06-25T19:15:00Z",
+   "context_hi_utc": "2026-08-28T11:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 11,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-26T00:00:00Z",
+    "2026-07-26T08:00:00Z",
+    "2026-07-26T16:00:00Z",
+    "2026-07-27T00:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-28T00:00:00Z",
+    "2026-07-28T08:00:00Z",
+    "2026-07-28T16:00:00Z",
+    "2026-07-29T00:00:00Z",
+    "2026-07-29T08:00:00Z"
+   ],
+   "actual_count_strict": 11,
+   "actual_count_with_boundary_tol": 11,
+   "actual_instants_utc": [
+    "2026-07-26T00:00:00Z",
+    "2026-07-26T08:00:00Z",
+    "2026-07-26T16:00:00Z",
+    "2026-07-27T00:00:00Z",
+    "2026-07-27T08:00:00Z",
+    "2026-07-27T16:00:00Z",
+    "2026-07-28T00:00:00Z",
+    "2026-07-28T08:00:00Z",
+    "2026-07-28T16:00:00Z",
+    "2026-07-29T00:00:00Z",
+    "2026-07-29T08:00:00Z"
+   ],
+   "matched_count": 11,
+   "max_offset_ms": 10,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 11,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+   "symbol": "PEOPLEUSDT",
+   "entry_ms": 1785006900000,
+   "entry_utc": "2026-07-25T19:15:00Z",
+   "exit_ms": 1785322800000,
+   "exit_utc": "2026-07-29T11:00:00Z",
+   "hold_hours": 87.75,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1697703181342,
+    "update_utc": "2023-10-19T08:13:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3287,
+     "agree_with_official": 3287,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 97,
+   "local_interval_dist": {
+    "4.0": 96
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 97,
+   "phase_total": 97,
+   "phase_residues": {
+    "0": 373
+   },
+   "context_events": 373,
+   "context_lo_utc": "2026-08-22T11:15:00Z",
+   "context_hi_utc": "2026-10-23T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 13,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "actual_count_strict": 13,
+   "actual_count_with_boundary_tol": 13,
+   "actual_instants_utc": [
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 13,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 13,
+    "missing_exact_ms_count": 7,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+   "symbol": "PIXELUSDT",
+   "entry_ms": 1789989300000,
+   "entry_utc": "2026-09-21T11:15:00Z",
+   "exit_ms": 1790172000000,
+   "exit_utc": "2026-09-23T14:00:00Z",
+   "hold_hours": 50.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1773360060213,
+    "update_utc": "2026-03-13T00:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1321,
+     "agree_with_official": 1320,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 87,
+   "local_interval_dist": {
+    "4.0": 86
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 87,
+   "phase_total": 87,
+   "phase_residues": {
+    "0": 363
+   },
+   "context_events": 363,
+   "context_lo_utc": "2026-07-07T17:15:00Z",
+   "context_hi_utc": "2026-09-06T05:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 3,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-06T20:00:00Z",
+    "2026-08-07T00:00:00Z",
+    "2026-08-07T04:00:00Z"
+   ],
+   "actual_count_strict": 3,
+   "actual_count_with_boundary_tol": 3,
+   "actual_instants_utc": [
+    "2026-08-06T20:00:00Z",
+    "2026-08-07T00:00:00Z",
+    "2026-08-07T04:00:00Z"
+   ],
+   "matched_count": 3,
+   "max_offset_ms": 1,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 3,
+    "missing_exact_ms_count": 1,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+   "symbol": "PLUMEUSDT",
+   "entry_ms": 1786036500000,
+   "entry_utc": "2026-08-06T17:15:00Z",
+   "exit_ms": 1786080600000,
+   "exit_utc": "2026-08-07T05:30:00Z",
+   "hold_hours": 12.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767157260558,
+    "update_utc": "2025-12-31T05:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1752,
+     "agree_with_official": 1751,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 87,
+   "local_interval_dist": {
+    "4.0": 86
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 87,
+   "phase_total": 87,
+   "phase_residues": {
+    "0": 363
+   },
+   "context_events": 363,
+   "context_lo_utc": "2026-07-17T12:15:00Z",
+   "context_hi_utc": "2026-09-16T01:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 3,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-16T16:00:00Z",
+    "2026-08-16T20:00:00Z",
+    "2026-08-17T00:00:00Z"
+   ],
+   "actual_count_strict": 3,
+   "actual_count_with_boundary_tol": 3,
+   "actual_instants_utc": [
+    "2026-08-16T16:00:00Z",
+    "2026-08-16T20:00:00Z",
+    "2026-08-17T00:00:00Z"
+   ],
+   "matched_count": 3,
+   "max_offset_ms": 1,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 3,
+    "missing_exact_ms_count": 1,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+   "symbol": "PORTALUSDT",
+   "entry_ms": 1786882500000,
+   "entry_utc": "2026-08-16T12:15:00Z",
+   "exit_ms": 1786931100000,
+   "exit_utc": "2026-08-17T01:45:00Z",
+   "hold_hours": 13.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1709219601092,
+    "update_utc": "2024-02-29T15:13:21Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5776,
+     "agree_with_official": 5775,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 104,
+   "local_interval_dist": {
+    "4.0": 103
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 104,
+   "phase_total": 104,
+   "phase_residues": {
+    "0": 379
+   },
+   "context_events": 379,
+   "context_lo_utc": "2026-08-19T17:15:00Z",
+   "context_hi_utc": "2026-10-22T00:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 20,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-18T20:00:00Z",
+    "2026-09-19T00:00:00Z",
+    "2026-09-19T04:00:00Z",
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z"
+   ],
+   "actual_count_strict": 20,
+   "actual_count_with_boundary_tol": 20,
+   "actual_instants_utc": [
+    "2026-09-18T20:00:00Z",
+    "2026-09-19T00:00:00Z",
+    "2026-09-19T04:00:00Z",
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z"
+   ],
+   "matched_count": 20,
+   "max_offset_ms": 7,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 20,
+    "missing_exact_ms_count": 8,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+   "symbol": "PROVEUSDT",
+   "entry_ms": 1789751700000,
+   "entry_utc": "2026-09-18T17:15:00Z",
+   "exit_ms": 1790035200000,
+   "exit_utc": "2026-09-22T00:00:00Z",
+   "hold_hours": 78.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1779519660572,
+    "update_utc": "2026-05-23T07:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 894,
+     "agree_with_official": 893,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 287
+   },
+   "context_events": 287,
+   "context_lo_utc": "2026-09-08T21:15:00Z",
+   "context_hi_utc": "2026-11-08T00:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-09T00:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-10-09T00:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+   "symbol": "PYTHUSDT",
+   "entry_ms": 1791494100000,
+   "entry_utc": "2026-10-08T21:15:00Z",
+   "exit_ms": 1791505800000,
+   "exit_utc": "2026-10-09T00:30:00Z",
+   "hold_hours": 3.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1700663556024,
+    "update_utc": "2023-11-22T14:32:36Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6370,
+     "agree_with_official": 6369,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 89,
+   "local_interval_dist": {
+    "4.0": 88
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 89,
+   "phase_total": 89,
+   "phase_residues": {
+    "0": 365
+   },
+   "context_events": 365,
+   "context_lo_utc": "2026-07-22T09:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+   "symbol": "SAFEUSDT",
+   "entry_ms": 1787303700000,
+   "entry_utc": "2026-08-21T09:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 19.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1729859454826,
+    "update_utc": "2024-10-25T12:30:54Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4342,
+     "agree_with_official": 4341,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 46,
+   "local_interval_dist": {
+    "8.0": 45
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 46,
+   "phase_total": 46,
+   "phase_residues": {
+    "0": 184
+   },
+   "context_events": 184,
+   "context_lo_utc": "2026-07-21T16:15:00Z",
+   "context_hi_utc": "2026-09-21T01:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 4,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-22T00:00:00Z"
+   ],
+   "actual_count_strict": 4,
+   "actual_count_with_boundary_tol": 4,
+   "actual_instants_utc": [
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-22T00:00:00Z"
+   ],
+   "matched_count": 4,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 4,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+   "symbol": "SANDUSDT",
+   "entry_ms": 1787242500000,
+   "entry_utc": "2026-08-20T16:15:00Z",
+   "exit_ms": 1787362200000,
+   "exit_utc": "2026-08-22T01:30:00Z",
+   "hold_hours": 33.25,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1760547283535,
+    "update_utc": "2025-10-15T16:54:43Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1105,
+     "agree_with_official": 1105,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "inferred_uniform",
+   "interval_evidence_note": "局部观测间隔恒定，仅能推断",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 88,
+   "local_interval_dist": {
+    "4.0": 87
+   },
+   "official_covers_hold": false,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 88,
+   "phase_total": 88,
+   "phase_residues": {
+    "0": 364,
+    "1": 47,
+    "2": 47,
+    "3": 47
+   },
+   "context_events": 505,
+   "context_lo_utc": "2026-07-22T13:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 4,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 4,
+   "actual_count_with_boundary_tol": 4,
+   "actual_instants_utc": [
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 4,
+   "max_offset_ms": 4,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 4,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+   "symbol": "SKRUSDT",
+   "entry_ms": 1787318100000,
+   "entry_utc": "2026-08-21T13:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 15.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1788807660623,
+    "update_utc": "2026-09-07T19:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 250,
+     "agree_with_official": 250,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 89,
+   "local_interval_dist": {
+    "4.0": 88
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 89,
+   "phase_total": 89,
+   "phase_residues": {
+    "0": 303
+   },
+   "context_events": 303,
+   "context_lo_utc": "2026-09-06T06:15:00Z",
+   "context_hi_utc": "2026-11-06T02:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 5,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-06T08:00:00Z",
+    "2026-10-06T12:00:00Z",
+    "2026-10-06T16:00:00Z",
+    "2026-10-06T20:00:00Z",
+    "2026-10-07T00:00:00Z"
+   ],
+   "actual_count_strict": 5,
+   "actual_count_with_boundary_tol": 5,
+   "actual_instants_utc": [
+    "2026-10-06T08:00:00Z",
+    "2026-10-06T12:00:00Z",
+    "2026-10-06T16:00:00Z",
+    "2026-10-06T20:00:00Z",
+    "2026-10-07T00:00:00Z"
+   ],
+   "matched_count": 5,
+   "max_offset_ms": 6,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 5,
+    "missing_exact_ms_count": 4,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+   "symbol": "SUSDT",
+   "entry_ms": 1791267300000,
+   "entry_utc": "2026-10-06T06:15:00Z",
+   "exit_ms": 1791338400000,
+   "exit_utc": "2026-10-07T02:00:00Z",
+   "hold_hours": 19.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1737021684483,
+    "update_utc": "2025-01-16T10:01:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3845,
+     "agree_with_official": 3844,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 92,
+   "local_interval_dist": {
+    "4.0": 91
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 92,
+   "phase_total": 92,
+   "phase_residues": {
+    "0": 368
+   },
+   "context_events": 368,
+   "context_lo_utc": "2026-06-24T08:15:00Z",
+   "context_hi_utc": "2026-08-24T19:45:00Z",
+   "switch_in_hold": [],
+   "expected_count": 8,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-24T12:00:00Z",
+    "2026-07-24T16:00:00Z",
+    "2026-07-24T20:00:00Z",
+    "2026-07-25T00:00:00Z",
+    "2026-07-25T04:00:00Z",
+    "2026-07-25T08:00:00Z",
+    "2026-07-25T12:00:00Z",
+    "2026-07-25T16:00:00Z"
+   ],
+   "actual_count_strict": 8,
+   "actual_count_with_boundary_tol": 8,
+   "actual_instants_utc": [
+    "2026-07-24T12:00:00Z",
+    "2026-07-24T16:00:00Z",
+    "2026-07-24T20:00:00Z",
+    "2026-07-25T00:00:00Z",
+    "2026-07-25T04:00:00Z",
+    "2026-07-25T08:00:00Z",
+    "2026-07-25T12:00:00Z",
+    "2026-07-25T16:00:00Z"
+   ],
+   "matched_count": 8,
+   "max_offset_ms": 8,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 8,
+    "missing_exact_ms_count": 3,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+   "symbol": "TNSRUSDT",
+   "entry_ms": 1784880900000,
+   "entry_utc": "2026-07-24T08:15:00Z",
+   "exit_ms": 1785008700000,
+   "exit_utc": "2026-07-25T19:45:00Z",
+   "hold_hours": 35.5,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767355260060,
+    "update_utc": "2026-01-02T12:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1738,
+     "agree_with_official": 1737,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 111,
+   "local_interval_dist": {
+    "4.0": 110
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 111,
+   "phase_total": 111,
+   "phase_residues": {
+    "0": 387
+   },
+   "context_events": 387,
+   "context_lo_utc": "2026-07-10T05:15:00Z",
+   "context_hi_utc": "2026-09-12T16:30:00Z",
+   "switch_in_hold": [],
+   "expected_count": 27,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-09T08:00:00Z",
+    "2026-08-09T12:00:00Z",
+    "2026-08-09T16:00:00Z",
+    "2026-08-09T20:00:00Z",
+    "2026-08-10T00:00:00Z",
+    "2026-08-10T04:00:00Z",
+    "2026-08-10T08:00:00Z",
+    "2026-08-10T12:00:00Z",
+    "2026-08-10T16:00:00Z",
+    "2026-08-10T20:00:00Z",
+    "2026-08-11T00:00:00Z",
+    "2026-08-11T04:00:00Z",
+    "2026-08-11T08:00:00Z",
+    "2026-08-11T12:00:00Z",
+    "2026-08-11T16:00:00Z",
+    "2026-08-11T20:00:00Z",
+    "2026-08-12T00:00:00Z",
+    "2026-08-12T04:00:00Z",
+    "2026-08-12T08:00:00Z",
+    "2026-08-12T12:00:00Z",
+    "2026-08-12T16:00:00Z",
+    "2026-08-12T20:00:00Z",
+    "2026-08-13T00:00:00Z",
+    "2026-08-13T04:00:00Z",
+    "2026-08-13T08:00:00Z",
+    "2026-08-13T12:00:00Z",
+    "2026-08-13T16:00:00Z"
+   ],
+   "actual_count_strict": 27,
+   "actual_count_with_boundary_tol": 27,
+   "actual_instants_utc": [
+    "2026-08-09T08:00:00Z",
+    "2026-08-09T12:00:00Z",
+    "2026-08-09T16:00:00Z",
+    "2026-08-09T20:00:00Z",
+    "2026-08-10T00:00:00Z",
+    "2026-08-10T04:00:00Z",
+    "2026-08-10T08:00:00Z",
+    "2026-08-10T12:00:00Z",
+    "2026-08-10T16:00:00Z",
+    "2026-08-10T20:00:00Z",
+    "2026-08-11T00:00:00Z",
+    "2026-08-11T04:00:00Z",
+    "2026-08-11T08:00:00Z",
+    "2026-08-11T12:00:00Z",
+    "2026-08-11T16:00:00Z",
+    "2026-08-11T20:00:00Z",
+    "2026-08-12T00:00:00Z",
+    "2026-08-12T04:00:00Z",
+    "2026-08-12T08:00:00Z",
+    "2026-08-12T12:00:00Z",
+    "2026-08-12T16:00:00Z",
+    "2026-08-12T20:00:00Z",
+    "2026-08-13T00:00:00Z",
+    "2026-08-13T04:00:00Z",
+    "2026-08-13T08:00:00Z",
+    "2026-08-13T12:00:00Z",
+    "2026-08-13T16:00:00Z"
+   ],
+   "matched_count": 27,
+   "max_offset_ms": 6,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 27,
+    "missing_exact_ms_count": 8,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+   "symbol": "TNSRUSDT",
+   "entry_ms": 1786252500000,
+   "entry_utc": "2026-08-09T05:15:00Z",
+   "exit_ms": 1786638600000,
+   "exit_utc": "2026-08-13T16:30:00Z",
+   "hold_hours": 107.25,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767355260060,
+    "update_utc": "2026-01-02T12:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1738,
+     "agree_with_official": 1737,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 361
+   },
+   "context_events": 361,
+   "context_lo_utc": "2026-06-29T14:15:00Z",
+   "context_hi_utc": "2026-08-28T19:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-07-29T16:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-07-29T16:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+   "symbol": "UAIUSDT",
+   "entry_ms": 1785334500000,
+   "entry_utc": "2026-07-29T14:15:00Z",
+   "exit_ms": 1785351600000,
+   "exit_utc": "2026-07-29T19:00:00Z",
+   "hold_hours": 4.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1764172860089,
+    "update_utc": "2025-11-26T16:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1960,
+     "agree_with_official": 1960,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 88,
+   "local_interval_dist": {
+    "4.0": 87
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 88,
+   "phase_total": 88,
+   "phase_residues": {
+    "0": 325
+   },
+   "context_events": 325,
+   "context_lo_utc": "2026-09-02T15:15:00Z",
+   "context_hi_utc": "2026-11-02T05:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 4,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-02T16:00:00Z",
+    "2026-10-02T20:00:00Z",
+    "2026-10-03T00:00:00Z",
+    "2026-10-03T04:00:00Z"
+   ],
+   "actual_count_strict": 4,
+   "actual_count_with_boundary_tol": 4,
+   "actual_instants_utc": [
+    "2026-10-02T16:00:00Z",
+    "2026-10-02T20:00:00Z",
+    "2026-10-03T00:00:00Z",
+    "2026-10-03T04:00:00Z"
+   ],
+   "matched_count": 4,
+   "max_offset_ms": 1,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 4,
+    "missing_exact_ms_count": 2,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+   "symbol": "VELVETUSDT",
+   "entry_ms": 1790954100000,
+   "entry_utc": "2026-10-02T15:15:00Z",
+   "exit_ms": 1791004500000,
+   "exit_utc": "2026-10-03T05:15:00Z",
+   "hold_hours": 14.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752571091591,
+    "update_utc": "2025-07-15T09:18:11Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2765,
+     "agree_with_official": 2764,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 278
+   },
+   "context_events": 278,
+   "context_lo_utc": "2026-09-10T11:15:00Z",
+   "context_hi_utc": "2026-11-09T12:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-10T12:00:00Z"
+   ],
+   "actual_count_strict": 0,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [],
+   "matched_count": 1,
+   "max_offset_ms": 3,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "网格内无缺失，但 1 个预期时刻只由「端点毫秒抖动」事件满足（严格判据本不纳入）⇒ 退出同刻有歧义，不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [
+    {
+     "funding_time": 1791633600003,
+     "funding_utc": "2026-10-10T12:00:00Z",
+     "at": "exit",
+     "offset_ms": 3,
+     "strict_rule_includes": false
+    }
+   ],
+   "boundary_jitter_count": 1,
+   "boundary_dependent_count": 1,
+   "boundary_dependent_instants_utc": [
+    "2026-10-10T12:00:00Z"
+   ],
+   "boundary_status": "boundary_dependent",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 1,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+   "symbol": "WALUSDT",
+   "entry_ms": 1791630900000,
+   "entry_utc": "2026-10-10T11:15:00Z",
+   "exit_ms": 1791633600000,
+   "exit_utc": "2026-10-10T12:00:00Z",
+   "hold_hours": 0.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1743089542904,
+    "update_utc": "2025-03-27T15:32:22Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3424,
+     "agree_with_official": 3423,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 104,
+   "local_interval_dist": {
+    "4.0": 103
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 104,
+   "phase_total": 104,
+   "phase_residues": {
+    "0": 380
+   },
+   "context_events": 380,
+   "context_lo_utc": "2026-08-07T12:15:00Z",
+   "context_hi_utc": "2026-10-09T22:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 20,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-06T16:00:00Z",
+    "2026-09-06T20:00:00Z",
+    "2026-09-07T00:00:00Z",
+    "2026-09-07T04:00:00Z",
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T12:00:00Z",
+    "2026-09-07T16:00:00Z",
+    "2026-09-07T20:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T04:00:00Z",
+    "2026-09-08T08:00:00Z",
+    "2026-09-08T12:00:00Z",
+    "2026-09-08T16:00:00Z",
+    "2026-09-08T20:00:00Z",
+    "2026-09-09T00:00:00Z",
+    "2026-09-09T04:00:00Z",
+    "2026-09-09T08:00:00Z",
+    "2026-09-09T12:00:00Z",
+    "2026-09-09T16:00:00Z",
+    "2026-09-09T20:00:00Z"
+   ],
+   "actual_count_strict": 20,
+   "actual_count_with_boundary_tol": 20,
+   "actual_instants_utc": [
+    "2026-09-06T16:00:00Z",
+    "2026-09-06T20:00:00Z",
+    "2026-09-07T00:00:00Z",
+    "2026-09-07T04:00:00Z",
+    "2026-09-07T08:00:00Z",
+    "2026-09-07T12:00:00Z",
+    "2026-09-07T16:00:00Z",
+    "2026-09-07T20:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T04:00:00Z",
+    "2026-09-08T08:00:00Z",
+    "2026-09-08T12:00:00Z",
+    "2026-09-08T16:00:00Z",
+    "2026-09-08T20:00:00Z",
+    "2026-09-09T00:00:00Z",
+    "2026-09-09T04:00:00Z",
+    "2026-09-09T08:00:00Z",
+    "2026-09-09T12:00:00Z",
+    "2026-09-09T16:00:00Z",
+    "2026-09-09T20:00:00Z"
+   ],
+   "matched_count": 20,
+   "max_offset_ms": 6,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 20,
+    "missing_exact_ms_count": 14,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+   "symbol": "WUSDT",
+   "entry_ms": 1788696900000,
+   "entry_utc": "2026-09-06T12:15:00Z",
+   "exit_ms": 1788991200000,
+   "exit_utc": "2026-09-09T22:00:00Z",
+   "hold_hours": 81.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1712158275459,
+    "update_utc": "2024-04-03T15:31:15Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5572,
+     "agree_with_official": 5571,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "inferred_uniform",
+   "interval_evidence_note": "局部观测间隔恒定，仅能推断",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 48,
+   "local_interval_dist": {
+    "8.0": 47
+   },
+   "official_covers_hold": false,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 48,
+   "phase_total": 48,
+   "phase_residues": {
+    "0": 186
+   },
+   "context_events": 186,
+   "context_lo_utc": "2026-08-08T13:15:00Z",
+   "context_hi_utc": "2026-10-09T15:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 6,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-07T16:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T08:00:00Z",
+    "2026-09-08T16:00:00Z",
+    "2026-09-09T00:00:00Z",
+    "2026-09-09T08:00:00Z"
+   ],
+   "actual_count_strict": 6,
+   "actual_count_with_boundary_tol": 6,
+   "actual_instants_utc": [
+    "2026-09-07T16:00:00Z",
+    "2026-09-08T00:00:00Z",
+    "2026-09-08T08:00:00Z",
+    "2026-09-08T16:00:00Z",
+    "2026-09-09T00:00:00Z",
+    "2026-09-09T08:00:00Z"
+   ],
+   "matched_count": 6,
+   "max_offset_ms": 5,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "NOT_PROVEN",
+   "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 6,
+    "missing_exact_ms_count": 6,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+   "symbol": "XLMUSDT",
+   "entry_ms": 1788786900000,
+   "entry_utc": "2026-09-07T13:15:00Z",
+   "exit_ms": 1788966000000,
+   "exit_utc": "2026-09-09T15:00:00Z",
+   "hold_hours": 49.75,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 110,
+   "local_interval_dist": {
+    "4.0": 109
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 110,
+   "phase_total": 110,
+   "phase_residues": {
+    "0": 386
+   },
+   "context_events": 386,
+   "context_lo_utc": "2026-08-20T04:15:00Z",
+   "context_hi_utc": "2026-10-23T14:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 26,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "actual_count_strict": 26,
+   "actual_count_with_boundary_tol": 26,
+   "actual_instants_utc": [
+    "2026-09-19T08:00:00Z",
+    "2026-09-19T12:00:00Z",
+    "2026-09-19T16:00:00Z",
+    "2026-09-19T20:00:00Z",
+    "2026-09-20T00:00:00Z",
+    "2026-09-20T04:00:00Z",
+    "2026-09-20T08:00:00Z",
+    "2026-09-20T12:00:00Z",
+    "2026-09-20T16:00:00Z",
+    "2026-09-20T20:00:00Z",
+    "2026-09-21T00:00:00Z",
+    "2026-09-21T04:00:00Z",
+    "2026-09-21T08:00:00Z",
+    "2026-09-21T12:00:00Z",
+    "2026-09-21T16:00:00Z",
+    "2026-09-21T20:00:00Z",
+    "2026-09-22T00:00:00Z",
+    "2026-09-22T04:00:00Z",
+    "2026-09-22T08:00:00Z",
+    "2026-09-22T12:00:00Z",
+    "2026-09-22T16:00:00Z",
+    "2026-09-22T20:00:00Z",
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T04:00:00Z",
+    "2026-09-23T08:00:00Z",
+    "2026-09-23T12:00:00Z"
+   ],
+   "matched_count": 26,
+   "max_offset_ms": 11,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 26,
+    "missing_exact_ms_count": 12,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+   "symbol": "YGGUSDT",
+   "entry_ms": 1789791300000,
+   "entry_utc": "2026-09-19T04:15:00Z",
+   "exit_ms": 1790172000000,
+   "exit_utc": "2026-09-23T14:00:00Z",
+   "hold_hours": 105.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1697703030891,
+    "update_utc": "2023-10-19T08:10:30Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6575,
+     "agree_with_official": 6574,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 85,
+   "local_interval_dist": {
+    "4.0": 84
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 85,
+   "phase_total": 85,
+   "phase_residues": {
+    "0": 325
+   },
+   "context_events": 325,
+   "context_lo_utc": "2026-09-02T12:15:00Z",
+   "context_hi_utc": "2026-11-01T18:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 1,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-10-02T16:00:00Z"
+   ],
+   "actual_count_strict": 1,
+   "actual_count_with_boundary_tol": 1,
+   "actual_instants_utc": [
+    "2026-10-02T16:00:00Z"
+   ],
+   "matched_count": 1,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 1,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+   "symbol": "YGGUSDT",
+   "entry_ms": 1790943300000,
+   "entry_utc": "2026-10-02T12:15:00Z",
+   "exit_ms": 1790964900000,
+   "exit_utc": "2026-10-02T18:15:00Z",
+   "hold_hours": 6.0,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1697703030891,
+    "update_utc": "2023-10-19T08:10:30Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6575,
+     "agree_with_official": 6574,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 8.0,
+   "local_step_h": 8.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 42,
+   "local_interval_dist": {
+    "8.0": 41
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 42,
+   "phase_total": 42,
+   "phase_residues": {
+    "0": 180
+   },
+   "context_events": 180,
+   "context_lo_utc": "2026-08-17T19:15:00Z",
+   "context_hi_utc": "2026-10-16T19:15:00Z",
+   "switch_in_hold": [],
+   "expected_count": 0,
+   "trivial": true,
+   "expected_instants_utc": [],
+   "actual_count_strict": 0,
+   "actual_count_with_boundary_tol": 0,
+   "actual_instants_utc": [],
+   "matched_count": 0,
+   "max_offset_ms": 0,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 0,
+    "missing_exact_ms_count": 0,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+   "symbol": "ZECUSDT",
+   "entry_ms": 1789586100000,
+   "entry_utc": "2026-09-16T19:15:00Z",
+   "exit_ms": 1789586100000,
+   "exit_utc": "2026-09-16T19:15:00Z",
+   "hold_hours": 0.0,
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1698655930369,
+    "update_utc": "2023-10-30T08:52:10Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3254,
+     "agree_with_official": 3254,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  },
+  {
+   "interval_basis": "official_snapshot",
+   "interval_evidence_note": "官方快照 interval 自 updateTime 起生效，覆盖整个持仓区间",
+   "step_h": 4.0,
+   "local_step_h": 4.0,
+   "local_kind": "uniform",
+   "local_uniform": true,
+   "local_events": 96,
+   "local_interval_dist": {
+    "4.0": 95
+   },
+   "official_covers_hold": true,
+   "phase_h": 0,
+   "phase_basis": "observed_consistent",
+   "phase_support": 96,
+   "phase_total": 96,
+   "phase_residues": {
+    "0": 372
+   },
+   "context_events": 372,
+   "context_lo_utc": "2026-07-21T05:15:00Z",
+   "context_hi_utc": "2026-09-21T05:00:00Z",
+   "switch_in_hold": [],
+   "expected_count": 12,
+   "trivial": false,
+   "expected_instants_utc": [
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "actual_count_strict": 12,
+   "actual_count_with_boundary_tol": 12,
+   "actual_instants_utc": [
+    "2026-08-20T08:00:00Z",
+    "2026-08-20T12:00:00Z",
+    "2026-08-20T16:00:00Z",
+    "2026-08-20T20:00:00Z",
+    "2026-08-21T00:00:00Z",
+    "2026-08-21T04:00:00Z",
+    "2026-08-21T08:00:00Z",
+    "2026-08-21T12:00:00Z",
+    "2026-08-21T16:00:00Z",
+    "2026-08-21T20:00:00Z",
+    "2026-08-22T00:00:00Z",
+    "2026-08-22T04:00:00Z"
+   ],
+   "matched_count": 12,
+   "max_offset_ms": 5,
+   "missing_count": 0,
+   "missing_instants_utc": [],
+   "off_grid_count": 0,
+   "off_grid_instants_utc": [],
+   "completeness": "NO_GAP_DETECTED",
+   "claim": "PROVEN",
+   "reason": "官方周期覆盖 + 相位一致 + 无缺失 ⇒ 该持仓区间完整性成立",
+   "field_defect_count": 0,
+   "field_defect_instants_utc": [],
+   "boundary_jitter": [],
+   "boundary_jitter_count": 0,
+   "boundary_dependent_count": 0,
+   "boundary_dependent_instants_utc": [],
+   "boundary_status": "unambiguous",
+   "r1_口径对照": {
+    "expected_epoch0_count": 12,
+    "missing_exact_ms_count": 6,
+    "phase_shift_effect": 0,
+    "说明": "R1 用相位=0 + 严格窗口 + 精确毫秒相等；missing_exact_ms_count 把抖动算成缺失"
+   },
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+   "symbol": "ZKUSDT",
+   "entry_ms": 1787202900000,
+   "entry_utc": "2026-08-20T05:15:00Z",
+   "exit_ms": 1787374800000,
+   "exit_utc": "2026-08-22T05:00:00Z",
+   "hold_hours": 47.75,
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1770159660106,
+    "update_utc": "2026-02-03T23:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1544,
+     "agree_with_official": 1543,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   }
+  }
+ ],
+ "checks": [
+  {
+   "检查": "Q1 全部 51 候选都有周期证据等级（无 null）",
+   "通过": true,
+   "证据": {
+    "n": 51
+   }
+  },
+  {
+   "检查": "Q2 只有官方覆盖的候选才允许 claim=PROVEN",
+   "通过": true,
+   "证据": {
+    "PROVEN 数": 44,
+    "违规": []
+   }
+  },
+  {
+   "检查": "Q3 相位来自观测而非默认 0，且登记支撑数",
+   "通过": true,
+   "证据": {
+    "相位缺失": [],
+    "相位=0": 51,
+    "相位≠0": 0
+   }
+  },
+  {
+   "检查": "Q4 R1 的精确毫秒匹配确实制造假缺失（本单必须复现该缺陷）",
+   "通过": true,
+   "证据": {
+    "R1 口径缺失合计": 188,
+    "本单缺失合计": 0,
+    "R1 会标记候选": 38,
+    "本单标记": 0
+   }
+  },
+  {
+   "检查": "Q5 网格外事件单独计数（不静默吞掉）",
+   "通过": true,
+   "证据": {
+    "有网格外事件的候选": 0,
+    "样例": []
+   }
+  },
+  {
+   "检查": "Q6 缺失时刻全部可枚举",
+   "通过": true,
+   "证据": {
+    "n": 51
+   }
+  },
+  {
+   "检查": "Q7 边界抖动被单列（含严格判据是否纳入），不混进缺失",
+   "通过": true,
+   "证据": {
+    "候选数": 2,
+    "事件数": 2,
+    "样例": [
+     {
+      "symbol": "AIGENSYNUSDT",
+      "exit": "2026-09-23T16:00:00Z",
+      "boundary": [
+       {
+        "funding_time": 1790179200004,
+        "funding_utc": "2026-09-23T16:00:00Z",
+        "at": "exit",
+        "offset_ms": 4,
+        "strict_rule_includes": false
+       }
+      ]
+     },
+     {
+      "symbol": "WALUSDT",
+      "exit": "2026-10-10T12:00:00Z",
+      "boundary": [
+       {
+        "funding_time": 1791633600003,
+        "funding_utc": "2026-10-10T12:00:00Z",
+        "at": "exit",
+        "offset_ms": 3,
+        "strict_rule_includes": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "检查": "Q8b 端点抖动依赖的候选一律不给 PROVEN（退出同刻有歧义）",
+   "通过": true,
+   "证据": {
+    "边界依赖候选": [
+     {
+      "symbol": "AIGENSYNUSDT",
+      "claim": "NOT_PROVEN",
+      "instants": [
+       "2026-09-23T16:00:00Z"
+      ]
+     },
+     {
+      "symbol": "WALUSDT",
+      "claim": "NOT_PROVEN",
+      "instants": [
+       "2026-10-10T12:00:00Z"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "检查": "Q8 官方不覆盖时，步长必须来自观测而不是官方当前值",
+   "通过": true,
+   "证据": {
+    "BNBUSDT": {
+     "step": 8.0,
+     "local": 8.0
+    },
+    "DOTUSDT": {
+     "step": 8.0,
+     "local": 8.0
+    },
+    "IRYSUSDT": {
+     "step": 4.0,
+     "local": 4.0
+    },
+    "SKRUSDT": {
+     "step": 4.0,
+     "local": 4.0
+    },
+    "XLMUSDT": {
+     "step": 8.0,
+     "local": 8.0
+    }
+   }
+  }
+ ]
+}

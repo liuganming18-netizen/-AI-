@@ -1,0 +1,54 @@
+{
+ "base": "http://127.0.0.1:8799",
+ "at": "2026-10-23T12:39:51Z",
+ "gap01": [
+  {
+   "path": "/api/v1/paper/stops/notanint?arm=3a",
+   "http": 500,
+   "bytes": 502,
+   "total": null
+  },
+  {
+   "path": "/api/v1/paper/stops/999?arm=3a",
+   "http": 404,
+   "bytes": 434,
+   "total": null
+  },
+  {
+   "path": "/api/v1/paper/stops/1?arm=3a",
+   "http": 200,
+   "bytes": 733,
+   "total": 1
+  }
+ ],
+ "gap02": [
+  {
+   "path": "/api/v1/markets/binance/BTCUSDT/candles?interval=4h",
+   "http": 200,
+   "bytes": 192901,
+   "quality": "ok",
+   "missing_reason": null
+  },
+  {
+   "path": "/api/v1/markets/BINANCE/BTCUSDT/candles?interval=4h",
+   "http": 200,
+   "bytes": 975,
+   "quality": "missing",
+   "missing_reason": "无已入库K线"
+  }
+ ],
+ "gap03": {
+  "path": "/api/v1/markets?limit=3",
+  "http": 200,
+  "bytes": 6066087,
+  "ms": 51,
+  "items_returned": 549,
+  "limit_honored": false
+ },
+ "verdict": {
+  "gap01_bad_id_is_500": true,
+  "gap01_missing_is_404": true,
+  "gap02_uppercase_silently_missing": true,
+  "gap03_limit_ignored": true
+ }
+}

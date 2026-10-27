@@ -1,0 +1,125 @@
+{
+  "段": {
+    "接口": {
+      "批次 runs_total": 144,
+      "批次 trades.count": 9849,
+      "批次 net_pnl_sum（由逐笔行现算）": 4424.1168,
+      "批次胜率": 27.495177
+    },
+    "缺陷": {
+      "runs_with_trades": 0,
+      "trades_total（批次汇总字段）": 0,
+      "net_pnl_sum（批次汇总字段）": null,
+      "checks.trades_total_matches_rows": false,
+      "缺陷确认：单 run summary 的 total_fees 把费率当金额": 0.021,
+      "缺陷确认：单 run summary 的 total_funding 恒为 0": 0.0,
+      "单 run summary 的 trades_total": 21
+    },
+    "逐笔抽核": {
+      "接口返回条数": 500,
+      "与源账本不一致条数": 0
+    },
+    "页面可展示性": {
+      "缺陷确认：initial_stop 为空": null,
+      "缺陷确认：stop_trace_points 为 0": 0,
+      "qty / fees / funding_fee": [
+        null,
+        null,
+        null
+      ],
+      "mae / mfe": [
+        null,
+        null
+      ]
+    },
+    "页面验收": {
+      "结论": "页面未验收"
+    }
+  },
+  "判据": [
+    {
+      "段": "接口",
+      "项": "批次 runs_total",
+      "通过": true,
+      "说明": ""
+    },
+    {
+      "段": "接口",
+      "项": "批次 trades.count",
+      "通过": true,
+      "说明": "我方逐笔 9849"
+    },
+    {
+      "段": "接口",
+      "项": "批次 net_pnl_sum（由逐笔行现算）",
+      "通过": true,
+      "说明": "我方 4424.1177"
+    },
+    {
+      "段": "缺陷",
+      "项": "runs_with_trades",
+      "通过": true,
+      "说明": "批次汇总把每 run 的成交笔数读成 0"
+    },
+    {
+      "段": "缺陷",
+      "项": "trades_total（批次汇总字段）",
+      "通过": true,
+      "说明": "与同接口 trades.count=9,849 自相矛盾"
+    },
+    {
+      "段": "缺陷",
+      "项": "net_pnl_sum（批次汇总字段）",
+      "通过": true,
+      "说明": "每 run 的 net_pnl 未被读取，批次层面为 null"
+    },
+    {
+      "段": "缺陷",
+      "项": "checks.trades_total_matches_rows",
+      "通过": true,
+      "说明": "系统自己的校验字段就是 false，说明它知道对不上"
+    },
+    {
+      "段": "缺陷",
+      "项": "缺陷确认：单 run summary 的 total_fees 把费率当金额",
+      "通过": true,
+      "说明": "该组真实手续费 3.9941 USDT；summary 写 0.021 = 21 笔 × 0.001（费率被当金额）"
+    },
+    {
+      "段": "缺陷",
+      "项": "缺陷确认：单 run summary 的 total_funding 恒为 0",
+      "通过": true,
+      "说明": "该组真实资金费 -1.0905"
+    },
+    {
+      "段": "缺陷",
+      "项": "单 run summary 的 trades_total",
+      "通过": true,
+      "说明": "该组真实 21 笔（summary 自身是对的，是接口没读）"
+    },
+    {
+      "段": "逐笔抽核",
+      "项": "与源账本不一致条数",
+      "通过": true,
+      "说明": "抽核 500 条"
+    },
+    {
+      "段": "页面可展示性",
+      "项": "缺陷确认：initial_stop 为空",
+      "通过": true,
+      "说明": "系统逐笔记录里初始止损为空"
+    },
+    {
+      "段": "页面可展示性",
+      "项": "缺陷确认：stop_trace_points 为 0",
+      "通过": true,
+      "说明": "止损上移轨迹点数为 0 ⇒ 页面无法展示止损上移过程"
+    }
+  ],
+  "判据统计": {
+    "总": 13,
+    "通过": 13,
+    "不通过": 0,
+    "无判据": 0
+  }
+}

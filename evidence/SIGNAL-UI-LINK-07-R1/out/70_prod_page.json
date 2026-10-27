@@ -1,0 +1,44 @@
+{
+  "probe": "70_prod_page",
+  "generated_real_utc": "2026-10-25T13:28:07.713Z",
+  "target": {
+    "frontend": "http://127.0.0.1:3000",
+    "backend": "http://127.0.0.1:8787",
+    "rerouted": false
+  },
+  "steps": [
+    {
+      "name": "接口：当前 0 条、status=ok、missing_reason 为空",
+      "ok": true,
+      "detail": "total=0 status=ok missing_reason=null note长度=172",
+      "soft": false
+    },
+    {
+      "name": "接口：历史明细 51 条",
+      "ok": true,
+      "detail": "计数=51 明细=51",
+      "soft": false
+    },
+    {
+      "name": "异常中止",
+      "ok": false,
+      "detail": "page.waitForSelector: Timeout 120000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"signal-empty-diagnostics\"]') to be visible\n    230 × locator resolved to hidden <div class=\"space-y-1.5 text-[10px]\" data-testid=\"signal-empty-diagnostics\">…</div>\n",
+      "soft": false
+    }
+  ],
+  "ok": false,
+  "api": {
+    "current_total": 0,
+    "quality_status": "ok",
+    "missing_reason": null,
+    "note_len": 172,
+    "paper_epoch_ms": 1791939600000,
+    "discarded_count": 51,
+    "discarded_detail_len": 51,
+    "discarded_ids_sample": [
+      "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000"
+    ]
+  }
+}

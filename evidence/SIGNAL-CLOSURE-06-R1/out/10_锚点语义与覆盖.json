@@ -1,0 +1,112 @@
+{
+ "generated_at_utc": "2026-10-25T06:16:40Z",
+ "upto_utc": "2026-10-25T05:59:59Z",
+ "anchor_hours": 2880,
+ "live_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06-R1/out/10_iso_live/live.sqlite3",
+ "storage": {
+  "table": "live_run",
+  "key": "state_anchor_ms",
+  "written_value_ms": 1782539999999,
+  "written_value_utc": "2026-06-27T05:59:59Z",
+  "note": "锚点写在 LIVE_DB 的 live_run 表，key=state_anchor_ms；不写策略参数。"
+ },
+ "steps": [
+  {
+   "step": "1_首次落定",
+   "call_now_utc": "2026-10-25T05:59:59Z",
+   "depth_hours": 2880,
+   "returned_utc": "2026-06-27T05:59:59Z"
+  },
+  {
+   "step": "2_晚7h再调_模拟重启",
+   "call_now_utc": "2026-10-25T12:59:59Z",
+   "depth_hours": 2880,
+   "returned_utc": "2026-06-27T05:59:59Z"
+  },
+  {
+   "step": "3_改depth=1160h再调",
+   "call_now_utc": "2026-10-29T09:59:59Z",
+   "depth_hours": 1160,
+   "returned_utc": "2026-06-27T05:59:59Z"
+  },
+  {
+   "step": "4_显式重锚60天前",
+   "call_now_utc": "2026-10-29T09:59:59Z",
+   "depth_hours": null,
+   "returned_utc": "2026-08-26T05:59:59Z"
+  }
+ ],
+ "checks": {
+  "锚点三次调用恒等（不随后移/不随depth变化）": true,
+  "重锚留痕已写入": true,
+  "锚点未被越界（4h）": true,
+  "锚点未被越界（1h）": true
+ },
+ "reset_log_sample": {
+  "from_ms": 1787723999999,
+  "to_ms": 1782539999999,
+  "reason": "R1 自检：复原",
+  "at_ms": 1792908992511
+ },
+ "coverage": {
+  "n_symbols": 526,
+  "hot_covers_anchor_n": 0,
+  "cold_covers_anchor_year_n": 525,
+  "n_uncovered": 1,
+  "uncovered_sample": [
+   "CTUSDT"
+  ],
+  "only_2026_shards_n": 52,
+  "only_2026_shards_sample": [
+   "ACUUSDT",
+   "AIAUSDT",
+   "AIGENSYNUSDT",
+   "ARXUSDT",
+   "AZTECUSDT",
+   "BASEDUSDT",
+   "BILLUSDT",
+   "BIRBUSDT",
+   "BSBUSDT",
+   "BTWUSDT",
+   "CAPUSDT",
+   "CFGUSDT",
+   "CHIPUSDT",
+   "CTRUSDT",
+   "DATAIPUSDT",
+   "DOSUSDT",
+   "EDGEUSDT",
+   "ELSAUSDT",
+   "ESPUSDT",
+   "FIGHTUSDT"
+  ],
+  "hot_global_first_4h_utc": "2026-09-09T20:00:00Z",
+  "hot_global_first_1h_utc": "2026-09-07T02:00:00Z",
+  "cold_shard_years_4h": [
+   2019,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025,
+   2026
+  ],
+  "cold_min_year": {
+   "4h": 2019,
+   "1h": 2019
+  },
+  "out_of_range": {
+   "4h": false,
+   "1h": false
+  },
+  "note": "热库 `candles` 只保留约 45 天，锚点在 120 天前 ⇒ **只查热库必然得出「未覆盖」的假结论**；真实数据源是冷层 parquet + 热库合并。最终覆盖判据以 11 号脚本的 `n_ready`（每场景成功重建的标的数）为准。"
+ },
+ "retention_policy": {
+  "判定式": "anchor 所在年份 >= 冷库该周期最早分片年份 ⇒ 锚点在保留范围内",
+  "越界后果": "bootstrap 会用实际能读到的最早数据重建，锚点**静默失效**，重启一致性不再有保证（退化回「窗口随重启平移」）",
+  "当前状态": "未越界",
+  "处置": "越界前应调用 reset_state_anchor_ms(新值, reason) 显式重锚并留痕；不允许改成「每次启动重算」——那等于取消锚点。",
+  "余量": "锚点 2026-06-27T05:59:59Z 所在年份 2026，冷库 4h 最早分片年份 2019、1h 最早分片年份 2019"
+ },
+ "verdict": "PASS"
+}

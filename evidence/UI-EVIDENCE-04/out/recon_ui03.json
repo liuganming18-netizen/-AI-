@@ -1,0 +1,399 @@
+{
+  "工单": "UI-EVIDENCE-04",
+  "检查时刻": "2026-10-23 16:18:53",
+  "审核对象": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-UI-03",
+  "审核对象_清单自身哈希": "a3b7fb4e00bfd2c22a0e37458f47f8e0f7c65da353a8613da0f1161d92f06da6",
+  "审核对象_文件数": 36,
+  "检查项": {
+    "C1_CSV04字段路径": {
+      "检查项": "CSV04 字段路径真实性",
+      "源产物目录": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "源产物目录存在": true,
+      "源文件清单": {
+        "summary.json": {
+          "存在": true,
+          "大小": 376,
+          "SHA256": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc"
+        },
+        "run.json": {
+          "存在": true,
+          "大小": 3450,
+          "SHA256": "145cde775bf6258bfed96939d2fffdcb14977ec2c9dd4ee704840d65bc35bf23"
+        },
+        "manifest.json": {
+          "存在": false,
+          "大小": null,
+          "SHA256": ""
+        }
+      },
+      "逐行": [
+        {
+          "对账维度": "Run ID",
+          "CSV声称字段路径": "summary.json / run_id",
+          "CSV声称服务端值": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 run_id（实际只能走到 <root>）"
+        },
+        {
+          "对账维度": "产物哈希",
+          "CSV声称字段路径": "manifest.json / files.summary.json.sha256",
+          "CSV声称服务端值": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc",
+          "CSV判定": "一致",
+          "源文件": "manifest.json",
+          "源文件存在": false,
+          "字段存在": false,
+          "实际值": null,
+          "判定": "FAIL",
+          "原因": "声称的来源文件 manifest.json 不存在"
+        },
+        {
+          "对账维度": "初始资金",
+          "CSV声称字段路径": "summary.json / trading_summary.initial_equity",
+          "CSV声称服务端值": "2000.0",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 trading_summary.initial_equity（实际只能走到 <root>）"
+        },
+        {
+          "对账维度": "已实现净盈亏",
+          "CSV声称字段路径": "summary.json / trading_summary.net_pnl",
+          "CSV声称服务端值": "-8.2432223",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 trading_summary.net_pnl（实际只能走到 <root>）"
+        },
+        {
+          "对账维度": "交易笔数",
+          "CSV声称字段路径": "summary.json / trading_summary.trade_count",
+          "CSV声称服务端值": "1",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 trading_summary.trade_count（实际只能走到 <root>）"
+        },
+        {
+          "对账维度": "订单数量",
+          "CSV声称字段路径": "summary.json / trading_summary.order_count",
+          "CSV声称服务端值": "2",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 trading_summary.order_count（实际只能走到 <root>）"
+        },
+        {
+          "对账维度": "胜率指标",
+          "CSV声称字段路径": "run.json / metrics.win_rate_pct",
+          "CSV声称服务端值": "null",
+          "CSV判定": "一致",
+          "源文件": "run.json",
+          "源文件存在": true,
+          "字段存在": true,
+          "实际值": 0.0,
+          "实际命中路径": "metrics.win_rate_pct",
+          "判定": "FAIL",
+          "原因": "值不符：CSV='null' 实际=0.0"
+        },
+        {
+          "对账维度": "质量门禁",
+          "CSV声称字段路径": "summary.json / formal_pass_allowed",
+          "CSV声称服务端值": "False",
+          "CSV判定": "一致",
+          "源文件": "summary.json",
+          "源文件存在": true,
+          "字段存在": false,
+          "实际值": null,
+          "实际命中路径": "<root>",
+          "判定": "FAIL",
+          "原因": "summary.json 中不存在字段 formal_pass_allowed（实际只能走到 <root>）"
+        }
+      ],
+      "统计": {
+        "总行数": 8,
+        "PASS": 0,
+        "FAIL": 8
+      },
+      "判定": "FAIL",
+      "原因": "存在字段路径不存在或值不符的行，见 逐行"
+    },
+    "C2_manifest声称": {
+      "检查项": "manifest 是否存在 + CSV 是否谎称哈希来源",
+      "audit_json_manifest_present": false,
+      "磁盘_manifest存在": false,
+      "磁盘_manifest大小": null,
+      "run_json_hashes字段": {},
+      "CSV_声称manifest行": [
+        {
+          "维度": "产物哈希",
+          "字段路径": "manifest.json / files.summary.json.sha256",
+          "判定": "一致"
+        }
+      ],
+      "summary_sha_审计JSON记录": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc",
+      "summary_sha_本脚本实算": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc",
+      "两者一致": true,
+      "判定": "FAIL",
+      "原因": "manifest.json 不存在，run.json.hashes 为空 ⇒ 源侧无任何官方哈希可比对；CSV04 却把哈希来源写成 'manifest.json / files.summary.json.sha256' 并判'一致'。该哈希实为测试脚本自算，来源标注失实。"
+    },
+    "C3_清单自身哈希": {
+      "检查项": "文件清单自身排除 + 自身哈希单独保存",
+      "清单行数": 35,
+      "清单自身行": {
+        "相对路径": "evidence/SYSTEM-UI-03/08_文件清单与哈希.csv",
+        "清单记大小": "0",
+        "清单记哈希": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "实际存在": true,
+        "实际大小": 5151,
+        "实际哈希": "a3b7fb4e00bfd2c22a0e37458f47f8e0f7c65da353a8613da0f1161d92f06da6",
+        "大小一致": false,
+        "哈希一致": false,
+        "是清单自身": true,
+        "判定": "FAIL"
+      },
+      "自身行是否为空文件哈希": true,
+      "空文件哈希常量": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "不合格行": [
+        {
+          "路径": "evidence/SYSTEM-UI-03/08_文件清单与哈希.csv",
+          "原因": "自身被写成空文件(size=0, 空哈希)"
+        },
+        {
+          "路径": "evidence/SYSTEM-UI-03/audit_ui_verification.json",
+          "原因": "大小 4499 → 4504"
+        }
+      ],
+      "判定": "FAIL",
+      "原因": "清单在自身被打开写入的状态下遍历目录，把自身统计成 size=0 / 空文件哈希 e3b0c442…；且清单自身也在清单内，形成自指。audit_ui_verification.json 清单记 4499B 而实际 4504B（清单先写、后写 JSON，顺序错）。"
+    },
+    "C4_截图数量与重复": {
+      "检查项": "截图数量机械统计 + 重复检测",
+      "实际PNG总数": 25,
+      "其中_view": 16,
+      "其中_state": 9,
+      "唯一哈希数": 21,
+      "重复组数": 3,
+      "重复组": [
+        {
+          "sha256_前12": "d7ccc274a0f9",
+          "文件": [
+            "state_position_normal.png",
+            "view_05_position_panel_and_daemon.png"
+          ]
+        },
+        {
+          "sha256_前12": "8d0951525d49",
+          "文件": [
+            "state_signal_normal.png",
+            "view_02_signal_list_panel.png"
+          ]
+        },
+        {
+          "sha256_前12": "0936f38dfb06",
+          "文件": [
+            "state_stop_trail_normal.png",
+            "view_06_stop_trail.png",
+            "view_07_gate_and_pending.png"
+          ]
+        }
+      ],
+      "报告声称总数": 24,
+      "报告声称_view": 16,
+      "报告声称_state": 8,
+      "数量是否自相矛盾": true,
+      "判定": "FAIL",
+      "原因": "实际 25 张（view 16 + state 9），报告写 24 张 / 16 View + 8 State；唯一哈希仅 21，3 组重复 —— 3 个「正常态」截图与 view 截图字节相同，属改名而非覆盖。"
+    },
+    "C5_版本绑定": {
+      "检查项": "前后端源码 / 构建产物 / 测试脚本 版本绑定",
+      "audit_json_含绑定字段": [],
+      "audit_json_是否绑定源码": false,
+      "本脚本实算_前端": [
+        {
+          "路径": "UI界面/web/src",
+          "类型": "目录",
+          "文件数": 59,
+          "目录树SHA256": "31fa2ff3776121bf106f8e843b18382499743027932671cab3f9f2ad028f6b0b"
+        },
+        {
+          "路径": "UI界面/web/dist",
+          "类型": "目录",
+          "文件数": 10,
+          "目录树SHA256": "d2948cf4008efc9f6ce04af71a1c8a7a581ee5390b5af62bc5e0d4cbf7fd7ef1"
+        },
+        {
+          "路径": "UI界面/web/package.json",
+          "类型": "文件",
+          "SHA256": "2d80003f0985da1d29c7a9e91f5e9e1fa0d8acaa5f1580b5ee720c23049d85a5",
+          "大小": 922
+        }
+      ],
+      "本脚本实算_后端": [
+        {
+          "文件": "adapter.py",
+          "SHA256": "cf92bd7850df574ba2c518d48ab7d0cf49669263e51129e1660bb32c5c16a73f",
+          "大小": 209457
+        },
+        {
+          "文件": "live_api.py",
+          "SHA256": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+          "大小": 108614
+        },
+        {
+          "文件": "live_store.py",
+          "SHA256": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+          "大小": 42566
+        },
+        {
+          "文件": "unified_runtime.py",
+          "SHA256": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+          "大小": 38271
+        },
+        {
+          "文件": "service_manager.py",
+          "SHA256": "7ba1edf95b65b728c79c6890fd438e541a5e6c0f46c21c85a8ad84e5b0b0fa2a",
+          "大小": 50842
+        }
+      ],
+      "本脚本实算_测试脚本": {
+        "文件": "evidence/SYSTEM-UI-03/test_system_ui_03.py",
+        "SHA256": "cd18ac6115e0e22714f7a2083a89a534b2f82092855a69155e23bdb8d61a1a73",
+        "大小": 85275
+      },
+      "判定": "FAIL",
+      "原因": "audit_ui_verification.json 顶层 13 个键中无任何 hash/commit/version/binding/source 类字段；08 清单只列 evidence 目录内的交付物，不含 UI界面/web/src、dist 与后端源码 ⇒ 无法证明本轮截图对应的到底是哪一版前端/后端。"
+    },
+    "C6_run_id对齐": {
+      "检查项": "页面 / 审计JSON / 磁盘源产物 同 run_id 对齐",
+      "页面显示run_id(审计JSON记录)": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "磁盘run.json.run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "CSV04_run_id列": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "CSV04_服务端列": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "源产物目录": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "源产物目录存在": true,
+      "三方一致": true,
+      "脚本含硬编码回落目录": true,
+      "硬编码回落内容": "runs_ft_replay_01/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "判定": "PASS",
+      "原因": "",
+      "附加风险": "脚本第 835-838 行在 os.walk 找不到时硬编码回落到 runs_ft_replay_01/…1000XECUSDT —— 一旦页面显示的是别的 run，会用这个固定目录的数据代填，属硬填数字。"
+    },
+    "C7_硬编码数字": {
+      "检查项": "硬编码数字扫描",
+      "脚本内硬编码token": [
+        {
+          "token": "81,624",
+          "出现行": [
+            1139
+          ],
+          "次数": 1
+        },
+        {
+          "token": "2,404",
+          "出现行": [
+            1140
+          ],
+          "次数": 1
+        },
+        {
+          "token": "2000.0",
+          "出现行": [
+            851,
+            1154
+          ],
+          "次数": 2
+        },
+        {
+          "token": "-8.24",
+          "出现行": [
+            1155
+          ],
+          "次数": 2
+        },
+        {
+          "token": "\"null\"",
+          "出现行": [
+            1158
+          ],
+          "次数": 1
+        }
+      ],
+      "CSV03前5行": [
+        [
+          "对账层级",
+          "字段名称",
+          "前端页面DOM渲染值",
+          "后端API同一响应原始值",
+          "数据源接口",
+          "匹配判定",
+          "核验说明"
+        ],
+        [
+          "顶栏状态",
+          "BTC最新价",
+          "81,624",
+          "81623.5",
+          "/api/v1/markets",
+          "一致",
+          "同次响应按BTCUSDT提取"
+        ],
+        [
+          "顶栏状态",
+          "ETH最新价",
+          "2,404",
+          "2404.24",
+          "/api/v1/markets",
+          "一致",
+          "同次响应按ETHUSDT提取"
+        ],
+        [
+          "顶栏状态",
+          "系统运行模式",
+          "只读",
+          "read_only",
+          "/api/v1/health",
+          "一致",
+          "受控只读"
+        ],
+        [
+          "顶栏状态",
+          "时钟口径",
+          "UTC",
+          "UTC",
+          "系统挂钟",
+          "一致",
+          "国际标准时"
+        ]
+      ],
+      "判定": "FAIL",
+      "原因": "脚本第 1139/1140 行在 DOM 取不到时回落字面量 '81,624' / '2,404'，即页面没渲染出数值也会写出一个价格并判'一致'。"
+    }
+  },
+  "汇总": {
+    "FAIL": 6,
+    "PASS": 1,
+    "UNVERIFIED": 0
+  }
+}

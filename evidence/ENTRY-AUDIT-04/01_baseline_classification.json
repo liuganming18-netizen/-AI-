@@ -1,0 +1,417 @@
+{
+  "audit": "ENTRY-AUDIT-04",
+  "stage": "第二阶段基准（FE07 未交付，先冻结基准）",
+  "generated_utc": "2026-10-18 09:33:21",
+  "contract_source": "evidence/FACTOR-ENTRY-06/classification_contract.md",
+  "implementation_note": "本脚本按契约原文重新实现三套分类，未调用 FE06 代码、未采信任何既有标签列",
+  "inputs": {
+    "net_pnl": "交接包（引擎账本口径，含手续费与资金费）",
+    "atr_and_first_move": "FE06 冻结特征表 reconstructed_candidate_features.csv",
+    "identity": "candidate_id 227/227 一一对应"
+  },
+  "sample_space": {
+    "rows": 227,
+    "unique_signal_key": 226,
+    "filled": 205,
+    "unfilled": 22,
+    "filled_by_generation": {
+      "cand_ev": 163,
+      "old_cand": 42
+    }
+  },
+  "net_pnl_consistency_with_fe06": {
+    "filled_compared": 205,
+    "identical": 205,
+    "different": 0,
+    "sum_fe06": 101.531971,
+    "sum_handoff": 101.531971,
+    "conclusion": "FE06 的 net_pnl 与交接包逐笔相同 ⇒ FE06 没有踩「费用为 0」那个坑"
+  },
+  "independent_classification": {
+    "category_standard_mixed": {
+      "CHOPPY_OR_OTHER": 94,
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 36,
+      "UNFILLED": 22,
+      "MFE_PULLBACK": 8
+    },
+    "category_pure_atr_4h": {
+      "CHOPPY_OR_OTHER": 79,
+      "EARLY_WEAKNESS": 67,
+      "MFE_PULLBACK": 39,
+      "UNFILLED": 22,
+      "SUSTAINED_TREND": 20
+    },
+    "category_pure_atr_full": {
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 64,
+      "MFE_PULLBACK": 47,
+      "CHOPPY_OR_OTHER": 27,
+      "UNFILLED": 22
+    }
+  },
+  "compare_with_fe06": [
+    {
+      "体系": "标准混合",
+      "FE06列": "category_standard_mixed",
+      "独立列": "cat_standard_mixed_indep",
+      "总行数": 227,
+      "一致": 227,
+      "不一致": 0,
+      "不一致明细": []
+    },
+    {
+      "体系": "纯ATR-4h",
+      "FE06列": "category_pure_atr_4h",
+      "独立列": "cat_pure_atr_4h_indep",
+      "总行数": 227,
+      "一致": 227,
+      "不一致": 0,
+      "不一致明细": []
+    },
+    {
+      "体系": "纯ATR-全周期",
+      "FE06列": "category_pure_atr_full",
+      "独立列": "cat_pure_atr_full_indep",
+      "总行数": 227,
+      "一致": 227,
+      "不一致": 0,
+      "不一致明细": []
+    }
+  ],
+  "net_pnl_boundary_check": {
+    "why": "浮盈回吐的判定里有 net_pnl<=0；若净盈亏口径不同（例如把费用当 0），这一类的计数会变",
+    "pullback_count_under_thresholds": {
+      "net_pnl <= 0（契约口径）": 11,
+      "net_pnl < 0（严格）": 11,
+      "|net_pnl| <= 1e-9 视为 0 并入": 11
+    },
+    "pullback_if_using_gross_pnl": 11,
+    "delta_vs_contract": 0,
+    "boundary_rows_top25": [
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ENJUSDT_1639857600000_1640278800000",
+        "symbol": "ENJUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -0.0232896355040057,
+        "gross_pnl": 0.1585599999999942,
+        "fees": 0.04483032,
+        "funding_fee": 0.137019315504,
+        "mfe_r": 0.9557959253447574,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DASHUSDT_1657684800000_1658124000000",
+        "symbol": "DASHUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.1598645563127145,
+        "gross_pnl": 0.3481300000000025,
+        "fees": 0.054336355,
+        "funding_fee": 0.1339290886872881,
+        "mfe_r": 0.2924009725447437,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UNIUSDT_1639627200000_1640278800000",
+        "symbol": "UNIUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.2714555616019339,
+        "gross_pnl": 0.4140000000000015,
+        "fees": 0.035741,
+        "funding_fee": 0.1068034383980676,
+        "mfe_r": 0.5972965549180504,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_USDCUSDT_1770048000000_1770228000000",
+        "symbol": "USDCUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -0.2952010908454865,
+        "gross_pnl": -0.2043360000000005,
+        "fees": 0.108059832,
+        "funding_fee": -0.017194741154514,
+        "mfe_r": 0.1130992202608903,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IMXUSDT_1678521600000_1678798800000",
+        "symbol": "IMXUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.3002220559058475,
+        "gross_pnl": 0.4249999999999976,
+        "fees": 0.0292275,
+        "funding_fee": 0.09555044409415,
+        "mfe_r": 1.076736954163677,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XMRUSDT_1714550400000_1714946400000",
+        "symbol": "XMRUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.345673411240931,
+        "gross_pnl": 0.6221600000000119,
+        "fees": 0.0821898,
+        "funding_fee": 0.1942967887590809,
+        "mfe_r": 0.2772289484582076,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786636800000_1787202000000",
+        "symbol": "ZKUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.3928110395219941,
+        "gross_pnl": 0.5406389999999942,
+        "fees": 0.0359014095,
+        "funding_fee": 0.111926550978,
+        "mfe_r": 1.25421154778508,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DASHUSDT_1675569600000_1676386800000",
+        "symbol": "DASHUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.4010837271399698,
+        "gross_pnl": 0.6098799999999939,
+        "fees": 0.05344942,
+        "funding_fee": 0.1553468528600239,
+        "mfe_r": 0.766336108435398,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "old_cand_ETCUSDT_1716236100000",
+        "symbol": "ETCUSDT",
+        "generation": "old_cand",
+        "net_pnl": -0.6919258954722186,
+        "gross_pnl": -0.4159999999999985,
+        "fees": 0.06223984,
+        "funding_fee": 0.21368605547222,
+        "mfe_r": 0.9167895486705908,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+        "symbol": "EVAAUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.8628126435299128,
+        "gross_pnl": 1.2337200000000033,
+        "fees": 0.02942601,
+        "funding_fee": 0.3414813464700905,
+        "mfe_r": 1.2052478789089611,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "old_cand_NEARUSDT_1746738900000",
+        "symbol": "NEARUSDT",
+        "generation": "old_cand",
+        "net_pnl": 0.872556714185569,
+        "gross_pnl": 1.0289999999999986,
+        "fees": 0.0568155,
+        "funding_fee": 0.0996277858144296,
+        "mfe_r": 1.5369409063570616,
+        "cat_standard_mixed_indep": "SUSTAINED_TREND"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COMPUSDT_1697644800000_1697954400000",
+        "symbol": "COMPUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 0.9860083704047276,
+        "gross_pnl": 1.3383499999999973,
+        "fees": 0.090915145,
+        "funding_fee": 0.2614264845952698,
+        "mfe_r": 0.92691124349421,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1728907200000_1729789200000",
+        "symbol": "TRXUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -1.029433515907297,
+        "gross_pnl": -0.6934500000000041,
+        "fees": 0.170273025,
+        "funding_fee": 0.1657104909072929,
+        "mfe_r": 0.6312422363354661,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UNIUSDT_1749052800000_1749556800000",
+        "symbol": "UNIUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -1.0520951662911724,
+        "gross_pnl": -0.9639999999999986,
+        "fees": 0.03141,
+        "funding_fee": 0.0566851662911736,
+        "mfe_r": 0.3398971144145353,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CYBERUSDT_1710590400000_1710745200000",
+        "symbol": "CYBERUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.3156687274267989,
+        "gross_pnl": 1.5541400000000016,
+        "fees": 0.04454153,
+        "funding_fee": 0.1939297425732029,
+        "mfe_r": 0.8113323649470146,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788163200000_1788771600000",
+        "symbol": "AGTUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -1.3243707772189557,
+        "gross_pnl": -1.1247999999999985,
+        "fees": 0.020289568,
+        "funding_fee": 0.1792812092189568,
+        "mfe_r": 0.397200737328756,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791072000000_1791748800000",
+        "symbol": "METISUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.4338029399857268,
+        "gross_pnl": 1.5014999999999985,
+        "fees": 0.05297565,
+        "funding_fee": 0.0147214100142714,
+        "mfe_r": 0.7212256726228463,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EGLDUSDT_1663891200000_1664830800000",
+        "symbol": "EGLDUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.5233123935955968,
+        "gross_pnl": 1.773799999999994,
+        "fees": 0.0740313,
+        "funding_fee": 0.1764563064043973,
+        "mfe_r": 0.7699703549966395,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1784073600000_1785128400000",
+        "symbol": "IRYSUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.539279057292265,
+        "gross_pnl": 1.696800000000001,
+        "fees": 0.059792,
+        "funding_fee": 0.097728942707736,
+        "mfe_r": 0.8941853458257696,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUIUSDT_1697630400000_1698112800000",
+        "symbol": "SUIUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.6250624469895416,
+        "gross_pnl": 1.985879999999995,
+        "fees": 0.06482268,
+        "funding_fee": 0.2959948730104532,
+        "mfe_r": 0.7555421387904896,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_API3USDT_1730721600000_1731214800000",
+        "symbol": "API3USDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.6334766953452686,
+        "gross_pnl": 1.78665,
+        "fees": 0.0477090949999999,
+        "funding_fee": 0.1054642096547315,
+        "mfe_r": 0.9809660225651148,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PENGUUSDT_1775102400000_1775937600000",
+        "symbol": "PENGUUSDT",
+        "generation": "cand_ev",
+        "net_pnl": 1.7224947379439337,
+        "gross_pnl": 1.8357599999999985,
+        "fees": 0.05706154,
+        "funding_fee": 0.0562037220560644,
+        "mfe_r": 0.6276788254111125,
+        "cat_standard_mixed_indep": "EARLY_WEAKNESS"
+      },
+      {
+        "candidate_id": "old_cand_COTIUSDT_1640229300000",
+        "symbol": "COTIUSDT",
+        "generation": "old_cand",
+        "net_pnl": -1.7496507425470484,
+        "gross_pnl": -1.8889079999999985,
+        "fees": 0.033123594,
+        "funding_fee": -0.1723808514529499,
+        "mfe_r": 0.275583124607431,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GPSUSDT_1763668800000_1763755200000",
+        "symbol": "GPSUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -1.8733930585279583,
+        "gross_pnl": -5.021772000000003,
+        "fees": 0.035529438,
+        "funding_fee": -3.1839083794720446,
+        "mfe_r": 0.2141193161074998,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_MORPHOUSDT_1754121600000_1754625600000",
+        "symbol": "MORPHOUSDT",
+        "generation": "cand_ev",
+        "net_pnl": -1.9393547676457492,
+        "gross_pnl": -1.778399999999999,
+        "fees": 0.0395226,
+        "funding_fee": 0.1214321676457499,
+        "mfe_r": 0.449087178193896,
+        "cat_standard_mixed_indep": "CHOPPY_OR_OTHER"
+      }
+    ],
+    "conclusion": "用毛盈亏与用净盈亏得到相同的浮盈回吐条数"
+  },
+  "fee_independent_fields_frozen": {
+    "why": "工单第 5 项：ATR 与首触顺序等不依赖费用的字段必须没被意外改变",
+    "fields": [
+      "signal_atr_snapshot",
+      "box_atr_formation",
+      "fwd_ret_4h",
+      "mfe_r_4h",
+      "mae_r_4h",
+      "first_move_4h",
+      "mfe_r",
+      "mfe_atr_full",
+      "t_fav_ms",
+      "t_adv_ms"
+    ],
+    "how_to_check_when_fe07_arrives": "逐 candidate_id 逐字段比，容差 1e-12；NaN 必须对 NaN",
+    "first_move_enum_check": {
+      "allowed_by_contract": [
+        "FIRST_ADVERSE",
+        "FIRST_FAVORABLE",
+        "NEITHER_REACHED_0.3ATR",
+        "UNKNOWN_SAME_BAR"
+      ],
+      "observed": [
+        "FIRST_ADVERSE",
+        "FIRST_FAVORABLE",
+        "NO_DATA",
+        "UNKNOWN_SAME_BAR"
+      ],
+      "out_of_contract": [
+        "NO_DATA"
+      ],
+      "contract_gap": "契约 §2.2 只规定了已成交样本的首触枚举，没有规定未成交怎么标；FE06 对未成交标 NO_DATA。这不是错误，是契约没覆盖的空档",
+      "no_data_count": 22,
+      "unfilled_count": 22,
+      "no_data_equals_unfilled": true,
+      "judgement_rule_for_fe07": "FE07 出现 NO_DATA 不得直接判 FAIL，但必须核对 NO_DATA 条数 == 未成交条数（22）"
+    },
+    "atr_missing_is_known": {
+      "signal_atr_snapshot_missing": 0,
+      "box_atr_formation_missing": 42,
+      "box_atr_missing_by_generation": {
+        "cand_ev": 0,
+        "old_cand": 42
+      },
+      "note": "box_atr_formation 的 42 条空值全部落在窗口回放代际，与 ENTRY-AUDIT-01 的结论一致（该代际箱体几何是坏的，box_high/box_low 实为入场价与止损价）。这些空值**是有据的缺失，不是 0**；FE07 若填成 0 或别的数，即判「把缺值当 0」或「改动不依赖费用字段」"
+    }
+  }
+}

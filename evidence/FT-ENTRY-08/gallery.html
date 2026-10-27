@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FT-ENTRY-08 企稳确认 K线案例复盘画廊</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            max-width: 1400px;
+            margin: 0 auto 30px auto;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+        h1 { color: #58a6ff; margin-bottom: 8px; }
+        .meta-desc { color: #8b949e; font-size: 14px; line-height: 1.6; }
+        .category-section {
+            max-width: 1400px;
+            margin: 0 auto 40px auto;
+        }
+        .category-title {
+            font-size: 20px;
+            font-weight: 600;
+            padding: 10px 16px;
+            background-color: #161b22;
+            border-left: 4px solid #58a6ff;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .case-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #21262d;
+        }
+        .case-name { font-size: 16px; font-weight: bold; color: #f0f6fc; }
+        .case-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-confirmed { background: rgba(38,166,154,0.2); color: #26a69a; border: 1px solid #26a69a; }
+        .badge-rejected { background: rgba(239,83,80,0.2); color: #ef5350; border: 1px solid #ef5350; }
+        .case-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 15px;
+        }
+        .case-info span b { color: #c9d1d9; }
+        .views-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .view-box {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .view-title {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #21262d;
+            color: #8b949e;
+        }
+        .view-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FT-ENTRY-08｜企稳确认 K 线案例复盘全景画廊</h1>
+        <p class="meta-desc">
+            复用 FT-ENTRY-07 回测结果，先固定时间顺序客观选样（4 大类各 3 笔，共 12 笔），直观对比<b>决策视图（截止决策时刻已知数据，绝无未来走势）</b>与<b>复盘视图（展示后续真实路径与平仓结果）</b>。
+        </p>
+    </div>
+
+    <!-- 类别 1 -->
+    <div class="category-section">
+        <div class="category-title" style="border-color: #ef5350;">一、 原方案亏损、确认后放弃 (Avoided Loss)</div>
+        
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 1: AR/USDT (Vs08_Z06)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (outside_retest_zone)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-04 00:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-04 01:00 UTC</b></span>
+                <span>冻结止损 P0: <b>50.6803</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-9.91 USDT (-5.15%)</b></span>
+                <span>C1 结果: <b style="color: #26a69a;">放弃未入场 (成功规避暴跌)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 01:00)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_1_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_1_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 2: AR/USDT (Vs06_Z04)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (outside_retest_zone)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-04 00:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-04 01:00 UTC</b></span>
+                <span>冻结止损 P0: <b>50.7244</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.02 USDT (-5.07%)</b></span>
+                <span>C1 结果: <b style="color: #26a69a;">放弃未入场 (拦截接飞刀)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 01:00)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_2_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_2_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 3: C98/USDT (Vs06_Z06)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (bearish_confirmation_bar)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-17 12:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-17 13:00 UTC</b></span>
+                <span>冻结止损 P0: <b>1.9422</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.19 USDT (-2.48%)</b></span>
+                <span>C1 结果: <b style="color: #26a69a;">放弃未入场 (规避破位)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 13:00)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_3_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT1_AVOIDED_LOSS_3_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 类别 2 -->
+    <div class="category-section">
+        <div class="category-title" style="border-color: #ffa726;">二、 原方案盈利、确认后放弃 (Missed Gain)</div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 4: AVAX/USDT (Vs06_Z02)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (outside_retest_zone)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-13 22:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-13 23:00 UTC</b></span>
+                <span>冻结止损 P0: <b>75.1509</b></span>
+                <span>C0 真实盈亏: <b style="color: #26a69a;">+53.23 USDT (+33.30%)</b></span>
+                <span>C1 结果: <b style="color: #ef5350;">放弃未入场 (错失主升浪)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 23:00)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_1_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_1_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 5: CHZ/USDT (Vs08_Z02)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (outside_retest_zone)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-15 18:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-15 19:00 UTC</b></span>
+                <span>冻结止损 P0: <b>0.2568</b></span>
+                <span>C0 真实盈亏: <b style="color: #26a69a;">+2.67 USDT (+0.90%)</b></span>
+                <span>C1 结果: <b style="color: #8b949e;">放弃未入场 (错失微利)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 19:00)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_2_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_2_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 6: BTC/USDT (Vs04_Z06)</div>
+                <div class="case-badge badge-rejected">C1 REJECTED (outside_retest_zone)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-17 22:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-17 23:00 UTC</b></span>
+                <span>冻结止损 P0: <b>45251.21</b></span>
+                <span>C0 真实盈亏: <b style="color: #26a69a;">+19.40 USDT (+4.19%)</b></span>
+                <span>C1 结果: <b style="color: #ef5350;">放弃未入场 (错失反弹波段)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 23:00)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_3_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT2_MISSED_GAIN_3_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 类别 3 -->
+    <div class="category-section">
+        <div class="category-title" style="border-color: #26a69a;">三、 确认后仍成交且结果改善 (Delayed Improved)</div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 7: BCH/USDT (Vs04_Z02)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2021-12-13 21:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2021-12-13 22:00 UTC</b></span>
+                <span>冻结止损 P0: <b>412.2815</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-4.24 USDT (-0.93%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #26a69a;">+13.32 USDT (+5.38%) (由亏转盈)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 22:00)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_1_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_1_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 8: CHZ/USDT (Vs04_Z06)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2022-01-07 20:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2022-01-07 21:00 UTC</b></span>
+                <span>冻结止损 P0: <b>0.2590</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.64 USDT (-2.70%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #8b949e;">-10.41 USDT (-2.93%) (头寸缩小减亏)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 21:00)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_2_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_2_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 9: COMP/USDT (Vs04_Z06)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2022-01-18 11:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2022-01-18 12:00 UTC</b></span>
+                <span>冻结止损 P0: <b>172.9000</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.81 USDT (-1.80%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #8b949e;">-10.59 USDT (-1.78%) (减亏)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 12:00)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_3_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT3_DELAYED_IMPROVED_3_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 类别 4 -->
+    <div class="category-section">
+        <div class="category-title" style="border-color: #d32f2f;">四、 确认后仍成交但结果变差 (Delayed Degraded)</div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 10: BNB/USDT (Vs08_Z02)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2022-01-04 06:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2022-01-04 07:00 UTC</b></span>
+                <span>冻结止损 P0: <b>503.3478</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-7.87 USDT (-1.28%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #ef5350;">-9.60 USDT (-1.56%) (追高扩大亏损)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 07:00)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_1_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_1_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 11: AR/USDT (Vs08_Z06)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2022-01-06 11:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2022-01-06 12:00 UTC</b></span>
+                <span>冻结止损 P0: <b>52.4864</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.33 USDT (-4.02%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #ef5350;">-10.48 USDT (-3.63%) (微幅变差)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 12:00)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_2_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_2_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+
+        <div class="case-card">
+            <div class="case-header">
+                <div class="case-name">案例 12: C98/USDT (Vs08_Z04)</div>
+                <div class="case-badge badge-confirmed">C1 CONFIRMED (confirmed_valid)</div>
+            </div>
+            <div class="case-info">
+                <span>原信号时刻 T0: <b>2022-01-09 11:00 UTC</b></span>
+                <span>确认时刻 T1: <b>2022-01-09 12:00 UTC</b></span>
+                <span>冻结止损 P0: <b>2.2301</b></span>
+                <span>C0 真实盈亏: <b style="color: #ef5350;">-10.26 USDT (-3.78%)</b></span>
+                <span>C1 真实盈亏: <b style="color: #ef5350;">-10.56 USDT (-2.73%) (下跌中继陷阱)</b></span>
+            </div>
+            <div class="views-grid">
+                <div class="view-box">
+                    <div class="view-title">决策视图 (Decision View - 仅截止 12:00)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_3_decision.svg" alt="Decision View">
+                </div>
+                <div class="view-box">
+                    <div class="view-title">复盘视图 (Review View - 后续路径)</div>
+                    <img src="charts/CAT4_DELAYED_DEGRADED_3_review.svg" alt="Review View">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

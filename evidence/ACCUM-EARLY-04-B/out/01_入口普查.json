@@ -1,0 +1,220 @@
+{
+ "generated_utc": "2026-10-26T14:16:39Z",
+ "static": {
+  "accum_research.py": {
+   "lines": 286,
+   "has_market_read": false,
+   "has_state_progress": false,
+   "has_order_call": true,
+   "purpose": "三组入口的配置校验 + 研究账本 DDL（open_ledger/log_blocked）",
+   "verdict": "占位：入口与账本在，行情读取/状态推进/下单调用三者全无"
+  },
+  "accum_pending.py": {
+   "lines": 436,
+   "has_market_read": false,
+   "has_state_progress": false,
+   "has_order_call": false,
+   "purpose": "待决表 / 口径冲突表 / 三组提案文本",
+   "verdict": "占位：纯数据表，不推进任何状态"
+  },
+  "observe_store.py": {
+   "lines": 377,
+   "has_market_read": false,
+   "has_state_progress": true,
+   "has_order_call": false,
+   "purpose": "观察事件/候选/迁移/数据缺口的持久化（含 scheme 列与隔离断言）",
+   "verdict": "可复用：负责「记录」，不负责「取数」与「下单」"
+  },
+  "research_15m.py": {
+   "lines": 626,
+   "has_market_read": true,
+   "has_state_progress": false,
+   "has_order_call": false,
+   "purpose": "15m/1h/4h 冷+热合并读取（Merged15m / MergedReader / MergedMarket）",
+   "verdict": "可运行：只读，03-B 已把成交/退出接上"
+  },
+  "paper_engine.py": {
+   "lines": 2712,
+   "has_market_read": true,
+   "has_state_progress": true,
+   "has_order_call": true,
+   "purpose": "模拟执行：委托/成交/止损/退出/资金费/账本",
+   "verdict": "可运行：03-B 已在隔离账本里跑通三条真实事件"
+  },
+  "state_machine.py（冻结包）": {
+   "lines": 683,
+   "transition_sites": 4,
+   "states_referenced": {
+    "EventState.BOX": 3,
+    "EventState.SWEEP": 2,
+    "EventState.RETEST": 2,
+    "EventState.CANDIDATE": 1,
+    "EventState.INVALIDATED": 3,
+    "EventState.EXPIRED": 4
+   },
+   "purpose": "BOX→SWEEP(必须跌破下沿L)→RETEST→突破上沿",
+   "verdict": "不可直接表达甲乙丙：迁移条件写死在冻结包里，而甲乙丙的起点与确认方式不同；改它 = 改冻结规则 ⇒ 本单不改"
+  },
+  "paper_loop.py": {
+   "lines": 347,
+   "mentions_L_ARMS": 0,
+   "purpose": "生产挂钟循环 / 接口",
+   "verdict": "只跑 3a–3d：研究臂 4a–4c 不在其循环与接口内（本单不改）"
+  },
+  "unified_runtime.py": {
+   "lines": 3156,
+   "mentions_L_ARMS": 0,
+   "purpose": "生产挂钟循环 / 接口",
+   "verdict": "只跑 3a–3d：研究臂 4a–4c 不在其循环与接口内（本单不改）"
+  },
+  "live_api.py": {
+   "lines": 2176,
+   "mentions_L_ARMS": 19,
+   "purpose": "生产挂钟循环 / 接口",
+   "verdict": "只跑 3a–3d：研究臂 4a–4c 不在其循环与接口内（本单不改）"
+  }
+ },
+ "runtime": {
+  "accum_research.validate(4a)": {
+   "ready": false,
+   "pending_count": 13,
+   "auto_entry_allowed": false,
+   "can_open": {
+    "allowed": false,
+    "reason": "pending_params_present",
+    "pending": [
+     "local_resistance_definition",
+     "local_resistance_confirm",
+     "sweep_bars",
+     "sell_pressure_baseline",
+     "sell_pressure_threshold",
+     "observe_deadline_hours",
+     "pullback_deadline_hours",
+     "intrabar_break_cancel",
+     "entry_distance_limit",
+     "oi_necessity",
+     "repeat_candidate_limit",
+     "risk_budget_new_scheme",
+     "slippage_source"
+    ],
+    "note": "数据、记录、隔离验证不受影响；只阻塞开仓"
+   }
+  },
+  "accum_pending.validate": {
+   "通过": true,
+   "错误": [],
+   "计数": {
+    "已确定": 11,
+    "口径冲突": 4,
+    "真待决": 11,
+    "提案": 3
+   }
+  },
+  "observe_store（临时库）": {
+   "assert_isolated": true,
+   "create_event": true,
+   "rescan_keeps_deadline": true,
+   "transitions": 4,
+   "candidates": 1,
+   "final_state": "EXPIRED"
+  },
+  "research_15m 三周期": {
+   "1h": {
+    "bars": 168,
+    "first": "2026-08-01T00:00:00Z",
+    "source_first": "cold"
+   },
+   "4h": {
+    "bars": 42,
+    "first": "2026-08-01T00:00:00Z",
+    "source_first": "cold"
+   },
+   "15m": {
+    "bars": 672,
+    "first": "2026-08-01T00:00:00Z",
+    "source_first": "cold"
+   }
+  },
+  "live_store.ledger_path(4a) 未设 PAPER_LEDGER_DIR": {
+   "ok": false,
+   "error": "ValueError",
+   "message": "研究臂 '4a' 必须显式设置 PAPER_LEDGER_DIR（拒绝落在生产账本目录 /Users/boos/Desktop/威科夫因子共振趋势/数据/paper）"
+  },
+  "live_store.ledger_path(9z) 未知臂": {
+   "ok": false,
+   "error": "ValueError",
+   "message": "未知臂：'9z'"
+  },
+  "live_store.ledger_path(3a) 生产臂": {
+   "ok": true,
+   "value": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3"
+  },
+  "live_store.RESEARCH_ARMS": [
+   "4a",
+   "4b",
+   "4c"
+  ],
+  "live_store.ARMS": [
+   "3a",
+   "3b",
+   "3c",
+   "3d"
+  ],
+  "live_api.paper_order_post(arm=4a)": {
+   "http": 400,
+   "missing_reason": "未知臂 '4a'（应为 ['3a', '3b', '3c', '3d']）",
+   "ok": null
+  }
+ },
+ "minimal_change_list": [
+  {
+   "file": "框架/backend/accum_early_entry.py",
+   "kind": "新增",
+   "what": "配置闸门（36 个必填字段、无默认值）+ 1h/4h/15m 取数 + 甲乙丙观察状态机+ 候选条件表 + 委托桥 + 隔离断言",
+   "why": "现有入口没有「甲乙丙的观察推进」与「未批准即阻塞」的实现",
+   "applied": true
+  },
+  {
+   "file": "框架/backend/live_store.py",
+   "kind": "修改（3 处）",
+   "what": "① 新增 RESEARCH_ARMS=('4a','4b','4c')；② ledger_path() 允许研究臂，但**强制**要求显式 PAPER_LEDGER_DIR，否则拒绝（默认目录=生产）；③ 缺库提示里 ARMS.index(arm) 加保护，避免研究臂抛 ValueError 而不是 LedgerUnavailable",
+   "why": "实测阻塞：paper_engine.open_position(arm='4a') 在 live_store.ledger_path 抛 ValueError: 未知臂 '4a' ⇒ 不开这条口子就必须另写一套账本，违反「不另建引擎」",
+   "applied": true
+  },
+  {
+   "file": "框架/backend/observe_store.py",
+   "kind": "未改",
+   "what": "直接复用（scheme 列 + 隔离断言 + 事件/候选/迁移/缺口表）",
+   "why": "已有能力足够，改它没有收益",
+   "applied": false
+  },
+  {
+   "file": "框架/backend/research_15m.py",
+   "kind": "未改",
+   "what": "用 MergedReader('1h') 直接取 1h；MergedMarket 只暴露 15m/4h 也不影响",
+   "why": "不需要为 1h 改共享门面",
+   "applied": false
+  },
+  {
+   "file": "框架/backend/paper_engine.py",
+   "kind": "未改",
+   "what": "只调用 open_position / check_position_exit_on_bar / advance_position_trailing",
+   "why": "经济规则与成交模型不在本单授权范围",
+   "applied": false
+  },
+  {
+   "file": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+   "kind": "未改",
+   "what": "只读复用箱体门槛参数与 ATR/ER 特征函数",
+   "why": "改它 = 改冻结规则；甲乙丙在**研究侧**另建观察推进，不碰冻结包",
+   "applied": false
+  },
+  {
+   "file": "框架/backend/paper_loop.py / unified_runtime.py / live_api.py / api/*",
+   "kind": "未改（协调项）",
+   "what": "生产循环与 HTTP 接口只认 ARMS=3a–3d ⇒ 研究臂没有端点、前端不展示",
+   "why": "本单不接前端、不改生产循环；已列入剩余阻塞",
+   "applied": false
+  }
+ ]
+}

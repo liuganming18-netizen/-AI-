@@ -1,0 +1,8 @@
+path,condition,expected_decision,actual_decision,reason_code,passed
+路径 1: 执行价格低于 H (rate < H),"rate=99.50, H=100.0",PASS,PASS,fill_price_lt_frozen_h,True
+路径 2: 执行价格等于 H (rate == H),"rate=100.00, H=100.0",REJECT,REJECT,fill_price_ge_frozen_h_equal,True
+路径 3: 执行价格高于 H (rate > H),"rate=100.50, H=100.0",REJECT,REJECT,fill_price_ge_frozen_h_greater,True
+路径 4: 禁止挂单等回落与新增重试 (二次调用拦截),"cand2 再次调用, rate=98.00 (<H)",REJECT,REJECT,retry_prohibited_already_evaluated,True
+路径 5: 执行时刻与信号可用时间因果约束,execution=2023-11-14 22:28:20+00:00 >= signal=2023-11-14 22:13:20+00:00,Causal Valid,Causal Valid,t_exec >= t_available,True
+路径 6: 成交模型使用执行时刻确定性拟成交价,不利用未闭合或未来K线的最低价,Strict Propose Rate,Strict Propose Rate,use_propose_rate_only,True
+路径 7: Baseline 突破后入场保持对照不受限,rate=101.00 > H=100.0,PASS (Baseline),PASS,baseline_unaffected,True

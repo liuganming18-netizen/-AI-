@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  热转冷导出：每 10 分钟跑一轮，把热库已闭合的 K 线/持仓量增量导到冷层 parquet。
+  安装：
+      cp 框架/backend/导出任务.plist ~/Library/LaunchAgents/com.weikefu.hot2cold.plist
+      launchctl load ~/Library/LaunchAgents/com.weikefu.hot2cold.plist
+  卸载：
+      launchctl unload ~/Library/LaunchAgents/com.weikefu.hot2cold.plist
+      rm ~/Library/LaunchAgents/com.weikefu.hot2cold.plist
+  日志：回测日志/热转冷导出.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.weikefu.hot2cold</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/exporter.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/boos/Desktop/威科夫因子共振趋势</string>
+
+  <key>StartInterval</key>
+  <integer>600</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/boos/Desktop/威科夫因子共振趋势/回测日志/热转冷导出.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/boos/Desktop/威科夫因子共振趋势/回测日志/热转冷导出.stderr.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>

@@ -1,0 +1,39 @@
+== BT-UI-02 最终验证 2026-10-18T09:20:51Z ==
+后端 pid: 22952  采集 pid: 91617
+
+健康: {"状态": "可用", "模式": "本机只读"}
+批次列表: http=200 0.001s 共 8 个
+   runs                     1198 run
+   runs_sep_all_latest      528 run
+   runs_sep50_strict        50 run
+   runs_sep50_check         50 run
+   runs_sep50_full          50 run
+   runs_sep50               50 run
+   runs_2025aug100          102 run
+   runs_aug100              102 run
+
+批次汇总: http=200 0.00s
+  笔数=12 胜=7 负=5 净盈亏合计=15.17577051 手续费=0.75189427 资金费=0.40303722
+  自洽: 汇总笔数=12 逐笔行数=12 汇总净盈亏=15.17577051 逐笔合计=15.17577051 ⇒ ✅ 一致
+
+runs 批次逐笔: 666 笔, 缺交易号 0, 缺初始止损 0, 缺信号时间 0
+  样例: COTIUSDT trd_ad399f74726f0325eadbd05a | positions.jsonl(POSITION_CLOSED，按平仓时刻+净盈亏对齐)
+
+缺 chart.json ⇒ 读时重建
+  run_WX_EVENT_TREND_V0_1_1000000MOGUSDT_1792273856
+  http=200 0.27s 窗口=2024-12-05→2025-12-05 UTC K线=35040 根 成交点=1
+  来历=chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录
+
+盘上图表窗口错 ⇒ 拒收并重画
+  run_WX_EVENT_TREND_V0_1_ALICEUSDT_1792274021
+  http=200 0.27s 窗口=2021-12-18→2022-12-18 UTC K线=35040 根 成交点=1
+  来历=盘上 chart.json 的窗口 2024-01-01→2024-06-30（UTC）与本 run 自己的窗口 2021-12-18→2022-12-18（UTC，来源 inputs.json(data_summary.time_range_1h)）不符 ⇒ 拒收该图表，改按本 run 窗口重建；K 线为本 run 窗口内真实行情（标的
+
+盘上图表窗口对 ⇒ 原样使用
+  run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009
+  http=200 0.08s 窗口=2026-09-01→2026-10-17 UTC K线=4489 根 成交点=1
+  来历=盘上 chart.json 直接可用（窗口与本 run 一致）
+
+live/health: {"quality": {"status": "down", "age_seconds": null, "worker_status": "down", "worker_ttl_seconds": 2250.0, "worker_down_after_seconds": 5400.0, "worker_interval_seconds": 900, "heartbeats": {"signal_engine": {"heartbeat_utc": null, "age_seconds": null}, "account_reader": {"heartbeat_utc": null, "age_seconds": null}}, "ledger_available": true, "ledger_source": {"kind": "paper_ledger", "ledger_dir":
+paper/positions: http= 200
+pool/status: http= 200

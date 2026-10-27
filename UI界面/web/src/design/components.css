@@ -30,31 +30,36 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  gap: var(--ds-3);
-  padding: var(--ds-3);
+  gap: var(--ds-4);
+  /* 上下加大给区块呼吸，**左右保持 22px** —— 必须与 `.ds-pagehead` 的 22px 严格
+   * 对齐（页头是滚动容器的兄弟节点，改一处不改另一处就会出现 2px 错位）。 */
+  padding: 16px 22px 32px;
   background: var(--ds-canvas);
   color: var(--ds-text-2);
 }
 
-/* 页面顶部固定区（标题 + 主操作 + 区块导航） */
+/* 页面顶部固定区（标题 + 主操作 + 区块导航）
+ * 【2026-10-18 对齐设计稿】设计稿的页头**不是**毛玻璃 sticky 条，而是页面里
+ * 一个普通横排：`h1` 22px + 分段页签 + 右侧说明，整体 `margin-bottom:12px`。
+ * 这里保留 `.ds-pagehead` 这个类名（调用方不用改），但外观改成设计稿的形态。 */
 .ds-pagehead {
-  position: sticky;
-  top: 0;
-  z-index: 40;
   display: flex;
   flex-direction: column;
   gap: var(--ds-2);
-  padding: var(--ds-3) var(--ds-4);
-  background: var(--ds-overlay);
-  backdrop-filter: blur(14px) saturate(150%);
-  border-bottom: 1px solid var(--ds-border);
+  /* 设计稿的页头在 `.body` 的内边距里，左右与内容对齐（22px）；
+   * 下边距由 `.ds-pagehead__row` 的 12px 承担，与设计稿 `.top` 一致。 */
+  padding: 16px 22px 0;
+  background: transparent;
+  border-bottom: 0;
+  backdrop-filter: none;
 }
 
 .ds-pagehead__row {
   display: flex;
   align-items: center;
-  gap: var(--ds-3);
+  gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
 .ds-pagehead__title {
@@ -64,17 +69,19 @@
   min-width: 0;
 }
 
+/* 页面主标题：22px / 700 —— 全站**唯一**允许使用 700 的位置 */
 .ds-pagehead__title h1 {
   margin: 0;
-  font-size: var(--ds-fs-lg);
+  font-size: var(--ds-fs-xl);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   color: var(--ds-text);
+  line-height: 1.3;
 }
 
 .ds-pagehead__sub {
-  font-size: var(--ds-fs-xs);
-  color: var(--ds-text-3);
+  font-size: var(--ds-fs-sm);
+  color: var(--ds-text-4);
 }
 
 .ds-pagehead__spacer {
@@ -83,15 +90,81 @@
 
 /* ============================ 卡片 ============================ */
 
+/* 【2026-10-19 质感升级 · B1】层级只允许出现在「表面色」上，不允许出现在
+ * 「边框」上：一屏最多两层边框 —— 卡片一层，输入/按钮一层。
+ * 卡片描边从 --ds-border 降到 --ds-border-subtle，并用 --ds-shadow-card 托底
+ * （浅色 = 1px 投影；深色 = 内顶高光，让卡「浮」在画布上）。 */
 .ds-card {
   background: var(--ds-surface);
-  border: 1px solid var(--ds-border);
+  border: 1px solid var(--ds-border-subtle);
   border-radius: var(--ds-r-lg);
-  box-shadow: var(--ds-shadow-xs);
+  box-shadow: var(--ds-shadow-card);
+  padding: 16px 18px;
+  margin-bottom: 12px;
   overflow: hidden;
   color: var(--ds-text-2);
   /* 锚点跳转时预留「容器内 sticky 工具条」的高度，标题不被遮住 */
   scroll-margin-top: calc(var(--ds-toolbar-h) + var(--ds-4));
+}
+
+/* 卡内「二级容器」一律去描边、改底色 —— 一条规则消灭四页的框套框。
+ * 覆盖：指标卡、表格外框、折叠区、紧凑指标条、嵌套卡片。
+ * ⚠ 去描边必须写 `border-color: transparent`（保留 1px 宽度），
+ *   写成 `border: 0` 会改盒模型尺寸，整页位移 1–2px。
+ * 注意 .ds-tablewrap 用 transparent 而不是 surface-2：表格要「直接长在卡片上」，
+ * 否则表头（surface）与外框（surface-2）会出现一条色差，反而更像 Excel。 */
+.ds-card .ds-stat,
+.ds-card .ds-details,
+.ds-card .ds-metrics-inline,
+.ds-card .ds-card {
+  border-color: transparent;
+  background: var(--ds-surface-2);
+  box-shadow: none;
+}
+
+.ds-card .ds-tablewrap {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* 提示条在卡内不再有完整描边（保留左侧语义竖线，见下方 .ds-note）。
+ * ⚠ 不要写 border-color: transparent —— 那是四条边一起清，左侧那条语义竖线
+ *   会被一起清掉，提示条就变成「一块没有身份的小灰块」。必须逐边清。 */
+.ds-card .ds-note {
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-width: 2px;
+  border-left-style: solid;
+  box-shadow: none;
+}
+
+/* ── 数据中心数据源瓦片（17 个） ────────────────────────────────────────
+ * 2026-10-19 第四轮：上一版靠 `.ds-card button.group` + `[class*="accent-50"]`
+ * 做钩子（当时不许改 className）。现在 className 已放开，改成真类名，规则和
+ * 标记一一对应，不再靠子串匹配猜状态。
+ *
+ * 层级只有两层：卡片 → 瓦片。瓦片内**不再**有第三层「图标底色」。
+ * 底色取 surface-3 而不是 surface-2：浅色下 surface-2(#fafbfc) 与卡片白
+ * 只差 1.02:1，17 个瓦片会糊成一片白；surface-3(#f0f2f4) 才看得出是块。 */
+.ds-tile {
+  background: var(--ds-surface-3);
+  border: 1px solid transparent; /* 保留 1px 宽度：写 border:0 会改盒模型导致位移 */
+  border-radius: var(--ds-r-md);
+  transition: background var(--ds-dur-fast) var(--ds-ease);
+}
+.ds-tile:hover {
+  background: var(--ds-surface-2);
+}
+/* 异常瓦片：近中性红底（不是整块铺色），标签与角标才是真信号 */
+.ds-tile--abnormal {
+  background: var(--ds-neg-bg-soft);
+}
+/* 选中态：只留「accent-50 底色 + 一条 2px 品牌竖线」，
+ * 去掉 border 实色 / ring-1 / shadow-sm 三重多余信号。 */
+.ds-tile.is-selected {
+  background: var(--ds-accent-50);
+  box-shadow: inset 2px 0 0 0 var(--ds-accent);
 }
 
 /* 锚点容器：给「非卡片」区块（图表面板等）预留顶部固定区高度，
@@ -100,15 +173,18 @@
   scroll-margin-top: calc(var(--ds-toolbar-h) + var(--ds-4));
 }
 
+/* 卡片标题行：不加分隔线，靠 10px 空隙分隔。
+ * ⚠ 不要给这里加 border-bottom 或浅色底：四页共 40+ 张卡，每张多一条线就是
+ *   40 条线 —— 这是「简洁」最容易翻车的地方。 */
 .ds-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--ds-2);
   flex-wrap: wrap;
-  padding: 9px var(--ds-3);
-  background: linear-gradient(180deg, var(--ds-surface), var(--ds-surface-2));
-  border-bottom: 1px solid var(--ds-border-subtle);
+  padding: 0 0 10px;
+  background: transparent;
+  border-bottom: 0;
 }
 
 /* 可折叠卡片：`<details class="ds-card">` + `<summary class="ds-card__head">`。
@@ -142,25 +218,24 @@ details.ds-card > summary.ds-card__head:hover {
   background: var(--ds-surface-3);
 }
 
+/* 卡片标题：15px / 600 / **一级文字**。
+ * 关键在颜色 —— 从 text-2 提到 text-1，标题才比正文「重」，
+ * 不必靠加分隔线来分隔（三级对比：标题 18.3:1 ↔ 正文 13.1:1 ↔ meta 4.2:1）。 */
 .ds-card__title {
   display: flex;
   align-items: center;
   gap: var(--ds-2);
   font-size: var(--ds-fs-md);
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  font-weight: var(--ds-fw-title);
+  letter-spacing: 0;
   color: var(--ds-text);
+  line-height: 1.35;
   min-width: 0;
 }
 
-/* 标题左侧品牌竖条：用伪元素承载，不占 DOM 节点 */
+/* 设计稿标题没有左侧品牌竖条 ⇒ 关掉伪元素，保持 DOM 不变 */
 .ds-card__title::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 3px;
-  height: 13px;
-  border-radius: 2px;
-  background: var(--ds-accent);
+  content: none;
 }
 
 /* 次要区块（如「⑤b 订单明细」这类附属块）用灰色竖条降级 */
@@ -168,17 +243,20 @@ details.ds-card > summary.ds-card__head:hover {
   background: var(--ds-border-strong);
 }
 
+/* 右侧说明：降到四级文字，不抢标题 */
 .ds-card__meta {
   display: flex;
   align-items: center;
   gap: var(--ds-2);
   flex-wrap: wrap;
   font-size: var(--ds-fs-xs);
-  color: var(--ds-text-3);
+  color: var(--ds-text-4);
+  line-height: 1.5;
 }
 
+/* 内边距由卡片本身承担（设计稿 `.c{padding:14px 16px}`）⇒ 内容区不再叠加 */
 .ds-card__body {
-  padding: var(--ds-3);
+  padding: 0;
 }
 
 .ds-card__foot {
@@ -192,18 +270,22 @@ details.ds-card > summary.ds-card__head:hover {
 
 /* ============================ 按钮 ============================ */
 
+/* 三档层次靠什么区分（不靠阴影）：
+ *   主按钮 = 实底，一屏最多 1 个（每张卡片最多 1 个）；
+ *   次按钮 = 描边 + 白底，用于「次要但确定」的动作；
+ *   幽灵   = 无底无边，用于工具条里的视图切换、图标按钮。 */
 .ds-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 10px;
+  height: 30px;
+  padding: 0 12px;
   border: 1px solid transparent;
   border-radius: var(--ds-r-md);
   font-family: var(--ds-font);
   font-size: var(--ds-fs-sm);
-  font-weight: 600;
+  font-weight: var(--ds-fw-medium);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -218,15 +300,22 @@ details.ds-card > summary.ds-card__head:hover {
   box-shadow: var(--ds-ring);
 }
 
+/* 主按钮：去阴影（阴影让按钮「浮起来」，而按钮本来就该平贴在卡片上）。
+ * ⚠ 文字色必须用 --ds-accent-fg，不能写 #fff：深色主题下亮绿底配白字只有
+ *   2.99:1，不达 AA。 */
 .ds-btn--primary {
   background: var(--ds-accent);
-  color: #fff;
-  box-shadow: var(--ds-shadow-xs);
+  color: var(--ds-accent-fg);
+  box-shadow: none;
 }
 .ds-btn--primary:hover {
   background: var(--ds-accent-600);
 }
+.ds-btn--primary:active {
+  background: var(--ds-accent-700);
+}
 
+/* 次按钮：描边降到 --ds-border（旧 border-strong 偏重），悬停提亮底色 */
 .ds-btn--secondary {
   background: var(--ds-surface);
   border-color: var(--ds-border);
@@ -237,49 +326,60 @@ details.ds-card > summary.ds-card__head:hover {
   border-color: var(--ds-border-strong);
   color: var(--ds-text);
 }
+.ds-btn--secondary:active {
+  background: var(--ds-surface-3);
+}
 
+/* 幽灵按钮：默认无任何底色，只在悬停时出现 */
 .ds-btn--ghost {
   background: transparent;
   color: var(--ds-text-3);
 }
 .ds-btn--ghost:hover {
+  background: var(--ds-surface-2);
+  color: var(--ds-text-2);
+}
+.ds-btn--ghost:active {
   background: var(--ds-surface-3);
-  color: var(--ds-text);
 }
 
 .ds-btn--danger {
   background: var(--ds-neg);
   color: #fff;
 }
+.ds-btn--danger:hover {
+  filter: brightness(0.94);
+}
 
 .ds-btn:disabled,
 .ds-btn[aria-disabled="true"] {
-  background: var(--ds-surface-3);
-  border-color: var(--ds-border);
+  background: var(--ds-surface-2);
+  border-color: transparent;
   color: var(--ds-text-4);
   box-shadow: none;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .ds-btn--sm {
-  height: 24px;
-  padding: 0 8px;
+  height: 26px;
+  padding: 0 10px;
   font-size: var(--ds-fs-xs);
   gap: 4px;
 }
 
 .ds-btn--lg {
-  height: 32px;
-  padding: 0 14px;
-  font-size: var(--ds-fs-md);
+  height: 34px;
+  padding: 0 16px;
+  font-size: var(--ds-fs-sm);
 }
 
 .ds-btn--icon {
-  width: 28px;
+  width: 30px;
   padding: 0;
 }
 .ds-btn--icon.ds-btn--sm {
-  width: 24px;
+  width: 26px;
 }
 
 /* ============================ 输入 ============================ */
@@ -309,64 +409,79 @@ details.ds-card > summary.ds-card__head:hover {
   text-overflow: ellipsis;
 }
 
+/* 输入框里是「人写的内容」⇒ 用无衬线；数字型输入另走 mono（见下）。 */
 .ds-input,
 .ds-select {
   width: 100%;
-  height: 28px;
-  padding: 0 8px;
-  font-family: var(--ds-mono);
+  height: 30px;
+  padding: 0 10px;
+  font-family: var(--ds-font);
   font-size: var(--ds-fs-sm);
-  font-variant-numeric: tabular-nums;
   color: var(--ds-text);
   background: var(--ds-surface);
-  border: 1px solid var(--ds-border);
+  /* 输入框描边要比卡片深一档，才「立得住」（一屏允许的第二层边框就是它） */
+  border: 1px solid var(--ds-border-strong);
   border-radius: var(--ds-r-md);
   transition: border-color var(--ds-dur-fast) var(--ds-ease),
-    box-shadow var(--ds-dur-fast) var(--ds-ease);
+    box-shadow var(--ds-dur-fast) var(--ds-ease),
+    background var(--ds-dur-fast) var(--ds-ease);
+}
+
+/* 数字型输入保留等宽 */
+.ds-input.ds-num,
+input.ds-input[inputmode="decimal"],
+input.ds-input[type="number"] {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .ds-input::placeholder {
   color: var(--ds-text-4);
 }
 
+/* 悬停只提一档，不要跳到品牌色 */
 .ds-input:hover,
 .ds-select:hover {
-  border-color: var(--ds-border-strong);
+  border-color: var(--ds-text-4);
 }
 
 .ds-input:focus,
 .ds-select:focus {
   outline: none;
-  border-color: var(--ds-border-focus);
+  border-color: var(--ds-accent);
   box-shadow: var(--ds-ring);
+  background: var(--ds-surface);
 }
 
 .ds-input:disabled {
-  background: var(--ds-surface-3);
+  background: var(--ds-surface-2);
+  border-color: transparent;
   color: var(--ds-text-4);
   cursor: not-allowed;
 }
 
 /* ============================ 分段控件 ============================ */
 
+/* 分段控件 = 灰底条 + 白色选中块（无描边）。 */
 .ds-seg {
   display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  background: var(--ds-surface-3);
-  border: 1px solid var(--ds-border);
+  gap: 0;
+  padding: 3px;
+  background: var(--ds-tabstrip);
+  border: 0;
   border-radius: var(--ds-r-md);
 }
 
 .ds-seg__item {
-  height: 24px;
-  padding: 0 10px;
+  height: auto;
+  padding: 5px 14px;
   border: 0;
-  border-radius: calc(var(--ds-r-md) - 2px);
+  border-radius: var(--ds-r-sm);
   background: transparent;
   font-family: var(--ds-font);
-  font-size: var(--ds-fs-xs);
-  font-weight: 600;
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-medium);
+  line-height: 1.55;
   color: var(--ds-text-3);
   cursor: pointer;
   white-space: nowrap;
@@ -375,12 +490,13 @@ details.ds-card > summary.ds-card__head:hover {
 }
 
 .ds-seg__item:hover {
-  color: var(--ds-text);
+  color: var(--ds-text-2);
 }
 
 .ds-seg__item[aria-selected="true"] {
   background: var(--ds-surface);
-  color: var(--ds-accent-700);
+  color: var(--ds-text-2);
+  font-weight: var(--ds-fw-medium);
   box-shadow: var(--ds-shadow-xs);
 }
 
@@ -400,7 +516,7 @@ details.ds-card > summary.ds-card__head:hover {
 }
 
 .ds-opt {
-  height: 22px;
+  height: 24px;
   padding: 0 7px;
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-r-sm);
@@ -422,8 +538,9 @@ details.ds-card > summary.ds-card__head:hover {
 .ds-opt[aria-pressed="true"] {
   background: var(--ds-accent);
   border-color: var(--ds-accent);
-  color: #fff;
-  font-weight: 700;
+  /* 强调底上的文字必须用 --ds-accent-fg（深色下白字压亮绿只有 2.99:1） */
+  color: var(--ds-accent-fg);
+  font-weight: var(--ds-fw-strong);
 }
 
 .ds-opt:disabled {
@@ -436,6 +553,8 @@ details.ds-card > summary.ds-card__head:hover {
 
 /* ============================ 徽标 / 芯片 ============================ */
 
+/* 【B4】三重信号（描边 + 底色 + 彩色字 + 700）降到两重（底色 + 文字色）。
+ * 一屏 27 个徽标，每个少一圈线，整屏立刻安静。 */
 .ds-badge {
   display: inline-flex;
   align-items: center;
@@ -444,78 +563,90 @@ details.ds-card > summary.ds-card__head:hover {
   /* 宽度由内容决定：窄表格列会把徽标压到比文字还窄，导致中文竖排 */
   width: max-content;
   min-width: max-content;
-  height: 18px;
-  padding: 0 6px;
-  border: 1px solid;
+  height: 20px;
+  padding: 0 7px;
+  /* 描边归零，但**保留属性**以免布局跳动 */
+  border: 1px solid transparent;
   border-radius: var(--ds-r-sm);
-  font-family: var(--ds-mono);
+  /* 从 mono 改无衬线：中文在 mono 下字距不匀 */
+  font-family: var(--ds-font);
   font-size: var(--ds-fs-2xs);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: var(--ds-fw-strong);
+  letter-spacing: 0.01em;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .ds-badge--neutral {
-  color: var(--ds-neutral-fg);
-  background: var(--ds-neutral-bg);
-  border-color: var(--ds-neutral-border);
+  color: var(--ds-text-3);
+  background: var(--ds-surface-3);
 }
 .ds-badge--pos {
   color: var(--ds-pos);
   background: var(--ds-pos-bg);
-  border-color: var(--ds-pos-border);
 }
 .ds-badge--neg {
   color: var(--ds-neg);
   background: var(--ds-neg-bg);
-  border-color: var(--ds-neg-border);
 }
 .ds-badge--warn {
   color: var(--ds-warn);
   background: var(--ds-warn-bg);
-  border-color: var(--ds-warn-border);
 }
 .ds-badge--info {
   color: var(--ds-info);
   background: var(--ds-info-bg);
-  border-color: var(--ds-info-border);
 }
 .ds-badge--accent {
-  color: var(--ds-accent-700);
+  color: var(--ds-accent-text);
   background: var(--ds-accent-50);
-  border-color: var(--ds-accent-100);
 }
 
 .ds-badge--lg {
   height: 22px;
-  padding: 0 8px;
+  padding: 0 9px;
   font-size: var(--ds-fs-xs);
+}
+
+/* 唯一的例外：真正需要「喊」的告警徽标，保留一圈极淡描边。
+ * （描边色各用各的语义令牌 —— 用同一个色会让告警徽标长红边。） */
+.ds-badge--neg.ds-badge--lg {
+  border-color: var(--ds-neg-border);
+}
+.ds-badge--warn.ds-badge--lg {
+  border-color: var(--ds-warn-border);
 }
 
 /* ============================ 指标卡 ============================ */
 
+/* 指标卡：在卡片内自动降级（见 .ds-card 那条规则），独立使用时保留轻描边。
+ * ⚠ 永远不加阴影：一屏 8 张指标卡 = 8 个光源，立刻廉价。 */
 .ds-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: var(--ds-surface);
-  border: 1px solid var(--ds-border);
+  border: 1px solid var(--ds-border-subtle);
   border-radius: var(--ds-r-md);
-  box-shadow: var(--ds-shadow-xs);
-  transition: border-color var(--ds-dur-fast) var(--ds-ease),
-    box-shadow var(--ds-dur-fast) var(--ds-ease);
+  box-shadow: none;
+  transition: background var(--ds-dur-fast) var(--ds-ease),
+    border-color var(--ds-dur-fast) var(--ds-ease);
 }
 
 .ds-stat:hover {
-  border-color: var(--ds-border-strong);
-  box-shadow: var(--ds-shadow-sm);
+  border-color: var(--ds-border);
 }
 
-/* 主指标（净收益率 / 最大回撤）用左侧色条区分 */
+.ds-card .ds-stat:hover {
+  border-color: transparent;
+  background: var(--ds-surface-3);
+}
+
+/* 主指标（净收益率 / 最大回撤）用左侧色条区分：3px → 2px */
 .ds-stat--lead {
-  border-left: 3px solid var(--ds-accent);
+  border-left: 2px solid var(--ds-accent);
 }
 .ds-stat--lead.ds-stat--pos {
   border-left-color: var(--ds-pos);
@@ -524,21 +655,24 @@ details.ds-card > summary.ds-card__head:hover {
   border-left-color: var(--ds-neg);
 }
 
+/* 标签：11/600/text-3 → 12/500/text-4（更安静） */
 .ds-stat__label {
   font-size: var(--ds-fs-xs);
-  font-weight: 600;
-  color: var(--ds-text-3);
+  font-weight: var(--ds-fw-medium);
+  color: var(--ds-text-4);
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* 数字：20/700 → 22/600，负字距让等宽数字更像「一块」 */
 .ds-stat__value {
   font-family: var(--ds-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--ds-fs-xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: var(--ds-fw-strong);
+  letter-spacing: -0.01em;
   line-height: 1.2;
   color: var(--ds-text);
   white-space: nowrap;
@@ -556,10 +690,12 @@ details.ds-card > summary.ds-card__head:hover {
   color: var(--ds-text-4);
 }
 
+/* 单位 / 副标：10px → 11px，用四级文字（**不与数字同字号**：
+ * 同大小时数字的位数会被单位挤走，读数值时眼睛要先跳过单位） */
 .ds-stat__sub {
   font-size: var(--ds-fs-2xs);
   color: var(--ds-text-4);
-  line-height: 1.4;
+  line-height: 1.45;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -567,6 +703,7 @@ details.ds-card > summary.ds-card__head:hover {
 
 /* ============================ 表格 ============================ */
 
+/* 【B3】报表感 vs Excel 感只差三处：表头要不要底色、行线多深、行高多少。 */
 .ds-tablewrap {
   border: 1px solid var(--ds-border-subtle);
   border-radius: var(--ds-r-md);
@@ -579,19 +716,32 @@ details.ds-card > summary.ds-card__head:hover {
   border-collapse: separate;
   border-spacing: 0;
   font-family: var(--ds-mono);
+  /* 表格是 --ds-fs-xs（12px），正文才是 13px。表格用 13 会横向溢出，
+   * 尤其工作台行情表（min-width: 1210px + table-layout: fixed）。 */
   font-size: var(--ds-fs-xs);
   font-variant-numeric: tabular-nums;
+  line-height: 1.35;
 }
 
+/* 表头：去底色、降字号、去粗体，只留一条分界线。
+ * ★ 底色必须是**不透明**的 --ds-surface（不能 transparent）：
+ *   thead 是 sticky，滚动时行会从它下面穿过，透明会透出下面的字。
+ * ★ 分界线用 box-shadow 而不是 border-bottom：sticky 下 border 会随滚动消失。 */
 .ds-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 6px 8px;
-  background: var(--ds-surface-3);
-  border-bottom: 1px solid var(--ds-border);
-  font-weight: 700;
-  color: var(--ds-text-3);
+  padding: 8px 10px;
+  background: var(--ds-surface);
+  box-shadow: inset 0 -1px 0 var(--ds-border);
+  border-bottom: 0;
+  /* 表头用无衬线，与数据（mono）区分 */
+  font-family: var(--ds-font);
+  /* 表头是「列的名字」不是数据 ⇒ 比表体小一档（11 vs 12） */
+  font-size: var(--ds-fs-2xs);
+  font-weight: var(--ds-fw-strong);
+  letter-spacing: 0.03em;
+  color: var(--ds-text-4);
   text-align: left;
   white-space: nowrap;
 }
@@ -600,8 +750,8 @@ details.ds-card > summary.ds-card__head:hover {
  * 本文件是未分层规则，一旦在此声明 color 就会压过所有工具类，把「正收益绿色」
  * 一并抹平。未声明时 td 继承 `.ds-page` 的 --ds-text-2，效果相同且不误伤。 */
 .ds-table tbody td {
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--ds-border-subtle);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--ds-row-line);
   white-space: nowrap;
 }
 
@@ -609,12 +759,16 @@ details.ds-card > summary.ds-card__head:hover {
   border-bottom: 0;
 }
 
+/* 悬停：不再整行变绿（绿色只留给「选中」），改中性提亮 */
 .ds-table tbody tr:hover td {
-  background: var(--ds-accent-50);
+  background: var(--ds-surface-2);
 }
 
+/* 选中：绿底 + 左侧 2px 品牌线（全表唯一允许出现绿色行的地方） */
 .ds-table tbody tr[aria-selected="true"] td {
   background: var(--ds-accent-50);
+}
+.ds-table tbody tr[aria-selected="true"] td:first-child {
   box-shadow: inset 2px 0 0 0 var(--ds-accent);
 }
 
@@ -622,7 +776,15 @@ details.ds-card > summary.ds-card__head:hover {
   cursor: pointer;
 }
 
+/* 数字列：右对齐 + 等宽 + 右内边距稍大，与右侧列留呼吸 */
 .ds-table__num {
+  text-align: right;
+  padding-right: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 列头跟随数据对齐：右对齐列的表头也右对齐（否则头左尾右，扫不动） */
+.ds-table th.ds-table__num {
   text-align: right;
 }
 
@@ -631,18 +793,18 @@ details.ds-card > summary.ds-card__head:hover {
 }
 
 .ds-table__strong {
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
   color: var(--ds-text);
 }
 
 .ds-table__pos {
   color: var(--ds-pos);
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
 }
 
 .ds-table__neg {
   color: var(--ds-neg);
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
 }
 
 .ds-table__empty {
@@ -774,44 +936,67 @@ details.ds-card > summary.ds-card__head:hover {
 
 /* ============================ 提示条 ============================ */
 
+/* 【B7】保留警示性，去掉攻击性：把「颜色」从面积改成线条 ——
+ * 底色几乎退回中性，只在左侧留一条 2px 语义竖线。
+ * 眼睛对「垂直短色条」的敏感度远高于「大面积浅色块」，
+ * 所以警示性不减，压迫感大减。
+ * ⚠ 去描边（在卡内时）必须逐边清，见 `.ds-card .ds-note`。 */
 .ds-note {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 7px 10px;
-  border: 1px solid var(--ds-neutral-border);
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-left: 2px solid var(--ds-neutral-border);
   border-radius: var(--ds-r-md);
   font-size: var(--ds-fs-xs);
-  line-height: 1.5;
-  /* 默认中性态；四种语义修饰类在下方覆盖（同特异性、后者胜） */
-  color: var(--ds-neutral-fg);
-  background: var(--ds-neutral-bg);
+  line-height: 1.6;
+  /* 正文一律中性 —— 一条提示里只允许一处彩色（标题） */
+  color: var(--ds-text-2);
+  background: var(--ds-surface-2);
 }
 
 .ds-note--info {
-  color: var(--ds-info);
-  background: var(--ds-info-bg);
-  border-color: var(--ds-info-border);
+  background: var(--ds-info-bg-soft);
+  border-left-color: var(--ds-info);
 }
 .ds-note--pos {
-  color: var(--ds-pos);
-  background: var(--ds-pos-bg);
-  border-color: var(--ds-pos-border);
+  background: var(--ds-pos-bg-soft);
+  border-left-color: var(--ds-pos);
 }
 .ds-note--neg {
-  color: var(--ds-neg);
-  background: var(--ds-neg-bg);
-  border-color: var(--ds-neg-border);
+  background: var(--ds-neg-bg-soft);
+  border-left-color: var(--ds-neg);
 }
 .ds-note--warn {
-  color: var(--ds-warn);
-  background: var(--ds-warn-bg);
-  border-color: var(--ds-warn-border);
+  background: var(--ds-warn-bg-soft);
+  border-left-color: var(--ds-warn);
 }
 
 .ds-note__title {
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
+  color: inherit;
+}
+.ds-note--info .ds-note__title {
+  color: var(--ds-info);
+}
+.ds-note--pos .ds-note__title {
+  color: var(--ds-pos);
+}
+.ds-note--neg .ds-note__title {
+  color: var(--ds-neg);
+}
+.ds-note--warn .ds-note__title {
+  color: var(--ds-warn);
+}
+
+/* 提示条内的徽标一律中性：一条提示里只允许一处语义色。
+ * （否则徽标底色 --ds-warn-bg 与提示条底色 --ds-warn-bg-soft 几乎同色，
+ *   看起来像「没有底」。） */
+.ds-note .ds-badge {
+  color: var(--ds-text-3);
+  background: var(--ds-surface-3);
 }
 
 /* 纵向提示条：内容为「标题 + 列表」这类块级结构时使用，避免标题与列表并排。 */
@@ -829,7 +1014,7 @@ details.ds-card > summary.ds-card__head:hover {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 30px 16px;
+  padding: 40px 16px;
   text-align: center;
   color: var(--ds-text-3);
   font-size: var(--ds-fs-sm);
@@ -842,7 +1027,7 @@ details.ds-card > summary.ds-card__head:hover {
 }
 
 .ds-empty__title {
-  font-weight: 600;
+  font-weight: var(--ds-fw-strong);
   color: var(--ds-text-2);
 }
 
@@ -883,7 +1068,7 @@ details.ds-card > summary.ds-card__head:hover {
 /* ============================ 折叠区 ============================ */
 
 .ds-details {
-  border: 1px solid var(--ds-border);
+  border: 1px solid var(--ds-border-subtle);
   border-radius: var(--ds-r-md);
   background: var(--ds-surface-2);
   overflow: hidden;
@@ -966,9 +1151,11 @@ details.ds-card > summary.ds-card__head:hover {
   color: var(--ds-text);
 }
 
+/* 区块导航当前项：与侧栏同一套语言（浅绿底 + 左侧 2px 品牌竖线 + 一级文字） */
 .ds-nav__item[aria-current="true"] {
   background: var(--ds-accent-50);
-  color: var(--ds-accent-700);
+  color: var(--ds-text);
+  box-shadow: inset 2px 0 0 0 var(--ds-accent);
 }
 
 .ds-nav__idx {
@@ -981,13 +1168,13 @@ details.ds-card > summary.ds-card__head:hover {
   background: var(--ds-surface-3);
   font-family: var(--ds-mono);
   font-size: 9px;
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
   color: var(--ds-text-3);
 }
 
 .ds-nav__item[aria-current="true"] .ds-nav__idx {
   background: var(--ds-accent);
-  color: #fff;
+  color: var(--ds-accent-fg);
 }
 
 /* ============================ 工具条（sticky 上下文） ============================ */
@@ -1003,8 +1190,8 @@ details.ds-card > summary.ds-card__head:hover {
   flex-wrap: wrap;
   padding: 8px var(--ds-3);
   background: var(--ds-overlay);
-  backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid var(--ds-border);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--ds-border-subtle);
   border-radius: var(--ds-r-lg);
   box-shadow: var(--ds-shadow-sm);
 }
@@ -1133,7 +1320,7 @@ details.ds-card > summary.ds-card__head:hover {
 
 .ds-bar__label {
   font-size: var(--ds-fs-xs);
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
   color: var(--ds-text-3);
   padding-bottom: 5px;
   white-space: nowrap;
@@ -1146,13 +1333,15 @@ details.ds-card > summary.ds-card__head:hover {
   margin: 2px var(--ds-1);
 }
 
-/* 表格限高：一屏内只给 N 行，其余表内滚动（不是隐藏）。 */
+/* 表格限高：一屏内只给 N 行，其余表内滚动（不是隐藏）。
+ * ⚠ 行高从 24 → 30 后，三档限高必须同步放大，否则每档会少显示一行，
+ *   看起来像「数据丢了」。 */
 .ds-tablewrap--tight {
-  max-height: 8.25rem;
+  max-height: 9.5rem;
 }
 
 .ds-tablewrap--mid {
-  max-height: 11rem;
+  max-height: 12.5rem;
 }
 
 /* 行内指标数值的语义色（`.ds-mi__v` 默认用 --ds-text-2）。 */
@@ -1179,7 +1368,7 @@ details.ds-card > summary.ds-card__head:hover {
 
 .ds-panelbar__label {
   font-size: var(--ds-fs-xs);
-  font-weight: 700;
+  font-weight: var(--ds-fw-strong);
   color: var(--ds-text-3);
   margin-right: var(--ds-1);
 }
@@ -1197,5 +1386,32 @@ details.ds-card > summary.ds-card__head:hover {
 
 /* 表格限高（宽松档）：并排布局下左列更高时，右列表格可以用满剩余高度。 */
 .ds-tablewrap--tall {
-  max-height: 12rem;
+  max-height: 13.5rem;
+}
+
+/* ══ 深色主题兜底：Tailwind 的「字面量浅色」必须收敛到令牌 ══════════════════
+ * 为什么需要这一条：全项目还有少量 `bg-white` / `border-neutral-100` 是**纯
+ * Tailwind 工具类、没有 .ds-* 锚点**，而本次不允许改 JSX。不收敛的后果（实测）：
+ * 回测复盘「K 线 / 成交量 / 持仓量」三段竖排之间会画出一条近白（#eceef2）
+ * 分隔线，在深色底上比数据本身还亮；图表画布容器与空态块会变成白底。
+ *
+ * 依赖的既有字符串：`bg-white` / `border-neutral-100` / `border-neutral-200`。
+ * 失效信号：深色下图表之间重新出现亮线，或空态块/图表底变白。
+ * 浅色主题不受影响（white 本来就是卡片色，n-100/n-200 本来就是浅描边）。 */
+[data-theme="dark"] .bg-white {
+  background-color: var(--ds-surface);
+}
+[data-theme="dark"] .border-neutral-100,
+[data-theme="dark"] .border-neutral-200 {
+  border-color: var(--ds-border-subtle);
+}
+
+/* ══ 表格兜底：卡片里任何「直接包着 table」的容器都必须能横向滚动 ══════════
+ * 实测两处会顶出卡片：⑤ 逐笔明细里的「逐笔详情」663px / 容器 545px、
+ * 「资金费结算」404px / 容器 267px —— 父容器 overflow 是 visible，
+ * 表格直接画到卡片外面，被页面裁掉且没有滚动条。
+ * 用 :has() 从子元素反选父容器，不要求改 JSX（那些容器没有类名）。 */
+.ds-card :has(> table) {
+  max-width: 100%;
+  overflow-x: auto;
 }

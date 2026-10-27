@@ -1,0 +1,310 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-01｜十五分钟「冷档 parquet + 热库」只读合并读取器（研究用）。
+
+本模块**只做读取**：不下载、不写库、不补造缺口、不改任何生产读路径。
+
+为什么需要它（本单核验出来的不对称）
+--------------------------------------------------
+· 预热/状态重建走的是 `history_loader.MergedHistory`（冷+热合并），重放地板
+  2880 小时，锚点约 2026-06-27；
+· 但**成交与止损**用的 `paper_engine.closed_15m()` 只读热库，而热库 15m 只从
+  2026-09-12 起 ⇒ 2026-06-27 → 2026-09-12 这段「能重建观察，重建不出成交」。
+本模块补齐这条读取链，供研究回放使用；生产 `step()` 与 `closed_15m()` 不动。
+
+四条口径（必须显式，不许隐含）
+------------------------------
+1. **去重**：唯一键 = `open_time`（同一标的内）。同一 `open_time` 出现多次只保留一条。
+2. **冲突优先级**：冷热重叠时**热层优先**。理由与 `history_loader` 一致——热层是
+   生产实际在用、且更新更晚的那一份；冷档是导出快照，可能落后（实测冷档 15m
+   最新到 2026-10-18，热库到 2026-10-26）。
+3. **时间连续性**：按 15 分钟步长检查缺口，缺口**逐段列出**，不插值、不补齐。
+4. **可用时间**：热层 `candle_versions.available_at` 实测填充率约一半；冷档
+   `available_at` 实测 **0% 填充**。为空时写 `available_at=None` 且
+   `available_at_missing=True`，**不得**用 `close_time` 冒充可得时刻。
+
+对外接口
+--------
+    m = Merged15m(hot_db, archive_root)
+    bars, stats = m.load("BTCUSDT", start_ms, end_ms)
+    stats 里给出 cold/hot 行数、去重条数、优先级命中数、缺口段、可用时间覆盖率。
+
+    m.crosscheck_ohlcv("BTCUSDT", start_ms, end_ms) -> dict
+        与 `history_loader.MergedHistory` 的合并结果逐根比对 OHLCV，
+        用于证明本模块没有另立一套来源规则（两处不一致即为缺陷）。
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
+
+STEP_MS = 900_000
+BAR_COLUMNS = ("open_time", "close_time", "open", "high", "low", "close",
+               "volume", "quote_volume", "trade_count",
+               "taker_buy_volume", "taker_buy_quote_volume",
+               "available_at", "source")
+
+
+def _f(v):
+    if v is None:
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _i(v):
+    if v is None:
+        return None
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _iso(ms: Optional[int]) -> Optional[str]:
+    if ms is None:
+        return None
+    import datetime as dt
+    return dt.datetime.fromtimestamp(int(ms) / 1000, dt.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+
+
+class Merged15m:
+    """冷+热合并的 15 分钟只读读取器。"""
+
+    def __init__(self, hot_db, archive_root, exchange: str = "binance",
+                 market: str = "um"):
+        self.hot_db = str(hot_db)
+        self.archive_root = Path(archive_root)
+        self.exchange = exchange
+        self.market = market
+
+    # ── 冷档边界（单一事实源：归档器写的 _state.json）─────────────────────
+    def archive_state(self) -> dict:
+        try:
+            return json.loads((self.archive_root / "_state.json").read_text(
+                encoding="utf-8"))
+        except Exception:                                    # noqa: BLE001
+            return {}
+
+    def cold_upper_bound(self) -> Optional[int]:
+        """冷档可信上界。取 archive_verified_upto_ms，缺失则退回 reconcile 水位。
+
+        为什么需要上界：冷档是按天导出/对账的快照，末尾分片可能不完整；越界读取
+        会把「未对账的尾巴」当成历史，与热层冲突时又会被热层覆盖，反而掩盖问题。
+        """
+        st = self.archive_state()
+        for k in ("archive_verified_upto_ms", "reconcile_watermark_ms",
+                  "watermark_ms"):
+            v = st.get(k)
+            if isinstance(v, (int, float)) and v > 0:
+                return int(v)
+        return None
+
+    # ── 冷层 ────────────────────────────────────────────────────────────
+    def _cold_rows(self, symbol: str, start_ms: int, end_ms: int) -> List[tuple]:
+        import duckdb
+        pattern = str(self.archive_root / "candles" / self.exchange / self.market
+                      / symbol / "15m" / "*.parquet")
+        if not list((self.archive_root / "candles" / self.exchange / self.market
+                     / symbol / "15m").glob("*.parquet")):
+            return []
+        ub = self.cold_upper_bound()
+        hi = int(end_ms) if ub is None else min(int(end_ms), int(ub))
+        if hi <= int(start_ms):
+            return []
+        q = f"""
+            SELECT open_time, close_time, open, high, low, close, volume,
+                   quote_volume, trade_count, taker_buy_volume,
+                   taker_buy_quote_volume, available_at, is_closed
+            FROM read_parquet('{pattern}')
+            WHERE open_time >= ? AND open_time < ? AND is_closed = 1
+            ORDER BY open_time
+        """
+        con = duckdb.connect()
+        try:
+            return con.execute(q, [int(start_ms), int(hi)]).fetchall()
+        finally:
+            con.close()
+
+    # ── 热层 ────────────────────────────────────────────────────────────
+    def _hot_rows(self, symbol: str, start_ms: int, end_ms: int) -> List[tuple]:
+        # 必须走 `candles` 视图（= candle_versions JOIN candle_heads），不能直查
+        # `candle_versions`：后者存**全版本**，同一 open_time 可能有多条历史版本，
+        # 直查会按任意顺序取到非头版本。对撞脚本正是这样抓到的
+        # （2026-10-26：BTCUSDT open_time=1791273600000 收盘差 5.4）。
+        con = sqlite3.connect(f"file:{self.hot_db}?mode=ro", uri=True)
+        try:
+            return con.execute(
+                """SELECT open_time, close_time, open, high, low, close, volume,
+                          quote_volume, trade_count, taker_buy_volume,
+                          taker_buy_quote_volume, available_at, is_closed
+                   FROM candles
+                   WHERE exchange=? AND market=? AND symbol=? AND timeframe='15m'
+                     AND open_time >= ? AND open_time < ? AND is_closed = 1
+                   ORDER BY open_time""",
+                (self.exchange, self.market, symbol, int(start_ms), int(end_ms))
+            ).fetchall()
+        finally:
+            con.close()
+
+    # ── 合并 ────────────────────────────────────────────────────────────
+    def load(self, symbol: str, start_ms: int, end_ms: int) -> Tuple[List[dict], dict]:
+        cold = self._cold_rows(symbol, start_ms, end_ms)
+        hot = self._hot_rows(symbol, start_ms, end_ms)
+
+        merged: Dict[int, dict] = {}
+        n_cold = n_hot = n_conflict = 0
+        avail_hot = avail_hot_null = 0
+        avail_cold = avail_cold_null = 0
+
+        for row in cold:
+            ot = _i(row[0])
+            if ot is None:
+                continue
+            n_cold += 1
+            if row[11] is None:
+                avail_cold_null += 1
+            else:
+                avail_cold += 1
+            merged[ot] = {
+                "open_time": ot, "close_time": _i(row[1]),
+                "open": _f(row[2]), "high": _f(row[3]), "low": _f(row[4]),
+                "close": _f(row[5]), "volume": _f(row[6]),
+                "quote_volume": _f(row[7]), "trade_count": _i(row[8]),
+                "taker_buy_volume": _f(row[9]),
+                "taker_buy_quote_volume": _f(row[10]),
+                "available_at": _i(row[11]), "source": "cold",
+            }
+
+        for row in hot:
+            ot = _i(row[0])
+            if ot is None:
+                continue
+            n_hot += 1
+            if row[11] is None:
+                avail_hot_null += 1
+            else:
+                avail_hot += 1
+            if ot in merged:
+                n_conflict += 1                      # 冷热重叠 ⇒ 热层覆盖
+            merged[ot] = {
+                "open_time": ot, "close_time": _i(row[1]),
+                "open": _f(row[2]), "high": _f(row[3]), "low": _f(row[4]),
+                "close": _f(row[5]), "volume": _f(row[6]),
+                "quote_volume": _f(row[7]), "trade_count": _i(row[8]),
+                "taker_buy_volume": _f(row[9]),
+                "taker_buy_quote_volume": _f(row[10]),
+                "available_at": _i(row[11]), "source": "hot",
+            }
+
+        bars = [merged[k] for k in sorted(merged)]
+        for b in bars:
+            b["available_at_missing"] = b["available_at"] is None
+            # 主动卖出是**推导量**，不是交易所原始字段
+            if b["volume"] is not None and b["taker_buy_volume"] is not None:
+                b["taker_sell_volume"] = b["volume"] - b["taker_buy_volume"]
+                b["taker_sell_derived"] = True
+            else:
+                b["taker_sell_volume"] = None
+                b["taker_sell_derived"] = True
+
+        gaps = self._gaps(bars)
+        stats = {
+            "symbol": symbol,
+            "window": {"start_ms": int(start_ms), "start_utc": _iso(start_ms),
+                       "end_ms": int(end_ms), "end_utc": _iso(end_ms)},
+            "cold_upper_bound_utc": _iso(self.cold_upper_bound()),
+            "rows_cold": n_cold, "rows_hot": n_hot,
+            "rows_merged": len(bars),
+            "overlap_hot_wins": n_conflict,
+            "dup_removed": n_cold + n_hot - len(bars),
+            "available_at": {
+                "hot_filled": avail_hot, "hot_missing": avail_hot_null,
+                "cold_filled": avail_cold, "cold_missing": avail_cold_null,
+                "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充",
+            },
+            "continuity": {
+                "expected_bars": ((int(end_ms) - int(start_ms)) // STEP_MS),
+                "actual_bars": len(bars),
+                "gap_segments": gaps,
+                "gap_segment_count": len(gaps),
+                "missing_bars_total": sum(g["missing_bars"] for g in gaps),
+            },
+            "rule": {
+                "dedup_key": "open_time",
+                "conflict_priority": "hot_over_cold",
+                "only_closed": True,
+                "cold_upper_bound_source": "_state.json",
+                "no_interpolation": True,
+                "no_download": True,
+                "wrote_anything": False,
+            },
+        }
+        return bars, stats
+
+    @staticmethod
+    def _gaps(bars: Sequence[dict]) -> List[dict]:
+        out = []
+        for prev, cur in zip(bars, bars[1:]):
+            d = int(cur["open_time"]) - int(prev["open_time"])
+            if d > STEP_MS:
+                out.append({
+                    "after_utc": _iso(prev["open_time"]),
+                    "before_utc": _iso(cur["open_time"]),
+                    "missing_bars": d // STEP_MS - 1,
+                })
+        return out
+
+    # ── 与既有单一实现对撞 ──────────────────────────────────────────────
+    def crosscheck_ohlcv(self, symbol: str, start_ms: int, end_ms: int) -> dict:
+        """与 `history_loader.MergedHistory` 逐根比对 OHLCV。
+
+        用途：证明本模块没有另立一套来源规则。只比对两边都有的 bar；
+        任一侧缺失的 bar 记入 `only_in_*`，不算不一致但要如实列出。
+        """
+        import history_loader as HL
+        bars, _ = self.load(symbol, start_ms, end_ms)
+        mine = {b["open_time"]: b for b in bars}
+        hist = HL.MergedHistory(self.hot_db, self.archive_root, log=lambda *a: None)
+        try:
+            data, _st = hist.load([symbol], ["15m"], start_ms, end_ms)
+            theirs = {int(b["open_time"]): b for b in data[symbol]["15m"]}
+        finally:
+            try:
+                hist.release()
+            except Exception:                                # noqa: BLE001
+                pass
+        mism = []
+        for ot in sorted(set(mine) & set(theirs)):
+            a, b = mine[ot], theirs[ot]
+            for k in ("open", "high", "low", "close", "volume", "quote_volume"):
+                va, vb = _f(a.get(k)), _f(b.get(k))
+                if va is None or vb is None:
+                    if va is not vb:
+                        mism.append({"open_time": ot, "field": k,
+                                     "mine": va, "theirs": vb})
+                    continue
+                if abs(va - vb) > 1e-9 * max(1.0, abs(vb)):
+                    mism.append({"open_time": ot, "field": k,
+                                 "mine": va, "theirs": vb})
+        return {
+            "symbol": symbol,
+            "compared_bars": len(set(mine) & set(theirs)),
+            "only_in_mine": len(set(mine) - set(theirs)),
+            "only_in_theirs": len(set(theirs) - set(mine)),
+            "mismatch_count": len(mism),
+            "mismatches": mism[:20],
+            "verdict": "consistent" if not mism else "mismatch",
+        }
+
+
+def default_paths():
+    """工程内默认路径（只读用）。"""
+    root = Path(__file__).resolve().parents[2]
+    hot = root / "数据" / "市场数据" / "db" / "market_v2.sqlite3"
+    archive = root / "数据" / "市场数据" / "parquet"
+    return hot, archive

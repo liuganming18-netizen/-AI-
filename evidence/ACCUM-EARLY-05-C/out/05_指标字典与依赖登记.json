@@ -1,0 +1,451 @@
+{
+ "task": "ACCUM-EARLY-05-C",
+ "probe": "05_指标字典与依赖登记",
+ "generated_at_utc": "2026-10-26T15:53:37Z",
+ "metric_dictionary": {
+  "M01_提前时长": {
+   "定义": "原策略入场时刻 − 新策略入场时刻",
+   "单位": "小时 / 15m 根数",
+   "数据依赖": "两套策略在同一母集事件上的入场时刻",
+   "现在可算": false,
+   "缺什么": "05-B 实现 + 用户批准配置（05-A 五项决策待批）",
+   "所属层": "L1 逐事件"
+  },
+  "M02_入场价格变化率": {
+   "定义": "(新策略入场价 − 原策略入场价) / 原策略入场价 × 100%",
+   "单位": "%",
+   "数据依赖": "同上",
+   "现在可算": false,
+   "缺什么": "同上",
+   "所属层": "L1 逐事件",
+   "注意": "两套策略的入场价都必须是「成交价」（含滑点并过取整），不是信号价；取整规则唯一实现 = 框架/backend/replay_calc.py 调用的 trading_core/fill.py。"
+  },
+  "M03_成交与拒单": {
+   "定义": "成交笔数 / 拒单笔数 / 拒单原因分布",
+   "单位": "笔",
+   "数据依赖": "replay_calc.plan_entry 的返回状态",
+   "现在可算": "原策略可算（已算）",
+   "缺什么": "新策略侧需 05-B",
+   "所属层": "L1 逐事件",
+   "已得": {
+    "生效视图_5bps": {
+     "executed": 51,
+     "rejected": 0
+    },
+    "策略包_3bps": {
+     "executed": 50,
+     "rejected": 1
+    }
+   }
+  },
+  "M04_逐事件净收益": {
+   "定义": "realized_net = (退出成交价 − 入场成交价) × 数量 − 双边手续费 − 资金费",
+   "单位": "USDT",
+   "数据依赖": "15m 成交、4h 跟踪止损、资金费结算、合约规格",
+   "现在可算": "原策略可算（已算，见 02）",
+   "缺什么": "新策略侧需 05-B",
+   "所属层": "L1 逐事件",
+   "禁止": "不得把这个数除以初始本金当账户收益率；不得逐笔累加后称组合收益。"
+  },
+  "M05_累加净额": {
+   "定义": "Σ 逐事件 realized_net（同口径、同母集内）",
+   "单位": "USDT",
+   "数据依赖": "M04",
+   "现在可算": "原策略可算（已算）",
+   "缺什么": "新策略侧需 05-B",
+   "所属层": "L1 求和（合法用法：同口径横向比较）",
+   "已得": {
+    "生效视图_5bps": -225.181453,
+    "策略包_3bps": -89.189143
+   },
+   "禁止": "不得称「总收益」「账户收益」「净值变化」。它是逐事件求和。"
+  },
+  "M06_费用与资金费": {
+   "定义": "双边手续费合计 / 资金费结算合计",
+   "单位": "USDT",
+   "数据依赖": "费率口径（5bps 手续费固定；滑点两套冲突）、funding_history",
+   "现在可算": "原策略可算（已算）",
+   "缺什么": "新策略侧需 05-B；滑点口径待批",
+   "所属层": "L1 逐事件",
+   "已得": {
+    "生效视图_5bps": {
+     "fees": 22.459331,
+     "funding": -6.554309
+    },
+    "策略包_3bps": {
+     "fees": 7.157095,
+     "funding": -2.721954
+    }
+   }
+  },
+  "M07_假突破损失": {
+   "定义": "第三象限（仅新策略入场）中净亏损事件的净额求和",
+   "单位": "USDT",
+   "数据依赖": "新策略入场判定 + 原策略未入场判定 + M04",
+   "现在可算": false,
+   "缺什么": "05-B + 批准配置",
+   "所属层": "L1 按象限分组"
+  },
+  "M08_机会成本": {
+   "定义": "第二象限（仅原策略入场）中原策略盈利事件的净额求和",
+   "单位": "USDT",
+   "数据依赖": "同上",
+   "现在可算": false,
+   "缺什么": "05-B + 批准配置",
+   "所属层": "L1 按象限分组"
+  },
+  "M09_未成交与期末持仓": {
+   "定义": "拒单事件单独列示；期末未平仓只计未实现浮动盈亏，不并入已实现",
+   "单位": "笔 / USDT",
+   "数据依赖": "replay_calc 的 entry 状态与 exit.hit",
+   "现在可算": "原策略可算（已算）",
+   "缺什么": "新策略侧需 05-B",
+   "所属层": "L1 逐事件",
+   "已得": {
+    "生效视图_5bps": {
+     "open_at_window_end": 0,
+     "sum_unrealized": 0
+    },
+    "策略包_3bps": {
+     "open_at_window_end": 0,
+     "sum_unrealized": 0
+    }
+   }
+  },
+  "M10_组合最大回撤": {
+   "定义": "账户权益曲线（真实时间轴、含并发资金与仓位约束）的峰值回撤",
+   "单位": "USDT / %",
+   "数据依赖": "组合调度规则（同时持仓上限、多信号取舍、权益滚动）+ M04",
+   "现在可算": false,
+   "缺什么": [
+    "被批准的并发上限（3 仓 vs 10 仓两套说法）",
+    "被批准的多信号取舍规则（无任何文件规定）",
+    "被批准的被挤掉候选处理方式（丢弃/顺延/部分成交）"
+   ],
+   "所属层": "L3 组合账户",
+   "状态": "UNVERIFIED",
+   "禁止": "不得用 04-C 的 346.235886 USDT / 6.761% 代替 —— 那是顺序累加伪回撤，见 03。",
+   "为什么不拿它当「0」": "「没算」不等于「没有回撤」。写 0 是造假，只能写未验证。"
+  },
+  "M11_观察事件覆盖": {
+   "定义": "统一观察母集的事件数与阶段分布（含未成候选）",
+   "单位": "个",
+   "数据依赖": "冻结状态机 + 冷热合并 1h/4h",
+   "现在可算": "已算（见 04）",
+   "缺什么": "—",
+   "所属层": "母集定义（不属盈亏）",
+   "已得": {
+    "symbols_driven": 48,
+    "events_total": 1178,
+    "events_with_candidate": 46,
+    "events_without_candidate": 1132,
+    "stage_hits": {
+     "BOX": 1178,
+     "INVALIDATED": 608,
+     "EXPIRED": 485,
+     "SWEEP": 337,
+     "RETEST": 220,
+     "CANDIDATE": 46,
+     "MISSED_WITHOUT_RETEST": 2,
+     "VOLUME_REJECTED": 1
+    },
+    "terminal_states": {
+     "INVALIDATED": 608,
+     "EXPIRED": 485,
+     "ACTIVE(窗口末仍观察中)": 36,
+     "CANDIDATE": 46,
+     "MISSED_WITHOUT_RETEST": 2,
+     "VOLUME_REJECTED": 1
+    },
+    "stage_hits_note": "stage_hits 是「有过该状态的事件数」，不是迁移次数"
+   }
+  }
+ },
+ "four_quadrants": {
+  "定义口径": {
+   "全集": "统一观察母集里的每一个观察事件（不是只算已成候选的）",
+   "原策略入场": "该事件在母集重放中走到 CANDIDATE（并可成交）",
+   "新策略入场": "该事件在 05-B 实现下满足获批的提前入场条件（并可成交）",
+   "注意": "「入场」必须指真的成交（过最小下单量、过参与率），不是「产生信号」。拒单不算入场。"
+  },
+  "Q1_两者都入场": {
+   "判定": "原策略入场 且 新策略入场",
+   "要算": [
+    "M01 提前时长",
+    "M02 入场价差",
+    "M04 双方净额差",
+    "M06 费用差",
+    "退出原因分布差"
+   ],
+   "现在可实例化": false,
+   "阻塞": "需要两样东西同时到位：①可执行的新策略实现；②被用户批准的入场配置。05-A 的五项决策仍标待批，05-B 的自测也明确声明「基于 fixture 测试配置、不构成策略绩效结论」⇒ 未批准前不判定谁能入场。状态见 05 产物的依赖探测。",
+   "备注": "同事件两笔不能相加当「组合收益」——它们是同一机会的两种做法，互斥。"
+  },
+  "Q2_仅原策略入场": {
+   "判定": "原策略入场 且 新策略未入场（含：条件不满足 / 被拒单 / 未成交）",
+   "要算": [
+    "M08 机会成本（原策略盈利部分）",
+    "新策略未入场的具体原因分类"
+   ],
+   "现在可实例化": false,
+   "阻塞": "同上：需要新策略的「未满足」结论才能判定「仅原策略」。"
+  },
+  "Q3_仅新策略入场": {
+   "判定": "新策略入场 且 原策略未入场",
+   "要算": [
+    "M07 假突破损失",
+    "退出原因分布",
+    "亏损笔数占比"
+   ],
+   "现在可实例化": false,
+   "阻塞": "同上。但候选池已备好：停在 RETEST 未突破的事件 174 个，这是新策略唯一能新增机会的来源。",
+   "候选池已备": {
+    "停在RETEST未突破": 174,
+    "说明": "这是新策略唯一能新增机会的来源；本单只备池，不判定谁能进。"
+   }
+  },
+  "Q4_都未入场": {
+   "判定": "原策略未入场 且 新策略未入场",
+   "要算": [
+    "噪声过滤比例",
+    "各停靠阶段分布",
+    "观察时长分布"
+   ],
+   "现在可实例化": "一半（原策略未入场已确认）",
+   "已得": {
+    "可实例化": true,
+    "实例数": 1132,
+    "细分": {
+     "停在BOX": 841,
+     "停在SWEEP": 117,
+     "停在RETEST": 174
+    },
+    "说明": "原策略确定未入场（母集重放没有产生候选）。新策略是否入场仍需 05-B，故「都未入场」目前只能确认「原策略未入场」这一半。"
+   },
+   "阻塞": "「新策略未入场」仍需 05-B；所以现在只能叫「原策略未入场」，不能叫「都未入场」。"
+  },
+  "结论": "四象限中只有第四象限的「原策略未入场」这一半现在有实例；其余三象限的判定依赖 05-B 实现与用户批准配置，本单不越权代替。"
+ },
+ "dependencies": {
+  "05-B": {
+   "dir": "evidence/ACCUM-EARLY-05-B",
+   "exists": true,
+   "probed_at_utc": "2026-10-26T15:53:37Z",
+   "file_count": 72,
+   "files": [
+    "evidence/ACCUM-EARLY-05-B/README.md",
+    "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+    "evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json",
+    "evidence/ACCUM-EARLY-05-B/out/01_退出差异影响.json",
+    "evidence/ACCUM-EARLY-05-B/out/02_配置模板.json",
+    "evidence/ACCUM-EARLY-05-B/out/03_全链验证.json",
+    "evidence/ACCUM-EARLY-05-B/out/03_经济口径一致性校验.json",
+    "evidence/ACCUM-EARLY-05-B/out/04_配置闸门.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/gate.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/live_signals.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/observe.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/ledger_identity.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4a.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4a.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4a.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4b.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4b.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4b.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4c.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4c.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/paper_4c.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/worker_open.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/worker_resume.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/gate.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/live_signals.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/live_signals.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/live_signals.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/observe.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/ledger_identity.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4a.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4a.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4a.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4b.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4b.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4b.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4c.sqlite3",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4c.sqlite3-shm",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/paper_4c.sqlite3-wal",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/worker_open.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/gate.json"
+   ],
+   "has_readme": true,
+   "json_outputs": [
+    "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+    "evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json",
+    "evidence/ACCUM-EARLY-05-B/out/01_退出差异影响.json",
+    "evidence/ACCUM-EARLY-05-B/out/02_配置模板.json",
+    "evidence/ACCUM-EARLY-05-B/out/03_全链验证.json",
+    "evidence/ACCUM-EARLY-05-B/out/03_经济口径一致性校验.json",
+    "evidence/ACCUM-EARLY-05-B/out/04_配置闸门.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/gate.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/paper/ledger_identity.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/worker_open.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_cold/worker_resume.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/gate.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/paper/ledger_identity.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_hot/worker_open.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/gate.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/paper/ledger_identity.json",
+    "evidence/ACCUM-EARLY-05-B/runs/03_chain/run_legacy/worker_open.json",
+    "evidence/ACCUM-EARLY-05-B/runs/04_gate/cfg/n2_空白.json",
+    "evidence/ACCUM-EARLY-05-B/runs/04_gate/cfg/n3_半填.json",
+    "evidence/ACCUM-EARLY-05-B/runs/04_gate/cfg/n4_版本.json"
+   ],
+   "newest_json": "evidence/ACCUM-EARLY-05-B/out/04_配置闸门.json",
+   "newest_json_mtime_utc": "2026-10-26T15:52:02Z"
+  },
+  "05-D": {
+   "dir": "evidence/ACCUM-EARLY-05-D",
+   "exists": true,
+   "probed_at_utc": "2026-10-26T15:53:37Z",
+   "file_count": 5,
+   "files": [
+    "evidence/ACCUM-EARLY-05-D/README.md",
+    "evidence/ACCUM-EARLY-05-D/out/01_拒单差异与全量复算审计.json",
+    "evidence/ACCUM-EARLY-05-D/out/02_时序负例直接调用核验.json",
+    "evidence/ACCUM-EARLY-05-D/scripts/01_拒单差异与全量复算审计.py",
+    "evidence/ACCUM-EARLY-05-D/scripts/02_时序负例直接函数调用核验.py"
+   ],
+   "has_readme": true,
+   "json_outputs": [
+    "evidence/ACCUM-EARLY-05-D/out/01_拒单差异与全量复算审计.json",
+    "evidence/ACCUM-EARLY-05-D/out/02_时序负例直接调用核验.json"
+   ],
+   "newest_json": "evidence/ACCUM-EARLY-05-D/out/02_时序负例直接调用核验.json",
+   "newest_json_mtime_utc": "2026-10-26T15:42:31Z"
+  },
+  "05-F": {
+   "dir": "evidence/ACCUM-EARLY-05-F",
+   "exists": true,
+   "probed_at_utc": "2026-10-26T15:53:37Z",
+   "file_count": 16,
+   "files": [
+    "evidence/ACCUM-EARLY-05-F/README.md",
+    "evidence/ACCUM-EARLY-05-F/out/00_范围锚定.json",
+    "evidence/ACCUM-EARLY-05-F/out/01_币池与退市.json",
+    "evidence/ACCUM-EARLY-05-F/out/02_四层覆盖.json",
+    "evidence/ACCUM-EARLY-05-F/out/03_读取链与可得时点.json",
+    "evidence/ACCUM-EARLY-05-F/out/04_资金费口径.json",
+    "evidence/ACCUM-EARLY-05-F/out/05_可用范围与缺口.json",
+    "evidence/ACCUM-EARLY-05-F/out/07_数字对撞.json",
+    "evidence/ACCUM-EARLY-05-F/scripts/00_范围锚定.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/01_币池与退市核对.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/02_四层覆盖_文件与连续.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/03_读取链与可得时点.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/04_资金费口径差异.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/05_可用范围与缺口.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/06_生成报告.py",
+    "evidence/ACCUM-EARLY-05-F/scripts/07_数字对撞.py"
+   ],
+   "has_readme": true,
+   "json_outputs": [
+    "evidence/ACCUM-EARLY-05-F/out/00_范围锚定.json",
+    "evidence/ACCUM-EARLY-05-F/out/01_币池与退市.json",
+    "evidence/ACCUM-EARLY-05-F/out/02_四层覆盖.json",
+    "evidence/ACCUM-EARLY-05-F/out/03_读取链与可得时点.json",
+    "evidence/ACCUM-EARLY-05-F/out/04_资金费口径.json",
+    "evidence/ACCUM-EARLY-05-F/out/05_可用范围与缺口.json",
+    "evidence/ACCUM-EARLY-05-F/out/07_数字对撞.json"
+   ],
+   "newest_json": "evidence/ACCUM-EARLY-05-F/out/07_数字对撞.json",
+   "newest_json_mtime_utc": "2026-10-26T15:52:16Z"
+  }
+ },
+ "caliber_issue": {
+  "05A决策5推荐的混搭口径": {
+   "slippage_each_side": 0.0005,
+   "risk_per_trade_fraction": 0.005,
+   "initial_equity": 2000.0,
+   "single_name_notional_cap": 0.3,
+   "gross_long_notional_cap": 0.9,
+   "participation_cap": 0.001
+  },
+  "现有口径是否等于它": [
+   {
+    "caliber": "生效视图_5bps",
+    "identical": false
+   },
+   {
+    "caliber": "策略包_3bps",
+    "identical": false
+   }
+  ],
+  "结论": "没有任何一套现有口径等于 05-A 决策 5 的推荐混搭。若用户批准该推荐，必须先新增第三套口径（或明确改哪一套），否则「按批准口径跑」无法执行 —— 本单不自行新增。",
+  "另一处必须说明": "CALIBERS 里没有 max_active_positions 字段 ⇒ replay_calc 的单事件回放**根本不含仓位数量约束**。这从代码层面证实了 03 的结论：逐事件回放做不出组合回撤。",
+  "两套口径的原始出处": {
+   "生效视图_5bps": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+   "策略包_3bps": "策略/WyckoffMaster/event_trend_v0_1/config.py · make_ft_low4h_config()"
+  }
+ },
+ "blocking_register": [
+  {
+   "id": "BLK-01",
+   "项目": "用户批准配置",
+   "状态": "未到",
+   "依据": "05-A 五项收敛决策仍标「待批准」；其 README 明确「待用户裁决」。",
+   "解除后解锁": [
+    "Q1/Q2/Q3 三象限判定",
+    "新策略侧全部指标",
+    "第三套口径（如批准混搭）"
+   ]
+  },
+  {
+   "id": "BLK-02",
+   "项目": "05-B 新策略实现",
+   "状态": "已交付",
+   "依据": "探测时刻 2026-10-26T15:53:37Z：目录存在=True，文件 72 个，有 README=True，最新产物 evidence/ACCUM-EARLY-05-B/out/04_配置闸门.json",
+   "解除后解锁": [
+    "四象限完整判定"
+   ]
+  },
+  {
+   "id": "BLK-03",
+   "项目": "05-D 拒单差异与计算版本",
+   "状态": "已交付",
+   "依据": "探测时刻 2026-10-26T15:53:37Z：目录存在=True，文件 5 个，有 README=True，最新产物 evidence/ACCUM-EARLY-05-D/out/02_时序负例直接调用核验.json",
+   "接入结果": "已接入并对撞：计算版本、拒单标的与口径、覆盖口径（101 成交 + 1 拒单）、全量净额与分流净额全部对上，见 02 产物的 crosscheck.vs_05D。"
+  },
+  {
+   "id": "BLK-04",
+   "项目": "05-F 数据边界",
+   "状态": "已交付",
+   "依据": "探测时刻 2026-10-26T15:53:37Z：目录存在=True，文件 16 个，有 README=True，最新产物 evidence/ACCUM-EARLY-05-F/out/07_数字对撞.json",
+   "接入结果": "已接入 05-F 针对本窗口的四层覆盖，见报告第五节。区间边界另用 05-A 的《验证区间使用审计》。"
+  },
+  {
+   "id": "BLK-05",
+   "项目": "跳空成交模型",
+   "状态": "未批",
+   "依据": "04-D 已交三模型敏感性对照（历史 51 笔真实跳空 0 笔，极差 0），依据未批。",
+   "影响": "当前不影响这 51 笔的数值（无跳空），但影响未来含跳空的样本。"
+  },
+  {
+   "id": "BLK-06",
+   "项目": "滑点 3bps / 5bps 与参与率 0.1% / 1.0%",
+   "状态": "未批",
+   "依据": "两套口径并存；05-A 推荐混搭口径但未批准，且现有代码无该组合。"
+  }
+ ],
+ "execution_gate": {
+  "允许跑正式新旧对照的前提（全部满足才跑）": [
+   "① 用户明确批准 05-A 的五项决策（或明确指定替代值），并落成可核对的批准文件；",
+   "② 05-B 交付完成（有 README、有可执行入口、配置校验通过）；",
+   "③ 05-D 的拒单差异与计算版本已核对（或用户明确同意以 04-D 代替）；",
+   "④ 若批准的是混搭口径，第三套口径已写入 replay_calc 并被核对；",
+   "⑤ 母集与基线在本单的哈希下复跑一致（防止依赖到齐期间代码又变）。"
+  ],
+  "本单不做的": [
+   "不设任何新策略阈值",
+   "不跑新策略成绩",
+   "不用旧总收益代替新结果",
+   "不把逐事件求和包装成组合成绩"
+  ],
+  "跑之前必须重做的校验": "重跑 01（代码/数据哈希）与 02（基线对撞），若哈希变了，本单的所有数字失效，必须重新出。"
+ }
+}

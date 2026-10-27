@@ -25,6 +25,7 @@ import {
 import { LineStyle } from 'lightweight-charts';
 import { adaptCandles, alignOiToTimeframe } from '../api/adapters';
 import { apiGet, marketPath } from '../api/client';
+import { useChartPalette } from '../design/chartTheme';
 import type { RawCandlesEnvelope } from '../api/types';
 import type { PublicExtrasView } from '../api/useMarketData';
 import { formatWanYi, formatAmountWanYi, formatOiQuantityUnit } from '../utils/formatters';
@@ -332,6 +333,9 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
    *   · 「现价」线如实标注为**现价**；
    *   · **成交/入场价只由服务端账本 fill 产生**（由成交标记绘制），此处不代填。
    */
+  /** 价格线颜色一律走调色板（canvas 读不到 CSS 变量，只有 chartTheme 这一个桥） */
+  const palette = useChartPalette();
+
   const chartPriceLines: ChartPriceLine[] = useMemo(() => {
     const lines: ChartPriceLine[] = [];
 
@@ -344,7 +348,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       lines.push({
         price: trigger,
         title: `触发价 ${trigger.toLocaleString()}`,
-        color: '#38bdf8',
+        color: palette.signalMarker,
         lineStyle: LineStyle.Dashed,
         lineWidth: 1,
       });
@@ -354,7 +358,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       lines.push({
         price: current,
         title: `现价 ${current.toLocaleString()}`,
-        color: '#10b981',
+        color: palette.up,
         lineStyle: LineStyle.Solid,
         lineWidth: 2,
       });
@@ -364,7 +368,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       lines.push({
         price: stopLoss,
         title: `止损价 ${stopLoss.toLocaleString()}`,
-        color: '#ef4444',
+        color: palette.down,
         lineStyle: LineStyle.Dashed,
         lineWidth: 1,
       });
@@ -374,14 +378,14 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       lines.push({
         price: target,
         title: `目标价 ${target.toLocaleString()}`,
-        color: '#a855f7',
+        color: palette.maSlow,
         lineStyle: LineStyle.Dashed,
         lineWidth: 1,
       });
     }
 
     return lines;
-  }, [activeSignal]);
+  }, [activeSignal, palette]);
 
   /**
    * 官方图表句柄与同组同步枢纽。
@@ -947,30 +951,32 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
   }, [oiPoints, hover?.oiPoint, hover?.timeMs, currentHovered?.timestamp]);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden p-4 space-y-3.5 my-2">
+    <div data-testid="inline-chart-panel" className="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden p-4 space-y-3.5 my-2">
       {/* Title & Timeframe Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-2.5">
-        <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-50 border border-gray-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 pb-2.5">
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-neutral-850 border border-neutral-800">
           <TokenIcon symbol={token.symbol} base={token.originalSymbol} size="xs" />
-          <span className="font-bold text-gray-900 font-mono text-xs">{token.symbol}</span>
-          <span className="text-[10px] text-gray-400 hidden sm:inline">({token.fullName})</span>
-          <span className="text-gray-300">|</span>
-          <span className="text-[11px] text-gray-600 font-sans flex items-center gap-1">
-            <span className="text-gray-400">来源:</span>
-            <span className="font-semibold text-gray-800 font-mono">{token.exchange || 'Binance'}</span>
+          <span className="font-bold text-neutral-100 font-mono text-xs">{token.symbol}</span>
+          <span className="text-[10px] text-neutral-500 hidden sm:inline">({token.fullName})</span>
+          <span className="text-neutral-400">|</span>
+          <span className="text-[11px] text-neutral-400 font-sans flex items-center gap-1">
+            <span className="text-neutral-500">来源:</span>
+            <span className="font-semibold text-neutral-200 font-mono">{token.exchange || 'Binance'}</span>
           </span>
         </div>
 
         {/* Timeframe Selector: 5m / 15m / 30m / 1h / 4h / 8h / 12h / 1d */}
-        <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-md border border-gray-200 text-xs">
+        <div className="flex items-center gap-1 bg-neutral-850 p-1 rounded-md border border-neutral-800 text-xs">
           {timeframes.map((tf) => (
             <button
               key={tf}
+              data-testid={`tf-btn-${tf}`}
+              data-active={selectedTf === tf ? '1' : '0'}
               onClick={() => handleSelectTf(tf)}
               className={`px-2.5 py-1 rounded font-mono font-medium transition-colors ${
                 selectedTf === tf
-                  ? 'bg-emerald-600 text-white font-bold'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'bg-emerald-600 text-[var(--ds-text-inverse)] font-bold'
+                  : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800'
               }`}
             >
               {tf}
@@ -982,15 +988,15 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       {/* Candlestick & Volume Subplot Area（主 K 线区 340px） */}
       <div className="space-y-2">
         {/* Canvas Toolbar & Ticker Stats */}
-        <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2 px-1">
+        <div className="flex flex-wrap items-center justify-between text-xs text-neutral-400 gap-2 px-1">
           <div className="flex items-center gap-4 font-mono text-[11px]">
-            <span>开: <span className="text-gray-900 font-medium">{fmtRaw(currentHovered?.open)}</span></span>
-            <span>高: <span className="text-gray-900 font-medium">{fmtRaw(currentHovered?.high)}</span></span>
-            <span>低: <span className="text-gray-900 font-medium">{fmtRaw(currentHovered?.low)}</span></span>
+            <span>开: <span className="text-neutral-100 font-medium">{fmtRaw(currentHovered?.open)}</span></span>
+            <span>高: <span className="text-neutral-100 font-medium">{fmtRaw(currentHovered?.high)}</span></span>
+            <span>低: <span className="text-neutral-100 font-medium">{fmtRaw(currentHovered?.low)}</span></span>
             <span>收: <span className={`font-semibold ${(currentHovered?.close ?? 0) >= (currentHovered?.open ?? 0) ? 'text-emerald-600' : 'text-rose-600'}`}>
               {fmtRaw(currentHovered?.close)}
             </span></span>
-            <span>量: <span className="text-gray-900 font-medium">{formatAmountWanYi(currentHovered?.volume)} 币</span></span>
+            <span>量: <span className="text-neutral-100 font-medium">{formatAmountWanYi(currentHovered?.volume)} 币</span></span>
             {currentHovered?.signalTag && (
               <span className="px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
                 {currentHovered.signalTag}
@@ -1004,7 +1010,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
             把下方行情表挤到只剩 1 行可见。收至 340px 后仍保留完整 K 线主图与
             缩放/平移/悬停交互，展开状态下可多看到约 1.5 行行情。 */}
         <div
-          className="relative w-full h-[340px] bg-white rounded-md border border-gray-200 p-1 overflow-hidden"
+          className="relative w-full h-[340px] bg-neutral-900 rounded-md border border-neutral-800 p-1 overflow-hidden"
           title="滚轮缩放、拖动平移；K线、成交量与OI联动。"
           onWheelCapture={markUserViewport}
           onPointerDown={markUserViewport}
@@ -1026,7 +1032,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
         </div>
 
         {/* Annotations Note */}
-        <div className="px-1 text-[10px] text-gray-400 font-mono">
+        <div className="px-1 text-[10px] text-neutral-500 font-mono">
           <span>区间边界 / 突破 / 独立回踩 / 止损目标标注</span>
         </div>
       </div>
@@ -1035,27 +1041,27 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       <div className="space-y-1.5 pt-1">
         <div className="flex flex-wrap items-center justify-between text-xs gap-2">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-gray-800 flex items-center gap-1.5 text-xs">
+            <span className="font-bold text-neutral-200 flex items-center gap-1.5 text-xs">
               <span
                 className="w-2.5 h-2.5 rounded-sm"
                 style={{ backgroundColor: OI_BAR_COLOR }}
                 title="柱色统一：总持仓量是净额（多空恒等），柱高只表达总量。"
               ></span>
               OI总持仓量（柱形）
-              <span className="px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 border border-gray-200 font-mono text-[10px]">
+              <span className="px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-400 border border-neutral-800 font-mono text-[10px]">
                 {selectedTf}
               </span>
               {oiSpanLabel && (
                 <span
-                  className="px-1.5 py-0.2 rounded bg-gray-50 text-gray-500 border border-gray-200 font-mono text-[10px]"
+                  className="px-1.5 py-0.2 rounded bg-neutral-850 text-neutral-400 border border-neutral-800 font-mono text-[10px]"
                 >
                   {oiSpanLabel}
                 </span>
               )}
             </span>
-            <div className="flex items-center gap-3 font-mono text-[11px] bg-gray-50 px-2.5 py-0.5 rounded border border-gray-200">
-              <span className="text-gray-500">时点: {currentHoveredOi?.time ?? '—'}</span>
-              <span className="text-gray-800 font-semibold">
+            <div className="flex items-center gap-3 font-mono text-[11px] bg-neutral-850 px-2.5 py-0.5 rounded border border-neutral-800">
+              <span className="text-neutral-400">时点: {currentHoveredOi?.time ?? '—'}</span>
+              <span className="text-neutral-200 font-semibold">
                 总OI: {oiUnit === 'usd'
                   ? `${formatWanYi(currentHoveredOi?.oiUsd, '')} USD`
                   : `${formatAmountWanYi(currentHoveredOi?.oiAmount)} ${formatOiQuantityUnit(token.oi.quantityUnit)}`}
@@ -1064,20 +1070,56 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex bg-gray-100 rounded p-0.5 border border-gray-200 text-[10px]">
+            {/* 单位切换：选中态必须与容器**不同色**。
+                原写法容器与选中项同为 `bg-neutral-800` ⇒ 选中项完全隐形
+                （深色下看起来两个按钮一模一样，用户无法判断当前单位）。
+                改用令牌：容器 surface-2、选中 surface + 强调色文字 + 细阴影，
+                深浅两套主题都成立（2026-10-17 修复）。 */}
+            <div
+              role="group"
+              aria-label="OI 单位切换"
+              className="flex gap-0.5 rounded-md border p-0.5 text-[10px]"
+              style={{ background: 'var(--ds-surface-2)', borderColor: 'var(--ds-border-subtle)' }}
+            >
               <button
+                type="button"
                 onClick={() => setOiUnit('amount')}
-                className={`px-2 py-0.5 rounded ${
-                  oiUnit === 'amount' ? 'bg-white text-gray-900 font-bold' : 'text-gray-500'
+                aria-pressed={oiUnit === 'amount'}
+                className={`min-h-[26px] min-w-[52px] rounded px-2 py-1 transition-colors ${
+                  oiUnit === 'amount'
+                    ? 'font-bold'
+                    : 'font-normal hover:text-[var(--ds-text-2)]'
                 }`}
+                style={
+                  oiUnit === 'amount'
+                    ? {
+                        background: 'var(--ds-surface)',
+                        color: 'var(--ds-accent-text)',
+                        boxShadow: 'var(--ds-shadow-xs)',
+                      }
+                    : { color: 'var(--ds-text-3)' }
+                }
               >
                 数量
               </button>
               <button
+                type="button"
                 onClick={() => setOiUnit('usd')}
-                className={`px-2 py-0.5 rounded ${
-                  oiUnit === 'usd' ? 'bg-white text-gray-900 font-bold' : 'text-gray-500'
+                aria-pressed={oiUnit === 'usd'}
+                className={`min-h-[26px] min-w-[52px] rounded px-2 py-1 transition-colors ${
+                  oiUnit === 'usd'
+                    ? 'font-bold'
+                    : 'font-normal hover:text-[var(--ds-text-2)]'
                 }`}
+                style={
+                  oiUnit === 'usd'
+                    ? {
+                        background: 'var(--ds-surface)',
+                        color: 'var(--ds-accent-text)',
+                        boxShadow: 'var(--ds-shadow-xs)',
+                      }
+                    : { color: 'var(--ds-text-3)' }
+                }
               >
                 名义额 USD
               </button>
@@ -1087,7 +1129,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
 
         {/* OI 柱形图容器（116px，白底清爽；2026-10-15 由 140px 收敛） */}
         <div
-          className="w-full h-[116px] bg-white rounded-md border border-gray-200 p-1 relative overflow-hidden"
+          className="w-full h-[116px] bg-neutral-900 rounded-md border border-neutral-800 p-1 relative overflow-hidden"
           onWheelCapture={markUserViewport}
           onPointerDown={markUserViewport}
           onTouchStart={markUserViewport}

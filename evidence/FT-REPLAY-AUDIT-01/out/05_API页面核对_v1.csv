@@ -1,0 +1,9 @@
+﻿item,expected,actual,pass
+run_id → trades 可解析,列表中的 run_id 能打开交易明细,run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02: 0 条; 未知 run_id：run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02,False
+API 批次分组,27 runs / 4325 trades / net -3678.74,27 runs / 4325 trades / net -3678.71,True
+系统原生页面(3000),HTTP 200 可打开,HTTP 500,False
+专属复盘页(8089),HTTP 200 且能显示记录,HTTP 200,False
+页面实际渲染,显示 740/9128（C1+FILLED）,显示 0/0; chart_err=True,False
+时间单位/时区,ms=UTC；local=UTC+8；0 mismatch,orig_utc_mismatch=0; orig_local_mismatch=0,True
+交易ID映射,可追溯到源账本,replay trade_id 合成；源账本无 trade_id；key 匹配 4325/4325,True
+研究状态/版本,research_period_result; formal_pass_allowed=false; FT_ENTRY_09/FT-FACTOR-03,"research_period_result; False; ['FT-FACTOR-03_binance_futures', 'FT_ENTRY_09']",True

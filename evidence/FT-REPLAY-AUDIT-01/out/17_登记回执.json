@@ -1,0 +1,41 @@
+{
+  "工单": "FT-REPLAY-AUDIT-01",
+  "登记时间": "2026-10-21T23:30:59",
+  "入口": "框架/backend/experiment_registry.py::ExperimentRegistry.observe（EV_OBSERVE）",
+  "存储": "框架/backend/data/experiments/events.jsonl（append-only + 哈希链）",
+  "sample_set_id": "FT-REPLAY-AUDIT-01/9笔验收抽样",
+  "登记键数": 9,
+  "键样例": [
+    "run_FT_ENTRY_09_C_Vs08_Z02_AVAXUSDT|1639430100000",
+    "run_FT_ENTRY_09_C_Vs06_Z04_ARUSDT|1638576900000",
+    "run_FT_ENTRY_09_C_Vs04_Z02_BCHUSDT|1639430100000"
+  ],
+  "链状态_登记前": {
+    "count": 10,
+    "last_hash": "ad4ffbdc7dbb025ef9015c4ad96eac489fb57b83c3780e9cd75912dc63d47537"
+  },
+  "链状态_登记后": {
+    "count": 11,
+    "last_hash": "70cbafb7e5e094fb9d2accc0e6222e6c9db7627e62e40ab9181d9d84f5940a0b"
+  },
+  "新事件": {
+    "seq": 10,
+    "type": "observe",
+    "at": "2026-10-21T15:30:59Z",
+    "by": "hharness/FT-REPLAY-AUDIT-01",
+    "rows": 9,
+    "purpose": "系统复盘独立验收：抽样逐笔已核对，此后不得当未见样本",
+    "hash": "70cbafb7e5e094fb9d2accc0e6222e6c9db7627e62e40ab9181d9d84f5940a0b"
+  },
+  "链完整性复验": "通过（_require_intact 未抛 RegistryTampered）",
+  "证据文件": {
+    "out/13_逐笔核对明细_v2.csv": "b5c18ca3d025a9f79a96646e6d8812a386d4a10378b776a4e7d477f14263d5bf",
+    "out/15_页面逐字段核对_v2.csv": "c84e972215bd095be2f47a4a95c57562c3637657710834faadd48d860ab6668a"
+  },
+  "登记的语义": "「已观察」= 这 9 笔此后不得被当作未见样本；不改变任何运行结果。",
+  "未做的事": [
+    "未修改历史事件",
+    "未新建表或系统",
+    "未跑策略、未改账本"
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "1_三条执行路径": {
+    "ok": true,
+    "paths": {
+      "FT_144_RESEARCH": {
+        "path_id": "FT_144_RESEARCH",
+        "name": "144组Freqtrade网格研究回测",
+        "entrypoint": "evidence/FT-LOW4H-GRID-01/code/01_run_all_grid_backtests.py",
+        "strategy": "WyckoffLow4hGridBase 派生类 (144组静态策略派生类)",
+        "strategy_family": "FT-LOW4H-GRID",
+        "executor": "Freqtrade CLI (freqtrade backtesting, dry_run=True)",
+        "parameter_source": "144组策略派生类静态类变量 + user_data/config.json",
+        "data_source": "evidence/FT-LOW4H-GRID-01/user_data/data/binance/ + 数据/raw/",
+        "fee_model": "单边手续费 0.0005 (0.05%)，无滑点，事后复现逐笔资金费率结算",
+        "unifiable": false,
+        "execution_model": "离线全周期向量/事件混合批处理；由 Freqtrade 引擎全权托管调度",
+        "distinction_notes": "用于策略参数网格离线探索与稳定性验证，无常驻进程与实时挂单队列。"
+      },
+      "UI_LAB_BACKTEST": {
+        "path_id": "UI_LAB_BACKTEST",
+        "name": "UI控制台新建研究回测",
+        "entrypoint": "POST /api/v1/backtests (框架/backend/backtest_api.py:create_run)",
+        "strategy": "WX_EVENT_TREND_V0_1 (WyckoffMaster.event_trend_v0_1)",
+        "strategy_family": "F_WX_EVENT_TREND",
+        "executor": "BacktestRunner (框架/backend/backtest_runner.py)",
+        "parameter_source": "event_trend_bridge.py:PARAMETER_WHITELIST + HTTP 请求体 params",
+        "data_source": "MarketDataRepository (数据/raw/ 统一K线库 + 数据/raw_oi_metrics/)",
+        "fee_model": "taker_fee_bps (5.0 = 0.0005) + slippage_bps (3.0 = 0.0003) + 真实资金费结算事件",
+        "unifiable": false,
+        "execution_model": "Web 控制台异步任务队列 (jobs.sqlite3)，向量化信号初筛 + 15m 事件精确撮合",
+        "distinction_notes": "用于单标的或多标的研究期回测、图表交互与绩效指标复盘，产物持久化为独立 run 目录。"
+      },
+      "PAPER_TRADING": {
+        "path_id": "PAPER_TRADING",
+        "name": "模拟盘演练与守护执行",
+        "entrypoint": "POST /paper/orders (框架/backend/live_api.py) / paper_loop.py / workers/",
+        "strategy": "FT-LOW4H (唐奇安/威科夫低频突破跟踪)",
+        "strategy_family": "FT-LOW4H-EXP",
+        "executor": "PaperEngine (框架/backend/paper_engine.py / paper_loop.py)",
+        "parameter_source": "正式生效视图文件 (EFFECTIVE_VIEW 环境变量或指定冻结视图 JSON)",
+        "data_source": "live_store.py (数据/paper/live_*.sqlite3) + market.sqlite3 真实闭合K线",
+        "fee_model": "fee_each_side (0.0005) + slippage_each_side (0.0005) + 实时资金费核算",
+        "unifiable": false,
+        "execution_model": "常驻守护进程异步轮询，真实首次请求锚点，因果时钟防御，挂单到点真实成交",
+        "distinction_notes": "模拟实盘订单与持仓生命周期管理，持久化到 SQLite 纸面账本，严格因果与防回填防篡改。"
+      }
+    },
+    "summary": "144组Freqtrade研究、UI新建回测、模拟盘各自具备独立入口、策略、执行器、参数来源、数据源及费用口径，明确标识不可统一。"
+  },
+  "2_配置身份建模": {
+    "ok": true,
+    "identity_sample": {
+      "strategy_id": "FT-LOW4H",
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule": "FT-LOW4H",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "risk_per_trade_equity_fraction": 0.005,
+      "portfolio_initial_stop_risk_cap": 0.05,
+      "fee_each_side": 0.0005,
+      "slippage_each_side": 0.0005,
+      "detail_timeframe": "15m",
+      "tracking_timeframe": "4h",
+      "max_holding_hours": 240,
+      "config_fingerprint": "80943cb3bb88",
+      "config_path": "/tmp/wx_contract_test/configs/view_a.json",
+      "spec_version": "F_WX_v2.2_test_contract_A",
+      "initial_equity": 5000.0
+    },
+    "validation_test": "越界数值成功拦截"
+  },
+  "3_异常防御硬闸门": {
+    "ok": true,
+    "missing_config_rejected": "rejected_by_config_contract: config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_contract_test/configs/non_existent_view.json",
+    "bad_config_rejected": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+    "wrong_fingerprint_rejected": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+    "param_override_rejected": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+    "daemon_startup_check": "RuntimeError 阻断且状态记录 failed_config_check",
+    "ledger_records": {
+      "positions": 0,
+      "pending": 0
+    }
+  },
+  "4_双配置持久化与重启隔离": {
+    "ok": true,
+    "config_A": {
+      "s": 0.05,
+      "d": 0.05,
+      "fp": "80943cb3bb88",
+      "init_stop": 95.0,
+      "expected_stop": 95.0
+    },
+    "config_B": {
+      "s": 0.08,
+      "d": 0.12,
+      "fp": "84c6abd9871c",
+      "init_stop": 1840.92,
+      "expected_stop": 1840.92
+    },
+    "isolation_test": "环境切为A后持仓B依然沿用持久化的 d=0.12 推进（候选止损=1716.0）"
+  },
+  "5_订单参数全链路追溯": {
+    "ok": true,
+    "traced_orders": [
+      {
+        "order_id": 5,
+        "symbol": "BTCUSDT",
+        "stoploss_s": 0.05,
+        "trail_d": 0.05,
+        "config_fingerprint": "80943cb3bb88",
+        "config_source": "frozen_view_view_a",
+        "model_version": "FT-LOW4H-EXP-V2.2"
+      },
+      {
+        "order_id": 6,
+        "symbol": "ETHUSDT",
+        "stoploss_s": 0.08,
+        "trail_d": 0.12,
+        "config_fingerprint": "84c6abd9871c",
+        "config_source": "frozen_view_view_b",
+        "model_version": "FT-LOW4H-EXP-V2.2"
+      }
+    ],
+    "conclusion": "订单直接包含 stoploss_s, trail_d, config_fingerprint, model_version，可追溯至配置文件与规则版本。"
+  },
+  "6_既有持仓退出保护": {
+    "ok": true,
+    "new_order_blocked_when_config_lost": "rejected_by_config_contract: config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_contract_test/configs/non_existent_view.json",
+    "held_position_exit_completed": true,
+    "exit_price": 94.9525,
+    "exit_order_id": 8,
+    "exit_order_stoploss_s": 0.05,
+    "exit_order_trail_d": 0.05,
+    "exit_order_fingerprint": "80943cb3bb88",
+    "conclusion": "在配置缺失、新单完全封锁的情况下，已有持仓依然依赖自身绑定的配置身份成功完成跟踪与退出，平仓订单完整记录配置身份。"
+  }
+}

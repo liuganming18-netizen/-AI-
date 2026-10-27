@@ -1,0 +1,240 @@
+{
+ "generated_at_utc": "2026-10-25T03:40:07Z",
+ "identity": {
+  "spec_md": "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+  "spec_sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+  "spec_bytes": 13315,
+  "live_py": "框架/backend/unified_runtime.py",
+  "live_sha256": "d58f95fe9608335db88b811c65fe4b96a2318af2b27840c67b0bfa04df4f9e55",
+  "bt_py": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+  "bt_sha256": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801"
+ },
+ "frozen_params_in_effect": {
+  "atr_warmup_bars": 200,
+  "box_bars_4h": 42,
+  "breakout_max_total_hours": 336,
+  "cooling_hours": 24,
+  "sweep_max_hours": 168,
+  "retest_max_hours": 72,
+  "breakout_max_hours_after_retest": 168
+ },
+ "spec_items": {
+  "ATR 预热条款": [
+   {
+    "line": 17,
+    "text": "- ATR：4h Wilder ATR(14)，前 14 个 TR 的算术平均作为初值，随后递推；TR=max(high-low, abs(high-prev_close), abs(low-prev_close))。首根没有前收盘时 TR=high-low。至少预热 200 根完整 4h K 线。"
+   }
+  ],
+  "建档条款": [
+   {
+    "line": 32,
+    "text": "每个 4h 收盘检查最近 42 根 bar：同时满足 2 <= (H-L)/A <= 8、ER <= 0.30 时建档。数据必须连续，ATR 有效。建档时刻之前或与其同刻的 1h bar 不再用于触发新事件。"
+   }
+  ],
+  "分段回测预热条款": [
+   {
+    "line": 106,
+    "text": "- 每个切分边界前 24 天停止新建观察事件（最长观察 14 天+最长持仓 10 天）；跨界未完整结束的异常样本单列，不计入独立评分。每段允许读取之前 200 根 4h 数据预热特征，但不携带前段事件、持仓或结果标签。"
+   }
+  ]
+ },
+ "live_impl": {
+  "gate_lines": [
+   {
+    "line": 374,
+    "text": "        self.box_gate_bars = 0"
+   },
+   {
+    "line": 481,
+    "text": "                self.box_gate_bars += 1"
+   },
+   {
+    "line": 493,
+    "text": "                    if self.box_gate_bars < int(self.config.atr_warmup_bars):"
+   },
+   {
+    "line": 1118,
+    "text": "            gate.append(int(getattr(eng, \"box_gate_bars\", 0) or 0))"
+   },
+   {
+    "line": 1139,
+    "text": "            # `box_gate_bars` = **声明回放窗口内**处理过的 4h 根数（建档闸门用它，口径与修复前一致）"
+   },
+   {
+    "line": 1141,
+    "text": "            \"box_gate_bars_min\": min(gate) if gate else None,"
+   },
+   {
+    "line": 1142,
+    "text": "            \"box_gate_bars_max\": max(gate) if gate else None,"
+   },
+   {
+    "line": 1151,
+    "text": "                     \"`box_gate_bars` 只数回放窗口内的根数，**建档闸门用它**\""
+   }
+  ],
+  "atr_lines": [
+   {
+    "line": 364,
+    "text": "        # `atr_bars_seen` 同时是「已预热 4h 根数」，用于执行规范要求的 ≥atr_warmup_bars 预热。"
+   },
+   {
+    "line": 366,
+    "text": "        self.atr_bars_seen = 0"
+   },
+   {
+    "line": 368,
+    "text": "        # 为什么与 `atr_bars_seen` 分开（SIGNAL-HISTORY-FIX-03）："
+   },
+   {
+    "line": 369,
+    "text": "        #   接入 180 天历史后，`atr_bars_seen` 会包含窗口之前的预热根数（≈790）。"
+   },
+   {
+    "line": 398,
+    "text": "            \"atr_bars_seen\": self.atr_bars_seen,"
+   },
+   {
+    "line": 478,
+    "text": "                # 现在按装载窗口逐根递推；`atr_bars_seen` 不足 `atr_warmup_bars` 时"
+   },
+   {
+    "line": 480,
+    "text": "                self.atr_bars_seen += 1"
+   },
+   {
+    "line": 791,
+    "text": "            # 只推进 ATR 递推与计数，**不建档**：这样 `atr_bars_seen` 反映的是"
+   },
+   {
+    "line": 794,
+    "text": "                eng.atr_bars_seen += 1"
+   },
+   {
+    "line": 1106,
+    "text": "          · `atr_bars_seen_min/max`：各标的实际喂进递推的 4h 根数"
+   },
+   {
+    "line": 1116,
+    "text": "            n = int(getattr(eng, \"atr_bars_seen\", 0) or 0)"
+   },
+   {
+    "line": 1134,
+    "text": "            # `atr_bars_seen` = 喂进 ATR 递推的 4h 总根数（含 180 天预热部分）"
+   }
+  ],
+  "box_call_lines": [
+   {
+    "line": 500,
+    "text": "                        self.sm.check_and_form_box(cl_ms, h, l, c, float(value))"
+   },
+   {
+    "line": 1170,
+    "text": "        的同一批字段（与 `check_and_form_box` 一致），不新增门槛、不放宽门槛。"
+   }
+  ]
+ },
+ "bt_impl": {
+  "gate_lines": [],
+  "warmup_lines": [
+   {
+    "line": 298,
+    "text": "        idx_start_4h = np.searchsorted(df_4h_raw[\"close_time\"].to_numpy(np.int64), start_ms)"
+   },
+   {
+    "line": 299,
+    "text": "        warmup_start_idx = max(0, idx_start_4h - 220)"
+   },
+   {
+    "line": 300,
+    "text": "        df_4h = df_4h_raw.iloc[warmup_start_idx:].copy()"
+   }
+  ],
+  "box_call_lines": [
+   {
+    "line": 351,
+    "text": "                    if len(sub_4h) >= 42:"
+   },
+   {
+    "line": 357,
+    "text": "                        sm.check_and_form_box("
+   },
+   {
+    "line": 411,
+    "text": "                if len(sub_4h) >= 42:"
+   },
+   {
+    "line": 414,
+    "text": "                    sm_part1.check_and_form_box("
+   },
+   {
+    "line": 434,
+    "text": "                if len(sub_4h) >= 42:"
+   },
+   {
+    "line": 437,
+    "text": "                    sm_rec.check_and_form_box("
+   }
+  ]
+ },
+ "quantification": {
+  "replay_window_hours": 1160.0,
+  "bars_4h_in_window": 290,
+  "gate_bars_window_inner": 200,
+  "box_context_bars": 42,
+  "current_impl_effective_event_bars": 90,
+  "current_impl_effective_event_hours": 360,
+  "current_impl_effective_event_days": 15.0,
+  "spec_impl_effective_event_bars": 248,
+  "spec_impl_effective_event_hours": 992,
+  "spec_impl_effective_event_days": 41.33,
+  "lost_event_bars": 158,
+  "lost_event_days": 26.33,
+  "worst_case_event_chain_hours": 576,
+  "worst_case_event_chain_days": 24.0,
+  "current_impl_can_fit_worst_case_chain": false,
+  "spec_impl_can_fit_worst_case_chain": true
+ },
+ "verdict": [
+  {
+   "id": "V1",
+   "claim": "规范第 17 行只约束 ATR 预热 200 根，未要求「建档前窗口内再累积 200 根」",
+   "evidence": [
+    "规范第 17 行原文（见 spec_items.ATR 预热条款）",
+    "规范第 32 行建档条件原文（见 spec_items.建档条款）"
+   ],
+   "holds": true
+  },
+  {
+   "id": "V2",
+   "claim": "实时实现把 atr_warmup_bars 复用成「建档闸门」，且计数锚在回放窗口起点",
+   "evidence": [
+    "unified_runtime.py:374",
+    "unified_runtime.py:481",
+    "unified_runtime.py:493",
+    "unified_runtime.py:1118",
+    "unified_runtime.py:1139",
+    "unified_runtime.py:1141",
+    "unified_runtime.py:1142",
+    "unified_runtime.py:1151"
+   ],
+   "holds": true
+  },
+  {
+   "id": "V3",
+   "claim": "回测实现没有任何「窗口内满 200 根才建档」的闸门：每个 4h 收盘只要够 42 根就建档",
+   "evidence": [
+    "runner.py:351",
+    "runner.py:357",
+    "runner.py:411",
+    "runner.py:414",
+    "runner.py:434",
+    "runner.py:437",
+    "runner.py:298",
+    "runner.py:299",
+    "runner.py:300"
+   ],
+   "holds": true
+  }
+ ]
+}

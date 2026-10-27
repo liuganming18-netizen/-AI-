@@ -1,0 +1,77 @@
+PRECISION-09 端到端探针（修复后）· 2026-10-17T08:09:39Z
+==============================================================================
+
+[S1_名义额低于最小]
+  成交/持仓      : 0 / []
+  现金/权益      : 2000.0 / 2000.0（初始 2000.0）
+  费用合计       : 0.0
+  拒单原因       : ['notional_below_min']
+  invalid_reasons: ['entry_notional_rejected:notional_below_min']
+  run_valid      : False
+  formal_pass    : False（spec=spec_applied / unverified_historical）
+  账本恒等       : cash=True equity=True
+
+[S2_数量低于最小]
+  成交/持仓      : 0 / []
+  现金/权益      : 2000.0 / 2000.0（初始 2000.0）
+  费用合计       : 0.0
+  拒单原因       : ['qty_below_min_step']
+  invalid_reasons: ['entry_qty_rejected:qty_below_min_step']
+  run_valid      : False
+  formal_pass    : False（spec=spec_applied / unverified_historical）
+  账本恒等       : cash=True equity=True
+
+[S3_原价非正]
+  成交/持仓      : 0 / []
+  现金/权益      : 2000.0 / 2000.0（初始 2000.0）
+  费用合计       : 0.0
+  拒单原因       : ['nonpositive_raw_price']
+  invalid_reasons: ['entry_fill_rejected:nonpositive_raw_price']
+  run_valid      : False
+  formal_pass    : False（spec=declared_no_spec / None）
+  账本恒等       : cash=True equity=True
+
+[S4_跌回箱体取消]
+  成交/持仓      : 0 / []
+  现金/权益      : 2000.0 / 2000.0（初始 2000.0）
+  费用合计       : 0.0
+  拒单原因       : ['canceled_fell_back_into_box (open=100.0 < H=101.0)']
+  invalid_reasons: []
+  run_valid      : True
+  formal_pass    : False（spec=declared_no_spec / None）
+  账本恒等       : cash=True equity=True
+
+[S5_正常成交]
+  成交/持仓      : 1 / []
+  现金/权益      : 1999.04 / 1999.04（初始 2000.0）
+  费用合计       : 0.6
+  拒单原因       : []
+  invalid_reasons: []
+  run_valid      : True
+  formal_pass    : False（spec=spec_applied / unverified_historical）
+  账本恒等       : cash=True equity=True
+  首笔成交       : {'entry_price': 100.03, 'exit_price': 99.97, 'qty': 6.0, 'net_pnl': -0.96, 'fees': 0.6}
+
+[S6_出场拒绝]
+  成交/持仓      : 0 / ['SOLUSDT']
+  现金/权益      : 1999.9928646854 / 1991.4276330939（初始 2000.0）
+  费用合计       : 0.0
+  拒单原因       : []
+  invalid_reasons: ['exit_eod_fill_rejected:nonpositive_or_nonfinite_exit_fill']
+  run_valid      : False
+  formal_pass    : False（spec=declared_no_spec / None）
+  账本恒等       : cash=True equity=True
+
+[S7_历史规格不可证]
+  成交/持仓      : 1 / []
+  现金/权益      : 1999.04 / 1999.04（初始 2000.0）
+  费用合计       : 0.6
+  拒单原因       : []
+  invalid_reasons: []
+  run_valid      : True
+  formal_pass    : False（spec=spec_applied / unverified_historical）
+  账本恒等       : cash=True equity=True
+  首笔成交       : {'entry_price': 100.03, 'exit_price': 99.97, 'qty': 6.0, 'net_pnl': -0.96, 'fees': 0.6}
+
+[S8_缺规格]
+  抛出: ExecutionInputError: instrument_spec_required: 必须提供交易所合约规格（或显式 price_step）；禁止用固定 0.01 默认值成交

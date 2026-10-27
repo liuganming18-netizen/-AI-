@@ -1,0 +1,4840 @@
+{
+ "探测数": 435,
+ "按层与状态": {
+  "支持-默认根 / A 数组非空": {
+   "HTTP 400": 373,
+   "HTTP -1": 2
+  },
+  "归档-不在扫描范围 / E 对象K线": {
+   "HTTP 404": 6
+  },
+  "归档-不在扫描范围 / D 缺 chart": {
+   "HTTP 404": 6
+  },
+  "归档-不在扫描范围 / B 数组空": {
+   "HTTP 200": 6
+  },
+  "支持-默认根 / E 对象K线": {
+   "HTTP 200": 6
+  },
+  "支持-默认根 / B 数组空": {
+   "HTTP 200": 6
+  },
+  "支持-默认根 / D 缺 chart": {
+   "HTTP 200": 6
+  },
+  "支持-同级批次 / E 对象K线": {
+   "HTTP 200": 6
+  },
+  "支持-同级批次 / D 缺 chart": {
+   "HTTP 200": 6
+  },
+  "支持-同级批次 / B 数组空": {
+   "HTTP 200": 6
+  },
+  "支持-同级批次 / D 缺来源(重建)": {
+   "HTTP 200": 6
+  }
+ },
+ "提示文案样本": {
+  "支持-默认根|A 数组非空|HTTP400": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_0GUSDT_1792174343",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  "支持-默认根|A 数组非空|HTTP-1": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_我踏马来了USDT_1792174485",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": -1,
+   "raw": "UnicodeEncodeError: 'ascii' codec can't encode characters in position 46-50: ordinal not in range(128)"
+  },
+  "归档-不在扫描范围|E 对象K线|HTTP404": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  "归档-不在扫描范围|D 缺 chart|HTTP404": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  "归档-不在扫描范围|B 数组空|HTTP200": {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_API3USDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  "支持-默认根|E 对象K线|HTTP200": {
+   "run_id": "bt_20261018T190047Z_30bf4bb0",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 17376,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  "支持-默认根|B 数组空|HTTP200": {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 27,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  "支持-默认根|D 缺 chart|HTTP200": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000000MOGUSDT_1792273856",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 35040,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  "支持-同级批次|E 对象K线|HTTP200": {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000CATUSDT_1792252283",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  "支持-同级批次|D 缺 chart|HTTP200": {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z02",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z02: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  "支持-同级批次|B 数组空|HTTP200": {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  "支持-同级批次|D 缺来源(重建)|HTTP200": {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 27,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  }
+ },
+ "明细": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_0GUSDT_1792174343",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000BONKUSDT_1792173638",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000CATUSDT_1792174344",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000CHEEMSUSDT_1792196696",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000FLOKIUSDT_1792173639",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000LUNCUSDT_1792173640",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000PEPEUSDT_1792173641",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000RATSUSDT_1792173642",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000SATSUSDT_1792173643",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000SHIBUSDT_1792173644",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000XECUSDT_1792173645",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1INCHUSDT_1792173647",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1MBABYDOGEUSDT_1792174345",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_2ZUSDT_1792196697",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_4USDT_1792196699",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AAVEUSDT_1792172978",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_1792171577",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACHUSDT_1792173648",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACTUSDT_1792196700",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ADAUSDT_1792172977",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AEVOUSDT_1792196701",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AGLDUSDT_1792173649",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AIGENSYNUSDT_1792196703",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AINUSDT_1792196704",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AIOTUSDT_1792196707",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AIOUSDT_1792174347",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AKTUSDT_1792174348",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ALGOUSDT_1792173568",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ALICEUSDT_1792173650",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ALTUSDT_1792173569",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ANKRUSDT_1792173651",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_APEUSDT_1792173653",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_API3USDT_1792173570",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_APTUSDT_1792172945",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARBUSDT_1792172951",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARCUSDT_1792174349",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARIAUSDT_1792174350",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARKMUSDT_1792173571",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARKUSDT_1792173654",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARPAUSDT_1792173572",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARUSDT_1792173655",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ARXUSDT_1792196708",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ASRUSDT_1792196709",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ASTRUSDT_1792173573",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ATOMUSDT_1792172960",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ATUSDT_1792174351",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AUCTIONUSDT_1792173656",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AUSDT_1792196710",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AVAXUSDT_1792172941",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AWEUSDT_1792196713",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AXSUSDT_1792173911",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AZTECUSDT_1792174352",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_B2USDT_1792196714",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BANANAS31USDT_1792196718",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BANDUSDT_1792173912",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BANUSDT_1792174358",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BARDUSDT_1792196720",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BASUSDT_1792174360",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BATUSDT_1792173914",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BCHUSDT_1792174122",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BEAMXUSDT_1792173915",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BEATUSDT_1792196722",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BELUSDT_1792174123",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BERAUSDT_1792196726",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BICOUSDT_1792174125",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BIGTIMEUSDT_1792174126",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BILLUSDT_1792196727",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BIOUSDT_1792174362",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BIRBUSDT_1792174363",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BLUAIUSDT_1792196729",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BLURUSDT_1792174127",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BMTUSDT_1792196730",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BNBUSDT_1792172973",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BNTUSDT_1792174129",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BOMEUSDT_1792174364",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BREVUSDT_1792196731",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BROCCOLI714USDT_1792174365",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BROCCOLIF3BUSDT_1792196735",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BRUSDT_1792174367",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BSBUSDT_1792174369",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BSVUSDT_1792173916",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BTCUSDT_1792171584",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_C98USDT_1792174130",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CAKEUSDT_1792174131",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CAPUSDT_1792196735",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CATIUSDT_1792196737",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CCUSDT_1792196739",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CELOUSDT_1792173574",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CELRUSDT_1792173917",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CFXUSDT_1792173918",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CGPTUSDT_1792174370",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CHIPUSDT_1792174371",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CHRUSDT_1792174133",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CHZUSDT_1792174134",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CKBUSDT_1792173575",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_COAIUSDT_1792196740",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_COMPUSDT_1792174139",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_COOKIEUSDT_1792196741",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_COTIUSDT_1792174145",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_COWUSDT_1792196742",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CROSSUSDT_1792196743",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CRVUSDT_1792174146",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CTRUSDT_1792174371",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CTSIUSDT_1792173919",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CVCUSDT_1792174372",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CVXUSDT_1792196746",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CYBERUSDT_1792173927",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_CYSUSDT_1792196748",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DASHUSDT_1792173928",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DATAIPUSDT_1792174373",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DEXEUSDT_1792196749",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DIAUSDT_1792196750",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DODOXUSDT_1792174148",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DOGEUSDT_1792172939",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DOLOUSDT_1792174374",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DOTUSDT_1792172975",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DUSKUSDT_1792174149",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DYDXUSDT_1792173929",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_DYMUSDT_1792196751",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EDGEUSDT_1792196752",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EDUUSDT_1792174151",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EGLDUSDT_1792173931",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EIGENUSDT_1792196753",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ELSAUSDT_1792196755",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ENAUSDT_1792173576",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ENJUSDT_1792173578",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ENSUSDT_1792173932",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ERAUSDT_1792174375",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ESPUSDT_1792196756",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ETCUSDT_1792172999",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ETHUSDT_1792171586",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ETHWUSDT_1792173933",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EULUSDT_1792174382",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FARTCOINUSDT_1792196758",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FETUSDT_1792173934",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FIGHTUSDT_1792174384",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FILUSDT_1792172957",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FLOWUSDT_1792173935",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FLUIDUSDT_1792196759",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FLUXUSDT_1792196761",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FOGOUSDT_1792196762",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FOLKSUSDT_1792196763",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FORMUSDT_1792196764",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FRAXUSDT_1792196765",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_FUSDT_1792174385",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GALAUSDT_1792173936",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GASUSDT_1792173579",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GENIUSUSDT_1792196766",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GMTUSDT_1792173938",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GMXUSDT_1792173939",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GRAMUSDT_1792174386",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GRIFFAINUSDT_1792196772",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GRTUSDT_1792173940",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GRVTUSDT_1792196772",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GTCUSDT_1792173941",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GUAUSDT_1792174386",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GUNUSDT_1792174388",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GUSDT_1792196778",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_GWEIUSDT_1792174389",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HAEDALUSDT_1792196782",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HANAUSDT_1792174390",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HBARUSDT_1792174153",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HEIUSDT_1792196783",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HEMIUSDT_1792196784",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HIVEUSDT_1792196785",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HMSTRUSDT_1792196786",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HOMEUSDT_1792174392",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HOTUSDT_1792173943",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HUMAUSDT_1792174393",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HYPERUSDT_1792196787",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_HYPEUSDT_1792196788",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ICNTUSDT_1792196789",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ICPUSDT_1792174155",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IDOLUSDT_1792196790",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IDUSDT_1792173944",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ILVUSDT_1792174156",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IMXUSDT_1792173580",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_INITUSDT_1792196791",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_INJUSDT_1792172954",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_INUSDT_1792196792",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_INXUSDT_1792196793",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IOSTUSDT_1792174158",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IOTAUSDT_1792174162",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IOTXUSDT_1792173945",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_IOUSDT_1792174394",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_JASMYUSDT_1792173582",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_JELLYJELLYUSDT_1792174395",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_JOEUSDT_1792174164",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_JTOUSDT_1792174165",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_JUPUSDT_1792173583",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KAIAUSDT_1792196794",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KASUSDT_1792173947",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KATUSDT_1792174397",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KAVAUSDT_1792173949",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KGENUSDT_1792196795",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KITEUSDT_1792196796",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KNCUSDT_1792173950",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KSMUSDT_1792173951",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LABUSDT_1792174399",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LAUSDT_1792174400",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LAYERUSDT_1792196801",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LDOUSDT_1792174167",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LIGHTUSDT_1792174401",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LINEAUSDT_1792174402",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LINKUSDT_1792172943",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LITUSDT_1792174404",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LPTUSDT_1792173591",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LQTYUSDT_1792174169",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LTCUSDT_1792172962",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LUMIAUSDT_1792196802",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LUNA2USDT_1792173953",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_LYNUSDT_1792174405",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MAGICUSDT_1792174170",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MAGMAUSDT_1792196804",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MANAUSDT_1792173593",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MANTAUSDT_1792174406",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MASKUSDT_1792173954",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MAVIAUSDT_1792196805",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MAVUSDT_1792173956",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MEGAUSDT_1792196807",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MELANIAUSDT_1792196808",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MEMEUSDT_1792174172",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_METUSDT_1792174407",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MINAUSDT_1792173957",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MIRAUSDT_1792174408",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MITOUSDT_1792174409",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MONUSDT_1792196809",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MOODENGUSDT_1792174410",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MORPHOUSDT_1792174411",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MOVRUSDT_1792171582",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MTLUSDT_1792174173",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MUBARAKUSDT_1792174412",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_MYXUSDT_1792174413",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NEARUSDT_1792172944",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NEOUSDT_1792173594",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NEWTUSDT_1792174415",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NMRUSDT_1792174175",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NOMUSDT_1792174416",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_NXPCUSDT_1792196812",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_OGNUSDT_1792174176",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ONDOUSDT_1792173595",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ONEUSDT_1792174177",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ONGUSDT_1792173958",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ONTUSDT_1792173596",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ONUSDT_1792196813",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_OPENUSDT_1792174417",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_OPGUSDT_1792174418",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_OPUSDT_1792172950",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ORDERUSDT_1792174419",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ORDIUSDT_1792171568",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_OUSDT_1792196814",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PARTIUSDT_1792196815",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PAXGUSDT_1792196815",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PENDLEUSDT_1792174179",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PEOPLEUSDT_1792173597",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PHAUSDT_1792174420",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PIPPINUSDT_1792174421",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PIXELUSDT_1792173598",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PNUTUSDT_1792174423",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_POLUSDT_1792174425",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_POLYXUSDT_1792174186",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_POPCATUSDT_1792174427",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PORTALUSDT_1792174428",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_POWERUSDT_1792174429",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_POWRUSDT_1792173599",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PROMUSDT_1792174430",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PUMPBTCUSDT_1792196819",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_PYTHUSDT_1792171594",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792174188",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_QTUMUSDT_1792173960",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_QUSDT_1792174431",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RAREUSDT_1792196820",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RAYSOLUSDT_1792196821",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RECALLUSDT_1792174433",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RESOLVUSDT_1792196821",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RIFUSDT_1792174190",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RLCUSDT_1792171590",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RONINUSDT_1792173600",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ROSEUSDT_1792173961",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RSRUSDT_1792174191",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RUNEUSDT_1792173962",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RVNUSDT_1792173964",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SAFEUSDT_1792174439",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SAGAUSDT_1792196822",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SAHARAUSDT_1792174440",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SANDUSDT_1792171592",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SAPIENUSDT_1792196823",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SCRUSDT_1792174442",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SEIUSDT_1792174192",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SFPUSDT_1792173966",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SKLUSDT_1792173601",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SKRUSDT_1792174443",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SNXUSDT_1792174194",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SOLUSDT_1792171588",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SOLVUSDT_1792174444",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SOMIUSDT_1792196824",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SOONUSDT_1792174449",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SOPHUSDT_1792196825",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SPACEUSDT_1792174451",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SPELLUSDT_1792173602",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SPKUSDT_1792174453",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SPORTFUNUSDT_1792196826",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SPXUSDT_1792196827",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SSVUSDT_1792173967",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_STABLEUSDT_1792174454",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_STARUSDT_1792174454",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_STBLUSDT_1792174455",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_STEEMUSDT_1792174196",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_STXUSDT_1792173604",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SUIUSDT_1792172953",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SUNUSDT_1792196828",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SUPERUSDT_1792173969",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SUSDT_1792196829",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SUSHIUSDT_1792174200",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SWARMSUSDT_1792196830",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SYNUSDT_1792174457",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TAGUSDT_1792196833",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TAIKOUSDT_1792196834",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TAOUSDT_1792173605",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TAUSDT_1792174458",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_THETAUSDT_1792173606",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_THEUSDT_1792174459",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TIAUSDT_1792172955",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TLMUSDT_1792173607",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TRADOORUSDT_1792174460",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TRBUSDT_1792171595",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TREEUSDT_1792174461",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TRUSTUSDT_1792174462",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TRUTHUSDT_1792174465",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TRXUSDT_1792173970",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TURTLEUSDT_1792174468",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TUSDT_1792173972",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_TWTUSDT_1792174203",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_UAIUSDT_1792196835",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_UMAUSDT_1792174206",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_UNIUSDT_1792172979",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_USDCUSDT_1792173973",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_USTCUSDT_1792173974",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_USUSDT_1792174470",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_VANAUSDT_1792174473",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_VELODROMEUSDT_1792196836",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_VETUSDT_1792173976",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_VTHOUSDT_1792174474",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_VVVUSDT_1792196838",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WAXPUSDT_1792174209",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WCTUSDT_1792174475",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WETUSDT_1792174477",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WIFUSDT_1792173610",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WLDUSDT_1792173978",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WLFIUSDT_1792174478",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_WOOUSDT_1792173980",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XAIUSDT_1792174479",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XAUTUSDT_1792196839",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XLMUSDT_1792173611",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XMRUSDT_1792173989",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XPINUSDT_1792174480",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XRPUSDT_1792172974",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XTZUSDT_1792174212",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XVGUSDT_1792174213",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_XVSUSDT_1792174216",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_YBUSDT_1792174481",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_YFIUSDT_1792174217",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_YGGUSDT_1792173613",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZAMAUSDT_1792174482",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZBTUSDT_1792174484",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZECUSDT_1792173990",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZENUSDT_1792173992",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZESTUSDT_1792174484",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZILUSDT_1792173616",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZKUSDT_1792196841",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZORAUSDT_1792196842",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZROUSDT_1792196843",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZRXUSDT_1792174219",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": 400,
+   "err": "list indices must be integers or slices, not str",
+   "err_keys": [
+    "错误"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_我踏马来了USDT_1792174485",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": -1,
+   "raw": "UnicodeEncodeError: 'ascii' codec can't encode characters in position 46-50: ordinal not in range(128)"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_龙虾USDT_1792196844",
+   "tier": "支持-默认根",
+   "state": "A 数组非空",
+   "http": -1,
+   "raw": "UnicodeEncodeError: 'ascii' codec can't encode characters in position 46-47: ordinal not in range(128)"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170458",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_1792170458",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BANDUSDT_1792170397",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_BANDUSDT_1792170397",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BANDUSDT_1792170465",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_BANDUSDT_1792170465",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BCHUSDT_1792170393",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_BCHUSDT_1792170393",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_BCHUSDT_1792170461",
+   "tier": "归档-不在扫描范围",
+   "state": "E 对象K线",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_BCHUSDT_1792170461",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170458",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_A_1792170458",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_B_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_B_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_B_1792170458",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_B_1792170458",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_C_1792170390",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_C_1792170390",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ACEUSDT_C_1792170458",
+   "tier": "归档-不在扫描范围",
+   "state": "D 缺 chart",
+   "http": 404,
+   "err": "未知 run_id：run_WX_EVENT_TREND_V0_1_ACEUSDT_C_1792170458",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_API3USDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_APTUSDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_ARBUSDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 7541,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_ARPAUSDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_ARUSDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C2_Vs08_Z04_ATOMUSDT",
+   "tier": "归档-不在扫描范围",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261018T190047Z_30bf4bb0",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 17376,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261018T190145Z_b958c838",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 17376,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261023T162149Z_59f3c8fa",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 2784,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261024T015742Z_25b81923",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 192,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261024T020045Z_25b81923",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 192,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "bt_20261024T120001Z_e1a10001",
+   "tier": "支持-默认根",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 3985,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 27,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ACHUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 68,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ALICEUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ARBUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 7541,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_AUCTIONUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 9,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_AXSUSDT",
+   "tier": "支持-默认根",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000000MOGUSDT_1792273856",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 35040,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000000MOGUSDT_1792274510",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 35040,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AGTUSDT_1792274651",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 35040,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AINUSDT_1792274566",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 24533,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AKEUSDT_1792274591",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 22318,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_AKEUSDT_1792274607",
+   "tier": "支持-默认根",
+   "state": "D 缺 chart",
+   "http": 200,
+   "bars": 25966,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录"
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000CATUSDT_1792252283",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000CHEEMSUSDT_1792252284",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000PEPEUSDT_1792252269",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_1000PEPEUSDT_1792252285",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ADAUSDT_1792252271",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ADAUSDT_1792252287",
+   "tier": "支持-同级批次",
+   "state": "E 对象K线",
+   "http": 200,
+   "bars": 14592,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z02",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z02: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z04",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z04: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z06",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs04_Z06: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z02",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z02: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z04",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z04: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z06",
+   "tier": "支持-同级批次",
+   "state": "D 缺 chart",
+   "http": 200,
+   "err": "本 run 无 chart.json，且无法按本 run 自己的窗口重建（'run_FT_EXIT01_Wyckoff_C1_P_Stop20_Vs06_Z06: 无法确定标的（summary.json 无 symbol）'）⇒ 缺 K 线，不伪造",
+   "err_keys": [
+    "mode",
+    "contract_version",
+    "strategy_id",
+    "run_id",
+    "status",
+    "quality",
+    "missing_reason",
+    "items",
+    "total",
+    "live_order_enabled"
+   ]
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z04",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z06",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs06_Z02",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs06_Z04",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 184,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs06_Z06",
+   "tier": "支持-同级批次",
+   "state": "B 数组空",
+   "http": 200,
+   "bars": 10539,
+   "step_s": 3600,
+   "exec_tf": "15m",
+   "display_tf": "1h",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 27,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ACHUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 68,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ALICEUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ARBUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 7541,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_AUCTIONUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 9,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  },
+  {
+   "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_AXSUSDT",
+   "tier": "支持-同级批次",
+   "state": "D 缺来源(重建)",
+   "http": 200,
+   "bars": 20000,
+   "step_s": 900,
+   "exec_tf": "15m",
+   "display_tf": "15m",
+   "blocked": null,
+   "top_missing": null,
+   "derived_from": null
+  }
+ ]
+}

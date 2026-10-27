@@ -1,0 +1,35 @@
+{
+ "probe": "market_index_probe",
+ "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+ "db_bytes": 10753265664,
+ "candle_versions_rows": 8428561,
+ "rows_15m": 2335426,
+ "rows_btcusdt_15m": 5212,
+ "indexes": [
+  {
+   "name": "sqlite_autoindex_candle_versions_1",
+   "sql": null
+  }
+ ],
+ "query_plan": [
+  {
+   "id": 4,
+   "parent": 0,
+   "detail": "SCAN candle_versions"
+  },
+  {
+   "id": 27,
+   "parent": 0,
+   "detail": "USE TEMP B-TREE FOR ORDER BY"
+  }
+ ],
+ "full_scan": true,
+ "query_ms": [
+  5448,
+  8591,
+  8209
+ ],
+ "last_closed_15m_close_time": 1792757699999,
+ "arms": 4,
+ "note": "last_closed_15m 无可用索引 ⇒ 每次调用全表扫描 candle_versions；snapshot_all 对每个臂、每个持仓各调一次，故 /api/v1/paper/positions 的耗时 ≈ 调用次数 × 单次扫描耗时。"
+}

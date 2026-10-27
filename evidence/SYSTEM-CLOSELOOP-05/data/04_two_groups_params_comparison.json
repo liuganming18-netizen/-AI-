@@ -1,0 +1,107 @@
+{
+  "group1": {
+    "tag": "GROUP1",
+    "config": "exp1_config.json",
+    "params": {
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+    },
+    "initial_entry_price": 100.10000000000001,
+    "initial_stop": 95.0,
+    "stops_progression": [
+      {
+        "event": "initial_stop",
+        "stop": 95.0
+      },
+      {
+        "event": "trail_update_1",
+        "bar_low": 107.0,
+        "candidate": 101.60000000000001,
+        "effective_stop": 101.60000000000001
+      },
+      {
+        "event": "trail_lower_candidate_ignored",
+        "bar_low": 102.0,
+        "candidate": 96.9,
+        "effective_stop": 101.60000000000001
+      },
+      {
+        "event": "trail_update_2",
+        "bar_low": 112.0,
+        "candidate": 106.4,
+        "effective_stop": 106.4
+      }
+    ],
+    "restart_consistency": {
+      "positions_before": 1,
+      "positions_after": 1,
+      "fills_before": 1,
+      "fills_after": 1,
+      "stops_before": 3,
+      "stops_after": 3,
+      "match": true
+    },
+    "exit": {
+      "status": "closed",
+      "reason": "trailing_stop_loss",
+      "exit_price": 106.34680000000002,
+      "entry_fee": 0.24999975000000005,
+      "exit_fee": 0.26560113300000004,
+      "cash_residual": 0.0,
+      "closed": true
+    }
+  },
+  "group2": {
+    "tag": "GROUP2",
+    "config": "exp2_config.json",
+    "params": {
+      "stoploss_s": 0.03,
+      "trail_d": 0.08
+    },
+    "initial_entry_price": 100.10000000000001,
+    "initial_stop": 97.0,
+    "stops_progression": [
+      {
+        "event": "initial_stop",
+        "stop": 97.0
+      },
+      {
+        "event": "trail_update_1",
+        "bar_low": 107.0,
+        "candidate": 98.4,
+        "effective_stop": 98.4
+      },
+      {
+        "event": "trail_lower_candidate_ignored",
+        "bar_low": 102.0,
+        "candidate": 93.80000000000001,
+        "effective_stop": 98.4
+      },
+      {
+        "event": "trail_update_2",
+        "bar_low": 112.0,
+        "candidate": 103.0,
+        "effective_stop": 103.0
+      }
+    ],
+    "restart_consistency": {
+      "positions_before": 1,
+      "positions_after": 1,
+      "fills_before": 1,
+      "fills_after": 1,
+      "stops_before": 3,
+      "stops_after": 3,
+      "match": true
+    },
+    "exit": {
+      "status": "closed",
+      "reason": "trailing_stop_loss",
+      "exit_price": 102.94850000000001,
+      "entry_fee": 0.24999975000000005,
+      "exit_fee": 0.25711387875,
+      "cash_residual": 0.0,
+      "closed": true
+    }
+  },
+  "diff_proved": true
+}

@@ -1,0 +1,72 @@
+{
+  "FE07": {
+    "目标版本": "FACTOR-ENTRY-07",
+    "输入清单": "evidence/FACTOR-ENTRY-07/00_freeze_inputs_manifest.json",
+    "输入条数": 9,
+    "读取ENTRY-AUDIT-03": true,
+    "读取ENTRY-AUDIT-04": false,
+    "输入哈希是否全部与磁盘一致": true,
+    "判定": "PASS",
+    "说明": "FE07 的工单是接入 EA03 校正账本，读 EA03 符合其自身工单；EA04 由 FE08 补齐"
+  },
+  "FE08": {
+    "目标版本": "FACTOR-ENTRY-08",
+    "输入清单": "evidence/FACTOR-ENTRY-08/00_manifest.json",
+    "声明交接版本": "ENTRY-AUDIT-04.handoff.v1",
+    "声明读取文件": "evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.parquet",
+    "声明读取文件sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+    "读取ENTRY-AUDIT-04": true,
+    "读取ENTRY-AUDIT-03": false,
+    "登记哈希逐条": [
+      {
+        "文件": "ledger_handoff.parquet",
+        "声明sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+        "磁盘sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+        "一致": true
+      },
+      {
+        "文件": "ledger_handoff.csv",
+        "声明sha256": "4b3207b5c6fd63d2a74179a2be60f58e41e9e3be74ac9424d79193eb45eef71f",
+        "磁盘sha256": "4b3207b5c6fd63d2a74179a2be60f58e41e9e3be74ac9424d79193eb45eef71f",
+        "一致": true
+      },
+      {
+        "文件": "handoff_meta.json",
+        "声明sha256": "9872eca19a539378d7835cc3f357ac8e5343fe87ed90949479a09ff65df682aa",
+        "磁盘sha256": "9872eca19a539378d7835cc3f357ac8e5343fe87ed90949479a09ff65df682aa",
+        "一致": true
+      },
+      {
+        "文件": "generation_split.json",
+        "声明sha256": "95bcfbdae96784a725c127455b2b610dcf4a3c8af682b45bfc1d8c85b290cfff",
+        "磁盘sha256": "95bcfbdae96784a725c127455b2b610dcf4a3c8af682b45bfc1d8c85b290cfff",
+        "一致": true
+      },
+      {
+        "文件": "field_dictionary.csv",
+        "声明sha256": "8cd998b61e2b2f3d0d833f5bd47c2f3585ac6397dc5390fb8919b9bc848949d2",
+        "磁盘sha256": "8cd998b61e2b2f3d0d833f5bd47c2f3585ac6397dc5390fb8919b9bc848949d2",
+        "一致": true
+      },
+      {
+        "文件": "unfilled_22.csv",
+        "声明sha256": "527b0d0fe7b6f75e3f4faf26a2cca597df4e5d3701aa329319091f664fe91d27",
+        "磁盘sha256": "527b0d0fe7b6f75e3f4faf26a2cca597df4e5d3701aa329319091f664fe91d27",
+        "一致": true
+      },
+      {
+        "文件": "coti_duplicate.csv",
+        "声明sha256": "5ca803697aa28aa0dae4f1248b8f29fd7a9ba4200389222d8786e9af59c8fdf1",
+        "磁盘sha256": "5ca803697aa28aa0dae4f1248b8f29fd7a9ba4200389222d8786e9af59c8fdf1",
+        "一致": true
+      }
+    ],
+    "登记哈希是否全部与磁盘一致": true,
+    "脚本是否实际打开交接包": true,
+    "脚本内是否仍出现旧费用键名": [],
+    "生成脚本sha256": "de1469661c4425e69cd3bde941ad9186d79d89e51a7851a1679607c2453d22f9",
+    "生成脚本磁盘sha256": "de1469661c4425e69cd3bde941ad9186d79d89e51a7851a1679607c2453d22f9",
+    "判定": "PASS",
+    "说明": "四条件：①声明读 EA04 ②登记哈希逐位一致 ③脚本实际打开 ④不再用 total_fees/total_funding"
+  }
+}

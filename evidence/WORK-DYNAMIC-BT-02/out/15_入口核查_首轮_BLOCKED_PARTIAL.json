@@ -1,0 +1,38 @@
+{
+  "核对时刻_utc": "2026-10-24T09:20:44Z",
+  "后端": "http://127.0.0.1:8787/api/v1",
+  "1_运行列表": {
+    "status": 200,
+    "返回条数": 500,
+    "本批次run是否出现": true,
+    "出现条数": 45,
+    "结论": "列表已包含本批次 run",
+    "已知原因": "`backtest_store.list_runs()` 只扫默认根 `runs/`，不扫同级批次目录 `runs_work_dynamic_bt_01/`（BT-UI-01 范畴，属公共代码，本单不改）"
+  },
+  "2_按run_id直查": {
+    "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+    "run_detail_status": 200,
+    "trades_status": 200,
+    "trades_items": 21,
+    "equity_status": 200,
+    "equity_items": 1128,
+    "chart_status": 200,
+    "chart_candles": 336,
+    "chart_signals": 1,
+    "chart_trades": 1,
+    "chart_equity_curve": 1128,
+    "chart_blocked_reason": "本 run 为 74 标的组合回测，现有复盘图表契约（backtest_chart.build_chart / GET /backtests/{id}/chart）以**单标的** symbol+window 取 K 线，无法承载组合；且公共复盘/接口正由 WORK-SIGNAL-REPLAY-02 改造中，本单不改公共源码。逐笔多周期 K 线已完整保存在 evidence/WORK-DYNAMIC-BT-01/replay/<strategy>.jsonl.gz。"
+  },
+  "3_前端入口": {
+    "检索目录": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/src",
+    "命中文件": [
+      "UI界面/web/src/components/BacktestWorkbench.tsx",
+      "UI界面/web/src/components/LabChartPanel.tsx",
+      "UI界面/web/src/components/LabFundingPanel.tsx",
+      "UI界面/web/src/components/LightweightChart.tsx"
+    ],
+    "说明": "前端有调用 `backtests/{id}/chart` 的组件，但该组件按**单标的 symbol+window** 取 K 线；组合回测无单标的可传 ⇒ 即使强行打开也是空图。本单不构造组合币 K 线来「填满」它。"
+  },
+  "判定": "BLOCKED_PARTIAL",
+  "判定依据": "入口可用 = ① 列表能列出 run ② 点开后 1h 主图有真实 K 线 ③ 4h 背景与执行周期可切换。本轮 ① 不满足、③ 不满足（candles=[]），只有 ② 的组合级载荷（权益/逐笔/信号）可用 ⇒ **部分完成，整体不得标完成**。"
+}

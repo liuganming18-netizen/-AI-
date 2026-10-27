@@ -1,0 +1,10 @@
+﻿编号,层,验收案例,状态,实测/原因,缺口（要改哪一行）,必须断言什么
+E1,L3,入场价格精度拒绝的完整后置状态,待实现,入场侧目前无法产生 FillRejected（raw/step 非法在入口即拦，买侧取整后恒>0）；需 R6 或 R7 先落地,engine.py:452-462 except FillRejected 分支无 invalid_reasons.append ⇒ 落地后会「0 成交但 run_valid=True」,trades_count=0 ∧ open_positions_remaining=[] ∧ invalid_reasons 非空 ∧ run_valid=False
+E2,L3,入场数量精度拒绝的完整后置状态,fail,现状：0 成交、无持仓，但 invalid_reasons 为空、run_valid=True ⇒ 与「资格约定」不符（拒绝发生了，运行却算有效）,engine.py:537-567 两处数量拒绝同样没有 invalid_reasons.append,trades_count=0 ∧ open_positions=[] ∧ invalid_reasons 含数量原因 ∧ run_valid=False
+E3,L3,出场拒绝后的持仓与账本状态,pass,现有行为已满足（93 项里 test_exit_failure_* 覆盖）,—,trades_count=0 ∧ 仓位仍在 ∧ cash_identity_ok ∧ run_valid=False
+E4,L3,正常交易不受破坏,pass,"成交价落在 [99.5, 100.5] 内，A 与 B 都放行",—,"有成交 ∧ 入场/出场都 ∈ [low, high] ∧ run_valid=True"
+E8,L2→L3 前瞻,夹具修正（入场 0.0495）后在 R6+R7 下保住用例原意,pass,"入场 fill 0.05 ∈ [0.0005, 0.0501] 放行；intrabar/EOD 卖出目标均 <step → R5 拒",—,0 成交 ∧ 仓位仍在 ∧ run_valid=False
+E9,L2→L3 前瞻,只改入场价 0.05（不加 bar 余量）在 R7 下仍失效,pass,flat bar 下 buy fill 恒 > high（0.05→0.06 > 0.05）⇒ R7 拒入场,M4 必须同时给 bar 形状：open 0.0495 / high 0.0501 / low 0.0005 / close 0.0005,该写法下仓位建不起来 ⇒ 用例原意不成立
+E5,L3,R6：price_step > raw_price 的入场被拒,待实现,fill.py 的 _guard 只查「有限且 >0」，没有 step 与 raw 的大小关系,"fill.py:220-241（_guard）缺 `if step > raw: raise FillRejected(""price_step_coarser_than_price"")`，且须放在 R5 之后",入场被拒 ∧ 无成交 ∧ invalid_reasons 含该 reason ∧ run_valid=False
+E6,L3,"R7：成交价越出该 bar [low, high] 被拒",待实现,引擎四个成交点都没有区间校验；协议也不收 bar_low/bar_high,engine.py:448 / 385 / 658 / 720 四个成交点后缺区间判定；且 engine.py:452-462 缺 invalid_reasons.append,越界腿被拒 ∧ detail 含 over/slip_over/round_over ∧ run_valid=False ∧ 成交价**未被裁剪**
+E7,L3,旧 run 不因新闸门自动变合格,结构性成立,闸门只在 run 时执行，不回写既有产物；62 腿来源 31 个 run 的文件哈希在本窗口前后未变（见基线_开工/收工.json）,—,31 个 run 的 6 类产物 SHA256 不变

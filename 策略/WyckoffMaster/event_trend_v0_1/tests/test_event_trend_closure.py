@@ -265,8 +265,13 @@ def test_oi_ablation_and_pit_semantics():
     all_5m_ts = np.arange(t0, t0 + 30 * HOUR_MS, 5 * 60 * 1000, dtype=np.int64)
     t_bo_close = t0 + 23 * HOUR_MS
 
+    # FRAME-PIT-01 修正：决策时刻 t_bo_close 那一刻**开始**的 5m 桶覆盖的是之后的
+    # 5 分钟，属于未来数据，不得读取。决策时刻能读到的最新一桶是 [t_bo_close-5m, t_bo_close)。
+    # 原测试把跳变放在 t_bo_close 那一桶上，等于用未来数据造出 OI 达标 ⇒ 已按新规则前移一桶，
+    # 消融意图（低 OI 被拒 / 达标 OI 通过 / 关 OI 通过）保持不变。
+    idx_bo_close = np.searchsorted(all_5m_ts, t_bo_close - 5 * 60 * 1000,
+                                   side="right") - 1
     vals_low = np.full(len(all_5m_ts), 100000.0, dtype=np.float64)
-    idx_bo_close = np.searchsorted(all_5m_ts, t_bo_close, side="right") - 1
     vals_low[idx_bo_close:] = 101000.0  # +1.0% (低 OI)
 
     vals_high = np.full(len(all_5m_ts), 100000.0, dtype=np.float64)
@@ -298,7 +303,7 @@ def test_oi_ablation_and_pit_semantics():
     assert c.snapshot_time_ms == t_bo_close
     assert c.execution_earliest_ms == t_bo_close + MIN15_MS
     assert c.pit_proven is False  # 严格标注：无交易所发布凭证时不冒称通过
-    assert "observation timestamp" in c.pit_assumption_note
+    assert "发布延迟未证" in c.pit_assumption_note
 
 
 # ══════════════════════════ 身份贯穿反例（阻断项 1）══════════════════════════

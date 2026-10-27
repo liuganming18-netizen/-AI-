@@ -1,0 +1,80 @@
+{
+  "timestamp_utc": "2026-10-26T18:09:00Z",
+  "audit_window": "ACCUM-EARLY-06-W5",
+  "task_name": "第二单 06-10：冻结修正版的独立端到端复验",
+  "auditor_role": "独立行为复验窗口 (反重力/Work 独立会话，非代码修改者)",
+  "code_tested": {
+    "accum_early_entry.py": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+    "replay_calc.py": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+    "paper_engine.py": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784",
+    "live_store.py": "02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6"
+  },
+  "verdicts": [
+    {
+      "item": "原 7 笔事件同一输入独立复验",
+      "status": "PASS",
+      "evidence_ref": "out/02_original_7_events_retest.json",
+      "finding": "保留原输入行情，修后版本保持 6 笔结构破位失效 INVALIDATED + 1 笔前序占位未建档 NOT_FOUND，零提前入场候选生成"
+    },
+    {
+      "item": "承接时序修正与反例独立复验 (窗口二修正版)",
+      "status": "PASS",
+      "evidence_ref": "out/03_absorption_timing_retest.json",
+      "finding": "扫低根吸筹达标突破缩量正常放行 (候选=1)；扫低卖压崩塌突破放量成功拦截 (候选=0)；扫低根数据不足正规报 DATA_INSUFFICIENT；承接求值下标严格锁定在扫低根 i=60"
+    },
+    {
+      "item": "批准配置缺失开仓硬阻断",
+      "status": "PASS",
+      "evidence_ref": "out/04_gate_and_economic_mismatch.json",
+      "finding": "48 项空白未批准配置 open_allowed=False，try_open 返回 blocked_by_unapproved_config，called_paper_engine=False"
+    },
+    {
+      "item": "经济口径冲突拒绝",
+      "status": "PASS",
+      "evidence_ref": "out/04_gate_and_economic_mismatch.json",
+      "finding": "声明滑点 3bps 与底层引擎 5bps 冲突时，100% 触发 economic_caliber_declared_mismatch 硬阻断，called_paper_engine=False"
+    },
+    {
+      "item": "冷却 24 小时不得作为未经批准的通过条件",
+      "status": "PASS",
+      "evidence_ref": "out/04_gate_and_economic_mismatch.json",
+      "finding": "在未批准配置中设置 cooldown_hours=24，依然被批准闸门 100% 硬阻断，无法绕过"
+    },
+    {
+      "item": "数据缺口表幂等与重复扫描零新增",
+      "status": "PASS",
+      "evidence_ref": "out/05_gap_and_scan_idempotency.json",
+      "finding": "同参重跑时订单、成交、持仓、候选与缺口数增加严格为 0"
+    },
+    {
+      "item": "真实系统独立跨进程恢复与幂等拦截",
+      "status": "PASS",
+      "evidence_ref": "out/06_cross_process_and_isolation.json",
+      "finding": "进程 A (PID 52044) 开仓退出，ps 确证死亡；独立进程 B (PID 52051) 恢复读取账本再次提交同一 signal_uid，触发 duplicate_signal_uid 拦截，订单/成交/持仓增加为 0"
+    },
+    {
+      "item": "生产文件路径越界阻断与物理隔离",
+      "status": "PASS",
+      "evidence_ref": "out/06_cross_process_and_isolation.json",
+      "finding": "路径指向 数据/paper 时，100% 触发 isolation_violation 拦截，生产目录零文件写入"
+    },
+    {
+      "item": "生产库只读连接硬约束",
+      "status": "PASS",
+      "evidence_ref": "out/06_cross_process_and_isolation.json",
+      "finding": "对生产行情库进行只读查询成功，写操作被 SQLite 底层 OperationalError 硬阻断；不依赖生产库哈希静止假设"
+    },
+    {
+      "item": "财务复算与资金费全覆盖 (窗口四 06-08 交付)",
+      "status": "UNCOVERED",
+      "owner": "窗口四 (工单 06-08，依赖窗口三 06-06 资金费交付)",
+      "finding": "当前共享文件 replay_calc.py 维持 c9fecd6a 基线；06-08 涉及的 15.8 天冷热资金费合并重算产物尚未汇齐，本项诚实标记为未覆盖"
+    },
+    {
+      "item": "自然行情正式策略有效性与真实成交",
+      "status": "UNCOVERED",
+      "owner": "待用户正式裁决参数与授权",
+      "finding": "所有测试均为 fixture 链路自检，正式策略参数仍处于待批准状态，严禁宣称策略通过或自然行情通过"
+    }
+  ]
+}

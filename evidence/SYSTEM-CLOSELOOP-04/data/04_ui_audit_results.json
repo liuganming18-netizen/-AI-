@@ -1,0 +1,940 @@
+{
+  "suite": "SYSTEM-CLOSELOOP-04",
+  "timestamp_ms": 1792683123957,
+  "steps": [
+    "交易工作台总览（含顶栏行情、资产与布局）",
+    "信号卡明确呈现真实 ID 与复制按钮（悬停态）",
+    "点击复制按钮触发剪贴板复制及反馈",
+    "信号卡选中激活高亮与右侧工作台联动",
+    "持仓展开 FT-LOW4H 止损多时间戳轨迹面板",
+    "持仓轨迹 404 错误状态明确渲染审计（绝不伪装为暂无上移）",
+    "行内 K 线切换到 1h 周期与指标同步",
+    "行内 K 线切换到 4h 周期与指标同步",
+    "行内 K 线切换到 1d 周期与指标同步",
+    "策略管理页签一：规则说明（包含 FT-LOW4H 规则与参数）",
+    "策略管理页签二：数据依赖矩阵（17 项指标覆盖率）",
+    "策略管理页签三：执行版本对比与实际参数映射",
+    "数据中心总览（17 项实时行情健康与总池状态）",
+    "回测复盘单屏仪表盘总览（批次列表与聚合指标）",
+    "深浅主题切换效果对比"
+  ],
+  "network_requests": [
+    {
+      "url": "http://127.0.0.1:3000/src/api/adapters.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/useLiveTrading.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/useMarketData.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/client.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/smartMoneyMapping.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/liveTrading.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/smartMoney.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/fundingPeriod.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/useEndpoint.ts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/labBacktest.ts?t=1792568680422",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/src/api/backtestReview.ts?t=1792569531111",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/smart-money/binance/BTCUSDT",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000MOGUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/0GUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000BOBUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CATUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000BONKUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/0GUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000BOBUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CHEEMSUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=30m&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=15m&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=1h&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=4h&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=8h&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=12h&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=1d&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000FLOKIUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=5m&limit=180&no_rest_tail=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000LUNCUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=1d&limit=1500&history_only=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000PEPEUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000RATSUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000MOGUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000BONKUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000SATSUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000SHIBUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000XECUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/oi?period=auto&limit=5000",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1INCHUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CATUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CHEEMSUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/4USDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/2ZUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1MBABYDOGEUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACHUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BRETTUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BREVUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AAVEUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACEUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000MOGUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000000BOBUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/0GUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BROCCOLI714USDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BROCCOLIF3BUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACTUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACUUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ADAUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AEROUSDT/candles?timeframe=1h&limit=24",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BRUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BSBUSDT/public-extras?period=1h&fields=ratio,oi",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000BONKUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=5m&limit=1500&history_only=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CATUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000CHEEMSUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000FLOKIUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000LUNCUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000PEPEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000RATSUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000SATSUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000SHIBUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1000XECUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1INCHUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/2ZUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/1MBABYDOGEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/4USDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AAVEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACHUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=1h&limit=1500&history_only=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/candles?timeframe=4h&limit=1500&history_only=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/strategies",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ADAUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACTUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ACUUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AEROUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AEVOUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AGLDUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AGTUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AIGENSYNUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AIAUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AINUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AIOTUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AIOUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AIXBTUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AKTUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/AKEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ALCHUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ALGOUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ALICEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ALLOUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/ALPINEUSDT/funding?limit=60",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/whitelist",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/import-plan",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/oi?limit=150",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/pool/status",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/smart-money?limit=150",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/pool-scope",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/data/funding?limit=150",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets/binance/BTCUSDT/metrics?period=1h",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/batches",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/markets",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/batches/runs_ft_replay_01/runs",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/batches/runs_ft_replay_01/summary",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/batches/runs_ft_replay_01/trades?limit=5000",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/pool",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests?limit=50",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests?limit=3000",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/health",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/quality",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/trades",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/rejected",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/orders",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/quality",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/equity",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/chart",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/metrics",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/trades/ft_Wyckoff_C1_Vs04_Z02_1000XECUSDT_1717146900000",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/chart?focus_ms=1717146900000",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/accounts",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "console_errors": [],
+  "failed_requests": [],
+  "screenshots": [
+    {
+      "file": "01_workbench_overview.png",
+      "desc": "交易工作台总览（含顶栏行情、资产与布局）",
+      "sha256": "8d836e011b6713de66033f38589513885721e87475833cfb5bbecb55b23f261d",
+      "size_bytes": 293910
+    },
+    {
+      "file": "02_signal_card_id_and_copy.png",
+      "desc": "信号卡明确呈现真实 ID 与复制按钮（悬停态）",
+      "sha256": "2f5daba54b399648fb9da67df53f274f33f6fd200e9cda3650ef9d846f5cfb77",
+      "size_bytes": 294038
+    },
+    {
+      "file": "03_signal_copied_state.png",
+      "desc": "点击复制按钮触发剪贴板复制及反馈",
+      "sha256": "7f534ce8d7b6dca228bdaa1e3358b71134428b96ff120b96c41d2a3965b2d706",
+      "size_bytes": 293695
+    },
+    {
+      "file": "04_signal_selected_active.png",
+      "desc": "信号卡选中激活高亮与右侧工作台联动",
+      "sha256": "a3ee460432e5f69fae9129645383718a8693b2ce0ebd4a8d6ff9714b826e8854",
+      "size_bytes": 294249
+    },
+    {
+      "file": "05_position_trailing_stops_expanded.png",
+      "desc": "持仓展开 FT-LOW4H 止损多时间戳轨迹面板",
+      "sha256": "e63d08c529938d3e568009d492127b653914931b142e01c7d53fb1153bb51cc4",
+      "size_bytes": 335620
+    },
+    {
+      "file": "06_ui_404_error_state_audit.png",
+      "desc": "持仓轨迹 404 错误状态明确渲染审计（绝不伪装为暂无上移）",
+      "sha256": "63e682a8802aaf7e499a1bad74efb152c2a1dc41a9cb806453cef11cabc4e745",
+      "size_bytes": 307441
+    },
+    {
+      "file": "07_kline_1h_timeframe.png",
+      "desc": "行内 K 线切换到 1h 周期与指标同步",
+      "sha256": "dffd91c9758ae0670aabe497a0dedf97762f90a7168494c1d0f51ca4f647878d",
+      "size_bytes": 292950
+    },
+    {
+      "file": "07_kline_4h_timeframe.png",
+      "desc": "行内 K 线切换到 4h 周期与指标同步",
+      "sha256": "ba492731ae9a6f7e0c79e94d8bb1f5d15056bac4d672cf9b6c0b1e1219f98511",
+      "size_bytes": 291394
+    },
+    {
+      "file": "07_kline_1d_timeframe.png",
+      "desc": "行内 K 线切换到 1d 周期与指标同步",
+      "sha256": "1fa75319a1452999fcd8b3b6a97fa0dfc0f628a395e160aadbeb2d99724350e2",
+      "size_bytes": 296970
+    },
+    {
+      "file": "08_strategy_tab_rules.png",
+      "desc": "策略管理页签一：规则说明（包含 FT-LOW4H 规则与参数）",
+      "sha256": "88f104f9ad4e253e0a35d0c8b7b84336c3200611e8ecf8091a8aa46a851afa8f",
+      "size_bytes": 275389
+    },
+    {
+      "file": "09_strategy_tab_deps.png",
+      "desc": "策略管理页签二：数据依赖矩阵（17 项指标覆盖率）",
+      "sha256": "321fa2e2334b29ae99474bf61a3d16a0ac90a8ec730073d0a60a9bb9613e103e",
+      "size_bytes": 231952
+    },
+    {
+      "file": "10_strategy_tab_versions.png",
+      "desc": "策略管理页签三：执行版本对比与实际参数映射",
+      "sha256": "cd53fe96995326d9717f6b47ccd00976c4be918420ee928c28a0cc8f3c0b65fc",
+      "size_bytes": 208306
+    },
+    {
+      "file": "11_datacenter_overview.png",
+      "desc": "数据中心总览（17 项实时行情健康与总池状态）",
+      "sha256": "348dcf36b939e6ee20a2044cacbb95b211a20d93ec6964162a431efbe1dc63f7",
+      "size_bytes": 362411
+    },
+    {
+      "file": "13_backtest_dashboard_overview.png",
+      "desc": "回测复盘单屏仪表盘总览（批次列表与聚合指标）",
+      "sha256": "1f2627cd810627aa6408eddb73fa19c2378ea049f77410c0100caa2ac6394d0e",
+      "size_bytes": 229400
+    },
+    {
+      "file": "14_theme_toggled_state.png",
+      "desc": "深浅主题切换效果对比",
+      "sha256": "41e234d92040f9162adfc6c01fe1d461b3de7b91db4a87e0785d2aa79d0f0660",
+      "size_bytes": 282377
+    }
+  ],
+  "summary": {
+    "total_screenshots": 15,
+    "unique_images": 15,
+    "duplicates": 0,
+    "console_errors_count": 0,
+    "failed_requests_count": 0,
+    "all_independent": true
+  }
+}

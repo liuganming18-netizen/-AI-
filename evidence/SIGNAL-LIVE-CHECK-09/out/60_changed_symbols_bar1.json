@@ -1,0 +1,2365 @@
+{
+ "probe": "SIGNAL-LIVE-CHECK-09/60_changed_symbols",
+ "generated_real_utc": "2026-10-25T12:16:28Z",
+ "前置断言": {
+  "per_symbol_diff_n": 0,
+  "state_counter_equal": true,
+  "watermark_equal": true,
+  "replay_upto_utc": "2026-10-25T11:59:59Z",
+  "conditions_upto_utc": "2026-10-25T11:59:59Z",
+  "pass": true
+ },
+ "口径": "逐币阶段＝生产直读（采样器）；条件实际值与阈值＝同水位隔离回放导出。两者能拼的唯一依据是 per_symbol_diff_n==0。",
+ "thresholds": {
+  "box_建档": {
+   "box_bars_4h": 42,
+   "atr_period_4h": 14,
+   "atr_warmup_bars": 200,
+   "er_threshold": 0.3,
+   "box_min_width_atr": 2.0,
+   "box_max_width_atr": 8.0
+  },
+  "sweep_扫损": {
+   "sweep_max_hours": 168,
+   "sweep_max_overshoot_atr": 0.5,
+   "sweep_min_recovery_atr": 0.1
+  },
+  "retest_回踩": {
+   "retest_max_hours": 72,
+   "retest_min_zone_atr": 0.0,
+   "retest_max_zone_atr": 0.5,
+   "retest_recovery_atr": 0.1,
+   "retest_vol_multiplier": 0.8,
+   "retest_fail_buffer_atr": 0.1
+  },
+  "breakout_突破": {
+   "breakout_max_hours_after_retest": 168,
+   "breakout_max_total_hours": 336,
+   "breakout_buffer_atr": 0.1,
+   "breakout_vol_lookback": 20,
+   "breakout_vol_multiplier": 1.5
+  },
+  "oi_持仓": {
+   "oi_lookback_hours": 6,
+   "oi_min_growth_pct": 0.02,
+   "oi_max_time_distance_sec": 900
+  },
+  "冷却": {
+   "cooling_hours": 24
+  }
+ },
+ "segments": [
+  {
+   "wm_utc": "2026-10-25T11:00:00Z",
+   "latest_1h_close_utc": "2026-10-25T11:59:59Z",
+   "n_samples_in_seg": 6,
+   "advance_bars": 1,
+   "changed_n": 46,
+   "rows": [
+    {
+     "symbol": "ALPINEUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00606294,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.3369,
+      "L": 0.2969,
+      "ATR": 0.00664096,
+      "ER": 0.196935,
+      "width_atr": 6.023,
+      "formation_utc": "2026-10-23T19:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ALPINEUSDT_1792785599999",
+      "S": 0.2968,
+      "Vs": 188961.1,
+      "sweep_utc": "2026-10-25T09:00:00Z",
+      "Lr": 0.2979,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.33750629,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.3369,
+       "回踩低点 Lr": 0.2979,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ALPINEUSDT_1792396799999",
+      "ended_at_utc": "2026-10-22T16:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-23T16:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "APTUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.02076367,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.8454,
+      "L": 0.6943,
+      "ATR": 0.02242746,
+      "ER": 0.169573,
+      "width_atr": 6.737,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_APTUSDT_1792886399999",
+      "S": 0.6893,
+      "Vs": 1186664.2,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.6943,
+        0.70468184
+       ],
+       "回踩量 需 <=": 949331.36,
+       "收盘需回到 >=": 0.69637637,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.6893,
+       "扫损量 Vs": 1186664.2,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_APTUSDT_1792454399999",
+      "ended_at_utc": "2026-10-23T23:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T23:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ARBUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00543045,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.20427,
+      "L": 0.16285,
+      "ATR": 0.00543045,
+      "ER": 0.106369,
+      "width_atr": 7.627,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ARBUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.16285,
+       "扫损深度上限": 0.16013478,
+       "收盘需回到 >=": 0.16339304,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.20427,
+       "箱体下沿 L": 0.16285,
+       "ATR": 0.0054304487896057645
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ARBUSDT_1792281599999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ARIAUSDT",
+     "from": "BOX",
+     "to": "IDLE",
+     "state_now": "IDLE",
+     "atr": 0.00694429,
+     "atr_bars_seen": 762,
+     "box": null,
+     "event": null,
+     "next_gate": {
+      "结论": "无事件在跟踪（IDLE），要等箱体建档",
+      "门槛": {
+       "需连续 4h 根数": 42,
+       "ATR 预热根数": 200,
+       "ER 上限": 0.3,
+       "箱宽区间(ATR)": [
+        2.0,
+        8.0
+       ]
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ARIAUSDT_1792324799999",
+      "ended_at_utc": "2026-10-25T12:00:00Z",
+      "termination_reason": "建档后7天内未发生扫低",
+      "final_state": "EXPIRED"
+     },
+     "cooling_until_utc": "2026-10-26T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ARXUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00799089,
+     "atr_bars_seen": 746,
+     "box": {
+      "H": 0.2465,
+      "L": 0.1984,
+      "ATR": 0.00799089,
+      "ER": 0.080717,
+      "width_atr": 6.019,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ARXUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.1984,
+       "扫损深度上限": 0.19440456,
+       "收盘需回到 >=": 0.19919909,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.2465,
+       "箱体下沿 L": 0.1984,
+       "ATR": 0.007990888786889975
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ARXUSDT_1792814399999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ASRUSDT",
+     "from": "BOX",
+     "to": "IDLE",
+     "state_now": "IDLE",
+     "atr": 0.01212433,
+     "atr_bars_seen": 762,
+     "box": null,
+     "event": null,
+     "next_gate": {
+      "结论": "无事件在跟踪（IDLE），要等箱体建档",
+      "门槛": {
+       "需连续 4h 根数": 42,
+       "ATR 预热根数": 200,
+       "ER 上限": 0.3,
+       "箱宽区间(ATR)": [
+        2.0,
+        8.0
+       ]
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ASRUSDT_1792886399999",
+      "ended_at_utc": "2026-10-25T12:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-26T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "AXLUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00206475,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.05907,
+      "L": 0.04533,
+      "ATR": 0.00206475,
+      "ER": 0.138826,
+      "width_atr": 6.655,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AXLUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.04533,
+       "扫损深度上限": 0.04429763,
+       "收盘需回到 >=": 0.04553647,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.05907,
+       "箱体下沿 L": 0.04533,
+       "ATR": 0.0020647452790972737
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AXLUSDT_1792281599999",
+      "ended_at_utc": "2026-10-22T04:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-23T04:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "AXSUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.02115888,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 1.0758,
+      "L": 0.9168,
+      "ATR": 0.02115888,
+      "ER": 0.131382,
+      "width_atr": 7.515,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.9168,
+       "扫损深度上限": 0.90622056,
+       "收盘需回到 >=": 0.91891589,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 1.0758,
+       "箱体下沿 L": 0.9168,
+       "ATR": 0.021158884198234005
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1792511999999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "BICOUSDT",
+     "from": "BOX",
+     "to": "IDLE",
+     "state_now": "IDLE",
+     "atr": 0.00039366,
+     "atr_bars_seen": 762,
+     "box": null,
+     "event": null,
+     "next_gate": {
+      "结论": "无事件在跟踪（IDLE），要等箱体建档",
+      "门槛": {
+       "需连续 4h 根数": 42,
+       "ATR 预热根数": 200,
+       "ER 上限": 0.3,
+       "箱宽区间(ATR)": [
+        2.0,
+        8.0
+       ]
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_BICOUSDT_1792886399999",
+      "ended_at_utc": "2026-10-25T12:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-26T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "CAKEUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.03809007,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 2.2727,
+      "L": 2.0028,
+      "ATR": 0.03809007,
+      "ER": 0.101353,
+      "width_atr": 7.086,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CAKEUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 2.0028,
+       "扫损深度上限": 1.98375497,
+       "收盘需回到 >=": 2.00660901,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 2.2727,
+       "箱体下沿 L": 2.0028,
+       "ATR": 0.038090069490397
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CAKEUSDT_1792569599999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "CATIUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.0012689,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.05398,
+      "L": 0.04561,
+      "ATR": 0.0012689,
+      "ER": 0.144911,
+      "width_atr": 6.596,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CATIUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.04561,
+       "扫损深度上限": 0.04497555,
+       "收盘需回到 >=": 0.04573689,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.05398,
+       "箱体下沿 L": 0.04561,
+       "ATR": 0.001268902627344822
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CATIUSDT_1792785599999",
+      "ended_at_utc": "2026-10-24T10:00:00Z",
+      "termination_reason": "跌破S-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T10:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "CETUSUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00052966,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.02566,
+      "L": 0.02118,
+      "ATR": 0.00060135,
+      "ER": 0.19375,
+      "width_atr": 7.45,
+      "formation_utc": "2026-10-19T15:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CETUSUSDT_1792425599999",
+      "S": 0.02112,
+      "Vs": 1670750.0,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.02118,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.02571297,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.02566,
+       "回踩低点 Lr": 0.02118,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CETUSUSDT_1792238399999",
+      "ended_at_utc": "2026-10-17T22:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-18T22:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "CFXUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.00116016,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.05624,
+      "L": 0.04698,
+      "ATR": 0.00116248,
+      "ER": 0.202028,
+      "width_atr": 7.966,
+      "formation_utc": "2026-10-25T07:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CFXUSDT_1792915199999",
+      "S": 0.04682,
+      "Vs": 1964530.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.04698,
+        0.04756008
+       ],
+       "回踩量 需 <=": 1571624.0,
+       "收盘需回到 >=": 0.04709602,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.04682,
+       "扫损量 Vs": 1964530.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_CFXUSDT_1792411199999",
+      "ended_at_utc": "2026-10-24T06:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T06:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "EDUUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00238607,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.07687,
+      "L": 0.05918,
+      "ATR": 0.00238607,
+      "ER": 0.271201,
+      "width_atr": 7.414,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_EDUUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.05918,
+       "扫损深度上限": 0.05798697,
+       "收盘需回到 >=": 0.05941861,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.07687,
+       "箱体下沿 L": 0.05918,
+       "ATR": 0.002386065824208649
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_EDUUSDT_1792756799999",
+      "ended_at_utc": "2026-10-23T17:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T17:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ERAUSDT",
+     "from": "BOX",
+     "to": "IDLE",
+     "state_now": "IDLE",
+     "atr": 0.00692329,
+     "atr_bars_seen": 762,
+     "box": null,
+     "event": null,
+     "next_gate": {
+      "结论": "无事件在跟踪（IDLE），要等箱体建档",
+      "门槛": {
+       "需连续 4h 根数": 42,
+       "ATR 预热根数": 200,
+       "ER 上限": 0.3,
+       "箱宽区间(ATR)": [
+        2.0,
+        8.0
+       ]
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ERAUSDT_1792324799999",
+      "ended_at_utc": "2026-10-25T12:00:00Z",
+      "termination_reason": "建档后7天内未发生扫低",
+      "final_state": "EXPIRED"
+     },
+     "cooling_until_utc": "2026-10-26T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ESPORTSUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.00020875,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.00867,
+      "L": 0.00756,
+      "ATR": 0.00019916,
+      "ER": 0.199557,
+      "width_atr": 5.574,
+      "formation_utc": "2026-10-24T15:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ESPORTSUSDT_1792857599999",
+      "S": 0.007558,
+      "Vs": 26111018.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.00756,
+        0.00766437
+       ],
+       "回踩量 需 <=": 20888814.4,
+       "收盘需回到 >=": 0.00758087,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.007558,
+       "扫损量 Vs": 26111018.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ESPORTSUSDT_1792641599999",
+      "ended_at_utc": "2026-10-23T12:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "FOLKSUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.0837945,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 2.622,
+      "L": 2.092,
+      "ATR": 0.0837945,
+      "ER": 0.144005,
+      "width_atr": 6.325,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_FOLKSUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 2.092,
+       "扫损深度上限": 2.05010275,
+       "收盘需回到 >=": 2.10037945,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 2.622,
+       "箱体下沿 L": 2.092,
+       "ATR": 0.08379450370693896
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_FOLKSUSDT_1792223999999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "建档后7天内未发生扫低",
+      "final_state": "EXPIRED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "GALAUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 4.232e-05,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.002022,
+      "L": 0.001721,
+      "ATR": 4.482e-05,
+      "ER": 0.199603,
+      "width_atr": 6.716,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_GALAUSDT_1792886399999",
+      "S": 0.001712,
+      "Vs": 105699117.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.001721,
+        0.00174216
+       ],
+       "回踩量 需 <=": 84559293.6,
+       "收盘需回到 >=": 0.00172523,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.001712,
+       "扫损量 Vs": 105699117.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_GALAUSDT_1792468799999",
+      "ended_at_utc": "2026-10-23T23:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T23:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "GASUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.02542726,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 1.294,
+      "L": 1.151,
+      "ATR": 0.02542726,
+      "ER": 0.084388,
+      "width_atr": 5.624,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_GASUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 1.151,
+       "扫损深度上限": 1.13828637,
+       "收盘需回到 >=": 1.15354273,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 1.294,
+       "箱体下沿 L": 1.151,
+       "ATR": 0.02542726358637412
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_GASUSDT_1792367999999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破S-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "HYPEUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 1.37093329,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 82.55,
+      "L": 74.413,
+      "ATR": 1.37093329,
+      "ER": 0.038912,
+      "width_atr": 5.935,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_HYPEUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 74.413,
+       "扫损深度上限": 73.72753336,
+       "收盘需回到 >=": 74.55009333,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 82.55,
+       "箱体下沿 L": 74.413,
+       "ATR": 1.3709332881694807
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_HYPEUSDT_1792425599999",
+      "ended_at_utc": "2026-10-24T10:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T10:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ICPUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.06003895,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 2.988,
+      "L": 2.569,
+      "ATR": 0.06003895,
+      "ER": 0.170334,
+      "width_atr": 6.979,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ICPUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 2.569,
+       "扫损深度上限": 2.53898053,
+       "收盘需回到 >=": 2.57500389,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 2.988,
+       "箱体下沿 L": 2.569,
+       "ATR": 0.060038947417961334
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ICPUSDT_1792771199999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破S-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "KAIAUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00109349,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.04283,
+      "L": 0.03504,
+      "ATR": 0.00109349,
+      "ER": 0.261194,
+      "width_atr": 7.124,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KAIAUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.03504,
+       "扫损深度上限": 0.03449325,
+       "收盘需回到 >=": 0.03514935,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.04283,
+       "箱体下沿 L": 0.03504,
+       "ATR": 0.0010934929811351646
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KAIAUSDT_1792742399999",
+      "ended_at_utc": "2026-10-23T20:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T20:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "KITEUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00284066,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.13284,
+      "L": 0.11058,
+      "ATR": 0.00313011,
+      "ER": 0.040077,
+      "width_atr": 7.112,
+      "formation_utc": "2026-10-21T15:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KITEUSDT_1792598399999",
+      "S": 0.11015,
+      "Vs": 1326156.0,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.11096,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.13312407,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.13284,
+       "回踩低点 Lr": 0.11096,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KITEUSDT_1792151999999",
+      "ended_at_utc": "2026-10-17T17:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-18T17:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "KOMAUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00049831,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.018824,
+      "L": 0.015141,
+      "ATR": 0.00049831,
+      "ER": 0.168035,
+      "width_atr": 7.391,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.015141,
+       "扫损深度上限": 0.01489185,
+       "收盘需回到 >=": 0.01519083,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.018824,
+       "箱体下沿 L": 0.015141,
+       "ATR": 0.0004983093011825952
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1792785599999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "KSMUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.09023203,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 4.348,
+      "L": 3.712,
+      "ATR": 0.09023203,
+      "ER": 0.203482,
+      "width_atr": 7.048,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KSMUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 3.712,
+       "扫损深度上限": 3.66688398,
+       "收盘需回到 >=": 3.7210232,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 4.348,
+       "箱体下沿 L": 3.712,
+       "ATR": 0.09023203303970785
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_KSMUSDT_1792742399999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "LINEAUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 6.726e-05,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.002839,
+      "L": 0.002497,
+      "ATR": 6.964e-05,
+      "ER": 0.116783,
+      "width_atr": 4.911,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_LINEAUSDT_1792886399999",
+      "S": 0.002484,
+      "Vs": 20578553.0,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.002502,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.00284573,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.002839,
+       "回踩低点 Lr": 0.002502,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_LINEAUSDT_1792526399999",
+      "ended_at_utc": "2026-10-23T23:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T23:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "MAGICUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00279562,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.10468,
+      "L": 0.08283,
+      "ATR": 0.00279562,
+      "ER": 0.278741,
+      "width_atr": 7.816,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_MAGICUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.08283,
+       "扫损深度上限": 0.08143219,
+       "收盘需回到 >=": 0.08310956,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.10468,
+       "箱体下沿 L": 0.08283,
+       "ATR": 0.002795622164124463
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_MAGICUSDT_1792771199999",
+      "ended_at_utc": "2026-10-23T22:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T22:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "NEARUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.16432209,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 5.459,
+      "L": 4.2,
+      "ATR": 0.16432209,
+      "ER": 0.083224,
+      "width_atr": 7.662,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 4.2,
+       "扫损深度上限": 4.11783896,
+       "收盘需回到 >=": 4.21643221,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 5.459,
+       "箱体下沿 L": 4.2,
+       "ATR": 0.1643220875357636
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1792281599999",
+      "ended_at_utc": "2026-10-24T10:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T10:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "NIGHTUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00116583,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.04324,
+      "L": 0.03624,
+      "ATR": 0.00116583,
+      "ER": 0.089094,
+      "width_atr": 6.004,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_NIGHTUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.03624,
+       "扫损深度上限": 0.03565708,
+       "收盘需回到 >=": 0.03635658,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.04324,
+       "箱体下沿 L": 0.03624,
+       "ATR": 0.0011658334423497233
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_NIGHTUSDT_1792814399999",
+      "ended_at_utc": "2026-10-24T10:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T10:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ONDOUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00969132,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.4723,
+      "L": 0.3963,
+      "ATR": 0.00969132,
+      "ER": 0.111111,
+      "width_atr": 7.842,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ONDOUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.3963,
+       "扫损深度上限": 0.39145434,
+       "收盘需回到 >=": 0.39726913,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.4723,
+       "箱体下沿 L": 0.3963,
+       "ATR": 0.009691321361758562
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ONDOUSDT_1792454399999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "RAREUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.00029105,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.01409,
+      "L": 0.01207,
+      "ATR": 0.00030983,
+      "ER": 0.187135,
+      "width_atr": 6.52,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RAREUSDT_1792886399999",
+      "S": 0.01205,
+      "Vs": 3433650.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.01207,
+        0.01221553
+       ],
+       "回踩量 需 <=": 2746920.0,
+       "收盘需回到 >=": 0.01209911,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.01205,
+       "扫损量 Vs": 3433650.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RAREUSDT_1792598399999",
+      "ended_at_utc": "2026-10-23T20:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T20:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "RENDERUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.04215421,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 1.945,
+      "L": 1.642,
+      "ATR": 0.04215421,
+      "ER": 0.095571,
+      "width_atr": 7.188,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RENDERUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 1.642,
+       "扫损深度上限": 1.62092289,
+       "收盘需回到 >=": 1.64621542,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 1.945,
+       "箱体下沿 L": 1.642,
+       "ATR": 0.0421542135433069
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RENDERUSDT_1792497599999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "RONINUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00127441,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.06105,
+      "L": 0.05264,
+      "ATR": 0.00134083,
+      "ER": 0.196249,
+      "width_atr": 6.272,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RONINUSDT_1792886399999",
+      "S": 0.05252,
+      "Vs": 805144.3,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.05282,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.06117744,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.06105,
+       "回踩低点 Lr": 0.05282,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_RONINUSDT_1792785599999",
+      "ended_at_utc": "2026-10-23T23:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T23:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "ROSEUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00018253,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.008064,
+      "L": 0.006649,
+      "ATR": 0.00018253,
+      "ER": 0.105737,
+      "width_atr": 7.752,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ROSEUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.006649,
+       "扫损深度上限": 0.00655774,
+       "收盘需回到 >=": 0.00666725,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.008064,
+       "箱体下沿 L": 0.006649,
+       "ATR": 0.0001825278788567749
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ROSEUSDT_1792411199999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "SEIUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00151825,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.06404,
+      "L": 0.05215,
+      "ATR": 0.00164312,
+      "ER": 0.245432,
+      "width_atr": 7.236,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SEIUSDT_1792886399999",
+      "S": 0.05185,
+      "Vs": 14981846.0,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.05223,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.06419183,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.06404,
+       "回踩低点 Lr": 0.05223,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SEIUSDT_1792785599999",
+      "ended_at_utc": "2026-10-23T23:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T23:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "SENTUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.00078896,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.02458,
+      "L": 0.0204,
+      "ATR": 0.00093148,
+      "ER": 0.044208,
+      "width_atr": 4.487,
+      "formation_utc": "2026-10-23T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SENTUSDT_1792799999999",
+      "S": 0.02031,
+      "Vs": 11988174.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.0204,
+        0.02079448
+       ],
+       "回踩量 需 <=": 9590539.2,
+       "收盘需回到 >=": 0.0204789,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.02031,
+       "扫损量 Vs": 11988174.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SENTUSDT_1792094399999",
+      "ended_at_utc": "2026-10-22T20:00:00Z",
+      "termination_reason": "建档后7天内未发生扫低",
+      "final_state": "EXPIRED"
+     },
+     "cooling_until_utc": "2026-10-23T20:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "SOMIUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.00478178,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.2043,
+      "L": 0.1693,
+      "ATR": 0.00439149,
+      "ER": 0.209581,
+      "width_atr": 7.97,
+      "formation_utc": "2026-10-23T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SOMIUSDT_1792756799999",
+      "S": 0.1681,
+      "Vs": 222446.0,
+      "sweep_utc": "2026-10-25T10:00:00Z",
+      "Lr": 0.1695,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.20477818,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.2043,
+       "回踩低点 Lr": 0.1695,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SOMIUSDT_1792396799999",
+      "ended_at_utc": "2026-10-22T08:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-23T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "STEEMUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00241694,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.06676,
+      "L": 0.04801,
+      "ATR": 0.00241694,
+      "ER": 0.069715,
+      "width_atr": 7.758,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_STEEMUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.04801,
+       "扫损深度上限": 0.04680153,
+       "收盘需回到 >=": 0.04825169,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.06676,
+       "箱体下沿 L": 0.04801,
+       "ATR": 0.0024169391661226025
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_STEEMUSDT_1792569599999",
+      "ended_at_utc": "2026-10-24T09:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T09:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "SUNUSDT",
+     "from": "BOX",
+     "to": "IDLE",
+     "state_now": "IDLE",
+     "atr": 7.589e-05,
+     "atr_bars_seen": 762,
+     "box": null,
+     "event": null,
+     "next_gate": {
+      "结论": "无事件在跟踪（IDLE），要等箱体建档",
+      "门槛": {
+       "需连续 4h 根数": 42,
+       "ATR 预热根数": 200,
+       "ER 上限": 0.3,
+       "箱宽区间(ATR)": [
+        2.0,
+        8.0
+       ]
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SUNUSDT_1792871999999",
+      "ended_at_utc": "2026-10-25T12:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-26T12:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "SYRUPUSDT",
+     "from": "BOX",
+     "to": "SWEEP",
+     "state_now": "SWEEP",
+     "atr": 0.00548261,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.20936,
+      "L": 0.17219,
+      "ATR": 0.00575579,
+      "ER": 0.193195,
+      "width_atr": 6.458,
+      "formation_utc": "2026-10-24T23:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SYRUPUSDT_1792886399999",
+      "S": 0.17121,
+      "Vs": 2223783.0,
+      "sweep_utc": "2026-10-25T12:00:00Z",
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已扫损，等 72h 内回踩（还没回踩到位）",
+      "门槛": {
+       "回踩低点区间": [
+        0.17219,
+        0.1749313
+       ],
+       "回踩量 需 <=": 1779026.4,
+       "收盘需回到 >=": 0.17273826,
+       "时限(h)": 72
+      },
+      "实际": {
+       "扫损低点 S": 0.17121,
+       "扫损量 Vs": 2223783.0,
+       "扫损时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SYRUPUSDT_1792540799999",
+      "ended_at_utc": "2026-10-23T20:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-24T20:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "TWTUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00858386,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.4776,
+      "L": 0.4175,
+      "ATR": 0.00858386,
+      "ER": 0.126834,
+      "width_atr": 7.002,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_TWTUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.4175,
+       "扫损深度上限": 0.41320807,
+       "收盘需回到 >=": 0.41835839,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.4776,
+       "箱体下沿 L": 0.4175,
+       "ATR": 0.00858386346513849
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_TWTUSDT_1792511999999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "USUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00029849,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.006385,
+      "L": 0.004737,
+      "ATR": 0.00029849,
+      "ER": 0.218654,
+      "width_atr": 5.521,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_USUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.004737,
+       "扫损深度上限": 0.00458775,
+       "收盘需回到 >=": 0.00476685,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.006385,
+       "箱体下沿 L": 0.004737,
+       "ATR": 0.00029849030675335335
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_USUSDT_1792583999999",
+      "ended_at_utc": "2026-10-24T11:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T11:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "VANAUSDT",
+     "from": "SWEEP",
+     "to": "RETEST",
+     "state_now": "RETEST",
+     "atr": 0.0273068,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.9879,
+      "L": 0.8248,
+      "ATR": 0.02053436,
+      "ER": 0.297596,
+      "width_atr": 7.943,
+      "formation_utc": "2026-10-24T07:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VANAUSDT_1792828799999",
+      "S": 0.8243,
+      "Vs": 159856.23,
+      "sweep_utc": "2026-10-25T09:00:00Z",
+      "Lr": 0.8293,
+      "retest_utc": "2026-10-25T12:00:00Z",
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "已回踩，等突破确认（收盘/量能/OI 三关）",
+      "门槛": {
+       "1h 收盘 需 >": 0.99063068,
+       "成交量 需 >=": "1.5 × 前 20 根 1h 中位量",
+       "OI 6h 增长 需 >=": 0.02,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.9879,
+       "回踩低点 Lr": 0.8293,
+       "回踩时刻": "2026-10-25T12:00:00Z"
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VANAUSDT_1792123199999",
+      "ended_at_utc": "2026-10-17T22:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-18T22:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "XLMUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.00282238,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.18706,
+      "L": 0.16614,
+      "ATR": 0.00282238,
+      "ER": 0.088367,
+      "width_atr": 7.412,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.16614,
+       "扫损深度上限": 0.16472881,
+       "收盘需回到 >=": 0.16642224,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.18706,
+       "箱体下沿 L": 0.16614,
+       "ATR": 0.002822383531549115
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1792454399999",
+      "ended_at_utc": "2026-10-24T08:00:00Z",
+      "termination_reason": "跌破Lr-0.1A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T08:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "XPINUSDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 2.788e-05,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.0007565,
+      "L": 0.0006525,
+      "ATR": 2.788e-05,
+      "ER": 0.005928,
+      "width_atr": 3.73,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_XPINUSDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.0006525,
+       "扫损深度上限": 0.00063856,
+       "收盘需回到 >=": 0.00065529,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.0007565,
+       "箱体下沿 L": 0.0006525,
+       "ATR": 2.7881262113014754e-05
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_XPINUSDT_1792828799999",
+      "ended_at_utc": "2026-10-24T10:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-25T10:00:00Z",
+     "data_quality_invalid": false
+    },
+    {
+     "symbol": "我踏马来了USDT",
+     "from": "IDLE",
+     "to": "BOX",
+     "state_now": "BOX",
+     "atr": 0.0002923,
+     "atr_bars_seen": 762,
+     "box": {
+      "H": 0.010846,
+      "L": 0.008647,
+      "ATR": 0.0002923,
+      "ER": 0.239382,
+      "width_atr": 7.523,
+      "formation_utc": "2026-10-25T11:59:59Z",
+      "bars": 42
+     },
+     "event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_我踏马来了USDT_1792929599999",
+      "S": null,
+      "Vs": null,
+      "sweep_utc": null,
+      "Lr": null,
+      "retest_utc": null,
+      "breakout_close": null,
+      "breakout_vol": null,
+      "v20": null,
+      "oi_growth_6h": null,
+      "candidate_id": null
+     },
+     "next_gate": {
+      "结论": "箱体已建档，等 1h 向下扫损（还没跌破下沿）",
+      "门槛": {
+       "1h 最低价 需 <": 0.008647,
+       "扫损深度上限": 0.00850085,
+       "收盘需回到 >=": 0.00867623,
+       "时限(h)": 168
+      },
+      "实际": {
+       "箱体上沿 H": 0.010846,
+       "箱体下沿 L": 0.008647,
+       "ATR": 0.0002923047589097446
+      }
+     },
+     "last_terminated_event": {
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_我踏马来了USDT_1792281599999",
+      "ended_at_utc": "2026-10-18T14:00:00Z",
+      "termination_reason": "跌破L-0.5A或连续2根收盘破L",
+      "final_state": "INVALIDATED"
+     },
+     "cooling_until_utc": "2026-10-19T14:00:00Z",
+     "data_quality_invalid": false
+    }
+   ]
+  }
+ ]
+}

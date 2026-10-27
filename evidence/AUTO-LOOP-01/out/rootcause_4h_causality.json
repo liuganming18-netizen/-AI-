@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "symbol": "WALUSDT",
+      "entry_ts": "2026-10-10 11:15:00Z",
+      "entry_price": 0.038590000000000006,
+      "initial_stop": 0.036660000000000005,
+      "exit_ts": "2026-10-10 11:30:00Z",
+      "exit_price": 0.03664167000000001,
+      "exit_reason": "trailing_stop_loss",
+      "4h_bar_used": {
+        "open": "2026-10-10 04:00:00Z",
+        "close": "2026-10-10 07:59:59Z",
+        "low": "0.0350600"
+      },
+      "4h_bar_closed_before_entry": true,
+      "4h_low_le_stop": true,
+      "15m_bar_at_same_moment": {
+        "open": "2026-10-10 11:15:00Z",
+        "close": "2026-10-10 11:29:59Z",
+        "low": "0.0380100"
+      },
+      "15m_low_le_stop": false,
+      "verdict": "用入场前已收盘的 4h bar 判退出（因果倒挂）"
+    }
+  ],
+  "conclusion": "修复前：4h 路径取 last_closed_4h(upto=now)，在入场后不满一根 4h 时拿到的是入场前就已收盘的 bar，其 low 击穿 entry×0.95 ⇒ 入场后第一根15m 就被平仓；而同一时刻 15m 路径的 bar_low 高于止损，说明不是真实价格击穿。修复=加 `ref_close_ms <= entry_ts` 守卫（paper_engine.advance_position_trailing）。"
+}

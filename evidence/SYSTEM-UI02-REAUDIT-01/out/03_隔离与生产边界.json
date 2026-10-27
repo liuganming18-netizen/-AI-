@@ -1,0 +1,207 @@
+{
+  "生成时刻": "2026-10-23 14:11:26",
+  "用途": "阶段一｜离线核对隔离是否成立、生产边界是否被触碰",
+  "声明边界": "本脚本不启动服务、不写生产库、不写生产 locks",
+  "被测脚本环境变量": [
+    "DATA_HUB_PROJECT",
+    "INPROCESS_JOBS",
+    "LIVE_DB",
+    "LIVE_DB_PATH",
+    "LIVE_DIR",
+    "NO_PROXY",
+    "PAPER_DB_PATH",
+    "PORT"
+  ],
+  "关键缺失": {
+    "PAPER_LEDGER_DIR": true,
+    "说明": "live_store.get_ledger_dir() 只认 PAPER_LEDGER_DIR；未设置 ⇒ 回落工程根 数据/paper（生产）"
+  },
+  "live_store账本解析": {
+    "源码行": [
+      {
+        "行": 41,
+        "源码": "#   · 账本目录**显式**来自启动配置 `PAPER_LEDGER_DIR`；缺省 = 工程根 `数据/paper`"
+      },
+      {
+        "行": 48,
+        "源码": "def get_ledger_dir() -> Path:"
+      },
+      {
+        "行": 49,
+        "源码": "if os.environ.get(\"PAPER_LEDGER_DIR\"):"
+      },
+      {
+        "行": 50,
+        "源码": "return Path(os.environ[\"PAPER_LEDGER_DIR\"]).resolve()"
+      },
+      {
+        "行": 54,
+        "源码": "LEDGER_DIR = get_ledger_dir()"
+      },
+      {
+        "行": 67,
+        "源码": "LIVE_DB = Path(os.environ.get(\"LIVE_DB\", str(LIVE_DIR / \"live_signals.sqlite3\")))"
+      },
+      {
+        "行": 707,
+        "源码": "f\"PAPER_LEDGER_DIR / PAPER_LEDGER_ALLOW_INIT=1（仅隔离建档）。\")"
+      }
+    ],
+    "结论": "LEDGER_DIR 是模块级常量，import 时定死；只有 PAPER_LEDGER_DIR 能改变它。LIVE_DB 走环境变量，所以信号库能隔离、账本不能。"
+  },
+  "隔离库": {
+    "路径": "/tmp/wx_ui_isolated_test_02/live.db",
+    "存在": true,
+    "live_signal_行数": 0,
+    "paper_positions_行数": 1,
+    "paper_stop_history_行数": 2,
+    "paper_realized_行数": "无此表",
+    "持仓明细": [
+      [
+        "BTCUSDT",
+        0.052,
+        95000.0,
+        62.4,
+        "open"
+      ]
+    ],
+    "止损明细": [
+      [
+        1,
+        null,
+        90500.0,
+        "initial_stop"
+      ],
+      [
+        1,
+        90500.0,
+        93500.0,
+        "4h_bar_trigger"
+      ]
+    ]
+  },
+  "生产账本": {
+    "3a": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+      "存在": true,
+      "持仓表名": "paper_position",
+      "持仓总行数": 3,
+      "持仓按状态": {
+        "closed": 3
+      },
+      "未平仓行数": 0,
+      "paper_realized行数": 3,
+      "paper_realized_未作废行数": 0,
+      "paper_stop_history行数": 0,
+      "paper_account行数": 0,
+      "paper_state行数": 1
+    },
+    "3b": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+      "存在": true,
+      "持仓表名": "paper_position",
+      "持仓总行数": 0,
+      "持仓按状态": {},
+      "未平仓行数": 0,
+      "paper_realized行数": 0,
+      "paper_realized_未作废行数": 0,
+      "paper_stop_history行数": 0,
+      "paper_account行数": 0,
+      "paper_state行数": 1
+    },
+    "3c": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+      "存在": true,
+      "持仓表名": "paper_position",
+      "持仓总行数": 0,
+      "持仓按状态": {},
+      "未平仓行数": 0,
+      "paper_realized行数": 0,
+      "paper_realized_未作废行数": 0,
+      "paper_stop_history行数": 0,
+      "paper_account行数": 0,
+      "paper_state行数": 1
+    },
+    "3d": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+      "存在": true,
+      "持仓表名": "paper_position",
+      "持仓总行数": 0,
+      "持仓按状态": {},
+      "未平仓行数": 0,
+      "paper_realized行数": 0,
+      "paper_realized_未作废行数": 0,
+      "paper_stop_history行数": 0,
+      "paper_account行数": 0,
+      "paper_state行数": 1
+    }
+  },
+  "交付自报DOM": {
+    "U11_dom_text": "执行守护 (Execution Daemon)\nrunning\n守护 PID: 13419\n推进周期: 38 次\n最近推进:\n2026-10-23 12:11:58 (UTC+8)\n阻断原因:\n无阻断 · 正常流转",
+    "07_anti_paradox_wording": "0 仓在持 / 3 笔已平",
+    "07_cash_dom": ",000.00",
+    "07_realized_dom": "zsh.00"
+  },
+  "持仓口径比对": {
+    "DOM原文": "0 仓在持 / 3 笔已平",
+    "页面DOM": {
+      "仓在持": 0,
+      "笔已平": 3
+    },
+    "生产账本3a": {
+      "持仓表名": "paper_position",
+      "持仓按状态": {
+        "closed": 3
+      },
+      "未平仓行数": 0,
+      "paper_realized行数": 3,
+      "其中未作废(voided=0)行数": 0,
+      "paper_stop_history行数": 0
+    },
+    "隔离库": {
+      "paper_positions行数": 1
+    },
+    "DOM是否等于生产账本": true,
+    "DOM是否等于隔离库": false,
+    "判定": "页面读的是生产账本，隔离持仓从未渲染"
+  },
+  "生产locks": {
+    "paper_daemon_3a_status.json": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks/paper_daemon_3a_status.json",
+      "存在": true,
+      "mtime": "2026-10-23 12:12:41",
+      "pid": 13419,
+      "status": "running",
+      "health": "ok",
+      "cycle_count": 81,
+      "blocked_reason": null,
+      "pid存活": false
+    },
+    "paper_runtime_3a_status.json": {
+      "路径": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks/paper_runtime_3a_status.json",
+      "存在": true,
+      "mtime": "2026-10-23 12:12:41",
+      "pid": 13419,
+      "status": "running",
+      "health": "ok",
+      "cycle_count": 81,
+      "blocked_reason": null,
+      "pid存活": false
+    }
+  },
+  "生产locks判定": {
+    "被测试写入": true,
+    "当前是否与真实进程一致": false,
+    "陈旧假running文件": [
+      "paper_daemon_3a_status.json",
+      "paper_runtime_3a_status.json"
+    ],
+    "说明": "这些文件属于生产状态目录，测试结束后未被还原；PID 已死但 status 仍为 running"
+  },
+  "守护进程本质": {
+    "07_声明process_cmd": "python -c [daemon_worker_loop]",
+    "脚本内守护实现": "start_real_daemon_process() 用 python -c 跑一个 while True 写 JSON 的桩，不调用 unified_runtime / paper_loop，不做任何撮合、不读行情",
+    "真实PID": 13419,
+    "结论": "PID 真实，但进程是桩；只能证明「页面能显示一个真实存在的 PID」，不能证明执行守护在工作"
+  }
+}

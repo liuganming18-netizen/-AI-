@@ -1,0 +1,190 @@
+{
+  "content_key": {
+    "组级": 4325,
+    "币级": 4325,
+    "交集": 4325,
+    "并集": 4325
+  },
+  "run_probe": [
+    {
+      "批次": "runs_ft_entry_09_research",
+      "run_id": "run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02",
+      "详情_missing": null,
+      "逐笔条数": 21,
+      "K线蜡烛数": 108193,
+      "K线成交标记数": 4,
+      "K线信号标记数": 4,
+      "K线_missing": null,
+      "K线来源": ""
+    },
+    {
+      "批次": "runs_ft_replay_01",
+      "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "详情_missing": null,
+      "逐笔条数": 1,
+      "K线蜡烛数": 416,
+      "K线成交标记数": 1,
+      "K线信号标记数": 1,
+      "K线_missing": null,
+      "K线来源": "读时从市场库读取 binance/um/1000XECUSDT/15m（读取范围 1716969600000~17173"
+    }
+  ],
+  "order_time": [
+    {
+      "入口": "批次逐笔 runs_ft_entry_09_research",
+      "笔数": 4325,
+      "order_time_ms==成交时间": 0,
+      "order_time_ms为空": 4325
+    },
+    {
+      "入口": "批次逐笔 runs_ft_replay_01",
+      "笔数": 4325,
+      "order_time_ms==成交时间": 0,
+      "order_time_ms为空": 4325
+    },
+    {
+      "入口": "单run逐笔 run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02",
+      "笔数": 21,
+      "order_time_ms==成交时间": 0,
+      "order_time_ms为空": 21
+    },
+    {
+      "入口": "K线标记 run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02",
+      "笔数": 4,
+      "order_time_ms==成交时间": 0,
+      "order_time_ms为空": 4
+    },
+    {
+      "入口": "单run逐笔 run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "笔数": 1,
+      "order_time_ms==成交时间": 1,
+      "order_time_ms为空": 0
+    },
+    {
+      "入口": "K线标记 run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+      "笔数": 1,
+      "order_time_ms==成交时间": 1,
+      "order_time_ms为空": 0
+    }
+  ],
+  "field_completeness": {
+    "runs_ft_entry_09_research": {
+      "signal_id": 4325,
+      "signal_time_ms": 4325,
+      "initial_stop": 4325,
+      "gross_pnl": 4325,
+      "fees": 4325,
+      "qty": 4325,
+      "entry_price": 4325,
+      "exit_price": 4325,
+      "net_pnl": 4325,
+      "exit_reason": 4325
+    },
+    "runs_ft_replay_01": {
+      "signal_id": 0,
+      "signal_time_ms": 0,
+      "initial_stop": 0,
+      "gross_pnl": 0,
+      "fees": 0,
+      "qty": 4325,
+      "entry_price": 4325,
+      "exit_price": 4325,
+      "net_pnl": 4325,
+      "exit_reason": 4325
+    }
+  },
+  "double_count_risk": {
+    "组级笔数": 4325,
+    "币级笔数": 4325,
+    "直接相加": 8650,
+    "真实笔数": 4325,
+    "说明": "两个批次是同一批数据的两种粒度；页面上并列展示，若被当成两批相加会得到 8650。本次核对按内容键判定并集=4325，属显示层风险，非数据错误。"
+  },
+  "summary": {
+    "runs_ft_entry_09_research": {
+      "batch": {
+        "batch_id": "runs_ft_entry_09_research",
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs_ft_entry_09_research",
+        "generated_at_ms": 1792564686033,
+        "summary_loaded": true,
+        "runs_total": 27,
+        "runs_with_summary": 27,
+        "runs_missing_summary": 0,
+        "runs_with_trades": 27,
+        "runs_win": 9,
+        "runs_loss": 18,
+        "trades_total": 4325,
+        "net_pnl_sum": -3678.71,
+        "net_pnl_runs_counted": 27,
+        "fee_total_sum": null,
+        "funding_total_sum": null,
+        "window_start_ms": 1638316800000,
+        "window_end_ms": 1735689600000,
+        "window_source": "inputs.json(data_summary.time_range_1h) · 取样 run=run_FT_ENTRY_09_Wyckoff_C1_Vs04_Z02",
+        "symbols_count": 0,
+        "formal_pass_allowed_any": false,
+        "funnel_sum": null,
+        "derived_from": "各 run 的 summary.json(summary_variant_a) + inputs.json(data_summary.time_range_1h) 现算",
+        "is_default_root": false,
+        "note": "27 组均为独立策略研究实验，每组为独立模拟运行；分组净收益不可横向累加，累加值仅为统计总和，不得冒充单一账户收益；本批次为纯研究期对照结果，严禁导入生产实盘或模拟实盘账本。"
+      },
+      "checks": {
+        "trades_total_matches_rows": true,
+        "net_pnl_matches_rows": false,
+        "summary_trades_total": 4325,
+        "trades_rows": 4325,
+        "net_pnl_from_summary": -3678.71,
+        "net_pnl_from_rows": -3678.73493358
+      }
+    },
+    "runs_ft_replay_01": {
+      "batch": {
+        "batch_id": "runs_ft_replay_01",
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs_ft_replay_01",
+        "generated_at_ms": 1792569303468,
+        "summary_loaded": true,
+        "runs_total": 1065,
+        "runs_with_summary": 1065,
+        "runs_missing_summary": 0,
+        "runs_with_trades": 1065,
+        "runs_win": 334,
+        "runs_loss": 731,
+        "trades_total": 4325,
+        "net_pnl_sum": -3678.73493358,
+        "net_pnl_runs_counted": 1065,
+        "fee_total_sum": null,
+        "funding_total_sum": null,
+        "window_start_ms": 1717146900000,
+        "window_end_ms": 1717171200000,
+        "window_source": "inputs.json(data_summary.time_range_1h) · 取样 run=run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+        "symbols_count": 59,
+        "formal_pass_allowed_any": false,
+        "funnel_sum": null,
+        "derived_from": "各 run 的 summary.json(summary_variant_a) + inputs.json(data_summary.time_range_1h) 现算",
+        "is_default_root": false,
+        "note": "研究期结果：由 FT-ENTRY-09 落盘 CSV 重建，**非本引擎重跑**；只读复盘用，不进生产订单 / 模拟实盘账本。批次清单靠软链才能列出来（否则被当成「清单型批次」显示成 0 个 run）"
+      },
+      "checks": {
+        "trades_total_matches_rows": true,
+        "net_pnl_matches_rows": true,
+        "summary_trades_total": 4325,
+        "trades_rows": 4325,
+        "net_pnl_from_summary": -3678.73493358,
+        "net_pnl_from_rows": -3678.73493358
+      }
+    }
+  },
+  "batch_ids": [
+    "runs_full_sweep_200x100",
+    "runs",
+    "runs_ft_replay_01",
+    "runs_ft_entry_09_research",
+    "runs_sep_all_latest",
+    "runs_sep50_strict",
+    "runs_sep50_check",
+    "runs_sep50_full",
+    "runs_sep50",
+    "runs_2025aug100",
+    "runs_aug100"
+  ]
+}

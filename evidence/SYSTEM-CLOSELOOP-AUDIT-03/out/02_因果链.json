@@ -1,0 +1,1196 @@
+{
+ "生成时刻": "2026-10-22T22:13:28+08:00",
+ "base": 1792678500000,
+ "base_时刻": "2026-10-22T22:15:00+08:00",
+ "A_模块可导入": [
+  {
+   "模块": "live_store",
+   "可导入": true,
+   "文件": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_store.py",
+   "错误": null,
+   "末帧": null
+  },
+  {
+   "模块": "paper_engine",
+   "可导入": true,
+   "文件": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py",
+   "错误": null,
+   "末帧": null
+  },
+  {
+   "模块": "live_signal_engine",
+   "可导入": true,
+   "文件": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_signal_engine.py",
+   "错误": null,
+   "末帧": null
+  },
+  {
+   "模块": "live_account",
+   "可导入": true,
+   "文件": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_account.py",
+   "错误": null,
+   "末帧": null
+  },
+  {
+   "模块": "live_api",
+   "可导入": true,
+   "文件": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_api.py",
+   "错误": null,
+   "末帧": null
+  },
+  {
+   "模块": "live_worker",
+   "可导入": false,
+   "文件": null,
+   "错误": "ModuleNotFoundError: No module named '_warmup43'",
+   "末帧": "File \"/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_worker.py\", line 53, in <module>"
+  }
+ ],
+ "B_调用方扫描": {
+  "匹配总数": 11,
+  "命中": [
+   {
+    "文件": "框架/backend/verify_exec_wiring.py",
+    "行": 135,
+    "内容": "hit = LW._scan_position_exit(pos, mkt=mem, arm_exits=[], bars_1h=hours, params=params, T=T)"
+   },
+   {
+    "文件": "框架/backend/verify_exec_wiring.py",
+    "行": 154,
+    "内容": "hit2 = LW._scan_position_exit({\"position_id\": 2, \"symbol\": \"SYN\", \"direction\": \"long\","
+   },
+   {
+    "文件": "框架/backend/live_worker.py",
+    "行": 125,
+    "内容": "def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRAIL_MODE):"
+   },
+   {
+    "文件": "框架/backend/live_worker.py",
+    "行": 194,
+    "内容": "def advance_paper(*, T=None, log=print) -> dict:"
+   },
+   {
+    "文件": "框架/backend/live_worker.py",
+    "行": 368,
+    "内容": "pend_res = PE.advance_pending(T=T, log=log)"
+   },
+   {
+    "文件": "框架/backend/live_worker.py",
+    "行": 425,
+    "内容": "hit = _scan_position_exit(p, mkt=mkt, arm_exits=arm_exits,"
+   },
+   {
+    "文件": "框架/backend/live_worker.py",
+    "行": 497,
+    "内容": "out[\"paper\"] = advance_paper(T=T, log=log)"
+   },
+   {
+    "文件": "框架/backend/paper_engine.py",
+    "行": 680,
+    "内容": "def advance_pending(*, T=None, log=print) -> dict:"
+   },
+   {
+    "文件": "框架/backend/paper_engine.py",
+    "行": 1871,
+    "内容": "def record_stop_update(arm: str, position_id: int, old_stop: float, new_stop: float,"
+   },
+   {
+    "文件": "框架/backend/paper_engine.py",
+    "行": 1988,
+    "内容": "ok = record_stop_update("
+   },
+   {
+    "文件": "框架/backend/live_store.py",
+    "行": 325,
+    "内容": "-- 挂单在此登记，由真实进程时钟推进（`paper_engine.advance_pending`）。"
+   }
+  ]
+ },
+ "C_运行进程": {
+  "进程": [
+   {
+    "pid": 27607,
+    "启动": "21:49:54",
+    "命令行": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python 框架/backend/adapter.py"
+   }
+  ]
+ },
+ "D_接线自检": {
+  "存在": true,
+  "返回码": 0,
+  "stdout": "{\n  \"probe\": \"exec_wiring\",\n  \"data_read_disclosure\": \"零真实行情读取（全部合成 bar + 内存 sqlite）\",\n  \"core_available\": false,\n  \"status\": \"retired_legacy_core_in_work04b\",\n  \"note\": \"WORK-04B: 旧执行核心已彻底退役清除，单核交易收敛至 Shared Trading Core\"\n}",
+  "stderr": ""
+ },
+ "E_场景1": {
+  "E_首轮": {
+   "ok": false,
+   "reason": "pending_future_fill",
+   "pending_id": 1,
+   "symbol": "BTCUSDT",
+   "signal_uid": "audit03_s1",
+   "origin": "replay",
+   "requested_at": 1792678500000,
+   "first_request_ms": 1792678500000,
+   "order_request_ms": 1792678500000,
+   "earliest_fill_ms": 1792679400000,
+   "epoch_ms": 1791939600000,
+   "attempt_ms": 1792678500000,
+   "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+  },
+  "E_推进": {
+   "rejected": [],
+   "still_pending": 0,
+   "by_arm": {
+    "3a": {
+     "pending_total": 1,
+     "filled": 1,
+     "rejected": 0,
+     "still_pending": 0
+    },
+    "3b": {
+     "pending_total": 0,
+     "filled": 0,
+     "rejected": 0,
+     "still_pending": 0
+    },
+    "3c": {
+     "pending_total": 0,
+     "filled": 0,
+     "rejected": 0,
+     "still_pending": 0
+    },
+    "3d": {
+     "pending_total": 0,
+     "filled": 0,
+     "rejected": 0,
+     "still_pending": 0
+    }
+   }
+  },
+  "E_成交": {
+   "ok": true,
+   "reason": "filled",
+   "position_id": 1,
+   "order_id": 1,
+   "qty": 1.666,
+   "entry_price": 100.10000000000001,
+   "raw_price": 100.0,
+   "stop_price": 85.10000000000001,
+   "notional": 166.7666,
+   "fee": 0.08338330000000001,
+   "slippage_cost": 0.1666000000000142,
+   "bar_open_time": 1792679400000,
+   "bar_close_time": 1792680299999,
+   "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+   "signal_uid": "audit03_s1",
+   "origin": "replay",
+   "event_time": 1792677600000,
+   "available_at": 1792678500000,
+   "requested_at": 1792678500000,
+   "earliest_fill_ms": 1792679400000,
+   "filled_at": 1792679400000,
+   "fill_lag_ms": 900000,
+   "market_source": "binance.um.candles_15m.is_closed.open"
+  },
+  "E_账本行": {
+   "持仓": {
+    "position_id": 1,
+    "account_id": "paper43_3a",
+    "symbol": "BTCUSDT",
+    "qty": 1.666,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792679400000,
+    "exit_ts": null,
+    "exit_reason": null,
+    "status": "open",
+    "exit_price": null,
+    "entry_fee": 0.08338330000000001,
+    "exit_fee": null,
+    "funding_paid": 0.0,
+    "signal_uid": "audit03_s1",
+    "arm": "3a",
+    "stop_price": 85.10000000000001,
+    "atr_at_entry": 5.0,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "event_time": 1792677600000,
+    "available_at": 1792678500000,
+    "requested_at": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "origin": "replay",
+    "first_request_ms": 1792678500000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "订单": {
+    "order_id": 1,
+    "account_id": "paper43_3a",
+    "event_uid": "audit03_s1",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 1.666,
+    "price": 100.10000000000001,
+    "fee": 0.08338330000000001,
+    "ts": 1792680300000,
+    "status": "filled",
+    "reject_reason": null,
+    "fill_price": 100.10000000000001,
+    "notional": 166.7666,
+    "bar_open_time": 1792679400000,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "event_time": 1792677600000,
+    "requested_at": 1792678500000,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "first_request_ms": 1792678500000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "成交": {
+    "fill_id": 1,
+    "account_id": "paper43_3a",
+    "order_id": 1,
+    "position_id": 1,
+    "signal_uid": "audit03_s1",
+    "symbol": "BTCUSDT",
+    "action": "open",
+    "qty": 1.666,
+    "raw_price": 100.0,
+    "fill_price": 100.10000000000001,
+    "notional": 166.7666,
+    "fee": 0.08338330000000001,
+    "slippage_cost": 0.1666000000000142,
+    "bar_open_time": 1792679400000,
+    "bar_close_time": 1792680299999,
+    "fill_ts": 1792680300000,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "event_time": 1792677600000,
+    "available_at": 1792678500000,
+    "requested_at": 1792678500000,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "first_request_ms": 1792678500000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "挂单": {
+    "pending_id": 1,
+    "account_id": "paper43_3a",
+    "arm": "3a",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "signal_uid": "audit03_s1",
+    "origin": "replay",
+    "atr": 5.0,
+    "stop_price": null,
+    "event_time": 1792677600000,
+    "available_at": 1792678500000,
+    "requested_at": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "status": "filled",
+    "reason": null,
+    "created_at": 1792678407851,
+    "resolved_at": 1792680300000,
+    "fill_position_id": 1,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "first_request_ms": 1792678500000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "账户态": {
+    "account_id": "paper43_3a",
+    "cash": 4999.9166167,
+    "realized_pnl": 0.0,
+    "fees_paid": 0.08338330000000001,
+    "funding_paid": 0.0,
+    "updated_at": 1792678408275
+   },
+   "止损历史": [
+    {
+     "id": 1,
+     "account_id": "paper43_3a",
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 85.10000000000001,
+     "reason": "initial_stop",
+     "ref_bar_open_ms": 1792679400000,
+     "available_at": 1792678500000,
+     "decision_at": 1792680300000,
+     "effective_at": 1792679400000,
+     "created_at": 1792678407866
+    }
+   ],
+   "权益曲线": [
+    {
+     "ts": 1792678408275,
+     "account_id": "paper43_3a",
+     "cash": 5000.0,
+     "unrealized": -0.1666000000000142,
+     "equity": 4999.8334,
+     "voided": 0
+    }
+   ]
+  },
+  "E_未来bar": {
+   "ok": false,
+   "reason": "bar_after_attempt_clock_no_lookahead",
+   "symbol": "SOLUSDT",
+   "signal_uid": "audit03_e19"
+  },
+  "F1F2": {
+   "ok": false,
+   "reason": "pending_future_fill",
+   "pending_id": 1,
+   "symbol": "ETHUSDT",
+   "signal_uid": "audit03_f1",
+   "origin": "manual",
+   "requested_at": 1792678408428,
+   "first_request_ms": 1792678408428,
+   "order_request_ms": 1792678408428,
+   "earliest_fill_ms": 1792679308428,
+   "epoch_ms": 1791939600000,
+   "attempt_ms": 1792678408428,
+   "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+  },
+  "F6": {
+   "首轮": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 2,
+    "symbol": "DOGEUSDT",
+    "signal_uid": "audit03_f6",
+    "origin": "replay",
+    "requested_at": 1792678500000,
+    "first_request_ms": 1792678500000,
+    "order_request_ms": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792678500000,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "推进": {
+    "rejected": [
+     {
+      "pending_id": 2,
+      "reason": "missing_atr_and_stop"
+     }
+    ],
+    "still_pending": 1,
+    "by_arm": {
+     "3a": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3b": {
+      "pending_total": 2,
+      "filled": 0,
+      "rejected": 1,
+      "still_pending": 1
+     },
+     "3c": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3d": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     }
+    }
+   },
+   "拒单": [
+    {
+     "pending_id": 2,
+     "reason": "missing_atr_and_stop"
+    }
+   ]
+  },
+  "F7": {
+   "ok": false,
+   "reason": "market_db_unavailable",
+   "symbol": "BTCUSDT",
+   "signal_uid": "audit03_f7"
+  },
+  "F8": {
+   "ok": false,
+   "reason": "pending_future_fill",
+   "pending_id": 3,
+   "symbol": "NODATAUSDT",
+   "signal_uid": "audit03_f8",
+   "origin": "replay",
+   "requested_at": 1792678500000,
+   "first_request_ms": 1792678500000,
+   "order_request_ms": 1792678500000,
+   "earliest_fill_ms": 1792679400000,
+   "epoch_ms": 1791939600000,
+   "attempt_ms": 1792678500000,
+   "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+  },
+  "F11": {
+   "首轮": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "symbol": "SOLUSDT",
+    "signal_uid": "audit03_f11",
+    "origin": "replay",
+    "requested_at": 1792678500000,
+    "first_request_ms": 1792678500000,
+    "order_request_ms": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792678500000,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "推进": {
+    "rejected": [
+     {
+      "pending_id": 1,
+      "reason": "missed_fill_moment_no_backfill"
+     }
+    ],
+    "still_pending": 2,
+    "by_arm": {
+     "3a": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3b": {
+      "pending_total": 2,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 2
+     },
+     "3c": {
+      "pending_total": 1,
+      "filled": 0,
+      "rejected": 1,
+      "still_pending": 0
+     },
+     "3d": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     }
+    }
+   },
+   "拒单": [
+    {
+     "pending_id": 1,
+     "reason": "missed_fill_moment_no_backfill"
+    }
+   ]
+  },
+  "F12": {
+   "ok": false,
+   "reason": "position_already_open_no_add",
+   "symbol": "BTCUSDT",
+   "signal_uid": "audit03_f12"
+  },
+  "G_生产账本": {
+   "存在": true,
+   "账户态": {
+    "account_id": "paper43_3a",
+    "cash": 4995.6545447261005,
+    "realized_pnl": -4.3454552739000345,
+    "fees_paid": 1.4744030739,
+    "funding_paid": 0.0,
+    "updated_at": 1792668687677
+   },
+   "持仓数": 3,
+   "成交数": 6,
+   "挂单数": 3,
+   "挂单": [
+    {
+     "pending_id": 1,
+     "signal_uid": "sig_test_closeloop_01",
+     "status": "pending",
+     "reason": null,
+     "voided": 1,
+     "earliest_fill_ms": 1792669319751
+    },
+    {
+     "pending_id": 2,
+     "signal_uid": "sig_closeloop_btc_1792668513",
+     "status": "pending",
+     "reason": null,
+     "voided": 1,
+     "earliest_fill_ms": 1792669413352
+    },
+    {
+     "pending_id": 3,
+     "signal_uid": "sig_ui_test_1792668631241",
+     "status": "pending",
+     "reason": null,
+     "voided": 1,
+     "earliest_fill_ms": 1792669531263
+    }
+   ],
+   "费用合计_由成交行": 1.474403,
+   "毛盈亏合计_由成交行": -2.871052,
+   "净已实现_由成交行": -4.345455,
+   "账面已实现": -4.345455,
+   "已实现残差": 0.0,
+   "账面费用": 1.474403,
+   "费用残差": 0.0,
+   "现金_账面": 4995.654545,
+   "现金_按 5000+已实现": 4995.654545,
+   "现金残差": 0.0,
+   "逐笔": [
+    {
+     "position_id": 1,
+     "完整": true,
+     "qty": 0.006,
+     "open": 82033.1,
+     "close": 81888.0355,
+     "pnl_gross": -0.870387,
+     "fee_open": 0.246099,
+     "fee_close": 0.245664
+    },
+    {
+     "position_id": 2,
+     "完整": true,
+     "qty": 0.006,
+     "open": 81970.0,
+     "close": 81803.2779,
+     "pnl_gross": -1.000333,
+     "fee_open": 0.24591,
+     "fee_close": 0.24541
+    },
+    {
+     "position_id": 3,
+     "完整": true,
+     "qty": 0.006,
+     "open": 81970.0,
+     "close": 81803.2779,
+     "pnl_gross": -1.000333,
+     "fee_open": 0.24591,
+     "fee_close": 0.24541
+    }
+   ]
+  },
+  "H_版本漂移": {
+   "开工版本": {
+    "paper_engine_sha12": "1a300ea8dc81",
+    "字节": 109248,
+    "采样": "2026-10-22T21:34 开工快照",
+    "成交时钟实现": "order_request_ms = max(eco + [first_req, attempt_ms])",
+    "后果": "earliest_fill_ms >= attempt_ms + 15m ⇒ 已闭合 bar 的 open_time 永远够不着 ⇒ 只会 pending，或命中未来 bar 被前视拒单 ⇒ filled 不可达",
+    "实测": "21:56 首跑 02：连续 5 个时刻（base+30/45/60/120/240min）推进，filled=0 rejected=0 still_pending=1"
+   },
+   "当前版本": {
+    "paper_engine_sha12": "6907b27c9e5f",
+    "字节": 118245,
+    "采样": "2026-10-22T21:58 漂移快照",
+    "成交时钟实现": "order_request_ms = max(eco + [first_req])  （attempt_ms 已移出 max）",
+    "后果": "earliest_fill 不再随推进时钟前移 ⇒ 到点能成交",
+    "实测": "21:58 重跑 02：E3 成交 1 笔（见上）"
+   },
+   "另一处改动": "guard 由 earliest_fill < attempt_ms 改为 earliest_fill < first_req，拒因改名 earliest_fill_before_first_request_clock",
+   "判定处理": "开工基准作废；本文件所有判定一律以当前版本（6907b27c…）为准；开工版缺陷作为「已改但需复核」单列，不计入当前版本的不通过项",
+   "仍存风险": "运行进程 pid=27607 启动于 21:49:54，早于 paper_engine 21:57:12 的改动 ⇒ 线上加载的仍是旧成交时钟（详见 out/00b_漂移快照.json）"
+  },
+  "H_漂移实测": {
+   "相对开工快照变动条数": 6,
+   "进程是否加载最新代码": false,
+   "明细": [
+    {
+     "文件": "UI界面/web/src/components/PositionPanel.tsx",
+     "变化": "被改",
+     "旧_sha": "129545ba5fae",
+     "当前_sha": "d731ca8ac736",
+     "字节": "41896 → 44908",
+     "mtime": "2026-10-22T21:51:01+08:00",
+     "mtime_ms": 1792677061083
+    },
+    {
+     "文件": "框架/backend/adapter.py",
+     "变化": "被改",
+     "旧_sha": "4a27bdd8c976",
+     "当前_sha": "acd7d2a62488",
+     "字节": "207401 → 208545",
+     "mtime": "2026-10-22T21:47:10+08:00",
+     "mtime_ms": 1792676830847
+    },
+    {
+     "文件": "框架/backend/api/routes.py",
+     "变化": "被改",
+     "旧_sha": "2dad7218a921",
+     "当前_sha": "8ef2aa8e71bd",
+     "字节": "13334 → 13531",
+     "mtime": "2026-10-22T21:49:21+08:00",
+     "mtime_ms": 1792676961314
+    },
+    {
+     "文件": "框架/backend/live_api.py",
+     "变化": "被改",
+     "旧_sha": "febe7180e444",
+     "当前_sha": "1a5b536dff7c",
+     "字节": "95561 → 102519",
+     "mtime": "2026-10-22T21:49:39+08:00",
+     "mtime_ms": 1792676979219
+    },
+    {
+     "文件": "框架/backend/live_store.py",
+     "变化": "被改",
+     "旧_sha": "bf6a08ef71a6",
+     "当前_sha": "0540f1532e6a",
+     "字节": "38355 → 38590",
+     "mtime": "2026-10-22T21:47:34+08:00",
+     "mtime_ms": 1792676854698
+    },
+    {
+     "文件": "框架/backend/paper_engine.py",
+     "变化": "被改",
+     "旧_sha": "1a300ea8dc81",
+     "当前_sha": "6907b27c9e5f",
+     "字节": "109248 → 118245",
+     "mtime": "2026-10-22T21:57:12+08:00",
+     "mtime_ms": 1792677432532
+    }
+   ]
+  }
+ },
+ "F_场景5": {
+  "F1": {
+   "编号": "F1",
+   "检查项": "日常入口(origin=manual)伪造过去 requested_at/now_ms ⇒ 被忽略，用真实挂钟",
+   "预期": "attempt_ms ≈ 1792678408418",
+   "实际": "1792678408428",
+   "判定": "通过",
+   "备注": "传入伪造值=1790086500000"
+  },
+  "F2": {
+   "编号": "F2",
+   "检查项": "伪造时钟未把最早成交时刻拉到过去",
+   "预期": ">= 1792678408418",
+   "实际": "1792679308428",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F3": {
+   "编号": "F3",
+   "检查项": "信号确认 bar 早于 paper epoch ⇒ 拒单，不补开",
+   "预期": "before_paper_epoch_no_backfill",
+   "实际": "before_paper_epoch_no_backfill",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F4": {
+   "编号": "F4",
+   "检查项": "非法方向 ⇒ 拒单（绝不静默当 long）",
+   "预期": "illegal_direction_sideways",
+   "实际": "illegal_direction_sideways",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F5": {
+   "编号": "F5",
+   "检查项": "short 方向 ⇒ 拒单（冻结视图 short_enabled=false）",
+   "预期": "short_disabled_by_frozen_view_only_long",
+   "实际": "short_disabled_by_frozen_view_only_long",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F6": {
+   "编号": "F6",
+   "检查项": "既无 ATR 又无止损 ⇒ 必须被拒（不得静默放行、也不得永久挂单）",
+   "预期": "missing_atr_and_stop",
+   "实际": "missing_atr_and_stop",
+   "判定": "通过",
+   "备注": "首轮先挂单、推进时才拒（挂单表里有 missing_atr_and_stop 分支）"
+  },
+  "F7": {
+   "编号": "F7",
+   "检查项": "行情库不可用 ⇒ 应返回可重试拒单 market_db_unavailable",
+   "预期": "market_db_unavailable",
+   "实际": "market_db_unavailable",
+   "判定": "通过",
+   "备注": "只读连接是惰性的：connect 不报错、首次查询才报错 ⇒ 该拒单分支可能形同虚设"
+  },
+  "F8": {
+   "编号": "F8",
+   "检查项": "标的存在但无任何行情 bar ⇒ 不得成交、且不应无限挂单",
+   "预期": "明确拒单",
+   "实际": "pending_future_fill",
+   "判定": "不通过",
+   "备注": "若是 pending，说明无行情标的会永久挂单（缺陷）"
+  },
+  "F9": {
+   "编号": "F9",
+   "检查项": "新开仓总闸关闭 ⇒ 拒单（自动/手工/挂单三路一致）",
+   "预期": "new_entry_blocked_pending_closure_review",
+   "实际": "new_entry_blocked_pending_closure_review",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F10": {
+   "编号": "F10",
+   "检查项": "闸门文件缺失 ⇒ fail-closed 拒单（不是默认放行）",
+   "预期": "new_entry_blocked_pending_closure_review",
+   "实际": "new_entry_blocked_pending_closure_review",
+   "判定": "通过",
+   "备注": ""
+  },
+  "F11": {
+   "编号": "F11",
+   "检查项": "错过应成交时刻（滞后 > 1h）⇒ 拒单 missed_fill_moment_no_backfill",
+   "预期": "missed_fill_moment_no_backfill",
+   "实际": "missed_fill_moment_no_backfill",
+   "判定": "通过",
+   "备注": "该分支与 E6 推导一致：lag 恒为负 ⇒ 不可达"
+  },
+  "F12": {
+   "编号": "F12",
+   "检查项": "同币已有持仓 ⇒ 拒单（add_positions=false）",
+   "预期": "position_already_open_no_add",
+   "实际": "position_already_open_no_add",
+   "判定": "通过",
+   "备注": ""
+  }
+ },
+ "G_生产账本": {
+  "存在": true,
+  "账户态": {
+   "account_id": "paper43_3a",
+   "cash": 4995.6545447261005,
+   "realized_pnl": -4.3454552739000345,
+   "fees_paid": 1.4744030739,
+   "funding_paid": 0.0,
+   "updated_at": 1792668687677
+  },
+  "持仓数": 3,
+  "成交数": 6,
+  "挂单数": 3,
+  "挂单": [
+   {
+    "pending_id": 1,
+    "signal_uid": "sig_test_closeloop_01",
+    "status": "pending",
+    "reason": null,
+    "voided": 1,
+    "earliest_fill_ms": 1792669319751
+   },
+   {
+    "pending_id": 2,
+    "signal_uid": "sig_closeloop_btc_1792668513",
+    "status": "pending",
+    "reason": null,
+    "voided": 1,
+    "earliest_fill_ms": 1792669413352
+   },
+   {
+    "pending_id": 3,
+    "signal_uid": "sig_ui_test_1792668631241",
+    "status": "pending",
+    "reason": null,
+    "voided": 1,
+    "earliest_fill_ms": 1792669531263
+   }
+  ],
+  "费用合计_由成交行": 1.474403,
+  "毛盈亏合计_由成交行": -2.871052,
+  "净已实现_由成交行": -4.345455,
+  "账面已实现": -4.345455,
+  "已实现残差": 0.0,
+  "账面费用": 1.474403,
+  "费用残差": 0.0,
+  "现金_账面": 4995.654545,
+  "现金_按 5000+已实现": 4995.654545,
+  "现金残差": 0.0,
+  "逐笔": [
+   {
+    "position_id": 1,
+    "完整": true,
+    "qty": 0.006,
+    "open": 82033.1,
+    "close": 81888.0355,
+    "pnl_gross": -0.870387,
+    "fee_open": 0.246099,
+    "fee_close": 0.245664
+   },
+   {
+    "position_id": 2,
+    "完整": true,
+    "qty": 0.006,
+    "open": 81970.0,
+    "close": 81803.2779,
+    "pnl_gross": -1.000333,
+    "fee_open": 0.24591,
+    "fee_close": 0.24541
+   },
+   {
+    "position_id": 3,
+    "完整": true,
+    "qty": 0.006,
+    "open": 81970.0,
+    "close": 81803.2779,
+    "pnl_gross": -1.000333,
+    "fee_open": 0.24591,
+    "fee_close": 0.24541
+   }
+  ]
+ },
+ "断言": [
+  {
+   "编号": "A1",
+   "检查项": "paper_engine 可导入（成交/退出记账本体）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "A2",
+   "检查项": "live_worker 可导入（自动推进/退出扫描的唯一实现处）",
+   "预期": "True",
+   "实际": "False",
+   "判定": "不通过",
+   "备注": "ModuleNotFoundError: No module named '_warmup43'"
+  },
+  {
+   "编号": "B1",
+   "检查项": "live_worker 之外存在生产调用方（调度/路由/线程）",
+   "预期": ">=1 处",
+   "实际": "0 处",
+   "判定": "不通过",
+   "备注": "零调用方（verify_exec_wiring.py 只是自检脚本，不算生产调用方）"
+  },
+  {
+   "编号": "C1",
+   "检查项": "存在 paper 自动推进进程（live_worker --interval）",
+   "预期": ">=1 个",
+   "实际": "0",
+   "判定": "不通过",
+   "备注": ""
+  },
+  {
+   "编号": "D1",
+   "检查项": "verify_exec_wiring.py 自报接线可用",
+   "预期": "core_available: true",
+   "实际": "{\n  \"probe\": \"exec_wiring\",\n  \"data_read_disclosure\": \"零真实行情读取（全部合成 bar + 内存 sqlite）\",\n  \"core_available\": false,\n  \"status\": \"retired_legacy_core_in_work04b\",\n  \"note\": \"WORK-04B: 旧执行核心已彻底退役清除，单核交易收敛",
+   "判定": "不通过",
+   "备注": "项目自带脚本自报 blocked"
+  },
+  {
+   "编号": "E1",
+   "检查项": "首轮：应成交时刻的 bar 尚未闭合 ⇒ 登记挂单（不提前成交）",
+   "预期": "pending_future_fill",
+   "实际": "pending_future_fill",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E2",
+   "检查项": "挂单最早成交时刻 = 经济请求时刻 + 15m 延迟",
+   "预期": "1792679400000",
+   "实际": "1792679400000",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E3",
+   "检查项": "推进到成交 bar 已闭合后成交 1 笔（不是 0 笔、也不是拒单）",
+   "预期": "1",
+   "实际": "1",
+   "判定": "通过",
+   "备注": "[]"
+  },
+  {
+   "编号": "E4",
+   "检查项": "成交 bar = 第一根 open_time >= 最早成交时刻的已闭合 bar",
+   "预期": "1792679400000",
+   "实际": "1792679400000",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E5",
+   "检查项": "成交价 = 该 bar 开盘价 100.00 × (1+滑点) 按 0.1 步进向上取整",
+   "预期": "100.1",
+   "实际": "100.10000000000001",
+   "判定": "通过",
+   "备注": "raw=100.0"
+  },
+  {
+   "编号": "E6",
+   "检查项": "初始止损 = 成交价 − 3×ATR(5.0) = 85.1",
+   "预期": "85.1",
+   "实际": "85.10000000000001",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E7",
+   "检查项": "持仓经济入场时刻 = 成交 bar 开盘时刻（不是挂钟）",
+   "预期": "1792679400000",
+   "实际": "1792679400000",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E8",
+   "检查项": "成交落账时刻 = 本次推进时刻",
+   "预期": "1792680300000",
+   "实际": "1792680300000",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E9",
+   "检查项": "**无前视**：成交落账时刻 >= 成交 bar 收盘时刻",
+   "预期": ">= 1792680299999",
+   "实际": "1792680300000",
+   "判定": "通过",
+   "备注": "bar_close_time=1792680299999"
+  },
+  {
+   "编号": "E10",
+   "检查项": "订单行与成交行同 bar 同价",
+   "预期": "bar=1792679400000 price=100.1",
+   "实际": "bar=1792679400000 price=100.10000000000001",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E11",
+   "检查项": "挂单终态 = filled 且回指该持仓",
+   "预期": "filled/1",
+   "实际": "filled/1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E12",
+   "检查项": "开仓手续费 = 名义 × 0.0005",
+   "预期": "0.0833833",
+   "实际": "0.0833833",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E13",
+   "检查项": "账户累计手续费 = 该笔开仓手续费",
+   "预期": "0.0833833",
+   "实际": "0.0833833",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E14",
+   "检查项": "现金 = 初始权益 − 手续费（只扣一次）",
+   "预期": "4999.9166167",
+   "实际": "4999.9166167",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E15",
+   "检查项": "开仓即落一条初始止损历史（old_stop 为空 = 起点，不是「上移」）",
+   "预期": "1",
+   "实际": "1 条，old_stop=None",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E16",
+   "检查项": "权益曲线已记录该账户权益",
+   "预期": ">=1 行",
+   "实际": "1 行，末行 equity=4999.8334",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E17",
+   "检查项": "同一 signal_uid 重放 ⇒ 拒单（不二次开仓）",
+   "预期": "duplicate_signal_uid",
+   "实际": "duplicate_signal_uid",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E18",
+   "检查项": "持仓数仍为 1（幂等真实生效，不是只返回一句话）",
+   "预期": "1",
+   "实际": "1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E19",
+   "检查项": "唯一可选 bar 的 open_time 晚于尝试时刻 ⇒ 判前视拒单",
+   "预期": "bar_after_attempt_clock_no_lookahead",
+   "实际": "bar_after_attempt_clock_no_lookahead",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F1",
+   "检查项": "日常入口(origin=manual)伪造过去 requested_at/now_ms ⇒ 被忽略，用真实挂钟",
+   "预期": "attempt_ms ≈ 1792678408418",
+   "实际": "1792678408428",
+   "判定": "通过",
+   "备注": "传入伪造值=1790086500000"
+  },
+  {
+   "编号": "F2",
+   "检查项": "伪造时钟未把最早成交时刻拉到过去",
+   "预期": ">= 1792678408418",
+   "实际": "1792679308428",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F3",
+   "检查项": "信号确认 bar 早于 paper epoch ⇒ 拒单，不补开",
+   "预期": "before_paper_epoch_no_backfill",
+   "实际": "before_paper_epoch_no_backfill",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F4",
+   "检查项": "非法方向 ⇒ 拒单（绝不静默当 long）",
+   "预期": "illegal_direction_sideways",
+   "实际": "illegal_direction_sideways",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F5",
+   "检查项": "short 方向 ⇒ 拒单（冻结视图 short_enabled=false）",
+   "预期": "short_disabled_by_frozen_view_only_long",
+   "实际": "short_disabled_by_frozen_view_only_long",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F6",
+   "检查项": "既无 ATR 又无止损 ⇒ 必须被拒（不得静默放行、也不得永久挂单）",
+   "预期": "missing_atr_and_stop",
+   "实际": "missing_atr_and_stop",
+   "判定": "通过",
+   "备注": "首轮先挂单、推进时才拒（挂单表里有 missing_atr_and_stop 分支）"
+  },
+  {
+   "编号": "F7",
+   "检查项": "行情库不可用 ⇒ 应返回可重试拒单 market_db_unavailable",
+   "预期": "market_db_unavailable",
+   "实际": "market_db_unavailable",
+   "判定": "通过",
+   "备注": "只读连接是惰性的：connect 不报错、首次查询才报错 ⇒ 该拒单分支可能形同虚设"
+  },
+  {
+   "编号": "F8",
+   "检查项": "标的存在但无任何行情 bar ⇒ 不得成交、且不应无限挂单",
+   "预期": "明确拒单",
+   "实际": "pending_future_fill",
+   "判定": "不通过",
+   "备注": "若是 pending，说明无行情标的会永久挂单（缺陷）"
+  },
+  {
+   "编号": "F9",
+   "检查项": "新开仓总闸关闭 ⇒ 拒单（自动/手工/挂单三路一致）",
+   "预期": "new_entry_blocked_pending_closure_review",
+   "实际": "new_entry_blocked_pending_closure_review",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F10",
+   "检查项": "闸门文件缺失 ⇒ fail-closed 拒单（不是默认放行）",
+   "预期": "new_entry_blocked_pending_closure_review",
+   "实际": "new_entry_blocked_pending_closure_review",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F11",
+   "检查项": "错过应成交时刻（滞后 > 1h）⇒ 拒单 missed_fill_moment_no_backfill",
+   "预期": "missed_fill_moment_no_backfill",
+   "实际": "missed_fill_moment_no_backfill",
+   "判定": "通过",
+   "备注": "该分支与 E6 推导一致：lag 恒为负 ⇒ 不可达"
+  },
+  {
+   "编号": "F12",
+   "检查项": "同币已有持仓 ⇒ 拒单（add_positions=false）",
+   "预期": "position_already_open_no_add",
+   "实际": "position_already_open_no_add",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "G1",
+   "检查项": "生产账本存在任何一笔真实（非合成测试）成交",
+   "预期": ">=1",
+   "实际": "3 笔持仓（signal_uid 前缀均为 sig_closeloop_/sig_ui_test_/sig_test_）",
+   "判定": "不通过",
+   "备注": "全部为合成测试记录 ⇒ 生产账本无真实成交"
+  },
+  {
+   "编号": "G2",
+   "检查项": "账面已实现盈亏 = Σ(平仓−开仓)×数量 − Σ手续费",
+   "预期": "残差 0",
+   "实际": "0.0",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "G2b",
+   "检查项": "账面累计手续费 = 成交行手续费合计",
+   "预期": "残差 0",
+   "实际": "0.0",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "G3",
+   "检查项": "账面现金 = 初始权益 + 已实现盈亏（手续费不重复扣）",
+   "预期": "残差 0",
+   "实际": "0.0",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "G4",
+   "检查项": "生产账本挂单未长期滞留",
+   "预期": "0 条 pending",
+   "实际": "3 条（status 全为 pending，已标 voided=1）",
+   "判定": "不通过",
+   "备注": "这些行已被 anti-gravity 标作废（voided=1），但 status 仍是 pending；工单边界第 2 条：记录未删除符合约束，重点是标识/隔离/绩效排除"
+  },
+  {
+   "编号": "H1",
+   "检查项": "验收期间代码未变（开工基准可继续使用）",
+   "预期": "0 个文件变动",
+   "实际": "6 个文件被改",
+   "判定": "不通过",
+   "备注": "工单要求：变更时只作废受影响检查并重新执行 ⇒ 已按当前版本重跑"
+  },
+  {
+   "编号": "H2",
+   "检查项": "运行进程加载的是磁盘上的最新代码",
+   "预期": "进程启动时刻 >= 最新 mtime",
+   "实际": "否（进程早于最新改动）",
+   "判定": "不通过",
+   "备注": "进程 21:49:54 < paper_engine mtime 21:57:12 ⇒ 线上仍跑旧成交时钟"
+  }
+ ],
+ "汇总": {
+  "总数": 43,
+  "通过": 34,
+  "不通过": 9,
+  "未验证": 0
+ }
+}

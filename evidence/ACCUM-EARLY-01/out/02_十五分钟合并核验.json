@@ -1,0 +1,166 @@
+{
+ "probe": "02_十五分钟合并核验",
+ "generated_at_utc": "2026-10-26T10:00:01Z",
+ "window": {
+  "start_utc": "2026-06-27T08:00:00Z",
+  "end_utc": "2026-10-26T09:00:00Z",
+  "note": "首轮验证窗口（拟采用）；历史可查询范围不受此限制"
+ },
+ "cold_upper_bound_utc": "2026-09-14T07:20:00Z",
+ "rules": {
+  "dedup_key": "open_time",
+  "conflict_priority": "hot_over_cold",
+  "only_closed": true,
+  "cold_upper_bound_source": "parquet/_state.json",
+  "no_interpolation": true,
+  "no_download": true
+ },
+ "symbols": {
+  "BTCUSDT": {
+   "bars": 11620,
+   "rows_cold": 7582,
+   "rows_hot": 4260,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "first_bar_utc": "2026-06-27T08:00:00Z",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "continuity": {
+    "expected_bars": 11620,
+    "actual_bars": 11620,
+    "gap_segments": [],
+    "gap_segment_count": 0,
+    "missing_bars_total": 0
+   },
+   "available_at": {
+    "hot_filled": 1922,
+    "hot_missing": 2338,
+    "cold_filled": 0,
+    "cold_missing": 7582,
+    "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+   },
+   "crosscheck_with_MergedHistory": {
+    "compared": 11620,
+    "mismatch": 0,
+    "verdict": "consistent"
+   }
+  },
+  "ETHUSDT": {
+   "bars": 11620,
+   "rows_cold": 7582,
+   "rows_hot": 4260,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "first_bar_utc": "2026-06-27T08:00:00Z",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "continuity": {
+    "expected_bars": 11620,
+    "actual_bars": 11620,
+    "gap_segments": [],
+    "gap_segment_count": 0,
+    "missing_bars_total": 0
+   },
+   "available_at": {
+    "hot_filled": 1955,
+    "hot_missing": 2305,
+    "cold_filled": 0,
+    "cold_missing": 7582,
+    "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+   },
+   "crosscheck_with_MergedHistory": {
+    "compared": 11620,
+    "mismatch": 0,
+    "verdict": "consistent"
+   }
+  },
+  "SOLUSDT": {
+   "bars": 11620,
+   "rows_cold": 7582,
+   "rows_hot": 4260,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "first_bar_utc": "2026-06-27T08:00:00Z",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "continuity": {
+    "expected_bars": 11620,
+    "actual_bars": 11620,
+    "gap_segments": [],
+    "gap_segment_count": 0,
+    "missing_bars_total": 0
+   },
+   "available_at": {
+    "hot_filled": 1956,
+    "hot_missing": 2304,
+    "cold_filled": 0,
+    "cold_missing": 7582,
+    "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+   },
+   "crosscheck_with_MergedHistory": {
+    "compared": 11620,
+    "mismatch": 0,
+    "verdict": "consistent"
+   }
+  },
+  "DOGEUSDT": {
+   "bars": 11620,
+   "rows_cold": 7582,
+   "rows_hot": 4260,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "first_bar_utc": "2026-06-27T08:00:00Z",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "continuity": {
+    "expected_bars": 11620,
+    "actual_bars": 11620,
+    "gap_segments": [],
+    "gap_segment_count": 0,
+    "missing_bars_total": 0
+   },
+   "available_at": {
+    "hot_filled": 1955,
+    "hot_missing": 2305,
+    "cold_filled": 0,
+    "cold_missing": 7582,
+    "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+   },
+   "crosscheck_with_MergedHistory": {
+    "compared": 11620,
+    "mismatch": 0,
+    "verdict": "consistent"
+   }
+  },
+  "XRPUSDT": {
+   "bars": 11620,
+   "rows_cold": 7582,
+   "rows_hot": 4260,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "first_bar_utc": "2026-06-27T08:00:00Z",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "continuity": {
+    "expected_bars": 11620,
+    "actual_bars": 11620,
+    "gap_segments": [],
+    "gap_segment_count": 0,
+    "missing_bars_total": 0
+   },
+   "available_at": {
+    "hot_filled": 1956,
+    "hot_missing": 2304,
+    "cold_filled": 0,
+    "cold_missing": 7582,
+    "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充"
+   },
+   "crosscheck_with_MergedHistory": {
+    "compared": 11620,
+    "mismatch": 0,
+    "verdict": "consistent"
+   }
+  }
+ },
+ "errors": [],
+ "hot_only_gap": {
+  "热库 15m 起点": "2026-09-12T00:00:00Z",
+  "合并读取器起点": "2026-06-27T08:00:00Z",
+  "说明": "热库 15m 只从 2026-09-12 起；合并读取器把 2026-06-27 起补齐。成交用的 paper_engine.closed_15m 仍只读热库 ⇒ 2026-06-27→2026-09-12 能重建观察、重建不出成交（除非改用本读取器）。"
+ }
+}

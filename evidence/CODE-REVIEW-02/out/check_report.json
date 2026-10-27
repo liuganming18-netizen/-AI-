@@ -1,0 +1,220 @@
+{
+  "generated_at": "2026-10-21T04:01:17.848824+00:00",
+  "root": "/Users/boos/Desktop/威科夫因子共振趋势",
+  "standard": "WX-CODE-REVIEW v1.0",
+  "counts": {
+    "P0": 1,
+    "P1": 5,
+    "P2": 18
+  },
+  "run_stats": {
+    "runs_scanned": 2135,
+    "archived_dirs_excluded": 218,
+    "with_run_json": 8,
+    "without_run_json": 2127,
+    "trades_total": 700,
+    "zero_trade_runs": 1517,
+    "duplicate_created_at_values": 1
+  },
+  "findings": [
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "line": 172,
+      "text": "shutil.rmtree(partial)",
+      "why": "删除临时文件（原子写/清理）⇒ 确认路径确为临时即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/backtest_chart.py",
+      "line": 90,
+      "text": "os.unlink(tmp)",
+      "why": "删除临时文件（原子写/清理）⇒ 确认路径确为临时即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P1",
+      "path": "框架/backend/realtime_collector.py",
+      "line": 1645,
+      "text": "FORCE_RECONNECT_FILE.unlink()",
+      "why": "删除文件/目录 ⇒ 需确认不碰账本、evidence、回测日志"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/spawn_detached.py",
+      "line": 35,
+      "text": "os.unlink(pid_path)",
+      "why": "删除临时文件（原子写/清理）⇒ 确认路径确为临时即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/public_snapshot.py",
+      "line": 78,
+      "text": "tmp.unlink()",
+      "why": "删除临时文件（原子写/清理）⇒ 确认路径确为临时即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/smart_money.py",
+      "line": 698,
+      "text": "tmp.unlink()",
+      "why": "删除临时文件（原子写/清理）⇒ 确认路径确为临时即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P1",
+      "path": "框架/backend/tools/api_snapshot.py",
+      "line": 229,
+      "text": "shutil.rmtree(t0_dir, ignore_errors=True)",
+      "why": "删除文件/目录 ⇒ 需确认不碰账本、evidence、回测日志"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P1",
+      "path": "框架/backend/tools/api_snapshot.py",
+      "line": 230,
+      "text": "shutil.rmtree(t1_dir, ignore_errors=True)",
+      "why": "删除文件/目录 ⇒ 需确认不碰账本、evidence、回测日志"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_frame_fit_02.py",
+      "line": 84,
+      "text": "shutil.rmtree(self.tmp, ignore_errors=True)",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_rest_import_contract.py",
+      "line": 89,
+      "text": "self.db.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_metrics_contract.py",
+      "line": 206,
+      "text": "shutil.rmtree(self.tmp, ignore_errors=True)",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_okx_volume_mapping.py",
+      "line": 101,
+      "text": "self.db.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_okx_volume_fix_isolation.py",
+      "line": 96,
+      "text": "self.db.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_okx_volume_fix_rectification.py",
+      "line": 115,
+      "text": "self.db.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_okx_volume_fix_rectification.py",
+      "line": 286,
+      "text": "other.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_okx_volume_fix_rectification.py",
+      "line": 429,
+      "text": "Path(e2[\"body_path\"]).unlink()                       # 计划后正文丢失",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_research_ledger.py",
+      "line": 58,
+      "text": "p.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_research_ledger.py",
+      "line": 122,
+      "text": "p.unlink()",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_collect_schedule.py",
+      "line": 75,
+      "text": "shutil.rmtree(self.tmp, ignore_errors=True)",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_collect_schedule.py",
+      "line": 159,
+      "text": "shutil.rmtree(self.tmp, ignore_errors=True)",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "DEL-01",
+      "severity": "P2",
+      "path": "框架/backend/tests/test_frame_fit_01.py",
+      "line": 67,
+      "text": "shutil.rmtree(self.tmp, ignore_errors=True)",
+      "why": "测试代码清理自身临时目录 ⇒ 确认不碰生产数据即可"
+    },
+    {
+      "rule": "REG-01",
+      "severity": "P0",
+      "path": "2127 个目录",
+      "line": 0,
+      "text": "示例：['回测日志/event_trend_v0_1/runs_sep_all_latest/run_WX_EVENT_TREND_V0_1_IDUSDT_1792262193', '回测日志/event_trend_v0_1/runs_sep_all_latest/run_WX_EVENT_TREND_V0_1_SONICUSDT_1792262347', '回测日志/event_trend_v0_1/runs_sep_all_lat",
+      "why": "有回测产物但缺 run.json ⇒ 该运行不算已记录；读接口会用默认值合成文档"
+    },
+    {
+      "rule": "REG-04",
+      "severity": "P1",
+      "path": "6 个 run",
+      "line": 0,
+      "text": "示例：['回测日志/event_trend_v0_1/runs/bt_20261017T195450Z_cccccccc', '回测日志/event_trend_v0_1/runs/bt_20261017T195450Z_dddddddd', '回测日志/event_trend_v0_1/runs/bt_20261017T195450Z_eeeeeeee']",
+      "why": "缺 manifest.json ⇒ 产物无法逐个校验 sha256"
+    },
+    {
+      "rule": "REG-05",
+      "severity": "P1",
+      "path": "1 个时间值",
+      "line": 0,
+      "text": "2026-10-17T19:54:50Z → 5 个 run",
+      "why": "多个 run 的 created_at 完全相同 ⇒ 疑似读时兜底，不是真实运行时间"
+    }
+  ],
+  "manual_required": [
+    "R6 口径是否同源（分子分母是否同一批样本）",
+    "R8 结论是否超出 n 与置信区间能支撑的范围",
+    "R11 成本是否含手续费/滑点/资金费/价格取整四项",
+    "R12 是否把『程序自检通过』当成『结果正确』",
+    "R5 同一概念是否有多套实现（门禁只报同名函数，语义重复需人工）"
+  ]
+}

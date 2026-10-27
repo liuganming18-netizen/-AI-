@@ -1,0 +1,68 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-01",
+  "generated_at_utc": "2026-10-24T13:19:41Z",
+  "read_only": true,
+  "downloaded_anything": false,
+  "pool_source": "scope_crypto_v1",
+  "pool_n": 526,
+  "ref_t_utc": "2026-10-24T12:59:59Z",
+  "ref_t_source": "全池最后一根已闭合 1h bar 的 close（数据相对，非挂钟）",
+  "requested_window_days": 180,
+  "requested_start_utc": "2026-04-27T12:59:59Z",
+  "requested_end_utc": "2026-10-24T12:59:59Z",
+  "pool": {
+    "1h": {
+      "symbols": 526,
+      "symbols_with_data": 526,
+      "symbols_covering_180d": 0,
+      "pool_first_utc": "2026-09-07T02:00:00Z",
+      "pool_last_utc": "2026-10-24T12:00:00Z",
+      "pool_span_days": 47.46,
+      "total_bars": 556449,
+      "shortfall_days_vs_180": 132.54
+    },
+    "4h": {
+      "symbols": 526,
+      "symbols_with_data": 526,
+      "symbols_covering_180d": 0,
+      "pool_first_utc": "2026-09-09T20:00:00Z",
+      "pool_last_utc": "2026-10-24T08:00:00Z",
+      "pool_span_days": 44.54,
+      "total_bars": 140840,
+      "shortfall_days_vs_180": 135.46
+    },
+    "15m": {
+      "symbols": 526,
+      "symbols_with_data": 526,
+      "symbols_covering_180d": 0,
+      "pool_first_utc": "2026-09-12T00:00:00Z",
+      "pool_last_utc": "2026-10-24T13:00:00Z",
+      "pool_span_days": 42.58,
+      "total_bars": 2146855,
+      "shortfall_days_vs_180": 137.42
+    }
+  },
+  "verdict": {
+    "1h": {
+      "covers_180d": false,
+      "symbols_covering_180d": 0,
+      "actual_span_days": 47.46,
+      "shortfall_days": 132.54
+    },
+    "4h": {
+      "covers_180d": false,
+      "symbols_covering_180d": 0,
+      "actual_span_days": 44.54,
+      "shortfall_days": 135.46
+    },
+    "15m": {
+      "covers_180d": false,
+      "symbols_covering_180d": 0,
+      "actual_span_days": 42.58,
+      "shortfall_days": 137.42
+    }
+  },
+  "note": "`covers_180d` 判据 = 该币该周期最早一根不晚于请求起点。上市晚的币天然不满足，单列 pre_listing_shortfall_days，与 inner_gaps（中间有洞）分开统计。",
+  "data_sufficient_for_180d": false,
+  "data_sufficiency_statement": "**不满足 180 天**：本地数据仅覆盖约 47.46 天（1h）/ 44.54 天（4h），距 180 天缺 132.54 天。本单不下载，如实标注。"
+}

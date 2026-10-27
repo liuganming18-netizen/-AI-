@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>系统全链路流程与全 API 连通大画布</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .flow-line {
+      stroke-dasharray: 6;
+      animation: dash 20s linear infinite;
+    }
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -100;
+      }
+    }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-4 select-none">
+  <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-xl max-w-7xl mx-auto backdrop-blur-md">
+    
+    <!-- 顶栏标题与连通度看板 -->
+    <div class="flex flex-wrap items-center justify-between pb-5 border-b border-[var(--border)] gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]"></span>
+          <h1 class="text-xl font-bold tracking-tight text-[var(--foreground)]">趋势研判系统 · 全链路流程与 API 交互大画布</h1>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground)] mt-1">
+          直观呈现 4 大业务视窗、各个功能看板、对应接入的后端 API 及当前连通状态（已打通 vs 安全阻断）
+        </p>
+      </div>
+
+      <!-- 状态指示统计 -->
+      <div class="flex items-center gap-3 text-xs">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>已完全打通 (75%)</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span>只读受限 (15%)</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          <span>安全阻断/未通 (10%)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 画布流程主体 (按从左到右数据流转顺序) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+
+      <!-- 第 1 列：数据中心 (Data Center) -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+          <span>1. 数据中心 (冷热数据流)</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-blue-500/20">DataCenterView</span>
+        </div>
+
+        <!-- 节点 1.1 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('data_status')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">冷热状态红绿灯</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/data/status</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：8周期冷热分层与存储</div>
+        </div>
+
+        <!-- 节点 1.2 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('data_feeds')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">全周期覆盖度矩阵</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/data/feeds</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：814 标的覆盖度</div>
+        </div>
+
+        <!-- 节点 1.3 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('data_whitelist')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">下架核销与白名单</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/data/whitelist</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：48段停摆历史核对</div>
+        </div>
+      </div>
+
+      <!-- 第 2 列：交易工作台 (行情与图表画布) -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold">
+          <span>2. 交易工作台 (行情与图表)</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-purple-500/20">Workbench</span>
+        </div>
+
+        <!-- 节点 2.1 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('wb_table')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">代币主表 (TokenTable)</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/markets</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：5s 轮询全池盘口与涨跌</div>
+        </div>
+
+        <!-- 节点 2.2 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('wb_candles')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">K线与量能图表画布</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/markets/.../candles</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：Lightweight Charts 画布</div>
+        </div>
+
+        <!-- 节点 2.3 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('wb_oi_funding')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">OI 持仓与费率图表</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/markets/.../oi</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：冷层 Parquet 查出历史</div>
+        </div>
+
+        <!-- 节点 2.4 (非原生周期受限) -->
+        <div class="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/5 hover:border-amber-500 transition-all cursor-pointer group" onclick="showDetail('wb_okx_8h')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-amber-400">OKX 8h 周期图表</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">is_native: false</div>
+          <div class="text-[11px] text-amber-400 mt-1.5">▲ 部分受限：官方无8h原生，不假拼</div>
+        </div>
+      </div>
+
+      <!-- 第 3 列：信号与交易执行 (安全阻断重点区) -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+          <span>3. 信号与执行 (风控闸门)</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-500/20">Signals / Paper</span>
+        </div>
+
+        <!-- 节点 3.1 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('sig_panel')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">威科夫共振信号流</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/signals?scope=current</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：实时真实臂入场信号</div>
+        </div>
+
+        <!-- 节点 3.2 (核心死区域/阻断) -->
+        <div class="p-3.5 rounded-xl border border-rose-500/50 bg-rose-500/10 hover:border-rose-500 transition-all cursor-pointer group shadow-[0_0_15px_rgba(244,63,94,0.15)]" onclick="showDetail('paper_orders_blocked')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-rose-400 font-bold">模拟实盘开平仓 (死区域)</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">POST /api/v1/paper/orders</div>
+          <div class="text-[11px] text-rose-400 font-bold mt-1.5">✖ 阻断锁死：NOT_CONNECTED (Fail-Closed)</div>
+        </div>
+
+        <!-- 节点 3.3 (止损追踪) -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('paper_stops')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">动态止损轨迹与账户</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/paper/stops/...</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：只读止损阶梯追踪</div>
+        </div>
+
+        <!-- 节点 3.4 (实盘未配) -->
+        <div class="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/5 hover:border-amber-500 transition-all cursor-pointer group" onclick="showDetail('live_account')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-amber-400">实盘真实账户</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/accounts</div>
+          <div class="text-[11px] text-amber-400 mt-1.5">▲ 未配凭证：如实 unavailable 空态</div>
+        </div>
+      </div>
+
+      <!-- 第 4 列：策略管理与回测复盘 -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold">
+          <span>4. 策略管理与回测复盘</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-orange-500/20">Strategy / Backtest</span>
+        </div>
+
+        <!-- 节点 4.1 (策略只读受限) -->
+        <div class="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/5 hover:border-amber-500 transition-all cursor-pointer group" onclick="showDetail('strategy_view')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-amber-400">策略管理规则 (只读)</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/strategies</div>
+          <div class="text-[11px] text-amber-400 mt-1.5">▲ 仅只读：无在线修改/保存接口</div>
+        </div>
+
+        <!-- 节点 4.2 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('backtest_engine')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">回测任务提交与列表</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">POST /api/v1/backtests</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：独立 worker 队列执行</div>
+        </div>
+
+        <!-- 节点 4.3 -->
+        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:border-emerald-500/50 transition-all cursor-pointer group" onclick="showDetail('backtest_equity')">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs text-[var(--foreground)]">收益/回撤双曲线画布</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">GET /api/v1/backtests/.../equity</div>
+          <div class="text-[11px] text-emerald-400 mt-1.5">● 正常连通：逐笔净值图表绘制</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 底部：详细剖析视窗 (点击上方节点联动展示) -->
+    <div id="detail-panel" class="mt-6 p-4 rounded-xl border border-[var(--border)] bg-[var(--background)]">
+      <div class="flex items-center justify-between">
+        <h3 id="detail-title" class="text-sm font-bold text-[var(--foreground)]">👈 点击上方任意流程节点查看详情与接口对账</h3>
+        <span id="detail-badge" class="text-[11px] px-2 py-0.5 rounded font-mono bg-neutral-800 text-neutral-300">API 状态核对</span>
+      </div>
+      <div id="detail-content" class="text-xs text-[var(--muted-foreground)] mt-2 leading-relaxed">
+        本大画布收录了前端全量业务视窗接向后端的全部真实 API 端点。点击卡片可查看其调用的文件位置、数据含义、为什么能通、或者为什么是“死区域（阻断）”。
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const details = {
+      data_status: {
+        title: "冷热数据状态红绿灯 (DataCenterView)",
+        badge: "GET /api/v1/data/status [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "接入 DataCenterView.tsx 的顶部红绿灯状态面板。直接连接后端的市场数据层，统计 K 线 8 周期、持仓量 (OI)、资金费率冷层 Parquet 目录存储容量（如 4GB 冷档、1646 分片）与入库延迟，全部由后端 SQLite + Parquet 状态真实返回。"
+      },
+      data_feeds: {
+        title: "全周期覆盖度矩阵 (DataCenterView)",
+        badge: "GET /api/v1/data/feeds [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "接入全市场 814 个标的在 5m/15m/1h/4h/1d 上的完整覆盖统计。后端通过只读数据库连接，秒级读取已对账行数并展示百分比，无任何虚假补齐。"
+      },
+      data_whitelist: {
+        title: "下架核销与停摆白名单 (DataCenterView)",
+        badge: "GET /api/v1/data/whitelist [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "接入历史官方维护或停牌的 48 段历史白名单。前端根据该接口比对实际缺段，已核销的缺口不报红灯，0 虚假待补缺口。"
+      },
+      wb_table: {
+        title: "全市场报价表 (TokenTable)",
+        badge: "GET /api/v1/markets [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "交易工作台中栏核心。每 5 秒自动增量轮询全市场代币的价格、24h 涨跌幅、成交额、流通市值与聪明钱多空比。由后端缓存层直接响应，耗时通常 <20ms。"
+      },
+      wb_candles: {
+        title: "K 线与成交量图表画布 (LightweightChart)",
+        badge: "GET /api/v1/markets/{ex}/{symbol}/candles [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "工作台行内展开的核心画布组件。由 TradingView Lightweight Charts 驱动（HTML5 Canvas），支持滚轮缩放、十字光标与时间范围拉取，热层 SQLite + 冷层 Parquet 无缝拼接全历史。"
+      },
+      wb_oi_funding: {
+        title: "持仓量 OI 与资金费率副图画布",
+        badge: "GET /api/v1/markets/.../oi & funding [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "与主 K 线画布时间对齐的副图。OI 支持 5m 粒度高精度柱状图，资金费率支持历史结算事件散点与阶段连线，支持查看极端偏度与爆仓预警。"
+      },
+      wb_okx_8h: {
+        title: "OKX 8h 周期切换 [🟡 部分受限 / 非原生周期]",
+        badge: "is_native: false [空态返回]",
+        badgeClass: "bg-amber-500/20 text-amber-400",
+        content: "当用户在行情图表选中欧易（OKX）合约并切换到 8h 周期时，图表呈现空态。原因是 OKX 官方 REST/WebSocket API 原生就不提供 8h K 线；系统严格执行「不跨交易所拼接、不人工插值伪造数据」的铁律，后端明确返回 is_native=false，前端如实呈现空态。"
+      },
+      sig_panel: {
+        title: "威科夫因子共振实时信号流 (SignalListPanel)",
+        badge: "GET /api/v1/signals?scope=current [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "工作台左栏核心。展示威科夫阶段共振计算产生的入场机会。过滤规则严格：历史研究、启动前仅展示信号均被分离，界面只呈现当前真实臂（3a–3d）可执行的入场信号，并携带精准 ATR 止损基数。"
+      },
+      paper_orders_blocked: {
+        title: "模拟实盘开平仓与快捷发单 [🔴 安全阻断态 · 核心死区域]",
+        badge: "POST /api/v1/paper/orders [✖ NOT_CONNECTED]",
+        badgeClass: "bg-rose-500/20 text-rose-400",
+        content: "【核心死区域说明】：工作台右栏的快捷开仓（买多/卖空）以及持仓平仓按钮目前均处于禁用锁死状态。原因：系统在 WORK-04 重构中彻底删除了旧版在浏览器内存里伪造 0.1 张/固定 2% 止损的虚假造仓通道；为了防范未经验收的策略误触发真实资产损失，在新的统一交易执行引擎完全放行前，系统执行了 Fail-Closed（故障关断安全策略），后端返回 not_connected，禁止一切新开仓与发单。"
+      },
+      paper_stops: {
+        title: "动态跟踪止损与账本轨迹 (PositionPanel)",
+        badge: "GET /api/v1/paper/stops/{pos_id} [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "只读监控链路。展示已建仓位在 3×ATR 固定止损、保本线上推与阶梯移动止损的完整历史时间轨迹，数据真实来自后端 paper_3a~3d SQLite 账本库。"
+      },
+      live_account: {
+        title: "实盘只读仓位 (Live Accounts)",
+        badge: "GET /api/v1/accounts [🟡 未配凭证 unavailable]",
+        badgeClass: "bg-amber-500/20 text-amber-400",
+        content: "实盘账户展示区。如果用户未在本机配置真实交易所的只读 API Key 与 Secret，后端如实返回 missing_reason='未配置实盘凭据'，前端呈现 unavailable 空态，绝不伪造零余额或假持仓。"
+      },
+      strategy_view: {
+        title: "策略规则与阶段判别视图 (StrategyManagementView)",
+        badge: "GET /api/v1/strategies [🟡 纯只读展示 · 无写通道]",
+        badgeClass: "bg-amber-500/20 text-amber-400",
+        content: "【只读受限说明】：策略管理视窗展示了 Phase A~E 的 6 阶段威科夫共振条件与生效阈值快照。但用户无法在网页上直接修改并保存生效；后端出于生产安全考虑，只提供了 GET 只读视图，未开放在线 POST 动态热重载接口，参数调整需在服务端配置文件中修改。"
+      },
+      backtest_engine: {
+        title: "回测任务创建与批次队列 (BacktestWorkbench)",
+        badge: "POST /api/v1/backtests [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "回测复盘视窗已完全接通独立的 backtest_worker 进程。前端提交回测参数（标的池、时间区间、初始资金），由后台 SQLite 任务队列原子领单执行纯 CPU 计算，完全不阻塞 Web API 服务。"
+      },
+      backtest_equity: {
+        title: "回测净值与回撤双曲线画布 (BacktestWorkbench)",
+        badge: "GET /api/v1/backtests/.../equity [🟢 完全打通]",
+        badgeClass: "bg-emerald-500/20 text-emerald-400",
+        content: "由 Lightweight Charts 渲染的高性能净值图表画布。完整展示回测任务每笔成交后的净值累计曲线与最大回撤（Drawdown）曲线，支持逐笔平仓对账。"
+      }
+    };
+
+    function showDetail(key) {
+      const item = details[key];
+      if (!item) return;
+      document.getElementById('detail-title').innerText = item.title;
+      const badge = document.getElementById('detail-badge');
+      badge.innerText = item.badge;
+      badge.className = "text-[11px] px-2.5 py-1 rounded font-mono font-semibold " + item.badgeClass;
+      document.getElementById('detail-content').innerText = item.content;
+    }
+  </script>
+</body>
+</html>

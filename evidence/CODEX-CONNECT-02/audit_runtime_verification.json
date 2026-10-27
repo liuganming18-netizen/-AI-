@@ -1,0 +1,162 @@
+{
+  "item_1_full_closeloop": {
+    "status": "passed",
+    "position_id": 1,
+    "entry_price": 50275.200000000004,
+    "initial_stop_price": 47761.4,
+    "stops_updated_count": 2,
+    "trailing_stops": [
+      {
+        "id": 2,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "old_stop": 47761.4,
+        "new_stop": 48260.0,
+        "reason": "ft_low4h_trail",
+        "ref_bar_open_ms": 1792617400000,
+        "available_at": 1792631800000,
+        "decision_at": 1792631800000,
+        "effective_at": 1792631800000,
+        "created_at": 1792753480173
+      },
+      {
+        "id": 3,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "old_stop": 48260.0,
+        "new_stop": 50540.0,
+        "reason": "ft_low4h_trail",
+        "ref_bar_open_ms": 1792631800000,
+        "available_at": 1792646200000,
+        "decision_at": 1792646200000,
+        "effective_at": 1792646200000,
+        "created_at": 1792753480292
+      }
+    ],
+    "exit_price": 50514.73,
+    "exit_reason": "trailing_stop_loss"
+  },
+  "item_2_crash_recovery": {
+    "status": "passed",
+    "pre_crash_stop": 48260.0,
+    "post_restart_stop": 50540.0,
+    "final_status": "closed"
+  },
+  "item_3_ledger_reconciliation": {
+    "status": "passed",
+    "orders_count": 2,
+    "fills_count": 2,
+    "qty": 0.009000000000000001,
+    "fees_paid": 0.45355468500000007,
+    "net_pnl": 1.7022153149999897,
+    "config_fingerprint": "b4aa389efe35",
+    "is_exact_match": true
+  },
+  "item_4_two_configs_isolation": {
+    "status": "passed",
+    "config_a": {
+      "fingerprint": "b4aa389efe35",
+      "s": 0.05,
+      "d": 0.05,
+      "qty": 0.009000000000000001
+    },
+    "config_b": {
+      "fingerprint": "da36b3f6de18",
+      "s": 0.08,
+      "d": 0.12,
+      "qty": 0.006
+    }
+  },
+  "item_5_counter_examples": {
+    "status": "passed",
+    "counter_tests": [
+      {
+        "反例场景": "重复信号输入",
+        "预期行为": "拒绝下单",
+        "实际结论": "duplicate_signal_uid",
+        "是否合规": "合规"
+      },
+      {
+        "反例场景": "坏配置/缺少必需参数",
+        "预期行为": "启动前阻断抛错",
+        "实际结论": "RuntimeError抛出拦截",
+        "是否合规": "合规"
+      },
+      {
+        "反例场景": "未来行情防线",
+        "预期行为": "因果判定非法",
+        "实际结论": "future_candle_not_closed",
+        "是否合规": "合规"
+      },
+      {
+        "反例场景": "缺少成交bar/数据失效",
+        "预期行为": "登记挂单不回填旧价",
+        "实际结论": "pending_future_fill",
+        "是否合规": "合规"
+      },
+      {
+        "反例场景": "多进程并发争用同一Arm",
+        "预期行为": "文件锁拒绝多开",
+        "实际结论": "Lock Occupied",
+        "是否合规": "合规"
+      }
+    ]
+  },
+  "item_6_status_reporting": {
+    "status": "passed",
+    "status_snapshot": {
+      "runtime_identity": {
+        "arm": "3a",
+        "symbol": "BTCUSDT",
+        "pid": 53417,
+        "status": "running",
+        "started_at": 1792753481107,
+        "cycle_count": 0,
+        "overall_health": "healthy"
+      },
+      "market_data": {
+        "status": "waiting_for_data",
+        "symbol": "BTCUSDT",
+        "latest_15m_close_time": null,
+        "latest_1h_close_time": null,
+        "latest_4h_close_time": null
+      },
+      "signal_engine": {
+        "status": "active",
+        "universe": 0,
+        "universe_declared": 1,
+        "bootstrap": {},
+        "state_counter": {},
+        "active_box": false,
+        "active_state": "IDLE",
+        "signals_generated_total": 0,
+        "last_cycle_ms": null
+      },
+      "order_processing": {
+        "status": "ready",
+        "orders_routed_total": 0,
+        "orders_rejected_total": 0,
+        "orders_waiting_gate": 0,
+        "new_entry_gate": {
+          "allow_new_entries": true,
+          "gate_reason": "new_entry_blocked_pending_closure_review",
+          "reason": "system_runtime_01_test",
+          "gate_file": "/private/tmp/codex_connect_02_runtime/gate.json",
+          "gate_scope": "server_side_new_entry_only",
+          "exits_fees_funding_health_unaffected": true,
+          "set_by": "SYSTEM-RUNTIME-01",
+          "since_ms": 1790000000000
+        },
+        "current_pending_in_db": 1
+      },
+      "execution_daemon": {
+        "status": "running",
+        "open_positions": 0,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null
+      }
+    }
+  }
+}

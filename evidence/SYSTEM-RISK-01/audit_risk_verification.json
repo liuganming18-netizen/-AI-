@@ -1,0 +1,182 @@
+{
+  "item_1_four_stops_and_comparison": {
+    "status": "passed",
+    "description": "四档初始止损(5%, 10%, 15%, 20%)验证通过，数量成比例递减，计划风险全部合规锁定在25U以内",
+    "data": [
+      {
+        "stoploss_s": 0.05,
+        "stoploss_pct": "5%",
+        "entry_price": 50025.0,
+        "stop_price": 47523.700000000004,
+        "stop_dist": 2501.2999999999956,
+        "qty": 0.009000000000000001,
+        "notional": 450.2250000000001,
+        "planned_risk": 22.511699999999962,
+        "planned_risk_fraction": 0.004502339999999993,
+        "budget_cap": 25.0,
+        "compliant": true,
+        "old_flaw": {
+          "old_stop_dist_used_for_size": 1500.0,
+          "old_qty": 0.016,
+          "old_actual_planned_risk": 40.02079999999993,
+          "old_risk_overshoot_ratio": 1.6008319999999971
+        }
+      },
+      {
+        "stoploss_s": 0.1,
+        "stoploss_pct": "10%",
+        "entry_price": 50025.0,
+        "stop_price": 45022.5,
+        "stop_dist": 5002.5,
+        "qty": 0.004,
+        "notional": 200.1,
+        "planned_risk": 20.01,
+        "planned_risk_fraction": 0.004002,
+        "budget_cap": 25.0,
+        "compliant": true,
+        "old_flaw": {
+          "old_stop_dist_used_for_size": 1500.0,
+          "old_qty": 0.016,
+          "old_actual_planned_risk": 80.04,
+          "old_risk_overshoot_ratio": 3.2016000000000004
+        }
+      },
+      {
+        "stoploss_s": 0.15,
+        "stoploss_pct": "15%",
+        "entry_price": 50025.0,
+        "stop_price": 42521.200000000004,
+        "stop_dist": 7503.799999999996,
+        "qty": 0.003,
+        "notional": 150.07500000000002,
+        "planned_risk": 22.511399999999988,
+        "planned_risk_fraction": 0.004502279999999997,
+        "budget_cap": 25.0,
+        "compliant": true,
+        "old_flaw": {
+          "old_stop_dist_used_for_size": 1500.0,
+          "old_qty": 0.016,
+          "old_actual_planned_risk": 120.06079999999993,
+          "old_risk_overshoot_ratio": 4.802431999999997
+        }
+      },
+      {
+        "stoploss_s": 0.2,
+        "stoploss_pct": "20%",
+        "entry_price": 50025.0,
+        "stop_price": 40020.0,
+        "stop_dist": 10005.0,
+        "qty": 0.002,
+        "notional": 100.05,
+        "planned_risk": 20.01,
+        "planned_risk_fraction": 0.004002,
+        "budget_cap": 25.0,
+        "compliant": true,
+        "old_flaw": {
+          "old_stop_dist_used_for_size": 1500.0,
+          "old_qty": 0.016,
+          "old_actual_planned_risk": 160.08,
+          "old_risk_overshoot_ratio": 6.403200000000001
+        }
+      }
+    ]
+  },
+  "item_2_conservative_rounding": {
+    "status": "passed",
+    "entry_price_raw": 50025.030015,
+    "entry_price": 50025.100000000006,
+    "stop_price": 47523.8,
+    "stop_dist": 2501.300000000003,
+    "qty_raw": 0.00999480270259464,
+    "qty": 0.009000000000000001,
+    "planned_risk": 22.51170000000003
+  },
+  "item_3_liquidity_participation_cap": {
+    "status": "passed",
+    "prev_quote_volume": 10000.0,
+    "participation_cap": 0.01,
+    "max_notional_allowed": 100.0,
+    "qty": 0.001,
+    "notional": 50.025
+  },
+  "item_4_min_orderable_rejection": {
+    "status": "passed",
+    "equity": 400.0,
+    "risk_budget": 2.0,
+    "min_orderable_qty": 0.001,
+    "order_result": {
+      "ok": false,
+      "reason": "rounding_quantity_below_step",
+      "symbol": "BTCUSDT",
+      "signal_uid": "sig_low_eq_test"
+    },
+    "positions_in_db": 0
+  },
+  "item_5_portfolio_risk_cap": {
+    "status": "passed",
+    "equity": 5000.0,
+    "portfolio_risk_cap": 0.05,
+    "portfolio_risk_open": 240.0,
+    "new_planned_risk": 22.51,
+    "reject": "portfolio_risk_cap"
+  },
+  "item_6_trailing_stop_no_expansion": {
+    "status": "passed",
+    "initial_stop": 47523.700000000004,
+    "trailed_stop": 49500.0,
+    "qty": 0.009000000000000001,
+    "open_risk_before_trail": 22.511699999999962,
+    "open_risk_after_trail": 22.511699999999962,
+    "risk_released": 0.0
+  },
+  "item_7_independent_atr_identity": {
+    "status": "passed",
+    "ft_low4h_rejection": "ft_low4h_missing_or_invalid_stoploss_s",
+    "atr_strategy_result": {
+      "strategy_id": "WX_EVENT_TREND_V0_1",
+      "stop_dist": 3000.0,
+      "qty": 0.008
+    }
+  },
+  "item_8_two_configs_synchronous": {
+    "status": "passed",
+    "config_a": {
+      "fingerprint": "6607cf9fc5cb",
+      "stoploss_s": 0.05,
+      "entry_price": 50025.0,
+      "stop_price": 47523.700000000004,
+      "stop_dist": 2501.2999999999956,
+      "qty": 0.009000000000000001,
+      "planned_risk": 22.511699999999962
+    },
+    "config_b": {
+      "fingerprint": "961a8854c427",
+      "stoploss_s": 0.08,
+      "entry_price": 50025.0,
+      "stop_price": 46023.0,
+      "stop_dist": 4002.0,
+      "qty": 0.006,
+      "planned_risk": 24.012
+    }
+  },
+  "item_9_risk_vs_actual_loss_attribution": {
+    "symbol": "BTCUSDT",
+    "qty": 0.009,
+    "entry_price": 50025.1,
+    "initial_stop_price": 47523.8,
+    "planned_risk": 22.5117,
+    "raw_exit_price": 47000.0,
+    "fill_exit_price": 46976.5,
+    "gap_breach_loss": 4.7142,
+    "exit_slippage_cost": 0.2115,
+    "entry_slippage_cost": 0.2259,
+    "entry_fee": 0.2251,
+    "exit_fee": 0.2114,
+    "funding_paid": 0.35,
+    "gross_pnl": -27.4374,
+    "realized_net_pnl": -28.2239,
+    "attributed_sum": 28.2239,
+    "discrepancy": 0.0,
+    "is_exact_match": true
+  }
+}

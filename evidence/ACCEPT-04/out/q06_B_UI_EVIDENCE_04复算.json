@@ -1,0 +1,155 @@
+{
+  "generated_at": "2026-10-23T16:36:16+0800",
+  "evidence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/UI-EVIDENCE-04",
+  "items": {
+    "negative_tests": {
+      "exists": true,
+      "keys": [
+        "工单",
+        "检查时刻",
+        "校验库",
+        "场景数",
+        "识别成功数",
+        "全部识别",
+        "场景"
+      ],
+      "excerpt": "{\"工单\": \"UI-EVIDENCE-04 / 离线反例\", \"检查时刻\": \"2026-10-23 16:18:55\", \"校验库\": \"queries/lib_verifier.py\", \"场景数\": 9, \"识别成功数\": 9, \"全部识别\": true, \"场景\": [{\"场景\": \"N0 基线（全部正确）\", \"期望失败项\": [], \"实际失败项\": [], \"识别成功\": true, \"总判定\": \"PASS\", \"汇总\": {\"PASS\": 6, \"FAIL\": 0, \"UNVERIFIED\": 0}, \"失败原因摘录\": {}}, {\"场景\": \"N1 错误 run（页面 run_id 与磁盘不符）\", \"期望失败项\": [\"C6\"], \"实际失败项\": [\"C6_run_id对齐\"], \"识别成功\": true, \"总判定\": \"FAIL\", \"汇总\": {\"PASS\": 5, \"FAIL\": 1, \"UNVERIFIED\": 0}, \"失败原因摘录\": {\"C6_run_id对齐\": \"三方 run_id 未全部一致或源目录缺失\"}}, {\"场景\": \"N2 缺源文件（summary.json 被删）\", \"期望失败项\": [\"C1\"], \"实际失败项\": [\"C1_字段路径\"], \"识别成功\": true, \"总判定\": \"FAIL\", \"汇总\": {\"P"
+    },
+    "fixed_sample_check": {
+      "exists": true,
+      "keys": [
+        "工单",
+        "检查时刻",
+        "样例目录",
+        "截图统计",
+        "清单自身是否被排除",
+        "清单行数",
+        "版本绑定键",
+        "版本绑定缺失项",
+        "校验结果",
+        "解读"
+      ],
+      "excerpt": "{\"工单\": \"UI-EVIDENCE-04 / 修复后样例自检\", \"检查时刻\": \"2026-10-23 16:18:56\", \"样例目录\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/UI-EVIDENCE-04/out/fixed_sample/deliv\", \"截图统计\": {\"总数\": 25, \"view\": 16, \"state\": 9, \"唯一哈希\": 21, \"重复组\": 3, \"重复明细\": {\"d7ccc274a0f9\": [\"state_position_normal.png\", \"view_05_position_panel_and_daemon.png\"], \"8d0951525d49\": [\"state_signal_normal.png\", \"view_02_signal_list_panel.png\"], \"0936f38dfb06\": [\"state_stop_trail_normal.png\", \"view_06_stop_trail.png\", \"view_07_gate_and_pending.png\"]}}, \"清单自身是否被排除\": true, \"清单行数\": 28, \"版本绑定键\": [\"frontend_src\", \"frontend_dist\", \"backend\", \"test_script"
+    },
+    "patch_verification": {
+      "exists": true,
+      "keys": [
+        "工单",
+        "检查时刻",
+        "原脚本",
+        "修复版",
+        "语法检查",
+        "逐项",
+        "汇总",
+        "总判定",
+        "边界"
+      ],
+      "excerpt": "{\"工单\": \"UI-EVIDENCE-04 / 修复有效性\", \"检查时刻\": \"2026-10-23 16:18:53\", \"原脚本\": {\"路径\": \"evidence/SYSTEM-UI-03/test_system_ui_03.py\", \"sha256\": \"cd18ac6115e0e22714f7a2083a89a534b2f82092855a69155e23bdb8d61a1a73\", \"字节\": 85275, \"字符数\": 70827}, \"修复版\": {\"路径\": \"evidence/UI-EVIDENCE-04/patched/test_system_ui_04.py\", \"sha256\": \"2af6d33315b2bbc0afe6a464d0b921bcdb3d528fc3c795bfa3e7ede02df8c539\", \"字节\": 97377, \"字符数\": 80786}, \"语法检查\": {\"通过\": true, \"错误\": null}, \"逐项\": [{\"编号\": \"P1\", \"修复项\": \"manifest 缺失静默取 {} 并谎称哈希来源\", \"原脚本含缺陷特征\": [\"manifest_data = json.load(open(manifest_path)) if manifest_path.exists() else {}\"], \"修复版仍含"
+    },
+    "recon_ui03": {
+      "exists": true,
+      "keys": [
+        "工单",
+        "检查时刻",
+        "审核对象",
+        "审核对象_清单自身哈希",
+        "审核对象_文件数",
+        "检查项",
+        "汇总"
+      ],
+      "excerpt": "{\"工单\": \"UI-EVIDENCE-04\", \"检查时刻\": \"2026-10-23 16:18:53\", \"审核对象\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-UI-03\", \"审核对象_清单自身哈希\": \"a3b7fb4e00bfd2c22a0e37458f47f8e0f7c65da353a8613da0f1161d92f06da6\", \"审核对象_文件数\": 36, \"检查项\": {\"C1_CSV04字段路径\": {\"检查项\": \"CSV04 字段路径真实性\", \"源产物目录\": \"/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT\", \"源产物目录存在\": true, \"源文件清单\": {\"summary.json\": {\"存在\": true, \"大小\": 376, \"SHA256\": \"5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc\"}, \"run.json\": {\"存在\": true, \"大小\": 3450, \"SHA256\": \"145cde775bf6258bfed96939d2fffd"
+    },
+    "b09_backend_binding": [
+      {
+        "file": "adapter.py",
+        "claimed": "cf92bd7850df574ba2c518d48ab7d0cf49669263e51129e1660bb32c5c16a73f",
+        "actual": "cf92bd7850df574ba2c518d48ab7d0cf49669263e51129e1660bb32c5c16a73f",
+        "match": true,
+        "claimed_mtime": "2026-10-22T23:11:00.757884",
+        "actual_mtime": "2026-10-22T23:11:00"
+      },
+      {
+        "file": "live_api.py",
+        "claimed": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+        "actual": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+        "match": true,
+        "claimed_mtime": "2026-10-23T14:26:28.340279",
+        "actual_mtime": "2026-10-23T14:26:28"
+      },
+      {
+        "file": "live_store.py",
+        "claimed": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+        "actual": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+        "match": true,
+        "claimed_mtime": "2026-10-23T14:26:08.407143",
+        "actual_mtime": "2026-10-23T14:26:08"
+      },
+      {
+        "file": "unified_runtime.py",
+        "claimed": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+        "actual": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+        "match": true,
+        "claimed_mtime": "2026-10-23T14:27:03.398156",
+        "actual_mtime": "2026-10-23T14:27:03"
+      },
+      {
+        "file": "service_manager.py",
+        "claimed": "7ba1edf95b65b728c79c6890fd438e541a5e6c0f46c21c85a8ad84e5b0b0fa2a",
+        "actual": "7ba1edf95b65b728c79c6890fd438e541a5e6c0f46c21c85a8ad84e5b0b0fa2a",
+        "match": true,
+        "claimed_mtime": "2026-10-23T16:10:29.837007",
+        "actual_mtime": "2026-10-23T16:10:29"
+      },
+      {
+        "file": "paper_engine.py",
+        "claimed": "3cc2c06583add471e97cc8ae2f630d1724d1bd4704aa7d627be924ab9d5c68fa",
+        "actual": "3cc2c06583add471e97cc8ae2f630d1724d1bd4704aa7d627be924ab9d5c68fa",
+        "match": true,
+        "claimed_mtime": "2026-10-23T12:08:04.024927",
+        "actual_mtime": "2026-10-23T12:08:04"
+      },
+      {
+        "file": "strategy_contracts.py",
+        "claimed": "d0143f19d03b87b5c60442e8af46ce789a81ca40114d043241def1262ba5ea46",
+        "actual": "d0143f19d03b87b5c60442e8af46ce789a81ca40114d043241def1262ba5ea46",
+        "match": true,
+        "claimed_mtime": "2026-10-23T11:59:56.683502",
+        "actual_mtime": "2026-10-23T11:59:56"
+      }
+    ],
+    "b09_all_match": true,
+    "b08_self_check": {
+      "exists": true,
+      "rows": 16,
+      "self_listed": null,
+      "mismatch": []
+    },
+    "claims": [
+      {
+        "file": "00_施工说明与范围.md",
+        "says_no_integration": true,
+        "mentions_page_pass": true
+      },
+      {
+        "file": "01_UI03对账结果.md",
+        "says_no_integration": false,
+        "mentions_page_pass": false
+      },
+      {
+        "file": "02_脚本修复清单.md",
+        "says_no_integration": false,
+        "mentions_page_pass": false
+      },
+      {
+        "file": "03_离线反例与自检.md",
+        "says_no_integration": true,
+        "mentions_page_pass": false
+      },
+      {
+        "file": "04_未关闭项与后续.md",
+        "says_no_integration": false,
+        "mentions_page_pass": false
+      }
+    ]
+  }
+}

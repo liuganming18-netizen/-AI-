@@ -1,0 +1,74 @@
+{
+  "scenario": {
+    "symbol": "BTCUSDT",
+    "equity": 5000.0,
+    "risk_budget": 25.0,
+    "raw_open": 82000.0,
+    "stop_pct": 0.1,
+    "slippage": 0.0005,
+    "fee_rate": 0.0005
+  },
+  "comparison": [
+    {
+      "field": "入场成交价 (entry_price)",
+      "backtest": 82041.0,
+      "paper": 82041.0,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "paper_engine 增加了价格步进小数截断 (0.1)"
+    },
+    {
+      "field": "初始止损 (P0)",
+      "backtest": 73836.90000000001,
+      "paper": 73836.90000000001,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "完全一致或受 price_step 截断保护"
+    },
+    {
+      "field": "持仓数量 (qty)",
+      "backtest": 0.003,
+      "paper": 0.003,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "严格按 qty_step 向下取整，两端完全一致"
+    },
+    {
+      "field": "实际承担初始风险 (actual_risk)",
+      "backtest": 24.6123,
+      "paper": 24.6123,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "均 <= 25.0 USDT 风险预算，未超限"
+    },
+    {
+      "field": "4H 最低价跟踪候选 (trail_candidate)",
+      "backtest": 73350.0,
+      "paper": 73350.0,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "公式完全一致：4h_low * (1 - d)"
+    },
+    {
+      "field": "开仓手续费 (entry_fee)",
+      "backtest": 0.1231,
+      "paper": 0.1231,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "费率 0.05% 双边一致，仅四舍五入展示位微小差异"
+    },
+    {
+      "field": "净盈亏 (net_pnl)",
+      "backtest": -24.9568,
+      "paper": -24.9568,
+      "diff_abs": 0.0,
+      "is_congruent": true,
+      "reason": "因步进截断带来的累计差异小于 0.05 USDT（< 0.001% 权益）"
+    }
+  ],
+  "structural_differences": {
+    "timing_causality": "回测假设 K 线闭合后在开盘价即刻成交；模拟盘受真实服务端挂钟约束，若当前 15m 尚未闭合则先登记为 pending 挂单，杜绝未来函数。",
+    "funding_fee_settlement": "回测按 8 小时离散费率矩阵事后折算；模拟盘由服务端定时守护进程在每个 8 小时窗口根据持仓名义价值从实时资金费率表累加扣减。",
+    "stop_trail_persistence": "回测直接在循环中更新临时变量；模拟盘将每次止损变更落盘至 paper_stop_history，保证跨进程重启可恢复且具备因果审计证据。"
+  }
+}

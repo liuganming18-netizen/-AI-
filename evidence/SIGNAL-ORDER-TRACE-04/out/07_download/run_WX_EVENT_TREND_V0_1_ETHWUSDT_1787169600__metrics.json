@@ -1,0 +1,83 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_ETHWUSDT_1787169600",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [],
+ "total": null,
+ "live_order_enabled": false,
+ "metrics": {
+  "initial_equity": 2000.0,
+  "final_equity": 1976.468086,
+  "net_pnl": -23.53191400000006,
+  "net_return_pct": -1.1765956999999958,
+  "gross_pnl": -23.08880000000006,
+  "total_entry_fee": 0.2273292,
+  "total_exit_fee": 0.2157848,
+  "total_fees": 0.443114,
+  "total_funding_fee": 0.0,
+  "trades_count": 1,
+  "wins": 0,
+  "losses": 1,
+  "flats": 0,
+  "win_rate_pct": 0.0,
+  "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+  "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+  "avg_win": null,
+  "avg_loss": -23.53191400000006,
+  "avg_win_loss_ratio": null,
+  "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+  "profit_factor": 0.0,
+  "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+  "expectancy_usd": -23.53191400000006,
+  "max_drawdown_pct": 1.1765956999999958,
+  "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+  "max_drawdown_detail": {
+   "peak_index": 0,
+   "trough_index": 1,
+   "peak_equity": 2000.0,
+   "trough_equity": 1976.468086,
+   "points": 2
+  },
+  "sharpe_annualized_sqrt365": null,
+  "sharpe_basis": "逐日净值点不足 3 个（实测 0）⇒ 夏普无定义",
+  "daily_points": null,
+  "equity_points": 2,
+  "open_positions_remaining": null,
+  "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+  "funding_events_total": 0
+ },
+ "metrics_from_ledger": true,
+ "metrics_stored_summary": {},
+ "metrics_notes": [
+  "缺少盈利单或亏损单 ⇒ 平均盈亏比无定义（不填 0）",
+  "逐日净值点不足 3 个（实测 0）⇒ 夏普无定义",
+  "trade#1 开仓订单冲突：trades.jsonl=55 vs positions.POSITION_OPENED=55",
+  "chart.json 缺失 ⇒ benchmark_buy_hold 返回缺失（不伪造）"
+ ],
+ "benchmark_buy_hold": null,
+ "monthly_returns": {
+  "months": [
+   {
+    "month": "2026-08",
+    "month_end_equity": 2000.0,
+    "basis_equity": null,
+    "return_pct": null,
+    "partial_month": true,
+    "basis_note": "首月无上月月界净值 ⇒ 收益率为缺失（不填 0）"
+   }
+  ],
+  "initial_equity": 2000.0,
+  "note": "月界净值口径：本月末 total_equity / 上月末 total_equity − 1；首月无基准为 null"
+ },
+ "formal_m4_gate": null,
+ "m4_disclaimer": null,
+ "note": "metrics 由本 run 账本现算（净值口径）；metrics_stored_summary 为落盘 summary 原值，仅供对照，不作为展示来源"
+}

@@ -1,0 +1,553 @@
+{
+  "生成时刻": "2026-10-22T19:36:40",
+  "对账对象": "out/snapshots/S1（冻结快照）",
+  "计数": {
+    "通过": 6,
+    "未验证": 1,
+    "不通过": 3
+  },
+  "明细": [
+    {
+      "id": "L1",
+      "title": "纸面账户闭合（逐臂可加总）",
+      "verdict": "通过",
+      "判据": "initial(5000) + 已实现 == cash；已实现 == paper_realized 求和；末条 equity == cash（无未平仓）",
+      "实测": {
+        "per_arm": [
+          {
+            "arm": "3a",
+            "account_id": "paper43_3a",
+            "initial_equity": 5000.0,
+            "cash": 4995.65454473,
+            "realized_pnl": -4.34545527,
+            "fees_paid": 1.47440307,
+            "funding_paid": 0.0,
+            "realized行数": 3,
+            "realized求和": -4.34545527,
+            "equity行数": 6,
+            "末条equity": 4995.65454473,
+            "差额(5000+已实现-cash)": -0.0,
+            "差额(已实现-明细求和)": 0.0,
+            "差额(末条equity-cash)": 0.0,
+            "paper_account行数": 0
+          },
+          {
+            "arm": "3b",
+            "account_id": "paper43_3b",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "realized_pnl": 0.0,
+            "fees_paid": 0.0,
+            "funding_paid": 0.0,
+            "realized行数": 0,
+            "realized求和": 0.0,
+            "equity行数": 0,
+            "末条equity": null,
+            "差额(5000+已实现-cash)": 0.0,
+            "差额(已实现-明细求和)": 0.0,
+            "差额(末条equity-cash)": null,
+            "paper_account行数": 0
+          },
+          {
+            "arm": "3c",
+            "account_id": "paper43_3c",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "realized_pnl": 0.0,
+            "fees_paid": 0.0,
+            "funding_paid": 0.0,
+            "realized行数": 0,
+            "realized求和": 0.0,
+            "equity行数": 0,
+            "末条equity": null,
+            "差额(5000+已实现-cash)": 0.0,
+            "差额(已实现-明细求和)": 0.0,
+            "差额(末条equity-cash)": null,
+            "paper_account行数": 0
+          },
+          {
+            "arm": "3d",
+            "account_id": "paper43_3d",
+            "initial_equity": 5000.0,
+            "cash": 5000.0,
+            "realized_pnl": 0.0,
+            "fees_paid": 0.0,
+            "funding_paid": 0.0,
+            "realized行数": 0,
+            "realized求和": 0.0,
+            "equity行数": 0,
+            "末条equity": null,
+            "差额(5000+已实现-cash)": 0.0,
+            "差额(已实现-明细求和)": 0.0,
+            "差额(末条equity-cash)": null,
+            "paper_account行数": 0
+          }
+        ]
+      },
+      "补充": {
+        "说明": "paper_account 表 4 臂全为 0 行 ⇒ 初始本金只能取冻结常量 5000；账本没有 per-arm 的初始权益字段，跨臂加总只能靠常量"
+      }
+    },
+    {
+      "id": "L1b",
+      "title": "四臂跨账户加总",
+      "verdict": "通过",
+      "判据": "4 × 5000 + Σ已实现 == Σcash",
+      "实测": {
+        "Σcash": 19995.65454473,
+        "Σ已实现": -4.34545527,
+        "差额": 0.0,
+        "仅 3a 有交易": [
+          "3a"
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "L2",
+      "title": "手续费/资金费各计一次",
+      "verdict": "通过",
+      "判据": "gross == (平-开)×数量；net == gross − 开费 − 平费 + 资金费；fees_paid == Σ每笔成交 fee（不重复计）",
+      "实测": {
+        "per_realized": [
+          {
+            "id": 1,
+            "position_id": 1,
+            "gross_pnl账本": -0.870387,
+            "gross_pnl重算": -0.870387,
+            "gross差": 0.0,
+            "net_pnl账本": -1.36215041,
+            "net_pnl重算": -1.36215041,
+            "net差": 0.0,
+            "entry_fee": 0.2460993,
+            "exit_fee": 0.24566411,
+            "funding_paid": 0.0
+          },
+          {
+            "id": 2,
+            "position_id": 2,
+            "gross_pnl账本": -1.0003326,
+            "gross_pnl重算": -1.0003326,
+            "gross差": 0.0,
+            "net_pnl账本": -1.49165243,
+            "net_pnl重算": -1.49165243,
+            "net差": 0.0,
+            "entry_fee": 0.24591,
+            "exit_fee": 0.24540983,
+            "funding_paid": 0.0
+          },
+          {
+            "id": 3,
+            "position_id": 3,
+            "gross_pnl账本": -1.0003326,
+            "gross_pnl重算": -1.0003326,
+            "gross差": 0.0,
+            "net_pnl账本": -1.49165243,
+            "net_pnl重算": -1.49165243,
+            "net差": 0.0,
+            "entry_fee": 0.24591,
+            "exit_fee": 0.24540983,
+            "funding_paid": 0.0
+          }
+        ],
+        "Σ成交fee": 1.47440307,
+        "账本fees_paid": 1.47440307,
+        "差额": 0.0,
+        "paper_funding行数": 0,
+        "说明": "资金费表为空 ⇒ funding_paid 全 0，本轮无资金费可验；「各计一次」只对已发生的手续费成立"
+      },
+      "补充": {}
+    },
+    {
+      "id": "L3",
+      "title": "标识贯通 signal_uid → order → fill → position → realized",
+      "verdict": "通过",
+      "判据": "每笔持仓的 signal_uid 能在 order.event_uid / fill.signal_uid / processed / anchor 查到；反向无孤儿订单或成交",
+      "实测": {
+        "链路": [
+          {
+            "position_id": 1,
+            "signal_uid": "sig_closeloop_btc_1792668586",
+            "status": "closed",
+            "order_ids(按event_uid)": [
+              1
+            ],
+            "fill_open": [
+              1
+            ],
+            "fill_close": [
+              2
+            ],
+            "realized_ids": [
+              1
+            ],
+            "processed": true,
+            "anchor": true
+          },
+          {
+            "position_id": 2,
+            "signal_uid": "sig_closeloop_btc_1792668605",
+            "status": "closed",
+            "order_ids(按event_uid)": [
+              2
+            ],
+            "fill_open": [
+              3
+            ],
+            "fill_close": [
+              4
+            ],
+            "realized_ids": [
+              2
+            ],
+            "processed": true,
+            "anchor": true
+          },
+          {
+            "position_id": 3,
+            "signal_uid": "sig_ui_test_1792668684487",
+            "status": "closed",
+            "order_ids(按event_uid)": [
+              3
+            ],
+            "fill_open": [
+              5
+            ],
+            "fill_close": [
+              6
+            ],
+            "realized_ids": [
+              3
+            ],
+            "processed": true,
+            "anchor": true
+          }
+        ],
+        "断点数": 0,
+        "断点": [],
+        "孤儿订单": [],
+        "孤儿成交": [],
+        "pending行数": 3,
+        "pending状态": [
+          {
+            "pending_id": 1,
+            "status": "pending",
+            "signal_uid": "sig_test_closeloop_01"
+          },
+          {
+            "pending_id": 2,
+            "status": "pending",
+            "signal_uid": "sig_closeloop_btc_1792668513"
+          },
+          {
+            "pending_id": 3,
+            "status": "pending",
+            "signal_uid": "sig_ui_test_1792668631241"
+          }
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "L4",
+      "title": "初始止损与跟踪上移可重建",
+      "verdict": "未验证",
+      "判据": "止损价可从 15m/4h K 线因果重建，且跟踪上移有轨迹可查；生效时间不早于参考 K 线收盘",
+      "实测": {
+        "止损/轨迹相关表": "无",
+        "账本可用止损字段": [
+          "paper_position.stop_price（单值）"
+        ],
+        "逐笔": [
+          {
+            "position_id": 1,
+            "entry_price": 82033.1,
+            "atr": 500.0,
+            "stop_price": 80533.1,
+            "止损距离": 1500.0,
+            "止损距离/ATR": 3.0,
+            "exit_price": 81888.0355,
+            "exit_reason": "manual_closeloop_test",
+            "exit_ts": "2026-10-22T19:14:59"
+          },
+          {
+            "position_id": 2,
+            "entry_price": 81970.0,
+            "atr": 500.0,
+            "stop_price": 80470.0,
+            "止损距离": 1500.0,
+            "止损距离/ATR": 3.0,
+            "exit_price": 81803.2779,
+            "exit_reason": "manual_closeloop_test",
+            "exit_ts": "2026-10-22T19:29:59"
+          },
+          {
+            "position_id": 3,
+            "entry_price": 81970.0,
+            "atr": 500.0,
+            "stop_price": 80470.0,
+            "止损距离": 1500.0,
+            "止损距离/ATR": 3.0,
+            "exit_price": 81803.2779,
+            "exit_reason": "ui_closeloop_verification",
+            "exit_ts": "2026-10-22T19:29:59"
+          }
+        ]
+      },
+      "补充": {
+        "说明": "账本**没有任何止损变更轨迹表**（无 stop_history / 无 events 表），paper_position.stop_price 只有一个终值 ⇒ 「跟踪上移」在本账本上**无法证明也无法否证**，只能判未验证。这是账本结构缺口，不是本轮测试不足。"
+      }
+    },
+    {
+      "id": "L5",
+      "title": "撮合因果：成交不得早于真实请求时刻",
+      "verdict": "不通过",
+      "判据": "成交 bar 的开盘时刻必须 ≥ 真实请求挂钟（不是调用方声明的 requested_at）",
+      "实测": {
+        "逐笔": [
+          {
+            "position_id": 1,
+            "signal_uid": "sig_closeloop_btc_1792668586",
+            "声明首次请求 first_request_ms": 1792665900000,
+            "声明时刻(本地)": "2026-10-22T18:45:00",
+            "**真实写入挂钟** anchor.created_at": 1792668586609,
+            "真实写入(本地)": "2026-10-22T19:29:46",
+            "差值_分钟(真实写入−声明)": 44.78,
+            "成交bar_open_time": 1792666800000,
+            "成交bar(本地)": "2026-10-22T19:00:00",
+            "成交fill_ts": 1792666860000,
+            "成交fill_ts(本地)": "2026-10-22T19:01:00",
+            "bar是否晚于真实写入": false
+          },
+          {
+            "position_id": 2,
+            "signal_uid": "sig_closeloop_btc_1792668605",
+            "声明首次请求 first_request_ms": 1792666800000,
+            "声明时刻(本地)": "2026-10-22T19:00:00",
+            "**真实写入挂钟** anchor.created_at": 1792668605988,
+            "真实写入(本地)": "2026-10-22T19:30:05",
+            "差值_分钟(真实写入−声明)": 30.1,
+            "成交bar_open_time": 1792667700000,
+            "成交bar(本地)": "2026-10-22T19:15:00",
+            "成交fill_ts": 1792667760000,
+            "成交fill_ts(本地)": "2026-10-22T19:16:00",
+            "bar是否晚于真实写入": false
+          },
+          {
+            "position_id": 3,
+            "signal_uid": "sig_ui_test_1792668684487",
+            "声明首次请求 first_request_ms": 1792666800000,
+            "声明时刻(本地)": "2026-10-22T19:00:00",
+            "**真实写入挂钟** anchor.created_at": 1792668684527,
+            "真实写入(本地)": "2026-10-22T19:31:24",
+            "差值_分钟(真实写入−声明)": 31.41,
+            "成交bar_open_time": 1792667700000,
+            "成交bar(本地)": "2026-10-22T19:15:00",
+            "成交fill_ts": 1792667760000,
+            "成交fill_ts(本地)": "2026-10-22T19:16:00",
+            "bar是否晚于真实写入": false
+          }
+        ],
+        "回填笔数(真实写入−声明 > 1 分钟)": 3,
+        "最大回填_分钟": 44.78
+      },
+      "补充": {
+        "说明": "账本自身就带着矛盾：`paper_request_anchor.created_at` 是引擎写入的真实挂钟，`first_request_ms` 是调用方声明的经济时刻。三笔全部「声明的请求时刻」比「真实写入时刻」早 14~29 分钟，成交 bar 也落在真实写入之前 ⇒ **成交价来自过去的 K 线**。根因是写入口允许请求体注入 requested_at/now_ms（见 L5b）"
+      }
+    },
+    {
+      "id": "L5b",
+      "title": "根因：写入口是否允许调用方注入成交时钟",
+      "verdict": "不通过",
+      "判据": "成交时钟必须由服务端真实挂钟决定，不得由请求体指定",
+      "实测": {
+        "接受 payload.requested_at": true,
+        "接受 payload.now_ms": true,
+        "迟滞容忍常量": "MAX_FILL_LAG_MS = 3600_000",
+        "后果": "注入 now_ms 后 lag = now_clk − bar_open 恒为小值 ⇒ 迟滞保护被绕过；注入 requested_at 后 earliest_fill_ms 也由调用方决定"
+      },
+      "补充": {}
+    },
+    {
+      "id": "L6",
+      "title": "期末持仓与账本一致，未靠强制结算伪装已实现",
+      "verdict": "通过",
+      "判据": "账本 open 仓位 == 接口持仓条数；无 force_exit 伪装；挂单状态如实",
+      "实测": {
+        "账本open": 0,
+        "账本closed": 3,
+        "强制结算笔数": 0,
+        "接口持仓条数": 0,
+        "挂单": [
+          {
+            "pending_id": 1,
+            "status": "pending",
+            "earliest_fill(本地)": "2026-10-22T19:41:59",
+            "signal_uid": "sig_test_closeloop_01"
+          },
+          {
+            "pending_id": 2,
+            "status": "pending",
+            "earliest_fill(本地)": "2026-10-22T19:43:33",
+            "signal_uid": "sig_closeloop_btc_1792668513"
+          },
+          {
+            "pending_id": 3,
+            "status": "pending",
+            "earliest_fill(本地)": "2026-10-22T19:45:31",
+            "signal_uid": "sig_ui_test_1792668631241"
+          }
+        ],
+        "exit_reason分布": {
+          "manual_closeloop_test": 2,
+          "ui_closeloop_verification": 1
+        }
+      },
+      "补充": {
+        "说明": "3 笔挂单仍停在 pending（earliest_fill 在采集时刻之后），说明挂单推进要靠真实进程时钟；本轮未观察到推进，故「挂单→成交」未验证"
+      }
+    },
+    {
+      "id": "L7",
+      "title": "回测账本 run 目录/summary/逐笔可对账",
+      "verdict": "通过",
+      "判据": "summary 的金额 == Σ逐笔 profit_abs（容差 0.02 或 1e-6 相对）；笔数 == 逐笔行数。研究期与引擎期两种 summary 形状都要覆盖，且至少 2 个 run 非空",
+      "实测": {
+        "runs_root": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs",
+        "抽检": [
+          {
+            "run": "run_FT_ENTRY_09_C_Vs08_Z06_AVAXUSDT",
+            "形状": "研究期(summary_variant_a)",
+            "逐笔笔数": 14,
+            "summary笔数": 14,
+            "Σ逐笔profit_abs": 78.88969636,
+            "summary金额": 78.88969636,
+            "差额": 0.0,
+            "本run通过": true,
+            "空run": false,
+            "summary顶层键": [
+              "research_note",
+              "spec_status",
+              "summary_variant_a",
+              "symbol",
+              "variant"
+            ]
+          },
+          {
+            "run": "run_FT_ENTRY_09_C_Vs08_Z02_AVAXUSDT",
+            "形状": "研究期(summary_variant_a)",
+            "逐笔笔数": 9,
+            "summary笔数": 9,
+            "Σ逐笔profit_abs": 54.21137561,
+            "summary金额": 54.21137561,
+            "差额": 0.0,
+            "本run通过": true,
+            "空run": false,
+            "summary顶层键": [
+              "research_note",
+              "spec_status",
+              "summary_variant_a",
+              "symbol",
+              "variant"
+            ]
+          },
+          {
+            "run": "run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107",
+            "形状": "研究期(summary_variant_a)",
+            "逐笔笔数": 0,
+            "summary笔数": 0,
+            "Σ逐笔profit_abs": 0.0,
+            "summary金额": 0.0,
+            "差额": 0.0,
+            "本run通过": true,
+            "空run": true,
+            "summary顶层键": [
+              "formal_pass_allowed",
+              "formal_pass_allowed_components",
+              "formal_pass_block_reasons",
+              "funnel",
+              "funnel_variant_b",
+              "identity",
+              "instrument_spec",
+              "pit_audit_sha256",
+              "pit_qualified",
+              "precision",
+              "reconcile",
+              "run_id"
+            ]
+          },
+          {
+            "run": "bt_20261018T190145Z_b958c838",
+            "形状": "研究期(summary_variant_a)",
+            "逐笔笔数": 0,
+            "summary笔数": 0,
+            "Σ逐笔profit_abs": 0.0,
+            "summary金额": 0.0,
+            "差额": 0.0,
+            "本run通过": true,
+            "空run": true,
+            "summary顶层键": [
+              "formal_pass_allowed",
+              "formal_pass_allowed_components",
+              "formal_pass_block_reasons",
+              "funnel",
+              "funnel_variant_b",
+              "identity",
+              "instrument_spec",
+              "pit_audit_sha256",
+              "pit_qualified",
+              "precision",
+              "reconcile",
+              "run_id"
+            ]
+          }
+        ],
+        "非空run数": 2,
+        "空run数": 2
+      },
+      "补充": {
+        "说明": "只抽 4 个 run（2 研究期 + 2 引擎期）做机械对账，不代表 2,263 个 run 全部对过；引擎期 run 抽到的都是 0 笔（页面列表里它们也是 0 笔），「0 笔」不是对账失败，但也不能当成「链路已验证」"
+      }
+    },
+    {
+      "id": "L8",
+      "title": "测试数据隔离 / 生产账本未被污染",
+      "verdict": "不通过",
+      "判据": "审核前后账本哈希不变；生产 live 库无合成测试信号；总闸不得在验收未通过时留在开启态",
+      "实测": {
+        "快照S1": "2026-10-22T19:32:33",
+        "快照S2": "2026-10-22T19:35:02",
+        "哈希变化文件": [],
+        "生产live库总行数": 3,
+        "合成测试信号": [
+          {
+            "signal_uid": "sig_closeloop_btc_1792668513",
+            "symbol": "BTCUSDT",
+            "strategy_version": "WX_EVENT_TREND_V0_1"
+          },
+          {
+            "signal_uid": "sig_closeloop_btc_1792668586",
+            "symbol": "BTCUSDT",
+            "strategy_version": "WX_EVENT_TREND_V0_1"
+          },
+          {
+            "signal_uid": "sig_closeloop_btc_1792668605",
+            "symbol": "BTCUSDT",
+            "strategy_version": "WX_EVENT_TREND_V0_1"
+          }
+        ],
+        "闸门": {
+          "allow_new_entries": true,
+          "reason": "user_ui_resumed",
+          "set_by": "user_ui_control",
+          "since_ms": 1792668603581,
+          "scope": "server_side_new_entry_only",
+          "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+        }
+      },
+      "补充": {
+        "说明": "`sig_closeloop_btc_*` / `sig_ui_test_*` / `sig_test_closeloop_01` 是闭环验证脚本写进**生产**实时库的合成信号；闸门被留在 allow_new_entries=true（set_by=user_ui_control, 19:30:03）。两者都不属于「测试数据隔离」"
+      }
+    }
+  ]
+}

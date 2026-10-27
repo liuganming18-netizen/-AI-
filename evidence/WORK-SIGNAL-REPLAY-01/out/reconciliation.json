@@ -1,0 +1,75 @@
+{
+  "run_id": "bt_20261023T162149Z_59f3c8fa",
+  "symbol": "VELVETUSDT",
+  "strategy_version": "v0.1.0",
+  "checks": [
+    {
+      "name": "订单与成交条数匹配",
+      "passed": true,
+      "detail": {
+        "orders_count": 2,
+        "fills_count": 2
+      }
+    },
+    {
+      "name": "开仓成交与委托一致",
+      "passed": true,
+      "detail": {
+        "fill_price": 0.06692,
+        "order_price": 0.06692,
+        "trade_entry_price": 0.06692,
+        "qty": 7462.0
+      }
+    },
+    {
+      "name": "平仓成交与委托一致",
+      "passed": true,
+      "detail": {
+        "fill_price": 0.0697,
+        "order_price": 0.0697,
+        "trade_exit_price": 0.0697,
+        "qty": 7462.0
+      }
+    },
+    {
+      "name": "逐次成交手续费之和等于交易汇总手续费",
+      "passed": true,
+      "detail": {
+        "sum_fill_fees": 0.50972922,
+        "trade_fees": 0.50972922,
+        "entry_fee": 0.24967851999999996,
+        "exit_fee": 0.2600507
+      }
+    },
+    {
+      "name": "资金费逐事件汇总等于交易资金费",
+      "passed": true,
+      "detail": {
+        "sum_funding_delta": 0.5016406344575444,
+        "trade_funding_fee": 0.501640634457144
+      }
+    },
+    {
+      "name": "损益恒等式成立 (毛利 - 手续费 - 资金费 = 净利)",
+      "passed": true,
+      "detail": {
+        "gross_pnl": 20.744360000000036,
+        "fees": 0.50972922,
+        "funding_fee": 0.501640634457144,
+        "calculated_net_pnl": 19.732990145542892,
+        "recorded_net_pnl": 19.732990145542892
+      }
+    },
+    {
+      "name": "权益总额变动等于净盈亏",
+      "passed": true,
+      "detail": {
+        "initial_equity": 5000.0,
+        "final_equity": 5019.732990145542,
+        "equity_delta": 19.732990145542317,
+        "net_pnl": 19.732990145542892
+      }
+    }
+  ],
+  "passed_all": true
+}

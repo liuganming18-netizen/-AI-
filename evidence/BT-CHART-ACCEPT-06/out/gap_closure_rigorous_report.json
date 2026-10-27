@@ -1,0 +1,137 @@
+{
+  "task": "BT-CHART-ACCEPT-06-GAP-CLOSURE",
+  "total_checks": 6,
+  "passed_checks": 6,
+  "all_pass": true,
+  "checks": [
+    {
+      "id": "ACCEPT_GAP_01_PAN_TIMEFRAME_SYNC",
+      "name": "主图拖拽平移后实际比较主图与资金图时间范围：两图起点同步位移且时间范围严格同步对齐",
+      "pass": true,
+      "detail": {
+        "kline_shift_ms": 1692000000,
+        "funding_shift_ms": 1123200000,
+        "pan_alignment_diff_ms": 36000000,
+        "k_range_after_pan": {
+          "fromMs": 1639404000000,
+          "toMs": 1736290800000,
+          "logicalToMs": 1736294400000
+        },
+        "f_range_after_pan": {
+          "fromMs": 1639440000000,
+          "toMs": 1731110400000
+        }
+      }
+    },
+    {
+      "id": "ACCEPT_GAP_01_ZOOM_TIMEFRAME_SYNC",
+      "name": "主图滚轮缩放后实际比较主图与资金图时间跨度：两图可见跨度同步缩放自适应调整",
+      "pass": true,
+      "detail": {
+        "kline_span_before_ms": 96886800000,
+        "kline_span_after_ms": 96800400000,
+        "funding_span_before_ms": 91670400000,
+        "funding_span_after_ms": 91497600000,
+        "k_range_after_zoom": {
+          "fromMs": 1639490400000,
+          "toMs": 1736290800000,
+          "logicalToMs": 1736294400000
+        },
+        "f_range_after_zoom": {
+          "fromMs": 1639526400000,
+          "toMs": 1731024000000
+        }
+      }
+    },
+    {
+      "id": "ACCEPT_GAP_02_INVERSE_MARKER_CLICK",
+      "name": "图上标记反查严格排除假通过：从已选中订单A触发订单B图表时间点，订单A取消选中且订单B准确反向高亮",
+      "pass": true,
+      "detail": {
+        "order_a_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "order_b_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+        "step1_order_a_selected": true,
+        "step1_order_b_selected": false,
+        "step2_order_a_selected": false,
+        "step2_order_b_selected": true,
+        "active_selected_row_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1"
+      }
+    },
+    {
+      "id": "ACCEPT_GAP_03_SAME_HOUR_ORDERS_DISTINCT",
+      "name": "同小时多笔订单逐笔核对：独立编号、时间、价格及币种无混淆，逐笔点击互斥高亮且读数条准确反映",
+      "pass": true,
+      "detail": {
+        "hour_ts": 1639432800000,
+        "order_1": {
+          "orderId": "ord_Wyckoff_C1_S05_DYN999_Vs08_Z06_0001_0",
+          "tsMs": 1639433700000,
+          "timeStr": "2021-12-13 22:15",
+          "phase": "",
+          "side": "buy",
+          "action": "",
+          "symbol": "AVAX",
+          "price": "79.8850",
+          "rawText": "2021-12-13 22:15 AVAX 79.8850 —"
+        },
+        "order_2": {
+          "orderId": "ord_Wyckoff_C1_S05_DYN999_Vs08_Z06_0002_0",
+          "tsMs": 1639433700000,
+          "timeStr": "2021-12-13 22:15",
+          "phase": "",
+          "side": "buy",
+          "action": "",
+          "symbol": "BCH",
+          "price": "429.4500",
+          "rawText": "2021-12-13 22:15 BCH 429.4500 —"
+        },
+        "order_1_badge": "🎯 同柱 2 笔委托: #1 12-13 22:15 @79.89 | #2 12-13 22:15 @429.45",
+        "order_2_badge": "🎯 同柱 2 笔委托: #1 12-13 22:15 @79.89 | #2 12-13 22:15 @429.45",
+        "order_1_pass": true,
+        "order_2_pass": true
+      }
+    },
+    {
+      "id": "ACCEPT_GAP_04_DEEP_LINK_ORDER_AND_POSITION_RESTORE",
+      "name": "通过深链重开页面：100% 精确恢复同一订单 ID 与毫秒级完全一致的图表视窗位置",
+      "pass": true,
+      "detail": {
+        "expected_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "actual_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "order_matched": true,
+        "expected_k_range": {
+          "fromMs": 1642467600000,
+          "toMs": 1642554000000,
+          "logicalToMs": 1642557600000
+        },
+        "actual_k_range": {
+          "fromMs": 1642467600000,
+          "toMs": 1642554000000,
+          "logicalToMs": 1642557600000
+        },
+        "range_matched": true
+      }
+    },
+    {
+      "id": "ACCEPT_GAP_04_ROOT_REOPEN_ORDER_AND_POSITION_RESTORE",
+      "name": "通过根路径重开页面：从 localStorage 100% 精确恢复同一订单 ID 与毫秒级一致的图表视窗位置",
+      "pass": true,
+      "detail": {
+        "expected_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "actual_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "order_matched": true,
+        "expected_k_range": {
+          "fromMs": 1642467600000,
+          "toMs": 1642554000000,
+          "logicalToMs": 1642557600000
+        },
+        "actual_k_range": {
+          "fromMs": 1642467600000,
+          "toMs": 1642554000000,
+          "logicalToMs": 1642557600000
+        },
+        "range_matched": true
+      }
+    }
+  ]
+}

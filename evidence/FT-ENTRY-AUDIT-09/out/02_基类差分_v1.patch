@@ -1,0 +1,240 @@
+--- FT-ENTRY-07
++++ FT-ENTRY-09
+@@ -67,7 +67,10 @@
+         a_entry_level_atr_offset: float = 0.5,
+         a_volume_multiplier: float = 1.0,
+         c_vol_ratio_vs: float = 0.8,
+-        c_retest_zone_atr: float = 0.5
++        c_retest_zone_atr: float = 0.5,
++        q_start_ms: int = 0,
++        q_end_ms: int = 0,
++        qualified: bool = True
+     ):
+         super().__init__(config=config, symbol=symbol, enable_oi_filter=enable_oi_filter)
+         self.venue = venue
+@@ -76,6 +79,9 @@
+         self.a_volume_multiplier = a_volume_multiplier
+         self.c_vol_ratio_vs = c_vol_ratio_vs
+         self.c_retest_zone_atr = c_retest_zone_atr
++        self.q_start_ms = q_start_ms
++        self.q_end_ms = q_end_ms
++        self.qualified = qualified
+ 
+     def process_1h_bar(
+         self,
+@@ -266,6 +272,15 @@
+ 
+                     # C0: 原缩量回踩直接入场
+                     if self.timing_mode == "C":
++                        # FT-ENTRY-09: 统一预热资格准入拦截
++                        if not self.qualified or close_time_ms < self.q_start_ms or close_time_ms > self.q_end_ms:
++                            self._terminate_event(
++                                event, EventState.INVALIDATED, close_time_ms,
++                                f"C0缩量回踩发生在准入区间外({close_time_ms} not in [{self.q_start_ms}, {self.q_end_ms}])，跳过信号",
++                                {"q_start_ms": self.q_start_ms, "q_end_ms": self.q_end_ms}
++                            )
++                            return None
++
+                         initial_risk_r = close_p - initial_stop
+                         cand_id = f"cand_C_{event.event_id}_{close_time_ms}"
+                         earliest_exec = close_time_ms + 15 * 60 * 1000
+@@ -312,6 +327,15 @@
+ 
+                     # C1 / C2: 记录原信号，等待紧接的下一根1h收盘确认
+                     elif self.timing_mode in ("C1", "C2"):
++                        # FT-ENTRY-09: 统一预热资格准入拦截 (原信号必须在资格区间内)
++                        if not self.qualified or close_time_ms < self.q_start_ms or close_time_ms > self.q_end_ms:
++                            self._terminate_event(
++                                event, EventState.INVALIDATED, close_time_ms,
++                                f"{self.timing_mode}原信号发生在准入区间外({close_time_ms} not in [{self.q_start_ms}, {self.q_end_ms}])，跳过信号",
++                                {"q_start_ms": self.q_start_ms, "q_end_ms": self.q_end_ms}
++                            )
++                            return None
++
+                         event.pending_c_confirmation = {
+                             "orig_signal_time_ms": close_time_ms,
+                             "orig_low": low_p,
+@@ -349,7 +373,9 @@
+                     failed_reason = None
+ 
+                     # 1. 基本有效性检验：未跌破P0、未收盘突破H+0.1A、未连续2根破L
+-                    if low_p < P0:
++                    if not self.qualified or close_time_ms < self.q_start_ms or close_time_ms > self.q_end_ms:
++                        failed_reason = "confirmation_outside_eligibility_window"
++                    elif low_p < P0:
+                         failed_reason = "broke_p0_stop"
+                     elif close_p > H + self.config.breakout_buffer_atr * A:
+                         failed_reason = "broke_above_h"
+@@ -669,27 +695,48 @@
+ 
+     def __init__(self, config: dict) -> None:
+         super().__init__(config)
+-        self.user_dir = config.get("user_data_dir", os.path.join(BASE_DIR, "evidence/FT-ENTRY-04/user_data"))
++        self.user_dir = config.get("user_data_dir", os.path.join(BASE_DIR, "evidence/FT-ENTRY-09/user_data"))
+         self.data_dir = config.get("datadir", os.path.join(self.user_dir, "data/binance"))
+         self.pair_candidates: Dict[str, list] = {}
+         self.pair_4h_df: Dict[str, pd.DataFrame] = {}
+         self.quote_volume_cache: Dict[str, pd.Series] = {}
+         self.active_trade_stop_state: Dict[int, dict] = {}
+-        # FT-ENTRY-04: 成交前价格约束审计记录与防重试集合
++        # FT-ENTRY-04 / 07 / 09: 成交前价格约束审计记录与防重试集合
+         self.evaluated_candidates: set = set()
+         self.execution_audit_records: List[dict] = []
+-        out_dir = os.path.join(BASE_DIR, "evidence/FT-ENTRY-07/out")
++        out_dir = os.path.join(BASE_DIR, "evidence/FT-ENTRY-09/out")
+         os.makedirs(out_dir, exist_ok=True)
+         self.audit_log_path = os.path.join(out_dir, f"audit_orders_{self.__class__.__name__}.csv")
+ 
++        # FT-ENTRY-09: 加载统一预热资格规则表
++        rules_path = os.path.join(os.path.dirname(__file__), "pair_eligibility_rules.json")
++        if os.path.exists(rules_path):
++            with open(rules_path, "r", encoding="utf-8") as f:
++                self.eligibility_rules = json.load(f)
++        else:
++            self.eligibility_rules = {}
++
+     def _record_order_audit(self, cand, pair: str, current_time: datetime, rate: float, frozen_H: float,
+-                            decision: str, reason: str) -> None:
++                            decision: str, reason: str,
++                            q_start_ms: Optional[int] = None, q_start_utc: Optional[str] = None,
++                            q_end_ms: Optional[int] = None, q_end_utc: Optional[str] = None) -> None:
++        if q_start_ms is None:
++            rule = self.eligibility_rules.get(pair, {})
++            q_start_ms = rule.get("q_start_ms", 0)
++            q_start_utc = rule.get("q_start_utc", "")
++            q_end_ms = rule.get("q_end_ms", 0)
++            q_end_utc = rule.get("q_end_utc", "")
++
+         rec = {
+             "strategy": self.__class__.__name__,
+             "pair": pair,
+             "candidate_id": cand.candidate_id,
+             "signal_time_ms": cand.snapshot_time_ms,
+             "signal_time": datetime.fromtimestamp(cand.snapshot_time_ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S%z"),
++            "q_start_ms": q_start_ms,
++            "q_start_utc": q_start_utc,
++            "q_end_ms": q_end_ms,
++            "q_end_utc": q_end_utc,
+             "frozen_H": frozen_H,
+             "planned_execution_time": current_time.strftime("%Y-%m-%d %H:%M:%S%z"),
+             "planned_execution_time_ms": _to_timestamp_ms(current_time),
+@@ -781,6 +828,11 @@
+         self.quote_volume_cache[pair] = qv_series
+ 
+         cfg = EventTrendConfig(strategy_name="FT_ENTRY_02")
++        pair_rule = self.eligibility_rules.get(pair, {})
++        q_start_ms = pair_rule.get("q_start_ms", 0)
++        q_end_ms = pair_rule.get("q_end_ms", 0)
++        qualified = pair_rule.get("qualified", False)
++
+         sm = ParamTimingEventStateMachine(
+             config=cfg,
+             symbol=clean_symbol,
+@@ -789,7 +841,10 @@
+             a_entry_level_atr_offset=self.a_entry_level_atr_offset,
+             a_volume_multiplier=self.a_volume_multiplier,
+             c_vol_ratio_vs=self.c_vol_ratio_vs,
+-            c_retest_zone_atr=self.c_retest_zone_atr
++            c_retest_zone_atr=self.c_retest_zone_atr,
++            q_start_ms=q_start_ms,
++            q_end_ms=q_end_ms,
++            qualified=qualified
+         )
+         if len(oi_ts) > 0:
+             sm.pit.register_oi(oi_ts, oi_vals)
+@@ -853,7 +908,7 @@
+         # FT-ENTRY-07: 持久化确认审计记录
+         if hasattr(sm, "confirmation_records") and sm.confirmation_records:
+             try:
+-                out_dir = os.path.join(BASE_DIR, "evidence/FT-ENTRY-07/out")
++                out_dir = os.path.join(BASE_DIR, "evidence/FT-ENTRY-09/out")
+                 os.makedirs(out_dir, exist_ok=True)
+                 conf_csv = os.path.join(out_dir, f"audit_confirmation_{self.__class__.__name__}.csv")
+                 df_conf = pd.DataFrame(sm.confirmation_records)
+@@ -894,16 +949,36 @@
+         if cand.initial_stop_price is None or math.isnan(cand.initial_stop_price) or cand.initial_stop_price <= 0:
+             return False
+ 
+-        # FT-ENTRY-07: C1 / C2 路线确认后执行时刻合法性与防重试审计
++        fill_price = float(rate)
++        current_time_ms = _to_timestamp_ms(current_time)
++
++        # FT-ENTRY-09: 统一预热资格硬性检查 (C0 / C1 / C2 均受约束)
++        pair_rule = self.eligibility_rules.get(pair, {})
++        q_start_ms = pair_rule.get("q_start_ms", 0)
++        q_end_ms = pair_rule.get("q_end_ms", 0)
++        qualified = pair_rule.get("qualified", False)
++        q_start_utc = pair_rule.get("q_start_utc", "")
++        q_end_utc = pair_rule.get("q_end_utc", "")
++
++        if not qualified or current_time_ms < q_start_ms or current_time_ms > q_end_ms:
++            self._record_order_audit(
++                cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
++                decision="REJECTED", reason="outside_eligibility_window",
++                q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
++            )
++            logger.info(f"[{self.timing_mode}][ELIGIBILITY-REJECT] {pair} cand={cand.candidate_id} time={current_time} outside [{q_start_ms}, {q_end_ms}]")
++            return False
++
++        # FT-ENTRY-07 / FT-ENTRY-09: C1 / C2 路线确认后执行时刻合法性与防重试审计
+         if self.timing_mode in ("C1", "C2"):
+-            fill_price = float(rate)
+             initial_stop = float(cand.initial_stop_price)
+ 
+             # 防重试机制：同一候选只评估一次
+             if cand.candidate_id in self.evaluated_candidates:
+                 self._record_order_audit(
+                     cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
+-                    decision="REJECTED", reason="retry_prohibited_already_evaluated"
++                    decision="REJECTED", reason="retry_prohibited_already_evaluated",
++                    q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
+                 )
+                 logger.info(f"[{self.timing_mode}][RETRY-REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price}")
+                 return False
+@@ -914,7 +989,8 @@
+             if fill_price <= initial_stop:
+                 self._record_order_audit(
+                     cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
+-                    decision="REJECTED", reason="fill_price_le_initial_stop_p0"
++                    decision="REJECTED", reason="fill_price_le_initial_stop_p0",
++                    q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
+                 )
+                 logger.info(f"[{self.timing_mode}][REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price} <= P0={initial_stop}")
+                 return False
+@@ -923,7 +999,8 @@
+             if fill_price < cand.min_entry_price or fill_price > cand.max_entry_price:
+                 self._record_order_audit(
+                     cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
+-                    decision="REJECTED", reason="outside_min_max_bounds"
++                    decision="REJECTED", reason="outside_min_max_bounds",
++                    q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
+                 )
+                 logger.info(f"[{self.timing_mode}][REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price} outside bounds")
+                 return False
+@@ -931,7 +1008,25 @@
+             # 放行
+             self._record_order_audit(
+                 cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
+-                decision="PASSED", reason=f"{self.timing_mode}_confirmed_entry"
++                decision="PASSED", reason=f"{self.timing_mode}_confirmed_entry",
++                q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
++            )
++            return True
++
++        # FT-ENTRY-09: C0 路线执行
++        if self.timing_mode == "C":
++            if fill_price < cand.min_entry_price or fill_price > cand.max_entry_price:
++                self._record_order_audit(
++                    cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
++                    decision="REJECTED", reason="outside_min_max_bounds",
++                    q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
++                )
++                return False
++
++            self._record_order_audit(
++                cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=float(cand.box_high_h),
++                decision="PASSED", reason="C_original_entry",
++                q_start_ms=q_start_ms, q_start_utc=q_start_utc, q_end_ms=q_end_ms, q_end_utc=q_end_utc
+             )
+             return True
+ 

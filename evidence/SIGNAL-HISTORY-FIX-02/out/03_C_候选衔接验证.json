@@ -1,0 +1,1113 @@
+{
+  "phase": "C_continuity",
+  "generated_at_utc": "2026-10-24T14:34:35Z",
+  "n_targets": 5,
+  "n_legacy_targets": 4,
+  "n_fixed_targets": 1,
+  "start_points": "**全部候选共用生产同一锚点**（= 热库 4h 首根 open_time，即生产实际生效的预热起点）；驱动方式三分：S1 从锚点一路喂到 候选+24h；S2 先回放到候选前 72h 再追加；S3 在候选前 72h 初始化、候选前 12h 重启（新引擎全量重放）再追加。不剔除任何一个候选；不按候选各自平移锚点（那会因 200 根预热把建档起点平移而制造假阴性）。",
+  "rows": [
+    {
+      "symbol": "VELVETUSDT",
+      "caliber": "legacy",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "event_id": null,
+      "available_at_utc": "2026-10-02T15:00:00Z",
+      "box_atr_a": 0.0033620257158552837,
+      "S1_continuous_found": true,
+      "S2_init_then_append_found": true,
+      "S3_midway_restart_found": true,
+      "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+      "states_all_equal": true,
+      "candidate_set_S1": 1,
+      "legacy_visible": true,
+      "fixed_visible": false,
+      "caliber_flips_visibility": true,
+      "order_id": null,
+      "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+      "all_three_found": true
+    },
+    {
+      "symbol": "SUSDT",
+      "caliber": "legacy",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "event_id": null,
+      "available_at_utc": "2026-10-06T06:00:00Z",
+      "box_atr_a": 0.0012915599102145514,
+      "S1_continuous_found": true,
+      "S2_init_then_append_found": true,
+      "S3_midway_restart_found": true,
+      "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+      "states_all_equal": true,
+      "candidate_set_S1": 1,
+      "legacy_visible": true,
+      "fixed_visible": false,
+      "caliber_flips_visibility": true,
+      "order_id": null,
+      "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+      "all_three_found": true
+    },
+    {
+      "symbol": "WALUSDT",
+      "caliber": "legacy",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+      "event_id": null,
+      "available_at_utc": "2026-10-10T11:00:00Z",
+      "box_atr_a": 0.0011395725627846066,
+      "S1_continuous_found": true,
+      "S2_init_then_append_found": true,
+      "S3_midway_restart_found": true,
+      "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+      "states_all_equal": true,
+      "candidate_set_S1": 1,
+      "legacy_visible": true,
+      "fixed_visible": false,
+      "caliber_flips_visibility": true,
+      "order_id": null,
+      "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+      "all_three_found": true
+    },
+    {
+      "symbol": "BBUSDT",
+      "caliber": "legacy",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "event_id": null,
+      "available_at_utc": "2026-10-11T07:00:00Z",
+      "box_atr_a": 0.00033074888293230335,
+      "S1_continuous_found": true,
+      "S2_init_then_append_found": true,
+      "S3_midway_restart_found": true,
+      "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+      "states_all_equal": true,
+      "candidate_set_S1": 1,
+      "legacy_visible": true,
+      "fixed_visible": false,
+      "caliber_flips_visibility": true,
+      "order_id": null,
+      "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+      "all_three_found": true
+    },
+    {
+      "symbol": "ZEREBROUSDT",
+      "caliber": "fixed",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+      "available_at_utc": "2026-10-14T13:00:00Z",
+      "box_atr_a": 0.0008988611541244669,
+      "S1_continuous_found": true,
+      "S2_init_then_append_found": true,
+      "S3_midway_restart_found": true,
+      "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+      "states_all_equal": true,
+      "candidate_set_S1": 1,
+      "legacy_visible": false,
+      "fixed_visible": true,
+      "caliber_flips_visibility": true,
+      "order_id": null,
+      "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+      "all_three_found": true
+    }
+  ],
+  "all_three_found_for_all": true,
+  "states_all_equal_for_all": true,
+  "legacy_targets_visible_under_legacy": true,
+  "legacy_targets_absent_under_fixed": true,
+  "fixed_targets_visible_under_fixed": true,
+  "detail": {
+    "VELVETUSDT@legacy": {
+      "target": {
+        "symbol": "VELVETUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "available_at_ms": 1790953200000,
+        "available_at_utc": "2026-10-02T15:00:00Z",
+        "breakout_close": 0.06737,
+        "initial_stop_price": 0.05427379742841447,
+        "box_high_h": 0.0666,
+        "box_low_l": 0.05388,
+        "box_atr_a": 0.0033620257158552837,
+        "caliber": "legacy"
+      },
+      "scenarios": {
+        "legacy": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 6,
+              "candidates": [
+                {
+                  "symbol": "VELVETUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999",
+                  "available_at_ms": 1790953200000,
+                  "available_at_utc": "2026-10-02T15:00:00Z",
+                  "breakout_close": 0.06737,
+                  "initial_stop_price": 0.05427379742841447,
+                  "box_high_h": 0.0666,
+                  "box_low_l": 0.05388,
+                  "box_atr_a": 0.0033620257158552837
+                }
+              ],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006788582346142482
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "RETEST",
+              "transitions": 5,
+              "candidates": [],
+              "processed_4h": 118,
+              "processed_1h": 472,
+              "atr_bars_seen": 118,
+              "last_atr": 0.002211600737223907
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 6,
+              "candidates": [
+                {
+                  "symbol": "VELVETUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999",
+                  "available_at_ms": 1790953200000,
+                  "available_at_utc": "2026-10-02T15:00:00Z",
+                  "breakout_close": 0.06737,
+                  "initial_stop_price": 0.05427379742841447,
+                  "box_high_h": 0.0666,
+                  "box_low_l": 0.05388,
+                  "box_atr_a": 0.0033620257158552837
+                }
+              ],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006788582346142482
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "RETEST",
+              "transitions": 5,
+              "candidates": [],
+              "processed_4h": 118,
+              "processed_1h": 472,
+              "atr_bars_seen": 118,
+              "last_atr": 0.002211600737223907
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 6,
+              "candidates": [
+                {
+                  "symbol": "VELVETUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999",
+                  "available_at_ms": 1790953200000,
+                  "available_at_utc": "2026-10-02T15:00:00Z",
+                  "breakout_close": 0.06737,
+                  "initial_stop_price": 0.05427379742841447,
+                  "box_high_h": 0.0666,
+                  "box_low_l": 0.05388,
+                  "box_atr_a": 0.0033620257158552837
+                }
+              ],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006788582346142482
+            }
+          }
+        },
+        "fixed": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006810635695976334
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 118,
+              "processed_1h": 472,
+              "atr_bars_seen": 118,
+              "last_atr": 0.002209775946047196
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006810635695976334
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 118,
+              "processed_1h": 472,
+              "atr_bars_seen": 118,
+              "last_atr": 0.002209775946047196
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 142,
+              "processed_1h": 568,
+              "atr_bars_seen": 142,
+              "last_atr": 0.006810635695976334
+            }
+          }
+        }
+      },
+      "verdict": {
+        "symbol": "VELVETUSDT",
+        "caliber": "legacy",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "event_id": null,
+        "available_at_utc": "2026-10-02T15:00:00Z",
+        "box_atr_a": 0.0033620257158552837,
+        "S1_continuous_found": true,
+        "S2_init_then_append_found": true,
+        "S3_midway_restart_found": true,
+        "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+        "states_all_equal": true,
+        "candidate_set_S1": 1,
+        "legacy_visible": true,
+        "fixed_visible": false,
+        "caliber_flips_visibility": true,
+        "order_id": null,
+        "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+        "all_three_found": true
+      }
+    },
+    "SUSDT@legacy": {
+      "target": {
+        "symbol": "SUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+        "available_at_ms": 1791266400000,
+        "available_at_utc": "2026-10-06T06:00:00Z",
+        "breakout_close": 0.04433,
+        "initial_stop_price": 0.03703084400897854,
+        "box_high_h": 0.04385,
+        "box_low_l": 0.03677,
+        "box_atr_a": 0.0012915599102145514,
+        "caliber": "legacy"
+      },
+      "scenarios": {
+        "legacy": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "SUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999",
+                  "available_at_ms": 1791266400000,
+                  "available_at_utc": "2026-10-06T06:00:00Z",
+                  "breakout_close": 0.04433,
+                  "initial_stop_price": 0.03703084400897854,
+                  "box_high_h": 0.04385,
+                  "box_low_l": 0.03677,
+                  "box_atr_a": 0.0012915599102145514
+                }
+              ],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015340596691726517
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "RETEST",
+              "transitions": 9,
+              "candidates": [],
+              "processed_4h": 140,
+              "processed_1h": 560,
+              "atr_bars_seen": 140,
+              "last_atr": 0.0012398645273202457
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "SUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999",
+                  "available_at_ms": 1791266400000,
+                  "available_at_utc": "2026-10-06T06:00:00Z",
+                  "breakout_close": 0.04433,
+                  "initial_stop_price": 0.03703084400897854,
+                  "box_high_h": 0.04385,
+                  "box_low_l": 0.03677,
+                  "box_atr_a": 0.0012915599102145514
+                }
+              ],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015340596691726517
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "RETEST",
+              "transitions": 9,
+              "candidates": [],
+              "processed_4h": 140,
+              "processed_1h": 560,
+              "atr_bars_seen": 140,
+              "last_atr": 0.0012398645273202457
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "SUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999",
+                  "available_at_ms": 1791266400000,
+                  "available_at_utc": "2026-10-06T06:00:00Z",
+                  "breakout_close": 0.04433,
+                  "initial_stop_price": 0.03703084400897854,
+                  "box_high_h": 0.04385,
+                  "box_low_l": 0.03677,
+                  "box_atr_a": 0.0012915599102145514
+                }
+              ],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015340596691726517
+            }
+          }
+        },
+        "fixed": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015346679039871525
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 140,
+              "processed_1h": 560,
+              "atr_bars_seen": 140,
+              "last_atr": 0.0012668780929895524
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015346679039871525
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 140,
+              "processed_1h": 560,
+              "atr_bars_seen": 140,
+              "last_atr": 0.0012668780929895524
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 164,
+              "processed_1h": 656,
+              "atr_bars_seen": 164,
+              "last_atr": 0.0015346679039871525
+            }
+          }
+        }
+      },
+      "verdict": {
+        "symbol": "SUSDT",
+        "caliber": "legacy",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+        "event_id": null,
+        "available_at_utc": "2026-10-06T06:00:00Z",
+        "box_atr_a": 0.0012915599102145514,
+        "S1_continuous_found": true,
+        "S2_init_then_append_found": true,
+        "S3_midway_restart_found": true,
+        "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+        "states_all_equal": true,
+        "candidate_set_S1": 1,
+        "legacy_visible": true,
+        "fixed_visible": false,
+        "caliber_flips_visibility": true,
+        "order_id": null,
+        "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+        "all_three_found": true
+      }
+    },
+    "WALUSDT@legacy": {
+      "target": {
+        "symbol": "WALUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+        "available_at_ms": 1791630000000,
+        "available_at_utc": "2026-10-10T11:00:00Z",
+        "breakout_close": 0.04253,
+        "initial_stop_price": 0.032306042743721536,
+        "box_high_h": 0.03854,
+        "box_low_l": 0.03239,
+        "box_atr_a": 0.0011395725627846066,
+        "caliber": "legacy"
+      },
+      "scenarios": {
+        "legacy": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 8,
+              "candidates": [
+                {
+                  "symbol": "WALUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999",
+                  "available_at_ms": 1791630000000,
+                  "available_at_utc": "2026-10-10T11:00:00Z",
+                  "breakout_close": 0.04253,
+                  "initial_stop_price": 0.032306042743721536,
+                  "box_high_h": 0.03854,
+                  "box_low_l": 0.03239,
+                  "box_atr_a": 0.0011395725627846066
+                }
+              ],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.0016718733678113568
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "BOX",
+              "transitions": 5,
+              "candidates": [],
+              "processed_4h": 165,
+              "processed_1h": 660,
+              "atr_bars_seen": 165,
+              "last_atr": 0.001110323078171312
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 8,
+              "candidates": [
+                {
+                  "symbol": "WALUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999",
+                  "available_at_ms": 1791630000000,
+                  "available_at_utc": "2026-10-10T11:00:00Z",
+                  "breakout_close": 0.04253,
+                  "initial_stop_price": 0.032306042743721536,
+                  "box_high_h": 0.03854,
+                  "box_low_l": 0.03239,
+                  "box_atr_a": 0.0011395725627846066
+                }
+              ],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.0016718733678113568
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "BOX",
+              "transitions": 5,
+              "candidates": [],
+              "processed_4h": 165,
+              "processed_1h": 660,
+              "atr_bars_seen": 165,
+              "last_atr": 0.001110323078171312
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 8,
+              "candidates": [
+                {
+                  "symbol": "WALUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999",
+                  "available_at_ms": 1791630000000,
+                  "available_at_utc": "2026-10-10T11:00:00Z",
+                  "breakout_close": 0.04253,
+                  "initial_stop_price": 0.032306042743721536,
+                  "box_high_h": 0.03854,
+                  "box_low_l": 0.03239,
+                  "box_atr_a": 0.0011395725627846066
+                }
+              ],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.0016718733678113568
+            }
+          }
+        },
+        "fixed": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.001673076355937942
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 165,
+              "processed_1h": 660,
+              "atr_bars_seen": 165,
+              "last_atr": 0.001120719272525487
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.001673076355937942
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 165,
+              "processed_1h": 660,
+              "atr_bars_seen": 165,
+              "last_atr": 0.001120719272525487
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 189,
+              "processed_1h": 756,
+              "atr_bars_seen": 189,
+              "last_atr": 0.001673076355937942
+            }
+          }
+        }
+      },
+      "verdict": {
+        "symbol": "WALUSDT",
+        "caliber": "legacy",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+        "event_id": null,
+        "available_at_utc": "2026-10-10T11:00:00Z",
+        "box_atr_a": 0.0011395725627846066,
+        "S1_continuous_found": true,
+        "S2_init_then_append_found": true,
+        "S3_midway_restart_found": true,
+        "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+        "states_all_equal": true,
+        "candidate_set_S1": 1,
+        "legacy_visible": true,
+        "fixed_visible": false,
+        "caliber_flips_visibility": true,
+        "order_id": null,
+        "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+        "all_three_found": true
+      }
+    },
+    "BBUSDT@legacy": {
+      "target": {
+        "symbol": "BBUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+        "available_at_ms": 1791702000000,
+        "available_at_utc": "2026-10-11T07:00:00Z",
+        "breakout_close": 0.010308,
+        "initial_stop_price": 0.00842492511170677,
+        "box_high_h": 0.0102,
+        "box_low_l": 0.008352,
+        "box_atr_a": 0.00033074888293230335,
+        "caliber": "legacy"
+      },
+      "scenarios": {
+        "legacy": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "BBUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999",
+                  "available_at_ms": 1791702000000,
+                  "available_at_utc": "2026-10-11T07:00:00Z",
+                  "breakout_close": 0.010308,
+                  "initial_stop_price": 0.00842492511170677,
+                  "box_high_h": 0.0102,
+                  "box_low_l": 0.008352,
+                  "box_atr_a": 0.00033074888293230335
+                }
+              ],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003615586297959391
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "BOX",
+              "transitions": 7,
+              "candidates": [],
+              "processed_4h": 170,
+              "processed_1h": 680,
+              "atr_bars_seen": 170,
+              "last_atr": 0.00033074888293230335
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "BBUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999",
+                  "available_at_ms": 1791702000000,
+                  "available_at_utc": "2026-10-11T07:00:00Z",
+                  "breakout_close": 0.010308,
+                  "initial_stop_price": 0.00842492511170677,
+                  "box_high_h": 0.0102,
+                  "box_low_l": 0.008352,
+                  "box_atr_a": 0.00033074888293230335
+                }
+              ],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003615586297959391
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "BOX",
+              "transitions": 7,
+              "candidates": [],
+              "processed_4h": 170,
+              "processed_1h": 680,
+              "atr_bars_seen": 170,
+              "last_atr": 0.00033074888293230335
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [
+                {
+                  "symbol": "BBUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999",
+                  "available_at_ms": 1791702000000,
+                  "available_at_utc": "2026-10-11T07:00:00Z",
+                  "breakout_close": 0.010308,
+                  "initial_stop_price": 0.00842492511170677,
+                  "box_high_h": 0.0102,
+                  "box_low_l": 0.008352,
+                  "box_atr_a": 0.00033074888293230335
+                }
+              ],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003615586297959391
+            }
+          }
+        },
+        "fixed": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003581457535546839
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 170,
+              "processed_1h": 680,
+              "atr_bars_seen": 170,
+              "last_atr": 0.0003334016548909846
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003581457535546839
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 170,
+              "processed_1h": 680,
+              "atr_bars_seen": 170,
+              "last_atr": 0.0003334016548909846
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 194,
+              "processed_1h": 776,
+              "atr_bars_seen": 194,
+              "last_atr": 0.0003581457535546839
+            }
+          }
+        }
+      },
+      "verdict": {
+        "symbol": "BBUSDT",
+        "caliber": "legacy",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+        "event_id": null,
+        "available_at_utc": "2026-10-11T07:00:00Z",
+        "box_atr_a": 0.00033074888293230335,
+        "S1_continuous_found": true,
+        "S2_init_then_append_found": true,
+        "S3_midway_restart_found": true,
+        "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+        "states_all_equal": true,
+        "candidate_set_S1": 1,
+        "legacy_visible": true,
+        "fixed_visible": false,
+        "caliber_flips_visibility": true,
+        "order_id": null,
+        "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+        "all_three_found": true
+      }
+    },
+    "ZEREBROUSDT@fixed": {
+      "target": {
+        "symbol": "ZEREBROUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+        "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+        "available_at_ms": 1791982800000,
+        "available_at_utc": "2026-10-14T13:00:00Z",
+        "breakout_close": 0.032305,
+        "initial_stop_price": 0.02713111388458755,
+        "box_high_h": 0.031785,
+        "box_low_l": 0.026861,
+        "box_atr_a": 0.0008988611541244669,
+        "caliber": "fixed"
+      },
+      "scenarios": {
+        "legacy": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "BOX",
+              "transitions": 14,
+              "candidates": [],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004134774684632467
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [],
+              "processed_4h": 190,
+              "processed_1h": 760,
+              "atr_bars_seen": 190,
+              "last_atr": 0.0006108142115627111
+            },
+            "final": {
+              "final_state": "BOX",
+              "transitions": 14,
+              "candidates": [],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004134774684632467
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 10,
+              "candidates": [],
+              "processed_4h": 190,
+              "processed_1h": 760,
+              "atr_bars_seen": 190,
+              "last_atr": 0.0006108142115627111
+            },
+            "final": {
+              "final_state": "BOX",
+              "transitions": 14,
+              "candidates": [],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004134774684632467
+            }
+          }
+        },
+        "fixed": {
+          "S1": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 0,
+              "processed_1h": 0,
+              "atr_bars_seen": 0,
+              "last_atr": null
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 4,
+              "candidates": [
+                {
+                  "symbol": "ZEREBROUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+                  "available_at_ms": 1791982800000,
+                  "available_at_utc": "2026-10-14T13:00:00Z",
+                  "breakout_close": 0.032305,
+                  "initial_stop_price": 0.02713111388458755,
+                  "box_high_h": 0.031785,
+                  "box_low_l": 0.026861,
+                  "box_atr_a": 0.0008988611541244669
+                }
+              ],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004128407070740907
+            }
+          },
+          "S2": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 190,
+              "processed_1h": 760,
+              "atr_bars_seen": 190,
+              "last_atr": 0.000619691527082809
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 4,
+              "candidates": [
+                {
+                  "symbol": "ZEREBROUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+                  "available_at_ms": 1791982800000,
+                  "available_at_utc": "2026-10-14T13:00:00Z",
+                  "breakout_close": 0.032305,
+                  "initial_stop_price": 0.02713111388458755,
+                  "box_high_h": 0.031785,
+                  "box_low_l": 0.026861,
+                  "box_atr_a": 0.0008988611541244669
+                }
+              ],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004128407070740907
+            }
+          },
+          "S3": {
+            "init": {
+              "final_state": "IDLE",
+              "transitions": 0,
+              "candidates": [],
+              "processed_4h": 190,
+              "processed_1h": 760,
+              "atr_bars_seen": 190,
+              "last_atr": 0.000619691527082809
+            },
+            "final": {
+              "final_state": "IDLE",
+              "transitions": 4,
+              "candidates": [
+                {
+                  "symbol": "ZEREBROUSDT",
+                  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+                  "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+                  "available_at_ms": 1791982800000,
+                  "available_at_utc": "2026-10-14T13:00:00Z",
+                  "breakout_close": 0.032305,
+                  "initial_stop_price": 0.02713111388458755,
+                  "box_high_h": 0.031785,
+                  "box_low_l": 0.026861,
+                  "box_atr_a": 0.0008988611541244669
+                }
+              ],
+              "processed_4h": 214,
+              "processed_1h": 856,
+              "atr_bars_seen": 214,
+              "last_atr": 0.004128407070740907
+            }
+          }
+        }
+      },
+      "verdict": {
+        "symbol": "ZEREBROUSDT",
+        "caliber": "fixed",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+        "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+        "available_at_utc": "2026-10-14T13:00:00Z",
+        "box_atr_a": 0.0008988611541244669,
+        "S1_continuous_found": true,
+        "S2_init_then_append_found": true,
+        "S3_midway_restart_found": true,
+        "state_S1_S2_S3": "IDLE/IDLE/IDLE",
+        "states_all_equal": true,
+        "candidate_set_S1": 1,
+        "legacy_visible": false,
+        "fixed_visible": true,
+        "caliber_flips_visibility": true,
+        "order_id": null,
+        "order_reason": "history_discarded_by_bootstrap（预热期候选按纪律丢弃，不补开）",
+        "all_three_found": true
+      }
+    }
+  }
+}

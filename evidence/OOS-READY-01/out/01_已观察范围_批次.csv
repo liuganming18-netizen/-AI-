@@ -1,0 +1,18 @@
+﻿批次,窗口起,窗口止,标的数,运行数,候选数（含窗口重复）,成交笔数（含窗口重复）,唯一事件数,净额U（运行级累加，含重复）,净额U（唯一事件）,是否用于调参/筛选,证据文件
+FULL_SWEEP_200x100（A 变体，含 OI 门槛）,2021-01-01,2026-10-13,473,19496,3724,2604,296,-3791.84,81.44,是（全部后续研究的样本母集）,"evidence/FULL_SWEEP_200x100/{plan.json,runs.jsonl,trades_rich.jsonl}"
+2024H1_Audit375_DriftAdaptive180d,2024-06-19,2026-09-14,190,190,,16,,50.77,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+2024H1_Audit375_Standard180d,2024-01-01,2024-06-30,170,170,,11,,-21.19,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+2024H1_Audit375_TruncatedLate,2024-01-09,2024-06-30,15,15,,0,,0.0,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+2025Q4_Batch1_Top100,2025-09-25,2025-12-31,100,100,,4,,-0.5,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+2025Q4_Batch2_Top100,2025-09-25,2025-12-31,100,100,,5,,-41.73,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+Standalone_SOL_Replay,2025-09-25,2025-12-31,1,1,,0,,0.0,,是（失败归因与规格审计）,evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv
+BACKTEST-LOSS-03/aug100,2026-08-01,2026-09-14,100,100,,1,,-1.78,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/aug100/aug100_summary.json
+BACKTEST-LOSS-03/aug_dec2025,2025-08-01,2025-12-31,100,100,,6,,15.25,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/aug_dec2025/aug_dec2025_summary.json
+BACKTEST-LOSS-03/sep50,2026-09-01,2026-09-14,50,50,,7,,-39.99,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/sep50/sep50_summary.json
+BACKTEST-LOSS-03/sep50_full,2026-09-01,2026-10-17,50,50,,0,,0.0,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/sep50_full/sep50_full_summary.json
+BACKTEST-LOSS-03/sep50_check,2026-09-01,2026-09-14,50,50,,7,,-39.99,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/sep50_check/sep50_check_summary.json
+BACKTEST-LOSS-03/sep50_strict,2026-09-01,2026-09-14,50,50,,0,,0.0,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/sep50_strict/sep50_strict_summary.json
+BACKTEST-LOSS-03/sep_all_latest,2026-09-01,2026-10-18,528,528,,12,,15.18,,是（分窗口结果比较）,evidence/BACKTEST-LOSS-03/sep_all_latest/sep_all_latest_summary.json
+BREAKEVEN-01/02/03 + ENTRY-VOLUME-01/02 + VOLUME-BE-01/02（同一母集）,2021-12-23,2026-09-21,151,253,206,206,201,105.44,105.44,是（1R/2R/缩量/联合四组对照的判定母集）,evidence/BREAKEVEN-02/out/paired_fixed.csv；BREAKEVEN-03/报告.md
+FACTOR-ENTRY-01~09 / ENTRY-AUDIT-01~06（同一母集的特征扩展）,2021-12-23,2026-09-21,,,227,205,,,,是（特征筛选与消融，296→205 映射）,evidence/ENTRY-AUDIT-01/报告.md
+ACCUM-STRAT-01（震荡吸筹）,不可复现,不可复现,,,,,,,,否（代码/配置/币池/逐笔本机全无，仅剩汇总表）,evidence/ACCUM-STRAT-01/报告.md

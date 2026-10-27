@@ -1,0 +1,209 @@
+{
+  "task": "ACCUM-EARLY-06-05",
+  "probe": "01_三层字段级核对",
+  "generated_at_utc": "2026-10-26T18:06:32Z",
+  "window": {
+    "start_utc": "2026-06-27T08:00:00Z",
+    "end_utc": "2026-10-26T09:00:00Z",
+    "start_ms": 1782547200000,
+    "end_ms": 1793005200000
+  },
+  "三层定义": {
+    "L1": "结算事件覆盖：这段里有没有结算事件（按标的数 + 行数）",
+    "L2": "rate/mark 字段非空：有事件后数值能不能用；并核来源（原生 vs 用 1h 价补）",
+    "L3": "当时可得证据：本机在结算当时是否真的拿到了这条记录",
+    "为什么必须分开": "L1 通过不代表 L2 可用（事件在、mark 空）；L2 可用不代表 L3 成立（数值事后回填）；三层任一缺失都不能写「资金费已完整计入」"
+  },
+  "hot": {
+    "路径": "数据/市场数据/db/market_v2.sqlite3",
+    "列": [
+      "exchange",
+      "market",
+      "symbol",
+      "funding_time",
+      "funding_rate",
+      "mark_price",
+      "rate_type",
+      "source",
+      "fetched_at"
+    ],
+    "有available_at列": false,
+    "有fetched_at列": true,
+    "L1_结算事件覆盖": {
+      "全历史行数": 2065205,
+      "全历史标的": 528,
+      "全历史首末": [
+        "2022-01-01T00:00:00Z",
+        "2026-10-26T11:00:00Z"
+      ],
+      "窗口内行数": 304658,
+      "窗口内标的": 528,
+      "非settled行": 0,
+      "判定": "覆盖存在"
+    },
+    "L2_rate_mark非空": {
+      "全历史_rate空": 0,
+      "全历史_mark空": 783,
+      "窗口_rate空": 0,
+      "窗口_mark空": 0,
+      "来源分布_全历史": [
+        {
+          "source": "binance.archive.fundingRate+mark1h",
+          "rows": 1943915,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.fapi",
+          "rows": 113294,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate+fapi",
+          "rows": 7213,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate",
+          "rows": 783,
+          "mark_null": 783
+        }
+      ],
+      "来源分布_窗口": [
+        {
+          "source": "binance.archive.fundingRate+mark1h",
+          "rows": 187377,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.fapi",
+          "rows": 113273,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate+fapi",
+          "rows": 4008,
+          "mark_null": 0
+        }
+      ],
+      "判读": "mark 非空率不能单独当质量指标：94.1% 的行 source 是 `binance.archive.fundingRate+mark1h`，mark 由 1 小时价补齐，不是交易所结算标记价 ⇒ 非空≠原生"
+    },
+    "L3_当时可得": {
+      "fetched_at空": 0,
+      "滞后_le_1h": 0,
+      "滞后_le_24h": 2922,
+      "滞后_gt_24h": 301736,
+      "抓取早于结算": 0,
+      "最小滞后ms": 9821219,
+      "最大滞后ms": 9484304992,
+      "gt_24h占比": 99.04,
+      "le_1h占比": 0.0,
+      "判定": "未验证（有 fetched_at，但绝大多数是事后批量回填 ⇒ 只能声明「计算不超前」，不能声明「结算当时本机拿得到」）"
+    }
+  },
+  "cold": {
+    "路径": "数据/市场数据/parquet/funding/binance/um",
+    "分片数": 526,
+    "列": [
+      "sym",
+      "funding_time",
+      "funding_rate",
+      "mark_price",
+      "rate_type",
+      "source"
+    ],
+    "有available_at列": false,
+    "有fetched_at列": false,
+    "标的名来源": "文件名（表内无 symbol 列）",
+    "L1_结算事件覆盖": {
+      "全历史行数": 2189855,
+      "全历史标的": 526,
+      "全历史首末": [
+        "2020-01-01T00:00:00Z",
+        "2026-10-14T12:00:00Z"
+      ],
+      "窗口内行数": 311210,
+      "窗口内标的": 526,
+      "非settled行": 0,
+      "重复键组数_全历史": 0,
+      "重复键组数_窗口": 0,
+      "判定": "覆盖存在；同一 (标的, 结算时刻) 无重复"
+    },
+    "L2_rate_mark非空": {
+      "全历史_rate空": 0,
+      "全历史_mark空": 1838,
+      "窗口_rate空": 0,
+      "窗口_mark空": 0,
+      "来源分布_全历史": [
+        {
+          "source": "binance.archive.fundingRate+mark1h",
+          "rows": 2089604,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.fapi",
+          "rows": 75223,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate(patch)+mark1h",
+          "rows": 11643,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate+fapi",
+          "rows": 7533,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate",
+          "rows": 5722,
+          "mark_null": 1838
+        },
+        {
+          "source": "binance.archive.fundingRate(patch)+fapi",
+          "rows": 130,
+          "mark_null": 0
+        }
+      ],
+      "来源分布_窗口": [
+        {
+          "source": "binance.archive.fundingRate+mark1h",
+          "rows": 216002,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.fapi",
+          "rows": 75223,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate(patch)+mark1h",
+          "rows": 11643,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate+fapi",
+          "rows": 4328,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate",
+          "rows": 3884,
+          "mark_null": 0
+        },
+        {
+          "source": "binance.archive.fundingRate(patch)+fapi",
+          "rows": 130,
+          "mark_null": 0
+        }
+      ],
+      "判读": "mark 空值只剩 1,838 行（全历史）；但 2,089,604 行是 `binance.archive.fundingRate+mark1h` ⇒ 冷档能补「事件」，补出来的 mark 仍是 1 小时价，不是原生结算标记价"
+    },
+    "L3_当时可得": {
+      "available_at列存在": false,
+      "fetched_at列存在": false,
+      "判定": "未验证（整列不存在，不是「填充率 0%」）。冷档是离线归档媒介，落盘时间不代表结算当时可得 ⇒ 不能给冷档补任何可得时刻"
+    }
+  },
+  "elapsed_sec": 2.17
+}

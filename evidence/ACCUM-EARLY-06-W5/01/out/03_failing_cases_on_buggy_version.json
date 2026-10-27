@@ -1,0 +1,93 @@
+{
+  "timestamp_utc": "2026-10-26T17:54:31Z",
+  "schema_version": "accum-early-05/v1",
+  "tested_commit_or_mtime": "2026-10-26T17:53:53Z",
+  "absorption_timing_suite": {
+    "title": "承接与卖压指标时序颠倒缺陷核验",
+    "sweep_check_calls_absorption": false,
+    "confirm_actions_calls_absorption": true,
+    "confirm_call_line": 1117,
+    "test_scenario_sweep_bad_confirm_good": {
+      "sweep_bar_evaluation": {
+        "expected_absorption_ok": false,
+        "actual_function_ok": false,
+        "reason": "主动卖出额超标 (18000 > 4000) 且主动买占比极低 (0.1 < 0.5)"
+      },
+      "confirm_bar_evaluation": {
+        "function_ok": false,
+        "reason": "突破根买盘放量达标 (买比 0.67 >= 0.5)"
+      },
+      "pipeline_consequence_on_buggy_version": "由于状态机在扫低根完全未调用 _absorption，导致扫低崩塌行情被错误放行进入 SWEEP，并最终在突破根凭借放量买盘被虚假判定通过！"
+    },
+    "verdict": "FAIL_ON_BUGGY_VERSION",
+    "is_bug_reproduced": true,
+    "bug_description": "严重时序错位缺陷已被本测试套件精准捕获：_sweep_check 内部调用次数为 0，_absorption 错误滞留在 _confirm_actions（第 1073 行）。"
+  },
+  "time_leakage_suite": {
+    "title": "时间泄漏、未来函数与跟踪止损时序前瞻核验",
+    "future_bar_lookahead_check": {
+      "decision_ms": 1785554100000,
+      "injected_bar_close_ms": 1785557700000,
+      "leakage_detected": true,
+      "rule": "bar.close_time <= decision_now_ms",
+      "status": "PASS_GUARD_ACTIVE"
+    },
+    "trailing_stop_execution_delay_check": {
+      "rule": "入场后新收盘 4h 线最低价×95%只上移；不得追溯生效，12:00 确认最早 12:15 执行，不回填 12:00",
+      "at_12_00_expected_stop": 95.0,
+      "at_12_15_expected_stop": 96.9,
+      "premature_leakage_rejected": true,
+      "status": "PASS_VERIFIED"
+    },
+    "available_at_provenance_check": {
+      "cold_bar_available_at": null,
+      "compliance_claim": "unknown",
+      "rule": "为空即 available_at_missing=True，禁止用 close_time 冒充",
+      "status": "PASS_HONEST_DECLARATION"
+    }
+  },
+  "approval_gate_suite": {
+    "title": "批准闸门与冷却期不挂钩独立核验",
+    "negative_case_blank_config": {
+      "open_allowed": false,
+      "try_open_ok": false,
+      "called_paper_engine": false,
+      "blocked_by": "blocked_by_unapproved_config",
+      "pass": true
+    },
+    "critical_test_cooldown24_not_bypass_condition": {
+      "test_definition": "在未批准配置中设置 cooldown_hours=24，验证是否能绕过批准闸门",
+      "cooldown_hours_set": 24,
+      "open_allowed": false,
+      "try_open_ok": false,
+      "called_paper_engine": false,
+      "blocked_by": "blocked_by_unapproved_config",
+      "verdict": "PASS_GATE_ENFORCED",
+      "conclusion": "冷却 24 小时严格未被作为未经批准的通过条件，未批准配置 100% 被硬阻断！"
+    },
+    "positive_fixture_control": {
+      "fixture_kind": "fixture",
+      "open_allowed": true,
+      "try_open_ok": true,
+      "called_paper_engine": true,
+      "pass": true
+    }
+  },
+  "cross_boundary_isolation_suite": {
+    "title": "生产账本物理隔离与越界硬阻断核验",
+    "cross_boundary_negative_case": {
+      "target_dir_set": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+      "try_open_ok": false,
+      "try_open_reason": "isolation_violation",
+      "called_paper_engine": false,
+      "prod_test_files_created": 0,
+      "pass": true
+    },
+    "idempotency_positive_control": {
+      "first_open_ok": true,
+      "second_open_ok": false,
+      "second_open_reason": "duplicate_signal_uid",
+      "pass": true
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+ "probe": "04_观察持久化断言",
+ "generated_at_utc": "2026-10-26T10:00:13Z",
+ "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/observe_assert.sqlite3",
+ "assertions": {
+  "重复扫描不改期限": {
+   "created_again": false,
+   "expires_same": true,
+   "expires_at_utc": "2026-09-28T15:13:20Z"
+  },
+  "冻结_expires_at_ms": true,
+  "冻结_old_low": true,
+  "冻结_sweep_low": true,
+  "冻结_structure_seen_ms": true,
+  "冻结_box_version_id": true,
+  "候选不覆盖": {
+   "seq": [
+    1,
+    2,
+    3
+   ],
+   "count": 3,
+   "第一条仍保留": true
+  },
+  "禁止删除_observe_event": true,
+  "禁止删除_observe_candidate": true,
+  "数据不足独立表达": {
+   "state": "DATA_INSUFFICIENT",
+   "closed_reason": "15m 缺口，无法判定回踩",
+   "gaps": 1,
+   "不等于 INVALIDATED": true,
+   "映射说明": "DATA_INSUFFICIENT 是研究侧新增状态，生产状态机无对应项；合流需生产侧新增同名状态（改冻结包，未批准前只在本库存在）"
+  }
+ },
+ "errors": [],
+ "隔离": {
+  "research_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/observe_assert.sqlite3",
+  "production_dbs_checked": [
+   "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+   "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3"
+  ],
+  "isolated": true
+ },
+ "三组可分账": {
+  "4a": "ev_4a_binance_SOLUSDT_bx_shared_1_1790200000000",
+  "4b": "ev_4b_binance_SOLUSDT_bx_shared_1_1790200000000",
+  "4c": "ev_4c_binance_SOLUSDT_bx_shared_1_1790200000000"
+ },
+ "summary": {
+  "all_pass": true,
+  "event_count": 5,
+  "candidate_count": 3,
+  "transition_count": 10
+ }
+}

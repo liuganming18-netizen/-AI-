@@ -1,0 +1,62 @@
+{
+  "task": "SIGNAL-ENDTOEND-03",
+  "title": "完整币池信号链路收口与双向定位闭环",
+  "generated_at_utc": "2026-10-24T09:01:00Z",
+  "environment": {
+    "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+    "arm": "3a",
+    "target_universe": "526 获批完整加密币池 (币安 USD-M，排除指数)",
+    "target_run_id": "bt_20261024T120001Z_e1a10001",
+    "second_run_id": "bt_20261024T120002Z_e1a10002"
+  },
+  "four_user_priorities": {
+    "1_pipeline_live_and_funnel": {
+      "status": "PASS",
+      "probe": "probes/01_live_pool_scan_and_funnel.py",
+      "out": "out/live_pool_scan.json",
+      "summary": "526 完整获批币池在线扫描与水位推进正常（cycle 1419 -> 1422），逐币漏斗分类（BOX:379, IDLE:114, RETEST:19, SWEEP:14），当前新自然候选 0，如实记录等待自然行情，绝不伪造信号"
+    },
+    "2_isolated_engine_pipeline": {
+      "status": "PASS",
+      "probe": "probes/02_isolated_engine_pipeline.py",
+      "out": "out/isolated_pipeline.json",
+      "summary": "14/14 项隔离流水线检查全部 PASS：预热、信号落库、查验、幂等、路由挂单、挂单查验、挂单幂等、撮合成交、开仓、4h跟踪抬高、止损单调性、价格击穿退出、平仓归档、门禁关闭防御"
+    },
+    "3_kline_persistence_and_bidirectional_sync": {
+      "status": "PASS",
+      "probe": "probes/03_browser_ui_verification.mjs",
+      "out": "out/ui_acceptance.json",
+      "screenshots": "screenshots/",
+      "summary": "21/21 项浏览器交互深度验收全部 PASS：彻底解决上一轮 hover 错位问题；开仓订单（15:15）精确定位 15:00 归桶 + 15:15 徽章 + 高亮；退出订单（05:15）精确定位 05:00 归桶 + 05:15 徽章 + 高亮；成交行精确定位；缩放拖动视窗平移联动；图上条目反查关联订单自动展开高亮；深链新标签页重开完整秒级恢复"
+    },
+    "4_downloads_reconciliation_by_id": {
+      "status": "PASS",
+      "probe": "probes/04_reconcile_downloads_with_ledger.py",
+      "out": "out/reconciliation_downloads.json",
+      "downloads": "out/downloads/",
+      "summary": "8/8 项下载与底层账本按 ID 关联对账全部 PASS：保留缺失语义（严禁空/None 转 0.0），订单/成交/逐笔逐字段按 order_id/fill_id/trade_id 关联对账，损益恒等式严格成立，手续费/资金费之和与权益变动完全一致"
+    }
+  },
+  "deliverables": [
+    "evidence/SIGNAL-ENDTOEND-03/README.md",
+    "evidence/SIGNAL-ENDTOEND-03/manifest.json",
+    "evidence/SIGNAL-ENDTOEND-03/out/live_pool_scan.json",
+    "evidence/SIGNAL-ENDTOEND-03/out/isolated_pipeline.json",
+    "evidence/SIGNAL-ENDTOEND-03/out/ui_acceptance.json",
+    "evidence/SIGNAL-ENDTOEND-03/out/reconciliation_downloads.json",
+    "evidence/SIGNAL-ENDTOEND-03/out/downloads/orders_bt_20261024T120001Z_e1a10001.csv",
+    "evidence/SIGNAL-ENDTOEND-03/out/downloads/fills_bt_20261024T120001Z_e1a10001.csv",
+    "evidence/SIGNAL-ENDTOEND-03/out/downloads/trades_bt_20261024T120001Z_e1a10001.csv",
+    "evidence/SIGNAL-ENDTOEND-03/out/downloads/backtest_bt_20261024T120001Z_e1a10001_all.json",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/01_overview_default_1h.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/02_order_click_focus_entry_1515.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/03_order_click_focus_exit_0515.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/04_fill_click_focus_1515.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/05_pan_zoom_after_drag.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/06_marker_inverse_lookup_order.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/07_timeframe_4h.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/08_chart_expanded_large.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/09_switched_to_susdt.png",
+    "evidence/SIGNAL-ENDTOEND-03/screenshots/10_persistence_reopen_success.png"
+  ]
+}

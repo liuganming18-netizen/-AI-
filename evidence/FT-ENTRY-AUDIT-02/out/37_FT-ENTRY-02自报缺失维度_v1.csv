@@ -1,0 +1,10 @@
+﻿dimension,in_self_report,in_audit,why_matters
+被丢弃的基线事件数,False,True,A 路线净增益若不计丢弃侧，无法判断是改善还是筛选
+被丢弃基线事件的盈亏合计,False,True,丢弃的多为大赢单，直接决定 A 路线符号
+基线事件召回率,False,True,C 路线召回仅 5.26%~21.05%，说明它换了策略而非改时点
+同候选交易的入场价折价,False,True,区分『入场更便宜』与『换了另一批交易』
+扣费前收益,False,True,手续费占比过高时，负收益是成本问题还是方向问题
+时间块置信区间 / 置换检验,False,True,19 格多重比较下，单点数值不可判显著
+滑点成本,False,True,冻结方案要求 3bps，实现不存在（F-03）
+lookahead / recursive 检验结果,False,False,脚本已写但未运行，防泄漏证据缺失
+trade_count 之外的并发拒绝数,False,True,区分『规则没触发』与『槽位被占』

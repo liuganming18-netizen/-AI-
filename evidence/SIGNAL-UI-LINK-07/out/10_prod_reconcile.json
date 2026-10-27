@@ -1,0 +1,343 @@
+{
+  "probe": "60_prod_reconcile",
+  "generated_real_utc": "2026-10-25T10:46:29Z",
+  "steps": [
+    {
+      "name": "库里没有实时信号行",
+      "ok": true,
+      "detail": "0 行"
+    },
+    {
+      "name": "接口 scope=current 为 0",
+      "ok": true,
+      "detail": "total=0 items=0"
+    },
+    {
+      "name": "接口 scope=all 为 0",
+      "ok": true,
+      "detail": "total=0 items=0"
+    },
+    {
+      "name": "空表 as_of 不再伪造时刻",
+      "ok": true,
+      "detail": "as_of=None"
+    },
+    {
+      "name": "明细条数 == 自报条数",
+      "ok": true,
+      "detail": "51 / 51 / 51"
+    },
+    {
+      "name": "明细条数 == 漏斗历史候选数",
+      "ok": true,
+      "detail": "51 vs 51"
+    },
+    {
+      "name": "候选 ID 唯一",
+      "ok": true,
+      "detail": "51/51"
+    },
+    {
+      "name": "全部早于启用时点",
+      "ok": true,
+      "detail": "晚于启用时点的有 0 条（期望 0）"
+    },
+    {
+      "name": "拒单原因均在终态集合内",
+      "ok": true,
+      "detail": "异常 0 条"
+    },
+    {
+      "name": "逐币状态数与 universe 一致",
+      "ok": true,
+      "detail": "526 / 526"
+    },
+    {
+      "name": "状态分布复算 == 自报",
+      "ok": true,
+      "detail": "复算 {'IDLE': 191, 'BOX': 300, 'RETEST': 14, 'SWEEP': 21} / 自报 {'IDLE': 191, 'BOX': 300, 'RETEST': 14, 'SWEEP': 21}"
+    },
+    {
+      "name": "空转明细合计 == 空转数",
+      "ok": true,
+      "detail": "idle_total=191 / IDLE=191"
+    },
+    {
+      "name": "本进程漏斗全 0（与库里 0 行一致）",
+      "ok": true,
+      "detail": "{\"BOX\": 0, \"SWEEP\": 0, \"RETEST\": 0, \"CANDIDATE\": 0, \"VOLUME_REJECTED\": 0, \"OI_UNAVAILABLE\": 0, \"OI_REJECTED\": 0, \"INVALIDATED\": 0, \"EXPIRED\": 0, \"MISSED_WITHOUT_RETEST\": 0}"
+    },
+    {
+      "name": "页面 0 张卡",
+      "ok": true,
+      "detail": "0 张"
+    },
+    {
+      "name": "页面历史候选明细条数 == 库/接口 51",
+      "ok": true,
+      "detail": "页面 51 / 接口 51"
+    },
+    {
+      "name": "三方一致（库 0 行 / 接口 0 条 / 页面 0 张）",
+      "ok": true,
+      "detail": "库 0 / 接口 0 / 页面 0"
+    },
+    {
+      "name": "如实记录：距最近候选已过多少天",
+      "ok": true,
+      "detail": "13.62 天（最近 2026-10-11T20:00:00Z）"
+    }
+  ],
+  "ok": true,
+  "db_live": {
+    "live_signal_rows": 0,
+    "live_signal_by_origin": {},
+    "live_run": {
+      "paper_epoch_ms": 1791939600000,
+      "live_start_ms": 1792748844240,
+      "state_anchor_ms": 1782542715686
+    }
+  },
+  "db_ledgers": {
+    "3a": {
+      "exists": true,
+      "tables": [
+        "paper_account",
+        "paper_prompt",
+        "paper_order",
+        "sqlite_sequence",
+        "paper_position",
+        "paper_funding",
+        "paper_equity",
+        "paper_blocked",
+        "paper_processed",
+        "paper_fill",
+        "paper_realized",
+        "paper_state",
+        "paper_funding_gap",
+        "paper_funding_correction",
+        "paper_command",
+        "paper_pending",
+        "paper_correction",
+        "paper_request_anchor",
+        "paper_stop_history"
+      ],
+      "paper_position": 3,
+      "paper_order": 13,
+      "paper_fill": 6
+    },
+    "3b": {
+      "exists": true,
+      "tables": [
+        "paper_account",
+        "paper_prompt",
+        "paper_order",
+        "sqlite_sequence",
+        "paper_position",
+        "paper_funding",
+        "paper_equity",
+        "paper_blocked",
+        "paper_processed",
+        "paper_fill",
+        "paper_realized",
+        "paper_state",
+        "paper_funding_gap",
+        "paper_funding_correction",
+        "paper_command",
+        "paper_pending",
+        "paper_correction",
+        "paper_request_anchor",
+        "paper_stop_history"
+      ],
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0
+    },
+    "3c": {
+      "exists": true,
+      "tables": [
+        "paper_account",
+        "paper_prompt",
+        "paper_order",
+        "sqlite_sequence",
+        "paper_position",
+        "paper_funding",
+        "paper_equity",
+        "paper_blocked",
+        "paper_processed",
+        "paper_fill",
+        "paper_realized",
+        "paper_state",
+        "paper_funding_gap",
+        "paper_funding_correction",
+        "paper_command",
+        "paper_pending",
+        "paper_correction",
+        "paper_request_anchor",
+        "paper_stop_history"
+      ],
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0
+    },
+    "3d": {
+      "exists": true,
+      "tables": [
+        "paper_account",
+        "paper_prompt",
+        "paper_order",
+        "sqlite_sequence",
+        "paper_position",
+        "paper_funding",
+        "paper_equity",
+        "paper_blocked",
+        "paper_processed",
+        "paper_fill",
+        "paper_realized",
+        "paper_state",
+        "paper_funding_gap",
+        "paper_funding_correction",
+        "paper_command",
+        "paper_pending",
+        "paper_correction",
+        "paper_request_anchor",
+        "paper_stop_history"
+      ],
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0
+    }
+  },
+  "api": {
+    "current_total": 0,
+    "current_items": 0,
+    "current_as_of": null,
+    "current_excluded_breakdown": {
+      "db_rows_total": 0,
+      "kept": 0,
+      "excluded": 0,
+      "by_reason": {
+        "not_current_origin": 0,
+        "not_enterable": 0,
+        "missing_time": 0,
+        "before_effective_floor": 0,
+        "not_arm_entry_role": 0,
+        "test_synthetic": 0
+      },
+      "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+    },
+    "all_total": 0,
+    "all_items": 0,
+    "live_start_ms": 1792748844240,
+    "paper_epoch_ms": 1791939600000,
+    "effective_floor_ms": 1792748844240,
+    "universe": 526,
+    "state_counter": {
+      "IDLE": 191,
+      "BOX": 300,
+      "RETEST": 14,
+      "SWEEP": 21
+    },
+    "funnel": {
+      "since_start": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 0,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "history": {
+        "BOX": 7932,
+        "SWEEP": 1923,
+        "RETEST": 1165,
+        "CANDIDATE": 51,
+        "VOLUME_REJECTED": 7,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 4118,
+        "EXPIRED": 3388,
+        "MISSED_WITHOUT_RETEST": 33
+      },
+      "candidates_since_start": 0,
+      "last_candidate_ms": null,
+      "last_candidate_utc": null,
+      "history_candidates_discarded": 51,
+      "bootstrap_window_hours": 2884,
+      "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+    },
+    "idle_breakdown_counts": {
+      "IDLE_COOLING": 141,
+      "IDLE_WAIT_BOX": 31,
+      "IDLE_READY_BOX": 19
+    },
+    "idle_total": 191,
+    "bootstrap_hist_discarded": 51,
+    "bootstrap_detail_n": 51,
+    "bootstrap_detail_consistent": true,
+    "bootstrap_recovered": 0
+  },
+  "discarded_recompute": {
+    "n_detail": 51,
+    "n_unique_ids": 51,
+    "n_after_paper_epoch": 0,
+    "n_bad_reason": 0,
+    "latest_snapshot_utc": "2026-10-11T20:00:00Z",
+    "earliest_snapshot_utc": "2026-07-24T08:00:00Z",
+    "funnel_history_CANDIDATE": 51,
+    "self_reported_history_candidates_discarded": 51,
+    "self_reported_detail_n": 51
+  },
+  "per_symbol": {
+    "n_per_symbol_state": 526,
+    "state_dist_recomputed": {
+      "IDLE": 191,
+      "BOX": 300,
+      "RETEST": 14,
+      "SWEEP": 21
+    },
+    "state_counter_reported": {
+      "IDLE": 191,
+      "BOX": 300,
+      "RETEST": 14,
+      "SWEEP": 21
+    },
+    "sum_state_counter": 526
+  },
+  "page": {
+    "ok": true,
+    "diagnostic_rows": [
+      "最近处理到",
+      "行情最新",
+      "当前阶段",
+      "本进程漏斗",
+      "历史回放",
+      "最近候选",
+      "空转原因",
+      "样例"
+    ],
+    "key_values": {
+      "最近处理到": "1h 10-25 09:00 UTC · 4h 10-25 04:00 UTC",
+      "行情最新": "1h 10-25 09:59 UTC · 4h 10-25 07:59 UTC",
+      "当前阶段": "箱体观察 300 · 空转 191 · 已扫低 21 · 待突破 14",
+      "本进程漏斗": "箱体 0 → 扫低 0 → 回踩 0 → 候选 0",
+      "历史回放": "箱体 7932 → 扫低 1923 → 回踩 1165 → 候选 51（丢弃 51 · 恢复 0）",
+      "最近候选": "本次启动后没有产生候选",
+      "空转原因": "冷却中（距上次事件不足 24h） 141；箱体条件未满足（宽度或 ER 超阈） 31；条件已满足，等下一根 4h 收盘建档 19",
+      "样例": "0GUSDT：冷却中（距上次事件不足 24h）（实际 2026-10-25T14:00:00Z / 阈值 冷却 24h）"
+    },
+    "discarded_rows_on_page": 51,
+    "cards": 0
+  },
+  "three_way": {
+    "db_rows": 0,
+    "api_total": 0,
+    "page_cards": 0,
+    "consistent": true
+  },
+  "gap_since_last_candidate_days": 13.62
+}

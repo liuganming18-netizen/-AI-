@@ -1,0 +1,733 @@
+{
+ "generated_at_utc": "2026-10-25T05:05:53Z",
+ "n_checks": 98,
+ "n_pass": 98,
+ "all_pass": true,
+ "rows": [
+  {
+   "claim": "冻结规则 SHA-256 未变",
+   "expected": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+   "actual": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+   "pass": true,
+   "source": "01_规范与实现对照.json"
+  },
+  {
+   "claim": "冻结参数 atr_warmup_bars",
+   "expected": 200,
+   "actual": 200,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "冻结参数 box_bars_4h",
+   "expected": 42,
+   "actual": 42,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "冻结参数 breakout_max_total_hours",
+   "expected": 336,
+   "actual": 336,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "冻结参数 cooling_hours",
+   "expected": 24,
+   "actual": 24,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "冻结参数 risk_budget_per_trade",
+   "expected": 0.005,
+   "actual": 0.005,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "冻结参数 max_active_positions",
+   "expected": 3,
+   "actual": 3,
+   "pass": true,
+   "source": "make_ft_low4h_config()"
+  },
+  {
+   "claim": "窗口内 4h 根数",
+   "expected": 290,
+   "actual": 290,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "旧口径有效事件窗口（天）",
+   "expected": 15.0,
+   "actual": 15.0,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "规范口径有效事件窗口（天）",
+   "expected": 41.33,
+   "actual": 41.33,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "被吃掉的天数",
+   "expected": 26.33,
+   "actual": 26.33,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "最长事件链（天）",
+   "expected": 24.0,
+   "actual": 24.0,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "旧口径装不下最长事件链",
+   "expected": false,
+   "actual": false,
+   "pass": true,
+   "source": "01.quantification"
+  },
+  {
+   "claim": "04 旧口径箱体数",
+   "expected": 1598,
+   "actual": 1598,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "04 只改闸门箱体数",
+   "expected": 3688,
+   "actual": 3688,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "04 规范口径箱体数",
+   "expected": 4257,
+   "actual": 4257,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "04 旧口径候选数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "04 只改闸门候选数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "04 规范口径候选数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "04_闸门对照.json"
+  },
+  {
+   "claim": "修复前 窗口移 60h 状态差异",
+   "expected": 32,
+   "actual": 32,
+   "pass": true,
+   "source": "03_三场景对照_修复前.json"
+  },
+  {
+   "claim": "修复后 窗口移 60h 状态差异",
+   "expected": 6,
+   "actual": 6,
+   "pass": true,
+   "source": "03_三场景对照.json"
+  },
+  {
+   "claim": "修复后 严格同长度 60h 重建差异",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "03_三场景对照.json"
+  },
+  {
+   "claim": "修复前 不重启候选数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "03_三场景对照_修复前.json"
+  },
+  {
+   "claim": "修复前 初始化后接60h候选数",
+   "expected": 2,
+   "actual": 2,
+   "pass": true,
+   "source": "03_三场景对照_修复前.json"
+  },
+  {
+   "claim": "修复后 S1 不重启候选数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "03_三场景对照.json"
+  },
+  {
+   "claim": "修复后 S2 接60h候选数（增量非丢失）",
+   "expected": 20,
+   "actual": 20,
+   "pass": true,
+   "source": "03_三场景对照.json"
+  },
+  {
+   "claim": "parity 通过数",
+   "expected": 526,
+   "actual": 526,
+   "pass": true,
+   "source": "05_修复后parity.json"
+  },
+  {
+   "claim": "parity 不一致数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "05_修复后parity.json"
+  },
+  {
+   "claim": "生产/诊断候选 ID 集合相同",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "05_修复后parity.json"
+  },
+  {
+   "claim": "修复后箱体数",
+   "expected": 4257,
+   "actual": 4257,
+   "pass": true,
+   "source": "05_修复后parity.json"
+  },
+  {
+   "claim": "生产核验 PASS 数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "06_生产核验_对比.json"
+  },
+  {
+   "claim": "生产核验 全通过",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "06_生产核验_对比.json"
+  },
+  {
+   "claim": "生产 history BOX",
+   "expected": 4262,
+   "actual": 4262,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "生产 history CANDIDATE",
+   "expected": 18,
+   "actual": 18,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "历史候选丢弃数",
+   "expected": 18,
+   "actual": 18,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "生产建档口径",
+   "expected": "atr_warmup",
+   "actual": "atr_warmup",
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "生产闸门判据",
+   "expected": "atr_bars_seen",
+   "actual": "atr_bars_seen",
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "生产 since_start 候选",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "应触发候选数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "07_应触发复算.json"
+  },
+  {
+   "claim": "六项条件全通过数",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "07_应触发复算.json"
+  },
+  {
+   "claim": "负例数",
+   "expected": 28,
+   "actual": 28,
+   "pass": true,
+   "source": "07_不应触发核对.json"
+  },
+  {
+   "claim": "负例违规数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "07_不应触发核对.json"
+  },
+  {
+   "claim": "RETEST 距突破中位数",
+   "expected": 16.1582,
+   "actual": 16.1582,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "当前 BOX 数",
+   "expected": 320,
+   "actual": 320,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "当前 RETEST 数",
+   "expected": 34,
+   "actual": 34,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "生产阶段计数 == 离线同截止",
+   "expected": {
+    "IDLE": 167,
+    "BOX": 320,
+    "RETEST": 34,
+    "SWEEP": 5
+   },
+   "actual": {
+    "IDLE": 167,
+    "BOX": 320,
+    "RETEST": 34,
+    "SWEEP": 5
+   },
+   "pass": true,
+   "source": "06_生产核验_post.json vs 07_当前卡点汇总.json"
+  },
+  {
+   "claim": "生产自报新信号数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "卡点-冷却中币数",
+   "expected": 139,
+   "actual": 139,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "卡点-无箱体币数",
+   "expected": 28,
+   "actual": 28,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "卡点-等扫低币数",
+   "expected": 320,
+   "actual": 320,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "卡点-等突破币数",
+   "expected": 34,
+   "actual": 34,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "卡点-等缩量回踩币数",
+   "expected": 5,
+   "actual": 5,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "RETEST 距突破最小百分比",
+   "expected": 6.9196,
+   "actual": 6.9196,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "RETEST 距突破最大百分比",
+   "expected": 32.9729,
+   "actual": 32.9729,
+   "pass": true,
+   "source": "07_当前卡点汇总.json"
+  },
+  {
+   "claim": "逐币归因行数",
+   "expected": 526,
+   "actual": 526,
+   "pass": true,
+   "source": "02_逐币归因.csv"
+  },
+  {
+   "claim": "逐币归因箱体合计",
+   "expected": 4257,
+   "actual": 4257,
+   "pass": true,
+   "source": "02_汇总.json"
+  },
+  {
+   "claim": "逐币归因候选合计",
+   "expected": 17,
+   "actual": 17,
+   "pass": true,
+   "source": "02_汇总.json"
+  },
+  {
+   "claim": "修复前 被预热门槛拦掉的根次",
+   "expected": 61962,
+   "actual": 61962,
+   "pass": true,
+   "source": "02_汇总_修复前.json"
+  },
+  {
+   "claim": "修复前 阶段分布",
+   "expected": {
+    "IDLE": 161,
+    "BOX": 323,
+    "RETEST": 35,
+    "SWEEP": 7
+   },
+   "actual": {
+    "IDLE": 161,
+    "BOX": 323,
+    "RETEST": 35,
+    "SWEEP": 7
+   },
+   "pass": true,
+   "source": "02_汇总_修复前.json"
+  },
+  {
+   "claim": "修复后 阶段分布（离线）",
+   "expected": {
+    "IDLE": 169,
+    "BOX": 318,
+    "RETEST": 34,
+    "SWEEP": 5
+   },
+   "actual": {
+    "IDLE": 169,
+    "BOX": 318,
+    "RETEST": 34,
+    "SWEEP": 5
+   },
+   "pass": true,
+   "source": "02_汇总.json"
+  },
+  {
+   "claim": "修复前 回放期 BOX",
+   "expected": 1598,
+   "actual": 1598,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 BOX",
+   "expected": 4262,
+   "actual": 4262,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "修复前 回放期 CANDIDATE",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 CANDIDATE",
+   "expected": 18,
+   "actual": 18,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "修复前 回放期 SWEEP",
+   "expected": 489,
+   "actual": 489,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 SWEEP",
+   "expected": 1085,
+   "actual": 1085,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "修复前 回放期 RETEST",
+   "expected": 278,
+   "actual": 278,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 RETEST",
+   "expected": 649,
+   "actual": 649,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "修复前 回放期 INVALIDATED",
+   "expected": 1044,
+   "actual": 1044,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 INVALIDATED",
+   "expected": 2325,
+   "actual": 2325,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "修复前 回放期 EXPIRED",
+   "expected": 184,
+   "actual": 184,
+   "pass": true,
+   "source": "06_生产核验_pre.json"
+  },
+  {
+   "claim": "修复后 回放期 EXPIRED",
+   "expected": 1536,
+   "actual": 1536,
+   "pass": true,
+   "source": "06_生产核验_post.json"
+  },
+  {
+   "claim": "回溯抽样样本数",
+   "expected": 8,
+   "actual": 8,
+   "pass": true,
+   "source": "11_回溯抽样.json"
+  },
+  {
+   "claim": "回溯比对项数",
+   "expected": 44,
+   "actual": 44,
+   "pass": true,
+   "source": "11_回溯抽样.json"
+  },
+  {
+   "claim": "回溯未比到项数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "11_回溯抽样.json"
+  },
+  {
+   "claim": "回溯不符项数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "11_回溯抽样.json"
+  },
+  {
+   "claim": "回溯全通过（非空转）",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "11_回溯抽样.json"
+  },
+  {
+   "claim": "回溯截止锚定 02 的截止时刻",
+   "expected": "2026-10-25T02:59:59Z",
+   "actual": "2026-10-25T02:59:59Z",
+   "pass": true,
+   "source": "11_回溯抽样.json vs 02_汇总.json"
+  },
+  {
+   "claim": "策略测试通过数",
+   "expected": 115,
+   "actual": 115,
+   "pass": true,
+   "source": "13_测试_策略.txt"
+  },
+  {
+   "claim": "旧口径最后被拦 4h",
+   "expected": "2026-10-09T23:59:59Z",
+   "actual": "2026-10-09T23:59:59Z",
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "旧口径首次建出箱体（=开闸时刻）",
+   "expected": "2026-10-10T03:59:59Z",
+   "actual": "2026-10-10T03:59:59Z",
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "规范口径窗口第一根即可建档",
+   "expected": "{'2026-09-06T23:59:59Z'}",
+   "actual": "{'2026-09-06T23:59:59Z'}",
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "规范候选早于开闸的个数",
+   "expected": 14,
+   "actual": 14,
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "规范候选晚于开闸的个数",
+   "expected": 3,
+   "actual": 3,
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "晚于开闸的候选名单",
+   "expected": [
+    "BBUSDT",
+    "METISUSDT",
+    "WALUSDT"
+   ],
+   "actual": [
+    "BBUSDT",
+    "METISUSDT",
+    "WALUSDT"
+   ],
+   "pass": true,
+   "source": "14_开闸时刻实测.json"
+  },
+  {
+   "claim": "新增小时线 水位前进",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 逐币滞后",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 lag>1 的币数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 逐币阶段变化数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 空转自证（水位不同的币数）",
+   "expected": 526,
+   "actual": 526,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 生产新候选",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 账本未变",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新增小时线 真实交易仍关闭",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "12_新增K线效果.json"
+  },
+  {
+   "claim": "新截止离线箱体数",
+   "expected": 4262,
+   "actual": 4262,
+   "pass": true,
+   "source": "02_汇总_upto1792904399999.json"
+  },
+  {
+   "claim": "新截止离线候选数",
+   "expected": 18,
+   "actual": 18,
+   "pass": true,
+   "source": "02_汇总_upto1792904399999.json"
+  },
+  {
+   "claim": "UI 四块全可见",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "08_用户入口.json"
+  },
+  {
+   "claim": "UI 数字 parity 全通过",
+   "expected": true,
+   "actual": true,
+   "pass": true,
+   "source": "08_用户入口.json"
+  },
+  {
+   "claim": "UI console 错误数",
+   "expected": 0,
+   "actual": 0,
+   "pass": true,
+   "source": "08_用户入口.json"
+  }
+ ],
+ "note": "只读产物复算，不重跑回放；每条都写明 expected / actual / 来源文件。任一 FAIL 都说明主报告的数字与产物不一致，必须改报告或改脚本。"
+}

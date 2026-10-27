@@ -1,0 +1,32 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "question": "研究导出里「无成交默认超时」的归因方式",
+  "defect": {
+    "file": "evidence/FACTOR-ENTRY-01/stage2_candidate_feature_pipeline.py",
+    "lines": "116-117（读 request_time）、267-270（落 UNFILLED_TIMEOUT）",
+    "mechanism": "引擎 rejected_orders 的字段是 timestamp / symbol / phase / reason，没有 request_time ⇒ t_req = int(r.get('request_time', 0)) 恒为 0 ⇒ 0 <= (0 - t_snap) <= 7200000 恒为 False ⇒ 匹配分支是死代码 ⇒ 全部落到 UNFILLED_TIMEOUT，reject_reason 全空",
+    "type": "归因方式缺陷（默认值冒充观测值）"
+  },
+  "fix_applied_here": {
+    "scope": "只在本证据目录新增修正版导出，未改动上游文件（工单禁止）",
+    "method": "按候选身份 candidate_id（= 引擎 signal_id）取 ValidationResult.execution_canceled_reason，并用 ledger 的 SIGNAL_REJECTED 原始事件交叉印证；两者都取不到 ⇒ 标 UNKNOWN，不猜、不默认",
+    "output": "01_unfilled_reason_fixed.csv"
+  },
+  "counts": {
+    "rows": 22,
+    "old_label_UNFILLED_TIMEOUT": 22,
+    "old_reject_reason_nonempty": 0,
+    "replay_found": 22,
+    "actual_reason_nonnull": 22,
+    "reason_kind_counts": {
+      "canceled_gap_above_0.5a": 13,
+      "canceled_fell_back_into_box": 9
+    },
+    "evidence_level_counts": {
+      "原始拒单事件+身份结果一致": 22
+    },
+    "fe4_static_json_compared": 22,
+    "fe4_static_json_matches_engine": 22
+  },
+  "verdict": "旧标签「UNFILLED_TIMEOUT」22/22 都是代码默认值，不是观测结果；修正后 22/22 条拿到引擎真实拒单原因，全部来自 SIGNAL_REJECTED 原始事件，无一条需要猜。"
+}

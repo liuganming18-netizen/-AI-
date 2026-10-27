@@ -1,0 +1,76 @@
+{
+  "audit": "ENTRY-AUDIT-04",
+  "stage": "第二阶段 · FE07 独立一致性验收",
+  "generated_utc": "2026-10-18 09:33:21",
+  "fe07_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FACTOR-ENTRY-07",
+  "fe07_exists": false,
+  "handoff_primary_sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+  "status": "PENDING_DELIVERY",
+  "conclusion": "FE07 尚未交付（evidence/ 下只有 FACTOR-ENTRY-01~06）⇒ 第二阶段无法执行。本工单只完成第一阶段（冻结可交接账本），不得报整体完成。",
+  "ready_checks": [
+    {
+      "序号": 1,
+      "检查项": "读取的是否为 ENTRY-AUDIT-04 交接包",
+      "判定规则": "FE07 产物或脚本里应出现 ENTRY-AUDIT-04/handoff/ledger_handoff；出现 ['FACTOR-ENTRY-03/candidate_features_enriched', 'total_fees', 'total_funding'] 任一即判 FAIL"
+    },
+    {
+      "序号": 2,
+      "检查项": "匹配关系核验",
+      "判定规则": "candidate_id 与交接包 227 个 ID 比；未匹配 / 遗漏 / 多重匹配任一非 0 即 FAIL"
+    },
+    {
+      "序号": 3,
+      "检查项": "费用与净盈亏逐笔对账",
+      "判定规则": "gross_pnl / fees / funding_fee / net_pnl 四列逐笔比，容差 1e-9；并用 FE07 自己的四个数复算 net_pnl = gross_pnl - fees - funding_fee"
+    },
+    {
+      "序号": 4,
+      "检查项": "独立分类比对",
+      "判定规则": "三套标签与本基准 01_baseline_features 逐条比；并专项查「被标为浮盈回吐但 net_pnl>0」的条数"
+    },
+    {
+      "序号": 5,
+      "检查项": "不依赖费用字段的不变性",
+      "判定规则": "signal_atr_snapshot / box_atr_formation / fwd_ret_4h / mfe_r_4h / mae_r_4h / first_move_4h / mfe_r / mfe_atr_full 逐字段比，容差 1e-12，NaN 对 NaN"
+    },
+    {
+      "序号": 6,
+      "检查项": "多格式数字一致 + 缺值不等于 0",
+      "判定规则": "同目录 CSV/Parquet 逐值比；已成交行的金额列若为 0 而基准非 0 即判 FAIL"
+    },
+    {
+      "序号": 7,
+      "检查项": "两条结论分开报",
+      "判定规则": "「数据一致性通过」只说明账对得上；「策略有效性未证明」必须单独陈述，不得混为一谈"
+    }
+  ],
+  "baseline_ready": {
+    "file": "evidence/ENTRY-AUDIT-04/01_baseline_features.parquet",
+    "rows": 227,
+    "filled": 205,
+    "labels_frozen": {
+      "标准混合": {
+        "CHOPPY_OR_OTHER": 94,
+        "EARLY_WEAKNESS": 67,
+        "SUSTAINED_TREND": 36,
+        "UNFILLED": 22,
+        "MFE_PULLBACK": 8
+      },
+      "纯ATR-4h": {
+        "CHOPPY_OR_OTHER": 79,
+        "EARLY_WEAKNESS": 67,
+        "MFE_PULLBACK": 39,
+        "UNFILLED": 22,
+        "SUSTAINED_TREND": 20
+      },
+      "纯ATR-全周期": {
+        "EARLY_WEAKNESS": 67,
+        "SUSTAINED_TREND": 64,
+        "MFE_PULLBACK": 47,
+        "CHOPPY_OR_OTHER": 27,
+        "UNFILLED": 22
+      }
+    },
+    "note": "基准已冻结；FE07 一到，直接跑本脚本即可出七项结论"
+  }
+}

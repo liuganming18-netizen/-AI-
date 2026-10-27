@@ -1,0 +1,44 @@
+{
+ "action": "start",
+ "http": 200,
+ "response_gate": {
+  "allow_new_entries": true,
+  "gate_reason": "new_entry_blocked_pending_closure_review",
+  "reason": "user_ui_resumed",
+  "gate_file": "/private/tmp/ui-link-01/live/paper_new_entry_gate.json",
+  "gate_scope": "server_side_new_entry_only",
+  "exits_fees_funding_health_unaffected": true,
+  "set_by": "user_ui_control",
+  "since_ms": 1792755891983
+ },
+ "response_missing_reason": null,
+ "after": {
+  "tag": "after_start",
+  "gate_file": {
+   "exists": true,
+   "path": "/tmp/ui-link-01/live/paper_new_entry_gate.json",
+   "bytes": 307,
+   "sha256": "e9084685ff4d97d707f864ead6fa4e52eb41b949b4b033d63cb8f13fc041f703",
+   "body": {
+    "allow_new_entries": true,
+    "reason": "user_ui_resumed",
+    "set_by": "user_ui_control",
+    "since_ms": 1792755891983,
+    "scope": "server_side_new_entry_only",
+    "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+   }
+  },
+  "status_side_gate": null,
+  "ledger_side_gate": {
+   "allow_new_entries": true,
+   "gate_reason": "new_entry_blocked_pending_closure_review",
+   "reason": "user_ui_resumed",
+   "gate_file": "/private/tmp/ui-link-01/live/paper_new_entry_gate.json",
+   "gate_scope": "server_side_new_entry_only",
+   "exits_fees_funding_health_unaffected": true,
+   "set_by": "user_ui_control",
+   "since_ms": 1792755891983
+  },
+  "order_processing_status": "unknown"
+ }
+}

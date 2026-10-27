@@ -1,0 +1,18 @@
+序号,维度标识,数据源名称,页面呈现状态,API健康度与时延,比对判定,备注
+1,kline_5m,K线 5分钟线,报错 (停更预警),stale (>3600s),一致,如实记录报错状态，不虚假填正常
+2,kline_15m,K线 15分钟线,正常,fresh (<15s),一致,执行撮合基准
+3,kline_30m,K线 30分钟线,正常,fresh (<15s),一致,多周期对齐
+4,kline_1h,K线 1小时线,正常,fresh (<15s),一致,突破确认周期
+5,kline_4h,K线 4小时线,正常,fresh (<15s),一致,跟踪出场周期
+6,kline_8h,K线 8小时线,正常,fresh (<15s),一致,结构分析
+7,kline_12h,K线 12小时线,正常,fresh (<15s),一致,结构分析
+8,kline_1d,K线 日线,正常,fresh (<15s),一致,趋势背景
+9,oi,未平仓持仓量 (OI),正常,fresh (<30s),一致,全池快照
+10,funding,资金费率,报错 (停更预警),stale (>28800s),一致,如实记录报错状态
+11,metrics_history,衍生品多空比,正常,fresh (<60s),一致,大户持仓比
+12,smart_money,聪明钱资金流,正常,fresh (<60s),一致,异常大单监控
+13,realtime_quotes,全市场实时行情,正常,fresh (<10s),一致,估值专用
+14,circulating,代币流通市值,正常,cached,一致,静态字典
+15,classification,资产板块分类,正常,cached,一致,行业概念分类
+16,taker_volume,主动买卖量,正常,fresh (<60s),一致,因果量能共振
+17,oi_circulating,持仓量流通比,正常,fresh (<60s),一致,杠杆拥挤度

@@ -1,0 +1,10 @@
+{
+  "files_written": 45,
+  "dyn_groups_checked": 18,
+  "dyn_core_all_identical": true,
+  "dyn_max_abs_d_effective_stop": 1.4551915228366852e-11,
+  "dyn_tail_extra_rows": 149,
+  "tail_caveat": "`tail_extra_rebuilt` = 重建比实测多出的行，全部是**收盘时刻恰好等于退出时刻**的那根 4h bar。策略是否在平仓前调用过一次 custom_stoploss 取决于引擎内部顺序（实测 42 笔里有 4 笔没被观测到）。该行**不改变**生效止损值（`max_abs_d_effective_stop` ≈ 1e-14，浮点噪声），也不改变已实现盈亏。",
+  "meaning": "动态组「重建轨迹」与策略「自己落盘的轨迹」在全部匹配行上 stage / d / 生效止损完全一致 ⇒ 重建程序与基类 `custom_stoploss` 规则一致；因此用它补固定组（A/B/P1）的生效止损轨迹是确定性补全，不是估算。",
+  "note": "固定组（A/B/P1）无策略自落盘轨迹，本表 `source=reconstructed`。"
+}

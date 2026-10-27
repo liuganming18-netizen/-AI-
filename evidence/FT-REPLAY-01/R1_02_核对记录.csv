@@ -1,0 +1,9 @@
+﻿检查项,结论,实测,数字,样例
+A 逐笔一致性,PASS,上游 4325 笔 -3678.734934｜系统 4325 笔 -3678.734934｜差额 0.000000000,"{""upstream_trades"": 4325, ""system_trades"": 4325, ""upstream_net"": -3678.734934, ""system_net"": -3678.734934, ""diff"": 0.0}",
+B 时间链单调,PASS,C: 0/2995 违反；C1: 0/740 违反；C2: 0/590 违反｜另：65 笔为上游「同一毫秒进出」（trade_duration=0），非映射错误,"{""violations"": {}, ""by_mode"": {""C1"": 740, ""C2"": 590, ""C"": 2995}, ""upstream_zero_duration"": 65}",
+C 标记可关联真实交易,PASS,chart.trades 共 4325 条｜无 trade_id 0｜孤儿 0,"{""chart_trades"": 4325, ""no_trade_id"": 0, ""orphan"": 0}",
+D 确认环节只在 C1/C2,PASS,C0 成交 2995 笔，带确认时间/标记 0｜C1/C2 成交 1330 笔，缺确认时间 0,"{""c0_trades"": 2995, ""c0_with_confirm"": 0, ""c12_trades"": 1330, ""c12_without_confirm"": 0}",
+E K 线覆盖被聚焦那笔的全部标记,PASS,抽样 12 个 run（各取第一笔，带 focus_ms）：12 个四点全在图内；0 个有问题,"{""sampled"": 12, ""ok"": 12, ""bad"": 0}",
+H 批次入口自洽,PASS,批次 runs_ft_replay_01：汇总 1065 个 run / 4325 笔 / 净盈亏 -3678.73493358；清单 1065 行且逐行带研究期标记；汇总↔逐笔两项核对 True/True,"{""runs_total"": 1065, ""runs_rows"": 1065, ""trades_total"": 4325, ""trades_rows"": 4325, ""net_pnl_sum"": -3678.73493358, ""net_pnl_from_rows"": -3678.73493358, ""checks_trades"": true, ""checks_net"": true}",
+F 缺失显式（不填 0）,PASS,4325 笔中：P0 缺 2995｜计划风险缺 4325｜数量缺 0｜仓位金额缺 0｜信号时间缺 0｜填 0 的 0,"{""trades"": 4325, ""null_counts"": {""planned_risk_usdt"": 4325, ""P0"": 2995}, ""zero_filled"": 0}",
+G 账本隔离,PASS,1065 个 run：全部带 research_period + ft_replay_import 登记，无账本文件；异常 0,"{""runs"": 1065, ""bad"": 0}",

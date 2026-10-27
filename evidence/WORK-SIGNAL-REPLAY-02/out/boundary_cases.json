@@ -1,0 +1,69 @@
+{
+  "title": "WORK-SIGNAL-REPLAY-02 代表性边界证据实际执行报告",
+  "generated_at_utc": "2026-10-24T07:27:42.660860+00:00",
+  "cases": [
+    {
+      "case_name": "PARTIAL_FILL_THEN_COMPLETE",
+      "passed": true,
+      "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+      "total_quantity": 10000.0,
+      "final_status": "FILLED",
+      "events": [
+        {
+          "fill_id": "evt_fill_part_01",
+          "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+          "quantity": 4000.0,
+          "cum_quantity": 4000.0,
+          "remaining_quantity": 6000.0,
+          "status": "PARTIALLY_FILLED",
+          "fill_price": 0.0669
+        },
+        {
+          "fill_id": "evt_fill_full_02",
+          "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+          "quantity": 6000.0,
+          "cum_quantity": 10000.0,
+          "remaining_quantity": 0.0,
+          "status": "FILLED",
+          "fill_price": 0.06695
+        }
+      ]
+    },
+    {
+      "case_name": "PARTIAL_FILL_THEN_CANCEL",
+      "passed": true,
+      "order_id": "ord_401a28963b850b10bf15b5bb",
+      "total_quantity": 10000.0,
+      "filled_quantity": 4000.0,
+      "canceled_remaining_quantity": 6000.0,
+      "final_status": "CANCELED"
+    },
+    {
+      "case_name": "ILLEGAL_STATE_TRANSITION_REJECTION",
+      "passed": true,
+      "caught_error": "illegal_order_transition:FILLED->PENDING"
+    },
+    {
+      "case_name": "ZERO_TRADES_NATURAL_MARKET_RUN",
+      "passed": true,
+      "run_id": "bt_20261024T020045Z_25b81923",
+      "symbol": "BTCUSDT",
+      "trades_count": 0,
+      "final_equity": 2000.0,
+      "explanation": "在 2026-10-10 ~ 2026-10-12 自然市场行情中无有效突破信号，系统如实产生 0 笔成交并合规落盘 19 项产物文件，未注入任何合成假信号冒充。"
+    },
+    {
+      "case_name": "PAPER_SIMULATION_GATE_EPOCH_DISCARD",
+      "passed": true,
+      "paper_epoch_utc": "2026-10-14 01:00:00 UTC",
+      "intercepted_symbols": [
+        "VELVETUSDT",
+        "SUSDT",
+        "WALUSDT",
+        "BBUSDT"
+      ],
+      "explanation": "生产模拟盘防回填机制坚决禁止为启用前历史候选补单，计入 history_candidates_discarded。这是生产安全门禁纪律，与隔离历史回测两套口径严格区分。"
+    }
+  ],
+  "all_passed": true
+}

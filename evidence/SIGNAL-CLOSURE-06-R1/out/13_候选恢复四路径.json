@@ -1,0 +1,150 @@
+{
+ "generated_at_utc": "2026-10-25T07:16:00Z",
+ "upto_utc": "2026-10-25T04:59:59Z",
+ "paper_epoch_utc": "2026-10-14T01:00:00Z",
+ "max_fill_lag_ms": 3600000,
+ "iso_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06-R1/out/13_iso",
+ "prod_market_db_untouched": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+ "symbols": [
+  "BBUSDT",
+  "METISUSDT",
+  "WALUSDT"
+ ],
+ "main_case": {
+  "symbol": "METISUSDT",
+  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+  "snapshot_ms": 1791748800000,
+  "snapshot_utc": "2026-10-11T20:00:00Z",
+  "available_ms": 1791748800000,
+  "available_utc": "2026-10-11T20:00:00Z",
+  "exec_earliest_ms": 1791749700000,
+  "exec_earliest_utc": "2026-10-11T20:15:00Z",
+  "after_paper_epoch": false,
+  "within_fill_lag_of_Tr": false,
+  "recoverable_at_Tr": false,
+  "volume_ratio": 9.143213625120667,
+  "breakout_close": 3.856
+ },
+ "candidates_source": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06-R1/out/19_真实历史候选清单.json",
+ "n_real_candidates": 51,
+ "n_after_paper_epoch": 0,
+ "n_recoverable_at_Tr": 0,
+ "scenarios": {
+  "A_过期历史候选_拒绝且不下单": {
+   "scenario": "A_过期历史候选_拒绝且不下单",
+   "note": "真实候选（早于启用时点）+ 重启时刻仍在成交时效内 ⇒ 应进恢复池，但被既有 epoch 闸门拒绝，且不产生持仓",
+   "upto_utc": "2026-10-11T20:20:00Z",
+   "bootstrap_recovered": 1,
+   "bootstrap_discarded": 2,
+   "recovered_detail": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "symbol": "METISUSDT",
+     "snapshot_utc": "2026-10-11T20:00:00Z",
+     "available_at_utc": "2026-10-11T20:00:00Z",
+     "execution_earliest_utc": "2026-10-11T20:15:00Z",
+     "age_ms_at_bootstrap": 1200000,
+     "max_fill_lag_ms": 3600000
+    }
+   ],
+   "route": {
+    "recovered": 1,
+    "persisted": 1,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "open_position_calls": [],
+   "reject_reasons": [],
+   "ledger": {
+    "paper_order": 0,
+    "paper_position": 0,
+    "paper_processed": 0,
+    "rejects": {},
+    "signal_uids": []
+   },
+   "direct_open_position": {
+    "ok": false,
+    "reason": "before_paper_epoch_no_backfill",
+    "status": null,
+    "now_utc": "2026-10-11T20:20:00Z",
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000"
+   },
+   "ledger_after_direct": {
+    "paper_order": 0,
+    "paper_position": 0,
+    "paper_processed": 0,
+    "rejects": {},
+    "signal_uids": []
+   }
+  },
+  "C_同一候选重复恢复": {
+   "scenario": "C_同一候选重复恢复",
+   "note": "与 A 完全相同的重启时刻再跑一次 ⇒ 订单/持仓行数不得增加",
+   "upto_utc": "2026-10-11T20:20:00Z",
+   "bootstrap_recovered": 1,
+   "bootstrap_discarded": 2,
+   "recovered_detail": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "symbol": "METISUSDT",
+     "snapshot_utc": "2026-10-11T20:00:00Z",
+     "available_at_utc": "2026-10-11T20:00:00Z",
+     "execution_earliest_utc": "2026-10-11T20:15:00Z",
+     "age_ms_at_bootstrap": 1200000,
+     "max_fill_lag_ms": 3600000
+    }
+   ],
+   "route": {
+    "recovered": 1,
+    "persisted": 1,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "open_position_calls": [],
+   "reject_reasons": [],
+   "ledger": {
+    "paper_order": 0,
+    "paper_position": 0,
+    "paper_processed": 0,
+    "rejects": {},
+    "signal_uids": []
+   }
+  },
+  "B_停机期间仍有效候选": {
+   "verdict": "UNVERIFIED",
+   "note": "epoch 之后真实候选 0 个、Tr 时刻可恢复 0 个 ⇒ 无真实样本。最新真实候选 2026-10-11T20:00:00Z 早于启用时点 2026-10-14T01:00:00Z。按纪律记 UNVERIFIED，不平移时间轴。"
+  },
+  "D_恢复后新增候选": {
+   "verdict": "UNVERIFIED",
+   "note": "epoch 之后真实候选 0 个、Tr 时刻可恢复 0 个 ⇒ 无真实样本。最新真实候选 2026-10-11T20:00:00Z 早于启用时点 2026-10-14T01:00:00Z。按纪律记 UNVERIFIED，不平移时间轴。"
+  }
+ },
+ "idempotency": {
+  "order_before": 0,
+  "order_after": 0,
+  "pos_before": 0,
+  "pos_after": 0,
+  "n_signal_uid_before": 0,
+  "n_signal_uid_after": 0,
+  "no_duplicate_order": true,
+  "no_duplicate_position": true
+ },
+ "gate_check": {
+  "route_passes_epoch_ms": false,
+  "paper_epoch_unchanged": true,
+  "route_source_lines": 42,
+  "note": "`_route_recovered_candidates` 源码里若出现 `epoch_ms` 就说明调用方在回填时钟；生产路径不允许。"
+ },
+ "verdicts": {
+  "A_过期历史候选_拒绝且不下单": "PASS",
+  "C_同一候选重复恢复": "PASS",
+  "B_停机期间仍有效候选": "UNVERIFIED",
+  "D_恢复后新增候选": "UNVERIFIED",
+  "生产门禁未放宽": "PASS"
+ },
+ "verdict_note": "A/C 用真实候选与真实行情验证；B/D 因「epoch 之后 0 个真实候选」记 UNVERIFIED。**没有**通过平移启用时点或放宽门禁制造成功案例。"
+}

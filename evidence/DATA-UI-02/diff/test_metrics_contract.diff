@@ -1,0 +1,44 @@
+diff --git a/tmp/dui02_base/test_metrics_contract.py "b/\346\241\206\346\236\266/backend/tests/test_metrics_contract.py"
+index f6d24b0..d2fb6e6 100644
+--- a/tmp/dui02_base/test_metrics_contract.py
++++ "b/\346\241\206\346\236\266/backend/tests/test_metrics_contract.py"
+@@ -415,5 +415,39 @@ class ContractTest(unittest.TestCase):
+                          "欧易无原生 8h，不得声称支持")
+ 
+ 
++class RotationFreshnessTest(unittest.TestCase):
++    """判据 6：轮转补采块的过期阈值必须跟随轮转周期，不能比周期还短。"""
++
++    def test_threshold_follows_rotation_cycle(self):
++        import metrics_api as m
++        self.assertGreater(m.ROTATION_STALE_S, 900,
++                           "轮转块阈值必须长于默认 900s，否则永远判过期")
++        self.assertEqual(m.ROTATION_STALE_S, int(m.ROTATION_CYCLE_S * 1.2))
++
++    def test_core_block_keeps_short_threshold(self):
++        """核心块每轮都取，阈值不能跟着放宽（否则真过期也看不出来）。"""
++        import metrics_api as m
++        self.assertNotIn("top_position_ls_ratio", m.ROTATION_RATIO_KEYS)
++        self.assertEqual(set(m.ROTATION_RATIO_KEYS),
++                         {"top_account_ls_ratio", "global_account_ls_ratio"})
++
++    def test_rotation_keys_exist_in_snapshot_blocks(self):
++        import metrics_api as m
++        for k in m.ROTATION_RATIO_KEYS:
++            self.assertIn(k, m.SNAPSHOT_RATIO_BLOCKS,
++                          "轮转键必须能在快照块映射里找到，否则阈值改不到")
++
++    def test_field_rows_expose_threshold(self):
++        """接口返回的每个多空比字段都要带自己的阈值，前端不用猜。"""
++        import metrics_api as m
++        r = m.handle_metrics("binance", "BTCUSDT", {"period": ["1h"]})
++        for f in r["fields"]:
++            if f["key"] in m.SNAPSHOT_RATIO_BLOCKS:
++                want = (m.ROTATION_STALE_S if f["key"] in m.ROTATION_RATIO_KEYS
++                        else 900)
++                self.assertEqual(f.get("stale_after_s"), want,
++                                 f"{f['key']} 的阈值不对")
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

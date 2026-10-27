@@ -1,0 +1,42 @@
+diff --git a/UI界面/web/src/components/backtest/AnalysisPanel.tsx b/UI界面/web/src/components/backtest/AnalysisPanel.tsx
+--- a/UI界面/web/src/components/backtest/AnalysisPanel.tsx
++++ b/UI界面/web/src/components/backtest/AnalysisPanel.tsx
+@@ -309,7 +309,11 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
+               <span className="ds-kvline__k">毛利 / 手续费 / 资金费</span>
+               <span className="ds-kvline__v">
+                 {metrics?.gross_pnl == null ? DASH : metrics.gross_pnl.toFixed(2)} /{' '}
+-                {metrics?.total_fees == null ? DASH : metrics.total_fees.toFixed(2)} /{' '}
++                {metrics?.total_fees == null
++                  ? DASH
++                  : metrics.total_fees === 0 && (metrics.total_trades ?? 0) > 0
++                    ? '0.00 (未计费用)'
++                    : metrics.total_fees.toFixed(2)} /{' '}
+                 {metrics?.total_funding_fee == null ? DASH : metrics.total_funding_fee.toFixed(2)}
+               </span>
+             </div>
+diff --git a/UI界面/web/src/components/backtest/BatchTradesTable.tsx b/UI界面/web/src/components/backtest/BatchTradesTable.tsx
+--- a/UI界面/web/src/components/backtest/BatchTradesTable.tsx
++++ b/UI界面/web/src/components/backtest/BatchTradesTable.tsx
+@@ -231,7 +231,7 @@ export const BatchTradesTable: React.FC<BatchTradesTableProps> = ({
+       </div>
+ 
+       <div className="ds-card__foot" style={{ padding: '6px 12px', fontSize: 'var(--ds-fs-2xs)', color: 'var(--ds-text-4)' }}>
+-        净盈亏 = 扣手续费与资金费后的美元值（账本逐笔口径）；交易 ID 为账本 <code>trd_…</code>，
++        净盈亏 = 扣手续费与资金费后的美元值（账本逐笔口径，若账本未计费用则未含交易成本，属研究样本状态，非实盘已验证收益）；交易 ID 为账本 <code>trd_…</code>，
+         候选 ID 为 <code>cand_ev_…</code>（与 K 线信号点同源）；初始止损取账本 <code>stop_trace</code> 首点。
+       </div>
+     </section>
+diff --git a/UI界面/web/src/components/backtest/RunInfoCard.tsx b/UI界面/web/src/components/backtest/RunInfoCard.tsx
+--- a/UI界面/web/src/components/backtest/RunInfoCard.tsx
++++ b/UI界面/web/src/components/backtest/RunInfoCard.tsx
+@@ -81,7 +81,9 @@ export const RunInfoCard: React.FC<RunInfoCardProps> = ({ detail, metrics, char
+             metrics
+               ? `${
+                   metrics.total_fees == null
+                     ? DASH
++                    : metrics.total_fees === 0 && (metrics.total_trades ?? 0) > 0
++                      ? '0.0000 (未计费用)'
+                     : metrics.total_fees.toFixed(4)
+                 } / ${
+                   metrics.total_funding_fee == null ? DASH : metrics.total_funding_fee.toFixed(4)
+                 } USDT`

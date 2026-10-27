@@ -1,0 +1,202 @@
+{
+ "task": "ACCUM-EARLY-06-06",
+ "probe": "03_零写入与幂等",
+ "generated_at_utc": "2026-10-26T18:26:21Z",
+ "零写入判据": {
+  "采用": "SQL 级（hook 记录全部下发语句）+ 负向对照 + 冷档清单哈希",
+  "不采用": "生产库文件哈希不变",
+  "原因": "生产库执行期间被外部进程（PID 91940）以读写句柄持有并持续提交，文件哈希必然变化，不能归因于本单"
+ },
+ "外部写入者": {
+  "证据": "lsof 显示 PID 91940 对 market_v2.sqlite3 与 -wal 持 u（读写）句柄；parquet/_export.lock 与库文件 mtime 同步",
+  "pid": 91940,
+  "wal_bytes_before": 434161512,
+  "wal_bytes_after": 434161512
+ },
+ "hook统计": {
+  "total": 192,
+  "write": [],
+  "heads": {
+   "PRAGMA": 96,
+   "SELECT": 96
+  },
+  "pragma_assign": [],
+  "pragma_allowed": [
+   "PRAGMA query_only"
+  ]
+ },
+ "checks": [
+  {
+   "检查": "Z1 全程零条写语句（INSERT/UPDATE/DELETE/DDL 等一条都没有）",
+   "通过": true,
+   "证据": {
+    "语句总数": 192,
+    "写语句": [],
+    "语句首词分布": {
+     "PRAGMA": 96,
+     "SELECT": 96
+    },
+    "PRAGMA赋值语句": []
+   }
+  },
+  {
+   "检查": "Z1b 零条「会改库」的 PRAGMA 赋值（白名单外）；连接局部设置单列并披露",
+   "通过": true,
+   "证据": {
+    "命中_白名单外": [],
+    "白名单内的连接局部设置": [
+     "PRAGMA query_only"
+    ],
+    "白名单": [
+     "busy_timeout",
+     "cache_size",
+     "defer_foreign_keys",
+     "foreign_keys",
+     "mmap_size",
+     "query_only",
+     "read_uncommitted",
+     "recursive_triggers",
+     "synchronous",
+     "temp_store",
+     "threads"
+    ],
+    "为什么不算写": "query_only 等只改变当前连接的行为，不落盘、不改库文件；journal_mode/user_version/wal_checkpoint 这类会真改库，所以不在白名单里"
+   }
+  },
+  {
+   "检查": "Z2a 负向对照：mode=ro 连接上的 CREATE TABLE 被拒",
+   "通过": true,
+   "证据": {
+    "返回": "OperationalError: attempt to write a readonly database"
+   }
+  },
+  {
+   "检查": "Z2b 负向对照：rw 连接 + PRAGMA query_only=ON 上的 CREATE TABLE 也被拒",
+   "通过": true,
+   "证据": {
+    "返回": "OperationalError: attempt to write a readonly database"
+   }
+  },
+  {
+   "检查": "Z2c 负向对照：hook 确实记录到了这两条写语句（检测器没有失灵）",
+   "通过": true,
+   "证据": {
+    "hook 记录到的写语句": [
+     "CREATE TABLE _z2_probe(x)",
+     "CREATE TABLE _z2_probe(x)"
+    ]
+   }
+  },
+  {
+   "检查": "Z3 冷档 526 个 parquet 的文件清单（名/大小/mtime_ns）与 00 完全一致",
+   "通过": true,
+   "证据": {
+    "00": {
+     "files": 526,
+     "bytes": 40134797,
+     "manifest_sha256": "a039c0f7995f707b30a3f62bbe1f729957dbc1b8497681f7d334da0347cce504"
+    },
+    "现在": {
+     "files": 526,
+     "bytes": 40134797,
+     "manifest_sha256": "a039c0f7995f707b30a3f62bbe1f729957dbc1b8497681f7d334da0347cce504"
+    }
+   }
+  },
+  {
+   "检查": "Z4 生产库变化归属：若行数/rowid 变化，必须能归到外部写入者而不是本单",
+   "通过": true,
+   "证据": {
+    "rowid/行数/最大时刻_前": {
+     "max_rowid": 4997086,
+     "rows": 2125240,
+     "max_funding_time": 1793012400000
+    },
+    "rowid/行数/最大时刻_后": {
+     "max_rowid": 4997086,
+     "rows": 2125240,
+     "max_funding_time": 1793012400000
+    },
+    "行数变化": 0,
+    "库文件": {
+     "前": {
+      "bytes": 13492105216,
+      "mtime_ns": 1793039178238522164
+     },
+     "后": {
+      "bytes": 13492105216,
+      "mtime_ns": 1793039178238522164
+     }
+    },
+    "WAL": {
+     "前": {
+      "bytes": 434161512,
+      "mtime_ns": 1793039179075904040
+     },
+     "后": {
+      "bytes": 434161512,
+      "mtime_ns": 1793039180588266984
+     }
+    },
+    "SHM": {
+     "前": {
+      "bytes": 851968,
+      "mtime_ns": 1793038414020867794
+     },
+     "后": {
+      "bytes": 851968,
+      "mtime_ns": 1793038414020867794
+     }
+    },
+    "结论": "库文件与 WAL 在运行期间未变化，且 hook 零条写语句 ⇒ 双重支持零写入。"
+   }
+  },
+  {
+   "检查": "I1 同输入两次运行 ⇒ 事件条数与 sha256 逐位相同",
+   "通过": true,
+   "证据": {
+    "n": 31811,
+    "sha256": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d",
+    "second_sha256": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d"
+   }
+  },
+  {
+   "检查": "I2 输出无重复键（去重键 = 交易所/合约/标的/实际结算时间）",
+   "通过": true,
+   "证据": {
+    "events": 31811,
+    "distinct": 31811
+   }
+  },
+  {
+   "检查": "I3 与 02 的事件总数交叉一致（跨脚本对账，不是自证）",
+   "通过": true,
+   "证据": {
+    "02": 31811,
+    "03": 31811
+   }
+  },
+  {
+   "检查": "I4 幂等结论是否受外部写入污染：窗口内行数是否变化",
+   "通过": true,
+   "证据": {
+    "窗口": {
+     "start_ms": 1782547200000,
+     "end_ms": 1793005200000
+    },
+    "说明": "适配器读的是固定 [start,end]，外部写入者追加的是当前时刻的数据；若 max_funding_time 已超出 end_ms，则窗口内内容不受影响。",
+    "max_funding_time_后": 1793012400000,
+    "end_ms": 1793005200000,
+    "窗口外": true
+   }
+  }
+ ],
+ "summary": {
+  "total": 11,
+  "pass": 11,
+  "verdict": "通过"
+ },
+ "events": 31811,
+ "events_sha256": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d",
+ "elapsed_sec": 1.7
+}

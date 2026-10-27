@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "ticket": "FACTOR-ENTRY-02",
+  "timestamp_iso": "2026-10-18T12:05:00+08:00",
+  "timing_alignment_rules": {
+    "decision_point": {
+      "definition": "候选产生于 1h K 线结束时刻 T_snap (即 close_time + 1ms)，实际入场撮合于次根 15m K 线开始 (open_time)",
+      "example": "1h K 线 [16:00:00, 17:00:00)，T_snap = 17:00:00.001，入场执行挂单于 17:00:00 开始的 15m K 线"
+    },
+    "features_timing": {
+      "candles_taker_buy_volume_1h": {
+        "source_time": "1h K 线收盘时刻",
+        "available_at": "T_close + 1ms (Bar闭合后即时已知)",
+        "decision_time": "T_snap",
+        "matching_direction": "exact_lookback (使用刚闭合的该根 1h K 线)",
+        "max_staleness": "0 (严格对齐当根突破 Bar)",
+        "pit_assumption_note": "K 线闭合后即已知，无发布时滞"
+      },
+      "metrics_retail_account_ls_ratio": {
+        "source_time": "metrics parquet 中的 ts (5分钟粒度记录)",
+        "available_at": "ts (假设币安归档记录点为产生点)",
+        "decision_time": "T_snap",
+        "matching_direction": "backward_as_of (仅匹配 ts <= T_snap 的最新一条记录)",
+        "max_staleness": "1800000 ms (30 分钟)。超过 30 分钟判定为 STALE/MISSING",
+        "pit_assumption_note": "Parquet 中无毫秒级 available_at 日志。实盘 API 获取可能存在 10~60s 延迟，回测以 ts <= T_snap 作为 PIT 假设。"
+      },
+      "metrics_top_position_ls_ratio": {
+        "source_time": "metrics parquet 中的 ts",
+        "available_at": "ts",
+        "decision_time": "T_snap",
+        "matching_direction": "backward_as_of (ts <= T_snap)",
+        "max_staleness": "1800000 ms (30 分钟)",
+        "pit_assumption_note": "2021-12 ~ 2022 年部分币种该字段原厂缺失为 null，代码严格标记为 MISSING，不向前借用，不填 0"
+      },
+      "funding_rate_settled": {
+        "source_time": "funding parquet 中的 funding_time (8小时结算一次，如 00:00, 08:00, 16:00 UTC)",
+        "available_at": "funding_time (已结算时点)",
+        "decision_time": "T_snap",
+        "matching_direction": "backward_as_of (仅匹配 funding_time <= T_snap 的最新一次已结算费率)",
+        "max_staleness": "43200000 ms (12 小时)",
+        "pit_assumption_note": "严格只使用已结算费率，严禁在 07:00 时使用 08:00 即将结算的未来费率"
+      },
+      "market_regime": {
+        "source_time": "日线闭合时刻 (前一日 23:59:59 UTC)",
+        "available_at": "前一日闭合后",
+        "decision_time": "T_snap",
+        "matching_direction": "backward_as_of (严格使用 T_snap 前已完整闭合的前一交易日 EMA20/EMA50)",
+        "max_staleness": "86400000 ms (24 小时)",
+        "pit_assumption_note": "不使用当日尚未闭合的 K 线，杜绝未来函数"
+      }
+    }
+  },
+  "universe_denomination_audit": {
+    "total_directories_scanned": 528,
+    "excluded_indices": [
+      {
+        "symbol": "BTCDOMUSDT",
+        "reason": "BTC统治率复合指数，非单一加密货币合约"
+      }
+    ],
+    "total_official_crypto_symbols": 527,
+    "full_suite_symbols": 526,
+    "missing_metrics_symbols": [
+      {
+        "symbol": "0GUSDT",
+        "reason": "仅有基础K线，缺失metrics/funding历史归档"
+      }
+    ],
+    "denominator_conclusion": "官方加密币分母为 527 个，其中具备完整指标体系可参与因子测试的标的为 526 个。不再照搬 528 混入指数。"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "task": "BT-KLINE-CENTER-01",
+  "generated_from": [
+    "/Users/boos/Desktop/威科夫因子共振趋势/evidence/WORK-DYNAMIC-BT-02/out/21_K线居中/center_steps_measure.json",
+    "/Users/boos/Desktop/威科夫因子共振趋势/evidence/WORK-DYNAMIC-BT-02/out/21_K线居中/guards/guard_steps_measure.json"
+  ],
+  "criterion": {
+    "A_fill": "left/right_gap_ratio <= 0.05 且 candles_visible == 18",
+    "B_zoom_kept": "|spacing_after_back - spacing_zoomed| / spacing_zoomed <= 0.1"
+  },
+  "A_fill": [
+    {
+      "tag": "0_load_1668",
+      "plot_w": 820,
+      "candles_visible": 18,
+      "bar_spacing_px": 46.0,
+      "left_gap_ratio": 0.006,
+      "right_gap_ratio": 0.009,
+      "pass": true
+    },
+    {
+      "tag": "1_narrow_1200",
+      "plot_w": 402,
+      "candles_visible": 18,
+      "bar_spacing_px": 22.0,
+      "left_gap_ratio": 0.002,
+      "right_gap_ratio": 0.007,
+      "pass": true
+    },
+    {
+      "tag": "2_back_1668",
+      "plot_w": 820,
+      "candles_visible": 18,
+      "bar_spacing_px": 46.0,
+      "left_gap_ratio": 0.006,
+      "right_gap_ratio": 0.009,
+      "pass": true
+    },
+    {
+      "tag": "3_narrow_1080",
+      "plot_w": 746,
+      "candles_visible": 18,
+      "bar_spacing_px": 41.0,
+      "left_gap_ratio": 0.005,
+      "right_gap_ratio": 0.008,
+      "pass": true
+    },
+    {
+      "tag": "4_widen_1920",
+      "plot_w": 1072,
+      "candles_visible": 18,
+      "bar_spacing_px": 60.0,
+      "left_gap_ratio": 0.006,
+      "right_gap_ratio": 0.007,
+      "pass": true
+    },
+    {
+      "tag": "5_drag_down_to_1560",
+      "plot_w": 712,
+      "candles_visible": 18,
+      "bar_spacing_px": 40.0,
+      "left_gap_ratio": 0.006,
+      "right_gap_ratio": 0.008,
+      "pass": true
+    }
+  ],
+  "B_zoom_kept": [
+    {
+      "case": "A_big_2548bars",
+      "spacing_zoomed": 9.0,
+      "spacing_after_back": 9.0,
+      "rel_delta": 0.0,
+      "pass": true,
+      "why": "缩放级别未被吃掉"
+    },
+    {
+      "case": "B_narrow_18bars",
+      "spacing_zoomed": 81.0,
+      "spacing_after_back": 81.0,
+      "rel_delta": 0.0,
+      "pass": true,
+      "why": "缩放级别未被吃掉"
+    }
+  ],
+  "A_pass": true,
+  "B_pass": true,
+  "overall": "PASS",
+  "baseline_before_fix": {
+    "note": "同一复现路径（1668→1200→1668）修复前的实测值，来自 out/21_K线居中/resize_test.json 与 resize_3_back1668.png",
+    "step": "3_back1668",
+    "candles_visible": 10,
+    "bar_spacing_px": 46.0,
+    "right_gap_px": 370,
+    "plot_w": 820,
+    "right_gap_ratio": 0.45
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "title": "SIGNAL-ENDTOEND-04 探针 01：新 K 线驱动完整币池扫描与水位跨越推进核验报告",
+  "generated_at_utc": "2026-10-24T09:12:56.485063+00:00",
+  "all_passed": true,
+  "total_checks": 9,
+  "passed_checks": 9,
+  "failed_checks": 0,
+  "live_instance": {
+    "pid": 72929,
+    "target_symbols": 526,
+    "declared_symbols": 526,
+    "active_engines": 526,
+    "diff_symbols": 0,
+    "scan_errors": 0,
+    "skipped_reasons": {},
+    "state_counter": {
+      "BOX": 377,
+      "IDLE": 116,
+      "RETEST": 19,
+      "SWEEP": 14
+    },
+    "funnel_since_start": {
+      "BOX": 25,
+      "SWEEP": 4,
+      "RETEST": 4,
+      "CANDIDATE": 0,
+      "VOLUME_REJECTED": 0,
+      "OI_UNAVAILABLE": 0,
+      "OI_REJECTED": 0,
+      "INVALIDATED": 16,
+      "EXPIRED": 1,
+      "MISSED_WITHOUT_RETEST": 0
+    },
+    "funnel_history": {
+      "BOX": 3278,
+      "SWEEP": 669,
+      "RETEST": 399,
+      "CANDIDATE": 4,
+      "VOLUME_REJECTED": 0,
+      "OI_UNAVAILABLE": 0,
+      "OI_REJECTED": 0,
+      "INVALIDATED": 1626,
+      "EXPIRED": 1238,
+      "MISSED_WITHOUT_RETEST": 8
+    }
+  },
+  "watermark_advance_experiment": {
+    "T0_pre_watermark": 1792825200000,
+    "T0_utc": "2026-10-24 07:00:00 UTC",
+    "T1_post_watermark": 1792828800000,
+    "T1_utc": "2026-10-24 08:00:00 UTC",
+    "delta_hours": 1.0,
+    "step_elapsed_sec": 0.178,
+    "symbols_processed": 526
+  },
+  "checks": [
+    {
+      "id": "M01_POOL_SCOPE_COVERAGE",
+      "name": "获批 526 完整加密币池完全覆盖无缩水无差集",
+      "passed": true,
+      "detail": {
+        "target": 526,
+        "declared": 526,
+        "active": 526,
+        "diff": 0
+      }
+    },
+    {
+      "id": "M02_ZERO_SCAN_ERRORS",
+      "name": "全池 526 标的零扫描错误与零跳过",
+      "passed": true,
+      "detail": {
+        "scan_errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "M03_STATE_FUNNEL_CLASSIFICATION",
+      "name": "逐币漏斗状态完全分类（总和严格等于 526）",
+      "passed": true,
+      "detail": {
+        "state_counter": {
+          "BOX": 377,
+          "IDLE": 116,
+          "RETEST": 19,
+          "SWEEP": 14
+        },
+        "total": 526,
+        "funnel_since_start": {
+          "BOX": 25,
+          "SWEEP": 4,
+          "RETEST": 4,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 16,
+          "EXPIRED": 1,
+          "MISSED_WITHOUT_RETEST": 0
+        }
+      }
+    },
+    {
+      "id": "W01_ENGINE_BOOTSTRAP_T0",
+      "name": "信号引擎在 526 全池成功预热至基准水位 T0",
+      "passed": true,
+      "detail": {
+        "ready": 526,
+        "watermark_1h_pre": 1792825200000,
+        "watermark_1h_utc": "2026-10-24 07:00:00 UTC"
+      }
+    },
+    {
+      "id": "W02_IDLE_DEFENSE",
+      "name": "水位未变时全池自动空转跳过，防止无效重复运算",
+      "passed": true,
+      "detail": {
+        "returned_candidates": 0
+      }
+    },
+    {
+      "id": "W03_NEW_KLINE_INGESTION",
+      "name": "新 1h K 线批量入库且 candle_heads 水位成功前推",
+      "passed": true,
+      "detail": {
+        "new_bar_open": 1792828800000,
+        "new_bar_open_utc": "2026-10-24 08:00:00 UTC",
+        "bars_ingested": 526
+      }
+    },
+    {
+      "id": "W04_ENGINE_WATERMARK_DETECTION",
+      "name": "PoolMarketWatcher 成功探测到新 1h 水位已跨越闭合点",
+      "passed": true,
+      "detail": {
+        "detected_1h": 1792828800000,
+        "previous_1h": 1792825200000,
+        "delta_ms": 3600000
+      }
+    },
+    {
+      "id": "W05_WATERMARK_UPDATED",
+      "name": "信号引擎 _global_1h 水位严格单调更新到新 K 线时刻",
+      "passed": true,
+      "detail": {
+        "wm_1h_pre": 1792825200000,
+        "wm_1h_post": 1792828800000,
+        "elapsed_sec": 0.178
+      }
+    },
+    {
+      "id": "W06_STEP_FUNNEL_PROCESSED",
+      "name": "全池 526 标的在新 K 线驱动下完成逐币推进并输出漏斗",
+      "passed": true,
+      "detail": {
+        "processed_symbols": 526,
+        "candidates_output": 0,
+        "elapsed_sec": 0.178,
+        "errors": 0,
+        "funnel_since_start": {
+          "BOX": 0,
+          "SWEEP": 0,
+          "RETEST": 0,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 0,
+          "MISSED_WITHOUT_RETEST": 0
+        }
+      }
+    }
+  ]
+}

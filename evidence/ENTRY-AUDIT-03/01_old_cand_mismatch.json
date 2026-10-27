@@ -1,0 +1,33 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "question": "42 条旧窗口记录为何有 41 条无法匹配连续候选",
+  "counts": {
+    "rows": 42,
+    "cont_has_candidate_within_4h": 2,
+    "cont_has_no_candidate_within_4h": 40,
+    "replay_B_reproduced_by_identity": 42,
+    "replay_B_entry_price_match": 42,
+    "replay_B_net_pnl_match": 42,
+    "net_pnl_mismatch_cases": [],
+    "trades_appearing_in_multiple_windows": 1,
+    "net_pnl_differs_across_windows": 1,
+    "net_pnl_spread_max": 0.007431648,
+    "days_after_window_start_median": 12.26,
+    "days_after_window_start_min": 1.59,
+    "days_after_window_start_max": 67.8,
+    "days_after_window_start_le_30": 39,
+    "cont_nearest_hours_median": 1323.0
+  },
+  "dimensions_checked": {
+    "snapshot_derivation_check": {
+      "rule": "execution_earliest_ms − 15min == snapshot_time_ms",
+      "verified_on_generation_A": "185/185"
+    },
+    "窗口起点": "每条记录距其 365 天窗口起点的天数已逐条列出；中位 12.3 天，39 条落在窗口前 30 天内",
+    "预热": "连续回放 4h 预热固定 220 根（window 2021-12-01 起）；窗口回放的预热同样上限 220 根，但起点更早的组在 2021 年初没有 220 根可用 4h ⇒ 预热根数不同。1h/15m 无预热，严格按窗口截断。",
+    "状态路径": "状态机从 df_1h 第一根开始、路径依赖（箱体只能被突破一次、冷却 24h）⇒ 起点不同必然导致建箱节奏不同、候选时刻不同。本轮用逐条「连续回放最近候选距该条多少小时」量化，不做因果推断式断言。",
+    "代码/配置版本": "策略代码最后修改 2026-10-17 19:56:44，上游研究产物最早产出 2026-10-18 03:01:23；代码全部早于产物 ⇒ 两代际同一份代码、同一份配置（配置指纹见 00_config_fingerprint.json）。",
+    "数据差异": "两代际读同一批 parquet（同一路径、同一文件）；00_freeze_manifest.json 里行情文件的 hist_digest 在收尾自检中重算比对，用于证明审计期间历史区间未被改写。"
+  },
+  "verdict": "证据不足以下「错误」结论。可确证的是：42 条全部能在各自窗口回放中按身份复现（见 replay_B_reproduced_by_identity），说明它们不是凭空生成；同时它们在连续回放里没有对应候选，说明差异来自回放切分而非计算错误。具体到「窗口起点 / 预热 / 状态路径」三者各自的贡献比例，本轮不做拆分断言——需要逐条反事实重放（把窗口起点改到连续起点再跑），超出本轮授权范围。"
+}

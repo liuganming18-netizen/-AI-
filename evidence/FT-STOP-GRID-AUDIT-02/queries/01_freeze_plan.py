@@ -1,0 +1,167 @@
+# -*- coding: utf-8 -*-
+"""01 冻结分析计划：在读取任何逐笔结果之前，把比较方法与判据写死。
+
+本脚本只统计"已落盘多少组"，不解析任何 trades_*.csv 的数值。
+跑一次即冻结；重复运行会覆盖，故只允许在结果出来前执行。
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+from _lib import ALL, BASE_DIR, HERE, OUT, TIERS
+
+UP = BASE_DIR / "evidence/FT-STOP-GRID-02"
+GRID01 = BASE_DIR / "evidence/FT-STOP-GRID-01"
+SEED = 20261022
+N_BOOT = 10000
+BLOCK = "quarter"
+FDR_Q = 0.05
+
+
+def sha(p: Path) -> str | None:
+    if not p.exists():
+        return None
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for c in iter(lambda: f.read(1 << 20), b""):
+            h.update(c)
+    return h.hexdigest()
+
+
+def progress() -> dict:
+    """只数文件个数与大小，不读内容。"""
+    done = [n for n in ALL if (UP / f"out/trades_{n}.csv").exists() and
+            (UP / f"out/trades_{n}.csv").stat().st_size > 0]
+    zips = list(UP.glob("out/backtest-result-*.zip"))
+    return {"已落盘逐笔组数": len(done), "总组数": len(ALL),
+            "已落盘组": done, "结果包个数": len(zips)}
+
+
+PLAN = {
+    "工单": "FT-STOP-GRID-AUDIT-02 冻结分析计划",
+    "冻结原则": [
+        "本文件在任何逐笔数值被解析之前写定；此后不得修改判据阈值与统计方法",
+        "所有指标从上游逐笔 CSV / 结果包 / 回测日志 / 确认表 / 订单审计表独立重算，不采信上游汇总",
+        "只读上游；不改策略、撮合、账本、闸门；不追加比例；不重跑整套回测",
+    ],
+    "数据口径": {
+        "上游": "evidence/FT-STOP-GRID-02（4 档 × 9 个 C1 参数组 = 36 组）",
+        "对照上游": "evidence/FT-STOP-GRID-01（同 36 组、同数据、同入场；唯一差别是 custom_stoploss 是否含 2R 跟踪）",
+        "数据目录": "evidence/FT-ENTRY-02/user_data/data（realpath）",
+        "timerange": "20211201-20241231",
+        "R 定义": "R = profit_abs / (开仓时权益 × 0.005)；权益 = 2000 + Σ(close_ms ≤ open_ms 的已实现 profit_abs)",
+        "已实现": "exit_reason != 'force_exit' 的逐笔",
+        "期末结算": "exit_reason == 'force_exit' 的逐笔，单列，不计入已实现、不计入策略退出",
+        "净收益": "已实现净额 + 期末浮盈（USDT），同时给出 R 口径",
+        "成本": "手续费 = 数量×开仓价×fee_open + 数量×平仓价×fee_close（fee_* 是费率）；资金费取 funding_fees（已含在 profit_abs 内，不得重复扣）",
+    },
+    "权益回撤口径（本轮必须区分）": {
+        "主口径 MTM": (
+            "每根 15m 收盘盯市：equity(t) = 2000 + Σ已实现(close_ms≤t) + "
+            "Σ未平仓[(P15(t) − open_rate)×amount − 开仓费 − 资金费(开仓→t)]；"
+            "资金费按 8h 资金事件逐笔计入（−amount×mark×rate），并用逐笔 funding_fees 总额对账"
+        ),
+        "对照口径 A": "不含资金费分摊的纯价差 MTM（给出回撤下界）",
+        "对照口径 B": "资金费在开仓时一次性全扣（给出回撤上界）",
+        "对照口径 C": "已实现曲线回撤（**仅作对照，不得用于结论**——这正是上一轮被批评的做法）",
+        "回撤定义": "峰值到谷值的最大跌幅；同时给 USDT、占峰值权益百分比、以及按 0.5% 风险预算归一化的 R",
+        "采样": "15m 收盘，覆盖该组第一笔开仓到最后一笔平仓",
+    },
+    "2R 触发与止损上移的逐笔重建": {
+        "输入": "逐笔 open_rate / open_timestamp / close_timestamp / exit_reason / close_rate / stop_loss_abs",
+        "重建": (
+            "initial_stop = open_rate×(1−pct)；actual_r = open_rate×pct；trigger_2r = open_rate+2×actual_r；"
+            "取 close_ms ∈ [入场时刻, 退出K线开盘时刻] 的已收盘 4h K 线："
+            "首个 close ≥ trigger_2r 即为激活；激活后 current_stop = max(initial_stop, max l10)；"
+            "退出 K 线开盘时刻的 current_stop 即为该笔的账面止损"
+        ),
+        "判定": [
+            "A 激活一致性：重建的激活与否 / 激活时刻 与 exit_reason 是否自洽（未激活却标 trailing ⇒ 异常）",
+            "B 止损价一致性：重建 current_stop 与 stop_loss_abs 的差 ≤ 1 个最小价位",
+            "C 单调性：重建轨迹不得出现下移",
+            "D 无追溯：退出 K 线的最低点必须 ≤ 该笔账面止损（否则不是止损退出），且止损所用 4h 的 close_ms ≤ 退出 K 线开盘时刻",
+            "E 标签不可信：trailing_stop_loss 只代表'止损被上调过一次'，必须与重建结果交叉验证",
+        ],
+    },
+    "配对与统计（冻结）": {
+        "配对键": "pair + 事件ID（不含档位与参数组）",
+        "P1": "四档齐全的事件；每组样本量 < 100 时只作描述性，不做显著性宣称",
+        "P2": "两两交集",
+        "P3": "各档全样本",
+        "块": "按季度分块（13 个季度）",
+        "bootstrap": f"块 bootstrap，{N_BOOT} 次，种子 {SEED}，取中位差值的 2.5%/97.5% 分位",
+        "多重比较": f"BH-FDR，q={FDR_Q}",
+        "补充检验": "精确二项块符号检验（块内该档更好则记 +1）",
+        "报告": "同时给中位口径与均值口径；两者结论不一致时以中位为主并明确标注",
+    },
+    "本轮特有：盈利保护 vs 账户路径的分解（冻结）": {
+        "动机": "恢复 2R 跟踪同时会改变已实现与未实现、也会改变权益与槽位周转，必须把两种效应分开",
+        "同组同档对齐": "按 (档位, 参数组, pair, 事件ID) 把 GRID-02 与 GRID-01 的逐笔对齐",
+        "分解恒等式": "Δ总R = Δ两边都成交 + Δ仅02新增 + Δ仅01减少",
+        "Δ两边都成交": "Σ(R_02 − R_01)，这是'盈利保护'的直接效应（R 已归一化，剔除仓位大小差异）",
+        "Δ仅02新增": "Σ R_02（账户路径变化带来的新交易）",
+        "Δ仅01减少": "−Σ R_01（账户路径变化挤掉的交易）",
+        "判据 C8": "若 Δ总R > 0，则当 Δ两边都成交 / Δ总R ≥ 50% 时，认定改善主要来自盈利保护；否则认定主要来自账户路径变化",
+        "附加": "同时报告：成交笔数变化、成交率变化、成交标的数变化、槽位占用变化、持仓时长变化",
+    },
+    "稳定性判据（结果前写定）": {
+        "C1": "P1 上已实现中位 R 最优（四档比较）",
+        "C2": "对三个对手的 bootstrap 区间均不含 0，且 ≥7/9 个参数组满足",
+        "C3": "9 个参数组与对手方向一致 ≥7 组",
+        "C4": "13 个季度块方向一致 ≥9 块",
+        "C5": "缩尾到 ±5R、剔除首尾 1% 后排序不变",
+        "C6": "剔除贡献最大的 3 个币后排序不变",
+        "C7": "已实现 R > 0 且期末浮盈占总 R < 30%",
+        "C8": "本轮特有：Δ两边都成交 / Δ总R ≥ 50%（改善主要来自盈利保护）",
+        "裁决": "满足条数最多者不得直接称为'更稳定'，必须逐条列出未满足项",
+    },
+    "预登记机制性偏差（结果出来前写定，交付后逐条验证）": [
+        "① 已实现 R 应改善：2R 后跟踪保护使部分本会打回初始止损的仓位改为在更高位置离场",
+        "② 期末浮盈 R 应下降：更多仓位在跟踪止损处被平掉，不再持有到 2024-12-31",
+        "③ 总 R 未必改善：已实现的改善与期末浮盈的减少方向相反，可能相互抵消",
+        "④ 持仓时长中位应下降：跟踪退出早于'一直拿到期末'",
+        "⑤ 资金费绝对值应下降：持仓更短 ⇒ 资金事件更少",
+        "⑥ 成交笔数与成交率应上升：槽位周转加快",
+        "⑦ 宽档改善幅度应小于窄档：2R 门槛 = +2×pct，Stop20 需要 +40%，极难触发",
+        "⑧ 2R 激活率应与档位强相关：Stop05 的 2R 只需 +10%，Stop20 需 +40%",
+        "⑨ 已实现盈利笔数应大幅上升：跟踪退出是唯一能在止损之外产生正收益的路径",
+    ],
+    "抽核方案（冻结）": {
+        "K 线抽核": "每档随机 20 笔共 80 笔（种子 20261022），核：入场价在 K 线高低间、初始止损公式、2R 激活所用 4h、止损上移、退出 K 线首次触及、期末结算价=开盘",
+        "持仓状态": "期末持仓以 exit_reason=='force_exit' 判定（is_open 与 left_open_trades 在上一轮已被证明不可用）",
+    },
+    "不做的事": [
+        "不自行选定生产参数",
+        "不追加止损比例（只审 5/10/15/20 四档）",
+        "不重复运行整套回测",
+        "不把已平仓胜率变化或'少卖出'直接当作改善",
+    ],
+}
+
+
+def main() -> dict:
+    prog = progress()
+    out = {
+        "冻结时刻": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+        "上游进度快照（未解析任何数值）": prog,
+        "脚本SHA256": sha(Path(__file__)),
+        "上游基类SHA256": sha(UP / "user_data/strategies/WyckoffStopGrid02Base.py"),
+        "对照上游基类SHA256": sha(GRID01 / "user_data/strategies/WyckoffStopGridBase.py"),
+        "统计参数": {"种子": SEED, "bootstrap次数": N_BOOT, "块": BLOCK, "FDR_q": FDR_Q},
+        "计划": PLAN,
+    }
+    return out
+
+
+if __name__ == "__main__":
+    r = main()
+    p = OUT / "01_冻结分析计划.json"
+    if p.exists():
+        print(f"!! {p} 已存在。冻结计划只允许写一次；如确需重写请先人工确认。")
+    p.write_text(json.dumps(r, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps(r["上游进度快照（未解析任何数值）"], ensure_ascii=False, indent=1))
+    print(f"\n冻结于 {r['冻结时刻']}")
+    print(f"写出 {p} ({p.stat().st_size} 字节)")

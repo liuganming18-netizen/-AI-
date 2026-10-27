@@ -1,0 +1,239 @@
+{
+  "contract_version": "BT-LEDGER-FIX-03/v1",
+  "generated_at": "2026-10-24",
+  "purpose": "给反重力（前端/图表/复盘台）消费的逐笔订单与成交契约；不改变任何旧表与旧运行身份",
+  "upstream_immutable": {
+    "run_identity": "run_id + strategy_sha256 + config_sha256（沿用 BT-01 out/02_运行索引.csv）",
+    "kline_link": "复用 BT-02 out/10_逐笔复盘索引.csv 的 replay_file/replay_line/replay_sha256",
+    "note": "本单不产生新 run，不改任何 run.json / 不重跑"
+  },
+  "tables": {
+    "orders": {
+      "file": "out/03_订单规范导出.csv.gz",
+      "grain": "1 行 = 1 个引擎 Order 对象（回测订单层）",
+      "rows": 6790,
+      "primary_key": [
+        "run_id",
+        "internal_order_key"
+      ],
+      "unique_key_verified": "internal_order_key 全库唯一 6790/6790",
+      "join_to_trade": [
+        "run_id",
+        "trade_id"
+      ],
+      "join_to_kline": [
+        "run_id",
+        "trade_id",
+        "→ BT-02 索引"
+      ],
+      "fields": {
+        "internal_order_key": {
+          "type": "string",
+          "nullable": false,
+          "provenance": "internal_key",
+          "format": "<run_id>|<pair>|<fill_ts_ms>|E|X",
+          "warning": "**内部键，不是交易所订单号，也不是引擎 order_id**"
+        },
+        "engine_order_id_missing": {
+          "type": "null",
+          "nullable": true,
+          "provenance": "unrecoverable_rerun",
+          "why": "引擎有（自增计数器字符串），但 Trade.to_json(minified=True) 裁掉；事后不可恢复",
+          "to_fill": "重跑 + 进程内 minified=False 导出"
+        },
+        "fill_id_missing": {
+          "type": "null",
+          "nullable": true,
+          "provenance": "nonexistent_backtest",
+          "why": "回测无交易所回报；不存在该概念。禁止自造"
+        },
+        "ft_order_side_raw": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ],
+          "provenance": "raw_export"
+        },
+        "ft_is_entry_raw": {
+          "type": "bool",
+          "provenance": "engine_computed"
+        },
+        "ft_order_tag_raw": {
+          "type": "string",
+          "provenance": "raw_export",
+          "note": "入场=candidate_id；出场=exit_reason"
+        },
+        "qty_raw": {
+          "type": "float",
+          "unit": "base",
+          "provenance": "raw_export"
+        },
+        "price_raw": {
+          "type": "float",
+          "unit": "quote/base",
+          "provenance": "raw_export",
+          "note": "引擎 safe_price（成交均价）"
+        },
+        "cost_raw": {
+          "type": "float",
+          "unit": "quote",
+          "provenance": "raw_export",
+          "note": "含手续费：cost = qty*price*(1+fee_rate)，已逐条校验"
+        },
+        "fill_ts_ms_raw": {
+          "type": "int",
+          "unit": "ms",
+          "tz": "UTC",
+          "provenance": "raw_export",
+          "note": "**成交**时刻，不是委托创建时刻"
+        },
+        "fill_utc": {
+          "type": "string",
+          "format": "ISO8601 Z",
+          "provenance": "derived_from_raw"
+        },
+        "trade_funding_fees_raw": {
+          "type": "float",
+          "unit": "quote",
+          "provenance": "raw_export",
+          "note": "交易层总额，非逐单"
+        },
+        "gross_notional_derived": {
+          "type": "float",
+          "unit": "quote",
+          "provenance": "derived_from_raw",
+          "formula": "qty*price"
+        },
+        "fee_amount_derived": {
+          "type": "float",
+          "unit": "quote",
+          "provenance": "derived_from_raw",
+          "formula": "cost-qty*price"
+        },
+        "fee_rate_side_derived": {
+          "type": "float",
+          "provenance": "derived_from_raw",
+          "note": "入场取 trade.fee_open，出场取 trade.fee_close；本批恒 0.0005"
+        },
+        "status_derived": {
+          "type": "string",
+          "provenance": "derived_from_construction",
+          "value": "closed",
+          "why": "close_bt_order 恒置 closed"
+        },
+        "filled_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction",
+          "why": "close_bt_order 置 filled=amount"
+        },
+        "remaining_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction",
+          "value": 0.0
+        },
+        "is_open_derived": {
+          "type": "bool",
+          "provenance": "derived_from_construction",
+          "value": false
+        },
+        "order_type_derived": {
+          "type": "string",
+          "provenance": "derived_from_construction",
+          "value": "limit",
+          "why": "策略未覆盖 order_types ⇒ freqtrade 默认 limit"
+        },
+        "limit_price_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction",
+          "why": "回测建单 price=average=ft_price=propose_rate"
+        },
+        "average_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction"
+        },
+        "created_ts_ms_derived": {
+          "type": "int",
+          "provenance": "derived_from_construction",
+          "why": "建单与成交在同一根 K 线、同一 current_time"
+        },
+        "ft_fee_base_derived": {
+          "type": "null",
+          "provenance": "derived_from_construction",
+          "why": "U 本位合约手续费以计价币计"
+        },
+        "ft_cancel_reason_derived": {
+          "type": "null",
+          "provenance": "derived_from_construction",
+          "why": "本批次无撤单"
+        },
+        "stop_price_derived": {
+          "type": "null",
+          "provenance": "derived_from_construction"
+        },
+        "funding_fee_per_order_missing": {
+          "type": "null",
+          "provenance": "unrecoverable_rerun",
+          "why": "引擎按成交结转并清零，导出只剩总额 ⇒ 逐单归属不可证"
+        }
+      },
+      "forbidden": [
+        "把 internal_order_key 当交易所订单号展示或对接",
+        "把 *_derived 字段标注为「原始记录」",
+        "把 status_derived/filled_derived 当成引擎原始导出值",
+        "用 qty_raw/price_raw 反推「部分成交」（回测没有部分成交）"
+      ]
+    },
+    "fills": {
+      "file": "out/04_成交规范导出.csv.gz",
+      "grain": "1 行 = 1 个订单的成交投影（**不是独立成交事件流**）",
+      "rows": 6790,
+      "record_kind": "derived_1to1_from_order",
+      "fields": {
+        "fill_seq_in_order_derived": {
+          "type": "int",
+          "value": 1,
+          "provenance": "derived_from_construction"
+        },
+        "fill_granularity_derived": {
+          "type": "string",
+          "value": "order_level_full_fill"
+        },
+        "is_partial_derived": {
+          "type": "bool",
+          "value": false
+        },
+        "fill_qty_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction"
+        },
+        "fill_price_derived": {
+          "type": "float",
+          "provenance": "derived_from_construction"
+        },
+        "fill_cost_derived": {
+          "type": "float",
+          "provenance": "raw_export"
+        },
+        "fill_id_missing": {
+          "type": "null",
+          "provenance": "nonexistent_backtest"
+        }
+      },
+      "forbidden": [
+        "把本表当成「逐次成交原始事件」（它是订单级 1:1 投影）",
+        "用它统计成交次数（成交次数 == 订单数，本批 6790）"
+      ]
+    }
+  },
+  "missing_semantics": {
+    "rule": "缺失一律留空（null），并用 `*_missing` 字段名或 `*_derived` 后缀表达来源；禁止填 0 或占位符",
+    "note": "BT-02 用的是字符串 'MISSING' 哨兵；本单改为 null，便于类型系统消费"
+  },
+  "sizes": {
+    "runs": 45,
+    "symbols": 51,
+    "trades": 3395,
+    "orders": 6790
+  }
+}

@@ -28,6 +28,15 @@ if [ ! -x "$PY" ]; then
 fi
 
 export PYTHONDONTWRITEBYTECODE=1
+# 测试隔离（架构重构第 2 期）：`create_run` 在队列模式下会往**正式任务库**投递，
+# 测试跑完留下 queued 任务会被真实 worker 领走（且指向已清理的临时 run 目录）。
+# 因此测试默认走进程内线程模式；任务表本身由 tests/test_jobs_queue.py 用临时库覆盖。
+export INPROCESS_JOBS="${INPROCESS_JOBS:-1}"
+export JOBS_DB="${JOBS_DB:-/tmp/wb_jobs_test.sqlite3}"
+# 运行日志也隔离：execute_run 会写 logs/backtest_runs.log，测试跑到生产日志里
+# 会灌入测试 run 噪声（CODE-REVIEW-02）。默认写 /tmp，不设则走默认路径。
+export BT_RUN_LOG="${BT_RUN_LOG:-/tmp/bt_run_log_test.log}"
+rm -f "$JOBS_DB" "$JOBS_DB-wal" "$JOBS_DB-shm" 2>/dev/null || true
 cd "$HERE"
 
 if [ "$#" -gt 0 ]; then

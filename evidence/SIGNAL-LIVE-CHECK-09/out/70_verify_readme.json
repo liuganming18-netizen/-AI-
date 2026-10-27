@@ -1,0 +1,95 @@
+{
+ "probe": "SIGNAL-LIVE-CHECK-09/70_verify_readme",
+ "facts": {
+  "bar1_迁移数": 46,
+  "bar1_迁移类型": {
+   "SWEEP->RETEST": 8,
+   "BOX->SWEEP": 7,
+   "IDLE->BOX": 26,
+   "BOX->IDLE": 5
+  },
+  "bar1_漏斗增量": {
+   "BOX": 26,
+   "EXPIRED": 2,
+   "INVALIDATED": 3,
+   "RETEST": 8,
+   "SWEEP": 7
+  },
+  "bar1_水位": "2026-10-25T11:00:00Z",
+  "bar2_迁移数": 3,
+  "bar2_迁移类型": {
+   "SWEEP->RETEST": 1,
+   "SWEEP->IDLE": 1,
+   "BOX->SWEEP": 1
+  },
+  "bar2_漏斗增量": {
+   "INVALIDATED": 1,
+   "RETEST": 1,
+   "SWEEP": 1
+  },
+  "bar2_水位": "2026-10-25T12:00:00Z",
+  "合计_迁移次数": 49,
+  "合计_推进根数": 2,
+  "合计_三段一致": true,
+  "合计_异常数": 0,
+  "bar1_逐币差异": 0,
+  "bar1_丢弃数": [
+   51,
+   51
+  ],
+  "bar1_漏斗合计相同": true,
+  "bar1_生产未动": true,
+  "bar2_逐币差异": 0,
+  "bar2_丢弃数": [
+   51,
+   51
+  ],
+  "bar2_漏斗合计相同": true,
+  "bar2_生产未动": true,
+  "bar2_截止": "2026-10-25T12:59:59Z",
+  "bar2_新旧产物结论一致": true,
+  "回归": [
+   15,
+   364,
+   79
+  ],
+  "版本核对_1150Z通过": true,
+  "版本核对_1329Z通过": false,
+  "后端交付文件全等": true,
+  "后端交付文件数": 1,
+  "版本核对失败项": [
+   "① 交付文件未变：UI界面/web/src/components/SignalListPanel.tsx"
+  ],
+  "后端落后文件数": 0,
+  "前端漂移_交付sha": "bf8eb3ce8df12718…",
+  "前端漂移_当前sha": "546fdab0d66e98c0",
+  "前端漂移_字节差": 865,
+  "前端漂移_mtime": "2026-10-25T13:21:41Z",
+  "迁移漏斗对撞_复算全过": true,
+  "迁移漏斗对撞_不可判段": []
+ },
+ "assertions": {
+  "两根合计推进 2 根": true,
+  "三段一致（0/0/0）": true,
+  "链路异常 0 处": true,
+  "迁移↔漏斗复算全过": true,
+  "bar1 逐币差异 0": true,
+  "bar2 逐币差异 0": true,
+  "bar1 丢弃 51/51": true,
+  "bar2 丢弃 51/51": true,
+  "bar1 漏斗合计相同": true,
+  "bar2 漏斗合计相同": true,
+  "bar1 生产未动": true,
+  "bar2 生产未动": true,
+  "bar2 新旧产物结论一致（改格式没改结论）": true,
+  "回归 = 基线 15/364/79": true,
+  "bar1+bar2 迁移数 = 合计": true,
+  "后端交付文件全等": true,
+  "后端无「改了没重启」文件": true,
+  "版本核对失败项只有前端 SignalListPanel.tsx": true,
+  "前端漂移已登记（交付 sha / 当前 sha / 时刻）": true,
+  "正文无缺失项": true
+ },
+ "text_missing": [],
+ "pass": true
+}

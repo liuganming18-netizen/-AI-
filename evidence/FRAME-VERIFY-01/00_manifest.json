@@ -1,0 +1,79 @@
+{
+  "task": "FRAME-VERIFY-01｜框架防护的独立反例验证",
+  "stage": "STAGE_1_STATIC_AUDIT_AND_PROBE_VERIFICATION",
+  "timestamp": "2026-10-18T22:00:17.650779+08:00",
+  "work_receipt_status": {
+    "FRAME-PIT-01": "PENDING_RECEIPT",
+    "FRAME-FIT-01": "PENDING_RECEIPT"
+  },
+  "summary": {
+    "total_entrypoints_audited": 12,
+    "bypass_paths_identified": 4,
+    "counterexamples_designed": 12,
+    "probe_tests_executed": 10,
+    "probe_failures": 0,
+    "defects_confirmed": [
+      "PIT-CE-01: 未收盘K线泄露 (open_time <= ts)",
+      "PIT-CE-02: 工具函数存在但被旁路",
+      "FIT-CE-01: 当前活跃策略Holdout守卫为0"
+    ]
+  },
+  "baseline_inputs": [
+    {
+      "file": "evidence/FLOW-OI-01/generate_flow_oi_01.py",
+      "desc": "因子生成脚本（已测出绕过旁路与未收盘泄露）",
+      "sha256": "3b403f50e47e2431de67a72e7594f64a3894d8d93e31735c54770955e2567ac1",
+      "size_bytes": 48074
+    },
+    {
+      "file": "框架/backend/backtest_runner.py",
+      "desc": "官方框架回测Runner",
+      "sha256": "1f949d917dda0adf1a6bdb159f330a37b06c05e26fbbe97aec7de921ab914633",
+      "size_bytes": 74995
+    },
+    {
+      "file": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "desc": "活跃策略Runner（已证实缺失Holdout守卫）",
+      "sha256": "d9e881589b6fdcd65bb326191dcb56db902d1aa0eeefd67d417df00c4e726456",
+      "size_bytes": 33589
+    },
+    {
+      "file": "策略/WyckoffMaster/trading_core/pit.py",
+      "desc": "PIT工具函数（已证实被孤立未接入生成脚本）",
+      "sha256": "952c31aa847aac4c073d93dfd96ac430e104ca34f7ce5436aec18989d5ce8440",
+      "size_bytes": 6407
+    }
+  ],
+  "deliverables": [
+    {
+      "file": "01_真实入口与绕过路径清单.md",
+      "size_bytes": 8231,
+      "sha256": "c74f461244164ca7c8c9f26f3020567157da87343ad31c181a99ef0761d2c5f4"
+    },
+    {
+      "file": "02_PIT与防拟合反例设计矩阵.md",
+      "size_bytes": 9925,
+      "sha256": "b27408460403486ee8590a890203d83ba4972142dfdc77f81a6fbfed0ff3b39d"
+    },
+    {
+      "file": "03_独立验证执行套件与隔离夹具.py",
+      "size_bytes": 13109,
+      "sha256": "7d0a7a8a97fd1dc52d7b0ae17750d3b2767c212fcb2921b96b98b8ae9cb4f95e"
+    },
+    {
+      "file": "04_框架防护验证矩阵与状态表.csv",
+      "size_bytes": 3297,
+      "sha256": "572862fe9b618b737f23cff3ab1d9d0e28e378ad4b4b9603c13080ff4c84633e"
+    },
+    {
+      "file": "05_反例执行原始输出与分析.md",
+      "size_bytes": 6320,
+      "sha256": "048c0f3217023443dba231b8c57ca3b25ebc9bdd40a64fe726ad9f64273bc77b"
+    },
+    {
+      "file": "报告.md",
+      "size_bytes": 9587,
+      "sha256": "7ccc3cfea5e4d68a0a813356a0cf63175c00a3dd05bb26b2dc24784a870f966b"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "timestamp_utc": "2026-10-26T17:51:31Z",
+  "schema_version": "accum-early-05/v1",
+  "file_hashes": {
+    "accum_early_entry.py": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+      "sha256": "d96ad60eca61f7e53e273414196100ac21b33650a19480beafb0eb60c4d41a52",
+      "exists": true,
+      "mtime_utc": "2026-10-26T16:20:48Z"
+    },
+    "paper_engine.py": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py",
+      "sha256": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784",
+      "exists": true,
+      "mtime_utc": "2026-10-26T13:23:40Z"
+    },
+    "live_store.py": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live_store.py",
+      "sha256": "02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6",
+      "exists": true,
+      "mtime_utc": "2026-10-26T14:14:48Z"
+    },
+    "replay_calc.py": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/replay_calc.py",
+      "sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+      "exists": true,
+      "mtime_utc": "2026-10-26T14:11:50Z"
+    },
+    "fixture_rules_05.json": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+      "sha256": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+      "exists": true,
+      "mtime_utc": "2026-10-26T16:33:43Z"
+    },
+    "批准配置_空白表单_05.json": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json",
+      "sha256": "b3ac386a37cea7bb02c6a40f5e0037df97ed0d7f4fb623b558ded821bd72b138",
+      "exists": true,
+      "mtime_utc": "2026-10-26T16:33:43Z"
+    },
+    "05_E_R1_README.md": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-E-R1/README.md",
+      "sha256": "e59a0fc701722da160b7a54317bacb021a2999bb17550f9b5be6016f18bde126",
+      "exists": true,
+      "mtime_utc": "2026-10-26T16:00:27Z"
+    }
+  },
+  "trajectory_analysis": {
+    "absorption_definition": {
+      "line": 815,
+      "code": "def _absorption(bars_1h: Sequence[dict], i: int, cfg: dict):"
+    },
+    "absorption_calls": [
+      {
+        "line": 1073,
+        "code": "sp_ok, sp_detail, sp_conds = _absorption(bars_1h, i, self.cfg)"
+      }
+    ],
+    "sweep_check": {
+      "def_line": 765,
+      "calls_absorption": false,
+      "has_must_be_above_box_low": true,
+      "verdict": "扫低根完全没有调用承接判定函数（调用次数 0）"
+    },
+    "confirm_actions": {
+      "def_line": 1047,
+      "calls_absorption": true,
+      "verdict": "突破确认根错误承载了承接判定调用（调用在第 1073 行）"
+    },
+    "hold_actions": {
+      "def_line": 1121,
+      "verdict": "等待确认阶段检查 armed_fail_count 与突破超时"
+    }
+  }
+}

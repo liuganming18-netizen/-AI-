@@ -1,0 +1,155 @@
+{
+  "Q1_是否真正实现突破前成交": {
+    "判定": "PASS",
+    "依据": {
+      "A路线全部成交严格小于冻结H": [
+        {
+          "code": "A01",
+          "strategy": "Wyckoff_A_L06_V08",
+          "trades_04": 21,
+          "audit_passed": 24,
+          "rej_fill_ge_H": 8,
+          "trade_in_audit": 21,
+          "trade_pass_lt_H": 21,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A02",
+          "strategy": "Wyckoff_A_L06_V10",
+          "trades_04": 21,
+          "audit_passed": 21,
+          "rej_fill_ge_H": 6,
+          "trade_in_audit": 21,
+          "trade_pass_lt_H": 21,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A03",
+          "strategy": "Wyckoff_A_L06_V12",
+          "trades_04": 21,
+          "audit_passed": 21,
+          "rej_fill_ge_H": 6,
+          "trade_in_audit": 21,
+          "trade_pass_lt_H": 21,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A04",
+          "strategy": "Wyckoff_A_L04_V08",
+          "trades_04": 14,
+          "audit_passed": 14,
+          "rej_fill_ge_H": 8,
+          "trade_in_audit": 14,
+          "trade_pass_lt_H": 14,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A05",
+          "strategy": "Wyckoff_A_L04_V10",
+          "trades_04": 13,
+          "audit_passed": 13,
+          "rej_fill_ge_H": 8,
+          "trade_in_audit": 13,
+          "trade_pass_lt_H": 13,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A06",
+          "strategy": "Wyckoff_A_L04_V12",
+          "trades_04": 13,
+          "audit_passed": 13,
+          "rej_fill_ge_H": 8,
+          "trade_in_audit": 13,
+          "trade_pass_lt_H": 13,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A07",
+          "strategy": "Wyckoff_A_L02_V08",
+          "trades_04": 5,
+          "audit_passed": 5,
+          "rej_fill_ge_H": 9,
+          "trade_in_audit": 5,
+          "trade_pass_lt_H": 5,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A08",
+          "strategy": "Wyckoff_A_L02_V10",
+          "trades_04": 5,
+          "audit_passed": 5,
+          "rej_fill_ge_H": 9,
+          "trade_in_audit": 5,
+          "trade_pass_lt_H": 5,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        },
+        {
+          "code": "A09",
+          "strategy": "Wyckoff_A_L02_V12",
+          "trades_04": 5,
+          "audit_passed": 5,
+          "rej_fill_ge_H": 9,
+          "trade_in_audit": 5,
+          "trade_pass_lt_H": 5,
+          "trade_fill_mismatch": 0,
+          "rejected_in_trades": 0,
+          "Q1_pass": true
+        }
+      ],
+      "被拒候选出现在逐笔成交中的条数": 0,
+      "H来源": "cand.box_high_h（回测运行时由箱体形成逻辑冻结，成交时刻晚于信号时刻）；权威核验 = FT-ENTRY-04 运行期写出的 audit_orders_*.csv 与 freqtrade trades CSV 交叉对账"
+    }
+  },
+  "Q2_是否提高准确率": {
+    "判定": "否",
+    "上升格数": 3,
+    "下降格数": 6,
+    "持平格数": 0,
+    "合计胜率_03": 35.2941,
+    "合计胜率_04": 36.4407
+  },
+  "Q3_是否改善净期望还是仅减少交易": {
+    "判定": "仅减少交易",
+    "全部9格净期望均不劣": false,
+    "块级CI排除0的格数": 1,
+    "Holm<0.05的格数": 0,
+    "maxT族错误率p": 0.7067,
+    "合计净期望_03": 2.3307,
+    "合计净期望_04": 2.396,
+    "合计净收益_03": 396.22529999999995,
+    "合计净收益_04": 282.7326,
+    "合计笔数_03": 170,
+    "合计笔数_04": 118
+  },
+  "Q4_是否值得保留": {
+    "判定": "不保留",
+    "结论": "不值得保留：约束实现属实，但未提高准确率、未改善净期望（部分格显著变差）",
+    "证据限制": [
+      "OI 发布时点全程 PitMode.DECLARED（桶结束即当可用），无 fetched_at 证据 ⇒ PIT 未证，只能算探索性",
+      "历史规格未满足：官方无历史规格归档，576 次运行 0 verified ⇒ 正式历史验证不可得",
+      "研究期 2021-12-01~2024-12-31 已被 FT-ENTRY-02/03 反复观察，样本外区间不存在（OOS-READY-01）",
+      "回撤口径只有已实现权益回撤，不含浮亏，是下界，不得用于风险预算结论",
+      "L2 完整策略资格为 0：全池 OI 1h 因子无合格区间，241 个 L1 候选均非完整策略合格",
+      "本轮样本池 70 币，其中仅 26 个覆盖研究期全期；54 个币在 9 格 A 里 0 笔",
+      "本审核为只读审核，不重跑回测；04 的实际结果由反重力产出，审核只做独立重算与对账",
+      "净差异恒等式全部成立（残差恒 0）：True",
+      "仓位竞争双向检查记录 58 条，其中 03 侧满仓相关 5 条"
+    ]
+  }
+}

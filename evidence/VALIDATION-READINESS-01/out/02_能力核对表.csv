@@ -1,0 +1,9 @@
+﻿能力,结论,实现位置,关键参数/字段,真实证据,限制说明
+固定仓位配对（A/B/C 共用同一数量）,支持，但不在生产包内,evidence/BREAKEVEN-02/code/be_core.py:226 ； evidence/BREAKEVEN-02/code/02_run_fixed.py:140,"install(breakeven_r, fixed_quantities)；decide_entry 内 replace(intent, quantity=fq)",evidence/BREAKEVEN-02/out/raw_fixed.jsonl；201 事件口径,实现位于 evidence/ 下，不参与代码指纹；换机器/换人复用需显式带路径
+指定事件范围（按 signal_id 挑单笔）,支持（适配器级）,策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py:345,candidates=[cand] 单元素即单事件隔离回放,evidence/BREAKEVEN-02/code/02_run_fixed.py:169 逐信号隔离并断言 trades==1,runner 层无事件过滤参数，需调用方自建循环
+指定时间范围,支持,策略/WyckoffMaster/event_trend_v0_1/runner.py:201,start_date / end_date（含端点按日）；allow_auto_window=False 强制严格窗口,run_batch_2026_sep_oct_50.py START_DATE/END_DATE 硬编码,窗口过短会导致 4h 预热不足；参数写死在批次脚本里，改窗口要改脚本
+保留原始逐笔输出,支持,策略/WyckoffMaster/event_trend_v0_1/runner.py:489,策略包直跑 17 个文件；后端 API 入口 19 个（多 chart.json / run.json）,manifest.json 逐文件 sha256 + bytes,无自动清理/归档策略，历史 run 目录会持续累积
+版本指纹,支持,策略/WyckoffMaster/event_trend_v0_1/runner.py:127,rules / code / config / inputs 四类 + pit_guard_version + spec_status,真实 run inputs.json.fingerprints；pit_guard_v1.0.0,固定仓位配对代码不在 code 指纹内
+输出目录可重定向到工单目录,不支持,策略/WyckoffMaster/event_trend_v0_1/runner.py:117,runs_base = <base_dir>/回测日志/event_trend_v0_1/runs，无环境变量/参数覆盖,改 base_dir 会连带改 parquet_base（数据路径），无法只挪输出,下一阶段若要求「只写工单目录」，需新增输出根参数（属改代码）
+组合层指标（回撤/盈亏比/胜率）,不支持,summary.json 仅单币口径,summary_variant_a 无 max_drawdown / profit_factor / win_rate,真实 run summary_variant_a 字段清单,多币组合需另写汇总，属新代码
+四项对账套件默认执行,不支持（需显式调用）,策略/WyckoffMaster/event_trend_v0_1/runner.py:378,repeatability / chunked_batch / duplicate_injection / crash_recovery,evidence/run_all_symbols_validation.py:54 显式调用,run_variant_abc 不调用；summary.reconcile 只是身份级对账

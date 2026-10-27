@@ -1,0 +1,76 @@
+{
+  "stats_at_utc": "2026-10-26T03:14:34Z",
+  "scope_file": "数据/contracts/旧标的池/scope_crypto.json",
+  "scope_sha256": "7d08bdaa8f58a6e09f3ffcd315c86da8395fc1e856a0039ced5feb3421ebbc93",
+  "pool_symbols": 526,
+  "queries": {
+    "Q1_oi_coverage.sql": {
+      "conclusion": "持仓量 5m 覆盖：池内 526/526，全库 528 币",
+      "facts": [
+        "F10",
+        "F13"
+      ],
+      "expect": "池内 526 行；全库 528 行；池内合计 6,188,452 行",
+      "sha256": "8aa9d84011412e3c62ffa4872d517ca829e559e02002dc856b8cb776b7246721",
+      "path": "queries/Q1_oi_coverage.sql"
+    },
+    "Q2_oi_freshness.sql": {
+      "conclusion": "持仓量 5m 新鲜度：520/526 ≤1h，6 币陈旧（最久约 10.7 天）",
+      "facts": [
+        "F11",
+        "F12"
+      ],
+      "expect": "<=1h 520；1d~3d 2；>3d 4",
+      "sha256": "b967814688a99fcf8455207ab32f9fa6067b0ae463cb849d1752f54f540c391c",
+      "path": "queries/Q2_oi_freshness.sql"
+    },
+    "Q3_catalog_diff.py": {
+      "conclusion": "冷档索引双向差集：未登记 11,471 / 悬空 1,909",
+      "facts": [
+        "F50",
+        "F51",
+        "F52"
+      ],
+      "expect": "disk_only 11471（live 9298）；catalog_only 1909",
+      "sha256": "7304480374d8d8cf42e3d546a3ddf6dd5e8403db4c5bbf0bc830244baa12b77c",
+      "path": "queries/Q3_catalog_diff.py"
+    },
+    "Q4_metrics_staleness.py": {
+      "conclusion": "大户/多空比停更：526 币全部 >7 天，最新 2026-10-14T23:55Z",
+      "facts": [
+        "F40",
+        "F41",
+        "F42"
+      ],
+      "expect": "526 币 / 127,973,455 行；停更中位 11.13 天",
+      "sha256": "d7496349a53b0cd33087dd244588c044a8de93013ff9eb95f2a0061386986009",
+      "path": "queries/Q4_metrics_staleness.py"
+    },
+    "Q5_funding_cold_read.py": {
+      "conclusion": "资金费冷读 526/526 币返回 0 行，而文件都在盘上",
+      "facts": [
+        "F22",
+        "F23",
+        "F24"
+      ],
+      "expect": "cold 0 行 526/526；对照 oi/candles 冷读各 500 行",
+      "sha256": "633162fc52196124cfb27eec8ea821d77d904853e118a28b3049ea60406abf2e",
+      "path": "queries/Q5_funding_cold_read.py"
+    },
+    "Q9_pit_fill.py": {
+      "conclusion": "可得时间字段填充率（全量）",
+      "facts": [
+        "F25",
+        "F43",
+        "F6-01",
+        "F6-02",
+        "F6-05",
+        "F6-06"
+      ],
+      "expect": "冷档 available_at 0%；冷档 funding 无该列；热库 funding 100%",
+      "sha256": "b63f25458dbebef454754a80bdac233d68173c55a1bd904685dfd8f85da58f83",
+      "path": "queries/Q9_pit_fill.py"
+    }
+  },
+  "note": "每个查询都只读；expect 是 2026-10-26 那次运行的完整结果，行情在动，行数会随采集增长，判定要看桶计数与 0 行的结构性事实，不看绝对行数。"
+}

@@ -1,0 +1,10 @@
+﻿核对项,数据源(全精度),比对对象,实测最大绝对差,容差,容差依据,判定
+逐笔 profit_abs = orders+funding 重建,zip 原始 JSON trade.orders,同笔 trade.profit_abs,5.000050151693358e-09,1e-08,"引擎 `trade_model.py:1198 round(profit_abs,8)` ⇒ 上界 0.5e-8，门槛取 2 倍上界",PASS
+Σprofit_abs（全精度 fsum）,zip 原始 JSON，math.fsum,引擎自报 profit_total_abs,8.526512829121202e-14,1e-09,"两侧都是 float64 求和，仅求和顺序不同；1e-9 为 3,400 笔规模下 float64 安全上界",PASS
+Σprofit_abs（全精度）,zip 原始 JSON，math.fsum,BT-01 `03_分组指标总表.net_realized+net_unrealized_end`,4.9640000000295004e-05,5e-05,BT-01 指标表按 **4 位小数**落盘（见 03 表实际值 236.6778）⇒ 上界 0.5e-4 = 5e-5。**BT-01 声明 1e-6 与此表精度自相矛盾**，本条按表精度定容差,PASS
+期末权益,zip 原始 JSON final_balance,BT-01 04 曲线末值,4.547473508864641e-13,1e-08,两侧同为 float64 直接相加；上界取引擎 8 位取整的 0.5e-8×2,PASS
+最大回撤（含浮盈日权益）,BT-01 04 曲线（全精度 repr）重算,BT-01 03 表 max_dd_pct,4.916232628460193e-05,5e-05,03 表 4 位小数 ⇒ 上界 5e-5 个百分点；另用「取整后逐字相等」交叉验证,PASS
+Sharpe（UTC 日界、365 年化、含浮盈）,BT-01 04 曲线重算,BT-01 03 表 sharpe,4.928748381516357e-05,5e-05,同上，4 位小数上界 5e-5；取整后逐字相等作为硬判据,PASS
+已实现现金 vs 引擎钱包余额（**非** 00:00 成交日界）,zip 原始 wallet.feather.balance,BT-01 04 曲线 cash 列,4.547473508864641e-13,1e-09,同为 float64 同一时点的同一量；1e-9 为求和应用的安全上界（实测见左）,PASS
+已实现现金 vs 引擎钱包余额（00:00 整点成交日界）,zip 原始 wallet.feather.balance,BT-01 04 曲线 cash 列,123.17310892000023,—,"**单列为「已归因差异」，不参与 PASS/FAIL**：61/50,670 个日界，全部（61/61）发生在 00:00 整点恰好开/平仓的时刻，是「当日计入 vs 快照早于入账」的次序差，明细见 20b",EXPLAINED
+成交笔数,zip 原始 JSON len(trades),引擎 total_trades / 各层行数,0.0,0,整数计数，必须完全相等,PASS

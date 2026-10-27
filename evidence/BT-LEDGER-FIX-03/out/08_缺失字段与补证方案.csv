@@ -1,0 +1,13 @@
+﻿field,affected_runs,affected_rows,layer,reason,remediation_path,need_rerun,identity_impact,status
+order_id / order.id（引擎真订单号）,45,6790,order,Trade.to_json(minified=True) 裁掉；BT_DATA_COLUMNS 白名单二次裁剪,进程内全量导出（方案 B）或策略 order_filled 钩子（方案 A）,是,A 改策略文件⇒strategy_sha256 变；B 不改策略⇒身份不变,阻塞（本单不重跑）
+status,45,6790,order,同上；回测建单置 'open'，close_bt_order 置 'closed',同上（方案 B 可拿到真实值，本单已给 derived='closed'）,是（原始值）/ 否（derived 已可用）,同上,部分完成
+filled / remaining,45,6790,order,"同上；close_bt_order 置 filled=amount, remaining=0",同上（本单已给 derived）,是（原始值）/ 否（derived 已可用）,同上,部分完成
+order_type,45,6790,order,同上；取 strategy.order_types，本批策略未覆盖⇒默认 limit,同上（本单已给 derived='limit'，依据 interface.py:95-101）,否（derived 足够）,同上,部分完成
+price / average（委托价）,45,6790,order,同上；回测建单即置 propose_rate，成交后不改,同上（本单已给 derived == safe_price）,否（derived 足够）,同上,部分完成
+order_date / order_timestamp（委托创建时刻）,45,6790,order,同上；回测建单与成交在同一根 K 线、同一 current_time,同上（本单已给 derived == fill_ts）,否（derived 足够）,同上,部分完成
+ft_fee_base,45,6790,order,同上；U 本位合约手续费以计价币计⇒None,同上（本单已给 derived=None）,否（derived 足够）,同上,部分完成
+funding_fee（逐单归属）,45,6790,order,close_bt_order 把 funding_fee_running 整体结转并清零，导出只剩 trade.funding_fees 总额,只能靠方案 B 抓 Order.funding_fee；总额已有 raw 值,是,同上,阻塞（逐单拆分）
+trade_id（引擎 trade.id）,45,3395,trade,Trade.to_json 的 trade_id 被 BT_DATA_COLUMNS 裁掉；引擎内部 trade_id_counter 真实存在,方案 B 抓 LocalTrade.id；当前 1..n 为秩派生，同刻并列时含未观测前提,是,同上,阻塞（当前为 derived_unverified）
+amount_requested,45,3395,trade,导出裁剪；回测中通常 == amount，但无值可证,方案 B,是,同上,阻塞（低价值）
+exit_order_status,45,3395,trade,导出裁剪,方案 B（本单已给 derived='closed'）,否（derived 足够）,同上,部分完成
+fill_id / 交易所订单号 / 部分成交明细,45,6790,order,回测无交易所回报，环境本身不存在该概念,**无路径**。只有 dry-run/实盘才有；不得自造,永不,—,不可补（结构性）

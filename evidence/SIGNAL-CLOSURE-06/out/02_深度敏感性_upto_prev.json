@@ -1,0 +1,179 @@
+{
+ "generated_at_utc": "2026-10-25T05:20:31Z",
+ "upto_utc": "2026-10-25T03:59:59Z",
+ "declared_window_hours": 1160.0,
+ "grid_hours": [
+  1160,
+  1800,
+  2400,
+  2880
+ ],
+ "n_symbols": 526,
+ "n_changed_between_adjacent": {
+  "1160->1800": 11,
+  "1800->2400": 0,
+  "2400->2880": 0
+ },
+ "n_transitions_changed_between_adjacent": {
+  "1160->1800": 473,
+  "1800->2400": 0,
+  "2400->2880": 0
+ },
+ "state_key_note": "有效状态 = 阶段/箱体/扫低/回踩/冷却/候选数；**不含** n_transitions（按构造随深度单调增长，不是状态）。",
+ "stable_from_hours": 1800,
+ "adjacent_diff_detail": {
+  "1160->1800": [
+   {
+    "symbol": "ADAUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 1
+    },
+    "to": {
+     "n_candidates": 0
+    }
+   },
+   {
+    "symbol": "AEROUSDT",
+    "fields": [
+     "cooling_until_ms"
+    ],
+    "from": {
+     "cooling_until_ms": 1792854000000
+    },
+    "to": {
+     "cooling_until_ms": 1792850400000
+    }
+   },
+   {
+    "symbol": "AIGENSYNUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   },
+   {
+    "symbol": "BEAMXUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   },
+   {
+    "symbol": "CTRUSDT",
+    "fields": [
+     "state",
+     "box_formed_ms",
+     "box_high",
+     "box_low",
+     "cooling_until_ms"
+    ],
+    "from": {
+     "state": "IDLE",
+     "box_formed_ms": null,
+     "box_high": null,
+     "box_low": null,
+     "cooling_until_ms": 1792987200000
+    },
+    "to": {
+     "state": "BOX",
+     "box_formed_ms": 1792353599999,
+     "box_high": 0.014864,
+     "box_low": 0.012585,
+     "cooling_until_ms": 1792339200000
+    }
+   },
+   {
+    "symbol": "GRVTUSDT",
+    "fields": [
+     "box_formed_ms",
+     "cooling_until_ms"
+    ],
+    "from": {
+     "box_formed_ms": 1792655999999,
+     "cooling_until_ms": 1792641600000
+    },
+    "to": {
+     "box_formed_ms": 1792627199999,
+     "cooling_until_ms": 1792598400000
+    }
+   },
+   {
+    "symbol": "LUNA2USDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   },
+   {
+    "symbol": "MASKUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   },
+   {
+    "symbol": "NEIROUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 1
+    },
+    "to": {
+     "n_candidates": 0
+    }
+   },
+   {
+    "symbol": "ORCAUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   },
+   {
+    "symbol": "XRPUSDT",
+    "fields": [
+     "n_candidates"
+    ],
+    "from": {
+     "n_candidates": 0
+    },
+    "to": {
+     "n_candidates": 1
+    }
+   }
+  ],
+  "1800->2400": [],
+  "2400->2880": []
+ },
+ "per_symbol": null,
+ "note": "判据：找到最小的 D，使得 D 之后**每一档相邻比较都 0 变化**。这表示「状态在 D 处已经稳定，再加深历史也不会变」。只有稳定了，重启（深度更大）与持续运行才可能一致。"
+}

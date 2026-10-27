@@ -1,0 +1,86 @@
+{
+ "job": {
+  "symbol": "AGTUSDT",
+  "signal_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+  "snapshot_ms": 1788771600000,
+  "mode": "hot",
+  "arm": "3a"
+ },
+ "env": {
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E2_AGT_cold_hot/paper",
+  "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "WX_ARCHIVE_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+  "WX_MARKET_MERGE": null,
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E2_AGT_cold_hot/live_signals.sqlite3"
+ },
+ "market_mode": {
+  "merge_enabled": false,
+  "env_flag": "WX_MARKET_MERGE",
+  "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+  "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+ },
+ "steps": [
+  {
+   "step": "open_position",
+   "result": {
+    "ok": false,
+    "reason": "bar_after_attempt_clock_no_lookahead",
+    "symbol": "AGTUSDT",
+    "signal_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999"
+   }
+  }
+ ],
+ "errors": [],
+ "verdict": "rejected_at_order",
+ "reject_reason": "bar_after_attempt_clock_no_lookahead",
+ "ledger": {
+  "positions": [],
+  "orders": [
+   {
+    "order_id": 1,
+    "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+    "symbol": "AGTUSDT",
+    "side": "buy",
+    "status": "rejected",
+    "reject_reason": "bar_after_attempt_clock_no_lookahead",
+    "fill_price": null,
+    "bar_open_time": null,
+    "market_source": null
+   }
+  ],
+  "fills": [],
+  "realized": [],
+  "stop_history": [],
+  "state": [
+   {
+    "cash": 5000.0,
+    "realized_pnl": 0.0,
+    "fees_paid": 0.0,
+    "funding_paid": 0.0
+   }
+  ],
+  "equity": [],
+  "pending": [],
+  "blocked": [
+   {
+    "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+    "reason": "bar_after_attempt_clock_no_lookahead"
+   }
+  ],
+  "counts": {
+   "positions": 0,
+   "orders": 1,
+   "fills": 0,
+   "realized": 0,
+   "stop_history": 0
+  }
+ },
+ "_run": {
+  "name": "04_E2_AGT_cold_hot",
+  "mode": "hot",
+  "elapsed_s": 0.08,
+  "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E2_AGT_cold_hot",
+  "worker_rc": 0
+ }
+}

@@ -1,0 +1,282 @@
+{
+ "form": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/config/批准配置_空白表单.json",
+ "table": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/配置字段表.md",
+ "fields": 36,
+ "mapped_to_pending_or_conflict": 21,
+ "structural": 15,
+ "unmapped": [
+  "approval_ref",
+  "approved",
+  "kind",
+  "schema_version",
+  "schemes.4a.confirm",
+  "schemes.4a.enabled",
+  "schemes.4b.confirm",
+  "schemes.4b.enabled",
+  "schemes.4c.confirm",
+  "schemes.4c.enabled",
+  "schemes.4c.pullback.zone_atr",
+  "shared.entry_delay_minutes",
+  "shared.local_resistance.timeframe",
+  "shared.sweep_max_overshoot_atr",
+  "shared.sweep_min_recovery_atr"
+ ],
+ "rows": [
+  {
+   "field": "approval_ref",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "approved",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "conflict_resolution.participation_cap",
+   "source": "口径冲突 `participation_cap`",
+   "question": "订单名义额占「前一根已闭合 15m 成交额」的上限取 0.1% 还是 1%",
+   "implemented_values": [
+    "effective_view",
+    "strategy_package"
+   ]
+  },
+  {
+   "field": "conflict_resolution.risk_config",
+   "source": "待决项 `risk_budget_new_scheme`",
+   "question": "新方案用哪套本金与仓位上限",
+   "implemented_values": [
+    "effective_view",
+    "strategy_package"
+   ]
+  },
+  {
+   "field": "conflict_resolution.slippage_source",
+   "source": "口径冲突 `slippage_source`",
+   "question": "滑点单边取万分之三还是万分之五",
+   "implemented_values": [
+    "effective_view",
+    "strategy_package"
+   ]
+  },
+  {
+   "field": "kind",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": [
+    "approved",
+    "fixture"
+   ]
+  },
+  {
+   "field": "schema_version",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "schemes.4a.confirm",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": [
+    "close_above_resistance_first"
+   ]
+  },
+  {
+   "field": "schemes.4a.enabled",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "schemes.4b.confirm",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": [
+    "next_close_holds_above_resistance"
+   ]
+  },
+  {
+   "field": "schemes.4b.enabled",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "schemes.4c.confirm",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": [
+    "pullback_to_resistance_then_close_up"
+   ]
+  },
+  {
+   "field": "schemes.4c.enabled",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "schemes.4c.pullback.deadline_hours",
+   "source": "待决项 `pullback_deadline_hours`",
+   "question": "丙组「突破后等回抽」的回抽等待期限",
+   "implemented_values": null
+  },
+  {
+   "field": "schemes.4c.pullback.zone_atr",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.entry_delay_minutes",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.entry_price_deviation_cap",
+   "source": "待决项 `entry_distance_limit`",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.intrabar_break_cancel.buffer_atr",
+   "source": "待决项 `intrabar_break_cancel`",
+   "question": "盘中跌破是否即时取消观察，还是只看收盘",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.intrabar_break_cancel.mode",
+   "source": "待决项 `intrabar_break_cancel`",
+   "question": "盘中跌破是否即时取消观察，还是只看收盘",
+   "implemented_values": [
+    "close_only",
+    "intrabar"
+   ]
+  },
+  {
+   "field": "shared.local_resistance.mode",
+   "source": "待决项 `local_resistance_definition`",
+   "question": "「局部压制位」怎么取：前 N 根 1h 高点？箱体内分位？扫低前最后一个摆动高点？",
+   "implemented_values": [
+    "box_high",
+    "prior_n_high"
+   ]
+  },
+  {
+   "field": "shared.local_resistance.n",
+   "source": "待决项 `local_resistance_definition`",
+   "question": "「局部压制位」怎么取：前 N 根 1h 高点？箱体内分位？扫低前最后一个摆动高点？",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.local_resistance.timeframe",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": [
+    "1h",
+    "4h"
+   ]
+  },
+  {
+   "field": "shared.local_resistance_confirm.buffer_atr",
+   "source": "待决项 `local_resistance_confirm`",
+   "question": "突破局部压制位用 1h 收盘确认还是盘中触及即算",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.local_resistance_confirm.mode",
+   "source": "待决项 `local_resistance_confirm`",
+   "question": "突破局部压制位用 1h 收盘确认还是盘中触及即算",
+   "implemented_values": [
+    "1h_close",
+    "intrabar"
+   ]
+  },
+  {
+   "field": "shared.observe_deadline_hours",
+   "source": "待决项 `observe_deadline_hours`",
+   "question": "新方案的事件观察期限（小时）",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.oi_role",
+   "source": "待决项 `oi_necessity`",
+   "question": "—",
+   "implemented_values": [
+    "evidence_only",
+    "ignored",
+    "required"
+   ]
+  },
+  {
+   "field": "shared.repeat_candidate_limit.cooldown_hours",
+   "source": "待决项 `repeat_candidate_limit`",
+   "question": "同一标的同时段允许几个候选、平仓后多久可再入场",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.repeat_candidate_limit.per_event",
+   "source": "待决项 `repeat_candidate_limit`",
+   "question": "同一标的同时段允许几个候选、平仓后多久可再入场",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sell_pressure.baseline",
+   "source": "待决项 `sell_pressure_baseline`",
+   "question": "「卖压减弱 / 主动买入放大」的比较基准：V20 均量？近 N 根中位？",
+   "implemented_values": [
+    "prior_n_mean",
+    "v20_median"
+   ]
+  },
+  {
+   "field": "shared.sell_pressure.buy_ratio_min",
+   "source": "待决项 `sell_pressure_threshold`",
+   "question": "卖压减弱与主动买入放大的具体阈值",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sell_pressure.n",
+   "source": "待决项 `sell_pressure_baseline`",
+   "question": "「卖压减弱 / 主动买入放大」的比较基准：V20 均量？近 N 根中位？",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sell_pressure.require",
+   "source": "待决项 `sell_pressure_threshold`",
+   "question": "卖压减弱与主动买入放大的具体阈值",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sweep_max_overshoot_atr",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sweep_min_recovery_atr",
+   "source": "结构性字段（格式/身份/开关）",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sweep_recovery_scope.max_bars",
+   "source": "待决项 `sweep_bars`",
+   "question": "—",
+   "implemented_values": null
+  },
+  {
+   "field": "shared.sweep_recovery_scope.mode",
+   "source": "待决项 `sweep_bars`",
+   "question": "—",
+   "implemented_values": [
+    "multi_bar",
+    "single_bar"
+   ]
+  }
+ ]
+}

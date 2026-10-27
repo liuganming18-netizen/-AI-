@@ -1,0 +1,4220 @@
+### 框架/backend/backtest_store.py
+diff --git "a/\346\241\206\346\236\266/backend/backtest_store.py" "b/\346\241\206\346\236\266/backend/backtest_store.py"
+index dbf1eac..00bf503 100644
+--- "a/\346\241\206\346\236\266/backend/backtest_store.py"
++++ "b/\346\241\206\346\236\266/backend/backtest_store.py"
+@@ -28,6 +28,7 @@ import re
+ import sqlite3
+ import threading
+ import time
++from concurrent.futures import ThreadPoolExecutor
+ from contextlib import closing
+ from datetime import datetime, timezone
+ from pathlib import Path
+@@ -38,9 +39,13 @@ _TMP_SEQ = itertools.count()
+ PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ 
+ # 运行根（可用环境变量覆盖；默认项目内最新 event_trend_v0_1 独立目录）
+-RUNS_ROOT = Path(os.environ.get(
+-    "EVENT_TREND_RUNS_DIR",
+-    os.environ.get("OI_RESONANCE_RUNS_DIR", str(PROJECT_ROOT / "回测日志" / "event_trend_v0_1" / "runs"))))
++def get_runs_root() -> Path:
++    """动态解析运行根目录，优先读取环境变量（支持单测临时隔离目录）。"""
++    return Path(os.environ.get(
++        "EVENT_TREND_RUNS_DIR",
++        os.environ.get("OI_RESONANCE_RUNS_DIR", str(PROJECT_ROOT / "回测日志" / "event_trend_v0_1" / "runs"))))
++
++RUNS_ROOT = get_runs_root()
+ 
+ RUN_ID_RE = re.compile(r"^(bt_[0-9]{8}T[0-9]{6}Z_[0-9a-f]{8}|run_WX_EVENT_TREND_V0_1_.*)$")
+ 
+@@ -86,19 +91,87 @@ def assert_run_id(run_id: str) -> str:
+ def run_dir(run_id: str) -> Path:
+     """run 目录（路径越界拒绝）。"""
+     rid = assert_run_id(run_id)
+-    root = RUNS_ROOT.resolve()
++    root = get_runs_root().resolve()
+     d = (root / rid).resolve()
+     if root != d.parent:
+         raise IsolationError(f"路径越界（只允许 {root} 下的一级目录）：{d}")
+     return d
+ 
+ 
++# ═══════════════ 读取期 run 定位（默认根 + 同级批次目录；写入仍只认默认根）═══════════════
++
++_LOCATE_TTL_S = 120.0
++_LOCATE: Dict[str, Any] = {"at": 0.0, "map": {}}
++_LOCATE_LOCK = threading.Lock()
++
++
++def _sibling_batch_roots() -> List[Path]:
++    """默认运行根的同级批次目录（`runs_*`，如 `runs_sep_all_latest`）。
++
++    批量脚本把 run 落在这些目录里，它们与默认 `runs/` 是**平级**的独立根。
++    """
++    root = get_runs_root()
++    parent = root.parent
++    out: List[Path] = []
++    try:
++        with os.scandir(parent) as it:
++            for e in it:
++                if not e.is_dir() or not e.name.startswith("runs"):
++                    continue
++                if e.name == root.name:
++                    continue
++                out.append(Path(e.path))
++    except OSError:
++        return []
++    return sorted(out, key=lambda p: p.name)
++
++
++def _locate_index() -> Dict[str, Path]:
++    """run_id → 批次目录（只扫目录名，不读文件；缓存 120 秒）。"""
++    now = time.time()
++    with _LOCATE_LOCK:
++        cached = _LOCATE.get("map") or {}
++        if cached and now - float(_LOCATE.get("at") or 0.0) < _LOCATE_TTL_S:
++            return cached
++    m: Dict[str, Path] = {}
++    for r in _sibling_batch_roots():
++        try:
++            with os.scandir(r) as it:
++                for e in it:
++                    if e.is_dir() and RUN_ID_RE.match(e.name):
++                        m.setdefault(e.name, Path(e.path))
++        except OSError:
++            continue
++    with _LOCATE_LOCK:
++        _LOCATE.update({"at": now, "map": m})
++    return m
++
++
++def read_run_dir(run_id: str) -> Path:
++    """**只读**定位 run 目录：先默认根，再同级批次目录；都没有 ⇒ `RunNotFound`。
++
++    为什么需要（BT-UI-01）：批次目录（`runs_sep_all_latest` 等）里的 run 不在默认
++    `runs/` 下，而 `run_dir()` 只认默认根 ⇒ 页面从批次选中一个 run 后，
++    `GET /backtests/{id}` 及其图表 / 逐笔 / 指标全部 404（页面上表现为「图表整块消失」）。
++    写入路径**不**放宽：`create_run` / `write_run` / 账本写入仍只走 `run_dir()`。
++    """
++    rid = assert_run_id(run_id)
++    d = run_dir(rid)
++    if d.exists():
++        return d
++    hit = _locate_index().get(rid)
++    if hit is not None:
++        return hit
++    raise RunNotFound(f"run 不存在：{rid}")
++
++
+ # ══════════════════════════ 创建 / 读取 / 状态 ══════════════════════════
+ 
+ def create_run(run_id: str, doc: Dict[str, Any]) -> Path:
+     """**原子独占**创建 run 目录并写入 `run.json`。重名 ⇒ `RunExists`。"""
+     rid = assert_run_id(run_id)
+-    RUNS_ROOT.mkdir(parents=True, exist_ok=True)
++    root = get_runs_root()
++    root.mkdir(parents=True, exist_ok=True)
+     d = run_dir(rid)
+     with _CREATE_LOCK:
+         if d.exists():                       # 先判存在（不覆盖、不删除）
+@@ -252,7 +325,7 @@ def _summary_to_run_doc(d: Path, run_id: str) -> Dict[str, Any]:
+ 
+ 
+ def read_run(run_id: str) -> Dict[str, Any]:
+-    d = run_dir(run_id)
++    d = read_run_dir(run_id)
+     f = d / "run.json"
+     if f.exists():
+         return json.loads(f.read_text(encoding="utf-8"))
+@@ -325,7 +398,7 @@ def write_snapshot(run_id: str, name: str, data: bytes) -> Path:
+ 
+ def read_snapshot(run_id: str, name: str) -> bytes:
+     nm = _assert_snapshot_name(name)
+-    p = snapshot_dir(run_id) / nm
++    p = read_run_dir(run_id) / SNAPSHOT_DIRNAME / nm
+     if not p.exists():
+         raise RunNotFound(f"快照不存在：{run_id}/{nm}")
+     return p.read_bytes()
+@@ -339,36 +412,88 @@ def write_chart(run_id: str, chart: Dict[str, Any]) -> Path:
+ 
+ 
+ def read_chart(run_id: str) -> Dict[str, Any]:
+-    p = run_dir(run_id) / "chart.json"
++    p = read_run_dir(run_id) / "chart.json"
+     if not p.exists():
+         raise RunNotFound(f"图表不存在：{run_id}")
+     return json.loads(p.read_text(encoding="utf-8"))
+ 
+ 
++_LIST_CACHE: Dict[str, Any] = {"at": 0.0, "root": None, "val": None, "ttl": 0.0}
++_LIST_LOCK = threading.Lock()
++_LIST_BUILD_LOCK = threading.Lock()
++# 列表缓存时长：列表内容（已完成的 run）几乎不变，120s 足够；
++# 有 queued/running 时缩到 3s —— 状态变化要能被 2s 轮询看到。
++# ⚠ 原来是 10s：页面停留超过 10 秒再刷新就要重扫 1198 个目录（约 7 秒），
++# 这段时间里它会和批次请求抢磁盘与 GIL ⇒ 首屏图表要等到 19 秒（BT-UI-01 实测）。
++_LIST_TTL_S = 120.0
++_LIST_TTL_PENDING_S = 3.0
++
++
+ def list_runs(limit: int = 200) -> List[Dict[str, Any]]:
+-    """列出全部运行（按创建时间倒序）。"""
+-    if not RUNS_ROOT.exists():
++    """列出全部运行（按创建时间倒序）。
++
++    2026-10-18（BT-UI-01）：原实现逐个目录串行读盘，`runs/` 有 1198 个目录时
++    一次请求要 18–21 秒（limit 只是**最后**才截断，等于没生效）⇒ 回测页首屏
++    35 秒空白。现在：
++      · 目录并行读（8 线程，纯 I/O 与 JSON 解析）；
++      · 全量结果缓存 3 秒（同一屏多次请求不重复扫盘）；
++      · **存在非终态 run 时不写缓存** —— 状态变化要立刻可见，不拿旧值糊弄。
++    返回语义不变：仍按 `created_at` 倒序取前 `limit` 条。
++    """
++    root = get_runs_root()
++    if not root.exists():
+         return []
+-    out: List[Dict[str, Any]] = []
+-    for d in sorted(RUNS_ROOT.iterdir(), reverse=True):
+-        if not d.is_dir():
+-            continue
+-        try:
+-            doc = read_run(d.name)
+-            out.append(doc)
+-        except Exception as exc:  # noqa: BLE001
+-            out.append({"run_id": d.name, "status": "unknown",
+-                        "note": f"读取失败：{type(exc).__name__}: {exc}"})
+-    out.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
++
++    now = time.time()
++    with _LIST_LOCK:
++        cached = _LIST_CACHE.get("val")
++        if (cached is not None and _LIST_CACHE.get("root") == str(root)
++                and now - float(_LIST_CACHE.get("at") or 0.0) < float(_LIST_CACHE.get("ttl") or 0.0)):
++            return cached[:max(1, int(limit))]
++        build_lock = _LIST_BUILD_LOCK
++
++    # 同 key 只构建一次：预热线程与首个请求同时到达时，不要让两份扫描串着做
++    with build_lock:
++        now = time.time()
++        with _LIST_LOCK:
++            cached = _LIST_CACHE.get("val")
++            if (cached is not None and _LIST_CACHE.get("root") == str(root)
++                    and now - float(_LIST_CACHE.get("at") or 0.0) < float(_LIST_CACHE.get("ttl") or 0.0)):
++                return cached[:max(1, int(limit))]
++
++        dirs = [d for d in root.iterdir() if d.is_dir()]
++
++        def _one(d: Path) -> Dict[str, Any]:
++            try:
++                return read_run(d.name)
++            except Exception as exc:  # noqa: BLE001
++                return {"run_id": d.name, "status": "unknown",
++                        "note": f"读取失败：{type(exc).__name__}: {exc}"}
++
++        workers = min(8, max(1, len(dirs)))
++        if len(dirs) > 32:
++            with ThreadPoolExecutor(max_workers=workers) as ex:
++                out: List[Dict[str, Any]] = list(ex.map(_one, dirs))
++        else:
++            out = [_one(d) for d in dirs]
++
++        out.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
++
++        has_pending = any(str(x.get("status") or "") in (STATUS_QUEUED, STATUS_RUNNING) for x in out)
++        ttl = _LIST_TTL_PENDING_S if has_pending else _LIST_TTL_S
++        with _LIST_LOCK:
++            _LIST_CACHE.update({"at": now, "root": str(root), "val": out, "ttl": ttl})
++
+     return out[:max(1, int(limit))]
+ 
+ 
+ def mark_orphans_interrupted() -> List[str]:
+     """启动时把遗留 `queued|running` 标 `interrupted`（保留原因，不冒充成功）。"""
+-    if not RUNS_ROOT.exists():
++    root = get_runs_root()
++    if not root.exists():
+         return []
+     touched: List[str] = []
+-    for d in RUNS_ROOT.iterdir():
++    for d in root.iterdir():
+         if not d.is_dir() or not RUN_ID_RE.match(d.name):
+             continue
+         f = d / "run.json"
+@@ -511,7 +636,7 @@ class Ledger:
+ 
+ 
+ def ledger_path(run_id: str) -> Path:
+-    return run_dir(run_id) / "ledger.sqlite3"
++    return read_run_dir(run_id) / "ledger.sqlite3"
+ 
+ 
+ def read_ledger_rows(run_id: str, table: str, order_by: Optional[str] = None) -> List[dict]:
+@@ -528,7 +653,7 @@ def read_ledger_rows(run_id: str, table: str, order_by: Optional[str] = None) ->
+             return [dict(r) for r in con.execute(sql, (run_id,))]
+ 
+     # 兼容 JSONL 文件格式
+-    d = run_dir(run_id)
++    d = read_run_dir(run_id)
+     jsonl_map = {
+         "trades": "trades.jsonl",
+         "orders": "orders.jsonl",
+@@ -611,7 +736,7 @@ __all__ = [
+     "RUNS_ROOT", "STATUSES", "STATUS_QUEUED", "STATUS_RUNNING", "STATUS_SUCCEEDED",
+     "STATUS_FAILED", "STATUS_INTERRUPTED", "TERMINAL_STATUSES",
+     "RunExists", "RunNotFound", "IsolationError",
+-    "utc_now_iso", "new_run_id", "assert_run_id", "run_dir",
++    "utc_now_iso", "new_run_id", "assert_run_id", "run_dir", "read_run_dir",
+     "create_run", "read_run", "write_run", "update_run", "set_status",
+     "write_inputs_manifest", "list_runs", "mark_orphans_interrupted",
+     "snapshot_dir", "write_snapshot", "read_snapshot", "write_chart", "read_chart",
+
+### 框架/backend/backtest_api.py
+diff --git "a/\346\241\206\346\236\266/backend/backtest_api.py" "b/\346\241\206\346\236\266/backend/backtest_api.py"
+index 8254fdf..08387a7 100644
+--- "a/\346\241\206\346\236\266/backend/backtest_api.py"
++++ "b/\346\241\206\346\236\266/backend/backtest_api.py"
+@@ -24,8 +24,11 @@
+ """
+ from __future__ import annotations
+ 
++import json
+ import re
+ import threading
++from datetime import datetime, timezone
++from functools import lru_cache
+ from typing import Any, Dict, List, Optional, Tuple
+ 
+ import backtest_runner as RUN
+@@ -33,6 +36,7 @@ import backtest_store as S
+ import event_trend_bridge as BR
+ import ledger_links as LL
+ import backtest_metrics as MET
++import backtest_batches as BATCH
+ 
+ CONTRACT_VERSION = "bt_api_v1"
+ 
+@@ -47,7 +51,7 @@ def _facts(run_id: str) -> LL.LedgerFacts:
+     `orders.jsonl` 本身不带 `trade_id` —— 因此**必须**走本模块按真实标识关联，
+     绝不能让 `read_ledger_rows` 的 `f"trd_{len(rows)+1}"` 兜底生效（那是按行号猜配）。
+     """
+-    return LL.load_ledger_facts(S.run_dir(run_id), run_id)
++    return LL.load_ledger_facts(S.read_run_dir(run_id), run_id)
+ 
+ 
+ 
+@@ -205,7 +209,7 @@ def get_metrics(run_id: str) -> Tuple[dict, int]:
+     #   · 胜负 = 扣费后 net_pnl（>0 盈 / <0 亏 / =0 平）
+     #   · 最大回撤 = equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏）
+     #   · profit_factor（聚合口径）与 avg_win_loss_ratio（均值口径）**分开、不混用**
+-    metrics, notes = MET.compute_metrics(S.run_dir(run_id), run_id, doc)
++    metrics, notes = MET.compute_metrics(S.read_run_dir(run_id), run_id, doc)
+     stored = doc.get("metrics") or {}
+     bench: Optional[dict] = None
+     monthly: Optional[dict] = None
+@@ -277,6 +281,33 @@ def get_equity(run_id: str) -> Tuple[dict, int]:
+                            "其成本口径见 benchmark.cost_model（纯价格口径时不给 net_return_pct）")), 200
+ 
+ 
++@lru_cache(maxsize=64)
++def _signal_index(run_id: str) -> Dict[str, int]:
++    """`chart.json` 的 signals：signal_id → 信号时刻(ms)。
++
++    只读、带缓存（图载荷 1MB 级，逐笔接口不该每次重解）。文件缺失/解析失败 ⇒ `{}`
++    （调用方据此退到 signal_id 尾段并标注来源，不编造时刻）。
++    """
++    try:
++        d = S.read_run_dir(run_id)
++        p = d / "chart.json"
++        if not p.is_file():
++            return {}
++        with p.open("r", encoding="utf-8") as f:
++            doc = json.load(f)
++    except Exception:                                     # noqa: BLE001
++        return {}
++    out: Dict[str, int] = {}
++    for s in (doc or {}).get("signals") or []:
++        if not isinstance(s, dict):
++            continue
++        sid = s.get("signal_id")
++        t = s.get("t")
++        if sid and isinstance(t, (int, float)) and t > 0:
++            out[str(sid)] = int(t)
++    return out
++
++
+ def get_trades(run_id: str) -> Tuple[dict, int]:
+     doc, err = _require_done(run_id)
+     if err:
+@@ -288,13 +319,58 @@ def get_trades(run_id: str) -> Tuple[dict, int]:
+     if unresolved:
+         notes.append(
+             f"{len(unresolved)} 笔交易的 trade_id 在账本里无法唯一确定 ⇒ 如实留空（不按行号猜配）")
++
++    # ── 逐笔复核所需的两项派生字段（2026-10-18 BT-UI-01）────────────────────
++    # ① initial_stop：trades.jsonl 的 stop_trace 首点（引擎实况记录），不是重算值。
++    # ② signal_time_ms：候选信号时刻。优先按 signal_id 命中 chart.signals[].t；
++    #    未命中才用 signal_id 尾段（结构化字段）并标注来源 —— 两者都缺就 None。
++    sig_index = _signal_index(run_id)
++    missing_stop = 0
++    missing_sig_t = 0
++    for r in rows:
++        st = r.get("stop_trace") or []
++        init = None
++        for p in st:
++            if isinstance(p, dict) and isinstance(p.get("stop"), (int, float)):
++                init = float(p["stop"])
++                break
++        r["initial_stop"] = init
++        r["initial_stop_source"] = ("trades.jsonl.stop_trace[0]" if init is not None else None)
++        if init is None:
++            missing_stop += 1
++
++        sid = r.get("signal_id")
++        t_ms = sig_index.get(str(sid)) if (sig_index and sid) else None
++        src = "chart.signals[].t（按 signal_id 命中）" if t_ms is not None else None
++        if t_ms is None and sid:
++            tail = str(sid).rsplit("_", 1)
++            if len(tail) == 2:
++                try:
++                    v = int(tail[1])
++                except ValueError:
++                    v = 0
++                if 1_000_000_000_000 <= v <= 10_000_000_000_000:
++                    t_ms = v
++                    src = "signal_id 尾段（chart.signals 未命中/无图载荷）"
++        r["signal_time_ms"] = t_ms
++        r["signal_time_source"] = src
++        if t_ms is None:
++            missing_sig_t += 1
++    if missing_stop:
++        notes.append(f"{missing_stop} 笔没有 stop_trace ⇒ 初始止损留空（不按价格推算）")
++    if missing_sig_t:
++        notes.append(f"{missing_sig_t} 笔未能定位候选信号时刻 ⇒ signal_time_ms 留空")
++
+     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                      items=rows, total=len(rows),
+                      trade_id_source="ledger:positions.jsonl POSITION_CLOSED.payload.trade_id",
+                      unresolved_trade_ids=len(unresolved),
++                     missing_initial_stop=missing_stop,
++                     missing_signal_time=missing_sig_t,
+                      link_notes=notes,
+                      note=("trade_id / 关联订单 / 资金费归属全部取自本 run 账本的真实标识；"
+-                           "stop_trace 已统一为 `t`（毫秒），无后续止损调整时即为单点")), 200
++                           "stop_trace 已统一为 `t`（毫秒），无后续止损调整时即为单点；"
++                           "initial_stop 取 stop_trace 首点；signal_time_ms 优先来自 chart.signals")), 200
+ 
+ 
+ def get_orders(run_id: str) -> Tuple[dict, int]:
+@@ -385,20 +461,87 @@ def get_trade(run_id: str, trade_id: str) -> Tuple[dict, int]:
+                      items=[t], total=1), 200
+ 
+ 
++def _run_own_window(run_id: str, d) -> Tuple[Optional[int], Optional[int], Optional[str]]:
++    """该 run **自己的**窗口（毫秒），以及来源说明。
++
++    为什么需要（BT-UI-01）：旧 `_generate_fallback_chart` 把窗口写死成
++    `2024-01-01 ~ 2024-06-30`。实测 4 个缺 `chart.json` 的 run 真实窗口分别是
++    2024-09→2025-09、2021-06→2022-06、2022-10→2023-10、2023-01→2024-01 ——
++    写死的窗口与真实窗口**完全不相交**，图上那根 K 线根本不是这笔交易发生的那一段，
++    用户看到的就是「图表和逐笔对不上」。
++
++    顺序：`inputs.json(data_summary.time_range_1h)` → 账本 `equity_curve.jsonl` 首尾时刻。
++    两处都取不到 ⇒ 返回 `(None, None, None)`，调用方**不画图**（宁缺不造）。
++    """
++    try:
++        inp = json.loads((d / "inputs.json").read_text(encoding="utf-8"))
++    except Exception:                                      # noqa: BLE001
++        inp = {}
++    tr = ((inp.get("data_summary") or {}).get("time_range_1h") or {}) if isinstance(inp, dict) else {}
++    ws, we = tr.get("start_ms"), tr.get("end_ms")
++    if isinstance(ws, int) and isinstance(we, int) and ws > 0 and we > ws:
++        return ws, we, "inputs.json(data_summary.time_range_1h)"
++    ts: List[int] = []
++    try:
++        with (d / "equity_curve.jsonl").open("r", encoding="utf-8") as f:
++            for line in f:
++                line = line.strip()
++                if not line:
++                    continue
++                try:
++                    e = json.loads(line)
++                except ValueError:
++                    continue
++                t = e.get("timestamp") or e.get("t") or e.get("ts_ms")
++                if isinstance(t, int) and t > 0:
++                    ts.append(t)
++    except OSError:
++        ts = []
++    if ts:
++        return min(ts), max(ts), "equity_curve.jsonl(首/末时刻)"
++    return None, None, None
++
++
+ def _generate_fallback_chart(run_id: str, doc: dict) -> dict:
++    """`chart.json` 缺失时，用**该 run 自己的**标的与窗口重建图表载荷。
++
++    纪律（BT-UI-01）：
++      · 窗口 / 标的只能来自本 run 的落盘文件（`inputs.json` / `summary.json`）；
++        取不到就抛 `RunNotFound`，由 `get_chart` 如实报「缺 K 线」，**不猜、不写死**；
++      · **不落盘**：读接口不得改写 run 目录（旧实现会 `S.write_chart` 把重建结果写回去，
++        等于用一份错窗口的图覆盖证据目录）。
++    """
+     from WyckoffMaster.event_trend_v0_1 import EventTrendRunner
+-    import json
+-    symbol = ((doc.get("spec") or {}).get("symbols") or ["BTCUSDT"])[0]
++    d = S.read_run_dir(run_id)
++
++    # 标的一律取 summary.json（该 run 真实跑过的标的），不拿 spec 默认值顶替
++    symbol = None
++    try:
++        sm = json.loads((d / "summary.json").read_text(encoding="utf-8"))
++        symbol = sm.get("symbol")
++    except Exception:                                      # noqa: BLE001
++        symbol = None
++    symbol = symbol or ((doc.get("spec") or {}).get("symbols") or [None])[0]
++    if not symbol:
++        raise S.RunNotFound(f"{run_id}: 无法确定标的（summary.json 无 symbol）")
++
++    ws, we, win_src = _run_own_window(run_id, d)
++    if ws is None or we is None:
++        raise S.RunNotFound(f"{run_id}: 无法确定本 run 的真实窗口 ⇒ 不重建图表")
++
++    start_date = datetime.fromtimestamp(ws / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
++    end_date = datetime.fromtimestamp(we / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+     runner = EventTrendRunner()
+     df_4h, df_1h, df_15m, oi_ts, oi_vals, funding_events = runner.load_symbol_data(
+-        symbol=symbol, start_date="2024-01-01", end_date="2024-06-30"
++        symbol=symbol, start_date=start_date, end_date=end_date
+     )
++    if len(df_15m) == 0:
++        raise S.RunNotFound(f"{run_id}: 本 run 窗口 {start_date}~{end_date} 无 K 线数据 ⇒ 不重建")
+     candles = [
+         {"t": int(r.open_time), "o": float(r.open), "h": float(r.high),
+          "l": float(r.low), "c": float(r.close), "v": float(r.volume)}
+         for r in df_15m.itertuples(index=False)
+     ]
+-    d = S.run_dir(run_id)
+     # 真实 trade_id 一律取账本（positions.jsonl 的 POSITION_CLOSED）——**不按行号猜配**。
+     try:
+         _f = _facts(run_id)
+@@ -465,20 +608,22 @@ def _generate_fallback_chart(run_id: str, doc: dict) -> dict:
+         "symbol": symbol,
+         "exec_timeframe": "15m",
+         "window": {
+-            "start_ms": int(df_1h["timestamp"].iloc[0]),
+-            "end_ms": int(df_1h["timestamp"].iloc[-1]) + 3600 * 1000,
++            # 窗口取**该 run 自己**的（`_run_own_window`），不用 df_1h 的首尾冒充
++            "start_ms": int(ws),
++            "end_ms": int(we),
++            "source": win_src,
+         },
+         "candles": candles,
+         "signals": [],
+         "trades": chart_trades,
+         "equity_curve": chart_equity,
+         "funding_events": [],
+-        "benchmark": {"symbol": symbol, "return_pct": 0.0, "equity_series": bench_series}
++        "benchmark": {"symbol": symbol, "return_pct": 0.0, "equity_series": bench_series},
++        # 如实标注：这份载荷是**读时重建**的（原 run 没落 chart.json），
++        # 且窗口/标的取自本 run 自己的落盘文件；不写回 run 目录。
++        "derived_from": (f"chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 {win_src}；"
++                         "K 线为该窗口真实行情，未写回 run 目录"),
+     }
+-    try:
+-        S.write_chart(run_id, chart)
+-    except Exception:
+-        pass
+     return chart
+ 
+ 
+@@ -532,7 +677,7 @@ def _backfill_chart(run_id: str, chart: dict) -> dict:
+     if not isinstance(chart, dict):
+         return chart
+     try:
+-        d = S.run_dir(run_id)
++        d = S.read_run_dir(run_id)
+     except Exception:                                      # noqa: BLE001
+         return chart
+ 
+@@ -653,6 +798,17 @@ def _backfill_chart(run_id: str, chart: dict) -> dict:
+     return chart
+ 
+ 
++@lru_cache(maxsize=4)
++def _fallback_chart_cached(run_id: str) -> dict:
++    """读时重建图表的**内存缓存**（不落盘）。
++
++    为什么需要：一个 1 年窗口的 15m 载荷是 3.5 万根 K 线、约 6MB，现算要 4.5 秒；
++    同一 run 反复看（切 tab、刷新）没必要每次重算。缓存只在内存里，run 目录一个字节不改。
++    取不到就抛异常（`lru_cache` 不缓存异常）⇒ 上层如实报「缺 K 线」。
++    """
++    return _generate_fallback_chart(run_id, S.read_run(run_id))
++
++
+ def get_chart(run_id: str) -> Tuple[dict, int]:
+     doc, err = _require_done(run_id)
+     if err:
+@@ -661,10 +817,11 @@ def get_chart(run_id: str) -> Tuple[dict, int]:
+         chart = S.read_chart(run_id)
+     except S.RunNotFound:
+         try:
+-            chart = _generate_fallback_chart(run_id, doc)
+-        except Exception:
++            chart = _fallback_chart_cached(run_id)
++        except Exception as exc:                           # noqa: BLE001
+             return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+-                             missing_reason="chart.json 缺失（不伪造图表）"), 200
++                             missing_reason=(f"本 run 无 chart.json，且无法按本 run 自己的窗口重建"
++                                             f"（{exc}）⇒ 缺 K 线，不伪造")), 200
+     # 读取侧补全：修掉批量脚本写死的空字段（只取自本 run 自己的落盘文件，不推算）
+     chart = _backfill_chart(run_id, chart)
+     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+@@ -756,7 +913,43 @@ _SUBRES = ("metrics", "equity", "trades", "chart", "quality")
+ 
+ 
+ def route(seg: List[str], params: Optional[dict] = None) -> Tuple[dict, int]:
+-    """`GET /api/v1/backtests[...]`（`seg` = path 去掉 `api/v1/backtests` 前缀后的段）。"""
++    """`GET /api/v1/backtests[...]`（`seg` = path 去掉 `api/v1/backtests` 前缀后的段）。
++
++    批次通道（2026-10-18 BT-UI-01）：
++      `GET /batches`                       批次列表（runs / runs_* 目录）
++      `GET /batches/{id}`                  单批次元数据
++      `GET /batches/{id}/summary`          批次汇总 + 与逐笔行数的自洽核对
++      `GET /batches/{id}/trades`           批次内全部真实成交（可 limit/offset）
++      `GET /batches/{id}/runs`             批次内 run 清单
++    批次段必须先于 run_id 判定 —— 否则 `batches` 会被当成一个 run_id。
++    """
++    if seg and seg[0] == "batches":
++        params = params or {}
++        force = str((params.get("refresh") or [""])[0]).lower() in ("1", "true", "yes")
++        if len(seg) == 1:
++            return BATCH.list_batches(force=force), 200
++        bid = seg[1]
++        if len(seg) == 2:
++            return BATCH.get_batch(bid)
++        sub = seg[2]
++        if sub == "summary":
++            return BATCH.batch_summary(bid, force=force)
++        if sub == "runs":
++            return BATCH.batch_runs(bid, force=force)
++        if sub == "trades":
++            lim_raw = (params.get("limit") or [None])[0]
++            off_raw = (params.get("offset") or ["0"])[0]
++            try:
++                lim = int(lim_raw) if lim_raw is not None else None
++            except (TypeError, ValueError):
++                lim = None
++            try:
++                off = int(off_raw)
++            except (TypeError, ValueError):
++                off = 0
++            return BATCH.batch_trades(bid, limit=lim, offset=off, force=force)
++        return _envelope(missing_reason=f"未知批次子资源：{'/'.join(seg)}"), 404
++
+     if not seg:
+         return list_experiments(params), 200
+     rid = seg[0]
+@@ -790,9 +983,28 @@ def route_post(path: str, payload: Optional[dict]) -> Optional[Tuple[dict, int]]
+     return None
+ 
+ 
++def _warm_batches() -> None:
++    """后台预热：默认运行列表 + 页面默认选中的那个批次。
++
++    首次扫 1198 + 528 个目录约 5–10 秒（沙箱文件系统每次 open ~4ms），
++    放在启动后台线程里做 —— 用户打开回测页时缓存已就绪（TTL 300s / 10s，之后按需重算）。
++    失败不影响服务：预热只是缓存，读不到就等请求时现算。
++    """
++    try:
++        S.list_runs(1000)
++    except Exception:                                     # noqa: BLE001
++        pass
++    try:
++        BATCH.warm_all()
++    except Exception:                                     # noqa: BLE001
++        pass
++
++
+ def startup() -> List[str]:
+     """服务启动钩子：把遗留 `queued|running` 标 `interrupted`。"""
+-    return S.mark_orphans_interrupted()
++    touched = S.mark_orphans_interrupted()
++    threading.Thread(target=_warm_batches, name="warm-batches", daemon=True).start()
++    return touched
+ 
+ 
+ __all__ = [
+
+### 框架/backend/backtest_batches.py（新增文件）
+diff --git "a/\346\241\206\346\236\266/backend/backtest_batches.py" "b/\346\241\206\346\236\266/backend/backtest_batches.py"
+new file mode 100644
+index 0000000..9253cd9
+--- /dev/null
++++ "b/\346\241\206\346\236\266/backend/backtest_batches.py"
+@@ -0,0 +1,700 @@
++# -*- coding: utf-8 -*-
++"""回测**批次**只读通道（`/api/v1/backtests/batches[...]`）。
++
++为什么需要这一层
++────────────────
++回测的真实产物不是「一个 run」，而是**一次批量运行**：528 个标的同窗口跑一遍，
++落成 `回测日志/event_trend_v0_1/runs_sep_all_latest/` 这样一个批次目录。
++旧页面只认 `runs/`（单 run 临时目录），于是：
++
++· 批次目录（`runs_aug100` / `runs_sep50` / `runs_sep_all_latest` …）**根本不在列表里**；
++· 页面拿「当前 run 的逐笔」与 `public/all_trades.json`（旧批次的 70 行静态快照）并排显示
++  ⇒ 批次列表、汇总、逐笔、图表**不是同一批数据**。
++
++本模块只做一件事：**把「批次」当成一等读取对象**，让列表 / 汇总 / 逐笔 / 图表
++全部锚定到同一个 `batch_id` + 同一个 `run_id`，并且每个数字都能指回落盘文件。
++
++纪律
++────
++· **只读**：只打开 run 目录下的 `summary.json` / `inputs.json` / `trades.jsonl` /
++  `chart.json` / `run.json`，绝不写入、绝不改账本、绝不触发计算。
++· **不合成**：批次净盈亏 = 各 run `summary_variant_a.net_pnl` 直接相加；
++  组合回撤/夏普**不在此处计算**（需要组合权益曲线，另走 `/metrics` 与专项审计），
++  缺失一律 `None`，不用 0 冒充。
++· **可核对**：每个批次都带 `derived_from`（数据来自哪些文件）与
++  `checks`（汇总与逐笔行数是否自洽）；不自洽就如实标 `mismatch`。
++· 缓存 300s（可用 `?refresh=1` 强制重算）：528 个 run 的 summary 解析要 2–3 秒，
++  30s 的 TTL 会让「页面停一会儿再点」每次都重新付一遍这笔钱（实测首屏 18s），
++  而批次目录是**已落盘的批量产物**，5 分钟内不变。
++"""
++from __future__ import annotations
++
++import json
++import threading
++import time
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++from typing import Any, Dict, List, Optional, Tuple
++
++PROJECT_ROOT = Path(__file__).resolve().parents[2]
++BATCH_ROOT = Path(
++    __import__("os").environ.get(
++        "EVENT_TREND_BATCH_ROOT",
++        str(PROJECT_ROOT / "回测日志" / "event_trend_v0_1"),
++    )
++)
++
++CACHE_TTL_S = 300.0
++_CACHE: Dict[str, Any] = {}
++_CACHE_AT: Dict[str, float] = {}
++_LOCK = threading.Lock()
++_BUILD_LOCKS: Dict[str, threading.Lock] = {}
++
++# 批次目录名：`runs` 本体 + `runs_*` 子批次。只认这个前缀，避免把 reconstructed
++# 等人工目录混进来（它们不是一次批量运行）。
++BATCH_PREFIX = "runs"
++
++
++# ══════════════════════════ 基础读取 ══════════════════════════
++
++def _read_json(p: Path) -> Optional[dict]:
++    try:
++        with p.open("r", encoding="utf-8") as f:
++            v = json.load(f)
++        return v if isinstance(v, dict) else None
++    except (OSError, ValueError):
++        return None
++
++
++def _read_jsonl(p: Path) -> List[dict]:
++    out: List[dict] = []
++    try:
++        with p.open("r", encoding="utf-8") as f:
++            for line in f:
++                line = line.strip()
++                if not line:
++                    continue
++                try:
++                    v = json.loads(line)
++                except ValueError:
++                    continue
++                if isinstance(v, dict):
++                    out.append(v)
++    except OSError:
++        return []
++    return out
++
++
++def _int_or_none(v: Any) -> Optional[int]:
++    if isinstance(v, bool) or v is None:
++        return None
++    if isinstance(v, (int, float)):
++        return int(v)
++    try:
++        return int(str(v))
++    except (TypeError, ValueError):
++        return None
++
++
++def _num_or_none(v: Any) -> Optional[float]:
++    if isinstance(v, bool) or v is None:
++        return None
++    if isinstance(v, (int, float)):
++        return float(v)
++    return None
++
++
++def _batch_dir(batch_id: str) -> Path:
++    """批次目录（**只允许** BATCH_ROOT 下一层；拒绝路径穿越）。"""
++    if not batch_id or "/" in batch_id or "\\" in batch_id or batch_id in (".", ".."):
++        raise KeyError(batch_id)
++    if not batch_id.startswith(BATCH_PREFIX):
++        raise KeyError(batch_id)
++    p = (BATCH_ROOT / batch_id).resolve()
++    root = BATCH_ROOT.resolve()
++    if root not in p.parents and p != root:
++        raise KeyError(batch_id)
++    if not p.is_dir():
++        raise KeyError(batch_id)
++    return p
++
++
++def batch_ids() -> List[str]:
++    if not BATCH_ROOT.is_dir():
++        return []
++    out = [
++        d.name
++        for d in BATCH_ROOT.iterdir()
++        if d.is_dir() and d.name.startswith(BATCH_PREFIX) and not d.name.startswith(".")
++    ]
++    # `runs` 是默认运行根（单 run 临时目录，含少量人工/测试目录）；批次目录排在前面
++    out.sort(key=lambda n: (n == "runs", n))
++    return out
++
++
++# ══════════════════════════ 单 run 事实 ══════════════════════════
++
++def _run_facts(run_dir: Path, need_window: bool = False) -> Dict[str, Any]:
++    """一个 run 目录的只读事实。缺文件 ⇒ 对应字段 `None`，不编造。
++
++    `need_window=False` 时**不读 `inputs.json`**：实测每次 open 约 4ms（沙箱文件系统），
++    2130 个 run 各多读一个 10KB 文件就多 10 秒。窗口只在批次级取一次（同批次同窗口），
++    单 run 窗口由 `get_run` / `/chart` 提供。
++
++    `run.json` 只在 `summary.json` 缺失时才读（多数 run 两者都有，省一次 open）。
++    """
++    summary = _read_json(run_dir / "summary.json")
++    run_doc: Dict[str, Any] = {}
++    if summary is None:
++        run_doc = _read_json(run_dir / "run.json") or {}
++    summary = summary or {}
++    inputs: Dict[str, Any] = {}
++    if need_window:
++        inputs = _read_json(run_dir / "inputs.json") or {}
++
++    sa = summary.get("summary_variant_a") or summary.get("summary") or {}
++    net_pnl = _num_or_none(sa.get("net_pnl"))
++    # ⚠ 不能写 `sa.get("trade_count") or sa.get("trades_count")`：真实值 **0** 是假值，
++    # 会被 `or` 吃掉变成 None ⇒ 516 个「确实 0 笔」的 run 在页面上显示成「笔数 —」，
++    # 看起来像字段缺失。必须显式判 None。
++    _tc = sa.get("trade_count")
++    if _tc is None:
++        _tc = sa.get("trades_count")
++    trade_count = _int_or_none(_tc)
++
++    ds = (inputs.get("data_summary") or {}) if isinstance(inputs.get("data_summary"), dict) else {}
++    tr = ds.get("time_range_1h") or {}
++    win_start = _int_or_none(tr.get("start_ms"))
++    win_end = _int_or_none(tr.get("end_ms"))
++
++    trades_path = run_dir / "trades.jsonl"
++    has_trades = trades_path.is_file() and trades_path.stat().st_size > 2
++
++    return {
++        "run_id": run_dir.name,
++        "symbol": summary.get("symbol") or inputs.get("symbol") or run_doc.get("symbol"),
++        "status": run_doc.get("status") or ("succeeded" if summary else "unknown"),
++        "net_pnl": net_pnl,
++        "trade_count": trade_count,
++        "initial_equity": _num_or_none(sa.get("initial_equity")),
++        "final_equity": _num_or_none(sa.get("final_equity")),
++        "fee_total": _num_or_none(sa.get("fee_total")),
++        "funding_total": _num_or_none(sa.get("funding_total")),
++        "formal_pass_allowed": sa.get("formal_pass_allowed"),
++        "window_start_ms": win_start,
++        "window_end_ms": win_end,
++        "has_summary": bool(summary),
++        "has_trades": has_trades,
++        "has_chart": (run_dir / "chart.json").is_file(),
++        "funnel": summary.get("funnel") if isinstance(summary.get("funnel"), dict) else None,
++    }
++
++
++def _drop(key: str) -> None:
++    """强制重算前清缓存（`?refresh=1`）。"""
++    with _LOCK:
++        _CACHE.pop(key, None)
++        _CACHE_AT.pop(key, None)
++
++
++def _cached(key: str, builder):
++    """带 TTL 的缓存 + **同 key 只构建一次**。
++
++    为什么需要「只构建一次」：启动预热线程与首个请求会同时触发 528 个 run 的扫描，
++    没有这把锁就是两份工作串着做（实测首屏 24s 而不是 12s）。
++    """
++    now = time.time()
++    with _LOCK:
++        if key in _CACHE and now - _CACHE_AT.get(key, 0.0) < CACHE_TTL_S:
++            return _CACHE[key]
++        lk = _BUILD_LOCKS.setdefault(key, threading.Lock())
++    with lk:
++        now = time.time()
++        with _LOCK:
++            if key in _CACHE and now - _CACHE_AT.get(key, 0.0) < CACHE_TTL_S:
++                return _CACHE[key]
++        val = builder()
++        with _LOCK:
++            _CACHE[key] = val
++            _CACHE_AT[key] = now
++        return val
++
++
++# ══════════════════════════ 批次汇总 ══════════════════════════
++
++def _batch_facts(batch_id: str, full: bool = True) -> Dict[str, Any]:
++    """批次事实。
++
++    `full=False`（列表用）只做一次 `scandir` 数目录 —— 1726 个 run 各 open 两个 JSON
++    在沙箱文件系统上要 12 秒，而列表只需要「有哪些批次、各多少 run」。
++    成交/净盈亏等汇总由 `/batches/{id}/summary` 懒算（选中哪个算哪个）。
++    """
++    bdir = _batch_dir(batch_id)
++    run_dirs = sorted([d for d in bdir.iterdir() if d.is_dir() and not d.name.startswith(".")])
++    try:
++        mtime_ms = int(bdir.stat().st_mtime * 1000)
++    except OSError:
++        mtime_ms = None
++
++    if not full:
++        return {
++            "batch_id": batch_id,
++            "path": str(bdir),
++            "generated_at_ms": mtime_ms,
++            "runs_total": len(run_dirs),
++            "runs_with_summary": None,
++            "runs_missing_summary": None,
++            "runs_with_trades": None,
++            "runs_win": None,
++            "runs_loss": None,
++            "trades_total": None,
++            "net_pnl_sum": None,
++            "net_pnl_runs_counted": None,
++            "fee_total_sum": None,
++            "funding_total_sum": None,
++            "window_start_ms": None,
++            "window_end_ms": None,
++            "window_source": None,
++            "symbols_count": None,
++            "formal_pass_allowed_any": None,
++            "funnel_sum": None,
++            "derived_from": None,
++            "is_default_root": batch_id == "runs",
++            "summary_loaded": False,
++            "note": "轻量列表（只数 run 目录）；成交/净盈亏由 /batches/{id}/summary 懒算",
++        }
++
++    # 并发读：528 个 run 的 summary.json 串行解析要 20+ 秒，8 线程降到 2–4 秒
++    if len(run_dirs) > 16:
++        with ThreadPoolExecutor(max_workers=8) as ex:
++            facts = list(ex.map(_run_facts, run_dirs))
++    else:
++        facts = [_run_facts(d) for d in run_dirs]
++
++    with_summary = [f for f in facts if f["has_summary"]]
++    with_trades = [f for f in facts if (f["trade_count"] or 0) > 0]
++
++    # 净盈亏：只累加**有 summary 且有值**的 run；缺失单独计数（不按 0 计）
++    nets = [f["net_pnl"] for f in with_summary if f["net_pnl"] is not None]
++    fees = [f["fee_total"] for f in with_summary if f["fee_total"] is not None]
++    fund = [f["funding_total"] for f in with_summary if f["funding_total"] is not None]
++
++    wins = [f for f in with_summary if (f["net_pnl"] or 0) > 0]
++    losses = [f for f in with_summary if (f["net_pnl"] or 0) < 0]
++
++    # 窗口：同批次理应同窗口 ⇒ 只读**一个** run 的 inputs.json（省 10 秒 I/O）。
++    # 若首个 run 没有 inputs，再试后面 3 个；都没有 ⇒ None（不猜）。
++    win_start = win_end = None
++    window_source: Optional[str] = None
++    for d in run_dirs[:4]:
++        probe = _run_facts(d, need_window=True)
++        if probe["window_start_ms"] is not None and probe["window_end_ms"] is not None:
++            win_start, win_end = probe["window_start_ms"], probe["window_end_ms"]
++            window_source = f"inputs.json(data_summary.time_range_1h) · 取样 run={d.name}"
++            break
++
++    funnel_sum: Dict[str, int] = {}
++    for f in with_summary:
++        for k, v in (f["funnel"] or {}).items():
++            if isinstance(v, int):
++                funnel_sum[k] = funnel_sum.get(k, 0) + v
++
++    trades_total = sum((f["trade_count"] or 0) for f in with_summary)
++
++    # run 清单**与汇总同一次扫描产出**：早先 `/runs` 与 `/summary` 各扫一遍 528 个目录，
++    # 首屏要多等一个 1.5–17 秒；现在共用一份缓存（`runs_rows` 只在服务端用，不回给客户端）。
++    runs_rows = [{
++        "run_id": f["run_id"],
++        "batch_id": batch_id,
++        "symbol": f["symbol"],
++        "status": f["status"],
++        "trades_count": f["trade_count"],
++        "net_pnl": f["net_pnl"],
++        "net_return_pct": (
++            round(f["net_pnl"] / f["initial_equity"] * 100.0, 6)
++            if (f["net_pnl"] is not None and f["initial_equity"]) else None
++        ),
++        "has_trades": f["has_trades"],
++        "has_chart": f["has_chart"],
++    } for f in facts]
++
++    return {
++        "batch_id": batch_id,
++        "path": str(bdir),
++        "generated_at_ms": mtime_ms,
++        "summary_loaded": True,
++        "runs_rows": runs_rows,
++        "runs_total": len(facts),
++        "runs_with_summary": len(with_summary),
++        "runs_missing_summary": len(facts) - len(with_summary),
++        "runs_with_trades": len(with_trades),
++        "runs_win": len(wins),
++        "runs_loss": len(losses),
++        "trades_total": trades_total,
++        "net_pnl_sum": round(sum(nets), 8) if nets else None,
++        "net_pnl_runs_counted": len(nets),
++        "fee_total_sum": round(sum(fees), 8) if fees else None,
++        "funding_total_sum": round(sum(fund), 8) if fund else None,
++        "window_start_ms": win_start,
++        "window_end_ms": win_end,
++        "window_source": window_source,
++        "symbols_count": len({f["symbol"] for f in facts if f["symbol"]}),
++        "formal_pass_allowed_any": any(f["formal_pass_allowed"] is True for f in with_summary),
++        "funnel_sum": funnel_sum or None,
++        "derived_from": "各 run 的 summary.json(summary_variant_a) + inputs.json(data_summary.time_range_1h) 现算",
++        "is_default_root": batch_id == "runs",
++        "note": (
++            "批次净盈亏 = 各 run net_pnl 直接相加（美元）；"
++            "组合回撤/夏普不在此处合成（需组合权益曲线，另见单 run /metrics 与专项审计）"
++        ),
++    }
++
++
++def list_batches(force: bool = False) -> dict:
++    items = _batch_facts_all(force)
++    return {
++        "items": items,
++        "total": len(items),
++        "batch_root": str(BATCH_ROOT),
++        "batch_root_exists": BATCH_ROOT.is_dir(),
++        "derived_from": "批次目录（回测日志/event_trend_v0_1/runs*）目录结构（轻量）",
++        "note": ("批次是「一次批量运行」的真实目录；`runs` 为默认运行根（含单 run 临时目录）。"
++                 "成交/净盈亏等汇总由 /batches/{id}/summary 懒算，避免列表一次读 1700+ 个 JSON"),
++    }
++
++
++def _batch_facts_all(force: bool = False) -> List[dict]:
++    key = "batches:all"
++    if force:
++        with _LOCK:
++            _CACHE.pop(key, None)
++    return _cached(key, lambda: _build_all())
++
++
++def _build_all() -> List[dict]:
++    items = [_batch_facts(b, full=False) for b in batch_ids()]
++    items.sort(
++        key=lambda x: (x.get("window_end_ms") or 0, x.get("generated_at_ms") or 0),
++        reverse=True,
++    )
++    return items
++
++
++def batch_meta(batch_id: str, force: bool = False) -> dict:
++    """单批次**完整**事实（含成交/净盈亏/窗口），按批次缓存 300s（`force` 强制重算）。"""
++    full = _batch_full(batch_id, force=force)
++    # `runs_rows` 是服务端中间产物（run 清单），不回给客户端
++    return {k: v for k, v in full.items() if k != "runs_rows"}
++
++
++def _batch_full(batch_id: str, force: bool = False) -> dict:
++    key = f"batch:{batch_id}:meta"
++    if force:
++        _drop(key)
++    return _cached(key, lambda: _batch_facts(batch_id, full=True))
++
++
++def warm_all() -> None:
++    """预热：批次**清单**（轻量）+ 页面会默认选中的那个批次（run 最多的非默认根）。
++
++    为什么不再逐批预热完整汇总：8 个批次合计 2130 个 run，预热线程会把磁盘和 GIL
++    占满 20+ 秒，反而把用户的首个请求堵在后面（实测首屏 19 秒才出图）。
++    只热一个批次 ⇒ 首屏等的是 2–3 秒，其它批次按需懒算。
++    """
++    try:
++        items = list_batches(force=True)["items"]
++    except Exception:                                     # noqa: BLE001
++        return
++    real = [b for b in items if not b.get("is_default_root")] or items
++    if not real:
++        return
++    best = max(real, key=lambda b: (b.get("runs_total") or 0))
++    try:
++        batch_meta(best["batch_id"])
++    except Exception:                                     # noqa: BLE001
++        pass
++
++
++def get_batch(batch_id: str) -> Tuple[dict, int]:
++    try:
++        _batch_dir(batch_id)
++    except KeyError:
++        return {"batch_id": batch_id, "missing_reason": "未知批次（只允许 runs / runs_* 目录）"}, 404
++    try:
++        meta = batch_meta(batch_id)
++    except Exception as exc:                              # noqa: BLE001
++        return {"batch_id": batch_id, "missing_reason": f"批次读取失败：{exc}"}, 500
++    return {"batch": meta, "missing_reason": None}, 200
++
++
++def batch_runs(batch_id: str, force: bool = False) -> Tuple[dict, int]:
++    try:
++        _batch_dir(batch_id)
++    except KeyError:
++        return {"batch_id": batch_id, "items": [], "total": 0,
++                "missing_reason": "未知批次（只允许 runs / runs_* 目录）"}, 404
++
++    # 与 `/summary` **共用同一份缓存**（同一批目录只扫一次）
++    items = _batch_full(batch_id, force=force).get("runs_rows") or []
++    return {
++        "batch_id": batch_id,
++        "items": items,
++        "total": len(items),
++        "derived_from": "各 run 目录 summary.json / run.json 现算（窗口见 /batches/{id} 汇总）",
++        "note": "同一 batch_id 下每个 run 一个标的；trades_count 取自 summary_variant_a.trade_count",
++    }, 200
++
++
++# ══════════════════════════ 批次逐笔 ══════════════════════════
++
++def _chart_index(run_dir: Path) -> Tuple[Dict[str, int], Dict[Tuple[str, int], str]]:
++    """`chart.json` 的两个索引：
++
++    · `signal_id → 信号时刻(ms)`（交叉核对 signal_id 尾段）
++    · `(symbol, entry_t) → trade_id`（`trades.jsonl` 里没有 trade_id，
++      图载荷有 —— 这是唯一不需要猜的补法：symbol + 入场毫秒必须同时命中）
++
++    文件不存在或解析失败 ⇒ 两个空字典（调用方据此如实留空，不编造）。
++    """
++    p = run_dir / "chart.json"
++    if not p.is_file():
++        return {}, {}
++    doc = _read_json(p)
++    if not doc:
++        return {}, {}
++    sig: Dict[str, int] = {}
++    for s in doc.get("signals") or []:
++        if not isinstance(s, dict):
++            continue
++        sid = s.get("signal_id")
++        t = _int_or_none(s.get("t"))
++        if sid and t is not None and t > 0:
++            sig[str(sid)] = t
++    tid: Dict[Tuple[str, int], str] = {}
++    sym = doc.get("symbol")
++    for tr in doc.get("trades") or []:
++        if not isinstance(tr, dict):
++            continue
++        entry = tr.get("entry") or {}
++        et = _int_or_none(entry.get("t")) if isinstance(entry, dict) else None
++        v = tr.get("trade_id")
++        s2 = tr.get("symbol") or sym
++        if v and et is not None and s2:
++            tid[(str(s2), et)] = str(v)
++    return sig, tid
++
++
++def _signal_time_from_id(signal_id: Optional[str]) -> Optional[int]:
++    """从候选 ID 的**尾段**取信号时刻。
++
++    真实 ID 形态（`candidates.jsonl` / `trades.jsonl` 一致）：
++      `cand_ev_WX_EVENT_TREND_V0_1_binance_<SYMBOL>_<box_start_ms>_<signal_ms>`
++    尾段就是信号 bar 的毫秒时刻。这是**结构化字段解析**，不是猜：
++    解析值必须与 `chart.signals[].t` 一致才采用（见 `_trade_row`）。
++    """
++    if not signal_id:
++        return None
++    tail = str(signal_id).rsplit("_", 1)
++    if len(tail) != 2:
++        return None
++    v = _int_or_none(tail[1])
++    # 只接受合理的毫秒时刻（2001-09-09 ~ 2286 年），避免把别的编号误当时间
++    if v is None or not (1_000_000_000_000 <= v <= 10_000_000_000_000):
++        return None
++    return v
++
++
++def _trade_row(run_dir: Path, batch_id: str, t: dict,
++               sig_index: Optional[Dict[str, int]],
++               tid_index: Optional[Dict[Tuple[str, int], str]] = None) -> Dict[str, Any]:
++    symbol = t.get("symbol")
++    entry_ms = _int_or_none(t.get("entry_time") or t.get("entry_time_ms"))
++    exit_ms = _int_or_none(t.get("exit_time") or t.get("exit_time_ms"))
++    stop_trace = t.get("stop_trace") or []
++    init_stop = None
++    init_stop_reason = None
++    for p in stop_trace:
++        if not isinstance(p, dict):
++            continue
++        v = _num_or_none(p.get("stop"))
++        if v is None:
++            continue
++        init_stop = v
++        init_stop_reason = p.get("reason")
++        break  # stop_trace 首点即初始止损（引擎实况记录，不重建）
++
++    sid = t.get("signal_id")
++    sig_from_id = _signal_time_from_id(sid)
++    sig_from_chart = sig_index.get(str(sid)) if (sig_index and sid) else None
++    if sig_from_chart is not None:
++        signal_ms = sig_from_chart
++        signal_src = "chart.signals[].t（按 signal_id 命中）"
++    elif sig_from_id is not None:
++        signal_ms = sig_from_id
++        signal_src = "signal_id 尾段（chart.signals 未命中/无图载荷）"
++    else:
++        signal_ms = None
++        signal_src = None
++
++    fees = _num_or_none(t.get("fees"))
++    if fees is None:
++        ef = _num_or_none(t.get("entry_fee")) or 0.0
++        xf = _num_or_none(t.get("exit_fee")) or 0.0
++        fees = ef + xf if (t.get("entry_fee") is not None or t.get("exit_fee") is not None) else None
++
++    # trade_id：trades.jsonl 本身不带 ⇒ 用 (symbol, 入场毫秒) 从图载荷换回（唯一命中才采用）
++    tid = t.get("trade_id")
++    tid_src = "trades.jsonl" if tid else None
++    if not tid and tid_index and symbol and entry_ms is not None:
++        hit = tid_index.get((str(symbol), entry_ms))
++        if hit:
++            tid = hit
++            tid_src = "chart.trades[]（symbol+入场毫秒唯一命中）"
++
++    return {
++        "batch_id": batch_id,
++        "run_id": run_dir.name,
++        "trade_id": tid,
++        "trade_id_source": tid_src,
++        "symbol": symbol,
++        "direction": t.get("direction"),
++        "signal_id": sid,
++        "signal_time_ms": signal_ms,
++        "signal_time_source": signal_src,
++        "entry_time_ms": entry_ms,
++        "entry_price": _num_or_none(t.get("entry_price")),
++        "initial_stop": init_stop,
++        "initial_stop_reason": init_stop_reason,
++        "exit_time_ms": exit_ms,
++        "exit_price": _num_or_none(t.get("exit_price")),
++        "exit_reason": t.get("exit_reason"),
++        "qty": _num_or_none(t.get("qty")),
++        "gross_pnl": _num_or_none(t.get("gross_pnl")),
++        "fees": fees,
++        "funding_fee": _num_or_none(t.get("funding_fee")),
++        "net_pnl": _num_or_none(t.get("net_pnl")),
++        "mae": _num_or_none(t.get("mae")),
++        "mfe": _num_or_none(t.get("mfe")),
++        "holding_hours": (
++            round((exit_ms - entry_ms) / 3_600_000.0, 6)
++            if (entry_ms is not None and exit_ms is not None and exit_ms >= entry_ms) else None
++        ),
++        "stop_trace_points": len([p for p in stop_trace if isinstance(p, dict)]),
++    }
++
++
++def batch_trades(batch_id: str, limit: Optional[int] = None,
++                 offset: int = 0, force: bool = False) -> Tuple[dict, int]:
++    """批次内**全部真实成交**（逐 run 读 `trades.jsonl`，一行一笔）。"""
++    try:
++        bdir = _batch_dir(batch_id)
++    except KeyError:
++        return {"batch_id": batch_id, "items": [], "total": 0,
++                "missing_reason": "未知批次（只允许 runs / runs_* 目录）"}, 404
++
++    def build():
++        rows: List[dict] = []
++        runs_with_trades = 0
++        missing_stop = 0
++        unlinked_signal = 0
++        for d in sorted([x for x in bdir.iterdir() if x.is_dir() and not x.name.startswith(".")]):
++            raw = _read_jsonl(d / "trades.jsonl")
++            if not raw:
++                continue
++            runs_with_trades += 1
++            # 只为**真有成交**的 run 读 chart.json（1MB 级），避免整批 500+ 文件全读
++            sig_index, tid_index = _chart_index(d)
++            for t in raw:
++                row = _trade_row(d, batch_id, t, sig_index, tid_index)
++                if row["initial_stop"] is None:
++                    missing_stop += 1
++                if row["signal_time_ms"] is None:
++                    unlinked_signal += 1
++                rows.append(row)
++        rows.sort(key=lambda r: (r["entry_time_ms"] or 0, r["run_id"], r["trade_id"] or ""))
++        return {
++            "rows": rows,
++            "runs_with_trades": runs_with_trades,
++            "missing_stop": missing_stop,
++            "unlinked_signal": unlinked_signal,
++        }
++
++    if force:
++        _drop(f"batch:{batch_id}:trades")
++    built = _cached(f"batch:{batch_id}:trades", build)
++    rows = built["rows"]
++    total = len(rows)
++    off = max(0, int(offset or 0))
++    lim = total if limit is None else max(1, int(limit))
++    page = rows[off:off + lim]
++
++    return {
++        "batch_id": batch_id,
++        "items": page,
++        "total": total,
++        "offset": off,
++        "limit": lim,
++        "runs_with_trades": built["runs_with_trades"],
++        "missing_initial_stop": built["missing_stop"],
++        "unlinked_signal_time": built["unlinked_signal"],
++        "derived_from": "各 run 的 trades.jsonl（真实账本逐笔）+ chart.json(signals) 交叉核对",
++        "note": ("initial_stop 取 trades.jsonl.stop_trace 首点（引擎实况，不重建）；"
++                 "signal_time_ms 优先按 signal_id 命中 chart.signals[].t，未命中才用 signal_id 尾段并标注来源"),
++    }, 200
++
++
++def batch_summary(batch_id: str, force: bool = False) -> Tuple[dict, int]:
++    """批次汇总 + **自洽性核对**（汇总的 trades_total 必须等于逐笔行数）。"""
++    try:
++        _batch_dir(batch_id)
++    except KeyError:
++        return {"batch_id": batch_id, "missing_reason": "未知批次（只允许 runs / runs_* 目录）"}, 404
++
++    try:
++        meta = batch_meta(batch_id, force=force)
++    except Exception as exc:                              # noqa: BLE001
++        return {"batch_id": batch_id, "missing_reason": f"批次读取失败：{exc}"}, 500
++
++    tr = batch_trades(batch_id, limit=10_000_000, offset=0, force=force)[0]
++    rows = tr.get("items") or []
++    net_from_rows = sum(r["net_pnl"] for r in rows if r["net_pnl"] is not None)
++    wins = sum(1 for r in rows if (r["net_pnl"] or 0) > 0)
++    losses = sum(1 for r in rows if (r["net_pnl"] or 0) < 0)
++    flats = sum(1 for r in rows if (r["net_pnl"] or 0) == 0)
++
++    checks = {
++        "trades_total_matches_rows": (meta["trades_total"] == len(rows)),
++        "net_pnl_matches_rows": (
++            None if meta["net_pnl_sum"] is None else abs(meta["net_pnl_sum"] - net_from_rows) <= 1e-6
++        ),
++        "summary_trades_total": meta["trades_total"],
++        "trades_rows": len(rows),
++        "net_pnl_from_summary": meta["net_pnl_sum"],
++        "net_pnl_from_rows": round(net_from_rows, 8),
++    }
++
++    return {
++        "batch_id": batch_id,
++        "batch": meta,
++        "trades": {
++            "count": len(rows),
++            "wins": wins,
++            "losses": losses,
++            "flats": flats,
++            "win_rate_pct": (round(wins / len(rows) * 100.0, 6) if rows else None),
++            "net_pnl_sum": round(net_from_rows, 8) if rows else None,
++            "fees_sum": (round(sum(r["fees"] for r in rows if r["fees"] is not None), 8)
++                         if any(r["fees"] is not None for r in rows) else None),
++            "funding_sum": (round(sum(r["funding_fee"] for r in rows if r["funding_fee"] is not None), 8)
++                            if any(r["funding_fee"] is not None for r in rows) else None),
++        },
++        "checks": checks,
++        "derived_from": "批次目录各 run 的 summary.json + trades.jsonl 现算",
++        "missing_reason": None,
++    }, 200
++
++
++__all__ = [
++    "BATCH_ROOT", "batch_ids", "list_batches", "get_batch", "batch_runs",
++    "batch_trades", "batch_summary",
++]
+
+### 框架/backend/tests/test_bt_ui_01_read_path.py（新增文件）
+diff --git "a/\346\241\206\346\236\266/backend/tests/test_bt_ui_01_read_path.py" "b/\346\241\206\346\236\266/backend/tests/test_bt_ui_01_read_path.py"
+new file mode 100644
+index 0000000..f9ca3ba
+--- /dev/null
++++ "b/\346\241\206\346\236\266/backend/tests/test_bt_ui_01_read_path.py"
+@@ -0,0 +1,182 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""BT-UI-01 回归：回测页面读取通道的**同源与不造数**纪律（只读、零网络）。
++
++每条都对应一个页面上真实出现过的问题：
++
++  1. **批内 run 必须能被单 run 接口读到**。
++     批次目录（`回测日志/event_trend_v0_1/runs_sep_all_latest/` 等）与默认 `runs/`
++     平级；`run_dir()` 只认默认根 ⇒ 页面从批次选中一个 run 后，
++     `GET /backtests/{id}` 及其图表/逐笔全 404（表现为「图表整块消失」）。
++     现在读路径走 `read_run_dir()`（默认根 → 同级批次目录），**写入仍只认默认根**。
++
++  2. **`trade_count == 0` 不能变成「缺失」**。
++     旧写法 `sa.get("trade_count") or sa.get("trades_count")` 把真实值 0 当假值吃掉，
++     528 个 run 里 516 个「确实 0 笔」在页面上显示成「笔数 —」，看起来像字段缺失。
++
++  3. **缺 `chart.json` 时不许用写死窗口重建图表**。
++     旧实现写死 `2024-01-01 ~ 2024-06-30`，实测 4 个 run 的真实窗口
++     （2024-09→2025-09 / 2021-06→2022-06 / 2022-10→2023-10 / 2023-01→2024-01）
++     与该窗口**完全不相交** ⇒ 图上的 K 线不是这笔交易发生的那一段。
++     现在窗口取该 run 自己的 `inputs.json(data_summary.time_range_1h)`。
++
++  4. **读接口不得写 run 目录**。旧重建路径会 `write_chart()` 把结果写回去，
++     等于用一份错窗口的图覆盖证据目录。
++
++  5. **批次汇总与逐笔必须自洽**（`trades_total` == 逐笔行数、净盈亏两侧相等）。
++"""
++import json
++import os
++import sys
++import unittest
++from pathlib import Path
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++BACKEND = os.path.dirname(HERE)
++FRAMEWORK = os.path.dirname(BACKEND)
++for _p in (BACKEND, FRAMEWORK):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import backtest_api as A          # noqa: E402
++import backtest_batches as B      # noqa: E402
++import backtest_store as S        # noqa: E402
++
++ROOT = Path(BACKEND).parents[1] / "回测日志" / "event_trend_v0_1"
++DEFAULT_ROOT = S.get_runs_root()
++BATCH_ID = "runs_sep_all_latest"
++BATCH_DIR = ROOT / BATCH_ID
++
++
++def _first_run(d: Path):
++    if not d.is_dir():
++        return None
++    for x in sorted(d.iterdir()):
++        if x.is_dir() and x.name.startswith("run_"):
++            return x
++    return None
++
++
++@unittest.skipUnless(DEFAULT_ROOT.is_dir(), "默认运行根不存在（离线环境）")
++class TestReadPathAcrossRoots(unittest.TestCase):
++    """① 批内 run 可被单 run 接口读到；写入边界不变。"""
++
++    def test_default_root_run_resolves(self):
++        d = _first_run(DEFAULT_ROOT)
++        if d is None:
++            self.skipTest("默认根下没有 run")
++        self.assertEqual(S.read_run_dir(d.name), S.run_dir(d.name))
++        self.assertEqual(S.read_run(d.name).get("run_id"), d.name)
++
++    @unittest.skipUnless(BATCH_DIR.is_dir(), "批次目录不存在")
++    def test_batch_run_resolves_for_read(self):
++        d = _first_run(BATCH_DIR)
++        if d is None:
++            self.skipTest("批次目录下没有 run")
++        # 默认根里没有它 ⇒ 旧实现会抛 RunNotFound（页面 404）
++        self.assertFalse((DEFAULT_ROOT / d.name).exists())
++        got = S.read_run_dir(d.name)
++        self.assertEqual(got.name, d.name)
++        self.assertEqual(got.parent.name, BATCH_ID)
++        # 读得到 run.json / summary.json 的合并文档
++        doc = S.read_run(d.name)
++        self.assertEqual(doc.get("run_id"), d.name)
++        self.assertIn("status", doc)
++
++    def test_unknown_run_id_still_raises(self):
++        with self.assertRaises(S.RunNotFound):
++            S.read_run_dir("run_WX_EVENT_TREND_V0_1_NOT_A_REAL_RUN_1")
++
++    def test_write_boundary_unchanged(self):
++        """写入路径**不放宽**：批次目录里的 run 不能被 `write_run` 命中。"""
++        d = _first_run(BATCH_DIR) if BATCH_DIR.is_dir() else None
++        if d is None:
++            self.skipTest("批次目录下没有 run")
++        with self.assertRaises(Exception):
++            S.write_run(d.name, {"run_id": d.name, "status": "succeeded"})
++        # 目录里不应因此多出/改动 run.json 的写入痕迹（只读校验）
++        self.assertFalse((BATCH_DIR / d.name / "run.json.tmp").exists())
++
++
++@unittest.skipUnless(BATCH_DIR.is_dir(), "批次目录不存在")
++class TestBatchFactsHonesty(unittest.TestCase):
++    """② `trade_count == 0` 如实是 0；③ 汇总与逐笔自洽。"""
++
++    def test_zero_trade_count_is_zero_not_none(self):
++        facts = B._batch_facts(BATCH_ID, full=True)
++        rows = facts.get("runs_rows") or []
++        self.assertTrue(rows, "批次内应有 run")
++        zeros = [r for r in rows if r["trades_count"] == 0]
++        nones = [r for r in rows if r["trades_count"] is None]
++        self.assertTrue(zeros, "本批次应存在「确实 0 笔」的 run")
++        # 0 与「缺失」必须分开：缺失只可能来自真的读不到 summary
++        self.assertEqual(
++            len(zeros) + len(nones) + len([r for r in rows if (r["trades_count"] or 0) > 0]),
++            len(rows),
++        )
++
++    def test_summary_matches_trades_rows(self):
++        body, code = B.batch_summary(BATCH_ID)
++        self.assertEqual(code, 200)
++        checks = body.get("checks") or {}
++        self.assertTrue(checks.get("trades_total_matches_rows"),
++                        f"汇总笔数与逐笔行数不一致：{checks}")
++        self.assertTrue(checks.get("net_pnl_matches_rows"),
++                        f"汇总净盈亏与逐笔合计不一致：{checks}")
++        # 逐笔行数 == 汇总笔数（两侧都是整数，不接受近似）
++        self.assertEqual(body["trades"]["count"], checks.get("trades_rows"))
++
++    def test_every_trade_has_trade_id_and_signal_time(self):
++        body, code = B.batch_trades(BATCH_ID, limit=100000)
++        self.assertEqual(code, 200)
++        rows = body.get("items") or []
++        self.assertTrue(rows, "本批次应有成交")
++        for r in rows:
++            self.assertTrue(str(r["trade_id"] or "").startswith("trd_"),
++                            f"trade_id 必须是账本 trd_ 号：{r}")
++            self.assertIsNotNone(r["signal_time_ms"], f"缺信号时刻：{r['run_id']}")
++            self.assertIsNotNone(r["initial_stop"], f"缺初始止损：{r['run_id']}")
++
++
++@unittest.skipUnless(DEFAULT_ROOT.is_dir(), "默认运行根不存在")
++class TestRebuiltChartUsesOwnWindow(unittest.TestCase):
++    """③④ 缺 chart.json 时按本 run 自己的窗口重建，且不写盘。"""
++
++    def _pick_run_without_chart(self):
++        for d in sorted(DEFAULT_ROOT.iterdir()):
++            if not d.is_dir() or not d.name.startswith("run_"):
++                continue
++            if (d / "chart.json").exists():
++                continue
++            if not (d / "inputs.json").is_file():
++                continue
++            try:
++                inp = json.loads((d / "inputs.json").read_text(encoding="utf-8"))
++            except Exception:                              # noqa: BLE001
++                continue
++            tr = ((inp.get("data_summary") or {}).get("time_range_1h") or {})
++            if isinstance(tr.get("start_ms"), int) and isinstance(tr.get("end_ms"), int):
++                return d, tr["start_ms"], tr["end_ms"]
++        return None, None, None
++
++    def test_window_equals_run_own_inputs_and_no_write(self):
++        d, ws, we = self._pick_run_without_chart()
++        if d is None:
++            self.skipTest("没有「缺 chart.json 但有 inputs.json 窗口」的 run")
++        chart_file = d / "chart.json"
++        self.assertFalse(chart_file.exists())
++
++        body, code = A.get_chart(d.name)
++        self.assertEqual(code, 200)
++        chart = body.get("chart")
++        self.assertIsNotNone(chart, f"应能按本 run 窗口重建：{body.get('missing_reason')}")
++        self.assertEqual(int(chart["window"]["start_ms"]), int(ws))
++        self.assertEqual(int(chart["window"]["end_ms"]), int(we))
++        self.assertIn("inputs.json", str(chart["window"].get("source")))
++        # 关键：不许把重建结果写回 run 目录
++        self.assertFalse(chart_file.exists(), "读接口不得在 run 目录里生成 chart.json")
++        self.assertTrue(chart.get("derived_from"))
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
+
+### UI界面/web/src/api/backtestReview.ts（新增文件）
+diff --git "a/UI\347\225\214\351\235\242/web/src/api/backtestReview.ts" "b/UI\347\225\214\351\235\242/web/src/api/backtestReview.ts"
+new file mode 100644
+index 0000000..b16dbe8
+--- /dev/null
++++ "b/UI\347\225\214\351\235\242/web/src/api/backtestReview.ts"
+@@ -0,0 +1,530 @@
++/**
++ * 回测复盘页数据层（契约：`bt_api_v1`，服务端 `框架/backend/backtest_api.py`）
++ * ----------------------------------------------------------------------------
++ * 与 `labBacktest.ts` 的分工：
++ *   · `labBacktest.ts` 是**旧回测工作台**的调用层，类型里有若干与后端不一致的历史
++ *     声明（如 `sharpe_*` 后端根本不返回）。为免牵连既有页面，本文件重新声明一套
++ *     **只覆盖新复盘页所需字段**的类型，全部按真实响应核对过。
++ *   · 未在此声明的字段一律视为「后端没给」，页面显示 `—`，不猜、不补默认值。
++ *
++ * 三条硬约束（来自真实数据核对，违反即会显示假数据）：
++ *   1. 列表的 `created_at / started_at / finished_at` 是**读取时刻兜底**，576 条
++ *      distinct = 1，不是运行时间 ⇒ 本文件**不导出**这三个字段，页面无从误用。
++ *   2. 列表的 `window.win_start_ms / win_end_ms` 恒为 null ⇒ 真实窗口只能从
++ *      `/chart` 的 `chart.window` 取，故列表卡片显示「运行时间」（run_id 后缀 epoch）。
++ *   3. `net_return_pct` 单位是**百分数本身**（0.0635 表示 0.0635%），不是小数比例。
++ */
++
++import { apiGet } from './client';
++
++/* ── 列表 ───────────────────────────────────────────────────────────── */
++
++export interface BtRunWindow {
++  win_start_ms: number | null;
++  win_end_ms: number | null;
++  symbol: string;
++  exchange: string;
++  market: string;
++  signal_timeframe: string;
++  exec_timeframe: string;
++}
++
++export interface BtRunListItem {
++  run_id: string;
++  status: string;
++  strategy_id: string;
++  strategy_key?: string;
++  symbols: string[];
++  window: BtRunWindow;
++  net_return_pct: number | null;
++  trades_count: number | null;
++  max_drawdown_pct: number | null;
++  failure_reason?: string | null;
++}
++
++export interface BtListEnvelope {
++  items: BtRunListItem[];
++  total: number;
++  runs_root?: string | null;
++  note?: string | null;
++  quality?: { status?: string | null; note?: string | null } | null;
++  missing_reason?: string | null;
++}
++
++/* ── 单 run 详情 ────────────────────────────────────────────────────── */
++
++export interface BtActualConfig {
++  initial_equity?: number | null;
++  risk_budget_per_trade?: number | null;
++  fee_rate?: number | null;
++  slippage_bps?: number | null;
++}
++
++export interface BtRunDetail {
++  run_id: string;
++  status: string;
++  strategy_id: string;
++  config?: {
++    spec?: {
++      strategy_id?: string;
++      symbols?: string[];
++      exchange?: string;
++      market?: string;
++      signal_timeframe?: string;
++      exec_timeframe?: string;
++      initial_equity?: number | null;
++    } | null;
++    config?: { actual_config?: BtActualConfig | null } | null;
++    actual_config?: BtActualConfig | null;
++  } | null;
++  engine?: {
++    strategy_id?: string;
++    signal_version?: string;
++    core_version?: string;
++    exec_core_version?: string;
++  } | null;
++  window?: BtRunWindow | null;
++  quality?: { status?: string | null; note?: string | null } | null;
++  missing_reason?: string | null;
++  note?: string | null;
++}
++
++/* ── 指标（唯一可信来源：由账本现算） ─────────────────────────────────── */
++
++export interface BtDrawdownDetail {
++  peak_index: number;
++  trough_index: number;
++  peak_equity: number;
++  trough_equity: number;
++  points: number;
++}
++
++export interface BtMetrics {
++  initial_equity: number | null;
++  final_equity: number | null;
++  net_pnl: number | null;
++  /** 百分数本身（0.0635 = 0.0635%） */
++  net_return_pct: number | null;
++  gross_pnl: number | null;
++  total_entry_fee: number | null;
++  total_exit_fee: number | null;
++  total_fees: number | null;
++  total_funding_fee: number | null;
++  trades_count: number | null;
++  wins: number | null;
++  losses: number | null;
++  flats: number | null;
++  win_rate_pct: number | null;
++  win_rate_basis?: string | null;
++  win_loss_basis?: string | null;
++  /** 美元金额（不是百分比） */
++  avg_win: number | null;
++  avg_loss: number | null;
++  avg_win_loss_ratio: number | null;
++  avg_win_loss_ratio_basis?: string | null;
++  profit_factor: number | null;
++  profit_factor_basis?: string | null;
++  expectancy_usd: number | null;
++  max_drawdown_pct: number | null;
++  max_drawdown_basis?: string | null;
++  max_drawdown_detail: BtDrawdownDetail | null;
++  equity_points: number | null;
++  open_positions_remaining?: number | null;
++  funding_events_total?: number | null;
++  note?: string | null;
++}
++
++export interface BtBenchmarkMeta {
++  benchmark_kind?: string;
++  symbol?: string;
++  entry_time_ms?: number | null;
++  exit_time_ms?: number | null;
++  gross_return_pct?: number | null;
++  /** 纯价格口径（不含手续费 / 滑点 / 资金费） */
++  price_only_return_pct?: number | null;
++  /** 后端恒为 null —— 基准没有成本模型 */
++  net_return_pct?: number | null;
++  final_equity?: number | null;
++  series_last_equity?: number | null;
++}
++
++export interface BtMetricsResponse {
++  metrics: BtMetrics | null;
++  metrics_from_ledger?: boolean | null;
++  metrics_stored_summary?: Record<string, unknown> | null;
++  metrics_notes?: string[] | null;
++  benchmark_buy_hold?: BtBenchmarkMeta | null;
++  monthly_returns?: { months?: BtMonthReturn[] | null } | null;
++  quality?: { status?: string | null; note?: string | null } | null;
++  missing_reason?: string | null;
++}
++
++export interface BtMonthReturn {
++  month: string;
++  month_end_equity?: number | null;
++  basis_equity?: number | null;
++  return_pct?: number | null;
++  partial_month?: boolean;
++  basis_note?: string | null;
++}
++
++/* ── 逐笔成交 ───────────────────────────────────────────────────────── */
++
++export interface BtTradeRow {
++  trade_id?: string | null;
++  symbol?: string | null;
++  /** 后端是**数字** 1 / -1，不是 'long' / 'short' */
++  direction: number | string | null;
++  signal_type?: number | string | null;
++  entry_time?: number | null;
++  exit_time?: number | null;
++  entry_time_ms?: number | null;
++  exit_time_ms?: number | null;
++  entry_price?: number | null;
++  exit_price?: number | null;
++  qty?: number | null;
++  gross_pnl?: number | null;
++  net_pnl?: number | null;
++  fees?: number | null;
++  funding_fee?: number | null;
++  exit_reason?: string | null;
++  holding_hours?: number | null;
++  mae?: number | null;
++  mfe?: number | null;
++  signal_id?: string | null;
++}
++
++export interface BtTradesResponse {
++  items: BtTradeRow[];
++  total: number;
++  trade_id_source?: string | null;
++  link_notes?: string[] | null;
++  missing_reason?: string | null;
++}
++
++/* ── 图表载荷 ───────────────────────────────────────────────────────── */
++
++/** K 线是**数组元组**：`[ts_ms, open, high, low, close, volume]`（不是对象）。 */
++export type BtCandleTuple = [number, number, number, number, number, number];
++
++export interface BtChartSignal {
++  t: number;
++  kind?: string;
++  direction?: string;
++  signal_id?: string;
++  stop_price?: number | null;
++  atr?: number | null;
++  oi_score?: number | null;
++  oi_available?: boolean | null;
++  oi_quality?: string | null;
++}
++
++export interface BtChartTrade {
++  trade_id?: string;
++  symbol?: string;
++  direction?: string;
++  entry?: { t: number; price: number; qty?: number } | null;
++  exit?: { t: number; price: number; reason?: string } | null;
++  net_pnl?: number | null;
++}
++
++export interface BtEquityPoint {
++  t: number;
++  equity: number;
++  cash?: number | null;
++  unrealized?: number | null;
++}
++
++export interface BtChartPayload {
++  symbol: string;
++  exec_timeframe: string;
++  window: { start_ms: number | null; end_ms: number | null };
++  candles: BtCandleTuple[];
++  signals: BtChartSignal[];
++  trades: BtChartTrade[];
++  equity_curve: BtEquityPoint[];
++  funding_events?: unknown[];
++  benchmark?: {
++    symbol?: string;
++    return_pct?: number | null;
++    equity_series?: { t: number; equity: number }[];
++  } | null;
++}
++
++export interface BtChartResponse {
++  chart: BtChartPayload | null;
++  quality?: { status?: string | null; note?: string | null } | null;
++  missing_reason?: string | null;
++}
++
++/* ── 拒单 / 订单（未成交 run 的日志来源） ────────────────────────────── */
++
++export interface BtRejectedRow {
++  symbol?: string | null;
++  ts_ms?: number | null;
++  phase?: string | null;
++  reason?: string | null;
++  [k: string]: unknown;
++}
++
++export interface BtRejectedResponse {
++  items: BtRejectedRow[];
++  missing_reason?: string | null;
++}
++
++export interface BtOrderRow {
++  order_id?: string | null;
++  symbol?: string | null;
++  side?: string | null;
++  status?: string | null;
++  qty?: number | null;
++  price?: number | null;
++  ts_ms?: number | null;
++  created_ms?: number | null;
++  [k: string]: unknown;
++}
++
++export interface BtOrdersResponse {
++  items: BtOrderRow[];
++  unlinked_orders?: number | null;
++  missing_reason?: string | null;
++}
++
++/* ── 取数 ───────────────────────────────────────────────────────────── */
++
++/* ── 批次（`/batches`，2026-10-18 BT-UI-01 新增） ─────────────────────── */
++
++/**
++ * 批次 = **一次批量运行**的真实目录（`回测日志/event_trend_v0_1/runs_sep_all_latest` 等）。
++ *
++ * 为什么必须单独建模：单 run 视图里「列表 / 汇总 / 逐笔 / 图表」容易各自取数，
++ * 一旦混入旧快照（如 `public/all_trades.json`）就变成跨批次拼数据。
++ * 批次是唯一能把四者锚在同一次运行上的标识。
++ *
++ * `summary_loaded=false` 时成交/净盈亏等字段为 `null` —— 轻量列表只数目录，
++ * 汇总由 `/batches/{id}/summary` 懒算，**不拿 null 当 0**。
++ */
++export interface BtBatch {
++  batch_id: string;
++  path: string;
++  generated_at_ms: number | null;
++  runs_total: number;
++  runs_with_summary: number | null;
++  runs_missing_summary: number | null;
++  runs_with_trades: number | null;
++  runs_win: number | null;
++  runs_loss: number | null;
++  trades_total: number | null;
++  net_pnl_sum: number | null;
++  net_pnl_runs_counted: number | null;
++  fee_total_sum: number | null;
++  funding_total_sum: number | null;
++  window_start_ms: number | null;
++  window_end_ms: number | null;
++  window_source: string | null;
++  symbols_count: number | null;
++  formal_pass_allowed_any: boolean | null;
++  funnel_sum: Record<string, number> | null;
++  derived_from: string | null;
++  is_default_root: boolean;
++  summary_loaded: boolean;
++  note?: string | null;
++}
++
++export interface BtBatchListResponse {
++  items: BtBatch[];
++  total: number;
++  batch_root: string;
++  batch_root_exists: boolean;
++  derived_from?: string | null;
++  note?: string | null;
++}
++
++export interface BtBatchRun {
++  run_id: string;
++  batch_id: string;
++  symbol: string | null;
++  status: string | null;
++  trades_count: number | null;
++  net_pnl: number | null;
++  net_return_pct: number | null;
++  has_trades: boolean;
++  has_chart: boolean;
++}
++
++export interface BtBatchRunsResponse {
++  batch_id: string;
++  items: BtBatchRun[];
++  total: number;
++  derived_from?: string | null;
++  note?: string | null;
++}
++
++/** 批次逐笔：一行一笔真实成交，字段全部来自账本（`trades.jsonl`）+ 图载荷交叉核对。 */
++export interface BtBatchTrade {
++  batch_id: string;
++  run_id: string;
++  trade_id: string | null;
++  trade_id_source?: string | null;
++  symbol: string | null;
++  direction: number | string | null;
++  signal_id: string | null;
++  signal_time_ms: number | null;
++  signal_time_source?: string | null;
++  entry_time_ms: number | null;
++  entry_price: number | null;
++  initial_stop: number | null;
++  initial_stop_reason?: string | null;
++  exit_time_ms: number | null;
++  exit_price: number | null;
++  exit_reason: string | null;
++  qty: number | null;
++  gross_pnl: number | null;
++  fees: number | null;
++  funding_fee: number | null;
++  net_pnl: number | null;
++  mae: number | null;
++  mfe: number | null;
++  holding_hours: number | null;
++  stop_trace_points?: number | null;
++}
++
++export interface BtBatchTradesResponse {
++  batch_id: string;
++  items: BtBatchTrade[];
++  total: number;
++  offset?: number;
++  limit?: number;
++  runs_with_trades?: number;
++  missing_initial_stop?: number;
++  unlinked_signal_time?: number;
++  derived_from?: string | null;
++  note?: string | null;
++  missing_reason?: string | null;
++}
++
++export interface BtBatchSummaryResponse {
++  batch_id: string;
++  batch: BtBatch;
++  trades: {
++    count: number;
++    wins: number;
++    losses: number;
++    flats: number;
++    win_rate_pct: number | null;
++    net_pnl_sum: number | null;
++    fees_sum: number | null;
++    funding_sum: number | null;
++  };
++  /** 汇总与逐笔行数的自洽核对（`true` 才算对得上） */
++  checks: {
++    trades_total_matches_rows: boolean;
++    net_pnl_matches_rows: boolean | null;
++    summary_trades_total: number | null;
++    trades_rows: number;
++    net_pnl_from_summary: number | null;
++    net_pnl_from_rows: number | null;
++  };
++  derived_from?: string | null;
++  missing_reason?: string | null;
++}
++
++/* ── 取数 ───────────────────────────────────────────────────────────── */
++
++export function fetchBatches(signal?: AbortSignal): Promise<BtBatchListResponse> {
++  return apiGet<BtBatchListResponse>('/backtests/batches', signal);
++}
++
++export function fetchBatchSummary(batchId: string, signal?: AbortSignal): Promise<BtBatchSummaryResponse> {
++  return apiGet<BtBatchSummaryResponse>(`/backtests/batches/${encodeURIComponent(batchId)}/summary`, signal);
++}
++
++export function fetchBatchRuns(batchId: string, signal?: AbortSignal): Promise<BtBatchRunsResponse> {
++  return apiGet<BtBatchRunsResponse>(`/backtests/batches/${encodeURIComponent(batchId)}/runs`, signal);
++}
++
++export function fetchBatchTrades(
++  batchId: string,
++  limit = 2000,
++  signal?: AbortSignal,
++): Promise<BtBatchTradesResponse> {
++  return apiGet<BtBatchTradesResponse>(
++    `/backtests/batches/${encodeURIComponent(batchId)}/trades?limit=${limit}`,
++    signal,
++  );
++}
++
++export function fetchRunList(limit = 1000, signal?: AbortSignal): Promise<BtListEnvelope> {
++  return apiGet<BtListEnvelope>(`/backtests?limit=${limit}`, signal);
++}
++
++export function fetchRunDetail(runId: string, signal?: AbortSignal): Promise<BtRunDetail> {
++  return apiGet<BtRunDetail>(`/backtests/${encodeURIComponent(runId)}`, signal);
++}
++
++export function fetchMetrics(runId: string, signal?: AbortSignal): Promise<BtMetricsResponse> {
++  return apiGet<BtMetricsResponse>(`/backtests/${encodeURIComponent(runId)}/metrics`, signal);
++}
++
++export function fetchChart(runId: string, signal?: AbortSignal): Promise<BtChartResponse> {
++  return apiGet<BtChartResponse>(`/backtests/${encodeURIComponent(runId)}/chart`, signal);
++}
++
++export function fetchTrades(runId: string, signal?: AbortSignal): Promise<BtTradesResponse> {
++  return apiGet<BtTradesResponse>(`/backtests/${encodeURIComponent(runId)}/trades`, signal);
++}
++
++export function fetchRejected(runId: string, signal?: AbortSignal): Promise<BtRejectedResponse> {
++  return apiGet<BtRejectedResponse>(`/backtests/${encodeURIComponent(runId)}/rejected`, signal);
++}
++
++export function fetchOrders(runId: string, signal?: AbortSignal): Promise<BtOrdersResponse> {
++  return apiGet<BtOrdersResponse>(`/backtests/${encodeURIComponent(runId)}/orders`, signal);
++}
++
++export interface BtBundle {
++  detail: BtRunDetail | null;
++  metrics: BtMetricsResponse | null;
++  chart: BtChartResponse | null;
++  trades: BtTradesResponse | null;
++  orders: BtOrdersResponse | null;
++  rejected: BtRejectedResponse | null;
++  /** 每个子请求的失败原因（成功为空对象）；部分失败时页面仍能显示其余部分 */
++  errors: Record<string, string>;
++}
++
++/**
++ * 一次取齐一个 run 的全部展示数据。
++ *
++ * 用 `allSettled` 而不是 `all`：chart 有 2.7MB、equity 曲线 1.7 万点，
++ * 任一子请求失败不应让整页变空 —— 缺哪块就在那块显示「取数失败：原因」。
++ */
++export async function fetchRunBundle(runId: string, signal?: AbortSignal): Promise<BtBundle> {
++  const [detail, metrics, chart, trades, orders, rejected] = await Promise.allSettled([
++    fetchRunDetail(runId, signal),
++    fetchMetrics(runId, signal),
++    fetchChart(runId, signal),
++    fetchTrades(runId, signal),
++    fetchOrders(runId, signal),
++    fetchRejected(runId, signal),
++  ]);
++
++  const errors: Record<string, string> = {};
++  const pick = <T,>(r: PromiseSettledResult<T>, key: string): T | null => {
++    if (r.status === 'fulfilled') return r.value;
++    const err = r.reason as { name?: string; message?: string };
++    if (err?.name === 'AbortError') return null;
++    errors[key] = err?.message || '取数失败';
++    return null;
++  };
++
++  return {
++    detail: pick(detail, 'detail'),
++    metrics: pick(metrics, 'metrics'),
++    chart: pick(chart, 'chart'),
++    trades: pick(trades, 'trades'),
++    orders: pick(orders, 'orders'),
++    rejected: pick(rejected, 'rejected'),
++    errors,
++  };
++}
+
+### UI界面/web/src/components/backtest/BatchBar.tsx（新增文件）
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/backtest/BatchBar.tsx" "b/UI\347\225\214\351\235\242/web/src/components/backtest/BatchBar.tsx"
+new file mode 100644
+index 0000000..0eb6694
+--- /dev/null
++++ "b/UI\347\225\214\351\235\242/web/src/components/backtest/BatchBar.tsx"
+@@ -0,0 +1,207 @@
++/**
++ * 批次条（BT-UI-01）
++ * ----------------------------------------------------------------------------
++ * 一行回答四个问题，且**四个答案来自同一个 `batch_id`**：
++ *   ① 我在看哪一批？（批次下拉，真实目录名）
++ *   ② 这批跑了什么？（run 数 / 有成交 run 数 / 成交笔数 / 净盈亏 / 窗口）
++ *   ③ 这些数字从哪来？（`derived_from` + 自洽核对结果）
++ *   ④ 它是什么性质的结论？（研究分类 · 未通过验收 —— 不给「已验证」暗示）
++ *
++ * 纪律：
++ * · 汇总字段在 `summary_loaded=false` 时是 `null` ⇒ 显示「加载中」，**不显示 0**。
++ * · 批次列表是轻量的（只数目录），选中后才懒算汇总 —— 所以这里必须有 loading 态。
++ * · 净盈亏是「各 run net_pnl 相加」的美元口径；组合回撤/夏普不在批次层合成，
++ *   标签直接写「批次净盈亏（各 run 相加）」，避免被读成组合绩效。
++ */
++
++import React from 'react';
++import type { BtBatch, BtBatchSummaryResponse } from '../../api/backtestReview';
++import { DASH, fmtInt, fmtUsd } from '../../utils/labFormat';
++
++/** UTC 毫秒 → `2026-09-01 00:00`（带 UTC 后缀，防与北京时间混读） */
++function fmtUtcMin(ms: number | null | undefined): string {
++  if (!Number.isFinite(ms as number) || (ms as number) <= 0) return DASH;
++  const d = new Date(ms as number);
++  if (Number.isNaN(d.getTime())) return DASH;
++  const p = (n: number) => String(n).padStart(2, '0');
++  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
++}
++
++export interface BatchBarProps {
++  batches: BtBatch[];
++  batchId: string | null;
++  onSelect: (id: string) => void;
++  summary: BtBatchSummaryResponse | null;
++  summaryLoading: boolean;
++  summaryError: string | null;
++  listLoading: boolean;
++  listError: string | null;
++  /** 批次模式：true = 列表/逐笔按批次；false = 按单 run（既有功能） */
++  batchMode: boolean;
++  onToggleMode: (v: boolean) => void;
++  onRefresh: () => void;
++}
++
++export const BatchBar: React.FC<BatchBarProps> = ({
++  batches,
++  batchId,
++  onSelect,
++  summary,
++  summaryLoading,
++  summaryError,
++  listLoading,
++  listError,
++  batchMode,
++  onToggleMode,
++  onRefresh,
++}) => {
++  const meta: BtBatch | null = summary?.batch ?? batches.find((b) => b.batch_id === batchId) ?? null;
++  const checks = summary?.checks ?? null;
++  const loaded = Boolean(meta?.summary_loaded);
++
++  const checkText = (() => {
++    if (!checks) return summaryLoading ? '核对中…' : '未核对';
++    if (checks.trades_total_matches_rows === false) return '不自洽：汇总笔数 ≠ 逐笔行数';
++    if (checks.net_pnl_matches_rows === false) return '不自洽：汇总净盈亏 ≠ 逐笔合计';
++    return '自洽：汇总 = 逐笔合计';
++  })();
++  const checkOk = checks ? checks.trades_total_matches_rows && checks.net_pnl_matches_rows !== false : false;
++
++  return (
++    <div className="ds-card" data-testid="bt-batch-bar" data-batch-id={batchId ?? ''}>
++      <div className="ds-bar" style={{ flexWrap: 'wrap', gap: 10 }}>
++        <span className="ds-bar__label">批次</span>
++
++        <label className="block" style={{ minWidth: 240 }} title="批次 = 一次批量运行的真实目录">
++          <span className="text-[10px] text-neutral-500">回测批次（真实目录）</span>
++          <select
++            className="ds-select"
++            value={batchId ?? ''}
++            onChange={(e) => onSelect(e.target.value)}
++            data-testid="bt-batch-select"
++            disabled={listLoading && batches.length === 0}
++          >
++            {batches.length === 0 ? (
++              <option value="">{listLoading ? '读取批次…' : '无批次目录'}</option>
++            ) : (
++              batches.map((b) => (
++                <option key={b.batch_id} value={b.batch_id}>
++                  {b.batch_id}
++                  {b.is_default_root ? '（默认运行根）' : ''} · {b.runs_total} run
++                </option>
++              ))
++            )}
++          </select>
++        </label>
++
++        <div className="ds-seg" role="tablist" aria-label="取数口径">
++          {(
++            [
++              [true, '按批次'],
++              [false, '按单 run'],
++            ] as [boolean, string][]
++          ).map(([v, label]) => (
++            <button
++              key={label}
++              type="button"
++              role="tab"
++              aria-selected={batchMode === v}
++              className="ds-seg__item"
++              onClick={() => onToggleMode(v)}
++              data-testid={`bt-batch-mode-${v ? 'batch' : 'run'}`}
++            >
++              {label}
++            </button>
++          ))}
++        </div>
++
++        <span className="ds-bar__sep" />
++
++        {/* 汇总指标：null ⇒ 「加载中」，绝不当 0 */}
++        <span className="ds-mi" title="本批次 run 目录总数（轻量统计，不读 JSON）">
++          <span className="ds-mi__k">运行数</span>
++          <span className="ds-mi__v">{fmtInt(meta?.runs_total)}</span>
++        </span>
++        <span className="ds-mi" title="本批次里有成交（trade_count>0）的 run 数">
++          <span className="ds-mi__k">有成交 run</span>
++          <span className="ds-mi__v">
++            {loaded ? fmtInt(meta?.runs_with_trades) : summaryLoading ? '加载中' : DASH}
++          </span>
++        </span>
++        <span className="ds-mi" title="各 run summary_variant_a.trade_count 之和">
++          <span className="ds-mi__k">成交笔数</span>
++          <span className="ds-mi__v">
++            {loaded ? fmtInt(meta?.trades_total) : summaryLoading ? '加载中' : DASH}
++          </span>
++        </span>
++        <span className="ds-mi" title="各 run net_pnl 直接相加（美元）；不是组合净值口径">
++          <span className="ds-mi__k">批次净盈亏（各 run 相加）</span>
++          <span
++            className={
++              meta?.net_pnl_sum == null
++                ? 'ds-mi__v'
++                : `ds-mi__v ${meta.net_pnl_sum >= 0 ? 'ds-mi__v--pos' : 'ds-mi__v--neg'}`
++            }
++          >
++            {meta?.net_pnl_sum == null
++              ? summaryLoading
++                ? '加载中'
++                : DASH
++              : `${meta.net_pnl_sum >= 0 ? '+' : '-'}$${fmtUsd(Math.abs(meta.net_pnl_sum), 2)}`}
++          </span>
++        </span>
++        <span className="ds-mi" title={meta?.window_source ?? '窗口来自批次内取样 run 的 inputs.json'}>
++          <span className="ds-mi__k">窗口（UTC）</span>
++          <span className="ds-mi__v" style={{ fontSize: 'var(--ds-fs-xs)' }}>
++            {meta?.window_start_ms
++              ? `${fmtUtcMin(meta.window_start_ms)} → ${fmtUtcMin(meta.window_end_ms)}`
++              : loaded
++                ? DASH
++                : '加载中'}
++          </span>
++        </span>
++
++        <span className="ds-pagehead__spacer" />
++
++        {/* 性质标注：不给「已验证」暗示 */}
++        <span className="ds-badge ds-badge--warn" title="该策略 Gate 未过；页面只做研究复盘，不构成已验证结论">
++          研究分类 · 未通过验收
++        </span>
++        <span
++          className={`ds-badge ${checkOk ? 'ds-badge--pos' : checks ? 'ds-badge--neg' : 'ds-badge--neutral'}`}
++          title={
++            checks
++              ? `汇总 trades_total=${checks.summary_trades_total} / 逐笔行数=${checks.trades_rows}；` +
++                `汇总净盈亏=${checks.net_pnl_from_summary} / 逐笔合计=${checks.net_pnl_from_rows}`
++              : '尚未取到核对结果'
++          }
++          data-testid="bt-batch-checks"
++        >
++          {checkText}
++        </span>
++        <button type="button" className="ds-btn ds-btn--ghost ds-btn--sm" onClick={onRefresh}>
++          刷新
++        </button>
++      </div>
++
++      {(listError || summaryError) && (
++        <div className="ds-note ds-note--warn" style={{ margin: '0 12px 8px' }} data-testid="bt-batch-error">
++          {listError ? `批次列表取数失败：${listError}` : ''}
++          {summaryError ? `批次汇总取数失败：${summaryError}` : ''}
++        </div>
++      )}
++
++      {meta?.derived_from && (
++        <div
++          className="text-[10px] text-neutral-500"
++          style={{ padding: '0 12px 8px', fontFamily: 'var(--ds-mono)' }}
++        >
++          数据来源：{meta.derived_from}
++          {meta.note ? ` · ${meta.note}` : ''}
++        </div>
++      )}
++    </div>
++  );
++};
++
++export default BatchBar;
+
+### UI界面/web/src/components/backtest/BatchTradesTable.tsx（新增文件）
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/backtest/BatchTradesTable.tsx" "b/UI\347\225\214\351\235\242/web/src/components/backtest/BatchTradesTable.tsx"
+new file mode 100644
+index 0000000..24e96a0
+--- /dev/null
++++ "b/UI\347\225\214\351\235\242/web/src/components/backtest/BatchTradesTable.tsx"
+@@ -0,0 +1,241 @@
++/**
++ * 批次逐笔复核表（BT-UI-01）
++ * ----------------------------------------------------------------------------
++ * 一张表把「一笔交易」复核所需的字段全部摆出来，且每一列都能指回账本：
++ *
++ *   币种 · 运行ID · 交易ID(trd_) · 候选ID(cand_ev_) · 信号时间 · 成交时间 ·
++ *   买入价 · 初始止损 · 退出时间 · 退出价 · 退出原因 · 净盈亏
++ *
++ * 三个口径约定（写死在表头里，避免误读）：
++ *   1. 所有时间都是 **UTC**；表头额外注明「北京时间 = UTC+8」——
++ *      图表轴同样按 UTC 显示，两边对照不会错位。
++ *   2. 净盈亏是**扣费后**（含手续费 + 资金费）的美元值；与 `/metrics` 的
++ *      `net_pnl` 同源（都来自账本逐笔），不是估算。
++ *   3. 缺失字段一律 `—`：没有初始止损就显示 `—`，不按入场价推算；
++ *      候选 ID 缺失也不补。
++ *
++ * 点击任意行 ⇒ 由父组件切到该笔所属 run 并定位图表（入场前后）。
++ */
++
++import React, { useMemo, useState } from 'react';
++import { Search } from 'lucide-react';
++import type { BtBatchTrade } from '../../api/backtestReview';
++import { DASH, fmtDurationH, fmtInt, fmtPrice, fmtUsd } from '../../utils/labFormat';
++import { exitReasonLabel } from '../../utils/runMeta';
++
++function fmtUtc(ms: number | null | undefined): string {
++  if (!Number.isFinite(ms as number) || (ms as number) <= 0) return DASH;
++  const d = new Date(ms as number);
++  if (Number.isNaN(d.getTime())) return DASH;
++  const p = (n: number) => String(n).padStart(2, '0');
++  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
++}
++
++function dirLabel(v: number | string | null | undefined): string {
++  const s = String(v ?? '');
++  if (s === '1' || s.toLowerCase() === 'long' || s.toLowerCase() === 'buy') return '多';
++  if (s === '-1' || s.toLowerCase() === 'short' || s.toLowerCase() === 'sell') return '空';
++  return DASH;
++}
++
++/** 统一走 `utils/runMeta` 的那张表（本地曾漏 `max_holding_expired` / `force_close_eod`
++ *  ⇒ 同一列里一半中文一半英文枚举，看起来像字段没翻译）。 */
++const exitLabel = (r: string | null | undefined): string => exitReasonLabel(r);
++
++export interface BatchTradesTableProps {
++  trades: BtBatchTrade[];
++  loading: boolean;
++  error: string | null;
++  /** 缺失统计（后端如实给出：没有初始止损 / 没定位到信号时刻的笔数） */
++  missingInitialStop?: number | null;
++  unlinkedSignalTime?: number | null;
++  /** 当前选中的一笔（跨 run 用 run_id + trade_id 联合判定） */
++  selectedRunId?: string | null;
++  selectedTradeId?: string | null;
++  onLocate: (runId: string, tradeId: string | null) => void;
++  /** 表格高度 */
++  height?: number;
++}
++
++type ResultFilter = 'all' | 'win' | 'loss';
++
++export const BatchTradesTable: React.FC<BatchTradesTableProps> = ({
++  trades,
++  loading,
++  error,
++  missingInitialStop = null,
++  unlinkedSignalTime = null,
++  selectedRunId = null,
++  selectedTradeId = null,
++  onLocate,
++  height = 340,
++}) => {
++  const [query, setQuery] = useState('');
++  const [result, setResult] = useState<ResultFilter>('all');
++
++  const rows = useMemo(() => {
++    const q = query.trim().toLowerCase();
++    return trades.filter((t) => {
++      const net = t.net_pnl ?? 0;
++      if (result === 'win' && !(net > 0)) return false;
++      if (result === 'loss' && !(net < 0)) return false;
++      if (q) {
++        const hay = `${t.symbol ?? ''} ${t.trade_id ?? ''} ${t.signal_id ?? ''} ${t.run_id ?? ''} ${t.exit_reason ?? ''}`.toLowerCase();
++        if (!hay.includes(q)) return false;
++      }
++      return true;
++    });
++  }, [trades, query, result]);
++
++  return (
++    <section className="ds-card" data-testid="bt-batch-trades">
++      <div className="ds-card__head" style={{ flexWrap: 'wrap', gap: 8 }}>
++        <span className="ds-card__title">批次逐笔复核</span>
++        <span className="ds-card__meta">共 {fmtInt(trades.length)} 笔（本批次全部 run）</span>
++        <span className="ds-bar__sep" />
++        <span className="ds-card__meta" title="时间列全部为 UTC；北京时间 = UTC + 8 小时">
++          时间口径：UTC（北京时间 = UTC+8）
++        </span>
++        <span style={{ flex: 1 }} />
++        <select
++          className="ds-select"
++          value={result}
++          onChange={(e) => setResult(e.target.value as ResultFilter)}
++          aria-label="按结果筛选"
++          style={{ width: 96 }}
++        >
++          <option value="all">全部结果</option>
++          <option value="win">盈利</option>
++          <option value="loss">亏损</option>
++        </select>
++        <label className="ds-bt-search" style={{ width: 200 }}>
++          <Search />
++          <input
++            value={query}
++            onChange={(e) => setQuery(e.target.value)}
++            placeholder="搜币种 / 交易ID / 候选ID"
++            aria-label="搜索批次逐笔"
++          />
++        </label>
++      </div>
++
++      {(missingInitialStop || unlinkedSignalTime) ? (
++        <div className="ds-note ds-note--warn" style={{ margin: '0 12px 8px' }} data-testid="bt-batch-trades-gaps">
++          {missingInitialStop ? `${missingInitialStop} 笔缺初始止损（账本无 stop_trace，未推算）` : ''}
++          {missingInitialStop && unlinkedSignalTime ? ' · ' : ''}
++          {unlinkedSignalTime ? `${unlinkedSignalTime} 笔未定位到候选信号时刻（留空，未按 ID 猜时间）` : ''}
++        </div>
++      ) : null}
++
++      <div className="ds-tablewrap" style={{ maxHeight: height, overflow: 'auto' }}>
++        <table className="ds-table ds-table--tight ds-table--clickable" data-testid="bt-batch-trades-table">
++          <thead>
++            <tr>
++              <th style={{ width: 34 }}>#</th>
++              <th style={{ width: 108 }}>币种</th>
++              <th style={{ width: 44 }}>方向</th>
++              <th style={{ width: 150 }}>运行 ID</th>
++              <th style={{ width: 168 }}>交易 ID</th>
++              <th style={{ width: 230 }}>候选 ID（信号）</th>
++              <th style={{ width: 116 }}>信号时间 (UTC)</th>
++              <th style={{ width: 116 }}>成交时间 (UTC)</th>
++              <th className="ds-table__num" style={{ width: 96 }}>买入价</th>
++              <th className="ds-table__num" style={{ width: 96 }}>初始止损</th>
++              <th style={{ width: 116 }}>退出时间 (UTC)</th>
++              <th className="ds-table__num" style={{ width: 96 }}>退出价</th>
++              <th style={{ width: 104 }}>退出原因</th>
++              <th className="ds-table__num" style={{ width: 96 }}>净盈亏</th>
++              <th style={{ width: 76 }}>持仓</th>
++            </tr>
++          </thead>
++          <tbody>
++            {error ? (
++              <tr>
++                <td colSpan={15} className="ds-table__empty">
++                  批次逐笔取数失败：{error}
++                </td>
++              </tr>
++            ) : loading ? (
++              <tr>
++                <td colSpan={15} className="ds-table__empty">
++                  读取批次逐笔…
++                </td>
++              </tr>
++            ) : rows.length === 0 ? (
++              <tr>
++                <td colSpan={15} className="ds-table__empty" data-testid="bt-batch-trades-empty">
++                  {trades.length === 0
++                    ? '本批次没有任何成交（各 run 账本 trades.jsonl 全为空）—— 这是真实结果，不是读取失败'
++                    : '当前筛选条件下没有成交'}
++                </td>
++              </tr>
++            ) : (
++              rows.map((t, i) => {
++                const sel = t.run_id === selectedRunId && (t.trade_id ?? null) === (selectedTradeId ?? null);
++                const net = t.net_pnl;
++                const tone = net == null ? '' : net > 0 ? 'ds-table__pos' : net < 0 ? 'ds-table__neg' : '';
++                return (
++                  <tr
++                    key={`${t.run_id}|${t.trade_id ?? ''}|${i}`}
++                    data-trade-id={t.trade_id ?? undefined}
++                    data-run-id={t.run_id}
++                    aria-selected={sel}
++                    onClick={() => onLocate(t.run_id, t.trade_id ?? null)}
++                    title="点击 ⇒ 切到该笔所属 run 并在图上定位入场前后"
++                  >
++                    <td className="ds-table__muted">{i + 1}</td>
++                    <td className="ds-table__strong">{t.symbol ?? DASH}</td>
++                    <td>
++                      <span
++                        className={`ds-badge ${
++                          dirLabel(t.direction) === '多'
++                            ? 'ds-badge--pos'
++                            : dirLabel(t.direction) === '空'
++                              ? 'ds-badge--neg'
++                              : 'ds-badge--neutral'
++                        }`}
++                      >
++                        {dirLabel(t.direction)}
++                      </span>
++                    </td>
++                    <td className="ds-table__muted" title={t.run_id}>
++                      {t.run_id.replace('run_WX_EVENT_TREND_V0_1_', '…_')}
++                    </td>
++                    <td className="ds-table__muted" title={t.trade_id_source ?? undefined}>
++                      {t.trade_id ?? DASH}
++                    </td>
++                    <td className="ds-table__muted" title={t.signal_time_source ?? undefined}>
++                      {t.signal_id ? t.signal_id.replace('cand_ev_WX_EVENT_TREND_V0_1_binance_', '…_') : DASH}
++                    </td>
++                    <td className="ds-table__muted">{fmtUtc(t.signal_time_ms)}</td>
++                    <td className="ds-table__muted">{fmtUtc(t.entry_time_ms)}</td>
++                    <td className="ds-table__num">{fmtPrice(t.entry_price)}</td>
++                    <td className="ds-table__num" title={t.initial_stop_reason ?? undefined}>
++                      {fmtPrice(t.initial_stop)}
++                    </td>
++                    <td className="ds-table__muted">{fmtUtc(t.exit_time_ms)}</td>
++                    <td className="ds-table__num">{fmtPrice(t.exit_price)}</td>
++                    <td className="ds-table__muted" title={t.exit_reason ?? undefined}>
++                      {exitLabel(t.exit_reason)}
++                    </td>
++                    <td className={`ds-table__num ${tone}`} title={net == null ? undefined : `$${fmtUsd(net, 4)}`}>
++                      {net == null ? DASH : `${net > 0 ? '+' : net < 0 ? '-' : ''}$${fmtUsd(Math.abs(net), 2)}`}
++                    </td>
++                    <td className="ds-table__muted">{fmtDurationH(t.holding_hours)}</td>
++                  </tr>
++                );
++              })
++            )}
++          </tbody>
++        </table>
++      </div>
++
++      <div className="ds-card__foot" style={{ padding: '6px 12px', fontSize: 'var(--ds-fs-2xs)', color: 'var(--ds-text-4)' }}>
++        净盈亏 = 扣手续费与资金费后的美元值（账本逐笔口径）；交易 ID 为账本 <code>trd_…</code>，
++        候选 ID 为 <code>cand_ev_…</code>（与 K 线信号点同源）；初始止损取账本 <code>stop_trace</code> 首点。
++      </div>
++    </section>
++  );
++};
++
++export default BatchTradesTable;
+
+### UI界面/web/src/utils/runMeta.ts（新增文件）
+diff --git "a/UI\347\225\214\351\235\242/web/src/utils/runMeta.ts" "b/UI\347\225\214\351\235\242/web/src/utils/runMeta.ts"
+new file mode 100644
+index 0000000..437a0e2
+--- /dev/null
++++ "b/UI\347\225\214\351\235\242/web/src/utils/runMeta.ts"
+@@ -0,0 +1,163 @@
++/**
++ * 回测 run 的元信息解析
++ * ----------------------------------------------------------------------------
++ * 为什么需要：列表接口**不返回可信的时间与窗口**。
++ *   · `created_at / started_at / finished_at` 是读取时刻兜底（576 条 distinct = 1）；
++ *   · `window.win_start_ms / win_end_ms` 恒为 null。
++ * 唯一可信的时间线索是 `run_id` 末尾的 epoch 秒（服务端落盘时写入）。
++ * 因此列表上显示的是「运行时间」，真实回测窗口要等选中后从 `chart.window` 取。
++ */
++
++export interface RunIdParts {
++  strategy: string;
++  symbol: string;
++  /** 运行时刻（毫秒）；解析不出为 null */
++  epochMs: number | null;
++}
++
++/** `run_WX_EVENT_TREND_V0_1_CYBERUSDT_1792173927` → 三段 */
++export function parseRunId(runId: string | null | undefined): RunIdParts {
++  if (!runId) return { strategy: '', symbol: '', epochMs: null };
++  const parts = runId.split('_');
++  const last = parts[parts.length - 1];
++  const sec = Number(last);
++  const hasEpoch = Number.isFinite(sec) && sec > 1_000_000_000;
++  if (hasEpoch) {
++    const rest = parts.slice(1, -1);
++    // 标的总是最后一段（大写字母 + USDT 之类），策略名可能含下划线
++    const symbol = rest[rest.length - 1] ?? '';
++    return {
++      strategy: rest.slice(0, -1).join('_'),
++      symbol,
++      epochMs: sec * 1000,
++    };
++  }
++  return { strategy: parts.slice(1).join('_'), symbol: '', epochMs: null };
++}
++
++export function runEpochMs(runId: string | null | undefined): number | null {
++  return parseRunId(runId).epochMs;
++}
++
++const QUOTES = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'BTC', 'ETH'];
++
++/**
++ * 标的拆成 base / quote。
++ * 项目里的标的是币安 U 本位永续，绝大多数以 USDT 结尾；少数 meme 币带中文名
++ * （如「龙虾USDT」），同样按后缀拆分，不做拼音化或翻译。
++ */
++export function splitSymbol(symbol: string | null | undefined): { base: string; quote: string } {
++  const s = (symbol || '').trim();
++  if (!s) return { base: '', quote: '' };
++  for (const q of QUOTES) {
++    if (s.length > q.length && s.toUpperCase().endsWith(q)) {
++      return { base: s.slice(0, -q.length), quote: q };
++    }
++  }
++  return { base: s, quote: '' };
++}
++
++/** `CYBERUSDT` → `CYBER/USDT` */
++export function symbolLabel(symbol: string | null | undefined): string {
++  const { base, quote } = splitSymbol(symbol);
++  if (!base) return '—';
++  return quote ? `${base}/${quote}` : base;
++}
++
++const STATUS_LABEL: Record<string, string> = {
++  succeeded: '已完成',
++  running: '运行中',
++  queued: '排队中',
++  failed: '失败',
++  error: '出错',
++  cancelled: '已取消',
++};
++
++export function statusLabel(status: string | null | undefined): string {
++  if (!status) return '—';
++  return STATUS_LABEL[status] ?? status;
++}
++
++export type StatusTone = 'ok' | 'warn' | 'bad' | 'muted';
++
++export function statusTone(status: string | null | undefined): StatusTone {
++  if (status === 'succeeded') return 'ok';
++  if (status === 'running' || status === 'queued') return 'warn';
++  if (status === 'failed' || status === 'error') return 'bad';
++  return 'muted';
++}
++
++/**
++ * 退出原因中文化（**全站唯一一张表**）。
++ *
++ * 后端给的是 `max_holding_expired` / `force_close_eod` 这类枚举，不猜未知值（未知原样显示）。
++ * 早先 `BacktestWorkbench` 与 `BatchTradesTable` 各自维护过一张局部表 ⇒ 同一笔交易在
++ * 「⑤ 逐笔明细」显示中文、在「批次逐笔」显示英文枚举（`max_holding_expired`），
++ * 看起来像字段没翻译。现在两边都走这里。
++ */
++const EXIT_REASON_LABEL: Record<string, string> = {
++  stop_loss: '止损',
++  intrabar_stop: '盘中止损',
++  intrabar_take_profit: '盘中止盈',
++  stop: '止损',
++  protective_stop: '保护止损',
++  take_profit: '止盈',
++  max_holding_expired: '持仓到期',
++  max_holding: '持仓到期',
++  force_close_eod: '收盘强平',
++  eod: '收盘平仓',
++  trailing_stop: '移动止损',
++  signal_exit: '信号反转',
++  signal_flip: '信号反转',
++  manual: '手动平仓',
++  end_of_data: '数据结束',
++  opposite_signal: '反向信号',
++  time_exit: '超时退出',
++  time_stop: '超时退出',
++};
++
++export function exitReasonLabel(reason: string | null | undefined): string {
++  if (!reason) return '—';
++  return EXIT_REASON_LABEL[reason] ?? reason;
++}
++
++/** 方向：后端 `/trades` 给数字 1 / -1，`/chart` 给 'long' / 'short'，两种都要认。 */
++export function directionLabel(d: number | string | null | undefined): '多' | '空' | '—' {
++  if (d === 1 || d === '1' || d === 'long' || d === 'LONG') return '多';
++  if (d === -1 || d === '-1' || d === 'short' || d === 'SHORT') return '空';
++  return '—';
++}
++
++export function directionIsLong(d: number | string | null | undefined): boolean | null {
++  const l = directionLabel(d);
++  return l === '多' ? true : l === '空' ? false : null;
++}
++
++/** 币种图标底色：按标的字符做稳定散列，同一标的总拿同一个色（不做品牌色猜测）。 */
++const AVATAR_COLORS = [
++  '#f7931a', // 橙
++  '#627eea', // 蓝紫
++  '#14b8a6', // 青
++  '#eab308', // 黄
++  '#a855f7', // 紫
++  '#ec4899', // 粉
++  '#22c55e', // 绿
++  '#f97316', // 深橙
++  '#38bdf8', // 天蓝
++  '#f43f5e', // 玫红
++];
++
++export function symbolColor(symbol: string | null | undefined): string {
++  const s = (symbol || '').toUpperCase();
++  let h = 0;
++  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) >>> 0;
++  return AVATAR_COLORS[h % AVATAR_COLORS.length];
++}
++
++/** 标的图标上显示的字：取 base 的前两个字符（中文名取首字）。 */
++export function symbolBadgeText(symbol: string | null | undefined): string {
++  const { base } = splitSymbol(symbol);
++  if (!base) return '?';
++  const chars = Array.from(base);
++  return chars.length <= 2 ? base : base.slice(0, 2).toUpperCase();
++}
+
+### UI界面/web/src/api/labBacktest.ts
+diff --git "a/UI\347\225\214\351\235\242/web/src/api/labBacktest.ts" "b/UI\347\225\214\351\235\242/web/src/api/labBacktest.ts"
+index f873bdc..934fb9f 100644
+--- "a/UI\347\225\214\351\235\242/web/src/api/labBacktest.ts"
++++ "b/UI\347\225\214\351\235\242/web/src/api/labBacktest.ts"
+@@ -384,6 +384,12 @@ export interface LabEquityResponse extends LabEnvelope<LabEquityPoint> {
+ export interface LabTradeRow {
+   run_id: string;
+   trade_id: string;
++  /**
++   * 订单号（`ord_…`）。**只在 `public/all_trades.json`（批量脚本汇总）里出现**，
++   * 账本逐笔接口不返回。曾把订单号错写进 `trade_id` ⇒ 单笔详情 404，
++   * 现由前端硬校验（不在本 run 逐笔里就不拿去查询）。
++   */
++  order_id?: string | null;
+   signal_id: string | null;
+   symbol: string;
+   direction: string;
+@@ -406,6 +412,12 @@ export interface LabTradeRow {
+   funding_events: number | null;
+   funding_gaps_json: string | null;
+   stop_trace_json: string | null;
++  /** 初始止损：账本 `stop_trace` 首点（BT-UI-01 后端补字段；无止损记录时为 null） */
++  initial_stop?: number | null;
++  initial_stop_source?: string | null;
++  /** 候选信号时刻（优先 `chart.signals[].t`，其次 `signal_id` 尾段；都没有为 null） */
++  signal_time_ms?: number | null;
++  signal_time_source?: string | null;
+ }
+ 
+ export interface LabTradesResponse extends LabEnvelope<LabTradeRow> {}
+@@ -551,7 +563,7 @@ export interface LabChartFundingEvent {
+ export interface LabChart {
+   symbol: string;
+   exec_timeframe: string;
+-  window: { start_ms: number; end_ms: number };
++  window: { start_ms: number; end_ms: number; source?: string | null };
+   candles: (LabChartCandle | LabChartCandleTuple)[];
+   signals: LabChartSignal[];
+   trades: LabChartTrade[];
+@@ -562,6 +574,11 @@ export interface LabChart {
+   take_profit: { exists: boolean; note: string } | null;
+   time_precision: Record<string, string> | null;
+   stop_trace_source: string | null;
++  /**
++   * 该载荷**不是** run 目录里的原始 `chart.json`，而是读时重建的（原文说明）。
++   * 后端只在「原文件缺失、且能按本 run 自己的窗口重建」时才带这个字段。
++   */
++  derived_from?: string | null;
+ }
+ 
+ export interface LabChartResponse extends LabEnvelope {
+@@ -841,18 +858,43 @@ export async function labLoadDefaults(scanLimit = 12): Promise<LabDefaults> {
+   const first = items[0];
+   try {
+     const d = await labGetRun(first.run_id);
+-    out.window_start_ms = d.window?.win_start_ms ?? null;
+-    out.window_end_ms = d.window?.win_end_ms ?? null;
+     out.symbol = d.config?.spec?.symbols?.[0] ?? first.symbols?.[0] ?? null;
+     out.exchange = d.config?.spec?.exchange ?? d.window?.exchange ?? null;
+     out.market = d.config?.spec?.market ?? d.window?.market ?? null;
+     out.signal_timeframe = d.config?.spec?.signal_timeframe ?? d.window?.signal_timeframe ?? null;
+     out.exec_timeframe = d.config?.spec?.exec_timeframe ?? d.window?.exec_timeframe ?? null;
++    out.window_start_ms = d.window?.win_start_ms ?? null;
++    out.window_end_ms = d.window?.win_end_ms ?? null;
+     out.window_from_run = first.run_id;
+   } catch {
+     /* 窗口默认值缺失 ⇒ 页面显示为空并要求填写；不造默认窗口 */
+   }
+ 
++  /**
++   * 窗口兜底（BT-UI-01）：最近一次 run 常常**没有** window 字段（summary 里没有
++   * data_summary 时后端给 null）⇒ 旧实现直接留空，页面一进来就顶一条红色
++   * 「窗口起点未填写」的校验失败条，看起来像页面坏了。
++   * 这里继续往后找**第一个真有窗口**的 run（最多 scanLimit 个），仍找不到才留空。
++   */
++  if (out.window_start_ms == null || out.window_end_ms == null) {
++    for (const r of items.slice(0, Math.max(1, scanLimit))) {
++      if (r.run_id === out.window_from_run) continue;
++      try {
++        const d = await labGetRun(r.run_id);
++        const ws = d.window?.win_start_ms ?? null;
++        const we = d.window?.win_end_ms ?? null;
++        if (ws != null && we != null) {
++          out.window_start_ms = ws;
++          out.window_end_ms = we;
++          out.window_from_run = r.run_id;
++          break;
++        }
++      } catch {
++        /* 继续找下一个 */
++      }
++    }
++  }
++
+   for (const r of items.slice(0, Math.max(1, scanLimit))) {
+     try {
+       const d = await labGetRun(r.run_id);
+
+### UI界面/web/src/components/BacktestWorkbench.tsx
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/BacktestWorkbench.tsx" "b/UI\347\225\214\351\235\242/web/src/components/BacktestWorkbench.tsx"
+index 4140e19..ed55259 100644
+--- "a/UI\347\225\214\351\235\242/web/src/components/BacktestWorkbench.tsx"
++++ "b/UI\347\225\214\351\235\242/web/src/components/BacktestWorkbench.tsx"
+@@ -85,6 +85,19 @@ import {
+ } from '../api/labBacktest';
+ import { LabChartPanel } from './LabChartPanel';
+ import { LabFundingPanel } from './LabFundingPanel';
++import { BatchBar } from './backtest/BatchBar';
++import { BatchTradesTable } from './backtest/BatchTradesTable';
++import { exitReasonLabel } from '../utils/runMeta';
++import {
++  fetchBatches,
++  fetchBatchRuns,
++  fetchBatchSummary,
++  fetchBatchTrades,
++  type BtBatch,
++  type BtBatchRun,
++  type BtBatchSummaryResponse,
++  type BtBatchTrade,
++} from '../api/backtestReview';
+ 
+ /* ══════════════════════════ 格式化（未知一律 '—'）══════════════════════════ */
+ 
+@@ -165,23 +178,10 @@ const pnlTone = (v: number | null | undefined): string =>
+       : 'ds-badge--neg';
+ 
+ /**
+- * 退出原因短标签。
++ * 退出原因短标签 —— 统一走 `utils/runMeta.exitReasonLabel`（全站一张表）。
+  * 一屏并排布局下「退出原因」列只有 ~90px，后端英文原值（`intrabar_stop`）会被截断成
+- * `intrabar…`。这里映射为等义中文短标签；**未知值原样显示**，且 `title` 始终带后端原值，
+- * 不改动也不隐藏任何后端字段。
++ * `intrabar…`；映射为等义中文短标签，**未知值原样显示**，`title` 始终带后端原值。
+  */
+-const EXIT_REASON_LABEL: Record<string, string> = {
+-  intrabar_stop: '盘中止损',
+-  force_close_eod: '收盘强平',
+-  protective_stop: '保护止损',
+-  trailing_stop: '移动止损',
+-  take_profit: '止盈',
+-  signal_flip: '信号反转',
+-  time_stop: '超时退出',
+-};
+-
+-const exitReasonLabel = (r: string | null | undefined): string =>
+-  r === null || r === undefined ? '—' : (EXIT_REASON_LABEL[r] ?? r);
+ 
+ /* ══════════════════════════ 只读取数 hook ══════════════════════════ */
+ 
+@@ -922,53 +922,196 @@ export const BacktestWorkbench: React.FC = () => {
+   const runs: LabRunSummary[] = useMemo(() => list.data?.items ?? [], [list.data]);
+   const registry: LabRegistryEntry | null = list.data?.registry_entry ?? null;
+ 
+-  /* ── 全市场逐笔明细与实验记录过滤 ── */
++  /* ── 实验记录过滤（与批次无关的既有开关） ── */
+   const [runsFilter, setRunsFilter] = useState<'all' | 'trades_only'>('trades_only');
+-  const [allTradesData, setAllTradesData] = useState<LabTradeRow[]>([]);
+-  const [viewAllTrades, setViewAllTrades] = useState<boolean>(true);
+ 
++  /* ── 批次（BT-UI-01）：列表 / 汇总 / 逐笔 / 图表全部锚定同一个 batch_id ──
++   *
++   * 旧实现用 `fetch('/all_trades.json')` 把一份**旧批次的 70 行静态快照**当「全市场成交」，
++   * 与当前 run 的逐笔并排显示 ⇒ 批次列表、汇总、逐笔、图表不是同一批数据。
++   * 现在全市场视图改为「本批次逐笔」（`/batches/{id}/trades`，逐 run 读账本现算）。
++   */
++  const [batchId, setBatchId] = useState<string | null>(null);
++  /** true = 列表/逐笔按批次；false = 按单 run（既有视图，保留） */
++  const [batchMode, setBatchMode] = useState<boolean>(true);
++  const [batches, setBatches] = useState<BtBatch[]>([]);
++  const [batchesLoading, setBatchesLoading] = useState(true);
++  const [batchesError, setBatchesError] = useState<string | null>(null);
++  const [batchSummary, setBatchSummary] = useState<BtBatchSummaryResponse | null>(null);
++  const [batchSummaryLoading, setBatchSummaryLoading] = useState(false);
++  const [batchSummaryError, setBatchSummaryError] = useState<string | null>(null);
++  const [batchRuns, setBatchRuns] = useState<BtBatchRun[]>([]);
++  const [batchRunsLoading, setBatchRunsLoading] = useState(false);
++  const [batchTrades, setBatchTrades] = useState<BtBatchTrade[]>([]);
++  const [batchTradesLoading, setBatchTradesLoading] = useState(false);
++  const [batchTradesError, setBatchTradesError] = useState<string | null>(null);
++  const [batchTradesMeta, setBatchTradesMeta] = useState<{
++    missingInitialStop: number | null;
++    unlinkedSignalTime: number | null;
++  }>({ missingInitialStop: null, unlinkedSignalTime: null });
++  const [batchNonce, setBatchNonce] = useState(0);
++
++  /* 批次列表（轻量：只数目录，几十毫秒） */
++  useEffect(() => {
++    const ac = new AbortController();
++    setBatchesLoading(true);
++    setBatchesError(null);
++    fetchBatches(ac.signal)
++      .then((env) => {
++        if (ac.signal.aborted) return;
++        const items = Array.isArray(env.items) ? env.items : [];
++        setBatches(items);
++        setBatchesLoading(false);
++        // 默认选「非默认根」里 run 最多的批次（= 最近一次完整批量运行），没有就选第一个
++        setBatchId((prev) => {
++          if (prev && items.some((b) => b.batch_id === prev)) return prev;
++          const real = items.filter((b) => !b.is_default_root);
++          const pool = real.length ? real : items;
++          const best = [...pool].sort((a, b) => (b.runs_total ?? 0) - (a.runs_total ?? 0))[0];
++          return best?.batch_id ?? null;
++        });
++      })
++      .catch((err: unknown) => {
++        if ((err as Error)?.name === 'AbortError') return;
++        setBatchesError((err as Error)?.message || '批次列表取数失败');
++        setBatchesLoading(false);
++      });
++    return () => ac.abort();
++  }, [batchNonce]);
++
++  /* 选中批次 ⇒ 汇总 + run 清单 + 逐笔（三者同 batch_id，一次刷新一起换） */
+   useEffect(() => {
+-    fetch('/all_trades.json')
+-      .then((r) => r.json())
++    if (!batchId || !batchMode) return;
++    const ac = new AbortController();
++    setBatchSummaryLoading(true);
++    setBatchSummaryError(null);
++    setBatchRunsLoading(true);
++    setBatchTradesLoading(true);
++    setBatchTradesError(null);
++
++    fetchBatchSummary(batchId, ac.signal)
+       .then((d) => {
+-        if (Array.isArray(d.items)) {
+-          setAllTradesData(d.items);
+-        }
++        if (ac.signal.aborted) return;
++        setBatchSummary(d);
++        setBatchSummaryLoading(false);
+       })
+-      .catch(() => {});
+-  }, []);
++      .catch((err: unknown) => {
++        if ((err as Error)?.name === 'AbortError') return;
++        setBatchSummary(null);
++        setBatchSummaryError((err as Error)?.message || '批次汇总取数失败');
++        setBatchSummaryLoading(false);
++      });
++
++    fetchBatchRuns(batchId, ac.signal)
++      .then((d) => {
++        if (ac.signal.aborted) return;
++        setBatchRuns(Array.isArray(d.items) ? d.items : []);
++        setBatchRunsLoading(false);
++      })
++      .catch(() => {
++        if (ac.signal.aborted) return;
++        setBatchRuns([]);
++        setBatchRunsLoading(false);
++      });
++
++    fetchBatchTrades(batchId, 5000, ac.signal)
++      .then((d) => {
++        if (ac.signal.aborted) return;
++        setBatchTrades(Array.isArray(d.items) ? d.items : []);
++        setBatchTradesMeta({
++          missingInitialStop: d.missing_initial_stop ?? null,
++          unlinkedSignalTime: d.unlinked_signal_time ?? null,
++        });
++        setBatchTradesLoading(false);
++      })
++      .catch((err: unknown) => {
++        if ((err as Error)?.name === 'AbortError') return;
++        setBatchTrades([]);
++        setBatchTradesError((err as Error)?.message || '批次逐笔取数失败');
++        setBatchTradesLoading(false);
++      });
++
++    return () => ac.abort();
++  }, [batchId, batchMode, batchNonce]);
+ 
+   const displayedRuns = useMemo(() => {
++    if (batchMode) {
++      // 批次 run 清单 → 复用实验记录表的行结构（缺的字段如实留空，不造 created_at）
++      const mapped = batchRuns.map((r) => ({
++        run_id: r.run_id,
++        status: r.status ?? 'unknown',
++        symbols: r.symbol ? [r.symbol] : [],
++        created_at: null,
++        net_return_pct: r.net_return_pct,
++        trades_count: r.trades_count,
++        max_drawdown_pct: null,
++        failure_reason: null,
++        attribution: 'current_strategy',
++      })) as unknown as LabRunSummary[];
++      if (runsFilter === 'trades_only') {
++        const filtered = mapped.filter((r) => (r.trades_count ?? 0) > 0);
++        return filtered.length > 0 ? filtered : mapped;
++      }
++      return mapped;
++    }
+     if (runsFilter === 'trades_only') {
+       const filtered = runs.filter((r) => (r.trades_count ?? 0) > 0);
+       return filtered.length > 0 ? filtered : runs;
+     }
+     return runs;
+-  }, [runs, runsFilter]);
++  }, [batchMode, batchRuns, runs, runsFilter]);
++
++  /* 自动选中最新/有成交的 run（仅首次）。声明在批次 effect 之前，供两者共用。 */
++  const didPick = useRef(false);
++
++  /**
++   * 批次模式下：当前 run 若不属于本批次 ⇒ 自动切到批次内第一个有成交的 run。
++   *
++   * 为什么需要：切换批次时 `selectedRunId` 还是上一批的标的，若不重置，
++   * 页面会显示「批次 A 的汇总 + 批次 B 的图表」—— 正是本工单要消灭的混批。
++   */
++  useEffect(() => {
++    if (!batchMode || batchRuns.length === 0) return;
++    if (selectedRunId && batchRuns.some((r) => r.run_id === selectedRunId)) return;
++    const first = batchRuns.find((r) => (r.trades_count ?? 0) > 0) ?? batchRuns[0];
++    if (first) {
++      didPick.current = true;
++      setSelectedRunId(first.run_id);
++      setSelectedTradeId(null);
++    }
++  }, [batchMode, batchRuns, selectedRunId]);
+ 
+   /* ── 默认值（来自后台真实 run）── */
+   const defaults = useLabFetch<LabDefaults>('defaults', () => labLoadDefaults());
+   const didInitForm = useRef(false);
+   useEffect(() => {
+-    if (didInitForm.current || !defaults.data) return;
++    if (didPick.current || !defaults.data) return;
+     const d = defaults.data;
+-    const next: LabForm = { ...EMPTY_FORM, params: {} };
+-    if (d.symbol) next.symbol = d.symbol;
+-    if (d.exchange) next.exchange = d.exchange;
+-    if (d.market) next.market = d.market;
+-    if (d.signal_timeframe) next.signalTf = d.signal_timeframe;
+-    if (d.exec_timeframe) next.execTf = d.exec_timeframe;
+-    next.windowStart = toUtcInput(d.window_start_ms);
+-    next.windowEnd = toUtcInput(d.window_end_ms);
+-    const params: Record<string, string> = {};
+-    for (const spec of LAB_PARAM_SPECS) {
+-      const src = spec.scope === 'signal' ? d.signal_params : d.exec_params;
+-      const v = src?.[spec.key];
+-      if (v === undefined || v === null || !Number.isFinite(v)) continue;
+-      params[spec.key] = String(labFromWire(spec, v));
+-    }
+-    next.params = params;
+-    setForm(next);
++    /**
++     * 用函数式更新**保留已有窗口**：批次窗口 effect 可能比 defaults 先到
++     * （批次汇总 2–5 秒、defaults 一次 `GET /backtests?limit=50` 可能更慢），
++     * 若这里用 `EMPTY_FORM` 整体覆盖，就会把批次窗口清空 ⇒ 一进页面顶一条
++     * 红色「窗口起点未填写」，看起来像页面坏了。
++     */
++    setForm((prev) => {
++      const next: LabForm = { ...EMPTY_FORM, params: {} };
++      if (d.symbol) next.symbol = d.symbol;
++      if (d.exchange) next.exchange = d.exchange;
++      if (d.market) next.market = d.market;
++      if (d.signal_timeframe) next.signalTf = d.signal_timeframe;
++      if (d.exec_timeframe) next.execTf = d.exec_timeframe;
++      next.windowStart = prev.windowStart.trim() || toUtcInput(d.window_start_ms);
++      next.windowEnd = prev.windowEnd.trim() || toUtcInput(d.window_end_ms);
++      const params: Record<string, string> = {};
++      for (const spec of LAB_PARAM_SPECS) {
++        const src = spec.scope === 'signal' ? d.signal_params : d.exec_params;
++        const v = src?.[spec.key];
++        if (v === undefined || v === null || !Number.isFinite(v)) continue;
++        params[spec.key] = String(labFromWire(spec, v));
++      }
++      next.params = params;
++      return next;
++    });
+     didInitForm.current = true;
+     if (!d.signal_params || !d.exec_params) {
+       setDefaultsNote(
+@@ -979,17 +1122,39 @@ export const BacktestWorkbench: React.FC = () => {
+     }
+   }, [defaults.data]);
+ 
+-  /* ── 标的池（真实工作台活动池）── */
+-  const pool = useLabFetch<Awaited<ReturnType<typeof labGetPool>>>('pool', () => labGetPool());
++  /**
++   * 批次窗口 ⇒ 运行配置的窗口默认值（**只在用户还没填时**）。
++   *
++   * 为什么需要：`labLoadDefaults` 的窗口来自「最近一次成功 run 的 window 字段」，
++   * 而多数 run 的 summary.json 没有 `data_summary` ⇒ 该字段为 null ⇒ 表单留空 ⇒
++   * 一进页面就顶一条红色「窗口起点未填写」的校验失败条（看起来像页面坏了）。
++   * 批次窗口是真实数据（批次内 run 的 `inputs.json.data_summary.time_range_1h`），
++   * 语义也对：想复跑这一批，就该用这批的窗口。
++   */
++  useEffect(() => {
++    const ws = batchSummary?.batch?.window_start_ms ?? null;
++    const we = batchSummary?.batch?.window_end_ms ?? null;
++    if (ws == null || we == null) return;
++    setForm((f) =>
++      f.windowStart.trim() && f.windowEnd.trim()
++        ? f
++        : { ...f, windowStart: toUtcInput(ws), windowEnd: toUtcInput(we) },
++    );
++  }, [batchSummary]);
++
++  /* ── 标的池（真实工作台活动池）── */  const pool = useLabFetch<Awaited<ReturnType<typeof labGetPool>>>('pool', () => labGetPool());
+   const poolSymbols: LabPoolItem[] = useMemo(
+     () => (pool.data?.items ?? []).filter((i) => i.exchange === 'binance'),
+     [pool.data],
+   );
+ 
+-  /* ── 运行 hash 补全（列表响应不含 hash）── */
++  /* ── 运行 hash 补全（列表响应不含 hash）──
++   * 批次模式下跳过：批次 run 不在全局列表里，补了也显示不出来；
++   * 而每个补全都是一次 `GET /backtests/{id}`（后端单次 ~5ms，30 个会挤占图表请求）。 */
+   const [hashMap, setHashMap] = useState<Record<string, LabRunHashes>>({});
+   const hashedRef = useRef<Set<string>>(new Set());
+   useEffect(() => {
++    if (batchMode) return;
+     const todo = runs.map((r) => r.run_id).filter((id) => !hashedRef.current.has(id)).slice(0, 30);
+     if (todo.length === 0) return;
+     todo.forEach((id) => hashedRef.current.add(id));
+@@ -1000,7 +1165,7 @@ export const BacktestWorkbench: React.FC = () => {
+     return () => {
+       alive = false;
+     };
+-  }, [runs]);
++  }, [runs, batchMode]);
+ 
+   /* ── 轮询：只要还有 queued/running 的 run，就**持续**2s 拉列表直到全部进入终态 ── */
+   const activeRun = useMemo(
+@@ -1016,9 +1181,6 @@ export const BacktestWorkbench: React.FC = () => {
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [activeRun?.run_id]);
+ 
+-  /* 自动选中最新/有成交的 run（仅首次） */
+-  const didPick = useRef(false);
+-
+   /* ── 深链：`?run=<run_id>` 直接打开指定 run ──
+    * 为什么需要：⑥ 实验记录列表只取最近 50 条，且同批 run 的 `created_at` 完全相同
+    * ⇒ 排序不稳定，指定的 run 可能根本不在列表里（实测有成交的 run 会滑出前 50）。
+@@ -1035,16 +1197,29 @@ export const BacktestWorkbench: React.FC = () => {
+     if (rid) {
+       didPick.current = true;
+       setSelectedRunId(rid);
++      /**
++       * 深链同时切到「按单 run」：否则批次模式下「当前 run 不属于本批次 ⇒ 自动切换」
++       * 会把刚指定的 run 顶掉（深链就失去了「打开某一笔可复现」的意义）。
++       */
++      setBatchMode(false);
+     }
+   }, []);
+ 
+   useEffect(() => {
+     if (didPick.current) return;
++    /**
++     * 批次模式下**不许**从全局 `runs` 里挑 run。
++     * 为什么（BT-UI-01 实测）：批次汇总/清单要 2–5 秒才到，而全局列表先到；
++     * 一旦在这里选了全局 run，页面会先渲染「批次 A 的汇总 + 全局某个 run 的图表」，
++     * 等批次清单到了再被替换 —— 用户看到的就是**混批**，正是本工单要消灭的问题。
++     * 批次模式的 run 由上面「当前 run 不属于本批次 ⇒ 自动切换」那个 effect 负责。
++     */
++    if (batchMode) return;
+     if (runs.length === 0) return;
+     didPick.current = true;
+     const bestRun = runs.find((r) => (r.trades_count ?? 0) > 0) ?? runs[0];
+     setSelectedRunId((prev) => prev ?? bestRun.run_id);
+-  }, [runs]);
++  }, [runs, batchMode]);
+ 
+   /* ── 所选 run 的详情 / 指标 / 曲线 / 逐笔 / 图表 / 质量（响应身份一律核对 run_id）── */
+   const detail = useLabFetch<LabRunDetail>(
+@@ -1325,31 +1500,50 @@ export const BacktestWorkbench: React.FC = () => {
+     quality.data?.data_quality != null;
+ 
+   const tradeRows: LabTradeRow[] = useMemo(() => trades.data?.items ?? [], [trades.data]);
+-  const displayTrades: LabTradeRow[] = useMemo(() => {
+-    if (viewAllTrades && allTradesData.length > 0) {
+-      return allTradesData;
+-    }
+-    return tradeRows;
+-  }, [viewAllTrades, allTradesData, tradeRows]);
++  /** 逐笔明细只显示**当前 run 自己账本里的成交**。
++   *  旧实现的「全市场成交」读的是 `public/all_trades.json`（旧批次静态快照，70 行），
++   *  与当前 run 不同源 ⇒ 已移除；跨 run 的批次视图改走 `BatchTradesTable`。 */
++  const displayTrades: LabTradeRow[] = tradeRows;
+ 
+-  // 切换 run ⇒ 仅当旧选中交易不在新 run 且不在展示列表中时清空
++  // 切换 run ⇒ 旧选中交易若不属于新 run，清空（等新 run 的逐笔到位后再自动选中）
+   useEffect(() => {
+     if (!selectedTradeId) return;
+     const currentTrade = displayTrades.find((t) => t.trade_id === selectedTradeId);
+-    if (currentTrade && currentTrade.run_id && currentTrade.run_id !== selectedRunId && !viewAllTrades) {
++    if (currentTrade && currentTrade.run_id && currentTrade.run_id !== selectedRunId) {
+       setSelectedTradeId(null);
+     }
+-  }, [selectedRunId, selectedTradeId, displayTrades, viewAllTrades]);
++  }, [selectedRunId, selectedTradeId, displayTrades]);
+ 
+-  // 当有成交明细且当前未选中任何交易时，自动选中第一笔成交
++  /**
++   * 「这一行能不能拿去查单笔详情」——只认**本 run 账本逐笔里真实存在**的 `trade_id`。
++   *
++   * 为什么必须硬校验（2026-10-18 故障）：`public/all_trades.json` 的 70 行
++   * `trade_id` 全部写成了**订单号**（`ord_…`），而单笔详情接口只认 `trd_…`。
++   * 于是「点实验记录 → 自动选中第一笔 → 请求 /trades/ord_xxx」必然 404，
++   * 且会串到**另一个标的**的成交上（AEROUSDT 的 run 里显示了 METISUSDT 的订单号）。
++   * 这里不猜、不兼容：不在本 run 逐笔里就返回 null，交给「自动选中本 run 第一笔」。
++   */
++  const queryableTradeId = useCallback(
++    (row: LabTradeRow | undefined, runId: string | null): string | null => {
++      const id = row?.trade_id;
++      if (!id || !runId || row?.run_id !== runId) return null;
++      return tradeRows.some((r) => r.trade_id === id) ? id : null;
++    },
++    [tradeRows],
++  );
++
++  // 当有成交明细且当前未选中任何交易时，自动选中**本 run** 的第一笔真实成交
++  // （旧实现回退到 displayTrades[0] ⇒ 会选中别的标的的成交，再拿它的号去查本 run ⇒ 404）
+   useEffect(() => {
+     if (!selectedTradeId && displayTrades.length > 0) {
+-      const targetTrade = displayTrades.find((t) => t.run_id === selectedRunId) ?? displayTrades[0];
+-      if (targetTrade) {
++      const targetTrade = displayTrades.find(
++        (t) => t.run_id === selectedRunId && !!queryableTradeId(t, selectedRunId),
++      );
++      if (targetTrade?.trade_id) {
+         setSelectedTradeId(targetTrade.trade_id);
+       }
+     }
+-  }, [selectedRunId, displayTrades, selectedTradeId]);
++  }, [selectedRunId, displayTrades, selectedTradeId, queryableTradeId]);
+ 
+   /**
+    * 逐笔明细 → ③ 资金分析（水下回撤）联动载荷。
+@@ -1357,7 +1551,9 @@ export const BacktestWorkbench: React.FC = () => {
+    */
+   const focusTrade = useMemo(() => {
+     if (!selectedTradeId) return null;
+-    const t = displayTrades.find((x) => x.trade_id === selectedTradeId);
++    const t = displayTrades.find(
++      (x) => x.trade_id === selectedTradeId && x.run_id === selectedRunId,
++    );
+     if (!t) return null;
+     if (!Number.isFinite(t.entry_time_ms) || !Number.isFinite(t.exit_time_ms)) return null;
+     return { tradeId: t.trade_id, entryMs: t.entry_time_ms, exitMs: t.exit_time_ms };
+@@ -1434,6 +1630,23 @@ export const BacktestWorkbench: React.FC = () => {
+ 
+   return (
+     <div className="ds-page" data-testid="lab-workbench">
++      {/* ══ ⓪ 批次条（BT-UI-01）══
++          批次是「一次批量运行」的真实目录；列表 / 汇总 / 逐笔 / 图表都从同一个
++          `batch_id` 取数。单 run 视图仍然保留（切「按单 run」即可），
++          但两条路径**不会同时**把不同来源的数据并排显示。 */}
++      <BatchBar
++        batches={batches}
++        batchId={batchId}
++        onSelect={setBatchId}
++        summary={batchSummary}
++        summaryLoading={batchSummaryLoading}
++        summaryError={batchSummaryError}
++        listLoading={batchesLoading}
++        listError={batchesError}
++        batchMode={batchMode}
++        onToggleMode={setBatchMode}
++        onRefresh={() => setBatchNonce((n) => n + 1)}
++      />
+       {/*
+         当前结果工具条（《设计规范》第 16 节）。
+         选中的 run 会决定下面 ③④⑤ 全部内容，但配置区在页首、结果区在页中，
+@@ -1449,6 +1662,18 @@ export const BacktestWorkbench: React.FC = () => {
+       */}
+       <div className="ds-toolbar ds-toolbar--dense" data-testid="lab-run-context">
+         <span className="ds-toolbar__label">当前结果</span>
++        {/*
++          性质标注常驻（两种模式都在）：本页所有数字都是**研究分类**下的回测产物，
++          Gate 未过、尚未验收 ⇒ 不能读成「已验证的策略结论」。
++          批次条里也有一个同名徽章，这里再放一个是因为「按单 run」模式下批次条不显示口径。
++        */}
++        <span
++          className="ds-badge ds-badge--warn"
++          data-testid="bt-research-badge"
++          title="本页为研究复盘：策略 Gate 未过、研究分类尚未验收 ⇒ 页面数字不构成已验证的策略结论"
++        >
++          研究分类 · 未通过验收
++        </span>
+         {!selectedRunId ? (
+           <span className="text-[11px] text-neutral-500">
+             未选择运行 · 在下方「实验记录」点一行，或点上方「运行回测」。
+@@ -1901,6 +2126,32 @@ export const BacktestWorkbench: React.FC = () => {
+         </div>
+       )}
+ 
++      {/* ══ ⑤c 批次逐笔复核（BT-UI-01）：跨 run 的一批真实成交，点一行 ⇒ 定位该笔图表 ══
++          与「⑤ 逐笔明细」的区别：⑤ 只看当前 run；⑤c 看整批，并带 run_id / 候选 ID /
++          信号时间 / 初始止损。两者都直接读账本，没有静态快照。 */}
++      {batchMode && batchId && (
++        <BatchTradesTable
++          trades={batchTrades}
++          loading={batchTradesLoading}
++          error={batchTradesError}
++          missingInitialStop={batchTradesMeta.missingInitialStop}
++          unlinkedSignalTime={batchTradesMeta.unlinkedSignalTime}
++          selectedRunId={selectedRunId}
++          selectedTradeId={selectedTradeId}
++          onLocate={(runId, tradeId) => {
++            didPick.current = true;
++            setSelectedRunId(runId);
++            // 目标 run 的逐笔还没到位 ⇒ 先清空，由「自动选中本 run 第一笔」接管；
++            // 若目标就是当前 run，直接选中该笔（图表随即定位入场前后）。
++            if (runId === selectedRunId && tradeId) {
++              setSelectedTradeId(tradeId);
++            } else {
++              setSelectedTradeId(null);
++            }
++          }}
++        />
++      )}
++
+       {/* ══ ⑤ 逐笔明细 + ⑥ 实验记录（**左右并排**）══ */}
+       <div className="ds-dash">
+         {selectedRunId && detailStatus === 'succeeded' && (
+@@ -1913,26 +2164,11 @@ export const BacktestWorkbench: React.FC = () => {
+             section="lab-trades"
+             right={
+               <div className="flex items-center gap-2 text-[10px] font-mono">
+-                {allTradesData.length > 0 && (
+-                  <div className="flex items-center gap-1 mr-1">
+-                    <button
+-                      type="button"
+-                      className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${viewAllTrades ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
+-                      onClick={() => setViewAllTrades(true)}
+-                    >
+-                      全市场成交 ({allTradesData.length}笔)
+-                    </button>
+-                    <button
+-                      type="button"
+-                      className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${!viewAllTrades ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
+-                      onClick={() => setViewAllTrades(false)}
+-                    >
+-                      当前标的 ({tradeRows.length}笔)
+-                    </button>
+-                  </div>
+-                )}
+-                <Chip>共 {displayTrades.length} 笔</Chip>
+-                <ColToggle on={!!allCols.trades} onToggle={() => toggleCols('trades')} total={13} />
++                <Chip>本 run 共 {displayTrades.length} 笔</Chip>
++                <span className="text-neutral-500" title="逐笔只取当前 run 账本；跨 run 的批次视图见上方「批次逐笔复核」">
++                  同源：当前 run 账本
++                </span>
++                <ColToggle on={!!allCols.trades} onToggle={() => toggleCols('trades')} total={16} />
+                 {trades.error && <span className="text-rose-600">逐笔取数错误：{trades.error}</span>}
+               </div>
+             }
+@@ -1941,12 +2177,14 @@ export const BacktestWorkbench: React.FC = () => {
+             <table className={`ds-table ds-table--clickable${allCols.trades ? ' ds-table--all' : ''}`}>
+               <thead>
+                 <tr>
+-                  <th className="py-1.5 px-2">进场时间</th>
+-                  <th className="py-1.5 px-2" data-secondary>出场时间</th>
++                  <th className="py-1.5 px-2" title="候选信号时刻（chart.signals[].t，UTC）">信号时间 (UTC)</th>
++                  <th className="py-1.5 px-2" title="真实成交时刻（账本 trades.jsonl，UTC）">进场时间 (UTC)</th>
++                  <th className="py-1.5 px-2" data-secondary>出场时间 (UTC)</th>
+                   <th className="py-1.5 px-2">标的</th>
+                   <th className="py-1.5 px-2">方向</th>
+                   <th className="py-1.5 px-2 text-right">开仓价</th>
+-                  <th className="py-1.5 px-2 text-right">出场价</th>
++                  <th className="py-1.5 px-2 text-right" title="账本 stop_trace 首点（引擎实况，非重算）">初始止损</th>
++                  <th className="py-1.5 px-2 text-right" data-secondary>出场价</th>
+                   <th className="py-1.5 px-2 text-right" data-secondary>数量</th>
+                   <th className="py-1.5 px-2 text-right" data-secondary>毛盈亏</th>
+                   <th className="py-1.5 px-2 text-right" data-secondary>双边手续费</th>
+@@ -1954,33 +2192,43 @@ export const BacktestWorkbench: React.FC = () => {
+                   <th className="py-1.5 px-2 text-right">净盈亏</th>
+                   <th className="py-1.5 px-2 whitespace-nowrap">退出原因</th>
+                   <th className="py-1.5 px-2" data-secondary>trade_id</th>
++                  <th className="py-1.5 px-2" data-secondary>候选 ID</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 {displayTrades.length === 0 ? (
+                   <tr>
+-                    <td colSpan={allCols.trades ? 13 : 7} className="ds-table__empty" data-testid="lab-trades-empty">
++                    <td colSpan={allCols.trades ? 16 : 8} className="ds-table__empty" data-testid="lab-trades-empty">
+                       {trades.loading ? '读取中…' : tradesEmptyHint}
+                     </td>
+                   </tr>
+                 ) : (
+-                  displayTrades.map((t) => {
++                  displayTrades.map((t, rowIdx) => {
+                     const sel = t.trade_id === selectedTradeId;
+                     const dirStr = String(t.direction ?? '');
+                     const isLong = dirStr === 'long' || dirStr === '1' || dirStr === 'buy';
+                     return (
+                       <tr
+-                        key={t.trade_id}
+-                        data-trade-id={t.trade_id}
++                        /* key 用 run_id + trade_id + 行号：账本里同一 run 理论上 trade_id 唯一，
++                           但历史批次出现过重复/缺失 ⇒ 加行号兜底，避免 React 吞行。 */
++                        key={`${t.run_id ?? ''}|${t.trade_id ?? t.order_id ?? ''}|${rowIdx}`}
++                        data-trade-id={t.trade_id ?? undefined}
+                         onClick={() => {
+                           if (t.run_id && t.run_id !== selectedRunId) {
+                             didPick.current = true;
+                             setSelectedRunId(t.run_id);
++                            /* 跨 run：此刻 tradeRows 还是旧 run 的，先不选，
++                               等新 run 的逐笔到位后由「自动选中」接管（避免串号 404）。 */
++                            setSelectedTradeId(null);
++                            return;
+                           }
+-                          setSelectedTradeId(t.trade_id);
++                          setSelectedTradeId(queryableTradeId(t, selectedRunId));
+                         }}
+                         aria-selected={sel}
+                       >
++                        <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" title={t.signal_time_source ?? undefined}>
++                          {fmtUtc(t.signal_time_ms)}
++                        </td>
+                         <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">{fmtUtc(t.entry_time_ms)}</td>
+                         <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtUtc(t.exit_time_ms)}</td>
+                         <td className="py-1.5 px-2 font-bold text-neutral-100">{t.symbol}</td>
+@@ -1990,7 +2238,10 @@ export const BacktestWorkbench: React.FC = () => {
+                           </span>
+                         </td>
+                         <td className="py-1.5 px-2 text-right text-neutral-300">{fmtNum(t.entry_price, 4)}</td>
+-                        <td className="py-1.5 px-2 text-right text-neutral-100 font-semibold">{fmtNum(t.exit_price, 4)}</td>
++                        <td className="py-1.5 px-2 text-right text-amber-600" title={t.initial_stop_source ?? undefined}>
++                          {fmtNum(t.initial_stop, 4)}
++                        </td>
++                        <td className="py-1.5 px-2 text-right text-neutral-100 font-semibold" data-secondary>{fmtNum(t.exit_price, 4)}</td>
+                         <td className="py-1.5 px-2 text-right" data-secondary>{fmtNum(t.qty, 6)}</td>
+                         <td className="py-1.5 px-2 text-right" data-secondary>{fmtSignedUsd(t.gross_pnl, 2)}</td>
+                         <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.fees, 2)}</td>
+@@ -2001,7 +2252,10 @@ export const BacktestWorkbench: React.FC = () => {
+                         <td className="py-1.5 px-2 text-neutral-400 whitespace-nowrap" title={t.exit_reason ?? undefined}>
+                           {exitReasonLabel(t.exit_reason)}
+                         </td>
+-                        <td className="py-1.5 px-2 text-neutral-400" data-secondary>{t.trade_id}</td>
++                        <td className="py-1.5 px-2 text-neutral-400" data-secondary>{t.trade_id ?? '—'}</td>
++                        <td className="py-1.5 px-2 text-neutral-500" data-secondary title={t.signal_id ?? undefined}>
++                          {t.signal_id ? t.signal_id.replace('cand_ev_WX_EVENT_TREND_V0_1_binance_', '…_') : '—'}
++                        </td>
+                       </tr>
+                     );
+                   })
+@@ -2025,9 +2279,11 @@ export const BacktestWorkbench: React.FC = () => {
+         )}
+ 
+         <div className={selectedRunId && detailStatus === 'succeeded' ? 'ds-col-7' : undefined}>
+-      {/* ══ ⑥ 实验记录（永久保存 · 可选择历史 run）══ */}
++      {/* ══ ⑥ 实验记录（永久保存 · 可选择历史 run）
++          批次模式下 = 本批次的 run 清单（`/batches/{id}/runs`），与上方汇总/逐笔同源；
++          单 run 模式下 = 全局运行列表（既有行为）。 ══ */}
+       <SectionCard
+-        title="⑥ 实验记录"
++        title={batchMode && batchId ? `⑥ 实验记录 · ${batchId}` : '⑥ 实验记录'}
+         testid="lab-runs"
+         section="lab-runs"
+         right={
+@@ -2037,17 +2293,30 @@ export const BacktestWorkbench: React.FC = () => {
+               className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${runsFilter === 'trades_only' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
+               onClick={() => setRunsFilter((f) => (f === 'trades_only' ? 'all' : 'trades_only'))}
+             >
+-              {runsFilter === 'trades_only' ? `仅显示有成交 (${runs.filter((r) => (r.trades_count ?? 0) > 0).length})` : `全部运行 (${runs.length})`}
++              {runsFilter === 'trades_only'
++                ? `仅显示有成交 (${displayedRuns.length})`
++                : `全部运行 (${displayedRuns.length})`}
+             </button>
+             <Chip>共 {displayedRuns.length} 条</Chip>
+             <ColToggle on={!!allCols.runs} onToggle={() => toggleCols('runs')} total={10} />
+-            {activeRun && <Chip tone="info">轮询中：{activeRun.run_id} · {activeRun.status}</Chip>}
+-            {list.error && <span className="text-rose-600">列表取数错误：{list.error}</span>}
++            {!batchMode && activeRun && <Chip tone="info">轮询中：{activeRun.run_id} · {activeRun.status}</Chip>}
++            {!batchMode && list.error && <span className="text-rose-600">列表取数错误：{list.error}</span>}
++            {batchMode && batchRunsLoading && <span className="text-neutral-500">读取批次 run…</span>}
+           </div>
+         }
+       >
+-        {/* 新旧归属：本列表仅含当前策略；旧策略 run 已退役并排除。
+-            常态（无被排除 run）**不刷横幅**，收成一行可展开说明；有被排除 run 才标黄提示。 */}
++        {/* 批次模式下这一行改成「本批次同源说明」：归属/退役是全局列表的概念，
++            放在批次视图里会让人以为批次内也有旧策略 run。 */}
++        {batchMode ? (
++          <div
++            className="text-[10px] text-neutral-500"
++            style={{ marginBottom: 8, fontFamily: 'var(--ds-mono)' }}
++            data-testid="lab-runs-batch-note"
++          >
++            本列表 = 批次 <b>{batchId ?? '—'}</b> 内的 run（`/batches/{'{id}'}/runs`）；
++            与上方汇总、批次逐笔同一个 batch_id。创建时间列该接口不返回 ⇒ 显示 —（不猜）。
++          </div>
++        ) : (
+         <details
+           className="ds-details"
+           style={{ marginBottom: 8 }}
+@@ -2083,6 +2352,7 @@ export const BacktestWorkbench: React.FC = () => {
+             </div>
+           </div>
+         </details>
++        )}
+ 
+         <div className="ds-tablewrap" style={{ maxHeight: '11rem' }}>
+             <table className={`ds-table ds-table--clickable${allCols.runs ? ' ds-table--all' : ''}`}>
+@@ -2104,7 +2374,7 @@ export const BacktestWorkbench: React.FC = () => {
+                 {displayedRuns.length === 0 ? (
+                   <tr>
+                     <td colSpan={allCols.runs ? 10 : 7} className="ds-table__empty">
+-                      {list.loading ? '读取中…' : '暂无实验记录'}
++                      {batchMode ? (batchRunsLoading ? '读取批次 run…' : '该批次没有 run 目录') : list.loading ? '读取中…' : '暂无实验记录'}
+                     </td>
+                   </tr>
+                 ) : (
+@@ -2122,10 +2392,10 @@ export const BacktestWorkbench: React.FC = () => {
+                         onClick={() => {
+                           didPick.current = true;
+                           setSelectedRunId(r.run_id);
+-                          const runTrade = allTradesData.find((t) => t.run_id === r.run_id);
+-                          if (runTrade) {
+-                            setSelectedTradeId(runTrade.trade_id);
+-                          }
++                          /* 只选**该 run 账本里真实存在**的成交号：先清空，
++                             等新 run 的逐笔到位后由「自动选中本 run 第一笔」接管。
++                             不再读 `all_trades.json`（旧批次快照，会串标的）。 */
++                          setSelectedTradeId(null);
+                         }}
+                         aria-selected={sel}
+                       >
+
+### UI界面/web/src/components/BacktestReviewView.tsx
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/BacktestReviewView.tsx" "b/UI\347\225\214\351\235\242/web/src/components/BacktestReviewView.tsx"
+index 5c945ec..3316d36 100644
+--- "a/UI\347\225\214\351\235\242/web/src/components/BacktestReviewView.tsx"
++++ "b/UI\347\225\214\351\235\242/web/src/components/BacktestReviewView.tsx"
+@@ -39,6 +39,7 @@ import {
+   ExternalLink,
+ } from 'lucide-react';
+ import { useEndpoint } from '../api/useEndpoint';
++import { exitReasonLabel } from '../utils/runMeta';
+ 
+ type GateStatus = 'pass' | 'fail' | 'partial' | 'blocked' | 'not_tested';
+ type ReviewTab = 'overview' | 'trades' | 'signals' | 'diagnostics';
+@@ -253,7 +254,7 @@ export const BacktestReviewView: React.FC = () => {
+         side: typeof t.direction === 'string' ? t.direction.toUpperCase() : '—',
+         entry: `${fmtTime(t.entry_time_ms)} (${px(t.entry_price)})`,
+         exit: `${fmtTime(t.exit_time_ms)} (${px(t.exit_price)})`,
+-        reason: t.exit_reason ?? '—',
++        reason: exitReasonLabel(t.exit_reason),
+         pnl: pnlNum,
+         pnl_str: pnlNum !== null ? `${pnlNum >= 0 ? '+' : ''}$${pnlNum.toFixed(2)}` : '—',
+         fees: t.fees,
+
+### UI界面/web/src/components/LabChartPanel.tsx
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/LabChartPanel.tsx" "b/UI\347\225\214\351\235\242/web/src/components/LabChartPanel.tsx"
+index e4df3b9..95a7c42 100644
+--- "a/UI\347\225\214\351\235\242/web/src/components/LabChartPanel.tsx"
++++ "b/UI\347\225\214\351\235\242/web/src/components/LabChartPanel.tsx"
+@@ -37,6 +37,10 @@ import {
+ } from './LightweightChart';
+ import type { Candle, Timeframe } from '../types/crypto';
+ import type { LabChart, LabChartTrade, LabOrderRow } from '../api/labBacktest';
++/* K 线归一化：数组元组 / 对象两种线上形态都收，唯一实现在 utils/candles.ts */
++import { normalizeCandle } from '../utils/candles';
++import { fmtPrice } from '../utils/labFormat';
++import { exitReasonLabel } from '../utils/runMeta';
+ 
+ /* ── 格式化（未知一律 '—'）────────────────────────────────────────────────── */
+ const fmtNum = (v: number | null | undefined, digits = 2): string =>
+@@ -140,40 +144,6 @@ export function bucketCandles(base: Candle[], baseTf: string, targetTf: string):
+   return out;
+ }
+ 
+-/**
+- * 归一化一根 K 线：线上实际是 `[t,o,h,l,c,v]` **数组元组**，源码里写的是对象。
+- * 两种都接受（见 `LabChartCandleTuple` 注释）；都不合法 ⇒ 返回 null（该根丢弃，不补 0）。
+- */
+-function normalizeCandle(raw: unknown): Candle | null {
+-  let t: unknown, o: unknown, h: unknown, l: unknown, c: unknown, v: unknown;
+-  if (Array.isArray(raw)) {
+-    [t, o, h, l, c, v] = raw;
+-  } else if (raw && typeof raw === 'object') {
+-    const r = raw as Record<string, unknown>;
+-    t = r.t;
+-    o = r.o;
+-    h = r.h;
+-    l = r.l;
+-    c = r.c;
+-    v = r.v;
+-  } else {
+-    return null;
+-  }
+-  if (!Number.isFinite(t) || (t as number) <= 0) return null;
+-  if (![o, h, l, c].every((x) => typeof x === 'number' && Number.isFinite(x))) return null;
+-  return {
+-    time: new Date(t as number).toISOString(),
+-    timestamp: t as number,
+-    open: o as number,
+-    high: h as number,
+-    low: l as number,
+-    close: c as number,
+-    volume: typeof v === 'number' && Number.isFinite(v) ? v : null,
+-    volumeUsd: null,
+-    isClosed: true,
+-  };
+-}
+-
+ /** 真实 chart.candles → 前端 `Candle`（`volumeUsd` 保持 null，不用名义额冒名）。 */
+ export function labCandlesToBars(chart: LabChart | null): Candle[] {
+   if (!chart?.candles) return [];
+@@ -238,6 +208,10 @@ function buildTradeMarkers(
+  * 这是「K 线 → 逐笔」链条的**第一环**：箱体突破那一刻的候选。没有它，
+  * 图上就只剩开/平仓两支箭头，看不出「为什么在这根开仓」。
+  *
++ * 与**成交点分开**（BT-UI-01）：信号用 `inBar` **方块**（落在 K 线实体内），
++ * 成交用 `aboveBar/belowBar` **箭头**（在 K 线上方/下方）。两者位置不同，
++ * 同一根 K 线上「先有候选、后有成交」不会被两支箭头叠在一起看糊。
++ *
+  * `t <= 0` 的一律丢弃（历史 run 的 `chart.signals` 曾被上游写死成 `t: 0`）——
+  * 宁可少画一个点，也不在错误的位置画一个假点。
+  */
+@@ -248,10 +222,10 @@ function buildSignalMarkers(chart: LabChart | null, tf: Timeframe = '1d'): Serie
+     out.push({
+       id: `sig-${s.t}`,
+       time: alignTimeToTf(s.t, tf) as unknown as Time,
+-      position: 'aboveBar',
+-      shape: 'circle',
++      position: 'inBar',
++      shape: 'square',
+       color: '#3b6ef6',
+-      text: s.kind === 'box_breakout' ? '箱体突破' : '候选',
++      text: s.kind === 'box_breakout' ? '候选' : '信号',
+       size: 1,
+     });
+   }
+@@ -583,6 +557,16 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
+           >
+             {viewport ? `视窗 ${fmtUtc(viewport.fromMs)} → ${fmtUtc(viewport.toMs)}` : ''}
+           </span>
++          {/* 读时重建标注：这份载荷不是 run 目录里的原始 chart.json（原文件缺失） */}
++          {chart?.derived_from && (
++            <span
++              className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px]"
++              data-testid="lab-chart-derived"
++              title={chart.derived_from}
++            >
++              读时重建 · 非原始 chart.json
++            </span>
++          )}
+         </div>
+       </div>
+ 
+@@ -599,12 +583,21 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
+         )}
+         {noFixedTp === null && <span className="text-neutral-400">止盈规则字段缺失 ⇒ 不做假设</span>}
+         <span className="text-neutral-500 flex flex-wrap items-center gap-x-2">
+-          <span>▲ 开仓</span>
+-          <span>▼ 平仓</span>
++          <span className="text-blue-700" title="候选信号（箱体突破）：落在 K 线实体内，与成交箭头分开">
++            ■ 候选信号
++          </span>
++          <span title="真实成交：开仓箭头">▲ 开仓</span>
++          <span title="真实成交：平仓箭头">▼ 平仓</span>
+           <span className="text-amber-700">— 保护止损</span>
+           <span className="text-indigo-700">● C_entry</span>
+           <span className="text-violet-700">● D_intrabar</span>
+           <span className="text-neutral-500">● EOD</span>
++          <span
++            className="text-neutral-400"
++            title="图表横轴与所有时间读数均为 UTC；北京时间 = UTC + 8 小时（表格同口径）"
++          >
++            时间轴 UTC（北京 = UTC+8）
++          </span>
+         </span>
+         {/* 时间精度：bar 级假设如实显示（行内折叠，口径不删、不占高） */}
+         {chart?.time_precision && (
+@@ -631,20 +624,20 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
+         {hoveredBar ? (
+           <>
+             <span className="text-neutral-500">时刻 {fmtUtc(hoveredBar.timestamp)} UTC</span>
+-            <span>开 <b className="text-neutral-100">{fmtNum(hoveredBar.open, 2)}</b></span>
+-            <span>高 <b className="text-neutral-100">{fmtNum(hoveredBar.high, 2)}</b></span>
+-            <span>低 <b className="text-neutral-100">{fmtNum(hoveredBar.low, 2)}</b></span>
++            <span>开 <b className="text-neutral-100">{fmtPrice(hoveredBar.open)}</b></span>
++            <span>高 <b className="text-neutral-100">{fmtPrice(hoveredBar.high)}</b></span>
++            <span>低 <b className="text-neutral-100">{fmtPrice(hoveredBar.low)}</b></span>
+             <span>
+               收 <b className={(hoveredBar.close ?? 0) >= (hoveredBar.open ?? 0) ? 'text-emerald-600' : 'text-rose-600'}>
+-                {fmtNum(hoveredBar.close, 2)}
++                {fmtPrice(hoveredBar.close)}
+               </b>
+             </span>
+             <span>量（base） <b className="text-neutral-100">{fmtVolume(hoveredBar.volume)}</b></span>
+             {hoveredSignal ? (
+               <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                 真实信号：{hoveredSignal.kind} / {hoveredSignal.direction}
+-                {hoveredSignal.stop_price !== null ? ` · 止损 ${fmtNum(hoveredSignal.stop_price, 2)}` : ''}
+-                {hoveredSignal.atr !== null ? ` · ATR ${fmtNum(hoveredSignal.atr, 2)}` : ''}
++                {hoveredSignal.stop_price !== null ? ` · 止损 ${fmtPrice(hoveredSignal.stop_price)}` : ''}
++                {hoveredSignal.atr !== null ? ` · ATR ${fmtPrice(hoveredSignal.atr)}` : ''}
+                 {hoveredSignal.oi_quality ? ` · OI ${hoveredSignal.oi_quality}` : ''}
+               </span>
+             ) : (
+@@ -688,15 +681,15 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
+       {selectedTrade && (
+         <div className="px-3 py-1.5 border-t border-neutral-200 bg-neutral-50 text-[10px] font-mono flex flex-wrap gap-x-4 gap-y-1">
+           <span className="text-emerald-700 font-semibold">已选中 {selectedTrade.trade_id}</span>
+-          <span>entry {fmtUtc(selectedTrade.entry.t)} @ {fmtNum(selectedTrade.entry.price, 4)}</span>
++          <span>entry {fmtUtc(selectedTrade.entry.t)} @ {fmtPrice(selectedTrade.entry.price)}</span>
+           <span>
+-            exit {fmtUtc(selectedTrade.exit.t)} @ {fmtNum(selectedTrade.exit.price, 4)}（{selectedTrade.exit.reason}）
++            exit {fmtUtc(selectedTrade.exit.t)} @ {fmtPrice(selectedTrade.exit.price)}（{exitReasonLabel(selectedTrade.exit.reason)}）
+           </span>
+           <span>
+             止损轨迹 {stopTraceInfo?.n ?? 0} 点
+             {stopTraceInfo?.n === 0 && '（账本无止损点 ⇒ 不合成）'}
+             {stopTraceInfo?.n === 1 &&
+-              `（仅初始止损 ${fmtNum(stopTraceInfo.init, 4)}，无后续调整 ⇒ 不合成轨迹）`}
++              `（仅初始止损 ${fmtPrice(stopTraceInfo.init)}，无后续调整 ⇒ 不合成轨迹）`}
+             {stopTraceInfo !== null && stopTraceInfo.n > 1 &&
+               `（含 ${stopTraceInfo.adjustments} 次调整）`}
+           </span>
+
+### UI界面/web/src/components/LightweightChart.tsx
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/LightweightChart.tsx" "b/UI\347\225\214\351\235\242/web/src/components/LightweightChart.tsx"
+index 922f718..b219fd7 100644
+--- "a/UI\347\225\214\351\235\242/web/src/components/LightweightChart.tsx"
++++ "b/UI\347\225\214\351\235\242/web/src/components/LightweightChart.tsx"
+@@ -71,6 +71,12 @@ import {
+ } from 'lightweight-charts';
+ import type { Candle, OIPoint, Timeframe } from '../types/crypto';
+ import { formatWanYi } from '../utils/formatters';
++import {
++  LIGHT_PALETTE,
++  useChartPalette,
++  withAlpha,
++  type ChartPalette,
++} from '../design/chartTheme';
+ 
+ /** TradingView Lightweight Charts™ 署名（Apache-2.0）。 */
+ export const LIGHTWEIGHT_CHARTS_ATTRIBUTION = {
+@@ -91,54 +97,24 @@ export const TIMEFRAME_SECONDS: Record<Timeframe, number> = {
+ };
+ 
+ /**
+- * 浅色清爽风下的官方库配色。
++ * 图表调色板（2026-10-17 双主题改造）
++ * ----------------------------------------------------------------------------
++ * 颜色不再写在本文件里：全部来自 `--ds-chart-*` 令牌，由 `design/chartTheme.ts`
++ * 读出后经 `useChartPalette()` 注入。主题切换时该 hook 会重算，组件用
++ * `applyOptions` 热切换 —— **不重建图表实例**，缩放位置、十字线、已加载数据全部保留。
++ *
++ * `LIGHT_PALETTE` 只作为「读不到 CSS 变量」时的兜底（单测 / 无 DOM 环境），
++ * 逐值与改造前一致，因此浅色主题零回归。
+  *
+- * 口径**完全沿用原版**（涨绿跌红、多绿空红），只把明度从「深底可读」调到
+- * 「浅底可读」：底色由 #0d0d0d 改为 #ffffff，网格/坐标轴/文字改为浅灰系，
+- * 蜡烛与成交量保持同一色相、提高饱和度以保证在白色背景上的对比度。
+- * 未收盘临时层仍用琥珀色单根标识，语义未变。
++ * 口径未变：涨绿跌红（阳线绿 / 阴线红）；未收盘临时层用琥珀色单根标识；
++ * OI 柱形统一单色（见 `buildOiBars`），颜色不承载方向或增减语义。
+  */
+-const COLOR = {
+-  up: '#0b8a5e',
+-  down: '#d92d48',
+-  /**
+-   * 中性灰。**当前无引用**：原为 OI 柱形三态着色（涨 / 跌 / 中性）里的「中性」一档，
+-   * 柱色改为统一单色（`oiBar`）后不再需要；保留此键仅作调色板记录。
+-   */
+-  neutral: '#8491a5',
+-  /** 未收盘临时层：单根独立颜色（库无虚线蜡烛样式，故用颜色 + 文字标识区分） */
+-  forming: '#ad6800',
+-  /** 原手写 SVG 的「信号触发标记」颜色（#6366f1 圆点 + 竖线），改用官方 markers 保留 */
+-  signalMarker: '#4f5bd5',
+-  gridHorz: '#e7ecf3',
+-  gridVert: '#eef2f8',
+-  text: '#586880',
+-  border: '#d4dbe6',
+-  /**
+-   * OI 总量柱形的**单一颜色**（口径见 `buildOiBars`）。
+-   *
+-   * 2026-10-12 用户指令「OI 总持仓量柱形图用绿色，别用灰色」⇒ 由中性蓝灰
+-   * `#5b6b85` 改为**绿色**（与本文件「涨」色同值 `COLOR.up`），与图例色块同源。
+-   *
+-   * 语义边界**未变**：仍然是**所有柱同一个颜色**，颜色不承载任何语义 ——
+-   * 不表示多空方向、也不表示环比增减。这里改用绿色只是配色选择（强调色），
+-   * 不是「按涨跌/方向着色」；柱高依旧只表达「总量」这一个量。
+-   *
+-   * 为什么不能按涨跌 / 方向着色（原判断保留）：
+-   *   · 后端只给**总持仓量**（数量 + 名义额），**没有多空拆分**；OI 是净额、
+-   *     多空恒等，OI 增加 = 新开合约（新多 + 新空同时进场），OI 减少 = 合约平掉，
+-   *     与「多头 / 空头」无关 ⇒ 用红/绿**两色**会被读成多空，是误读；
+-   *   · 同屏 K 线蜡烛也用红绿表示**价格**涨跌，同色不同义必然混淆。
+-   */
+-  oiBar: '#0b8a5e',
+-  background: '#ffffff',
+-} as const;
+ 
+ /**
+  * OI 柱形的单一柱色，供面板标题前的图例色块复用（避免图例与柱色对不上）。
+  * 语义见上方 `COLOR.oiBar`：柱色不承载方向 / 增减。
+  */
+-export const OI_BAR_COLOR = COLOR.oiBar;
++export const OI_BAR_COLOR = 'var(--ds-chart-oi)';
+ 
+ /** 价格轴起始最小宽度：最终由 `alignPriceScaleWidths` 按两图实际需要对齐。 */
+ const PRICE_SCALE_MIN_WIDTH = 72;
+@@ -151,42 +127,79 @@ const PRICE_SCALE_MIN_WIDTH = 72;
+  */
+ const OI_BASE_MARGIN = 0.12;
+ 
+-const BASE_OPTIONS: DeepPartial<ChartOptions> = {
+-  autoSize: true,
+-  layout: {
+-    background: { type: ColorType.Solid, color: COLOR.background },
+-    textColor: COLOR.text,
+-    // 图内 TradingView 图标（`a#tv-attr-logo`，35×19px SVG）**已按用户要求关闭**
+-    // （2026-10-12：用户反馈「鼠标停留几秒会弹出图标/说明，删掉」）。
+-    //
+-    // 署名合规性未受影响：库 README 的要求是「在页面上放一个指向
+-    // https://www.tradingview.com/ 的链接」，并说明 `attributionLogo` 只是**其中一种**
+-    // 满足方式。本页在展开图表工具栏里始终渲染可见文本链接
+-    // `LIGHTWEIGHT_CHARTS_ATTRIBUTION`（→ tradingview.com/lightweight-charts/），
+-    // 因此关掉图内图标后，链接署名依然在页面上存在。
+-    attributionLogo: false,
+-  },
+-  grid: {
+-    vertLines: { color: COLOR.gridVert },
+-    horzLines: { color: COLOR.gridHorz },
+-  },
+-  crosshair: {
+-    mode: CrosshairMode.Normal,
+-    vertLine: { color: '#94a3b8', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#334155' },
+-    horzLine: { color: '#94a3b8', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#334155' },
+-  },
+-  rightPriceScale: { borderColor: COLOR.border, minimumWidth: PRICE_SCALE_MIN_WIDTH },
+-  timeScale: {
+-    borderColor: COLOR.border,
+-    timeVisible: true,
+-    secondsVisible: false,
+-    // 两图同为 0：右侧不留空档，K 线与 OI 的可见时间窗与横坐标严格一一对应
+-    rightOffset: 0,
+-  },
+-  // 滚轮缩放 / 拖动平移 / 捏合缩放全部走库原生实现
+-  handleScroll: true,
+-  handleScale: true,
+-};
++/** 由调色板生成图表基础配置。每次主题变化都会重新生成并 applyOptions。 */
++function baseOptions(p: ChartPalette): DeepPartial<ChartOptions> {
++  return {
++    autoSize: true,
++    layout: {
++      background: { type: ColorType.Solid, color: p.background },
++      textColor: p.text,
++      // 图内 TradingView 图标（`a#tv-attr-logo`，35×19px SVG）**已按用户要求关闭**
++      // （2026-10-12：用户反馈「鼠标停留几秒会弹出图标/说明，删掉」）。
++      //
++      // 署名合规性未受影响：库 README 的要求是「在页面上放一个指向
++      // https://www.tradingview.com/ 的链接」，并说明 `attributionLogo` 只是**其中一种**
++      // 满足方式。本页在展开图表工具栏里始终渲染可见文本链接
++      // `LIGHTWEIGHT_CHARTS_ATTRIBUTION`（→ tradingview.com/lightweight-charts/），
++      // 因此关掉图内图标后，链接署名依然在页面上存在。
++      attributionLogo: false,
++    },
++    grid: {
++      vertLines: { color: p.gridVert },
++      horzLines: { color: p.gridHorz },
++    },
++    crosshair: {
++      mode: CrosshairMode.Normal,
++      vertLine: {
++        color: p.crosshair,
++        width: 1,
++        style: LineStyle.Dashed,
++        labelBackgroundColor: p.crosshairLabel,
++      },
++      horzLine: {
++        color: p.crosshair,
++        width: 1,
++        style: LineStyle.Dashed,
++        labelBackgroundColor: p.crosshairLabel,
++      },
++    },
++    rightPriceScale: { borderColor: p.border, minimumWidth: PRICE_SCALE_MIN_WIDTH },
++    timeScale: {
++      borderColor: p.border,
++      timeVisible: true,
++      secondsVisible: false,
++      // 两图同为 0：右侧不留空档，K 线与 OI 的可见时间窗与横坐标严格一一对应
++      rightOffset: 0,
++      /**
++       * 横轴刻度**显式按 UTC 渲染**（BT-UI-01）。
++       *
++       * 为什么必须显式：官方库默认格式化器按**浏览器本地时区**取时分
++       * ⇒ 同一根 K 线在表里写「08:00 UTC」、在轴上画「16:00」（北京）——
++       * 用户按轴上的时间对账必然错位 8 小时。
++       * 这里统一用 `getUTC*`，与表格列头「(UTC)」同口径。
++       */
++      tickMarkFormatter: ((time: unknown) => {
++        let ms: number | null = null;
++        if (typeof time === 'number') {
++          ms = time * 1000;
++        } else if (time && typeof time === 'object' && 'year' in (time as Record<string, unknown>)) {
++          const d = time as { year: number; month: number; day: number };
++          ms = Date.UTC(d.year, d.month - 1, d.day);
++        }
++        if (ms === null || !Number.isFinite(ms)) return '';
++        const dt = new Date(ms);
++        const p = (n: number) => String(n).padStart(2, '0');
++        const intraday = dt.getUTCHours() !== 0 || dt.getUTCMinutes() !== 0;
++        return intraday
++          ? `${p(dt.getUTCMonth() + 1)}-${p(dt.getUTCDate())} ${p(dt.getUTCHours())}:${p(dt.getUTCMinutes())}`
++          : `${p(dt.getUTCMonth() + 1)}-${p(dt.getUTCDate())}`;
++      }) as never,
++    },
++    // 滚轮缩放 / 拖动平移 / 捏合缩放全部走库原生实现
++    handleScroll: true,
++    handleScale: true,
++  };
++}
+ 
+ /**
+  * 毫秒 → 官方库要求的 **UTC 秒**（`UTCTimestamp`，必须为有限非负整数）。
+@@ -282,16 +295,16 @@ export function mergeSortedUnique(left: number[], right: number[]): number[] {
+ }
+ 
+ /** 真实成交量 → 官方 HistogramData（缺成交量留空；颜色沿用涨绿跌红）。 */
+-export function buildVolumeData(bars: Candle[]): HistogramData[] {
++export function buildVolumeData(bars: Candle[], p: ChartPalette = LIGHT_PALETTE): HistogramData[] {
+   const out: HistogramData[] = [];
+   for (const candle of sortUniqueByTime(bars)) {
+     if (!isFiniteNumber(candle.volume)) continue; // 留空
+     let color: string;
+-    if (!candle.isClosed) color = 'rgba(173, 104, 0, 0.45)';
+-    else if (!hasOhlc(candle)) color = 'rgba(132, 145, 165, 0.40)';
++    if (!candle.isClosed) color = withAlpha(p.forming, 0.45);
++    else if (!hasOhlc(candle)) color = withAlpha(p.neutral, 0.4);
+     else color = (candle.close as number) >= (candle.open as number)
+-      ? 'rgba(11, 138, 94, 0.45)'
+-      : 'rgba(217, 45, 72, 0.45)';
++      ? withAlpha(p.up, 0.45)
++      : withAlpha(p.down, 0.45);
+     out.push({ time: toChartSeconds(candle.timestamp), value: candle.volume, color });
+   }
+   return out;
+@@ -306,7 +319,7 @@ export function buildVolumeData(bars: Candle[]): HistogramData[] {
+  * 后端 `annotations` 当前恒为空（`adaptCandles` 里 `signalTag: undefined`），
+  * 因此实际不产生标记；一旦后端提供标注即自动生效，不伪造、不推断。
+  */
+-export function buildSignalMarkers(bars: Candle[]): SeriesMarker<Time>[] {
++export function buildSignalMarkers(bars: Candle[], p: ChartPalette = LIGHT_PALETTE): SeriesMarker<Time>[] {
+   const out: SeriesMarker<Time>[] = [];
+   for (const candle of sortUniqueByTime(bars)) {
+     if (!candle.signalTag || !hasOhlc(candle)) continue;
+@@ -314,7 +327,7 @@ export function buildSignalMarkers(bars: Candle[]): SeriesMarker<Time>[] {
+       time: toChartSeconds(candle.timestamp),
+       position: 'aboveBar',
+       shape: 'circle',
+-      color: COLOR.signalMarker,
++      color: p.signalMarker,
+     });
+   }
+   return out;
+@@ -348,7 +361,11 @@ export interface OiBarData {
+  *    柱高只表达「总量」这一个量；增减请从柱高变化、或 tooltip 的环比数值读取。
+  *  - 真实样本一律原样保留：不聚合、不改写、不重采样、不伪造时间。
+  */
+-export function buildOiBars(points: OIPoint[], unit: 'amount' | 'usd'): OiBarData {
++export function buildOiBars(
++  points: OIPoint[],
++  unit: 'amount' | 'usd',
++  p: ChartPalette = LIGHT_PALETTE,
++): OiBarData {
+   const bars: HistogramData[] = [];
+   const sampleTimes: number[] = [];
+   for (const point of sortUniqueByTime(points)) {
+@@ -359,7 +376,7 @@ export function buildOiBars(points: OIPoint[], unit: 'amount' | 'usd'): OiBarDat
+      * 未对齐时用真实时点。数值仍是真实快照，只是横坐标对齐到周期边界。
+      */
+     const time = toChartSeconds(point.alignedTimestamp ?? point.timestamp);
+-    bars.push({ time, value, color: COLOR.oiBar });
++    bars.push({ time, value, color: p.oiBar });
+     sampleTimes.push(time);
+   }
+   return { bars, sampleTimes };
+@@ -831,6 +848,14 @@ function useChartLifecycle(
+ 
+   const onHoverRef = useRef(onHover);
+   onHoverRef.current = onHover;
++
++  /**
++   * 图表调色板：随主题重算。`build` 只在挂载时跑一次，因此这里用 ref 取当前值，
++   * 不把 palette 放进 build 的依赖 —— 否则每次切主题都会重建图表实例、丢掉缩放。
++   */
++  const palette = useChartPalette();
++  const paletteRef = useRef(palette);
++  paletteRef.current = palette;
+   const onReadyRef = useRef(onReady);
+   onReadyRef.current = onReady;
+   const onViewportChangeRef = useRef(onViewportChange);
+@@ -905,7 +930,7 @@ function useChartLifecycle(
+     const container = containerRef.current;
+     if (!container) return undefined;
+ 
+-    const chart = createChart(container, BASE_OPTIONS);
++    const chart = createChart(container, baseOptions(paletteRef.current));
+     const built = build(chart);
+     chartRef.current = chart;
+     seriesRef.current = built.series;
+@@ -1028,6 +1053,15 @@ function useChartLifecycle(
+     // build / syncHub / role / viewKey 均为调用方稳定引用（build 由 useCallback 固定）
+   }, [build, scheduleReport, syncHub, followToleranceSec, role, markProgrammatic]);
+ 
++  /**
++   * 主题热切换（chart 级）：底色 / 网格 / 坐标轴 / 十字线。
++   * series 级颜色（蜡烛、成交量柱、标记、OI 柱）由各 inner 组件自己重设 ——
++   * 那些是**数据级**颜色，applyOptions 管不到。
++   */
++  useEffect(() => {
++    chartRef.current?.applyOptions(baseOptions(palette));
++  }, [palette]);
++
+   return useMemo(
+     () => ({
+       containerRef,
+@@ -1196,15 +1230,21 @@ const CandleVolumeChartInner: React.FC<CandleVolumeChartProps> = ({
+   const onHoverRef = useRef(onHover);
+   onHoverRef.current = onHover;
+ 
++  /** 本组件的调色板（series 级颜色用；chart 级由 useChartLifecycle 统一处理） */
++  const palette = useChartPalette();
++  const paletteRef = useRef(palette);
++  paletteRef.current = palette;
++
+   const build = useCallback(
+     (chart: IChartApi) => {
++      const p = paletteRef.current;
+       const candleSeries = chart.addSeries(CandlestickSeries, {
+-        upColor: COLOR.up,
+-        downColor: COLOR.down,
+-        borderUpColor: COLOR.up,
+-        borderDownColor: COLOR.down,
+-        wickUpColor: COLOR.up,
+-        wickDownColor: COLOR.down,
++        upColor: p.up,
++        downColor: p.down,
++        borderUpColor: p.up,
++        borderDownColor: p.down,
++        wickUpColor: p.up,
++        wickDownColor: p.down,
+         priceLineVisible: false,
+         lastValueVisible: true,
+       });
+@@ -1304,6 +1344,50 @@ const CandleVolumeChartInner: React.FC<CandleVolumeChartProps> = ({
+     };
+   }, [priceLines, lifecycle.seriesRef.current, viewKey]);
+ 
++  /**
++   * 主题热切换：只改样式，**不重建实例**。
++   *
++   * 三件事必须都做，少一件就会出现「底色变了但蜡烛还是上一套颜色」：
++   *   ① chart.applyOptions —— 底/网格/坐标轴/十字线；
++   *   ② candleSeries.applyOptions —— 蜡烛与影线四色；
++   *   ③ volumeSeries.setData + markers.setMarkers —— 柱色与标记色是**数据级**
++   *      颜色，不走 applyOptions，必须重新下发。
++   */
++  useEffect(() => {
++    const chart = lifecycle.chartRef.current;
++    if (!chart) return;
++    const p = palette;
++    chart.applyOptions(baseOptions(p));
++
++    const candleSeries = lifecycle.seriesRef.current as ISeriesApi<'Candlestick'> | null;
++    if (candleSeries) {
++      candleSeries.applyOptions({
++        upColor: p.up,
++        downColor: p.down,
++        borderUpColor: p.up,
++        borderDownColor: p.down,
++        wickUpColor: p.up,
++        wickDownColor: p.down,
++      });
++    }
++
++    const volumeSeries = volumeRef.current;
++    if (volumeSeries) {
++      const volumeData = buildVolumeData(bars, p);
++      volumeSeries.setData(volumeData);
++      lastVolumeDataRef.current = volumeData;
++    }
++
++    const markerData = extraMarkers && extraMarkers.length > 0
++      ? [...buildSignalMarkers(bars, p), ...extraMarkers].sort(
++          (a, b) => Number(a.time) - Number(b.time),
++        )
++      : buildSignalMarkers(bars, p);
++    safeTimeScaleCall(() => markersRef.current?.setMarkers(markerData));
++    // 只在主题变化时跑；bars / extraMarkers 的更新由下一个 effect 负责
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [palette]);
++
+   // 数据更新：不重建图表、不强制 fitContent（除首次 / 切周期外）
+   useEffect(() => {
+     const chart = lifecycle.chartRef.current;
+@@ -1313,15 +1397,15 @@ const CandleVolumeChartInner: React.FC<CandleVolumeChartProps> = ({
+     if (!chart || !candleSeries || !volumeSeries || !gridSeries) return;
+ 
+     const candleData = buildCandleData(bars);
+-    const volumeData = buildVolumeData(bars);
++    const volumeData = buildVolumeData(bars, paletteRef.current);
+     const gridData = buildGridAnchor(gridTimes, buildCandleGrid(bars));
+     // 标记 = signalTag 派生的真实标记（默认唯一来源）+ 调用方传入的**可选**额外标记。
+     // 两段各自升序；合并后按时间升序（官方 markers 插件要求时间升序）。
+     const markerData = extraMarkers && extraMarkers.length > 0
+-      ? [...buildSignalMarkers(bars), ...extraMarkers].sort(
++      ? [...buildSignalMarkers(bars, paletteRef.current), ...extraMarkers].sort(
+           (a, b) => Number(a.time) - Number(b.time),
+         )
+-      : buildSignalMarkers(bars);
++      : buildSignalMarkers(bars, paletteRef.current);
+     const bySec = new Map<number, Candle>();
+     for (const candle of bars) {
+       if (Number.isFinite(candle.timestamp) && candle.timestamp > 0) {
+@@ -1476,6 +1560,11 @@ const OiBarChartInner: React.FC<OiBarChartProps> = ({
+   const onHoverRef = useRef(onHover);
+   onHoverRef.current = onHover;
+ 
++  /** 调色板（OI 柱色是数据级颜色，主题变化需重新下发 setData） */
++  const palette = useChartPalette();
++  const paletteRef = useRef(palette);
++  paletteRef.current = palette;
++
+   const build = useCallback(
+     (chart: IChartApi) => {
+       /**
+@@ -1504,6 +1593,19 @@ const OiBarChartInner: React.FC<OiBarChartProps> = ({
+     [],
+   );
+ 
++  /**
++   * 主题热切换：OI 柱色写在**数据**里（buildOiBars 逐点给色），
++   * applyOptions 改不到，必须整表重下。数值未变，只是颜色换了。
++   */
++  useEffect(() => {
++    const barSeries = barSeriesRef.current;
++    if (!barSeries) return;
++    const { bars } = buildOiBars(points, unit, palette);
++    barSeries.setData(bars);
++    lastBarsRef.current = bars;
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [palette]);
++
+   const lifecycle = useChartLifecycle(
+     build,
+     followToleranceRef,
+@@ -1608,9 +1710,12 @@ const OiBarChartInner: React.FC<OiBarChartProps> = ({
+       lastGridRef.current = [];
+       // 新实例上的柱序列是全新的（base 回到库默认 0）→ 基线缓存一并作废，等下一轮重算
+       oiBaseRef.current = null;
++      // 价格格式同理：新序列没有继承任何 priceFormat，档位缓存必须作废，
++      // 否则「档位没变」会让下面的 applyOptions 整段跳过，轴又退回原始数字
++      lastFormatKeyRef.current = '';
+     }
+ 
+-    const { bars, sampleTimes } = buildOiBars(points, unit);
++    const { bars, sampleTimes } = buildOiBars(points, unit, paletteRef.current);
+     const gridData = buildGridAnchor(gridTimes, sampleTimes);
+     const bySec = new Map<number, OIPoint>();
+     for (const point of points) {
+@@ -1679,13 +1784,27 @@ const OiBarChartInner: React.FC<OiBarChartProps> = ({
+     const formatKey = `${format.precision}:${format.minMove}:wanyi`;
+     if (lastFormatKeyRef.current !== formatKey) {
+       lastFormatKeyRef.current = formatKey;
+-      barSeries.applyOptions({
+-        priceFormat: {
+-          type: 'custom',
+-          minMove: format.minMove,
+-          formatter: (price: number) => formatWanYi(price, '', 2),
+-        },
+-      });
++      const priceFormat = {
++        type: 'custom' as const,
++        minMove: format.minMove,
++        formatter: (price: number) => formatWanYi(price, '', 2),
++      };
++      barSeries.applyOptions({ priceFormat });
++      /**
++       * ⚠ 价格轴的格式**只认一个序列**，必须同时下发给网格锚点序列。
++       *
++       * 官方库 `PriceScale._internal_updateFormatter()` 的取法是：
++       * 遍历该价格轴上的数据源，取 **zorder 最小**者作 `formatterSource`；
++       * 同 zorder（默认全为 0）时按**加入顺序**先到先得。本图的网格锚点序列
++       * 是在 `build()` 里先 `addSeries` 的，因此它才是格式来源。
++       *
++       * 它只承载 whitespace（没有任何数值），不给它同一份 `priceFormat` 时，
++       * 柱序列上设的格式**永远不会出现在轴上** —— 实测切到「名义额 USD」后
++       * 轴刻度仍是 `7745111887.20`、末值标签 `7680173922.62` 这样的原始数字，
++       * 直接违反「按万/亿显示」口径（2026-10-17 修复）。
++       * 网格序列不可见且无值，设格式对它自身零影响。
++       */
++      gridSeries.applyOptions({ priceFormat });
+     }
+ 
+     // 网格锚点先落位，再落真实柱（柱形天然断柱：缺口/空值处没有柱，无需分段）
+

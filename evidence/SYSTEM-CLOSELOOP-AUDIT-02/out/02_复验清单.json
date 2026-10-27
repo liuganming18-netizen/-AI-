@@ -1,0 +1,1428 @@
+{
+ "生成时刻": "2026-10-22T20:47:11+08:00",
+ "AUDIT01冻结时刻": "2026-10-22T19:15:33+08:00",
+ "判据说明": {
+  "受修改影响": "条目的依赖文件集 ∩ 代码变动集 ≠ ∅ ⇒ 该条上一轮结论作废，必须重跑",
+  "依赖数据已变": "条目读纸面账本，而账本 cash 或已实现行数与 AUDIT-01 记录不一致 ⇒ 必须重跑",
+  "不受影响": "仅表示被审代码未变；**不等于结论仍有效**，仍需运行态（进程启动时刻）确认"
+ },
+ "代码变动": {
+  "变动": [
+   {
+    "文件": "框架/backend/live_api.py",
+    "AUDIT01_sha": "461b1a4f870e",
+    "当前_sha": "febe7180e444",
+    "AUDIT01_字节": 94593,
+    "当前_字节": 95561,
+    "当前_mtime": "2026-10-22T20:24:51+08:00"
+   },
+   {
+    "文件": "框架/backend/paper_engine.py",
+    "AUDIT01_sha": "21b16594994c",
+    "当前_sha": "1a300ea8dc81",
+    "AUDIT01_字节": 106119,
+    "当前_字节": 109248,
+    "当前_mtime": "2026-10-22T20:23:36+08:00"
+   },
+   {
+    "文件": "框架/backend/live_store.py",
+    "AUDIT01_sha": "80d6e86773cb",
+    "当前_sha": "bf6a08ef71a6",
+    "AUDIT01_字节": 37474,
+    "当前_字节": 38355,
+    "当前_mtime": "2026-10-22T20:22:09+08:00"
+   },
+   {
+    "文件": "框架/backend/backtest_store.py",
+    "AUDIT01_sha": "035b65f149ba",
+    "当前_sha": "c5ff646b019d",
+    "AUDIT01_字节": 39085,
+    "当前_字节": 41690,
+    "当前_mtime": "2026-10-22T19:21:19+08:00"
+   },
+   {
+    "文件": "UI界面/web/src/App.tsx",
+    "AUDIT01_sha": "42821e76da80",
+    "当前_sha": "f3088cd3de85",
+    "AUDIT01_字节": 19346,
+    "当前_字节": 18978,
+    "当前_mtime": "2026-10-22T19:22:51+08:00"
+   },
+   {
+    "文件": "UI界面/web/src/components/SignalListPanel.tsx",
+    "AUDIT01_sha": "c099bc265ca7",
+    "当前_sha": "2737c4451a13",
+    "AUDIT01_字节": 31366,
+    "当前_字节": 32372,
+    "当前_mtime": "2026-10-22T20:26:34+08:00"
+   },
+   {
+    "文件": "UI界面/web/src/components/StrategyManagementView.tsx",
+    "AUDIT01_sha": "d2cfcb62e91b",
+    "当前_sha": "a909bdcb4d63",
+    "AUDIT01_字节": 17551,
+    "当前_字节": 25824,
+    "当前_mtime": "2026-10-22T20:26:21+08:00"
+   }
+  ],
+  "未变数": 22
+ },
+ "数据侧": {
+  "纸面账本": {
+   "3a_cash": 4995.6545447261005,
+   "3a_realized行数": 3,
+   "3a_position行数": 3,
+   "AUDIT01_cash": 4995.65454473,
+   "AUDIT01_realized行数": 3,
+   "表清单": [
+    "paper_account",
+    "paper_blocked",
+    "paper_command",
+    "paper_correction",
+    "paper_equity",
+    "paper_fill",
+    "paper_funding",
+    "paper_funding_correction",
+    "paper_funding_gap",
+    "paper_order",
+    "paper_pending",
+    "paper_position",
+    "paper_processed",
+    "paper_prompt",
+    "paper_realized",
+    "paper_request_anchor",
+    "paper_state",
+    "paper_stop_history",
+    "sqlite_sequence"
+   ],
+   "AUDIT01之后新增表": [
+    "paper_request_anchor",
+    "paper_stop_history"
+   ],
+   "账本是否变动": false
+  },
+  "生产闸门": {
+   "sha": "7ec45d78a016",
+   "allow_new_entries": false,
+   "set_by": "system_closeloop_02_safety_guard",
+   "reason": "system_closeloop_02_paused_for_audit",
+   "mtime": "2026-10-22T20:18:50+08:00"
+  }
+ },
+ "统计": {
+  "条目总数": 59,
+  "上轮27项": {
+   "通过": 13,
+   "不通过": 3,
+   "未验证": 11
+  },
+  "13项通过中受代码修改影响": 7,
+  "13项通过中不受影响": 6,
+  "受影响明细": [
+   "W1",
+   "W6",
+   "W8",
+   "B1",
+   "B2",
+   "B3",
+   "B4"
+  ],
+  "不受影响明细": [
+   "D1",
+   "D4",
+   "D5",
+   "D6",
+   "D7",
+   "D8"
+  ],
+  "代码变动文件数": "7/29",
+  "代码变动文件": [
+   "框架/backend/live_api.py",
+   "框架/backend/paper_engine.py",
+   "框架/backend/live_store.py",
+   "框架/backend/backtest_store.py",
+   "UI界面/web/src/App.tsx",
+   "UI界面/web/src/components/SignalListPanel.tsx",
+   "UI界面/web/src/components/StrategyManagementView.tsx"
+  ],
+  "账本是否变动": false,
+  "闸门是否变动": true
+ },
+ "条目": [
+  {
+   "id": "L5",
+   "组": "① 交易因果",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api",
+    "paper_engine",
+    "live_store"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）",
+    "live/paper_new_entry_gate.json（生产闸门）"
+   ],
+   "复验方法": "隔离实例发起开仓，比对三处时间：服务端接收锚点（now_ms 写入时刻）、数据可用时间（K 线 available_at）、成交时间（fill.ts）。要求 成交时间 >= max(接收锚点, 数据可用时间)",
+   "判据": "对每一笔成交：fill_ms - 服务端接收时刻 >= 0 且 fill_ms 对应的 15m 桶起点+5m <= 决策时刻；任一为负即不通过",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本；不得用生产库",
+   "备注": "上一轮缺陷：成交可早于请求时刻",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L5b",
+   "组": "① 交易因果",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "读源码：写入口是否还从请求体读 requested_at / now_ms",
+   "判据": "全后端 payload 取值里不得出现 requested_at / now_ms 参与成交时钟；出现即不通过",
+   "隔离条件": "只读源码，不需实例",
+   "备注": "上一轮根因条目",
+   "受影响文件": [
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C1a",
+   "组": "① 交易因果",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_api",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "隔离实例用真实时钟开仓，观察是否登记挂单而非立即成交",
+   "判据": "返回 pending，且未产生 fill 行；下一根 15m 收盘后才成交",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "需重跑：live_api/paper_engine 均已变",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C1b",
+   "组": "① 交易因果",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "注入过去 requested_at（反例复现）：请求体带 requested_at = now-6h",
+   "判据": "**必须被忽略**：成交时间不得因注入而提前；若仍按注入时刻成交 ⇒ 不通过",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "这是反例矩阵第一条",
+   "受影响文件": [
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C1c",
+   "组": "① 交易因果",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_api",
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "平仓 → 已实现入账 → 余额闭合（隔离账本）",
+   "判据": "initial + 已实现 == cash，差额绝对值 < 1e-9",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "需重跑",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C3",
+   "组": "① 交易因果",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "同一 signal_uid 连续提交两次（重试反例）",
+   "判据": "只成交一笔；第二次返回幂等回执而非新增 fill",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "重试反例",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C5",
+   "组": "① 交易因果",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_api",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "对无 K 线标的开仓（数据失效反例）",
+   "判据": "不得用任何价格成交；必须返回可解释拒因",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "数据失效反例",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "A11",
+   "组": "① 交易因果",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api",
+    "adapter"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "POST /api/v1/paper/orders 契约：正常请求必须能按既定规则完成成交",
+   "判据": "**不能只靠全部拒单通过**：必须至少 1 笔正常请求走完 挂单→成交→持仓，且拒因码与实际原因一致",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "工单明确：正常请求必须能成交",
+   "受影响文件": [
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "NEW-CAUSAL-OK",
+   "组": "① 交易因果",
+   "上轮": "新增",
+   "依赖文件": [
+    "live_api",
+    "paper_engine",
+    "live_store"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "正向路径：完全正常的一笔开仓请求（无注入、真实时钟、有效标的、资金充足）",
+   "判据": "必须成交且三处时间自洽；若只能全部拒单 ⇒ 整体不通过（工单禁止用拒单冒充通过）",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "工单新增要求，上一轮未单列",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L8",
+   "组": "② 隔离",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）",
+    "live/paper_new_entry_gate.json（生产闸门）"
+   ],
+   "复验方法": "测试前后对生产库/生产闸门取 SHA-256 与行数快照，逐项比对",
+   "判据": "测试前后：生产 live 库 SHA 不变、四臂账本 SHA 不变、闸门文件 SHA 不变；任一变化即不通过",
+   "隔离条件": "测试必须指向隔离实例；生产侧只读采样",
+   "备注": "上一轮合成信号已进生产库",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "Z1",
+   "组": "② 隔离",
+   "上轮": "通过",
+   "依赖文件": [
+    "paper_engine",
+    "live_api"
+   ],
+   "依赖数据": [
+    "live/paper_new_entry_gate.json（生产闸门）"
+   ],
+   "复验方法": "隔离纪律自检：读生产闸门 SHA 前后比对",
+   "判据": "生产闸门 SHA 不变；且隔离实例读到的是 PAPER_GATE_FILE 指定的隔离文件",
+   "隔离条件": "需 PAPER_GATE_FILE 环境变量生效",
+   "备注": "上一轮靠硬编码 __file__ 同级，只能不点；现已修",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C0",
+   "组": "② 隔离",
+   "上轮": "通过",
+   "依赖文件": [
+    "adapter",
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "启动隔离实例（8899，/tmp 账本，/tmp live 库）",
+   "判据": "健康检查 200 且读到的库路径在 /tmp 下",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "前置条件",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "X3c",
+   "组": "② 隔离",
+   "上轮": "不通过",
+   "依赖文件": [
+    "SignalList",
+    "live_api"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）"
+   ],
+   "复验方法": "当前信号区是否混入合成测试信号",
+   "判据": "页面当前信号区不得出现 sig_closeloop_* / sig_ui_test_* 之类测试标识；出现即不通过",
+   "隔离条件": "需用户批准清理范围后才能复验",
+   "备注": "工单：不删除、不替用户批准清理",
+   "受影响文件": [
+    "UI界面/web/src/components/SignalListPanel.tsx",
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "A20",
+   "组": "② 隔离",
+   "上轮": "未验证",
+   "依赖文件": [
+    "paper_engine",
+    "live_api"
+   ],
+   "依赖数据": [
+    "live/paper_new_entry_gate.json（生产闸门）"
+   ],
+   "复验方法": "隔离实例上翻闸门，检查是否只写 PAPER_GATE_FILE 指定文件并落盘",
+   "判据": "翻转后隔离闸门文件内容变化、生产闸门 SHA 不变；重启后仍保持",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "上一轮因硬编码无法隔离",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "A10",
+   "组": "③ 执行身份",
+   "上轮": "不通过",
+   "依赖文件": [
+    "live_api",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "读源码 + 读路由注册：只读声明、写入口 docstring、实际挂载的路由三者是否一致",
+   "判据": "三处表述必须一致；出现「已接通新共享核心」但实际 return legacy 即不通过",
+   "隔离条件": "只读",
+   "备注": "上一轮三句自相矛盾",
+   "受影响文件": [
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C6",
+   "组": "③ 执行身份",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_api",
+    "live_worker"
+   ],
+   "依赖数据": [],
+   "复验方法": "写路径是否存在可执行的交易所下单调用",
+   "判据": "不得存在真实下单调用；存在即不通过",
+   "隔离条件": "只读源码",
+   "备注": "需重跑：live_api 已变",
+   "受影响文件": [
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "NEW-IDENTITY",
+   "组": "③ 执行身份",
+   "上轮": "新增",
+   "依赖文件": [
+    "adapter",
+    "live_api",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "UI 实际调用的核心 / 策略版本 / 参数，与声明是否一致（工单第③项）",
+   "判据": "UI 触发的写路径落到哪个核心、读的哪份参数文件、版本常量是什么，三者与「当前研究策略」声明一致；旧执行路径不得冒充当前研究策略",
+   "隔离条件": "只读 + 隔离实例实测一次写请求",
+   "备注": "工单第③项，上一轮未单列",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L1",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "重算：纸面账户闭合（逐臂可加总）",
+   "判据": "差额绝对值 < 1e-9 且逐臂可加总",
+   "隔离条件": "只读账本副本",
+   "备注": "需重跑：live_store/paper_engine 已变",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L1b",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "重算：四臂跨账户加总",
+   "判据": "差额绝对值 < 1e-9 且逐臂可加总",
+   "隔离条件": "只读账本副本",
+   "备注": "需重跑：live_store/paper_engine 已变",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L2",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "重算：手续费/资金费各计一次",
+   "判据": "差额绝对值 < 1e-9 且逐臂可加总",
+   "隔离条件": "只读账本副本",
+   "备注": "需重跑：live_store/paper_engine 已变",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L3",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "重算：标识贯通 signal_uid→order→fill→position→realized",
+   "判据": "差额绝对值 < 1e-9 且逐臂可加总",
+   "隔离条件": "只读账本副本",
+   "备注": "需重跑：live_store/paper_engine 已变",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L6",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "重算：期末持仓与账本一致，未靠强制结算伪装已实现",
+   "判据": "差额绝对值 < 1e-9 且逐臂可加总",
+   "隔离条件": "只读账本副本",
+   "备注": "需重跑：live_store/paper_engine 已变",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L4a",
+   "组": "④ 账本闭环",
+   "上轮": "未验证",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "初始止损可重建：每笔持仓的 stop_price 必须等于 入场价 − 3×ATR，且 paper_stop_history 有 initial_stop 行",
+   "判据": "逐笔：|stop_price − (entry_price − 3×atr_at_entry)| < 1e-6，且轨迹表首行 reason='initial_stop'",
+   "隔离条件": "只读",
+   "备注": "本轮已发现 position 1 差 666.9（81200 vs 80533.1），违规 1/3",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L4b",
+   "组": "④ 账本闭环",
+   "上轮": "未验证",
+   "依赖文件": [
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "跟踪上移可重建：止损上移必须有带时点的记录，且引擎在真实推进中会调用写入",
+   "判据": "**必须证明引擎会调用 record_stop_update**，不能只证明该函数单独调用时能写成功；同时与回测口径（trailing_trigger_r=2.0 / lookback 10 根 4h）比对",
+   "隔离条件": "只读源码 + 隔离实例推进",
+   "备注": "本轮已查明：record_stop_update 全后端零调用；paper_engine L19 声明 ROI/trailing=off ⇒ 模拟盘按设计不做跟踪，与回测不同规则，必须在⑥对账里显式写明",
+   "受影响文件": [
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "L7",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [
+    "backtest_results/（回测 run 目录）"
+   ],
+   "复验方法": "回测 run 目录 / summary.json / trades.jsonl 三者对账",
+   "判据": "逐 run：笔数、净盈亏、期末持仓三处一致",
+   "隔离条件": "只读",
+   "备注": "需重跑：backtest_store 已变",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "C4",
+   "组": "④ 账本闭环",
+   "上轮": "通过",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "写入后重启隔离实例，账户/持仓仍在",
+   "判据": "重启前后账户与持仓逐字段一致",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "重启恢复",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "NEW-IDEMPOTENT",
+   "组": "④ 账本闭环",
+   "上轮": "新增",
+   "依赖文件": [
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "隔离实例：端口 8899 + /tmp 账本"
+   ],
+   "复验方法": "幂等：同一请求重复提交 N 次，订单/成交/持仓/已实现/权益五表行数不得线性增长",
+   "判据": "五表行数与单次提交完全一致；重复提交只产生幂等回执",
+   "隔离条件": "隔离实例：端口 8899 + /tmp 账本",
+   "备注": "工单第④项要求验证幂等",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W1",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "App",
+    "useMarketData",
+    "liveTrading",
+    "live_api"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "浏览器实测：workbench.main → 顶栏 BTC/ETH 价格涨跌幅、模拟盘权益、连接状态",
+   "判据": "三处数值与 /markets、/paper/accounts 精确相等（2 位小数）",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/App.tsx",
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W2",
+   "组": "⑤ 全 UI",
+   "上轮": "不通过",
+   "依赖文件": [
+    "SignalList",
+    "live_api",
+    "App"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "浏览器实测：workbench.main → 信号区：卡片数、signal_id 可查、无合成测试信号",
+   "判据": "卡片数 = n_cards 且每条 signal_id 页面可查且无测试标识",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/App.tsx",
+    "UI界面/web/src/components/SignalListPanel.tsx",
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W3",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "App",
+    "live_api",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "浏览器实测：workbench.main → 闸门开关点击 → 落盘 → 重启保持",
+   "判据": "隔离闸门文件内容变化、生产闸门 SHA 不变",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/App.tsx",
+    "框架/backend/live_api.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W4",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "TokenTable",
+    "useMarketData",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：workbench.main → 行情表逐行对账 9 列数值",
+   "判据": "抽样 N 行，9 列逐列与 /markets 相等",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "W5",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "TokenTable",
+    "useMarketData",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：workbench.main → 行内 K 线面板逐周期点击均出图",
+   "判据": "8 个周期逐个点击，每次都有 /candles 请求且图有数据",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "W6",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "Position",
+    "liveTrading",
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "浏览器实测：workbench.main → 持仓区与账本一致",
+   "判据": "逐笔字段相等；空态可解释",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W7",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "SignalList",
+    "live_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：workbench.main → 未选中信号就点开多（前端拦截）",
+   "判据": "必须有可解释提示，不得发出请求或必须被明确拒",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/components/SignalListPanel.tsx",
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W8",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "SignalList",
+    "live_api",
+    "live_store"
+   ],
+   "依赖数据": [
+    "live_signals.sqlite3（生产 live 库）",
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "浏览器实测：workbench.main → 清空信号：回执删除行数 = 实际减少行数",
+   "判据": "两数相等",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/components/SignalListPanel.tsx",
+    "框架/backend/live_api.py",
+    "框架/backend/live_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "W9",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "App",
+    "vite"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：workbench.main → 浅/深主题切换后口径不变",
+   "判据": "切换前后数值口径一致、无白屏/错色",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/App.tsx"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "D1",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "datacenter",
+    "useMarketData"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.dashboard → 数据中心主视窗 17 项数据源齐全",
+   "判据": "17 项按简称全部命中，页面自报三处一致",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D2",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "DataCenter",
+    "datacenter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.pending → 待处理/回填视图与 /data/whitelist 条数对账",
+   "判据": "页面条数 = 接口条数",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D3",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "DataCenter",
+    "datacenter",
+    "metrics"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.matrix → 覆盖矩阵与 /data/coverage 标的数对账",
+   "判据": "页面标的数 = coverage 标的数",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D4",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "useMarketData",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.kline → K 线视图 8 个周期入口齐全",
+   "判据": "8 个入口可点且各自出图",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D5",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "useMarketData",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.oi → OI 表格行数 = /data/oi items",
+   "判据": "行数相等（含表头换算）",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D6",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "useMarketData",
+    "adapter"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.funding → 费率行数 = /data/funding items 且符号保留",
+   "判据": "行数相等且有负值未被取绝对值",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D7",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "useMarketData",
+    "smart_money"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.smartmoney → 聪明钱行数 = /data/smart-money items",
+   "判据": "行数相等",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "D8",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "DataCenter",
+    "metrics"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：dc.metrics → 指标视图有真实内容",
+   "判据": "渲染出表格且文本量充足，非空壳",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "S1",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "Strategy",
+    "live_api",
+    "metrics"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：st.rules → 策略管理：策略条数与注册表一致",
+   "判据": "页面逐条计数 = /strategies 条数",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/components/StrategyManagementView.tsx",
+    "框架/backend/live_api.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "S2",
+   "组": "⑤ 全 UI",
+   "上轮": "不通过",
+   "依赖文件": [
+    "Strategy"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：st.deps → 数据依赖页有独立内容",
+   "判据": "切换后正文必须变化且与该页主题相关",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/components/StrategyManagementView.tsx"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "S3",
+   "组": "⑤ 全 UI",
+   "上轮": "不通过",
+   "依赖文件": [
+    "Strategy"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：st.versions → 版本对比页有独立内容",
+   "判据": "切换后正文必须变化且与该页主题相关",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "UI界面/web/src/components/StrategyManagementView.tsx"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B1",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.workbench.batch → 批次列表条数 = /backtests/batches total",
+   "判据": "两数相等",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B2",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.workbench.batch → 批次汇总「合计 N 笔 / 净盈亏 X」= summary",
+   "判据": "笔数与金额精确相等",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B3",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.workbench.run → 按 run 列表条数 = 有成交子集，且 q 过滤在截断之前",
+   "判据": "两数相等且过滤生效",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B4",
+   "组": "⑤ 全 UI",
+   "上轮": "通过",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_api",
+    "backtest_store"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.workbench.run → run 详情 equity 可读，目录/summary/逐笔可对账",
+   "判据": "三处一致",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B5",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.review.batch → 验收复盘批次：与历史回测批次口径区分不混用",
+   "判据": "页面明确标注口径，且条数/金额不跨口径混算",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "B6",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_api"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.review.run → 验收复盘 run：同上",
+   "判据": "同上",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "B7",
+   "组": "⑤ 全 UI",
+   "上轮": "未验证",
+   "依赖文件": [
+    "BacktestWorkbench",
+    "backtest_api",
+    "backtest_store"
+   ],
+   "依赖数据": [],
+   "复验方法": "浏览器实测：bt.workbench.run → 深链直达 run 详情并留证",
+   "判据": "留存该视图 DOM + 截图，7 个子接口均被触发",
+   "隔离条件": "真实浏览器（playwright chromium_headless_shell-1248）；写操作走隔离实例",
+   "备注": "工单要求逐项执行，不接受接口 200 / 截图代替",
+   "受影响文件": [
+    "框架/backend/backtest_store.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "NEW-RECON",
+   "组": "⑥ 回测与模拟",
+   "上轮": "新增",
+   "依赖文件": [
+    "paper_engine",
+    "backtest_store",
+    "backtest_api"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）",
+    "backtest_results/（回测 run 目录）"
+   ],
+   "复验方法": "同规则对账：把回测成交模型与模拟盘成交模型逐参数比对，并对固定输入独立复算",
+   "判据": "参数逐项对齐或显式列出差异；差异必须给出原因。**必须区分已实现权益、盯市权益、期末技术结算三者**，不得混算",
+   "隔离条件": "只读 + 独立复算脚本",
+   "备注": "工单第⑥项，上一轮未单列；已知差异：paper 声明 ROI/trailing=off",
+   "受影响文件": [
+    "框架/backend/backtest_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "NEW-REALIZED",
+   "组": "⑥ 回测与模拟",
+   "上轮": "新增",
+   "依赖文件": [
+    "live_store",
+    "paper_engine"
+   ],
+   "依赖数据": [
+    "数据/paper/paper_3a~3d.sqlite3（纸面账本）"
+   ],
+   "复验方法": "已实现 / 盯市 / 期末技术结算三分：逐笔标注退出原因后分别求和",
+   "判据": "三者分别给出金额与笔数，且 已实现 + 未实现盯市 + 期末技术结算 == 总盈亏；不得把 force_exit 当已实现",
+   "隔离条件": "只读",
+   "备注": "上一轮踩坑：is_open 全 False、left_open_trades 元素为 None",
+   "受影响文件": [
+    "框架/backend/live_store.py",
+    "框架/backend/paper_engine.py"
+   ],
+   "受修改影响": true,
+   "依赖数据已变": false,
+   "当前状态": "作废待重跑"
+  },
+  {
+   "id": "VER-D1",
+   "组": "⑦ 版本一致",
+   "上轮": "新增",
+   "依赖文件": [],
+   "依赖数据": [],
+   "复验方法": "同一文件集 T0/T1 两次采样零变化",
+   "判据": "变动数 == 0",
+   "隔离条件": "只读",
+   "备注": "见 00_版本漂移探针",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "VER-D2",
+   "组": "⑦ 版本一致",
+   "上轮": "新增",
+   "依赖文件": [],
+   "依赖数据": [],
+   "复验方法": "采样时点之后无新写入",
+   "判据": "所有被审文件 mtime <= 采样时刻",
+   "隔离条件": "只读",
+   "备注": "同上",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  },
+  {
+   "id": "VER-D3",
+   "组": "⑦ 版本一致",
+   "上轮": "新增",
+   "依赖文件": [],
+   "依赖数据": [],
+   "复验方法": "运行中后端进程启动时刻 >= 最后一次代码变更",
+   "判据": "进程启动晚于最晚 mtime",
+   "隔离条件": "只读 ps",
+   "备注": "同上",
+   "受影响文件": [],
+   "受修改影响": false,
+   "依赖数据已变": false,
+   "当前状态": "待复验"
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+  "version_hashes": {
+    "accum_early_entry.py": "0df790ca2ab588c590d15adca942e1ecdc764b9566cd2e531ad6ff1a1555b430",
+    "fixture_rules_05.json": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+    "批准配置_空白表单_05.json": "b3ac386a37cea7bb02c6a40f5e0037df97ed0d7f4fb623b558ded821bd72b138",
+    "paper_engine.py": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784",
+    "live_store.py": "02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6"
+  },
+  "schema_version": "accum-early-05/v1",
+  "categories": {
+    "fixed_items": [
+      {
+        "item": "扫低对象约束 s_loc > box['L']",
+        "status": "CURRENT_FIXED",
+        "evidence": "accum_early_entry.py 中在 _sweep_check 引入 must_be_above_box_low 逻辑，当 ref <= box['low_l'] 时返回 False 并标记 reference_not_above_box_low",
+        "code_line": "779-786"
+      },
+      {
+        "item": "局部压制位 swing_high_k3_lookback48 实现",
+        "status": "CURRENT_FIXED",
+        "evidence": "_resistance 函数中支持 swing_high_k3_lookback48，从近到远寻找左右各 k 根不高于当根的摆动高点",
+        "code_line": "719-737"
+      },
+      {
+        "item": "压制位空间合格性校验 resistance_qualify",
+        "status": "CURRENT_FIXED",
+        "evidence": "实现 _resistance_qualified，强制要求 L + 0.5A <= R <= H - 0.5A，不合格时记录 terminal_reason='NO_RESISTANCE' 并终结",
+        "code_line": "741-758, 1071-1076"
+      },
+      {
+        "item": "结构破位失效保护 (连续收盘破 L / 盘中破 L-0.5A)",
+        "status": "CURRENT_FIXED",
+        "evidence": "实现 _structural_invalid，对 BOX/SWEEP/RETEST 全流程检查 close_below_l_bars 与 l_overshoot_atr",
+        "code_line": "1007-1040"
+      },
+      {
+        "item": "经济口径一致性声明硬校验",
+        "status": "CURRENT_FIXED",
+        "evidence": "实现 _economic_caliber 与 config 校验，声明 strategy_package 与底层 paper_engine 生效 effective_view 冲突时硬阻断开仓",
+        "code_line": "351-407"
+      }
+    ],
+    "still_failing_items": [
+      {
+        "item": "承接与卖压指标检查时序严重颠倒",
+        "status": "CURRENT_STILL_FAILING",
+        "description": "05-B 声称已实现扫低根承接判定，但代码中 _absorption 仍然仅在 _confirm_actions（第 1069 行）被调用，_sweep_check 内部 0 次调用！",
+        "impact": "导致主力吸筹判断被延后到收上压制位的确认突破根，计算所用 K 线与前 20 根基准全为突破时点，严重背离 04-A 规则规范中在扫低恐慌瞬间核验主力承接的金融因果逻辑",
+        "evidence": {
+          "sweep_check_has_absorption": false,
+          "confirm_actions_has_absorption": true,
+          "actual_calls": [
+            {
+              "line": 1073,
+              "code": "sp_ok, sp_detail, sp_conds = _absorption(bars_1h, i, self.cfg)"
+            }
+          ]
+        }
+      },
+      {
+        "item": "未批准配置下的冷却时间硬设为 0",
+        "status": "CURRENT_STILL_FAILING",
+        "description": "05-B 在 fixture_rules_05.json 中将 cooldown_hours 硬编码为 0，导致同标的在未批准扫描测试时同一天内高频建档",
+        "impact": "违背安全回退默认值原则（应保持 24 小时默认冷却），导致测试记录冗余膨胀",
+        "evidence": "fixture_rules_05.json 行 65: cooldown_hours=0"
+      }
+    ],
+    "uncovered_or_pending_items": [
+      {
+        "item": "自然行情下全链闭环与真实策略绩效",
+        "status": "UNCOVERED_PENDING",
+        "description": "当前所有验证均在测试配置 (fixture) 下运行，真实策略参数仍处于待批准状态，未获用户授权，严禁把测试结果当策略绩效"
+      },
+      {
+        "item": "历史行情 available_at 证据链",
+        "status": "UNCOVERED_PENDING",
+        "description": "冷档历史 K 线缺少 available_at 字段，继续诚实标为 unknown/not_proven，不把历史已知等同于当时可得"
+      }
+    ]
+  }
+}

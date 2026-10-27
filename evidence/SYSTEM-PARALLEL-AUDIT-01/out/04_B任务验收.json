@@ -1,0 +1,174 @@
+{
+ "生成时刻": "2026-10-23T13:45:50+08:00",
+ "用途": "B 任务独立验收：统一入口启动整链 / 进程状态准确 / 隔离与停止范围正确",
+ "边界": "全部在 /tmp/wx_b_task 隔离环境；隔离端口；不碰生产账本与 8787",
+ "文件SHA": {
+  "启动系统.command": {
+   "sha256": "fb6529c727a9bfe294a7a0a1532e8310090a96ae1b084507c5ad77977af4ccd4",
+   "bytes": 8174,
+   "mtime": "2026-10-23 12:00:38"
+  },
+  "框架/backend/start.sh": {
+   "sha256": "b22c752139464d0e7354f5cebf48578d13a2f0b236271debf2c1d59779cbac69",
+   "bytes": 2449,
+   "mtime": "2026-10-23 12:00:12"
+  },
+  "框架/backend/service_manager.py": {
+   "sha256": "4fcf0ce0c5df1aac177678b3c20bbc6b9f565a6642daaef752772f38d17fc3bc",
+   "bytes": 40454,
+   "mtime": "2026-10-23 12:04:19"
+  },
+  "框架/backend/unified_runtime.py": {
+   "sha256": "bb2ea4b86cf122e623e6689c4d8228d46d9f1fff497197a1f30ddf0a84123c4e",
+   "bytes": 37025,
+   "mtime": "2026-10-23 10:48:44"
+  },
+  "框架/backend/live_store.py": {
+   "sha256": "b19ea830aeb736e8e1247f0d059970764f34234f9526cabdf042bd764a9d1084",
+   "bytes": 42403,
+   "mtime": "2026-10-23 12:19:59"
+  },
+  "框架/backend/paper_engine.py": {
+   "sha256": "3cc2c06583add471e97cc8ae2f630d1724d1bd4704aa7d627be924ab9d5c68fa",
+   "bytes": 140147,
+   "mtime": "2026-10-23 12:08:04"
+  }
+ },
+ "行情": {
+  "4h": 260,
+  "1h": 1100,
+  "15m": 4400
+ },
+ "场景": {
+  "B1_接线静态核对": {
+   "检查": {
+    "启动系统.command 传 --enable-paper": true,
+    "start.sh 识别 --enable-paper": true,
+    "start.sh 调 service_manager.py": true,
+    "service_manager 启动 unified_runtime.py": true,
+    "service_manager 用 spawn_detached_process": true,
+    "默认安全模式不开链": true,
+    "stop 校验 cmdline 含 unified_runtime.py": true
+   },
+   "全部通过": true
+  },
+  "B1_整链一个cycle": {
+   "rc": 0,
+   "耗时秒": 0.42,
+   "step": {
+    "now_ms": 1792734351188,
+    "new_signals": 0,
+    "routed": 0,
+    "matched": 0,
+    "trailing_updates": 0,
+    "exits": 0,
+    "errors": []
+   },
+   "六段字段齐全": true,
+   "errors为空": true,
+   "stderr尾部": ""
+  },
+  "B1_结论": "通过",
+  "B2_进程状态": {
+   "pid_实测": 19624,
+   "进程存活_启动后": true,
+   "status文件存在": true,
+   "status文件": {
+    "pid": 19624,
+    "arm": "3a",
+    "symbol": "BTCUSDT",
+    "cycle_count": 2,
+    "overall_health": "healthy",
+    "started_at": 1792734351551,
+    "market_data": "connected",
+    "signal_engine": "active",
+    "order_processing": "ready",
+    "execution_daemon": "running"
+   },
+   "--status输出": {
+    "runtime_identity": {
+     "arm": "3a",
+     "symbol": "BTCUSDT",
+     "pid": 19624,
+     "started_at": 1792734351551,
+     "cycle_count": 2,
+     "overall_health": "healthy"
+    },
+    "market_data": {
+     "status": "connected",
+     "symbol": "BTCUSDT",
+     "latest_15m_close_time": 1792734299999,
+     "latest_1h_close_time": 1792731599999,
+     "latest_4h_close_time": 1792727999999
+    },
+    "signal_engine": {
+     "status": "active",
+     "active_box": false,
+     "active_state": "IDLE",
+     "signals_generated_total": 0,
+     "last_cycle_ms": 1792734352598
+    },
+    "order_processing": {
+     "status": "ready",
+     "orders_routed_total": 0,
+     "orders_rejected_total": 0,
+     "current_pending_in_db": 0
+    },
+    "execution_daemon": {
+     "status": "running",
+     "open_positions": 0,
+     "pending_matched_total": 0,
+     "trailing_updates_total": 0,
+     "exits_triggered_total": 0,
+     "last_error": null
+    }
+   },
+   "--status取到的pid": 19624,
+   "PID一致": true,
+   "status文件PID一致": true,
+   "运行中daemon为running": true,
+   "cycle_count推进": true,
+   "SIGTERM后进程消失": true,
+   "判定_合计": true
+  },
+  "B3_隔离与停止范围": {
+   "停止前": {
+    "目标pid存活": true
+   },
+   "旁观进程pid": 19633,
+   "停止前账本": {
+    "exists": true,
+    "bytes": 163840
+   },
+   "退出码": 0,
+   "停止后": {
+    "目标pid存活": false,
+    "旁观进程存活": true
+   },
+   "停止后账本": {
+    "exists": true,
+    "bytes": 163840
+   },
+   "账本未被清空": true,
+   "停止后status文件": {
+    "pid": 19624,
+    "overall_health": "healthy",
+    "execution_daemon": "stopped",
+    "cycle_count": 2
+   },
+   "停止后daemon为stopped": true,
+   "判定_只停自己": true,
+   "判定_未误伤旁观": true,
+   "判定_合计": true
+  },
+  "B3_结论": "通过",
+  "B2_结论": "通过"
+ },
+ "B任务总判定": {
+  "B1_统一入口启动整链": "通过",
+  "B2_进程状态准确": "通过",
+  "B3_隔离与停止范围": "通过",
+  "合计": "通过",
+  "说明": "任一子项不通过即整体不通过"
+ }
+}

@@ -1,0 +1,128 @@
+{
+  "task": "BT-CHART-FIX-07",
+  "total_checks": 8,
+  "passed_checks": 8,
+  "all_pass": true,
+  "checks": [
+    {
+      "id": "FIX_07_CROSSHAIR_HONEST_SYNC",
+      "name": "十字线悬停对齐：资金图缺少小时采样时明确显示真实采样时间与缺口，不伪造数据",
+      "pass": true,
+      "detail": {
+        "kline_hover_snippet": "时刻 2021-12-14 16:00 UTC (闭 2021-12-14 17:00)\n开 427.79\n高 431.10\n低 425.10\n收 427.74\n量（base） 1",
+        "funding_hover_snippet": "时刻 12-14 16:00 UTC（无精确采样，最近采样 12-15 00:00）\n策略净值\n$2,002.98\n(+0.15%)",
+        "honest_sample_noted": true
+      }
+    },
+    {
+      "id": "FIX_07_MAIN_TO_FUNDING_PAN_SYNC",
+      "name": "主图拖拽驱动资金图平移：主图发生平移位移时，资金图时间轴同步联动随动",
+      "pass": true,
+      "detail": {
+        "k_shift_ms": 180000000,
+        "f_shift_ms": 259200000,
+        "k_range_after": {
+          "fromMs": 1639533600000,
+          "toMs": 1735736400000,
+          "logicalToMs": 1735740000000
+        },
+        "f_range_after": {
+          "fromMs": 1639612800000,
+          "toMs": 1729814400000
+        },
+        "alignment_diff_ms": 79200000
+      }
+    },
+    {
+      "id": "FIX_07_FUNDING_TO_MAIN_PAN_SYNC",
+      "name": "资金图反向拖拽驱动主图平移：从资金图拖动，主图通过联动总线反向同步平移",
+      "pass": true,
+      "detail": {
+        "funding_reverse_shift_ms": 1296000000,
+        "kline_reverse_shift_ms": 270000000,
+        "k_range_after_reverse": {
+          "fromMs": 1639263600000,
+          "toMs": 1735693200000,
+          "logicalToMs": 1735696800000
+        },
+        "f_range_after_reverse": {
+          "fromMs": 1638316800000,
+          "toMs": 1728518400000
+        }
+      }
+    },
+    {
+      "id": "FIX_07_ZOOM_BIDIRECTIONAL_SYNC",
+      "name": "主图缩放多图联动：滚轮缩放时主图与资金图时间跨度同步缩放自适应对齐",
+      "pass": true,
+      "detail": {
+        "kline_span_before": 96429600000,
+        "kline_span_after": 604800000,
+        "funding_span_before": 90201600000,
+        "funding_span_after": 604800000
+      }
+    },
+    {
+      "id": "FIX_07_REAL_MOUSE_CLICK_MARKER_LOOKUP",
+      "name": "真实物理鼠标点击图上标记反查：先选订单A后物理点击订单B标记，A取消选中且B被反向高亮，彻底排除假通过",
+      "pass": true,
+      "detail": {
+        "order_a_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "order_b_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+        "marker_physical_x": 239,
+        "step1_sel_a": true,
+        "step1_sel_b": false,
+        "step2_sel_a": false,
+        "step2_sel_b": true,
+        "active_selected_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1"
+      }
+    },
+    {
+      "id": "FIX_07_SAME_HOUR_SYMBOL_PURITY",
+      "name": "同小时多币种显示隔离：单币K线上同柱委托只对应当前币种(BCH)，跨币并发(AVAX)单独标明，不冒充当前单币K线事件",
+      "pass": true,
+      "detail": {
+        "current_symbol": "BCH",
+        "single_symbol_badge": "🎯 BCH 委托 2021-12-13 22:15 @429.45 (买入)",
+        "cross_symbol_badge": "🌐 跨币并发: AVAX @79.89",
+        "is_pure_single_symbol": true,
+        "is_cross_symbol_identified": true
+      }
+    },
+    {
+      "id": "FIX_07_RESTORE_MANUAL_VIEWPORT",
+      "name": "重开能力之恢复手动视窗：用户手动调整视窗后关闭，重开精准恢复手动浏览时间窗口而非被订单默认聚焦覆盖",
+      "pass": true,
+      "detail": {
+        "expected_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "actual_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "expected_range": {
+          "fromMs": 1642575600000,
+          "toMs": 1642665600000,
+          "logicalToMs": 1642669200000
+        },
+        "actual_range": {
+          "fromMs": 1642575600000,
+          "toMs": 1642665600000,
+          "logicalToMs": 1642669200000
+        },
+        "mode_badge": "🎯 视窗: 手动已恢复"
+      }
+    },
+    {
+      "id": "FIX_07_REOPEN_AUTO_FOCUS_ORDER",
+      "name": "重开能力之自动聚焦订单：选定订单重开时准确恢复同一订单高亮与针对该订单事件时刻的自动聚焦视窗",
+      "pass": true,
+      "detail": {
+        "expected_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "actual_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "restored_range": {
+          "fromMs": 1642467600000,
+          "toMs": 1642554000000,
+          "logicalToMs": 1642557600000
+        },
+        "mode_badge": "🎯 视窗: 订单聚焦"
+      }
+    }
+  ]
+}

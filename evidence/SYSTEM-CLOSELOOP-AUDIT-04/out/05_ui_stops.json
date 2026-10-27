@@ -1,0 +1,100 @@
+{
+ "base": "http://127.0.0.1:3001/",
+ "generated_at": "2026-10-22T15:33:22.864Z",
+ "steps": {
+  "baseline": {
+   "state": {
+    "connected": "1",
+    "positionRows": 1,
+    "rowTexts": [
+     "BTC平仓开仓价格:$100.0000实时标记:$100.0000持仓金额:1,000.0 U未实现盈亏:$0.00 (+0.00%)账本止损价:$92.1000止损轨迹止损基数(ATR@入场):$1.0000止损状态:现价在止损内信号身份(signal_uid):ui_stops_04开仓时间:2026-10-21 15:33:18"
+    ]
+   },
+   "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-04/shots/05_1_baseline.png",
+   "sha": "de2c618d27c45324d551e8af10d79d7c14e1a665c91d6966948f0045ba26789b"
+  },
+  "ok": {
+   "click": {
+    "ok": true,
+    "index": 0,
+    "candidates": 1
+   },
+   "requests": [
+    {
+     "url": "/api/v1/paper/stops/6?arm=3a",
+     "status": 200
+    }
+   ],
+   "trail": {
+    "boxText": "FT-LOW4H 止损上移轨迹初始建仓止损$85.0000引用4h: 10-21 07:33决策: 07:33:18生效: 07:33:184hK线触发上移$85.0000 → $92.1000引用4h: 10-22 07:33决策: 11:33:18生效: 11:33:18",
+    "entries": [
+     "FT-LOW4H 止损上移轨迹",
+     "初始建仓止损$85.0000引用4h: 10-21 07:33决策: 07:33:18生效: 07:33:184hK线触发上移$85.0000 → $92.1000引用4h: 10-22 07:33决策: 11:33:18生效: 11:33:18",
+     "初始建仓止损$85.0000引用4h: 10-21 07:33决策: 07:33:18生效: 07:33:18",
+     "初始建仓止损$85.0000",
+     "引用4h: 10-21 07:33决策: 07:33:18生效: 07:33:18",
+     "4hK线触发上移$85.0000 → $92.1000引用4h: 10-22 07:33决策: 11:33:18生效: 11:33:18",
+     "4hK线触发上移$85.0000 → $92.1000",
+     "引用4h: 10-22 07:33决策: 11:33:18生效: 11:33:18"
+    ]
+   },
+   "state": {
+    "connected": "1",
+    "positionRows": 1,
+    "rowTexts": [
+     "BTC平仓开仓价格:$100.0000实时标记:$100.0000持仓金额:1,000.0 U未实现盈亏:$0.00 (+0.00%)账本止损价:$92.1000收起轨迹FT-LOW4H 止损上移轨迹初始建仓止损$85.0000引用4h: 10-21 07:33决策: 07:33:18生效: 07:33:184hK线触发上移$85.0000 → $92.1000引用4h: 10-22 07:33决策: 11:33:18生效: 11:33:18止损基数(ATR@入场):$1.0000止损状态:现价在止损内信号身份(signal_uid):ui_stops_04开仓时间:2026-10-21 15:33:18"
+    ]
+   },
+   "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-04/shots/05_2_stoptrail_ok.png",
+   "sha": "c4895069c7f70cb00827889140db6d2d50284e831769b6991ce0ddaf74d030ad",
+   "consoleErrors": []
+  },
+  "err500": {
+   "click": {
+    "ok": true,
+    "index": 0,
+    "candidates": 1
+   },
+   "requests": [
+    {
+     "url": "/api/v1/paper/stops/6?arm=3a",
+     "status": 500
+    }
+   ],
+   "trail": {
+    "boxText": "FT-LOW4H 止损上移轨迹⚠ 模拟接口失败：止损轨迹查询异常",
+    "entries": [
+     "FT-LOW4H 止损上移轨迹",
+     "⚠ 模拟接口失败：止损轨迹查询异常"
+    ]
+   },
+   "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-04/shots/05_3_stoptrail_500.png",
+   "sha": "56eb78fbca01d6448208ac0d2befdcb7fb3ab954b5d297b2b71700185148fa3b",
+   "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   ]
+  },
+  "abort": {
+   "click": {
+    "ok": true,
+    "index": 0,
+    "candidates": 1
+   },
+   "requests": [],
+   "trail": {
+    "boxText": "FT-LOW4H 止损上移轨迹⚠ Failed to fetch",
+    "entries": [
+     "FT-LOW4H 止损上移轨迹",
+     "⚠ Failed to fetch"
+    ]
+   },
+   "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-04/shots/05_4_stoptrail_abort.png",
+   "sha": "254f7d220296c4c728a6a9538cd42e90e11ef9823c6b6cffcdb31bebdf4a8f9f",
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Fetch stops history failed TypeError: Failed to fetch\n    at toggleStopHistory (http://127.0.0.1:3001/src/components/PositionPanel.tsx:102:23)\n    at onClick (http://127.0.0.1:3001/src/components/PositionPanel.tsx:918:16)\n    at executeDispatch (http://127.0.0.1:3001/@fs/tmp/wx_vite_cache04/deps/rea"
+   ]
+  }
+ },
+ "dupShots": []
+}

@@ -1,0 +1,319 @@
+{
+ "生成时刻": "2026-10-23T11:39:40+08:00",
+ "根目录": "/tmp/wx_final03",
+ "环境": {
+  "PAPER_LEDGER_DIR": "/tmp/wx_final03/paper",
+  "PAPER_LEDGER_ALLOW_INIT": "1",
+  "LIVE_DIR": "/tmp/wx_final03/live",
+  "LIVE_DB": "/tmp/wx_final03/live/live_signals.sqlite3",
+  "MARKET_DB": "/tmp/wx_final03/market.sqlite3",
+  "PAPER_GATE_FILE": "/tmp/wx_final03/gate.json",
+  "PAPER_LOCK_DIR": "/tmp/wx_final03/locks",
+  "EFFECTIVE_VIEW": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-05/config/exp1_config.json"
+ },
+ "时钟": {
+  "真实现在": 1792726780122,
+  "真实现在_时刻": "2026-10-23T11:39:40+08:00",
+  "回填目标": 1792720800000,
+  "回填目标_时刻": "2026-10-23T10:00:00+08:00",
+  "回填提前分钟": 99.6687,
+  "paper_epoch_ms": 1791939600000,
+  "paper_epoch_时刻": "2026-10-14T09:00:00+08:00",
+  "回填时刻晚于 epoch": true,
+  "回填时刻早于 epoch": false
+ },
+ "用例": [
+  {
+   "变体": "V0",
+   "arm": "3a",
+   "说明": "对照：origin 缺省",
+   "请求体": {
+    "arm": "3a",
+    "action": "open",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "atr": 1.0,
+    "signal_uid": "sig_final01_3a"
+   },
+   "HTTP": 200,
+   "异常": null,
+   "返回": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "fill_price": null,
+    "fill_ts": null,
+    "fill_ts_时刻": null,
+    "requested_at": 1792726780208,
+    "earliest_fill_ms": 1792727680208
+   },
+   "quality": "pending",
+   "missing_reason": null,
+   "账本": {
+    "账本": "/tmp/wx_final03/paper/paper_3a.sqlite3",
+    "存在": true,
+    "paper_pending": [
+     {
+      "pending_id": 1,
+      "account_id": "paper43_3a",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "signal_uid": "sig_final01_3a",
+      "origin": "signal",
+      "atr": 1.0,
+      "stop_price": null,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "model_version": "FT-LOW4H-EXP05-GROUP1",
+      "config_fingerprint": "c2aeddb3fa0a",
+      "event_time": 1792720800000,
+      "available_at": 1792720800000,
+      "requested_at": 1792726780208,
+      "earliest_fill_ms": 1792727680208,
+      "status": "pending",
+      "reason": null,
+      "created_at": 1792726780211,
+      "resolved_at": null,
+      "fill_position_id": null,
+      "market_source": "binance.um.candles_15m.is_closed.open",
+      "initial_stop_price": null,
+      "first_request_ms": 1792726780208,
+      "epoch_ms": 1791939600000,
+      "voided": 0,
+      "void_reason": null
+     }
+    ],
+    "paper_fill": [],
+    "paper_position": [],
+    "paper_order": []
+   },
+   "判定": {
+    "已成交": false,
+    "挂单数": 1,
+    "持仓数": 0
+   }
+  },
+  {
+   "变体": "V1",
+   "arm": "3b",
+   "说明": "回填：origin=replay + 90 分钟前",
+   "请求体": {
+    "arm": "3b",
+    "action": "open",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "atr": 1.0,
+    "signal_uid": "sig_final01_3b",
+    "origin": "replay",
+    "now_ms": "2026-10-23T10:00:00+08:00",
+    "requested_at": "2026-10-23T10:00:00+08:00"
+   },
+   "HTTP": 409,
+   "异常": null,
+   "返回": {
+    "ok": false,
+    "reason": "bar_after_attempt_clock_no_lookahead",
+    "pending_id": null,
+    "fill_price": null,
+    "fill_ts": null,
+    "fill_ts_时刻": null,
+    "requested_at": null,
+    "earliest_fill_ms": null
+   },
+   "quality": "rejected",
+   "missing_reason": null,
+   "账本": {
+    "账本": "/tmp/wx_final03/paper/paper_3b.sqlite3",
+    "存在": true,
+    "paper_pending": [],
+    "paper_fill": [],
+    "paper_position": [],
+    "paper_order": [
+     {
+      "order_id": 1,
+      "account_id": "paper43_3b",
+      "event_uid": "sig_final01_3b",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "fee": null,
+      "ts": 1792726780259,
+      "status": "rejected",
+      "reject_reason": "bar_after_attempt_clock_no_lookahead",
+      "fill_price": null,
+      "notional": null,
+      "bar_open_time": null,
+      "model_version": null,
+      "stoploss_s": null,
+      "trail_d": null,
+      "config_fingerprint": null,
+      "config_source": null,
+      "initial_stop_price": null,
+      "planned_risk": null,
+      "event_time": null,
+      "requested_at": null,
+      "market_source": null,
+      "first_request_ms": null,
+      "epoch_ms": null,
+      "voided": 0,
+      "void_reason": null
+     }
+    ]
+   },
+   "判定": {
+    "已成交": false,
+    "挂单数": 0,
+    "持仓数": 0
+   }
+  },
+  {
+   "变体": "V2",
+   "arm": "3c",
+   "说明": "越界：origin=replay + 早于信号可用",
+   "请求体": {
+    "arm": "3c",
+    "action": "open",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "atr": 1.0,
+    "signal_uid": "sig_final01_3c",
+    "origin": "replay",
+    "now_ms": "2026-10-23T08:30:00+08:00",
+    "requested_at": "2026-10-23T08:30:00+08:00"
+   },
+   "HTTP": 400,
+   "异常": null,
+   "返回": {
+    "ok": null,
+    "reason": null,
+    "pending_id": null,
+    "fill_price": null,
+    "fill_ts": null,
+    "fill_ts_时刻": null,
+    "requested_at": null,
+    "earliest_fill_ms": null
+   },
+   "quality": "rejected",
+   "missing_reason": "请求到达时刻 (1792715400000) 早于信号数据可用时刻 (1792720800000)，拒绝提前成交",
+   "账本": {
+    "账本": "/tmp/wx_final03/paper/paper_3c.sqlite3",
+    "存在": false
+   },
+   "判定": {
+    "已成交": false,
+    "挂单数": 0,
+    "持仓数": 0
+   }
+  },
+  {
+   "变体": "V3",
+   "arm": "3a",
+   "说明": "无信号：origin=replay 但不给 signal_uid",
+   "请求体": {
+    "arm": "3a",
+    "action": "open",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "atr": 1.0,
+    "origin": "replay",
+    "now_ms": "2026-10-23T10:00:00+08:00",
+    "requested_at": "2026-10-23T10:00:00+08:00"
+   },
+   "HTTP": 200,
+   "异常": null,
+   "返回": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 2,
+    "fill_price": null,
+    "fill_ts": null,
+    "fill_ts_时刻": null,
+    "requested_at": 1792726780294,
+    "earliest_fill_ms": 1792727680294
+   },
+   "quality": "pending",
+   "missing_reason": null,
+   "账本": {
+    "账本": "/tmp/wx_final03/paper/paper_3a.sqlite3",
+    "存在": true,
+    "paper_pending": [
+     {
+      "pending_id": 1,
+      "account_id": "paper43_3a",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "signal_uid": "sig_final01_3a",
+      "origin": "signal",
+      "atr": 1.0,
+      "stop_price": null,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "model_version": "FT-LOW4H-EXP05-GROUP1",
+      "config_fingerprint": "c2aeddb3fa0a",
+      "event_time": 1792720800000,
+      "available_at": 1792720800000,
+      "requested_at": 1792726780208,
+      "earliest_fill_ms": 1792727680208,
+      "status": "pending",
+      "reason": null,
+      "created_at": 1792726780211,
+      "resolved_at": null,
+      "fill_position_id": null,
+      "market_source": "binance.um.candles_15m.is_closed.open",
+      "initial_stop_price": null,
+      "first_request_ms": 1792726780208,
+      "epoch_ms": 1791939600000,
+      "voided": 0,
+      "void_reason": null
+     },
+     {
+      "pending_id": 2,
+      "account_id": "paper43_3a",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "signal_uid": "manual:1792720800000",
+      "origin": "manual",
+      "atr": 1.0,
+      "stop_price": null,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "model_version": "FT-LOW4H-EXP05-GROUP1",
+      "config_fingerprint": "c2aeddb3fa0a",
+      "event_time": null,
+      "available_at": null,
+      "requested_at": 1792726780294,
+      "earliest_fill_ms": 1792727680294,
+      "status": "pending",
+      "reason": null,
+      "created_at": 1792726780298,
+      "resolved_at": null,
+      "fill_position_id": null,
+      "market_source": "binance.um.candles_15m.is_closed.open",
+      "initial_stop_price": null,
+      "first_request_ms": 1792726780294,
+      "epoch_ms": 1791939600000,
+      "voided": 0,
+      "void_reason": null
+     }
+    ],
+    "paper_fill": [],
+    "paper_position": [],
+    "paper_order": []
+   },
+   "判定": {
+    "已成交": false,
+    "挂单数": 2,
+    "持仓数": 0
+   }
+  }
+ ],
+ "判定": {
+  "V1_客户端声明replay可回填": false,
+  "V0_缺省路径不回填": true,
+  "结论": "未复现：客户端声明 origin=replay 未能回填"
+ }
+}

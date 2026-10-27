@@ -1,0 +1,61 @@
+{
+ "真实引擎": {
+  "路径": "FT-BASELINE-01/.venv/bin/freqtrade",
+  "存在": true,
+  "版本": "freqtrade 2026.9",
+  "用法": "freqtrade backtesting -c <config> --strategy <name> --strategy-path <dir> --timerange <START-END> --cache none --export trades"
+ },
+ "策略": {
+  "目录": "evidence/FT-ENTRY-04/user_data/strategies",
+  "A路线格数": 9,
+  "Baseline": 1,
+  "约束实现": "基类 WyckoffParamExplorationBase.confirm_trade_entry（A 路线 fill_price >= frozen_H → REJECT）",
+  "对照": "evidence/FT-ENTRY-03/user_data/strategies（无该约束，基类为 FT-ENTRY-03 版）"
+ },
+ "数据_v31_物理隔离": {
+  "根": "数据/研究输入/WyckoffMaster_v31",
+  "is_覆盖": "2021-10-01~2024-12-31（覆盖冻结研究期）",
+  "is_币数": 264,
+  "val_覆盖": "2024-10-01~2026-04-14（止于旧 Holdout 起点 2026-04-15 之前，不含 Holdout）",
+  "val_币数": 499,
+  "L1_241_在is内": 241,
+  "L1_241_在val内": 241,
+  "拒单9币_在is内": 9,
+  "拒单9币_在val内": 9,
+  "禁用目录": "数据/研究输入/WyckoffMaster/（v3.0 全时段含 Holdout，已标 DEPRECATED 勿用于选型）"
+ },
+ "freqtrade数据包": {
+  "FT-ENTRY-04_datadir是否为空": true,
+  "含义": "FT-ENTRY-04 跑完后 datadir 已被清空（0 文件）；任何真实引擎重跑都需先用 FT-DATA-01 的转换方法把 v31 parquet 本地转成 freqtrade feather（OHLCV 6 列 / OI 3 列 / funding 2 列、不填 0、UTC naive、严格递增）。这是本地格式转换，不属于新增下载。",
+  "FT-DATA-01转换口径": "evidence/FT-DATA-01/00_输入包说明.md + manifest.json 的 13 项 PASS 检查"
+ },
+ "信号_真实可用": {
+  "拒单足迹_去重拒单数": 68,
+  "拒单足迹_唯一候选": 13,
+  "拒单足迹_币": [
+   "1000BONKUSDT",
+   "APEUSDT",
+   "API3USDT",
+   "ARPAUSDT",
+   "ARUSDT",
+   "BELUSDT",
+   "BNBUSDT",
+   "CHRUSDT",
+   "COTIUSDT"
+  ],
+  "拒单足迹_每格数": {
+   "A01": 5,
+   "A02": 6,
+   "A03": 6,
+   "A04": 8,
+   "A05": 8,
+   "A06": 8,
+   "A07": 9,
+   "A08": 9,
+   "A09": 9
+  },
+  "前缀锚点总数": 329,
+  "前缀锚点_已知候选类": 228,
+  "前缀锚点_可扩展币真实成交类": 101
+ }
+}

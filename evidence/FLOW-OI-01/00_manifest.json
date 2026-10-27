@@ -1,0 +1,117 @@
+{
+  "manifest_version": "FLOW-OI-01.manifest.v1",
+  "created_utc": "2026-10-18T11:17:32.380799+00:00",
+  "baseline": "FACTOR-ENTRY-09.frozen.v1",
+  "field_contract": "FLOW-DATA-01",
+  "data_sources": {
+    "exchange": "binance",
+    "market": "um",
+    "candles_1h": "数据/市场数据/parquet/candles/binance/um/",
+    "metrics": "数据/市场数据/parquet/metrics/binance/um/",
+    "oi": "数据/市场数据/parquet/oi/binance/um/"
+  },
+  "coverage": {
+    "total_candidates": 227,
+    "coverage_rate": "100.0%",
+    "exclusions": 0
+  },
+  "deliverables": [
+    {
+      "name": "01_experiment_plan.md",
+      "path": "evidence/FLOW-OI-01/01_experiment_plan.md",
+      "bytes": 8662,
+      "sha256": "51b9f8d526270e8ddb7b202de13fdbd6bcda34c962ea9b3ad0b30bf3d6f107a4"
+    },
+    {
+      "name": "02_field_contract.md",
+      "path": "evidence/FLOW-OI-01/02_field_contract.md",
+      "bytes": 4543,
+      "sha256": "0e1975ef88a84e6ae6c44d90bc701ffc8ce1293d21cbffcf3dd2ff6afd996586"
+    },
+    {
+      "name": "03_coverage_and_exclusions.csv",
+      "path": "evidence/FLOW-OI-01/03_coverage_and_exclusions.csv",
+      "bytes": 28033,
+      "sha256": "63bf77fc9557d18efe31a450c3c54faffab70548d1e25fc4e3456b3657aae417"
+    },
+    {
+      "name": "03_coverage_and_exclusions.md",
+      "path": "evidence/FLOW-OI-01/03_coverage_and_exclusions.md",
+      "bytes": 1285,
+      "sha256": "f389a76ac32bee73f1dc05b09dc36b2852d319008ab37b32b1884ca9af26732c"
+    },
+    {
+      "name": "04_evaluation_results.md",
+      "path": "evidence/FLOW-OI-01/04_evaluation_results.md",
+      "bytes": 5625,
+      "sha256": "fe9afedb3ce8919d1ec452baed2a97e69147988c75b4783fe577145195415a5f"
+    },
+    {
+      "name": "05_case_studies.md",
+      "path": "evidence/FLOW-OI-01/05_case_studies.md",
+      "bytes": 11404,
+      "sha256": "4aac2913dd504cc7ab7fab9d2336a85e5af209078bc69414e8608f1a8b9b3a25"
+    },
+    {
+      "name": "candidate_flow_oi_features.csv",
+      "path": "evidence/FLOW-OI-01/candidate_flow_oi_features.csv",
+      "bytes": 175202,
+      "sha256": "c458721f9d7d3d64b7b3d7bcf7c2db3b2dae783e55344efed474470e816a4148"
+    },
+    {
+      "name": "candidate_flow_oi_features.parquet",
+      "path": "evidence/FLOW-OI-01/candidate_flow_oi_features.parquet",
+      "bytes": 114143,
+      "sha256": "71f76fde38681e03d3cf7661735d46c615d24384f3233421b8e614bb35cc4c9f"
+    },
+    {
+      "name": "four_groups_comparison.csv",
+      "path": "evidence/FLOW-OI-01/four_groups_comparison.csv",
+      "bytes": 74751,
+      "sha256": "10d6f319ed3260029278dcfab042910a647b1acbc665913d8be3232aab27ac36"
+    },
+    {
+      "name": "four_groups_comparison.json",
+      "path": "evidence/FLOW-OI-01/four_groups_comparison.json",
+      "bytes": 5692,
+      "sha256": "f58b70cf06b5a36290504970c63bd33148bdf6c8c4a24d6107ba32c5dc1ef7bd"
+    },
+    {
+      "name": "generate_flow_oi_01.py",
+      "path": "evidence/FLOW-OI-01/generate_flow_oi_01.py",
+      "bytes": 44495,
+      "sha256": "cf0de2f4adbd512c5fa1851a4cb23db6a0c91068e4dd0c02b527faae7fbbc300",
+      "pre_pit_bytes": 48074,
+      "pre_pit_sha256": "3b403f50e47e2431de67a72e7594f64a3894d8d93e31735c54770955e2567ac1",
+      "patched_by": "FRAME-PIT-02（真实因子入口接入 PIT 守卫）",
+      "legacy_behavior_snapshot": "evidence/FRAME-PIT-02/legacy/generate_flow_oi_01.pre_pit.cpython-313.pyc"
+    },
+    {
+      "name": "reproduce.sh",
+      "path": "evidence/FLOW-OI-01/reproduce.sh",
+      "bytes": 1055,
+      "sha256": "80e92e4e2137b2a96c46653f7b1c2122742dc8dc500dbfb7933f2198fc16c9cc"
+    },
+    {
+      "name": "test_flow_oi_consistency.py",
+      "path": "evidence/FLOW-OI-01/test_flow_oi_consistency.py",
+      "bytes": 5249,
+      "sha256": "46b4eb1770522dcbe557f2d3dc9c8d1b4af5c56b83e9196cf37478e91279c294"
+    },
+    {
+      "name": "报告.md",
+      "path": "evidence/FLOW-OI-01/报告.md",
+      "bytes": 5485,
+      "sha256": "de079e0fc3aa7029c3cf7a48510e2a72b8ee1e9d123912b63b19a2ef801592cf"
+    }
+  ],
+  "pit_patch": {
+    "order": "FRAME-PIT-02",
+    "patched_files": [
+      "generate_flow_oi_01.py"
+    ],
+    "pre_pit_sha256": "3b403f50e47e2431de67a72e7594f64a3894d8d93e31735c54770955e2567ac1",
+    "post_pit_sha256": "cf0de2f4adbd512c5fa1851a4cb23db6a0c91068e4dd0c02b527faae7fbbc300",
+    "note": "研究产物（csv/parquet/md）一字未改；只更新被改脚本的 size/sha256，改前值保留在 pre_pit_* 字段"
+  }
+}

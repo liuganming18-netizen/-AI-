@@ -1,0 +1,460 @@
+{
+ "probe": "02_时点与单位",
+ "generated_at_utc": "2026-10-26T10:43:02Z",
+ "工单": "ACCUM-EARLY-02 第一部分第 2/3/4/7 条",
+ "errors": [],
+ "A_时间戳语义": {
+  "原始来源": {
+   "端点": "GET https://fapi.binance.com/futures/data/openInterestHist?symbol=<SYM>&period=5m&limit=N",
+   "字段": "返回数组每项的 `timestamp`（毫秒）",
+   "采集代码": "框架/backend/realtime_collector.py: `oi_sweep` → `gw.get('binance.oi_hist')`",
+   "落库代码": "框架/backend/realtime_collector.py: `oi_bucket_rows` 把 timestamp 直接写成 `ts`",
+   "落库时的判定": "`if ts + OI_5M_MS > now: continue` —— 桶没结束就不写 '5m' 口径；这条判据本身就说明 ts 是**区间起点**（ts+5min 才是收盘）"
+  },
+  "库内实测": {
+   "对齐 300000 的行": 6231889,
+   "非对齐的行": 13456,
+   "总行": 6245345,
+   "非对齐占比": 0.00215456,
+   "非对齐行样例": [
+    {
+     "symbol": "AGTUSDT",
+     "ts": 1792079748000,
+     "ts_utc": "2026-10-15T15:55:48Z",
+     "source": "binance.fapi.openInterestHist",
+     "fetched_at_utc": "2026-10-15T16:26:50Z"
+    },
+    {
+     "symbol": "AKEUSDT",
+     "ts": 1792079748000,
+     "ts_utc": "2026-10-15T15:55:48Z",
+     "source": "binance.fapi.openInterestHist",
+     "fetched_at_utc": "2026-10-15T16:28:36Z"
+    },
+    {
+     "symbol": "ARBUSDT",
+     "ts": 1792079748000,
+     "ts_utc": "2026-10-15T15:55:48Z",
+     "source": "binance.fapi.openInterestHist",
+     "fetched_at_utc": "2026-10-15T16:21:52Z"
+    },
+    {
+     "symbol": "BATUSDT",
+     "ts": 1792079748000,
+     "ts_utc": "2026-10-15T15:55:48Z",
+     "source": "binance.fapi.openInterestHist",
+     "fetched_at_utc": "2026-10-15T16:41:18Z"
+    },
+    {
+     "symbol": "GOATUSDT",
+     "ts": 1792079748000,
+     "ts_utc": "2026-10-15T15:55:48Z",
+     "source": "binance.fapi.openInterestHist",
+     "fetched_at_utc": "2026-10-15T16:24:10Z"
+    }
+   ],
+   "非对齐行按来源": [
+    {
+     "source": "binance.fapi.openInterestHist",
+     "rows": 13456
+    }
+   ],
+   "相邻 ts 差值分布（BTCUSDT 近 7 天）": [
+    {
+     "diff_ms": 300000,
+     "count": 1432
+    },
+    {
+     "diff_ms": 23400000,
+     "count": 1
+    }
+   ]
+  },
+  "结论": "`ts` 是 5 分钟桶的**起点**，桶收盘 = ts + 300000ms。依据三条：①99.99% 的行 ts 能被 300000 整除；②相邻 ts 差恒为 300000；③采集器写入 5m 口径时用的判据就是 `ts + 5min <= now`。少量非对齐行来自 `snapshot` 类抓取（同一序列的另一条落库口径），决策只读 `period='5m'`，不受影响。",
+  "在线核对": {
+   "attempted": true,
+   "url": "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=4",
+   "now_utc": "2026-10-26T10:43:07Z",
+   "rows": [
+    {
+     "timestamp": 1793010300000,
+     "timestamp_utc": "2026-10-26T10:25:00Z",
+     "bucket_close_utc": "2026-10-26T10:30:00Z",
+     "sumOpenInterest": "93654.60400000",
+     "sumOpenInterestValue": "7529492808.02782300",
+     "距现在秒": 1087.5
+    },
+    {
+     "timestamp": 1793010600000,
+     "timestamp_utc": "2026-10-26T10:30:00Z",
+     "bucket_close_utc": "2026-10-26T10:35:00Z",
+     "sumOpenInterest": "93643.99200000",
+     "sumOpenInterestValue": "7526982339.77040000",
+     "距现在秒": 787.5
+    },
+    {
+     "timestamp": 1793010900000,
+     "timestamp_utc": "2026-10-26T10:35:00Z",
+     "bucket_close_utc": "2026-10-26T10:40:00Z",
+     "sumOpenInterest": "93641.54600000",
+     "sumOpenInterestValue": "7530437753.76420000",
+     "距现在秒": 487.5
+    },
+    {
+     "timestamp": 1793011200000,
+     "timestamp_utc": "2026-10-26T10:40:00Z",
+     "bucket_close_utc": "2026-10-26T10:45:00Z",
+     "sumOpenInterest": "93653.44800000",
+     "sumOpenInterestValue": "7532921436.43200000",
+     "距现在秒": 187.5
+    }
+   ],
+   "读法": "最后一根 `timestamp` 落在当前 5 分钟区间内、且桶还没结束 ⇒ `timestamp` 是区间起点；交易所对**未结束的桶**也会返回一个当前累计值"
+  }
+ },
+ "B_单位追溯": {
+  "判据": "同一行同时有 `open_interest`（数量）与 `open_interest_value`（名义额）；若前者是币数、后者是 USDT，则 两者之比 ≈ 同期价格。比值与价格对不上就说明单位判断错了。",
+  "rows": [
+   {
+    "symbol": "BTCUSDT",
+    "ts_utc": "2026-10-26T09:00:00Z",
+    "open_interest（数量）": 93888.979,
+    "open_interest_value（名义额）": 7530675579.428761,
+    "比值": 80208.301972,
+    "同期5m收盘价": 80194.9,
+    "比值/价格": 1.00016712,
+    "一致（偏差<1%）": true
+   },
+   {
+    "symbol": "ETHUSDT",
+    "ts_utc": "2026-10-26T09:00:00Z",
+    "open_interest（数量）": 2333247.199,
+    "open_interest_value（名义额）": 5424209287.678764,
+    "比值": 2324.746941,
+    "同期5m收盘价": 2323.97,
+    "比值/价格": 1.00033432,
+    "一致（偏差<1%）": true
+   },
+   {
+    "symbol": "SOLUSDT",
+    "ts_utc": "2026-10-26T09:00:00Z",
+    "open_interest（数量）": 8760157.26,
+    "open_interest_value（名义额）": 885413484.1228402,
+    "比值": 101.072784,
+    "同期5m收盘价": 100.94,
+    "比值/价格": 1.00131548,
+    "一致（偏差<1%）": true
+   },
+   {
+    "symbol": "METISUSDT",
+    "ts_utc": "2026-10-26T09:00:00Z",
+    "open_interest（数量）": 637402.58,
+    "open_interest_value（名义额）": 2139760.46106,
+    "比值": 3.357,
+    "同期5m收盘价": 3.343,
+    "比值/价格": 1.00418786,
+    "一致（偏差<1%）": true
+   }
+  ],
+  "结论": "比值/价格 全部接近 1 ⇒ `open_interest` 是**币本位数量**、`open_interest_value` 是 **USDT 名义额**；状态机 `oi_min_growth_pct` 用的是数量增长，与读取器 `OI_VALUE_COLUMN` 一致，不存在「拿张数当币数」「拿数量当金额」的混用。"
+ },
+ "C_可得性四态": {
+  "四态定义": {
+   "proven": "有 fetched_at、<= 决策时刻、且距桶结束 <= 900 秒",
+   "late": "有 fetched_at、<= 决策时刻，但距桶结束 > 900 秒（补抓/迟到，值仍可用但要标记）",
+   "unknown": "无 fetched_at ⇒ 没有任何可得性证据（不当作可用）",
+   "future": "fetched_at > 决策时刻 ⇒ 决策当时还读不到"
+  },
+  "rows": [
+   {
+    "symbol": "BTCUSDT",
+    "窗口行数": 362,
+    "四态": {
+     "proven": 0,
+     "late": 351,
+     "unknown": 0,
+     "future": 11
+    },
+    "available_at_proven": true,
+    "切片后行数": 351,
+    "NaN可得时点行数": 11,
+    "说明": "available_at_proven 只有在**每一行**都有证据时才为真"
+   },
+   {
+    "symbol": "ETHUSDT",
+    "窗口行数": 362,
+    "四态": {
+     "proven": 0,
+     "late": 352,
+     "unknown": 0,
+     "future": 10
+    },
+    "available_at_proven": true,
+    "切片后行数": 352,
+    "NaN可得时点行数": 10,
+    "说明": "available_at_proven 只有在**每一行**都有证据时才为真"
+   },
+   {
+    "symbol": "SOLUSDT",
+    "窗口行数": 362,
+    "四态": {
+     "proven": 0,
+     "late": 352,
+     "unknown": 0,
+     "future": 10
+    },
+    "available_at_proven": true,
+    "切片后行数": 352,
+    "NaN可得时点行数": 10,
+    "说明": "available_at_proven 只有在**每一行**都有证据时才为真"
+   },
+   {
+    "symbol": "METISUSDT",
+    "窗口行数": 362,
+    "四态": {
+     "proven": 0,
+     "late": 352,
+     "unknown": 0,
+     "future": 10
+    },
+    "available_at_proven": true,
+    "切片后行数": 352,
+    "NaN可得时点行数": 10,
+    "说明": "available_at_proven 只有在**每一行**都有证据时才为真"
+   }
+  ],
+  "与旧判据对撞": [
+   {
+    "决策时刻_utc": "2026-10-26T09:00:00Z",
+    "标签": "实时抓取期内（2026-10-26）：行都有抓取时点",
+    "rows": [
+     {
+      "symbol": "BTCUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 360,
+      "旧判据（只看 fetched_at 非空）": true,
+      "新判据（逐条比决策时刻）": true,
+      "四态": {
+       "proven": 0,
+       "late": 351,
+       "unknown": 0,
+       "future": 11
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "ETHUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 360,
+      "旧判据（只看 fetched_at 非空）": true,
+      "新判据（逐条比决策时刻）": true,
+      "四态": {
+       "proven": 0,
+       "late": 352,
+       "unknown": 0,
+       "future": 10
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "SOLUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 360,
+      "旧判据（只看 fetched_at 非空）": true,
+      "新判据（逐条比决策时刻）": true,
+      "四态": {
+       "proven": 0,
+       "late": 352,
+       "unknown": 0,
+       "future": 10
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "METISUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 360,
+      "旧判据（只看 fetched_at 非空）": true,
+      "新判据（逐条比决策时刻）": true,
+      "四态": {
+       "proven": 0,
+       "late": 352,
+       "unknown": 0,
+       "future": 10
+      },
+      "两者一致": true
+     }
+    ]
+   },
+   {
+    "决策时刻_utc": "2026-10-01T00:00:00Z",
+    "标签": "归档回填期内（2026-10-01）：行都没有抓取时点",
+    "rows": [
+     {
+      "symbol": "BTCUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 0,
+      "旧判据（只看 fetched_at 非空）": false,
+      "新判据（逐条比决策时刻）": false,
+      "四态": {
+       "proven": 0,
+       "late": 0,
+       "unknown": 362,
+       "future": 0
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "ETHUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 0,
+      "旧判据（只看 fetched_at 非空）": false,
+      "新判据（逐条比决策时刻）": false,
+      "四态": {
+       "proven": 0,
+       "late": 0,
+       "unknown": 362,
+       "future": 0
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "SOLUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 0,
+      "旧判据（只看 fetched_at 非空）": false,
+      "新判据（逐条比决策时刻）": false,
+      "四态": {
+       "proven": 0,
+       "late": 0,
+       "unknown": 362,
+       "future": 0
+      },
+      "两者一致": true
+     },
+     {
+      "symbol": "METISUSDT",
+      "窗口行数": 360,
+      "有抓取时点的行": 0,
+      "旧判据（只看 fetched_at 非空）": false,
+      "新判据（逐条比决策时刻）": false,
+      "四态": {
+       "proven": 0,
+       "late": 0,
+       "unknown": 362,
+       "future": 0
+      },
+      "两者一致": true
+     }
+    ]
+   }
+  ],
+  "对撞结论": {
+   "布尔值为什么两边一样": "旧判据 `available_at_proven = (no_fetch == 0)` 在「整窗都有抓取时点」时也给 True，在「整窗都没有」时给 False —— 这个布尔值本身和决策时刻无关，所以拿它比新旧看不出差别。**真正的差别在它背后那一列可得时点**。",
+   "真正的差别": "旧代码把「桶结束（ts+5min）」当成可得时点，只要 fetched_at 非空就宣称「证据齐全」；新代码逐行给可得时点 = fetched_at，并逐行判四态。实时抓取期内实测：`proven=0 / late≈351` —— **没有一行是「及时」的**（全都比桶结束晚 15 分钟以上），而旧判据在这一刻给出的结论是「证据齐全」。",
+   "后果": "旧口径下「可得时点」= 桶结束 ⇒ 6 小时前那一腿看起来随时都能取到；按真实抓取时点，那一腿根本还没到手上 ⇒ 状态机的 6h 增幅在真实数据上读不出来（见 01 号 C 段与 D 段实测）。"
+  }
+ },
+ "D_修复报告不一致": {
+  "旧证据_保留": {
+   "来源": "evidence/ACCUM-EARLY-01/out/03_持仓量核验.json",
+   "字段": "只注册一次缺陷.手工再注册后的读取",
+   "原样内容": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_curr_too_far_3600000ms",
+    "assumed": true,
+    "curr_event_ms": 1793000000000,
+    "curr_available_ms": 1793000300000,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1793003600000,
+    "bucket_ms": 300000,
+    "detail": "最近可得观测的**观测时刻**距决策 3600000ms > 上限 900000ms"
+   },
+   "旧README_§4.1_的说法": "「手工重新注册后读出增长率 -0.00863777」",
+   "为什么不一致": "旧脚本手工注册用的是 3 个**合成**时间戳（末条 1793000000000），而读取决策时刻是 1793003600000 ⇒ 相距 3600 秒 > 上限 900 秒 ⇒ `oi_curr_too_far_3600000ms`、growth 为 null。README 里那个 -0.00863777 其实来自同一次运行的另一节（`真实序列.growth`，用 `oi_growth` 算的，不做新鲜度校验），两者不是同一个计算，却被写成了一件事。",
+   "结论": "旧 README 那句话**不成立**，保留为失败证据，不修改旧产物",
+   "旧产物里的真实序列": {
+    "status": "ok",
+    "growth": -0.008637769779334989,
+    "oi_curr": 93984.287,
+    "oi_past": 94803.175,
+    "curr_utc": "2026-10-26T08:55:00Z",
+    "past_utc": "2026-10-26T02:55:00Z",
+    "gap_sec": 21600.0
+   }
+  },
+  "同点重跑": {
+   "symbol": "BTCUSDT",
+   "decision_utc": "2026-10-26T09:00:00Z",
+   "窗口": {
+    "from": "2026-10-25T02:50:00Z",
+    "to": "2026-10-26T08:55:00Z"
+   },
+   "窗口行数": 362,
+   "四态": {
+    "proven": 0,
+    "late": 351,
+    "unknown": 0,
+    "future": 11
+   },
+   "喂入行数": 351,
+   "最新可得观测_utc": "2026-10-26T08:00:00Z",
+   "观测距决策_秒": 3600.0,
+   "路径一_桥接层read_oi（生产口径，900 秒闸门）": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_curr_too_far_3600000ms",
+    "assumed": false,
+    "curr_event_ms": 1793001600000,
+    "curr_available_ms": 1793004561616,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1793005200000,
+    "bucket_ms": 300000,
+    "detail": "最近可得观测的**观测时刻**距决策 3600000ms > 上限 900000ms"
+   },
+   "路径一b_桥接层read_oi（闸门放到实际间隔，仅作算法对撞）": {
+    "oi_curr": 93963.471,
+    "oi_past": 94549.421,
+    "growth": -0.00619728808281117,
+    "status": "ok",
+    "assumed": false,
+    "curr_event_ms": 1793001600000,
+    "curr_available_ms": 1793004561616,
+    "past_event_ms": 1792980300000,
+    "past_available_ms": 1792983183436,
+    "decision_time_ms": 1793005200000,
+    "bucket_ms": 300000,
+    "detail": "可得时刻由调用方提供"
+   },
+   "路径二_oi_growth（传 available_at，与状态机同口径）": {
+    "status": "ok",
+    "growth": -0.006197288082811179,
+    "oi_curr": 93963.471,
+    "oi_past": 94549.421,
+    "curr_utc": "2026-10-26T08:00:00Z",
+    "past_utc": "2026-10-26T02:05:00Z",
+    "gap_sec": 21300.0,
+    "caliber": "available_at（与状态机同口径）"
+   },
+   "路径二b_oi_growth（旧 ts 分桶口径，仅复现历史报告）": {
+    "status": "ok",
+    "growth": -0.005836874141566088,
+    "oi_curr": 93963.471,
+    "oi_past": 94515.144,
+    "curr_utc": "2026-10-26T08:00:00Z",
+    "past_utc": "2026-10-26T02:00:00Z",
+    "gap_sec": 21600.0,
+    "caliber": "ts_bucket_legacy（旧口径：第一个 ts>=目标 做分母；仅复现历史报告用）"
+   },
+   "两条路径算法一致": true,
+   "旧口径与同口径的差": 0.0003604139,
+   "生产口径下是否给出增幅": false,
+   "读法": "桥接层返回 null 不代表没有数据：先看 status。`oi_curr_too_far_*` = 有观测但离决策太远；`oi_empty` = 真的没有行；两者含义完全不同，报告里必须分开写。「两条路径算法一致」这一项用放宽闸门的那一次比，证明差异只来自闸门，不来自计算。"
+  }
+ }
+}

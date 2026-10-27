@@ -1,0 +1,78 @@
+{
+  "work_order": "FT-FACTOR-01",
+  "title": "分批全池基线与现有因子贡献回测",
+  "timestamp_utc": "2026-10-20T08:30:00Z",
+  "engine": {
+    "name": "Freqtrade",
+    "version": "2026.9",
+    "python": "3.11.16",
+    "environment_venv": "evidence/FT-BASELINE-01/.venv"
+  },
+  "data_input": {
+    "version": "WX-FT-IN-1.0",
+    "source_order": "FT-DATA-01",
+    "manifest_path": "evidence/FT-DATA-01/manifest.json",
+    "manifest_sha256": "d5b7a5c37fe569f1220ab38bf30bd4c3c5fea89b3cb238b282205f31c72bb627",
+    "data_root": "evidence/FT-DATA-01/data/freqtrade/futures",
+    "pairs": [
+      "AR/USDT:USDT",
+      "BANANA/USDT:USDT",
+      "BAT/USDT:USDT",
+      "CTSI/USDT:USDT",
+      "PUMPBTC/USDT:USDT"
+    ],
+    "timerange": "20250801-20251231"
+  },
+  "baseline_reuse": {
+    "source_order": "FT-BASELINE-05",
+    "file": "evidence/FT-BASELINE-05/out/04_freqtrade_trades.csv",
+    "sha256": "1c0944687ef596a326d67f81eb22505d38d11a8e35404e4b65e59d8583b945b8",
+    "reconciliation_source": "evidence/FT-BASELINE-06/out/03_资金费与持仓数量对照表.csv",
+    "reconciliation_sha256": "da4e37f59b9679374ab44b06f0dc2ce53bcce7c515cb454ed8ec004f807ce077",
+    "status": "直接复用（未重复重跑）"
+  },
+  "experiment_deliverables": {
+    "00_冻结方案与实验协议": {
+      "path": "evidence/FT-FACTOR-01/00_冻结方案与实验协议.md"
+    },
+    "01_因子定义与代码位置": {
+      "path": "evidence/FT-FACTOR-01/01_因子定义与代码位置.md"
+    },
+    "strategy_baseline": {
+      "path": "evidence/FT-FACTOR-01/user_data/strategies/WyckoffEventTrendBaseline.py",
+      "sha256": "dfa14bb41a2df15f6e4cc83bac6923a2b012f14ee134e76f51403f55df794e26"
+    },
+    "ablation_no_oi": {
+      "path": "evidence/FT-FACTOR-01/user_data/strategies/WyckoffAblationNoOI.py",
+      "sha256": "7fcda11316c65de3736ca60cd5c9b26d76e1ab4a9c4462b96c9b8d3bccfca4bf"
+    },
+    "ablation_no_breakout_vol": {
+      "path": "evidence/FT-FACTOR-01/user_data/strategies/WyckoffAblationNoBreakoutVol.py",
+      "sha256": "b86c07282a3403b767aa1df555c3d42af044718e97ae939644587b20701b2c07"
+    },
+    "ablation_no_retest_vol": {
+      "path": "evidence/FT-FACTOR-01/user_data/strategies/WyckoffAblationNoRetestVol.py",
+      "sha256": "f645ed91b283ec7be130ae671f1be4d1fa816d299381dfe9880d2862349104ee"
+    },
+    "ablation_no_gap_filter": {
+      "path": "evidence/FT-FACTOR-01/user_data/strategies/WyckoffAblationNoGapFilter.py",
+      "sha256": "d3494baed413ce924611a4214cde90ea71005aa9a7524be305cae22bb6231bc0"
+    },
+    "config_json": {
+      "path": "evidence/FT-FACTOR-01/user_data/config.json",
+      "sha256": "8ceeb07d47058cf7ea41c16a70fcc40c44241c0b5bd82b77b5090005da515eaf"
+    },
+    "table_ablation_summary": {
+      "path": "evidence/FT-FACTOR-01/out/02_因子消融对照结果表.csv",
+      "sha256": "ce5858ac8db3fdd5807e59a6277a90bcc8ad3d070b3b1294f37267003fdd586f"
+    },
+    "table_trades_detail": {
+      "path": "evidence/FT-FACTOR-01/out/03_逐笔交易对账明细.csv",
+      "sha256": "198fddb8925f91feb2d2786a4162296cbe851e52f2dd4bc0425e227fa73ddd1a"
+    },
+    "table_coin_attribution": {
+      "path": "evidence/FT-FACTOR-01/out/04_单币与最大盈利单贡献拆解.csv",
+      "sha256": "7aad30c679afd3b2ce23e51dd47fb08f3e28e2f8f41bb9c78419e665f007eed1"
+    }
+  }
+}

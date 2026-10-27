@@ -1,10 +1,12 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
-# 加密货币趋势判断系统 · 统一启动入口 (桌面工程独立版)
+# 加密货币趋势判断系统 · 统一启动入口 (SYSTEM-STARTUP-01 桌面工程版)
 #
-#   后端 API  :8787  → 启动  框架/backend/start.sh
-#   实时采集        → 启动  框架/backend/collector.sh
-#   前端(唯一) :3000  → 启动  UI界面/web（npm run dev）
+#   1. 后端核心服务 :8787  → 框架/backend/start.sh (API + 回测Worker)
+#   2. 真实运行链接线      → 默认关闭；仅当 --enable-paper 时启动 unified_runtime
+#   3. 实时采集进程        → 框架/backend/collector.sh (幂等复用，防误停)
+#   4. 前端服务     :3000  → UI界面/web (npm run dev)
+#   5. 状态与就绪全景暴露  → 显示真实 PID、配置身份、心跳与运行模式
 #
 # 用户访问：http://127.0.0.1:3000/
 # ─────────────────────────────────────────────────────────────────────────────
@@ -39,11 +41,20 @@ fi
 
 OPEN_BROWSER=1
 PAUSE=0
+ENABLE_PAPER="${SYS_ENABLE_PAPER:-0}"
+PAPER_ARM="${SYS_PAPER_ARM:-3a}"
+SYS_SYMBOL="${SYS_SYMBOL:-all}"
+
 for a in "$@"; do
   case "$a" in
-    --no-open)  OPEN_BROWSER=0 ;;
-    --no-pause) PAUSE=0 ;;
-    --pause)    PAUSE=1 ;;
+    --no-open)      OPEN_BROWSER=0 ;;
+    --no-pause)     PAUSE=0 ;;
+    --pause)        PAUSE=1 ;;
+    --enable-paper) ENABLE_PAPER=1 ;;
+    --status)
+      PORT="$BE_PORT" PY="$PY" sh "$BE_DIR/start.sh" status
+      exit 0
+      ;;
   esac
 done
 [ "${SYS_NO_OPEN:-0}" = "1" ] && OPEN_BROWSER=0
@@ -60,10 +71,9 @@ http_code() { curl -s -o /dev/null -w '%{http_code}' -m 5 --noproxy '*' "$1" 2>/
 
 export PATH="$NODE_BIN_DIR:$PATH"
 export DATA_HUB_PROJECT="$ROOT"
-export MARKET_DB="$ROOT/数据/市场数据/db/market_v2.sqlite3"
-export MARKET_ARCHIVE="$ROOT/数据/市场数据/parquet"
-# 纸面账本目录：**显式**绑定（禁止相对推导 + 自动建库）。缺库 ⇒ 后端 fail-closed。
-export PAPER_LEDGER_DIR="$ROOT/数据/paper"
+export MARKET_DB="${MARKET_DB:-$ROOT/数据/市场数据/db/market_v2.sqlite3}"
+export MARKET_ARCHIVE="${MARKET_ARCHIVE:-$ROOT/数据/市场数据/parquet}"
+export PAPER_LEDGER_DIR="${PAPER_LEDGER_DIR:-$ROOT/数据/paper}"
 export PAPER_LEDGER_ALLOW_INIT="${PAPER_LEDGER_ALLOW_INIT:-0}"
 export LIVE_WORKER_INTERVAL_SEC="${LIVE_WORKER_INTERVAL_SEC:-900}"
 export PYTHONPATH="$ROOT/框架:$BE_DIR:$ROOT:${PYTHONPATH:-}"
@@ -71,18 +81,27 @@ export PYTHONPATH="$ROOT/框架:$BE_DIR:$ROOT:${PYTHONPATH:-}"
 say "════════════════════════════════════════════════"
 say " 加密货币趋势判断系统 · 统一启动 (桌面工程版)"
 say " 项目目录：$ROOT"
+if [ "$ENABLE_PAPER" = "1" ]; then
+  say " 运行模式：【隔离模拟交易模式】（接通信号与统一执行链 Arm: $PAPER_ARM）"
+else
+  say " 运行模式：【普通UI/API安全模式】（未开放自动交易链）"
+fi
 say "════════════════════════════════════════════════"
 
-# ── 1) 后端 :8787 ──
+# ── 1) 后端统一服务管理 :8787 ──
 say ""
-say "── 1/3 后端 API :$BE_PORT ──"
+say "── 1/5 后端 API 与运行链 :$BE_PORT ──"
 if [ ! -f "$BE_DIR/start.sh" ]; then
   err "找不到后端启动脚本：$BE_DIR/start.sh"
   [ "$PAUSE" = "1" ] && read -r -p "按回车关闭…" _
   exit 1
 fi
-if PORT="$BE_PORT" PY="$PY" sh "$BE_DIR/start.sh"; then
-  ok "后端就绪 :$BE_PORT"
+
+START_FLAGS=""
+[ "$ENABLE_PAPER" = "1" ] && START_FLAGS="--enable-paper"
+
+if PORT="$BE_PORT" PY="$PY" PAPER_ARM="$PAPER_ARM" SYMBOL="$SYS_SYMBOL" sh "$BE_DIR/start.sh" $START_FLAGS; then
+  ok "后端服务就绪 :$BE_PORT"
 else
   rc=$?
   err "后端启动失败（退出码 ${rc}）。"
@@ -92,7 +111,7 @@ fi
 
 # ── 2) 实时采集 ──
 say ""
-say "── 2/3 实时采集进程 ──"
+say "── 2/5 实时采集进程（幂等复用，防误停）──"
 if [ ! -f "$BE_DIR/collector.sh" ]; then
   warn "找不到 $BE_DIR/collector.sh → 跳过实时采集启动"
 else
@@ -106,7 +125,7 @@ fi
 
 # ── 3) 前端 :3000 ──
 say ""
-say "── 3/3 前端 :${FE_PORT} ──"
+say "── 3/5 前端 :${FE_PORT} ──"
 if [ ! -d "$FE_DIR" ]; then
   err "找不到前端目录：$FE_DIR"
   [ "$PAUSE" = "1" ] && read -r -p "按回车关闭…" _
@@ -153,11 +172,28 @@ if [ -z "$(listener "$FE_PORT")" ]; then
   ok "前端已启动：pid=${FE_LISTENER}"
 fi
 
-# ── 4) 就绪 ──
+# ── 4) 运行档案核对 ──
 say ""
+say "── 4/5 运行档案核对 ──"
+if [ -f "$ROOT/工具_补登记历史回测.py" ]; then
+  if BK_OUT="$("$PY" "$ROOT/工具_补登记历史回测.py" --apply 2>&1)"; then
+    ok "运行档案已核对：$(printf '%s' "$BK_OUT" | grep -E '目录总数' || printf '完成')"
+  else
+    warn "运行档案核对未完成（不影响服务）：$(printf '%s' "$BK_OUT" | tail -1)"
+  fi
+else
+  warn "找不到 工具_补登记历史回测.py → 跳过档案核对"
+fi
+
+# ── 5) 状态全景与就绪 ──
+say ""
+say "── 5/5 服务状态全景 ──"
+PORT="$BE_PORT" PY="$PY" sh "$BE_DIR/start.sh" status
+
 URL="http://127.0.0.1:$FE_PORT/"
 BE_CODE="$(http_code "http://127.0.0.1:$BE_PORT/api/health")"
 FE_CODE="$(http_code "$URL")"
+say ""
 say "─────────────── 就绪 ───────────────"
 say "  后端 :$BE_PORT  /api/health → ${BE_CODE:-无响应}"
 say "  前端 :$FE_PORT  首页 → ${FE_CODE:-无响应}"

@@ -1,0 +1,206 @@
+# -*- coding: utf-8 -*-
+"""策略侧 PIT 桥接层（FRAME-PIT-01）。
+
+职责只有两件，但这两件必须由**框架**做、不能由策略作者自觉：
+
+1. **OI 统计桶的可得时刻**：`ts` 是 5 分钟桶的**起点**，
+   桶结束 ≠ 发布时刻。本层把「可得时刻」显式算出来交给因子函数，
+   并在无法证明时把本次运行标成**不具备正式资格**（或直接拒用）。
+
+2. **K 线必须已收盘**：每次用某根 bar 做决策前，校验
+   `bar_close_time + 1ms <= decision_time`。这是「未收盘 K 线不可读」的硬闸。
+
+防护边界（不得含糊）
+────────────────────
+本层约束的是**经过它的读取**。同进程代码仍可以直接 `pd.read_parquet`。
+它提供「受控入口 + 违规可检测」，**不是进程级隔离**，不得宣称已完全隔离。
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+
+from ..trading_core.pit_guard import (PIT_GUARD_VERSION, AvailabilityStatus,
+                                      PitMode, PitStore, PitViolation,
+                                      rule_bucket_metrics)
+from .features import OI_BUCKET_MS, extract_real_oi_growth_ex
+
+#: 官方 OI / metrics 接口的桶周期（`ts` 为桶起点）
+OI_SOURCE_NAME = "oi_5m"
+
+
+class PitBridge:
+    """一次回放（一个标的）的 PIT 守卫。"""
+
+    def __init__(self, symbol: str = "", mode: str = PitMode.DECLARED.value,
+                 bucket_ms: int = OI_BUCKET_MS,
+                 declared_lag_ms: Optional[int] = None):
+        self.symbol = symbol
+        self.mode = PitMode(mode)
+        self.bucket_ms = int(bucket_ms)
+        self.declared_lag_ms = (int(declared_lag_ms)
+                                if declared_lag_ms is not None else None)
+        self.store = PitStore(mode=self.mode, symbol=symbol)
+
+        self._oi_ts: Optional[np.ndarray] = None
+        self._oi_vals: Optional[np.ndarray] = None
+        self._oi_available_at: Optional[np.ndarray] = None
+        #: 可得时刻是否只是「桶结束」假设（未证明发布时点）
+        self._oi_assumed: bool = False
+
+        self.candles_checked = 0
+        self.candle_violations: List[dict] = []
+        self.decision_first_ms: Optional[int] = None
+        self.decision_last_ms: Optional[int] = None
+        self.oi_reads = 0
+        self.oi_assumed_reads = 0
+        self.oi_refused_reads = 0
+        self.last_oi_read: Optional[dict] = None
+
+    # ── 装配 ──
+    def register_oi(self, oi_ts: np.ndarray, oi_vals: np.ndarray) -> None:
+        """登记 OI 序列并推导逐行可得时刻。"""
+        ts = np.asarray(oi_ts, dtype=np.int64)
+        vals = np.asarray(oi_vals, dtype=np.float64)
+        self._oi_ts, self._oi_vals = ts, vals
+        if ts.size == 0:
+            self._oi_available_at = np.array([], dtype=np.float64)
+            return
+
+        if self.declared_lag_ms is not None:
+            rule = rule_bucket_metrics(
+                OI_SOURCE_NAME, self.bucket_ms, declared_lag_ms=self.declared_lag_ms,
+                evidence=(f"人工声明的发布延迟 {self.declared_lag_ms}ms "
+                          f"（非交易所证明，仅作为可复核假设）"))
+        else:
+            rule = rule_bucket_metrics(
+                OI_SOURCE_NAME, self.bucket_ms, declared_lag_ms=None,
+                evidence=("parquet oi/binance/um/<symbol>/*.parquet：只有 ts（5m 桶起点），"
+                          "fetched_at 全为空 ⇒ 无发布时点证据"))
+
+        frame = pd.DataFrame({"ts": ts, "open_interest": vals})
+        self.store.add(OI_SOURCE_NAME, frame, rule)
+
+        if rule.status is AvailabilityStatus.UNPROVEN:
+            if self.mode is PitMode.STRICT:
+                # 拒用：整列 NaN ⇒ 任何取用都会落空，且原因可查
+                self._oi_available_at = np.full(ts.size, np.nan, dtype=np.float64)
+                self._oi_assumed = False
+            else:
+                # 照用，但把「桶结束」明确登记成假设。
+                # ⚠ 必须把 assumed 标志传下去，不能把假设值伪装成「已证明的可得时刻」。
+                self._oi_available_at = ts.astype(np.float64) + float(self.bucket_ms)
+                self._oi_assumed = True
+        else:
+            self._oi_available_at = self.store.source(OI_SOURCE_NAME).available_at
+            self._oi_assumed = False
+
+    @property
+    def oi_available_at(self) -> Optional[np.ndarray]:
+        return self._oi_available_at
+
+    # ── 读取：OI ──
+    def read_oi(self, decision_time_ms: int, lookback_ms: int,
+                max_distance_ms: int) -> dict:
+        """在 `decision_time_ms` 读 OI 6h 增幅；不可用时返回 `value=None` 并写明原因。"""
+        if self._oi_ts is None or self._oi_available_at is None:
+            raise PitViolation("OI 序列未登记（必须先 register_oi）")
+        self.oi_reads += 1
+        # 假设路径必须让底层自己算「桶结束」，否则会把假设值当成已证明的可得时刻
+        avail_arg = None if self._oi_assumed else self._oi_available_at
+        res = extract_real_oi_growth_ex(
+            self._oi_ts, self._oi_vals, int(decision_time_ms),
+            lookback_ms=int(lookback_ms), max_distance_ms=int(max_distance_ms),
+            oi_available_at=avail_arg, bucket_ms=self.bucket_ms,
+        )
+        if res["assumed"]:
+            self.oi_assumed_reads += 1
+            self.store.note_refusal(OI_SOURCE_NAME, int(decision_time_ms),
+                                    "assumed_bucket_end_as_available")
+        if res["growth"] is None:
+            self.oi_refused_reads += 1
+        self.last_oi_read = res
+        return res
+
+    # ── 校验：K 线已收盘 ──
+    def assert_candles_closed(self, bar_close_time_ms: int, decision_time_ms: int,
+                              label: str = "1h") -> None:
+        """`bar_close_time + 1ms > decision_time` ⇒ 未收盘就拿来用，直接抛错。"""
+        self.candles_checked += 1
+        c = int(bar_close_time_ms)
+        d = int(decision_time_ms)
+        if self.decision_first_ms is None or d < self.decision_first_ms:
+            self.decision_first_ms = d
+        if self.decision_last_ms is None or d > self.decision_last_ms:
+            self.decision_last_ms = d
+        if c + 1 > d:
+            self.candle_violations.append(
+                {"label": label, "bar_close_time_ms": c, "decision_time_ms": d})
+            raise PitViolation(
+                f"[{self.symbol}] {label} bar 未收盘即被用于决策："
+                f"close_time={c} +1ms > decision_time={d}")
+
+    # ── 资格与审计 ──
+    @property
+    def oi_source_proven(self) -> bool:
+        try:
+            return bool(self.store.is_proven(OI_SOURCE_NAME))
+        except PitViolation:
+            return False
+
+    @property
+    def qualified(self) -> bool:
+        """正式资格：OI 有可得时点证据 + 没走过假设路径 + 无 K 线越界。"""
+        return (self.oi_source_proven
+                and self.oi_assumed_reads == 0
+                and not self.candle_violations)
+
+    def qualification_failures(self) -> List[str]:
+        out: List[str] = []
+        if not self.oi_source_proven:
+            out.append("oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻")
+        if self.oi_assumed_reads:
+            out.append(f"oi_read_under_assumption:{self.oi_assumed_reads}次按桶结束假设取用")
+        if self.candle_violations:
+            out.append(f"candle_not_closed:{len(self.candle_violations)}次")
+        return out
+
+    def audit(self) -> dict:
+        base = self.store.audit()
+        base.update({
+            "pit_guard_version": PIT_GUARD_VERSION,
+            "bridge": "event_trend_v0_1.pit_bridge",
+            "symbol": self.symbol,
+            "oi_bucket_ms": self.bucket_ms,
+            "oi_declared_lag_ms": self.declared_lag_ms,
+            # 实际生效的可得时刻（可能是假设值；`oi_available_at_assumed` 说明它是哪一种）
+            "oi_available_at_rows": (int(np.isfinite(self._oi_available_at).sum())
+                                     if self._oi_available_at is not None else 0),
+            "oi_available_at_assumed": bool(self._oi_assumed),
+            "oi_reads": self.oi_reads,
+            "oi_assumed_reads": self.oi_assumed_reads,
+            "oi_refused_reads": self.oi_refused_reads,
+            "candles_checked": self.candles_checked,
+            "candle_violations": len(self.candle_violations),
+            # 决策时钟：口径 + 本次运行实际覆盖的区间（工单要求记录决策时钟）
+            "decision_clock_rule": ("decision_time = bar_open + bar_period；"
+                                    "close_time = bar_open + bar_period - 1ms；"
+                                    "available_at <= decision_time 才可读"),
+            "decision_time_first_ms": self.decision_first_ms,
+            "decision_time_last_ms": self.decision_last_ms,
+            "qualified": bool(self.qualified),
+            "qualification_failures": self.qualification_failures(),
+        })
+        return base
+
+    def audit_sha256(self) -> str:
+        """整份审计记录的指纹（含桥接层字段，不只是 PitStore）。"""
+        payload = json.dumps(self.audit(), sort_keys=True, ensure_ascii=False, default=str)
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+__all__ = ["PitBridge", "OI_SOURCE_NAME"]

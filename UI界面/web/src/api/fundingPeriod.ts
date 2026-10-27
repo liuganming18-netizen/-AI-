@@ -24,6 +24,13 @@
  * 只取费率历史**最近若干次**相邻 `event_time` 的间隔；只有这些间隔**完全一致**
  * 且为**整小时**，才认为该合约的当前结算周期可信。窗口内出现任何不一致
  * （例如交易所调整过结算频率）即判定为「无法确定」，保持空态。
+ *
+ * ## 「最近」的前提：接口必须返回最新数据
+ *
+ * 本模块**只取最后 7 个点**，因此完全依赖后端 `/funding` 返回的是**最新**记录。
+ * 2026-10-17 修复前后端返回的是**最老**的 2000 条（2022→2023），于是这里判定的
+ * 「当前周期」实际是 2022 年的周期、`sampleCount` 也远大于真实值。
+ * 后端已改为 `newest_first=True`（见 `adapter.py::v1_funding`）。
  */
 
 /** 判定所需的**最近**间隔数（取最近 N+1 个点） */
@@ -86,8 +93,20 @@ export function inferFundingPeriod(
   const first = hours[0];
   const stable = hours.every((h) => Math.abs(h - first) < TOLERANCE_HOURS);
   if (!stable) return { periodHours: null, gapCount: gaps.length, sampleCount: uniq.length, stable: false };
-  if (!Number.isInteger(first) || first <= 0) {
+  /**
+   * 必须是「整小时」——但**不能用 `Number.isInteger`**。
+   *
+   * 库里 `funding_time` 是毫秒整数，实测带 ±2ms 抖动（同一合约相邻结算为
+   * `14400000` / `14400001` / `14399998` 毫秒），换算成小时是 `4.0000002777…`，
+   * `Number.isInteger(4.0000002777) === false` ⇒ 真实 4h 周期被判成「无法确定」，
+   * 全池 135 个合约会因此显示 `—`。
+   *
+   * 改为「离最近整数小时不超过 `TOLERANCE_HOURS`（1 分钟）」，并**回传整数**，
+   * 不把抖动值透给下游（下游拿它做 `=== 8` 之类的比较）。
+   */
+  const rounded = Math.round(first);
+  if (rounded <= 0 || Math.abs(first - rounded) >= TOLERANCE_HOURS) {
     return { periodHours: null, gapCount: gaps.length, sampleCount: uniq.length, stable: false };
   }
-  return { periodHours: first, gapCount: gaps.length, sampleCount: uniq.length, stable: true };
+  return { periodHours: rounded, gapCount: gaps.length, sampleCount: uniq.length, stable: true };
 }

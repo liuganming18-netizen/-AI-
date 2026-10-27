@@ -1,0 +1,519 @@
+/* ============================================================================
+ * 应用外壳 · 响应式与交互（2026-10-17）
+ * ----------------------------------------------------------------------------
+ * 只负责「导航侧栏 + 移动端顶栏 + 全局焦点环」这三件事。
+ * 与 components.css 的分工：那里是通用组件（按钮/卡片/表格），
+ * 这里只放**外壳级**版式 —— 也就是「不管哪个页面都一样的骨架」。
+ *
+ * 三档断点（与 src/hooks/useMediaQuery.ts 严格同源，改一处必须改两处）：
+ *   ≥ 1024px   侧栏全宽 224px，顶栏不出现
+ *   768–1023   侧栏收成 76px 图标导轨（只留图标，title 补说明）
+ *   < 768      侧栏变离屏抽屉，出现 48px 移动端顶栏（汉堡 + 页名 + 主题）
+ *
+ * 只引用 tokens.css 的令牌，不写色值字面量 ⇒ 深浅主题自动跟随。
+ * ========================================================================== */
+
+/* ── 侧栏：全宽（桌面默认） ───────────────────────────────────────────────
+ * 【2026-10-18 对齐设计稿 gm-layout.html】设计稿的侧栏是**纯文字导航**：
+ *   宽 176px、内边距 18px 12px、无图标、无分组标题、无徽标、无品牌图标块，
+ *   标题 16px/700，导航项 9px 12px 圆角 8px，当前项浅绿底 + 绿字 + 600。
+ *   原来的「224px + 图标 + 大类导航 + Live 徽标」是旧版骨架，已按设计稿去掉。
+ * 尺寸可变（响应式），**配色与结构不变**。 */
+
+.appnav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 0 0 176px;
+  width: 176px;
+  height: 100%;
+  padding: 18px 12px;
+  background: var(--ds-surface);
+  /* 设计稿 `.side` 的右边框是 #E3E8E5（= --ds-border），不是更浅的 border-subtle */
+  border-right: 1px solid var(--ds-border);
+  user-select: none;
+  z-index: 40;
+}
+
+.appnav__top {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.appnav__brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0 8px 16px;
+}
+
+.appnav__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ds-r-lg);
+  background: var(--ds-pos-bg);
+  border: 1px solid var(--ds-pos-border);
+  color: var(--ds-pos);
+}
+
+.appnav__brandtext {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.appnav__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ds-text-2);
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appnav__ver {
+  font-family: var(--ds-mono);
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  white-space: nowrap;
+}
+
+/* 抽屉里的关闭键：只在移动端出现 */
+.appnav__close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--ds-r-md);
+  background: transparent;
+  color: var(--ds-text-3);
+  cursor: pointer;
+  transition: background var(--ds-dur-fast) var(--ds-ease), color var(--ds-dur-fast) var(--ds-ease);
+}
+.appnav__close:hover {
+  background: var(--ds-surface-2);
+  color: var(--ds-text);
+}
+
+.appnav__section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-2);
+  padding: 20px 16px 10px;
+  font-size: var(--ds-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-text-3);
+}
+.appnav__sectiontext {
+  white-space: nowrap;
+}
+
+.appnav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.appnav__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ds-text-3);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--ds-dur-fast) var(--ds-ease),
+    color var(--ds-dur-fast) var(--ds-ease),
+    border-color var(--ds-dur-fast) var(--ds-ease);
+}
+
+.appnav__item:hover {
+  background: var(--ds-surface-2);
+  color: var(--ds-text-2);
+}
+
+.appnav__item.is-active {
+  background: var(--ds-accent-50);
+  border-color: transparent;
+  color: var(--ds-accent-text);
+  font-weight: 600;
+}
+
+.appnav__itemicon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.appnav__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appnav__badge {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: var(--ds-r-pill);
+  border: 1px solid var(--ds-pos-border);
+  background: var(--ds-pos-bg);
+  color: var(--ds-pos);
+  font-family: var(--ds-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: 700;
+}
+
+/* 底部：设计稿 `.wsb` —— 一条 12px 灰字 + 8px 绿点，贴在侧栏最底。
+ * 主题开关在这里保留（设计稿没有，但浅/深切换是本应用的既有能力，
+ * 去掉等于砍功能）；样式压到与 `.wsb` 同一档，不额外抢视觉。 */
+.appnav__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 10px 8px 0;
+  border-top: 0;
+}
+
+.appnav__status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--ds-text-3);
+}
+
+.appnav__statusleft {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.appnav__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ds-n-600);
+}
+.appnav__dot.is-fresh {
+  background: var(--ds-pos);
+}
+
+.appnav__age {
+  font-family: var(--ds-mono);
+  color: var(--ds-text-3);
+}
+.appnav__age.is-fresh {
+  color: var(--ds-pos);
+  font-weight: 600;
+}
+
+/* 主题开关：设计稿没有这一项，但它是既有能力 ⇒ 压到与底部状态条同一档
+ * （12px 灰字、无底色、无边框），不额外抢视觉。 */
+.appnav-theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  color: var(--ds-text-3);
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--ds-dur-fast) var(--ds-ease);
+}
+.appnav-theme:hover {
+  color: var(--ds-text-2);
+}
+.appnav-theme__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.appnav-theme__left svg {
+  width: 13px;
+  height: 13px;
+}
+.appnav-theme .appnav__meta {
+  font-family: var(--ds-mono);
+  font-size: 11px;
+  color: var(--ds-text-4);
+}
+
+/* 遮罩：桌面端彻底不参与布局与命中测试 */
+.appnav__scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: var(--ds-scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ds-dur) var(--ds-ease);
+}
+
+/* ── 顶部状态条（设计稿 `.topbar`） ───────────────────────────────────────
+ * 白底、下边框、13px 灰字，一条常驻在内容区顶部；`b` 是「值」，用正文色。
+ * 设计稿原文：padding 9px 22px；gap 8px 22px；flex-wrap。 */
+
+.ds-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+  flex: 0 0 auto;
+  padding: 9px 22px;
+  background: var(--ds-surface);
+  border-bottom: 1px solid var(--ds-border);
+  font-size: 13px;
+  color: var(--ds-text-3);
+  user-select: none;
+}
+
+.ds-topbar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.ds-topbar b {
+  color: var(--ds-text-2);
+  font-weight: 600;
+}
+
+.ds-topbar .up {
+  color: var(--ds-pos);
+}
+.ds-topbar .dn {
+  color: var(--ds-neg);
+}
+.ds-topbar .nu {
+  color: var(--ds-text-3);
+}
+
+.ds-topbar__spacer {
+  margin-left: auto;
+}
+
+.ds-topbar__clock {
+  font-family: var(--ds-mono);
+  font-size: 12px;
+  color: var(--ds-text-3);
+}
+
+.ds-topbar__unit {
+  color: var(--ds-text-4);
+  font-size: 11px;
+}
+
+/* 设计稿右上角那颗黄底徽标写的是「示意数据」（那是假数据页）；
+ * 这里接的是真实数据 ⇒ 换成中性徽标「只读」，形状与尺寸保持一致。 */
+.ds-topbar__tag {
+  flex: 0 0 auto;
+  padding: 2px 10px;
+  border-radius: 4px;
+  background: var(--ds-n-800);
+  color: var(--ds-text-3);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* 窄屏：状态条会换行变高，与移动端顶栏重复 ⇒ 直接交给移动端顶栏 */
+@media (max-width: 767.98px) {
+  .ds-topbar {
+    display: none;
+  }
+}
+
+/* ── 移动端顶栏（默认不存在） ─────────────────────────────────────────── */
+
+.ds-mobilebar {
+  display: none;
+  align-items: center;
+  gap: var(--ds-2);
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 8px;
+  background: var(--ds-surface);
+  border-bottom: 1px solid var(--ds-border-subtle);
+  z-index: 30;
+}
+
+.ds-mobilebar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--ds-r-md);
+  background: transparent;
+  color: var(--ds-text-2);
+  cursor: pointer;
+}
+.ds-mobilebar__btn:hover {
+  background: var(--ds-surface-2);
+  color: var(--ds-text);
+}
+
+.ds-mobilebar__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--ds-fs-sm);
+  font-weight: 700;
+  color: var(--ds-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 顶栏里只要图标，不要「深色主题 / Dark」这两段文字 */
+.ds-mobilebar__theme {
+  flex: 0 0 auto;
+}
+.ds-mobilebar__theme .appnav-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+.ds-mobilebar__theme .appnav__label,
+.ds-mobilebar__theme .appnav__meta {
+  display: none;
+}
+
+/* ── 768–1023px：收窄侧栏 ───────────────────────────────────────────────
+ * 设计稿在 ≤1180px 把侧栏从 176px 收到 140px（文字仍在，只是变窄）。
+ * 原实现是「76px 图标导轨」，但设计稿的导航**没有图标**，
+ * 收成图标导轨后整条导航会变成空白 ⇒ 改为按设计稿收窄，文字保留。 */
+
+@media (max-width: 1023.98px) and (min-width: 768px) {
+  .appnav {
+    flex: 0 0 140px;
+    width: 140px;
+    padding: 14px 8px;
+  }
+  .appnav__brand {
+    padding: 0 6px 12px;
+  }
+  .appnav__item {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .appnav__foot {
+    padding: 8px 6px 0;
+  }
+}
+
+/* ── < 768px：离屏抽屉 ───────────────────────────────────────────────── */
+
+@media (max-width: 767.98px) {
+  .ds-mobilebar {
+    display: flex;
+  }
+
+  .appnav {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 264px;
+    flex-basis: 264px;
+    height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform var(--ds-dur) var(--ds-ease);
+    box-shadow: var(--ds-shadow-lg);
+    z-index: 60;
+  }
+  .appnav[data-open='true'] {
+    transform: translateX(0);
+  }
+
+  .appnav__close {
+    display: inline-flex;
+  }
+
+  .appnav__scrim {
+    display: block;
+  }
+  .appnav__scrim[data-open='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* 抽屉展开时锁住背景滚动（iOS 上否则会「滚到抽屉后面」） */
+@media (max-width: 767.98px) {
+  body:has(.appnav[data-open='true']) {
+    overflow: hidden;
+  }
+}
+
+/* ── 全局焦点可见性 ───────────────────────────────────────────────────────
+ * 键盘用户必须能看见「现在停在哪个控件上」。鼠标点击不显示（:focus-visible
+ * 的原生语义），因此不影响现有观感。
+ * 用 outline + offset 而不是 box-shadow：不受圆角/溢出裁剪影响。 */
+
+:where(button, a, [role='button'], select, input, textarea, summary):focus-visible {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--ds-r-sm);
+}
+
+/* 图表容器本身不可聚焦，但其内部 canvas 拿到焦点时也要可见 */
+.appnav__item:focus-visible,
+.ds-mobilebar__btn:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ── 触摸目标兜底 ─────────────────────────────────────────────────────────
+ * 触屏设备（无 hover 能力）上，把过小的图标键抬到 40px 见方。
+ * 用 pointer:coarse 而不是按宽度猜，桌面窄窗口不会被误伤。 */
+@media (pointer: coarse) {
+  .appnav__item {
+    min-height: 48px;
+  }
+  .ds-mobilebar__btn,
+  .appnav__close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

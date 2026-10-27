@@ -1,0 +1,326 @@
+{
+  "phase": "A_static",
+  "generated_at_utc": "2026-10-25T02:36:14Z",
+  "id_sites": [
+    {
+      "file": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "sha256": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+      "pattern": "event_id = f\\\"ev_",
+      "hits": [
+        {
+          "line": 241,
+          "code": [
+            "        event_id = f\"ev_{self.config.strategy_name}_{self.venue}_{self.symbol}_{bar_4h_close_ms}\"",
+            "        version_id = f\"box_{event_id}_v1\"",
+            "",
+            "        box = BoxVersion(",
+            "            version_id=version_id,",
+            "            symbol=self.symbol,",
+            "            venue=self.venue,"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "sha256": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+      "pattern": "cand_id = f\\\"cand_",
+      "hits": [
+        {
+          "line": 584,
+          "code": [
+            "                cand_id = f\"cand_{event.event_id}_{close_time_ms}\"",
+            "                initial_stop = event.retest_low_lr - self.config.initial_stop_buffer_atr * A",
+            "                initial_risk_r = close_p - initial_stop",
+            "                max_entry = close_p + self.config.max_gap_up_atr * A",
+            "                min_entry = H",
+            "                earliest_exec = close_time_ms + 15 * 60 * 1000  # 下一根更晚的 15m 开盘 (如 12:00 -> 12:15)",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/unified_runtime.py",
+      "sha256": "d58f95fe9608335db88b811c65fe4b96a2318af2b27840c67b0bfa04df4f9e55",
+      "pattern": "sig_uid = c\\.candidate_id",
+      "hits": [
+        {
+          "line": 1309,
+          "code": [
+            "                sig_uid = c.candidate_id",
+            "                exists = con.execute(",
+            "                    \"SELECT 1 FROM live_signal WHERE signal_uid=?\", (sig_uid,)).fetchone()",
+            "                con.execute(",
+            "                    \"INSERT INTO live_signal(\"",
+            "                    \"signal_uid, source, origin, exchange, market, symbol, timeframe, \"",
+            "                    \"strategy_key, strategy_version, structural_kind, direction, event_time, \""
+          ]
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "sha256": "9fc4e3a11389ee3c72ce16a6a0872f3b284245aec079b03eae62d4fb0207143c",
+      "pattern": "INSERT OR REPLACE INTO paper_order\\(account_id,event_uid",
+      "hits": [
+        {
+          "line": 1140,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint,config_source,initial_stop_price,planned_risk) \"",
+            "                        \"VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", signal_uid or f\"manual:{req_ms}\", symbol, qty, fill, fee,",
+            "                         attempt_ms, fill, notional, bar_open, m_ver,"
+          ]
+        },
+        {
+          "line": 1153,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint,config_source) \"",
+            "                        \"VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", signal_uid or f\"manual:{req_ms}\", symbol, qty, fill, fee,",
+            "                         attempt_ms, fill, notional, bar_open, m_ver,"
+          ]
+        },
+        {
+          "line": 1166,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms) \"",
+            "                        \"VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", signal_uid or f\"manual:{req_ms}\", symbol, qty, fill, fee,",
+            "                         attempt_ms, fill, notional, bar_open, m_ver,",
+            "                         (None if event_time is None else int(event_time)), req_ms, MARKET_SOURCE,"
+          ]
+        },
+        {
+          "line": 1681,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint,config_source,initial_stop_price,planned_risk) \"",
+            "                        \"VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_order_uid, pos[\"symbol\"], exit_side, qty, raw, fee,",
+            "                         now_ms, fill, notional, bar_open_time, pos_mver,"
+          ]
+        },
+        {
+          "line": 1692,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint,config_source) \"",
+            "                        \"VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_order_uid, pos[\"symbol\"], exit_side, qty, raw, fee,",
+            "                         now_ms, fill, notional, bar_open_time, pos_mver,"
+          ]
+        },
+        {
+          "line": 1703,
+          "code": [
+            "            con.execute(\"INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,\"",
+            "                        \"fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,\"",
+            "                        \"event_time,requested_at,market_source,first_request_ms,epoch_ms) \"",
+            "                        \"VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_order_uid, pos[\"symbol\"], exit_side, qty, raw, fee,",
+            "                         now_ms, fill, notional, bar_open_time, pos_mver,",
+            "                         (pos[\"event_time\"] if \"event_time\" in pos.keys() else None), now_ms, MARKET_SOURCE,"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "sha256": "9fc4e3a11389ee3c72ce16a6a0872f3b284245aec079b03eae62d4fb0207143c",
+      "pattern": "INSERT INTO paper_fill\\(account_id,order_id,position_id",
+      "hits": [
+        {
+          "line": 1178,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,\"",
+            "                        \"action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,\"",
+            "                        \"bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,\"",
+            "                        \"market_source,first_request_ms,epoch_ms,stoploss_s,trail_d,config_fingerprint,\"",
+            "                        \"initial_stop_price,planned_risk) \"",
+            "                        \"VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,"
+          ]
+        },
+        {
+          "line": 1193,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,\"",
+            "                        \"action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,\"",
+            "                        \"bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,\"",
+            "                        \"market_source,first_request_ms,epoch_ms,stoploss_s,trail_d,config_fingerprint) \"",
+            "                        \"VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,",
+            "                         slip_cost, bar_open, int(bar[\"close_time\"]), attempt_ms, m_ver,"
+          ]
+        },
+        {
+          "line": 1207,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,\"",
+            "                        \"action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,\"",
+            "                        \"bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,\"",
+            "                        \"market_source,first_request_ms,epoch_ms) \"",
+            "                        \"VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,",
+            "                         slip_cost, bar_open, int(bar[\"close_time\"]), attempt_ms, m_ver,"
+          ]
+        },
+        {
+          "line": 1715,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,\"",
+            "                        \"raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,\"",
+            "                        \"fill_ts,model_version,event_time,available_at,requested_at,market_source,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint,initial_stop_price,planned_risk) \"",
+            "                        \"VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_oid, position_id, pos[\"signal_uid\"], pos[\"symbol\"], qty, raw, fill,",
+            "                         notional, fee, slip_cost, bar_open_time, bar_close_time,"
+          ]
+        },
+        {
+          "line": 1728,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,\"",
+            "                        \"raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,\"",
+            "                        \"fill_ts,model_version,event_time,available_at,requested_at,market_source,\"",
+            "                        \"stoploss_s,trail_d,config_fingerprint) \"",
+            "                        \"VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_oid, position_id, pos[\"signal_uid\"], pos[\"symbol\"], qty, raw, fill,",
+            "                         notional, fee, slip_cost, bar_open_time, bar_close_time,"
+          ]
+        },
+        {
+          "line": 1741,
+          "code": [
+            "            con.execute(\"INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,\"",
+            "                        \"raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,\"",
+            "                        \"fill_ts,model_version,event_time,available_at,requested_at,market_source) \"",
+            "                        \"VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?)\",",
+            "                        (f\"paper43_{arm}\", exit_oid, position_id, pos[\"signal_uid\"], pos[\"symbol\"], qty, raw, fill,",
+            "                         notional, fee, slip_cost, bar_open_time, bar_close_time,",
+            "                         now_ms, pos_mver,"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "sha256": "9fc4e3a11389ee3c72ce16a6a0872f3b284245aec079b03eae62d4fb0207143c",
+      "pattern": "SELECT 1 FROM paper_processed WHERE signal_uid",
+      "hits": [
+        {
+          "line": 953,
+          "code": [
+            "            if con.execute(\"SELECT 1 FROM paper_processed WHERE signal_uid=?\", (signal_uid,)).fetchone():",
+            "                return {\"ok\": False, \"reason\": \"duplicate_signal_uid\", \"signal_uid\": signal_uid}",
+            "        # 同币已有持仓 → 不加仓（add_positions_enabled=false）",
+            "        if con.execute(\"SELECT 1 FROM paper_position WHERE account_id=? AND symbol=? AND status='open' \"",
+            "                       \"AND COALESCE(voided,0)=0\",",
+            "                       (f\"paper43_{arm}\", symbol)).fetchone():",
+            "            _resolve_pending(con, pending_id, \"rejected\", \"position_already_open_no_add\", T=attempt_ms)"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/live_store.py",
+      "sha256": "38002aacf714a541569324c606a33f7980352f9b9f75512bbb6585365624c4f0",
+      "pattern": "def paper_conn",
+      "hits": [
+        {
+          "line": 692,
+          "code": [
+            "def paper_conn(arm: str, *, ro: bool = False, create: bool | None = None,",
+            "               strict_identity: bool = True, initial_equity: float | None = None) -> sqlite3.Connection:",
+            "    \"\"\"复用既有 `paper_{arm}.sqlite3`；**缺库即报错，绝不自动创建**。",
+            "",
+            "    · `ro=True`  → 只读打开（并核对身份）；",
+            "    · `ro=False` → 读写打开并做**加性** schema 升级（不删、不重建、不改既有列语义）；",
+            "    · 库文件不存在 ⇒ `LedgerUnavailable`（除非显式 `create=True` 且允许建档）；"
+          ]
+        },
+        {
+          "line": 740,
+          "code": [
+            "def paper_conns(*, ro: bool = False):",
+            "    \"\"\"四臂账本连接（dict arm→con）；**缺库的臂直接缺席**（由调用方如实报缺）。\"\"\"",
+            "    out = {}",
+            "    for a in ARMS:",
+            "        try:",
+            "            out[a] = paper_conn(a, ro=ro)",
+            "        except (LedgerUnavailable, LedgerIdentityMismatch):"
+          ]
+        }
+      ]
+    }
+  ],
+  "exchange_order_tokens_searched": [
+    "exchange_order_id",
+    "exchangeOrderId",
+    "clientOrderId",
+    "client_order_id",
+    "newOrderResp",
+    "orderId",
+    "order_id_exchange"
+  ],
+  "exchange_order_hits_in_backend": [],
+  "exchange_order_verdict": "纸面模拟链路**没有交易所订单号**：本模块不含任何交易所写接口，成交由「已闭合 15m bar 开盘价」本地撮合（`paper_engine.FILL_POLICY`）。因此 `exchange_order_id` 一律 `None` + 原因，**不用引擎自增 `paper_order.order_id` 冒充**。",
+  "identity_taxonomy": [
+    {
+      "kind": "运行内 ID",
+      "fields": [
+        "event_id",
+        "candidate_id",
+        "transition_id",
+        "paper_order.order_id",
+        "paper_fill.fill_id",
+        "paper_position.position_id",
+        "paper_realized.id"
+      ],
+      "stable_across_runs": false,
+      "why": "`event_id` 含 `box_formation_close_ms`；`candidate_id` 再拼 `breakout_close_ms`；`paper_*` 的自增主键更是**每个账本文件各自从 1 开始** ⇒ 跨库不可比。",
+      "usable_as": "仅在本进程/本账本内定位；跨运行匹配必须另立键"
+    },
+    {
+      "kind": "跨运行匹配键",
+      "fields": [
+        "cross_run_key",
+        "candidate_id（同窗口下）",
+        "snapshot_hash"
+      ],
+      "stable_across_runs": true,
+      "why": "`cross_run_key` 只取形态语义量（箱体 H/L/A/ER、扫低、回踩、突破价量、止损价、可得时刻），不含计数器、不含箱体建档时刻 ⇒ 换窗口/换进程仍对上同一形态。",
+      "usable_as": "候选↔订单↔成交 的**唯一可跨运行**关联键"
+    },
+    {
+      "kind": "引擎订单号",
+      "fields": [
+        "paper_order.order_id"
+      ],
+      "stable_across_runs": false,
+      "why": "SQLite `INTEGER PRIMARY KEY AUTOINCREMENT`，按账本文件自增。",
+      "usable_as": "账本内唯一；对外必须连同 `account_id` 一起标识"
+    },
+    {
+      "kind": "交易所订单号",
+      "fields": [],
+      "stable_across_runs": null,
+      "why": "**不存在**：模拟盘不下真单，无交易所回报。",
+      "usable_as": "不适用（如实写 None）"
+    }
+  ]
+}

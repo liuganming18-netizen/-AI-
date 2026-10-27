@@ -1,0 +1,2819 @@
+{
+ "生成时刻": "2026-10-22T22:13:32+08:00",
+ "base": 1792678500000,
+ "base_时刻": "2026-10-22T22:15:00+08:00",
+ "明细": {
+  "A_入口": {
+   "live_worker_可导入": false,
+   "错误": "ModuleNotFoundError: No module named '_warmup43'",
+   "paper_engine_有trailing入口": true
+  },
+  "A_待测持仓": [
+   {
+    "position_id": 1,
+    "symbol": "BTCUSDT",
+    "entry_price": 100.10000000000001,
+    "stop_price": 85.10000000000001,
+    "qty": 1.666
+   }
+  ],
+  "B_隔离adapter": {
+   "pid": 29957,
+   "已监听": true,
+   "日志": "/tmp/wx_audit03_adapter_8799.log",
+   "返回码": null
+  },
+  "B_持仓": {
+   "status": 200,
+   "body": {
+    "mode": "paper",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok",
+     "age_seconds": null,
+     "ledger_source": {
+      "kind": "paper_ledger",
+      "ledger_dir": "/tmp/wx_audit03/paper",
+      "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+      "manifest_present": true,
+      "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+      "allow_init": true,
+      "all_present": true,
+      "any_present": true,
+      "arms": {
+       "3a": {
+        "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+        "exists": true,
+        "sha256": "1f19af7c7f63c6adadea4933a41e2c85cb414e5631c0d2175886c941c86400f8",
+        "rows": {
+         "paper_position": 1,
+         "paper_fill": 1,
+         "paper_funding": 0,
+         "paper_equity": 1,
+         "paper_realized": 0,
+         "paper_order": 2,
+         "paper_state": 1
+        },
+        "open_nonvoid": 1,
+        "identity": {
+         "account_id": "paper43_3a",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3b": {
+        "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+        "exists": true,
+        "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 6,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3b",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3c": {
+        "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+        "exists": true,
+        "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 1,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3c",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3d": {
+        "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+        "exists": true,
+        "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 1,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3d",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       }
+      }
+     },
+     "legacy_ledger": {
+      "verification_status": "legacy_unverified",
+      "label": "旧版/未验收/规则违规",
+      "excluded_from_official_strategy_performance": true,
+      "audit": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+      "side_table": "框架/backend/live/paper_legacy_audit.sqlite3",
+      "generated_utc": "2026-10-15T08:18:51Z",
+      "generated_by": "work_账本保全与身份统一_2026-10-15",
+      "preserved": false,
+      "preservation_status": "LOST_ON_DISK__NOT_PRESERVED",
+      "headline": "原四臂纸面账本（177 条持仓 / 161 条未作废 / 25 笔未作废在持仓）**已不在磁盘**。原目录被第三方工具建议并执行的 `rm -rf \"/Users/boos/WorkBuddy AI\"` 整体移除，未进废纸篓、无本地快照、无 Time Machine。故「一致性保全到桌面工程」当前**不可执行**；本服务**不伪造、不重建、不用空库冒充**，一律 fail-closed。",
+      "original_ledger": {
+       "dir": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+       "exists_now": false,
+       "exists_now_checked_utc": "2026-10-15T08:15:00Z",
+       "migration_ids": {
+        "paper_3a.sqlite3": "M002",
+        "paper_3b.sqlite3": "M003",
+        "paper_3c.sqlite3": "M004",
+        "paper_3d.sqlite3": "M005"
+       },
+       "migration_source_tag": "旧实现",
+       "logical_bytes_at_inventory": {
+        "paper_3a.sqlite3": 225280,
+        "paper_3b.sqlite3": 180224,
+        "paper_3c.sqlite3": 225280,
+        "paper_3d.sqlite3": 225280
+       },
+       "note_on_logical_bytes": "迁移清单记录的原始逻辑字节（225280/180224/225280/225280）与桌面误建空库（各 151552）**不同** ⇒ 桌面那 4 份不是原账本，是新建的空库。"
+      },
+      "row_level_baseline": {
+       "source_file": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+       "at_utc": "2026-10-15T06:32:02.221384+00:00",
+       "scope": "read_only_legacy_ledger_baseline",
+       "what_it_proves": "原账本**存在时**的逐表行数与 content_sha256（可对照，但**不含行内容**，故无法据此重建账本）。",
+       "arms": {
+        "3a": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3a.sqlite3",
+         "rows": {
+          "paper_position": 50,
+          "paper_fill": 88,
+          "paper_funding": 25,
+          "paper_equity": 330,
+          "paper_realized": 38,
+          "paper_order": 1348,
+          "paper_state": 1
+         }
+        },
+        "3b": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3b.sqlite3",
+         "rows": {
+          "paper_position": 35,
+          "paper_fill": 65,
+          "paper_funding": 26,
+          "paper_equity": 305,
+          "paper_realized": 30,
+          "paper_order": 1019,
+          "paper_state": 1
+         }
+        },
+        "3c": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3c.sqlite3",
+         "rows": {
+          "paper_position": 46,
+          "paper_fill": 80,
+          "paper_funding": 25,
+          "paper_equity": 321,
+          "paper_realized": 34,
+          "paper_order": 1351,
+          "paper_state": 1
+         }
+        },
+        "3d": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3d.sqlite3",
+         "rows": {
+          "paper_position": 46,
+          "paper_fill": 80,
+          "paper_funding": 25,
+          "paper_equity": 320,
+          "paper_realized": 34,
+          "paper_order": 1348,
+          "paper_state": 1
+         }
+        }
+       },
+       "totals": {
+        "paper_position": 177,
+        "paper_fill": 313,
+        "paper_funding": 101,
+        "paper_equity": 1276,
+        "paper_realized": 136,
+        "paper_order": 5066,
+        "paper_state": 4
+       }
+      },
+      "independent_cross_check": {
+       "source_files": [
+        "evidence/Codex_闭环复审_2026-10-15/migration_ledger_path_audit.json",
+        "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+        "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+       ],
+       "open_nonvoid_by_arm": {
+        "3a": 7,
+        "3b": 4,
+        "3c": 7,
+        "3d": 7,
+        "total": 25
+       },
+       "nonvoid_positions": 161,
+       "short_source_as_long": 89,
+       "delay_below15m": 97,
+       "overlap_note": "89（错向）与 97（延迟<15m）两类违规**有重叠**，不得相加当「违规总数」。",
+       "pre_reload_account_state_at_utc": "2026-10-15T06:00:00Z 左右（14:00 本地）",
+       "pre_reload_per_arm": {
+        "3a": {
+         "account_id": "paper43_3a",
+         "initial_equity": 5000.0,
+         "equity": 4828.113375,
+         "cash": 4661.866216,
+         "positions": 7,
+         "realized_rows": 38,
+         "funding_rows": 25
+        },
+        "3b": {
+         "account_id": "paper43_3b",
+         "initial_equity": 5000.0,
+         "equity": 5005.49711,
+         "cash": 4789.531398,
+         "positions": 4,
+         "realized_rows": 30,
+         "funding_rows": 26
+        },
+        "3c": {
+         "account_id": "paper43_3c",
+         "initial_equity": 5000.0,
+         "equity": 4851.274302,
+         "cash": 4684.980214,
+         "positions": 7,
+         "realized_rows": 34,
+         "funding_rows": 25
+        },
+        "3d": {
+         "account_id": "paper43_3d",
+         "initial_equity": 5000.0,
+         "equity": 4850.691499,
+         "cash": 4684.394889,
+         "positions": 7,
+         "realized_rows": 34,
+         "funding_rows": 25
+        }
+       },
+       "cross_check_result": "pre_reload 独立采集的 realized(38/30/34/34)、funding(25/26/25/25)、在持仓(7/4/7/7=25) 与 Codex 逐表基线**逐项一致** ⇒ 基线可信；但这些只是**账户级/计数级**事实，不含逐行内容。"
+      },
+      "loss_forensics": {
+       "what_happened": "原账本所在目录 `/Users/boos/WorkBuddy AI` 被整体删除（`rm -rf`，不进废纸篓）。",
+       "root_cause_evidence": {
+        "tool": "antigravity (Gemini)",
+        "conversation_db": "/Users/boos/.gemini/antigravity/conversations/df5cfb74-53fc-4b5c-82d3-3a8971eca093.db",
+        "needle": "rm -rf \"/Users/boos/WorkBuddy AI\"",
+        "occurrences": 3,
+        "verbatim_context": "#### 方案 B：直接命令行彻底删除\\n如果您确信磁盘空间紧迫需要立刻腾出空间，请在终端只执行针对该无点号目录的删除命令：\\n```bash\\n# 只删除历史会话与旧工作区，绝不碰 ~/.workbuddy-ai 运行环境\\nrm -rf \"/Users/boos/WorkBuddy AI\"\\n```",
+        "why_it_was_wrong": "该建议把 `/Users/boos/WorkBuddy AI` 描述为「历史会话与旧工作区」，但其中 `2026-10-03-16-11-14/outputs/网站逆向研究/…/纸面模拟43/` 是**四臂纸面账本唯一副本**（迁移清单 M002–M005）。",
+        "inspection_readonly": true
+       },
+       "timeline": [
+        {
+         "utc": "2026-10-15T06:00:00Z",
+         "event": "pre_reload 采集四臂账户级快照（equity/realized/funding/在持仓）",
+         "source": "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+        },
+        {
+         "utc": "2026-10-15T06:24:00Z",
+         "event": "Codex 迁移路径审计：old path exists=true（50/35/46/46 持仓，7/4/7/7 未作废）",
+         "source": "migration_ledger_path_audit.json"
+        },
+        {
+         "utc": "2026-10-15T06:32:02Z",
+         "event": "Codex 逐表保全基线（行数 + content_sha256）",
+         "source": "legacy_ledger_preservation_baseline.json"
+        },
+        {
+         "utc": "2026-10-15T06:20:00Z",
+         "event": "桌面误建 4 份空库（14:20 本地）",
+         "source": "ls -l mtime"
+        },
+        {
+         "utc": "~2026-10-15T07:30Z",
+         "event": "`rm -rf \"/Users/boos/WorkBuddy AI\"` 执行；原账本目录消失",
+         "source": "/Users/boos/WorkBuddy AI 现仅剩两个空目录（15:36 本地创建）"
+        },
+        {
+         "utc": "2026-10-15T08:15:00Z",
+         "event": "本任务复核：原路径 No such file or directory",
+         "source": "本回执"
+        }
+       ],
+       "current_state_of_root_dir": {
+        "path": "/Users/boos/WorkBuddy AI",
+        "exists": true,
+        "children": [
+         "2026-10-15-15-36-06 (空)",
+         "2026-10-15-15-36-23 (空)"
+        ],
+        "note": "只剩两个空目录；`2026-10-03-16-11-14` 子树不存在。"
+       },
+       "recoverability": {
+        "trash": "`rm -rf` **不进废纸篓**；且 `~/.Trash` 在本沙箱不可读（Operation not permitted），无法代为确认。",
+        "apfs_local_snapshots": "`tmutil listlocalsnapshots /` 为空 ⇒ 无本地快照可回滚。",
+        "time_machine": "`tmutil destinationinfo` = No destinations configured ⇒ 无 TM 备份。",
+        "other_copies": "全盘 `find /Users/boos -maxdepth 6 -type f -name 'paper_*.sqlite3'` 仅命中 `框架/backend/live/paper_legacy_audit.sqlite3`（审计旁表）与桌面 4 份空库 ⇒ 无其他副本。",
+        "verdict": "按现有证据，原账本**不可自恢复**。"
+       },
+       "what_we_did_NOT_do": [
+        "未伪造原账本、未按行内容重建冒充",
+        "未删除或改动 4 份误建空库（保留为回归证据）",
+        "未合并账户、未重置资金",
+        "未把 pre_reload 的账户级快照当账本使用（它是 API 响应快照，不是账本）"
+       ],
+       "action_required_from_user": [
+        "如仍有备份（外置盘 / 云备份 / 旧机器），请提供 `paper_3{a,b,c,d}.sqlite3` 原件，本服务按 M002–M005 受控迁入 `数据/paper/` 并核对身份与行级 SHA",
+        "或授权：以现有可核事实（基线行数/SHA + 账户级快照）出具「部分保全」结论，并明确原账本**视为丢失**",
+        "若两者都不做，则本服务持续 fail-closed：纸面/复盘端点一律 unavailable，**不返回任何伪造或空账户数据**"
+       ]
+      },
+      "preserved_artifacts": {
+       "empty_ledgers_regression": {
+        "path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+        "files": {
+         "paper_3a.sqlite3": {
+          "inode": 39535694,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "a7db3ac9762c1aaa654a42ea446375086397d254ae464712ef89a1ea1405296a",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3b.sqlite3": {
+          "inode": 39535699,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3c.sqlite3": {
+          "inode": 39535707,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3d.sqlite3": {
+          "inode": 39535708,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         }
+        },
+        "status": "保留（未被本服务读取、未被删除）",
+        "why_preserved": "作为「相对路径推导 + 自动建库」缺陷的**回归证据**；修复后服务不再读它。"
+       },
+       "audit_side_table": "框架/backend/live/paper_legacy_audit.sqlite3（legacy_position_audit 25 行 / legacy_signal_audit 2 行；追加式，保留事实）",
+       "audit_json": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+       "causal_audit_json": "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+       "row_level_baseline_json": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+       "pre_reload_snapshots": [
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json",
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_positions.json"
+       ]
+      },
+      "binding": {
+       "ledger_dir_env": "PAPER_LEDGER_DIR",
+       "ledger_dir_default": "<工程根>/数据/paper",
+       "manifest": "<工程根>/数据/paper/ledger_identity.json",
+       "allow_init_env": "PAPER_LEDGER_ALLOW_INIT",
+       "policy": "缺库 ⇒ LedgerUnavailable；身份不符 ⇒ LedgerIdentityMismatch；绝不自动建库、绝不换目录、绝不用空库冒充。",
+       "current_state": "数据/paper 不存在 ⇒ 纸面/复盘端点一律 unavailable（fail-closed）。"
+      }
+     },
+     "note": "旧版/未验收持仓：原账本**未修改**，按追加审计标注（verification_status/label/violations），并排除正式策略表现。"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "arm": "3a",
+      "account_id": "paper43_3a",
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "qty": 1.666,
+      "entry_price": 100.10000000000001,
+      "mark_price": 100.0,
+      "mark_source": "closed_15m_close",
+      "mark_time": 1792680299999,
+      "unrealized_pnl": -0.1666,
+      "unrealized_pnl_pct": -0.0999,
+      "stop_price": 85.10000000000001,
+      "atr_at_entry": 5.0,
+      "entry_ts": 1792679400000,
+      "signal_uid": "audit03_s1",
+      "leverage": 1.0,
+      "notional": 166.7666,
+      "opened_by": "paper_exec_v1_derived_from_effective_view_20261013",
+      "funding_paid": 0.0,
+      "event_time": 1792677600000,
+      "available_at": 1792678500000,
+      "requested_at": 1792678500000,
+      "earliest_fill_ms": 1792679400000,
+      "filled_at": 1792679400000,
+      "market_source": "binance.um.candles_15m.is_closed.open",
+      "origin": "replay",
+      "stop_history": [
+       {
+        "id": 1,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "old_stop": null,
+        "new_stop": 85.10000000000001,
+        "reason": "initial_stop",
+        "ref_bar_open_ms": 1792679400000,
+        "available_at": 1792678500000,
+        "decision_at": 1792680300000,
+        "effective_at": 1792679400000,
+        "created_at": 1792678407866
+       }
+      ],
+      "verification_status": "legacy_unverified",
+      "label": "旧版/未验收",
+      "violations": [],
+      "excluded_from_official_strategy_performance": true
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "1f19af7c7f63c6adadea4933a41e2c85cb414e5631c0d2175886c941c86400f8",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "C_首次推进": {
+   "status": 200,
+   "body": {
+    "mode": "paper_advance_trailing",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "ok": true,
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "entry_price": 100.10000000000001,
+      "old_stop": 85.10000000000001,
+      "candidate_stop": 90.2,
+      "effective_stop": 90.2,
+      "stop_updated": true,
+      "ref_candle_open_time": 1792656000000,
+      "ref_candle_close_time": 1792670399999,
+      "available_at": 1792670399999,
+      "decision_at": 1792678409541,
+      "effective_at": 1792670399999,
+      "exit_triggered": false,
+      "exit_result": null,
+      "rule": "FT-LOW4H",
+      "trail_d": 0.05
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "1f19af7c7f63c6adadea4933a41e2c85cb414e5631c0d2175886c941c86400f8",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "C_止损历史": {
+   "status": 404,
+   "body": {
+    "错误": "接口不存在"
+   }
+  },
+  "C_止损历史_引擎侧": [
+   {
+    "id": 2,
+    "account_id": "paper43_3a",
+    "position_id": 1,
+    "old_stop": 85.10000000000001,
+    "new_stop": 90.2,
+    "reason": "ft_low4h_trail",
+    "ref_bar_open_ms": 1792656000000,
+    "available_at": 1792670399999,
+    "decision_at": 1792678409541,
+    "effective_at": 1792670399999,
+    "created_at": 1792678409547
+   },
+   {
+    "id": 1,
+    "account_id": "paper43_3a",
+    "position_id": 1,
+    "old_stop": null,
+    "new_stop": 85.10000000000001,
+    "reason": "initial_stop",
+    "ref_bar_open_ms": 1792679400000,
+    "available_at": 1792678500000,
+    "decision_at": 1792680300000,
+    "effective_at": 1792679400000,
+    "created_at": 1792678407866
+   }
+  ],
+  "C_止损历史排序": [
+   [
+    "ft_low4h_trail",
+    1792670399999
+   ],
+   [
+    "initial_stop",
+    1792679400000
+   ]
+  ],
+  "C_重复推进": {
+   "status": 404,
+   "body": {
+    "mode": "paper_advance_trailing",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "ok": true,
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "entry_price": 100.10000000000001,
+      "old_stop": 90.2,
+      "candidate_stop": 90.2,
+      "effective_stop": 90.2,
+      "stop_updated": false,
+      "ref_candle_open_time": 1792656000000,
+      "ref_candle_close_time": 1792670399999,
+      "available_at": 1792670399999,
+      "decision_at": 1792678409560,
+      "effective_at": 1792670399999,
+      "exit_triggered": false,
+      "exit_result": null,
+      "rule": "FT-LOW4H",
+      "trail_d": 0.05
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "fc3f3a8ad744b4bddcf37c2b58b99c92b70a235ae288b8ce60df11dfc0f6cddf",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   },
+   "历史行数": 0
+  },
+  "C_更低低点": {
+   "status": 200,
+   "body": {
+    "mode": "paper_advance_trailing",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "ok": true,
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "entry_price": 100.10000000000001,
+      "old_stop": 90.2,
+      "candidate_stop": 89.30000000000001,
+      "effective_stop": 90.2,
+      "stop_updated": false,
+      "ref_candle_open_time": 1792670400000,
+      "ref_candle_close_time": 1792684799999,
+      "available_at": 1792684799999,
+      "decision_at": 1792678409574,
+      "effective_at": 1792684799999,
+      "exit_triggered": false,
+      "exit_result": null,
+      "rule": "FT-LOW4H",
+      "trail_d": 0.05
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "fc3f3a8ad744b4bddcf37c2b58b99c92b70a235ae288b8ce60df11dfc0f6cddf",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "D_退出推进": {
+   "status": 200,
+   "body": {
+    "mode": "paper_advance_trailing",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "ok": true,
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "entry_price": 100.10000000000001,
+      "old_stop": 90.2,
+      "candidate_stop": 83.60000000000001,
+      "effective_stop": 90.2,
+      "stop_updated": false,
+      "ref_candle_open_time": 1792684800000,
+      "ref_candle_close_time": 1792699199999,
+      "available_at": 1792699199999,
+      "decision_at": 1792678409582,
+      "effective_at": 1792699199999,
+      "exit_triggered": true,
+      "exit_result": {
+       "ok": true,
+       "reason": "closed",
+       "position_id": 1,
+       "order_id": 3,
+       "symbol": "BTCUSDT",
+       "exit_price": 90.15490000000001,
+       "raw_price": 90.2,
+       "qty": 1.666,
+       "gross_pnl": -16.568536599999995,
+       "entry_fee": 0.08338330000000001,
+       "exit_fee": 0.07509903170000001,
+       "funding_paid": 0.0,
+       "funding_paid_this_close": 0.0,
+       "n_funding_events": 0,
+       "n_funding_events_this_close": 0,
+       "funding_events": [],
+       "funding_gaps": [],
+       "amount_sign_convention": "expense_positive",
+       "net_pnl": -16.727018931699995,
+       "entry_ts": 1792679400000,
+       "exit_ts": 1792699199999,
+       "exit_reason": "trailing_stop_loss",
+       "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+       "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+       "market_source": "binance.um.candles_15m.is_closed.open"
+      },
+      "rule": "FT-LOW4H",
+      "trail_d": 0.05
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "fc3f3a8ad744b4bddcf37c2b58b99c92b70a235ae288b8ce60df11dfc0f6cddf",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "D_账本": {
+   "持仓": {
+    "position_id": 1,
+    "account_id": "paper43_3a",
+    "symbol": "BTCUSDT",
+    "qty": 1.666,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792679400000,
+    "exit_ts": 1792699199999,
+    "exit_reason": "trailing_stop_loss",
+    "status": "closed",
+    "exit_price": 90.15490000000001,
+    "entry_fee": 0.08338330000000001,
+    "exit_fee": 0.07509903170000001,
+    "funding_paid": 0.0,
+    "signal_uid": "audit03_s1",
+    "arm": "3a",
+    "stop_price": 90.2,
+    "atr_at_entry": 5.0,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "event_time": 1792677600000,
+    "available_at": 1792678500000,
+    "requested_at": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "origin": "replay",
+    "first_request_ms": 1792678500000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "退出订单": [
+    {
+     "order_id": 3,
+     "account_id": "paper43_3a",
+     "event_uid": "exit:3a:1:1792699199999",
+     "symbol": "BTCUSDT",
+     "side": "sell",
+     "qty": 1.666,
+     "price": 90.2,
+     "fee": 0.07509903170000001,
+     "ts": 1792678409582,
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 90.15490000000001,
+     "notional": 150.19806340000002,
+     "bar_open_time": 1792684800000,
+     "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+     "event_time": 1792677600000,
+     "requested_at": 1792678409582,
+     "market_source": "binance.um.candles_15m.is_closed.open",
+     "first_request_ms": 1792678409582,
+     "epoch_ms": 1791939600000,
+     "voided": 0,
+     "void_reason": null
+    }
+   ],
+   "成交": [
+    {
+     "fill_id": 1,
+     "account_id": "paper43_3a",
+     "order_id": 1,
+     "position_id": 1,
+     "signal_uid": "audit03_s1",
+     "symbol": "BTCUSDT",
+     "action": "open",
+     "qty": 1.666,
+     "raw_price": 100.0,
+     "fill_price": 100.10000000000001,
+     "notional": 166.7666,
+     "fee": 0.08338330000000001,
+     "slippage_cost": 0.1666000000000142,
+     "bar_open_time": 1792679400000,
+     "bar_close_time": 1792680299999,
+     "fill_ts": 1792680300000,
+     "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+     "event_time": 1792677600000,
+     "available_at": 1792678500000,
+     "requested_at": 1792678500000,
+     "market_source": "binance.um.candles_15m.is_closed.open",
+     "first_request_ms": 1792678500000,
+     "epoch_ms": 1791939600000,
+     "voided": 0,
+     "void_reason": null
+    },
+    {
+     "fill_id": 2,
+     "account_id": "paper43_3a",
+     "order_id": 3,
+     "position_id": 1,
+     "signal_uid": "audit03_s1",
+     "symbol": "BTCUSDT",
+     "action": "close",
+     "qty": 1.666,
+     "raw_price": 90.2,
+     "fill_price": 90.15490000000001,
+     "notional": 150.19806340000002,
+     "fee": 0.07509903170000001,
+     "slippage_cost": 0.07513659999998469,
+     "bar_open_time": 1792684800000,
+     "bar_close_time": 1792699199999,
+     "fill_ts": 1792678409582,
+     "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+     "event_time": 1792677600000,
+     "available_at": 1792678500000,
+     "requested_at": 1792678409582,
+     "market_source": "binance.um.candles_15m.is_closed.open",
+     "first_request_ms": null,
+     "epoch_ms": null,
+     "voided": 0,
+     "void_reason": null
+    }
+   ],
+   "已实现": [
+    {
+     "id": 1,
+     "account_id": "paper43_3a",
+     "position_id": 1,
+     "symbol": "BTCUSDT",
+     "qty": 1.666,
+     "entry_price": 100.10000000000001,
+     "exit_price": 90.15490000000001,
+     "gross_pnl": -16.568536599999995,
+     "entry_fee": 0.08338330000000001,
+     "exit_fee": 0.07509903170000001,
+     "funding_paid": 0.0,
+     "net_pnl": -16.727018931699995,
+     "entry_ts": 1792679400000,
+     "exit_ts": 1792699199999,
+     "exit_reason": "trailing_stop_loss",
+     "ts": 1792678409582,
+     "voided": 0,
+     "void_reason": null
+    }
+   ],
+   "账户态": {
+    "account_id": "paper43_3a",
+    "cash": 4983.2729810683,
+    "realized_pnl": -16.727018931699995,
+    "fees_paid": 0.15848233170000003,
+    "funding_paid": 0.0,
+    "updated_at": 1792678409586
+   },
+   "权益曲线": [
+    {
+     "ts": 1792678408275,
+     "account_id": "paper43_3a",
+     "cash": 5000.0,
+     "unrealized": -0.1666000000000142,
+     "equity": 4999.8334,
+     "voided": 0
+    },
+    {
+     "ts": 1792678409586,
+     "account_id": "paper43_3a",
+     "cash": 4983.2729810683,
+     "unrealized": 0.0,
+     "equity": 4983.2729810683,
+     "voided": 0
+    }
+   ],
+   "资金费": []
+  },
+  "D_HTTP核对": {
+   "positions": {
+    "mode": "paper",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok",
+     "age_seconds": null,
+     "ledger_source": {
+      "kind": "paper_ledger",
+      "ledger_dir": "/tmp/wx_audit03/paper",
+      "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+      "manifest_present": true,
+      "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+      "allow_init": true,
+      "all_present": true,
+      "any_present": true,
+      "arms": {
+       "3a": {
+        "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+        "exists": true,
+        "sha256": "4514c0d8493a2e02c6de5e7eb27376fbab200c4f6172f696393a97e7844a79e9",
+        "rows": {
+         "paper_position": 1,
+         "paper_fill": 2,
+         "paper_funding": 0,
+         "paper_equity": 2,
+         "paper_realized": 1,
+         "paper_order": 3,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3a",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3b": {
+        "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+        "exists": true,
+        "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 6,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3b",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3c": {
+        "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+        "exists": true,
+        "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 1,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3c",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       },
+       "3d": {
+        "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+        "exists": true,
+        "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+        "rows": {
+         "paper_position": 0,
+         "paper_fill": 0,
+         "paper_funding": 0,
+         "paper_equity": 0,
+         "paper_realized": 0,
+         "paper_order": 1,
+         "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+         "account_id": "paper43_3d",
+         "initial_equity": 5000.0,
+         "spec_version": null
+        },
+        "readable": true
+       }
+      }
+     },
+     "legacy_ledger": {
+      "verification_status": "legacy_unverified",
+      "label": "旧版/未验收/规则违规",
+      "excluded_from_official_strategy_performance": true,
+      "audit": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+      "side_table": "框架/backend/live/paper_legacy_audit.sqlite3",
+      "generated_utc": "2026-10-15T08:18:51Z",
+      "generated_by": "work_账本保全与身份统一_2026-10-15",
+      "preserved": false,
+      "preservation_status": "LOST_ON_DISK__NOT_PRESERVED",
+      "headline": "原四臂纸面账本（177 条持仓 / 161 条未作废 / 25 笔未作废在持仓）**已不在磁盘**。原目录被第三方工具建议并执行的 `rm -rf \"/Users/boos/WorkBuddy AI\"` 整体移除，未进废纸篓、无本地快照、无 Time Machine。故「一致性保全到桌面工程」当前**不可执行**；本服务**不伪造、不重建、不用空库冒充**，一律 fail-closed。",
+      "original_ledger": {
+       "dir": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+       "exists_now": false,
+       "exists_now_checked_utc": "2026-10-15T08:15:00Z",
+       "migration_ids": {
+        "paper_3a.sqlite3": "M002",
+        "paper_3b.sqlite3": "M003",
+        "paper_3c.sqlite3": "M004",
+        "paper_3d.sqlite3": "M005"
+       },
+       "migration_source_tag": "旧实现",
+       "logical_bytes_at_inventory": {
+        "paper_3a.sqlite3": 225280,
+        "paper_3b.sqlite3": 180224,
+        "paper_3c.sqlite3": 225280,
+        "paper_3d.sqlite3": 225280
+       },
+       "note_on_logical_bytes": "迁移清单记录的原始逻辑字节（225280/180224/225280/225280）与桌面误建空库（各 151552）**不同** ⇒ 桌面那 4 份不是原账本，是新建的空库。"
+      },
+      "row_level_baseline": {
+       "source_file": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+       "at_utc": "2026-10-15T06:32:02.221384+00:00",
+       "scope": "read_only_legacy_ledger_baseline",
+       "what_it_proves": "原账本**存在时**的逐表行数与 content_sha256（可对照，但**不含行内容**，故无法据此重建账本）。",
+       "arms": {
+        "3a": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3a.sqlite3",
+         "rows": {
+          "paper_position": 50,
+          "paper_fill": 88,
+          "paper_funding": 25,
+          "paper_equity": 330,
+          "paper_realized": 38,
+          "paper_order": 1348,
+          "paper_state": 1
+         }
+        },
+        "3b": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3b.sqlite3",
+         "rows": {
+          "paper_position": 35,
+          "paper_fill": 65,
+          "paper_funding": 26,
+          "paper_equity": 305,
+          "paper_realized": 30,
+          "paper_order": 1019,
+          "paper_state": 1
+         }
+        },
+        "3c": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3c.sqlite3",
+         "rows": {
+          "paper_position": 46,
+          "paper_fill": 80,
+          "paper_funding": 25,
+          "paper_equity": 321,
+          "paper_realized": 34,
+          "paper_order": 1351,
+          "paper_state": 1
+         }
+        },
+        "3d": {
+         "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3d.sqlite3",
+         "rows": {
+          "paper_position": 46,
+          "paper_fill": 80,
+          "paper_funding": 25,
+          "paper_equity": 320,
+          "paper_realized": 34,
+          "paper_order": 1348,
+          "paper_state": 1
+         }
+        }
+       },
+       "totals": {
+        "paper_position": 177,
+        "paper_fill": 313,
+        "paper_funding": 101,
+        "paper_equity": 1276,
+        "paper_realized": 136,
+        "paper_order": 5066,
+        "paper_state": 4
+       }
+      },
+      "independent_cross_check": {
+       "source_files": [
+        "evidence/Codex_闭环复审_2026-10-15/migration_ledger_path_audit.json",
+        "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+        "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+       ],
+       "open_nonvoid_by_arm": {
+        "3a": 7,
+        "3b": 4,
+        "3c": 7,
+        "3d": 7,
+        "total": 25
+       },
+       "nonvoid_positions": 161,
+       "short_source_as_long": 89,
+       "delay_below15m": 97,
+       "overlap_note": "89（错向）与 97（延迟<15m）两类违规**有重叠**，不得相加当「违规总数」。",
+       "pre_reload_account_state_at_utc": "2026-10-15T06:00:00Z 左右（14:00 本地）",
+       "pre_reload_per_arm": {
+        "3a": {
+         "account_id": "paper43_3a",
+         "initial_equity": 5000.0,
+         "equity": 4828.113375,
+         "cash": 4661.866216,
+         "positions": 7,
+         "realized_rows": 38,
+         "funding_rows": 25
+        },
+        "3b": {
+         "account_id": "paper43_3b",
+         "initial_equity": 5000.0,
+         "equity": 5005.49711,
+         "cash": 4789.531398,
+         "positions": 4,
+         "realized_rows": 30,
+         "funding_rows": 26
+        },
+        "3c": {
+         "account_id": "paper43_3c",
+         "initial_equity": 5000.0,
+         "equity": 4851.274302,
+         "cash": 4684.980214,
+         "positions": 7,
+         "realized_rows": 34,
+         "funding_rows": 25
+        },
+        "3d": {
+         "account_id": "paper43_3d",
+         "initial_equity": 5000.0,
+         "equity": 4850.691499,
+         "cash": 4684.394889,
+         "positions": 7,
+         "realized_rows": 34,
+         "funding_rows": 25
+        }
+       },
+       "cross_check_result": "pre_reload 独立采集的 realized(38/30/34/34)、funding(25/26/25/25)、在持仓(7/4/7/7=25) 与 Codex 逐表基线**逐项一致** ⇒ 基线可信；但这些只是**账户级/计数级**事实，不含逐行内容。"
+      },
+      "loss_forensics": {
+       "what_happened": "原账本所在目录 `/Users/boos/WorkBuddy AI` 被整体删除（`rm -rf`，不进废纸篓）。",
+       "root_cause_evidence": {
+        "tool": "antigravity (Gemini)",
+        "conversation_db": "/Users/boos/.gemini/antigravity/conversations/df5cfb74-53fc-4b5c-82d3-3a8971eca093.db",
+        "needle": "rm -rf \"/Users/boos/WorkBuddy AI\"",
+        "occurrences": 3,
+        "verbatim_context": "#### 方案 B：直接命令行彻底删除\\n如果您确信磁盘空间紧迫需要立刻腾出空间，请在终端只执行针对该无点号目录的删除命令：\\n```bash\\n# 只删除历史会话与旧工作区，绝不碰 ~/.workbuddy-ai 运行环境\\nrm -rf \"/Users/boos/WorkBuddy AI\"\\n```",
+        "why_it_was_wrong": "该建议把 `/Users/boos/WorkBuddy AI` 描述为「历史会话与旧工作区」，但其中 `2026-10-03-16-11-14/outputs/网站逆向研究/…/纸面模拟43/` 是**四臂纸面账本唯一副本**（迁移清单 M002–M005）。",
+        "inspection_readonly": true
+       },
+       "timeline": [
+        {
+         "utc": "2026-10-15T06:00:00Z",
+         "event": "pre_reload 采集四臂账户级快照（equity/realized/funding/在持仓）",
+         "source": "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+        },
+        {
+         "utc": "2026-10-15T06:24:00Z",
+         "event": "Codex 迁移路径审计：old path exists=true（50/35/46/46 持仓，7/4/7/7 未作废）",
+         "source": "migration_ledger_path_audit.json"
+        },
+        {
+         "utc": "2026-10-15T06:32:02Z",
+         "event": "Codex 逐表保全基线（行数 + content_sha256）",
+         "source": "legacy_ledger_preservation_baseline.json"
+        },
+        {
+         "utc": "2026-10-15T06:20:00Z",
+         "event": "桌面误建 4 份空库（14:20 本地）",
+         "source": "ls -l mtime"
+        },
+        {
+         "utc": "~2026-10-15T07:30Z",
+         "event": "`rm -rf \"/Users/boos/WorkBuddy AI\"` 执行；原账本目录消失",
+         "source": "/Users/boos/WorkBuddy AI 现仅剩两个空目录（15:36 本地创建）"
+        },
+        {
+         "utc": "2026-10-15T08:15:00Z",
+         "event": "本任务复核：原路径 No such file or directory",
+         "source": "本回执"
+        }
+       ],
+       "current_state_of_root_dir": {
+        "path": "/Users/boos/WorkBuddy AI",
+        "exists": true,
+        "children": [
+         "2026-10-15-15-36-06 (空)",
+         "2026-10-15-15-36-23 (空)"
+        ],
+        "note": "只剩两个空目录；`2026-10-03-16-11-14` 子树不存在。"
+       },
+       "recoverability": {
+        "trash": "`rm -rf` **不进废纸篓**；且 `~/.Trash` 在本沙箱不可读（Operation not permitted），无法代为确认。",
+        "apfs_local_snapshots": "`tmutil listlocalsnapshots /` 为空 ⇒ 无本地快照可回滚。",
+        "time_machine": "`tmutil destinationinfo` = No destinations configured ⇒ 无 TM 备份。",
+        "other_copies": "全盘 `find /Users/boos -maxdepth 6 -type f -name 'paper_*.sqlite3'` 仅命中 `框架/backend/live/paper_legacy_audit.sqlite3`（审计旁表）与桌面 4 份空库 ⇒ 无其他副本。",
+        "verdict": "按现有证据，原账本**不可自恢复**。"
+       },
+       "what_we_did_NOT_do": [
+        "未伪造原账本、未按行内容重建冒充",
+        "未删除或改动 4 份误建空库（保留为回归证据）",
+        "未合并账户、未重置资金",
+        "未把 pre_reload 的账户级快照当账本使用（它是 API 响应快照，不是账本）"
+       ],
+       "action_required_from_user": [
+        "如仍有备份（外置盘 / 云备份 / 旧机器），请提供 `paper_3{a,b,c,d}.sqlite3` 原件，本服务按 M002–M005 受控迁入 `数据/paper/` 并核对身份与行级 SHA",
+        "或授权：以现有可核事实（基线行数/SHA + 账户级快照）出具「部分保全」结论，并明确原账本**视为丢失**",
+        "若两者都不做，则本服务持续 fail-closed：纸面/复盘端点一律 unavailable，**不返回任何伪造或空账户数据**"
+       ]
+      },
+      "preserved_artifacts": {
+       "empty_ledgers_regression": {
+        "path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+        "files": {
+         "paper_3a.sqlite3": {
+          "inode": 39535694,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "a7db3ac9762c1aaa654a42ea446375086397d254ae464712ef89a1ea1405296a",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3b.sqlite3": {
+          "inode": 39535699,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3c.sqlite3": {
+          "inode": 39535707,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         },
+         "paper_3d.sqlite3": {
+          "inode": 39535708,
+          "bytes": 151552,
+          "mtime_local": "2026-10-15 14:20",
+          "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+          "rows": {
+           "paper_position": 0,
+           "paper_fill": 0,
+           "paper_equity": 0,
+           "paper_realized": 0,
+           "paper_order": 0,
+           "paper_state": 1
+          }
+         }
+        },
+        "status": "保留（未被本服务读取、未被删除）",
+        "why_preserved": "作为「相对路径推导 + 自动建库」缺陷的**回归证据**；修复后服务不再读它。"
+       },
+       "audit_side_table": "框架/backend/live/paper_legacy_audit.sqlite3（legacy_position_audit 25 行 / legacy_signal_audit 2 行；追加式，保留事实）",
+       "audit_json": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+       "causal_audit_json": "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+       "row_level_baseline_json": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+       "pre_reload_snapshots": [
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json",
+        "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_positions.json"
+       ]
+      },
+      "binding": {
+       "ledger_dir_env": "PAPER_LEDGER_DIR",
+       "ledger_dir_default": "<工程根>/数据/paper",
+       "manifest": "<工程根>/数据/paper/ledger_identity.json",
+       "allow_init_env": "PAPER_LEDGER_ALLOW_INIT",
+       "policy": "缺库 ⇒ LedgerUnavailable；身份不符 ⇒ LedgerIdentityMismatch；绝不自动建库、绝不换目录、绝不用空库冒充。",
+       "current_state": "数据/paper 不存在 ⇒ 纸面/复盘端点一律 unavailable（fail-closed）。"
+      }
+     },
+     "note": "旧版/未验收持仓：原账本**未修改**，按追加审计标注（verification_status/label/violations），并排除正式策略表现。"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 0,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "4514c0d8493a2e02c6de5e7eb27376fbab200c4f6172f696393a97e7844a79e9",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 2,
+        "paper_funding": 0,
+        "paper_equity": 2,
+        "paper_realized": 1,
+        "paper_order": 3,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   },
+   "orders": {
+    "mode": "paper_read_only",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok",
+     "age_seconds": null,
+     "note": "只读订单/挂单/成交查询；写入口为 POST /api/v1/paper/orders"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "arm": "3a",
+      "account_id": "paper43_3a",
+      "mode": "paper_read_only",
+      "entry_orders": [
+       {
+        "order_id": 1,
+        "event_uid": "audit03_s1",
+        "symbol": "BTCUSDT",
+        "side": "buy",
+        "qty": 1.666,
+        "price": 100.10000000000001,
+        "fee": 0.08338330000000001,
+        "ts": 1792680300000,
+        "status": "filled",
+        "reject_reason": null,
+        "fill_price": 100.10000000000001,
+        "notional": 166.7666,
+        "bar_open_time": 1792679400000,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+        "event_time": 1792677600000,
+        "requested_at": 1792678500000,
+        "market_source": "binance.um.candles_15m.is_closed.open"
+       },
+       {
+        "order_id": 3,
+        "event_uid": "exit:3a:1:1792699199999",
+        "symbol": "BTCUSDT",
+        "side": "sell",
+        "qty": 1.666,
+        "price": 90.2,
+        "fee": 0.07509903170000001,
+        "ts": 1792678409582,
+        "status": "filled",
+        "reject_reason": null,
+        "fill_price": 90.15490000000001,
+        "notional": 150.19806340000002,
+        "bar_open_time": 1792684800000,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+        "event_time": 1792677600000,
+        "requested_at": 1792678409582,
+        "market_source": "binance.um.candles_15m.is_closed.open"
+       }
+      ],
+      "pending": [
+       {
+        "pending_id": 1,
+        "symbol": "BTCUSDT",
+        "origin": "replay",
+        "signal_uid": "audit03_s1",
+        "direction": "long",
+        "atr": 5.0,
+        "stop_price": null,
+        "event_time": 1792677600000,
+        "available_at": 1792678500000,
+        "requested_at": 1792678500000,
+        "earliest_fill_ms": 1792679400000,
+        "status": "filled",
+        "reason": null,
+        "created_at": 1792678407851,
+        "resolved_at": 1792680300000,
+        "fill_position_id": 1,
+        "market_source": "binance.um.candles_15m.is_closed.open"
+       }
+      ],
+      "exit_fills": [
+       {
+        "fill_id": 2,
+        "position_id": 1,
+        "signal_uid": "audit03_s1",
+        "symbol": "BTCUSDT",
+        "action": "close",
+        "qty": 1.666,
+        "raw_price": 90.2,
+        "fill_price": 90.15490000000001,
+        "notional": 150.19806340000002,
+        "fee": 0.07509903170000001,
+        "slippage_cost": 0.07513659999998469,
+        "bar_open_time": 1792684800000,
+        "bar_close_time": 1792699199999,
+        "fill_ts": 1792678409582,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013"
+       }
+      ],
+      "order_status_histogram": {
+       "filled": 2,
+       "rejected": 1
+      },
+      "pending_status_histogram": {
+       "filled": 1
+      },
+      "fill_action_histogram": {
+       "close": 1,
+       "open": 1
+      },
+      "separated": {
+       "auto_strategy_orders": 2,
+       "manual_or_isolated_orders": 0,
+       "entry_orders": 1,
+       "exit_fills": 1
+      },
+      "write_entrypoint": "POST /api/v1/paper/orders（唯一写入口；本 GET 只读）"
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "4514c0d8493a2e02c6de5e7eb27376fbab200c4f6172f696393a97e7844a79e9",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 2,
+        "paper_funding": 0,
+        "paper_equity": 2,
+        "paper_realized": 1,
+        "paper_order": 3,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "2ad3513afccd24602a0f3ba6d43ce620a09ed830c6e9ab08fd575cd01f5cb50c",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 6,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "4bdc56ef2955103ba3f7bb7e8396170b481164aa281e1629c5418b9f647e8707",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "E_新持仓": {
+   "open": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 2,
+    "symbol": "ETHUSDT",
+    "signal_uid": "audit03_c9",
+    "origin": "replay",
+    "requested_at": 1792678500000,
+    "first_request_ms": 1792678500000,
+    "order_request_ms": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792678500000,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "advance": {
+    "rejected": [
+     {
+      "pending_id": 1,
+      "reason": "bar_after_attempt_clock_no_lookahead"
+     }
+    ],
+    "still_pending": 1,
+    "by_arm": {
+     "3a": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3b": {
+      "pending_total": 2,
+      "filled": 0,
+      "rejected": 1,
+      "still_pending": 1
+     },
+     "3c": {
+      "pending_total": 1,
+      "filled": 1,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3d": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     }
+    }
+   },
+   "position_id": 1,
+   "stop": 85.05
+  },
+  "E_伪造4H": {
+   "status": 200,
+   "body": {
+    "mode": "paper_advance_trailing",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "ok": true,
+      "position_id": 1,
+      "symbol": "ETHUSDT",
+      "entry_price": 100.05,
+      "old_stop": 85.05,
+      "candidate_stop": 190.0,
+      "effective_stop": 190.0,
+      "stop_updated": true,
+      "ref_candle_open_time": 1793038500000,
+      "ref_candle_close_time": 1793052899999,
+      "available_at": 1793052899999,
+      "decision_at": 1792678409917,
+      "effective_at": 1793052899999,
+      "exit_triggered": false,
+      "exit_result": null,
+      "rule": "FT-LOW4H",
+      "trail_d": 0.05
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 1,
+    "param_hash_basis": null,
+    "params_source": "fallback_frozen_v2_2_conservative",
+    "rule_view_available": false,
+    "rule_view_spec_version": null,
+    "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+    "exec_core_crosscheck": {
+     "available": false,
+     "ok": null,
+     "mismatch_n": 0,
+     "mismatches": []
+    },
+    "daily_list_version": null,
+    "pool_rule_identity": null,
+    "ledger_source": {
+     "kind": "paper_ledger",
+     "ledger_dir": "/tmp/wx_audit03/paper",
+     "manifest_path": "/tmp/wx_audit03/paper/ledger_identity.json",
+     "manifest_present": true,
+     "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+     "allow_init": true,
+     "all_present": true,
+     "any_present": true,
+     "arms": {
+      "3a": {
+       "path": "/tmp/wx_audit03/paper/paper_3a.sqlite3",
+       "exists": true,
+       "sha256": "4514c0d8493a2e02c6de5e7eb27376fbab200c4f6172f696393a97e7844a79e9",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 2,
+        "paper_funding": 0,
+        "paper_equity": 2,
+        "paper_realized": 1,
+        "paper_order": 3,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3a",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3b": {
+       "path": "/tmp/wx_audit03/paper/paper_3b.sqlite3",
+       "exists": true,
+       "sha256": "c093759dadee31310e80407ecd01195f30ed64a0d17d5a90672e958ba9cfe87a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 7,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3b",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3c": {
+       "path": "/tmp/wx_audit03/paper/paper_3c.sqlite3",
+       "exists": true,
+       "sha256": "8bf159b8bfd69b6747ae7e79eefd5eede854e0932ff7910833a487f363c38097",
+       "rows": {
+        "paper_position": 1,
+        "paper_fill": 1,
+        "paper_funding": 0,
+        "paper_equity": 1,
+        "paper_realized": 0,
+        "paper_order": 2,
+        "paper_state": 1
+       },
+       "open_nonvoid": 1,
+       "identity": {
+        "account_id": "paper43_3c",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      },
+      "3d": {
+       "path": "/tmp/wx_audit03/paper/paper_3d.sqlite3",
+       "exists": true,
+       "sha256": "805602bdb48e99978b96eddf0f072594705b380aec72f53338ad5c368e2fba0a",
+       "rows": {
+        "paper_position": 0,
+        "paper_fill": 0,
+        "paper_funding": 0,
+        "paper_equity": 0,
+        "paper_realized": 0,
+        "paper_order": 1,
+        "paper_state": 1
+       },
+       "open_nonvoid": 0,
+       "identity": {
+        "account_id": "paper43_3d",
+        "initial_equity": 5000.0,
+        "spec_version": null
+       },
+       "readable": true
+      }
+     }
+    }
+   }
+  },
+  "G_LEGACY_ROUTER": {
+   "pid": 29959,
+   "已监听": true,
+   "body": {
+    "mode": "stop_history",
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": null,
+    "rule_version": null,
+    "param_hash": null,
+    "data_version": null,
+    "as_of": null,
+    "quality": {
+     "status": "ok",
+     "age_seconds": null,
+     "note": "持仓 1 止损变更历史"
+    },
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "id": 2,
+      "account_id": "paper43_3a",
+      "position_id": 1,
+      "old_stop": 85.10000000000001,
+      "new_stop": 90.2,
+      "reason": "ft_low4h_trail",
+      "ref_bar_open_ms": 1792656000000,
+      "available_at": 1792670399999,
+      "decision_at": 1792678409541,
+      "effective_at": 1792670399999,
+      "created_at": 1792678409547
+     },
+     {
+      "id": 1,
+      "account_id": "paper43_3a",
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 85.10000000000001,
+      "reason": "initial_stop",
+      "ref_bar_open_ms": 1792679400000,
+      "available_at": 1792678500000,
+      "decision_at": 1792680300000,
+      "effective_at": 1792679400000,
+      "created_at": 1792678407866
+     }
+    ],
+    "has_more": false,
+    "next_cursor": null,
+    "total": 2
+   }
+  }
+ },
+ "断言": [
+  {
+   "编号": "A1",
+   "检查项": "live_worker 可导入（15m 步进止损扫描 + 自动推进的唯一实现）",
+   "预期": "True",
+   "实际": "False",
+   "判定": "不通过",
+   "备注": "ModuleNotFoundError: No module named '_warmup43'"
+  },
+  {
+   "编号": "A2",
+   "检查项": "paper_engine 提供 4H 跟踪止损引擎入口",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": "21:57:12 版本新增；开工版没有这两个函数"
+  },
+  {
+   "编号": "B1",
+   "检查项": "隔离 adapter 在 8799 起来（不动 8787 生产实例）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": "pid=29957"
+  },
+  {
+   "编号": "B2",
+   "检查项": "02 开出的持仓经 HTTP 可见（页面数据源同一入口）",
+   "预期": ">=1 条持仓",
+   "实际": "1 条",
+   "判定": "通过",
+   "备注": "注意：持仓行没有 status 字段（snapshot 只列未平仓），按条数判"
+  },
+  {
+   "编号": "C0",
+   "检查项": "POST 走的是单笔分支（返回的 position_id 与请求一致）",
+   "预期": "1",
+   "实际": "1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C1",
+   "检查项": "引擎判定止损上移（stop_updated=True）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C2",
+   "检查项": "候选止损 = 4H 最低价 95 × (1−0.05) 按 0.1 向下取整 = 90.2",
+   "预期": "90.2",
+   "实际": "90.2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C3",
+   "检查项": "生效止损 = max(原止损 85.1, 候选 90.2) = 90.2（只上移）",
+   "预期": "90.2",
+   "实际": "90.2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C4",
+   "检查项": "生效时刻 = 该 4H K 线收盘时刻（不回填、不提前）",
+   "预期": "1792670399999",
+   "实际": "1792670399999",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C5",
+   "检查项": "止损历史已真实落盘（initial_stop + ft_low4h_trail 共 2 行）",
+   "预期": "2 行",
+   "实际": "2 行：['ft_low4h_trail', 'initial_stop']",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C5b",
+   "检查项": "止损历史经 HTTP 端点可读（UI 取数通道）",
+   "预期": "200 且 2 行",
+   "实际": "404 且 0 行",
+   "判定": "不通过",
+   "备注": "默认路由表 api/routes.py 未挂 /paper/stops/{id}，只有旧 _route_v1_legacy 有"
+  },
+  {
+   "编号": "C6",
+   "检查项": "ft_low4h_trail 行的 old_stop/new_stop 与引擎返回一致",
+   "预期": "85.1 → 90.2",
+   "实际": "85.10000000000001 → 90.2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C6b",
+   "检查项": "止损轨迹按 effective_at 排序时顺序正确（初始在前、上移在后）",
+   "预期": "initial_stop.effective_at <= ft_low4h_trail.effective_at",
+   "实际": "initial=1792679400000 trail=1792670399999",
+   "判定": "不通过",
+   "备注": "initial_stop 用成交 bar 开盘时刻（15m 轴），ft_low4h_trail 用 4H 收盘时刻（4h 轴）⇒ 同一条轨迹混了两条时间轴，UI 按 effective_at 排序会显示成倒序"
+  },
+  {
+   "编号": "C7",
+   "检查项": "重复推进同一根 4H K 线 ⇒ 不重复记录、不下移",
+   "预期": "stop_updated=False 且历史行数不变",
+   "实际": "stop_updated=False 历史 0 行",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C8",
+   "检查项": "更低低点（94×0.95=89.3 < 90.2）⇒ 止损不下移",
+   "预期": "stop_updated=False 且 effective_stop=90.2",
+   "实际": "stop_updated=False effective=90.2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D1",
+   "检查项": "4H 最低价跌破生效止损 ⇒ 触发退出",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D2",
+   "检查项": "退出以止损价为成交基准（不是更差的低点、也不是更早的价）",
+   "预期": "90.2",
+   "实际": "90.2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D3",
+   "检查项": "退出记账成功（close_at_price 返回 ok）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": "closed"
+  },
+  {
+   "编号": "D4",
+   "检查项": "退出生成独立退出订单（side=sell, status=filled）",
+   "预期": "1 条 sell/filled",
+   "实际": "1 条：[('sell', 'filled')]",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D5",
+   "检查项": "退出生成 close 成交，且回指同一退出订单",
+   "预期": "1 条且 order_id 与退出订单一致",
+   "实际": "1 条",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D6",
+   "检查项": "持仓转为 closed 并写明 exit_reason / exit_price",
+   "预期": "closed / trailing_stop_loss",
+   "实际": "closed / trailing_stop_loss / 90.15490000000001",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D7",
+   "检查项": "净盈亏 = 毛盈亏 − 开仓费 − 平仓费 − 资金费",
+   "预期": "-16.727018932",
+   "实际": "-16.727018932",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D8",
+   "检查项": "已实现表 net_pnl 与引擎返回一致",
+   "预期": "-16.727018932",
+   "实际": "-16.727018932",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D9",
+   "检查项": "账户已实现盈亏 = 该笔净盈亏",
+   "预期": "-16.727018932",
+   "实际": "-16.727018932",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D10",
+   "检查项": "现金 = 初始权益 + 已实现净盈亏（手续费不重复扣）",
+   "预期": "4983.272981068",
+   "实际": "4983.272981068",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D11",
+   "检查项": "累计手续费 = 开仓费 + 平仓费",
+   "预期": "0.158482332",
+   "实际": "0.158482332",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D12",
+   "检查项": "权益曲线追加退出后的权益",
+   "预期": ">=2 行",
+   "实际": "2 行，末行 4983.2729810683",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D13",
+   "检查项": "资金费按真实结算事件计（本环境无结算事件 ⇒ 0，且不报错）",
+   "预期": "0.0",
+   "实际": "0.0",
+   "判定": "通过",
+   "备注": "paper_funding 行数 0"
+  },
+  {
+   "编号": "D14",
+   "检查项": "HTTP 侧不再有 open 持仓（页面同步）",
+   "预期": "0 笔 open",
+   "实际": "0 笔",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D15",
+   "检查项": "HTTP 侧能看到已成交订单",
+   "预期": ">=1 条",
+   "实际": "1 条",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E1",
+   "检查项": "为反例准备一笔新持仓（3c/ETHUSDT，价格步进 0.01 ⇒ 止损 85.05）",
+   "预期": "85.05",
+   "实际": "85.05",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E2",
+   "检查项": "伪造 4H K 线（库里不存在、低点 200）不得被采纳",
+   "预期": "拒收/忽略（止损仍 85.05）",
+   "实际": "stop_updated=True effective=190.0",
+   "判定": "不通过",
+   "备注": "若被采纳：任何能发这个请求的人都能把止损推到任意价位（该接口无 K 线真伪校验、无 available_at<=now 校验）"
+  },
+  {
+   "编号": "G1",
+   "检查项": "旧回退路由（LEGACY_ROUTER=1）下止损历史端点可用",
+   "预期": "200 且 2 行",
+   "实际": "200 且 2 行",
+   "判定": "通过",
+   "备注": "证明代码存在、只是没挂到默认路由表"
+  },
+  {
+   "编号": "F1",
+   "检查项": "隔离 adapter 已关闭且 8787 生产实例未受影响",
+   "预期": "8799 无监听、8787 仍有监听",
+   "实际": "8799=False 8787=True",
+   "判定": "通过",
+   "备注": ""
+  }
+ ],
+ "汇总": {
+  "总数": 34,
+  "通过": 30,
+  "不通过": 4,
+  "未验证": 0
+ }
+}

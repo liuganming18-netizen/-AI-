@@ -1,0 +1,144 @@
+{
+  "timestamp_utc": "2026-10-27T01:28:20.567938+00:00",
+  "task": "ACCUM-EARLY-06-W6-R2",
+  "description": "总交接与实际验收状态校正矩阵",
+  "code_identity": {
+    "accum_early_entry.py": {
+      "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+      "matches": true
+    },
+    "replay_calc.py": {
+      "sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+      "matches": true
+    }
+  },
+  "b_w5_real_status": {
+    "w5_gate_verdict_reported": "READY_FOR_E2E_AUDIT",
+    "codex_audit_finding": "空JSON可通过、逐笔复验未实现；资金费复验实际处于阻塞，工程复验尚未完成",
+    "is_fully_verified": false,
+    "correction_note": "严禁用'策略未验证、零候选'掩盖'工程复验尚未完成'；资金费逐笔复验真实处于受阻状态，等待 04_R2"
+  },
+  "a_w4_real_status": {
+    "r1_delivered": true,
+    "integrity_criteria_status": "待整改 (Codex 指出判据与逐笔映射待完善)",
+    "waiting_for": "04_R2"
+  },
+  "d_w1_real_status": {
+    "total_pending": 21,
+    "P_params": 12,
+    "E_evidence": 6,
+    "G_engineering": 3,
+    "confirmed_stops_need_reapproval": false,
+    "confirmed_stops_count": 8
+  },
+  "matrix": [
+    {
+      "window": "窗口一 (W1)",
+      "order_id": "06-01",
+      "task_name": "规则来源与已批准边界核对",
+      "execution_status": "已交付 (01)",
+      "verification_status": "已完成来源回溯 (区分31规则/8冲突)",
+      "codex_status": "待 Codex 审核 (已被 D-03_R1 校正取代)",
+      "user_decision": "无 (属规则出处整理)"
+    },
+    {
+      "window": "窗口一 (W1)",
+      "order_id": "06-02 / 工单D",
+      "task_name": "待决表压缩与批准证据校正 (D-03_R1)",
+      "execution_status": "已交付 (03_R1 校正版)",
+      "verification_status": "已完成去重折叠 (21项=12P/6E/3G，已确认止损不再问)",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "12 项参数待决 (P-01~P-12) 待用户裁决"
+    },
+    {
+      "window": "窗口二 (W2)",
+      "order_id": "06-03",
+      "task_name": "承接判定时点最小修正",
+      "execution_status": "已交付 (01)",
+      "verification_status": "已通过反例时序验证 (扫低根求值)",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口二 (W2)",
+      "order_id": "06-04",
+      "task_name": "修正版本交付与代码冻结",
+      "execution_status": "已交付 (02 冻结交付)",
+      "verification_status": "哈希锁定 3c570edc...，保留49项必填阻断闸门",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口三 (W3)",
+      "order_id": "06-05",
+      "task_name": "冷热资金费缺口与读取接口核对",
+      "execution_status": "已交付 (06-05)",
+      "verification_status": "核对热库 15.8 天断流与冷档覆盖边界",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口三 (W3)",
+      "order_id": "06-06",
+      "task_name": "隔离冷热合并输入与可追溯适配器",
+      "execution_status": "已交付 (06-06)",
+      "verification_status": "交付标准适配器 funding_events_adapter.py 及母集48/31811事件",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口四 (W4)",
+      "order_id": "06-07",
+      "task_name": "05-D-R1 逐笔复核与差异清单",
+      "execution_status": "已交付 (01)",
+      "verification_status": "核对 101 成交与 1 拒单，纠偏 CARV 净额",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口四 (W4)",
+      "order_id": "06-08 / 工单A",
+      "task_name": "资金费判据重构与逐笔对账 (工单A)",
+      "execution_status": "已交付 R1；待交付 04_R2",
+      "verification_status": "已完成适配器对账与MET纠偏；但完整性判据仍待整改，逐笔复验待闭环",
+      "codex_status": "退回整改 / 等待 04_R2",
+      "user_decision": "无 (属财务数据工程核对)"
+    },
+    {
+      "window": "窗口五 (W5)",
+      "order_id": "06-09",
+      "task_name": "验收用例与当前缺陷冻结",
+      "execution_status": "已交付 (01)",
+      "verification_status": "建立原 7 事件与时序反例矩阵",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口五 (W5)",
+      "order_id": "06-10 / 工单B",
+      "task_name": "依赖硬门禁与独立端到端复验 (工单B)",
+      "execution_status": "已交付 R1；待交付 04_R2",
+      "verification_status": "工程复验尚未完成！门禁硬阻断(NOT_READY_BLOCKED)，资金费复验受阻(BLOCKED)，逐笔映射未实现",
+      "codex_status": "退回整改 / 独立复验阻塞中 (等待 A/B 04_R2 闭环)",
+      "user_decision": "无 (严禁用'策略未验证、零候选'替代'工程复验尚未完成')"
+    },
+    {
+      "window": "窗口六 (W6)",
+      "order_id": "06-11",
+      "task_name": "研究范围基线版本与边界核对",
+      "execution_status": "已交付 (01)",
+      "verification_status": "锁定母集 48 标的/1178 事件，纠正分流对比解释",
+      "codex_status": "待 Codex 审核",
+      "user_decision": "无"
+    },
+    {
+      "window": "窗口六 (W6)",
+      "order_id": "06-12 / 工单C",
+      "task_name": "总交接与实际验收状态校正 (本单 W6-R2)",
+      "execution_status": "交付 04_R2 阶段校正报告",
+      "verification_status": "纠正 B 虚假完成与 A 判据待改事实；四列状态分立；三组样本彻底断裂解耦",
+      "codex_status": "阶段报告待 Codex 审核 (最终汇总等 A/B 04_R2)",
+      "user_decision": "包含 12 项参数裁决建议，不新增无依据审批"
+    }
+  ]
+}

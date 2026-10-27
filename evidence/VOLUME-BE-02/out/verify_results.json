@@ -1,0 +1,64 @@
+[
+  {
+    "test": "T1_real_path_future_invariance",
+    "status": "PASS",
+    "detail": {
+      "covered_signals": 30,
+      "mismatches": 0,
+      "verdict": "PASS: 真实函数 extract_entry_features 决策完全不依赖未收盘小时线"
+    }
+  },
+  {
+    "test": "T2_real_path_lifecycle_boundedness",
+    "status": "PASS",
+    "detail": {
+      "total_evaluated": 206,
+      "triggered_count": 200,
+      "violations": 0,
+      "verdict": "PASS: 所有持仓提前退出时间严格早于原策略平仓时刻，无平仓后幽灵退出"
+    }
+  },
+  {
+    "test": "T3_real_path_same_bar_conflict",
+    "status": "PASS",
+    "detail": {
+      "same_bar_conflict_detected": true,
+      "premature_exit_prevented": true,
+      "verdict": "PASS: 同根冲突下严格按初始止损保守执行，绝不假定提前以有利价格市价平仓"
+    }
+  },
+  {
+    "test": "T4_real_path_funding_and_fees_reconciliation",
+    "status": "PASS",
+    "detail": {
+      "total_reconciled": 251,
+      "max_funding_diff": 1.1102230246251565e-16,
+      "max_fees_diff": 9.71445146547012e-17,
+      "max_net_diff": 7.430722703816173e-13,
+      "failed_count": 0,
+      "verdict": "PASS: 逐笔独立按原始资金费事件与真实时钟计算，与实际执行输出完全精确吻合"
+    }
+  },
+  {
+    "test": "T5_negative_mutations",
+    "status": "PASS",
+    "detail": {
+      "mutation_1_funding_tamper_detected": true,
+      "mutation_1_diff": 0.958488078,
+      "mutation_2_fee_rate_tamper_detected": true,
+      "mutation_2_diff": 0.05940401399999999,
+      "failed_scenarios_captured": 2,
+      "verdict": "PASS: 故意篡改资金费与手续费均成功触发 MISMATCH 报警，证明测试非恒真，具备严谨拦截能力"
+    }
+  },
+  {
+    "test": "T6_event_dedup_exactness",
+    "status": "PASS",
+    "detail": {
+      "event_level_count": 201,
+      "duplicate_groups_count": 5,
+      "retention_rule_strictly_followed": true,
+      "verdict": "PASS: 201 事件级去重精确无误，严格按较早回测窗口先到先得原则保留，无盈亏选择"
+    }
+  }
+]

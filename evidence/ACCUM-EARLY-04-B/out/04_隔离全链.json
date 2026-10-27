@@ -1,0 +1,5972 @@
+{
+ "generated_utc": "2026-10-26T14:57:06Z",
+ "fixture_notice": "阈值来自 fixture 测试配置（未批准）。本节只证明「候选→委托→成交→止损→退出→账本」这条链的行为，不是甲乙丙的绩效结论。",
+ "runs": [
+  {
+   "name": "run_cold",
+   "why": "成交 bar 只能来自冷档（热库 15m 从 2026-09-12 起）",
+   "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold",
+   "env": {
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/paper",
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/live_signals.sqlite3",
+    "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/gate.json",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "WX_MARKET_MERGE": "1",
+    "ACCUM04_CONFIG": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json"
+   },
+   "market_mode": {
+    "merge_enabled": true,
+    "env_flag": "WX_MARKET_MERGE",
+    "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+   },
+   "candidates": [
+    {
+     "scheme": "4a",
+     "symbol": "SOLUSDT",
+     "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+     "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+     "confirm_close_ms": 1785639599999,
+     "earliest_entry_ms": 1785640499999,
+     "entry_bar_open_ms": 1785640500000,
+     "entry_ref_price": 73.1,
+     "entry_bar_source": "cold",
+     "entry_bar_available_at": null,
+     "resistance": 73.08,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4b",
+     "symbol": "SOLUSDT",
+     "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+     "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+     "confirm_close_ms": 1785643199999,
+     "earliest_entry_ms": 1785644099999,
+     "entry_bar_open_ms": 1785644100000,
+     "entry_ref_price": 73.21,
+     "entry_bar_source": "cold",
+     "entry_bar_available_at": null,
+     "resistance": 73.08,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4c",
+     "symbol": "SOLUSDT",
+     "candidate_id": "cd_ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+     "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+     "confirm_close_ms": 1785643199999,
+     "earliest_entry_ms": 1785644099999,
+     "entry_bar_open_ms": 1785644100000,
+     "entry_ref_price": 73.21,
+     "entry_bar_source": "cold",
+     "entry_bar_available_at": null,
+     "resistance": 73.08,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    }
+   ],
+   "open_results": [
+    {
+     "scheme": "4a",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 73.1,
+     "entry_price": 73.14,
+     "initial_stop_price": 69.48,
+     "bar_open_time": 1785640500000,
+     "earliest_fill_ms": 1785640499999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "bar_provenance": {
+      "layer": "cold",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    },
+    {
+     "scheme": "4b",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 73.21,
+     "entry_price": 73.25,
+     "initial_stop_price": 69.58,
+     "bar_open_time": 1785644100000,
+     "earliest_fill_ms": 1785644099999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "bar_provenance": {
+      "layer": "cold",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    },
+    {
+     "scheme": "4c",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 73.21,
+     "entry_price": 73.25,
+     "initial_stop_price": 69.58,
+     "bar_open_time": 1785644100000,
+     "earliest_fill_ms": 1785644099999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "bar_provenance": {
+      "layer": "cold",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    }
+   ],
+   "ledgers": {
+    "4a": {
+     "account_id": "paper43_4a",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "SOLUSDT",
+       "status": "closed",
+       "qty": 6.83,
+       "entry_price": 73.14,
+       "entry_ts": 1785640500000,
+       "exit_ts": 1787375699999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 88.14,
+       "stop_price": 88.19,
+       "initial_stop_price": 69.48,
+       "entry_fee": 0.2497731,
+       "exit_fee": 0.30099810000000005,
+       "funding_paid": 1.3688013860453014,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4a_SOLUSDT_1785639599999",
+       "symbol": "SOLUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 73.14,
+       "bar_open_time": 1785640500000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "exit:4a:1:1787375699999",
+       "symbol": "SOLUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 88.14,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 73.14,
+       "raw_price": 73.1,
+       "qty": 6.83,
+       "notional": 499.5462,
+       "fee": 0.2497731,
+       "bar_open_time": 1785640500000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 2,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 88.14,
+       "raw_price": 88.19,
+       "qty": 6.83,
+       "notional": 601.9962,
+       "fee": 0.30099810000000005,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 69.48,
+       "reason": "initial_stop",
+       "effective_at": 1785640500000,
+       "available_at": 1785639599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.48,
+       "new_stop": 69.51,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785657599999,
+       "available_at": 1785657599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.51,
+       "new_stop": 69.74,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785715199999,
+       "available_at": 1785715199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.74,
+       "new_stop": 69.88,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785873599999,
+       "available_at": 1785873599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.88,
+       "new_stop": 70.0,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785887999999,
+       "available_at": 1785887999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.0,
+       "new_stop": 70.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785959999999,
+       "available_at": 1785959999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.2,
+       "new_stop": 70.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786175999999,
+       "available_at": 1786175999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.72,
+       "new_stop": 70.92,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786190399999,
+       "available_at": 1786190399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.92,
+       "new_stop": 71.56,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786204799999,
+       "available_at": 1786204799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 71.56,
+       "new_stop": 72.14,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786219199999,
+       "available_at": 1786219199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.14,
+       "new_stop": 72.27,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786276799999,
+       "available_at": 1786276799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.27,
+       "new_stop": 72.45,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786291199999,
+       "available_at": 1786291199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.45,
+       "new_stop": 73.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786305599999,
+       "available_at": 1786305599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.2,
+       "new_stop": 73.52,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787155199999,
+       "available_at": 1787155199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.52,
+       "new_stop": 76.91,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787169599999,
+       "available_at": 1787169599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 76.91,
+       "new_stop": 78.13,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787183999999,
+       "available_at": 1787183999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 78.13,
+       "new_stop": 79.77,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787198399999,
+       "available_at": 1787198399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 79.77,
+       "new_stop": 80.18,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787212799999,
+       "available_at": 1787212799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 80.18,
+       "new_stop": 81.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787227199999,
+       "available_at": 1787227199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.72,
+       "new_stop": 81.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787241599999,
+       "available_at": 1787241599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.82000000000001,
+       "new_stop": 82.29,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787255999999,
+       "available_at": 1787255999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.29,
+       "new_stop": 82.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787270399999,
+       "available_at": 1787270399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.82000000000001,
+       "new_stop": 83.17,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787284799999,
+       "available_at": 1787284799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 83.17,
+       "new_stop": 84.41,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787299199999,
+       "available_at": 1787299199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 84.41,
+       "new_stop": 85.31,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787313599999,
+       "available_at": 1787313599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 85.31,
+       "new_stop": 86.21000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787342399999,
+       "available_at": 1787342399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 86.21000000000001,
+       "new_stop": 88.19,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787371199999,
+       "available_at": 1787371199999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": 100.5304274139547,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 5100.530427413954,
+       "realized_pnl": 100.5304274139547,
+       "fees_paid": 0.5507712,
+       "funding_paid": 1.3688013860453012
+      }
+     ],
+     "pending": [],
+     "blocked": []
+    },
+    "4b": {
+     "account_id": "paper43_4b",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "SOLUSDT",
+       "status": "closed",
+       "qty": 6.8100000000000005,
+       "entry_price": 73.25,
+       "entry_ts": 1785644100000,
+       "exit_ts": 1787375699999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 88.14,
+       "stop_price": 88.19,
+       "initial_stop_price": 69.58,
+       "entry_fee": 0.24941625000000003,
+       "exit_fee": 0.30011670000000007,
+       "funding_paid": 1.364793182865081,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4b_SOLUSDT_1785643199999",
+       "symbol": "SOLUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 73.25,
+       "bar_open_time": 1785644100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "exit:4b:1:1787375699999",
+       "symbol": "SOLUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 88.14,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 73.25,
+       "raw_price": 73.21,
+       "qty": 6.8100000000000005,
+       "notional": 498.83250000000004,
+       "fee": 0.24941625000000003,
+       "bar_open_time": 1785644100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 2,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 88.14,
+       "raw_price": 88.19,
+       "qty": 6.8100000000000005,
+       "notional": 600.2334000000001,
+       "fee": 0.30011670000000007,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 69.58,
+       "reason": "initial_stop",
+       "effective_at": 1785644100000,
+       "available_at": 1785643199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.58,
+       "new_stop": 69.74,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785715199999,
+       "available_at": 1785715199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.74,
+       "new_stop": 69.88,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785873599999,
+       "available_at": 1785873599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.88,
+       "new_stop": 70.0,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785887999999,
+       "available_at": 1785887999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.0,
+       "new_stop": 70.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785959999999,
+       "available_at": 1785959999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.2,
+       "new_stop": 70.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786175999999,
+       "available_at": 1786175999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.72,
+       "new_stop": 70.92,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786190399999,
+       "available_at": 1786190399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.92,
+       "new_stop": 71.56,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786204799999,
+       "available_at": 1786204799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 71.56,
+       "new_stop": 72.14,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786219199999,
+       "available_at": 1786219199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.14,
+       "new_stop": 72.27,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786276799999,
+       "available_at": 1786276799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.27,
+       "new_stop": 72.45,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786291199999,
+       "available_at": 1786291199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.45,
+       "new_stop": 73.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786305599999,
+       "available_at": 1786305599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.2,
+       "new_stop": 73.52,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787155199999,
+       "available_at": 1787155199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.52,
+       "new_stop": 76.91,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787169599999,
+       "available_at": 1787169599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 76.91,
+       "new_stop": 78.13,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787183999999,
+       "available_at": 1787183999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 78.13,
+       "new_stop": 79.77,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787198399999,
+       "available_at": 1787198399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 79.77,
+       "new_stop": 80.18,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787212799999,
+       "available_at": 1787212799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 80.18,
+       "new_stop": 81.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787227199999,
+       "available_at": 1787227199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.72,
+       "new_stop": 81.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787241599999,
+       "available_at": 1787241599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.82000000000001,
+       "new_stop": 82.29,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787255999999,
+       "available_at": 1787255999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.29,
+       "new_stop": 82.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787270399999,
+       "available_at": 1787270399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.82000000000001,
+       "new_stop": 83.17,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787284799999,
+       "available_at": 1787284799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 83.17,
+       "new_stop": 84.41,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787299199999,
+       "available_at": 1787299199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 84.41,
+       "new_stop": 85.31,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787313599999,
+       "available_at": 1787313599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 85.31,
+       "new_stop": 86.21000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787342399999,
+       "available_at": 1787342399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 86.21000000000001,
+       "new_stop": 88.19,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787371199999,
+       "available_at": 1787371199999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": 99.48657386713492,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 5099.486573867135,
+       "realized_pnl": 99.48657386713492,
+       "fees_paid": 0.5495329500000001,
+       "funding_paid": 1.3647931828650808
+      }
+     ],
+     "pending": [],
+     "blocked": []
+    },
+    "4c": {
+     "account_id": "paper43_4c",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "SOLUSDT",
+       "status": "closed",
+       "qty": 6.8100000000000005,
+       "entry_price": 73.25,
+       "entry_ts": 1785644100000,
+       "exit_ts": 1787375699999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 88.14,
+       "stop_price": 88.19,
+       "initial_stop_price": 69.58,
+       "entry_fee": 0.24941625000000003,
+       "exit_fee": 0.30011670000000007,
+       "funding_paid": 1.364793182865081,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4c_SOLUSDT_1785643199999",
+       "symbol": "SOLUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 73.25,
+       "bar_open_time": 1785644100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "exit:4c:1:1787375699999",
+       "symbol": "SOLUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 88.14,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 73.25,
+       "raw_price": 73.21,
+       "qty": 6.8100000000000005,
+       "notional": 498.83250000000004,
+       "fee": 0.24941625000000003,
+       "bar_open_time": 1785644100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 2,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 88.14,
+       "raw_price": 88.19,
+       "qty": 6.8100000000000005,
+       "notional": 600.2334000000001,
+       "fee": 0.30011670000000007,
+       "bar_open_time": 1787374800000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 69.58,
+       "reason": "initial_stop",
+       "effective_at": 1785644100000,
+       "available_at": 1785643199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.58,
+       "new_stop": 69.74,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785715199999,
+       "available_at": 1785715199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.74,
+       "new_stop": 69.88,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785873599999,
+       "available_at": 1785873599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 69.88,
+       "new_stop": 70.0,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785887999999,
+       "available_at": 1785887999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.0,
+       "new_stop": 70.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1785959999999,
+       "available_at": 1785959999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.2,
+       "new_stop": 70.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786175999999,
+       "available_at": 1786175999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.72,
+       "new_stop": 70.92,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786190399999,
+       "available_at": 1786190399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 70.92,
+       "new_stop": 71.56,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786204799999,
+       "available_at": 1786204799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 71.56,
+       "new_stop": 72.14,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786219199999,
+       "available_at": 1786219199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.14,
+       "new_stop": 72.27,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786276799999,
+       "available_at": 1786276799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.27,
+       "new_stop": 72.45,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786291199999,
+       "available_at": 1786291199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 72.45,
+       "new_stop": 73.2,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1786305599999,
+       "available_at": 1786305599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.2,
+       "new_stop": 73.52,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787155199999,
+       "available_at": 1787155199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 73.52,
+       "new_stop": 76.91,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787169599999,
+       "available_at": 1787169599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 76.91,
+       "new_stop": 78.13,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787183999999,
+       "available_at": 1787183999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 78.13,
+       "new_stop": 79.77,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787198399999,
+       "available_at": 1787198399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 79.77,
+       "new_stop": 80.18,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787212799999,
+       "available_at": 1787212799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 80.18,
+       "new_stop": 81.72,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787227199999,
+       "available_at": 1787227199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.72,
+       "new_stop": 81.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787241599999,
+       "available_at": 1787241599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 81.82000000000001,
+       "new_stop": 82.29,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787255999999,
+       "available_at": 1787255999999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.29,
+       "new_stop": 82.82000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787270399999,
+       "available_at": 1787270399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 82.82000000000001,
+       "new_stop": 83.17,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787284799999,
+       "available_at": 1787284799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 83.17,
+       "new_stop": 84.41,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787299199999,
+       "available_at": 1787299199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 84.41,
+       "new_stop": 85.31,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787313599999,
+       "available_at": 1787313599999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 85.31,
+       "new_stop": 86.21000000000001,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787342399999,
+       "available_at": 1787342399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 86.21000000000001,
+       "new_stop": 88.19,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1787371199999,
+       "available_at": 1787371199999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": 99.48657386713492,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 5099.486573867135,
+       "realized_pnl": 99.48657386713492,
+       "fees_paid": 0.5495329500000001,
+       "funding_paid": 1.3647931828650808
+      }
+     ],
+     "pending": [],
+     "blocked": []
+    }
+   },
+   "steps": [
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-02T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.51,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-02T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.74,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-04T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.88,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-04T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.0,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-05T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-08T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-08T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.92,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-08T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 71.56,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-08T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.14,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-09T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.27,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-09T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.45,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-09T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-19T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.52,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-19T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 76.91,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-19T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 78.13,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 79.77,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 80.18,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.29,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-20T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-21T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 83.17,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-21T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 84.41,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-21T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 85.31,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-21T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 86.21000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-08-22T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 88.19,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar": "2026-08-22T05:00:00Z",
+     "bar_source": "cold",
+     "bar_low": 87.0,
+     "stop_used": 88.19,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 2,
+      "symbol": "SOLUSDT",
+      "exit_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.83,
+      "gross_pnl": 102.45,
+      "entry_fee": 0.2497731,
+      "exit_fee": 0.30099810000000005,
+      "funding_paid": 1.3688013860453014,
+      "funding_paid_this_close": 1.3688013860453012,
+      "n_funding_events": 60,
+      "n_funding_events_this_close": 60,
+      "funding_events": [
+       {
+        "funding_time": 1785657600000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.44,
+        "qty": 6.83,
+        "amount": 0.05015952,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785686400000,
+        "funding_rate": 1.348e-05,
+        "mark_price": 72.99,
+        "qty": 6.83,
+        "amount": 0.006720072515999999,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785715200000,
+        "funding_rate": 7.985e-05,
+        "mark_price": 73.6,
+        "qty": 6.83,
+        "amount": 0.0401396368,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785744000000,
+        "funding_rate": 2.558e-05,
+        "mark_price": 72.48089846,
+        "qty": 6.83,
+        "amount": 0.012663239243204444,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785772800000,
+        "funding_rate": 5.86e-05,
+        "mark_price": 73.57891627,
+        "qty": 6.83,
+        "amount": 0.029449078290072258,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785801600004,
+        "funding_rate": 0.0001,
+        "mark_price": 73.54,
+        "qty": 6.83,
+        "amount": 0.050227820000000006,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785830400002,
+        "funding_rate": 0.0001,
+        "mark_price": 73.66,
+        "qty": 6.83,
+        "amount": 0.050309780000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785859200000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.95161115,
+        "qty": 6.83,
+        "amount": 0.050508950415450005,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785888000003,
+        "funding_rate": 6.418e-05,
+        "mark_price": 73.72,
+        "qty": 6.83,
+        "amount": 0.032315117768,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785916800004,
+        "funding_rate": 3.7e-05,
+        "mark_price": 73.94352419,
+        "qty": 6.83,
+        "amount": 0.018686267998054902,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785945600000,
+        "funding_rate": 5.055e-05,
+        "mark_price": 73.92,
+        "qty": 6.83,
+        "amount": 0.02552136048,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1785974400002,
+        "funding_rate": 9e-07,
+        "mark_price": 74.0,
+        "qty": 6.83,
+        "amount": 0.000454878,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786003200000,
+        "funding_rate": -4.113e-05,
+        "mark_price": 73.84,
+        "qty": 6.83,
+        "amount": -0.020742977736,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786032000000,
+        "funding_rate": -6.988e-05,
+        "mark_price": 73.26412141,
+        "qty": 6.83,
+        "amount": -0.034967529172213366,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786060800000,
+        "funding_rate": -1.898e-05,
+        "mark_price": 72.65304517,
+        "qty": 6.83,
+        "amount": -0.009418261265740678,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786089600000,
+        "funding_rate": 3.45e-05,
+        "mark_price": 72.9,
+        "qty": 6.83,
+        "amount": 0.0171777915,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786118400000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.86,
+        "qty": 6.83,
+        "amount": 0.05044638,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786147200001,
+        "funding_rate": 8.378e-05,
+        "mark_price": 73.62474308,
+        "qty": 6.83,
+        "amount": 0.04212935906090559,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786176000000,
+        "funding_rate": 0.0001,
+        "mark_price": 74.79,
+        "qty": 6.83,
+        "amount": 0.05108157000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786204800002,
+        "funding_rate": 0.0001,
+        "mark_price": 76.37432355,
+        "qty": 6.83,
+        "amount": 0.05216366298465,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786233600000,
+        "funding_rate": 0.0001,
+        "mark_price": 76.0,
+        "qty": 6.83,
+        "amount": 0.05190800000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786262400005,
+        "funding_rate": 0.0001,
+        "mark_price": 76.34,
+        "qty": 6.83,
+        "amount": 0.05214022,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786291200000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.4174394,
+        "qty": 6.83,
+        "amount": 0.05287611111020001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786320000001,
+        "funding_rate": 0.0001,
+        "mark_price": 76.23416303,
+        "qty": 6.83,
+        "amount": 0.05206793334949,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786348800005,
+        "funding_rate": 9.534e-05,
+        "mark_price": 76.94098931,
+        "qty": 6.83,
+        "amount": 0.05010183327916919,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786377600000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.94,
+        "qty": 6.83,
+        "amount": 0.05186702000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786406400000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.95,
+        "qty": 6.83,
+        "amount": 0.051873850000000006,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786435200006,
+        "funding_rate": -2.3e-07,
+        "mark_price": 75.65,
+        "qty": 6.83,
+        "amount": -0.00011883858500000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786464000000,
+        "funding_rate": -5.533e-05,
+        "mark_price": 74.89096746,
+        "qty": 6.83,
+        "amount": -0.028301588677907094,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786492800001,
+        "funding_rate": 5.998e-05,
+        "mark_price": 76.27,
+        "qty": 6.83,
+        "amount": 0.031245027517999995,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786521600000,
+        "funding_rate": 8.133e-05,
+        "mark_price": 76.25,
+        "qty": 6.83,
+        "amount": 0.042355647375,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786550400000,
+        "funding_rate": -5.256e-05,
+        "mark_price": 75.71,
+        "qty": 6.83,
+        "amount": -0.027178739207999996,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786579200000,
+        "funding_rate": -6.47e-05,
+        "mark_price": 75.59,
+        "qty": 6.83,
+        "amount": -0.033403296590000006,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786608000000,
+        "funding_rate": 5.877e-05,
+        "mark_price": 76.41,
+        "qty": 6.83,
+        "amount": 0.030670905231000002,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786636800000,
+        "funding_rate": -4.9e-06,
+        "mark_price": 75.60043631,
+        "qty": 6.83,
+        "amount": -0.0025301198019867703,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786665600000,
+        "funding_rate": 5.622e-05,
+        "mark_price": 76.23,
+        "qty": 6.83,
+        "amount": 0.029270993598,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786694400001,
+        "funding_rate": 2.264e-05,
+        "mark_price": 75.55,
+        "qty": 6.83,
+        "amount": 0.011682387159999998,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786723200001,
+        "funding_rate": -6.847e-05,
+        "mark_price": 75.61134247,
+        "qty": 6.83,
+        "amount": -0.035359651867229745,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786752000003,
+        "funding_rate": -0.00010912,
+        "mark_price": 75.37,
+        "qty": 6.83,
+        "amount": -0.056172477152,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786780800002,
+        "funding_rate": 6.794e-05,
+        "mark_price": 75.19471835,
+        "qty": 6.83,
+        "amount": 0.034892620194894176,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786809600000,
+        "funding_rate": -9.423e-05,
+        "mark_price": 75.49,
+        "qty": 6.83,
+        "amount": -0.048584677040999995,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786838400000,
+        "funding_rate": -4.786e-05,
+        "mark_price": 75.31393067,
+        "qty": 6.83,
+        "amount": -0.024618903850346145,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786867200002,
+        "funding_rate": -2.592e-05,
+        "mark_price": 75.43731035,
+        "qty": 6.83,
+        "amount": -0.01335493862557776,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786896000000,
+        "funding_rate": -1.428e-05,
+        "mark_price": 75.54,
+        "qty": 6.83,
+        "amount": -0.007367597496000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786924800001,
+        "funding_rate": -4.738e-05,
+        "mark_price": 74.57,
+        "qty": 6.83,
+        "amount": -0.024131254677999998,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786953600003,
+        "funding_rate": 4.746e-05,
+        "mark_price": 75.74820038,
+        "qty": 6.83,
+        "amount": 0.024553915499937684,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1786982400005,
+        "funding_rate": -1.69e-05,
+        "mark_price": 76.063489,
+        "qty": 6.83,
+        "amount": -0.008779780344803001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787011200006,
+        "funding_rate": 3.077e-05,
+        "mark_price": 75.99,
+        "qty": 6.83,
+        "amount": 0.015969990009,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787040000001,
+        "funding_rate": -4.037e-05,
+        "mark_price": 76.06,
+        "qty": 6.83,
+        "amount": -0.020971803226000004,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787068800003,
+        "funding_rate": 0.0001,
+        "mark_price": 77.17198251,
+        "qty": 6.83,
+        "amount": 0.05270846405433,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787097600000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.03,
+        "qty": 6.83,
+        "amount": 0.052611490000000004,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787126400000,
+        "funding_rate": 9.206e-05,
+        "mark_price": 76.92028574,
+        "qty": 6.83,
+        "amount": 0.048365152680682644,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787155200004,
+        "funding_rate": 4.058e-05,
+        "mark_price": 81.82991422,
+        "qty": 6.83,
+        "amount": 0.02268009358709511,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787184000001,
+        "funding_rate": 0.0001,
+        "mark_price": 85.37,
+        "qty": 6.83,
+        "amount": 0.05830771000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787212800000,
+        "funding_rate": 0.0001,
+        "mark_price": 86.16,
+        "qty": 6.83,
+        "amount": 0.05884728,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787241600005,
+        "funding_rate": 0.0001,
+        "mark_price": 87.34450119,
+        "qty": 6.83,
+        "amount": 0.05965629431277,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787270400004,
+        "funding_rate": 0.0001,
+        "mark_price": 87.63,
+        "qty": 6.83,
+        "amount": 0.059851289999999994,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787299200000,
+        "funding_rate": 0.0001,
+        "mark_price": 90.4,
+        "qty": 6.83,
+        "amount": 0.061743200000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787328000001,
+        "funding_rate": 0.0001,
+        "mark_price": 91.34622949,
+        "qty": 6.83,
+        "amount": 0.06238947474167,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       },
+       {
+        "funding_time": 1787356800000,
+        "funding_rate": 0.0001,
+        "mark_price": 93.72244891,
+        "qty": 6.83,
+        "amount": 0.06401243260553001,
+        "late_backfill": false,
+        "recorded_at": 1793026649801
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": 100.5304274139547,
+      "entry_ts": 1785640500000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4a",
+     "position_id": 1,
+     "bars_checked": 1928,
+     "exited": true
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-02T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.74,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-04T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.88,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-04T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.0,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-05T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-08T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-08T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.92,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-08T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 71.56,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-08T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.14,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-09T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.27,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-09T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.45,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-09T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-19T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.52,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-19T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 76.91,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-19T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 78.13,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 79.77,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 80.18,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.29,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-20T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-21T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 83.17,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-21T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 84.41,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-21T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 85.31,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-21T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 86.21000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-08-22T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 88.19,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar": "2026-08-22T05:00:00Z",
+     "bar_source": "cold",
+     "bar_low": 87.0,
+     "stop_used": 88.19,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 2,
+      "symbol": "SOLUSDT",
+      "exit_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.8100000000000005,
+      "gross_pnl": 101.40090000000001,
+      "entry_fee": 0.24941625000000003,
+      "exit_fee": 0.30011670000000007,
+      "funding_paid": 1.364793182865081,
+      "funding_paid_this_close": 1.3647931828650808,
+      "n_funding_events": 60,
+      "n_funding_events_this_close": 60,
+      "funding_events": [
+       {
+        "funding_time": 1785657600000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.44,
+        "qty": 6.8100000000000005,
+        "amount": 0.050012640000000004,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785686400000,
+        "funding_rate": 1.348e-05,
+        "mark_price": 72.99,
+        "qty": 6.8100000000000005,
+        "amount": 0.006700394411999999,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785715200000,
+        "funding_rate": 7.985e-05,
+        "mark_price": 73.6,
+        "qty": 6.8100000000000005,
+        "amount": 0.0400220976,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785744000000,
+        "funding_rate": 2.558e-05,
+        "mark_price": 72.48089846,
+        "qty": 6.8100000000000005,
+        "amount": 0.01262615801555231,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785772800000,
+        "funding_rate": 5.86e-05,
+        "mark_price": 73.57891627,
+        "qty": 6.8100000000000005,
+        "amount": 0.02936284380020382,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785801600004,
+        "funding_rate": 0.0001,
+        "mark_price": 73.54,
+        "qty": 6.8100000000000005,
+        "amount": 0.05008074000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785830400002,
+        "funding_rate": 0.0001,
+        "mark_price": 73.66,
+        "qty": 6.8100000000000005,
+        "amount": 0.05016246,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785859200000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.95161115,
+        "qty": 6.8100000000000005,
+        "amount": 0.05036104719315001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785888000003,
+        "funding_rate": 6.418e-05,
+        "mark_price": 73.72,
+        "qty": 6.8100000000000005,
+        "amount": 0.032220490776,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785916800004,
+        "funding_rate": 3.7e-05,
+        "mark_price": 73.94352419,
+        "qty": 6.8100000000000005,
+        "amount": 0.0186315497901543,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785945600000,
+        "funding_rate": 5.055e-05,
+        "mark_price": 73.92,
+        "qty": 6.8100000000000005,
+        "amount": 0.025446627360000005,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1785974400002,
+        "funding_rate": 9e-07,
+        "mark_price": 74.0,
+        "qty": 6.8100000000000005,
+        "amount": 0.00045354600000000004,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786003200000,
+        "funding_rate": -4.113e-05,
+        "mark_price": 73.84,
+        "qty": 6.8100000000000005,
+        "amount": -0.020682236952000003,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786032000000,
+        "funding_rate": -6.988e-05,
+        "mark_price": 73.26412141,
+        "qty": 6.8100000000000005,
+        "amount": -0.03486513523613075,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786060800000,
+        "funding_rate": -1.898e-05,
+        "mark_price": 72.65304517,
+        "qty": 6.8100000000000005,
+        "amount": -0.009390682169794148,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786089600000,
+        "funding_rate": 3.45e-05,
+        "mark_price": 72.9,
+        "qty": 6.8100000000000005,
+        "amount": 0.017127490500000002,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786118400000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.86,
+        "qty": 6.8100000000000005,
+        "amount": 0.05029866,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786147200001,
+        "funding_rate": 8.378e-05,
+        "mark_price": 73.62474308,
+        "qty": 6.8100000000000005,
+        "amount": 0.04200599344140075,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786176000000,
+        "funding_rate": 0.0001,
+        "mark_price": 74.79,
+        "qty": 6.8100000000000005,
+        "amount": 0.05093199000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786204800002,
+        "funding_rate": 0.0001,
+        "mark_price": 76.37432355,
+        "qty": 6.8100000000000005,
+        "amount": 0.05201091433755001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786233600000,
+        "funding_rate": 0.0001,
+        "mark_price": 76.0,
+        "qty": 6.8100000000000005,
+        "amount": 0.05175600000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786262400005,
+        "funding_rate": 0.0001,
+        "mark_price": 76.34,
+        "qty": 6.8100000000000005,
+        "amount": 0.051987540000000006,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786291200000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.4174394,
+        "qty": 6.8100000000000005,
+        "amount": 0.052721276231400015,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786320000001,
+        "funding_rate": 0.0001,
+        "mark_price": 76.23416303,
+        "qty": 6.8100000000000005,
+        "amount": 0.051915465023430016,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786348800005,
+        "funding_rate": 9.534e-05,
+        "mark_price": 76.94098931,
+        "qty": 6.8100000000000005,
+        "amount": 0.04995512220075288,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786377600000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.94,
+        "qty": 6.8100000000000005,
+        "amount": 0.05171514,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786406400000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.95,
+        "qty": 6.8100000000000005,
+        "amount": 0.05172195000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786435200006,
+        "funding_rate": -2.3e-07,
+        "mark_price": 75.65,
+        "qty": 6.8100000000000005,
+        "amount": -0.000118490595,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786464000000,
+        "funding_rate": -5.533e-05,
+        "mark_price": 74.89096746,
+        "qty": 6.8100000000000005,
+        "amount": -0.02821871433331586,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786492800001,
+        "funding_rate": 5.998e-05,
+        "mark_price": 76.27,
+        "qty": 6.8100000000000005,
+        "amount": 0.031153534025999997,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786521600000,
+        "funding_rate": 8.133e-05,
+        "mark_price": 76.25,
+        "qty": 6.8100000000000005,
+        "amount": 0.042231619125,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786550400000,
+        "funding_rate": -5.256e-05,
+        "mark_price": 75.71,
+        "qty": 6.8100000000000005,
+        "amount": -0.027099152856,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786579200000,
+        "funding_rate": -6.47e-05,
+        "mark_price": 75.59,
+        "qty": 6.8100000000000005,
+        "amount": -0.03330548313,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786608000000,
+        "funding_rate": 5.877e-05,
+        "mark_price": 76.41,
+        "qty": 6.8100000000000005,
+        "amount": 0.030581092917000004,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786636800000,
+        "funding_rate": -4.9e-06,
+        "mark_price": 75.60043631,
+        "qty": 6.8100000000000005,
+        "amount": -0.00252271095922839,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786665600000,
+        "funding_rate": 5.622e-05,
+        "mark_price": 76.23,
+        "qty": 6.8100000000000005,
+        "amount": 0.029185280586,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786694400001,
+        "funding_rate": 2.264e-05,
+        "mark_price": 75.55,
+        "qty": 6.8100000000000005,
+        "amount": 0.01164817812,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786723200001,
+        "funding_rate": -6.847e-05,
+        "mark_price": 75.61134247,
+        "qty": 6.8100000000000005,
+        "amount": -0.03525610969485133,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786752000003,
+        "funding_rate": -0.00010912,
+        "mark_price": 75.37,
+        "qty": 6.8100000000000005,
+        "amount": -0.05600798966400001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786780800002,
+        "funding_rate": 6.794e-05,
+        "mark_price": 75.19471835,
+        "qty": 6.8100000000000005,
+        "amount": 0.0347904456116002,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786809600000,
+        "funding_rate": -9.423e-05,
+        "mark_price": 75.49,
+        "qty": 6.8100000000000005,
+        "amount": -0.048442408586999997,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786838400000,
+        "funding_rate": -4.786e-05,
+        "mark_price": 75.31393067,
+        "qty": 6.8100000000000005,
+        "amount": -0.024546813355908827,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786867200002,
+        "funding_rate": -2.592e-05,
+        "mark_price": 75.43731035,
+        "qty": 6.8100000000000005,
+        "amount": -0.013315831923892322,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786896000000,
+        "funding_rate": -1.428e-05,
+        "mark_price": 75.54,
+        "qty": 6.8100000000000005,
+        "amount": -0.007346023272000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786924800001,
+        "funding_rate": -4.738e-05,
+        "mark_price": 74.57,
+        "qty": 6.8100000000000005,
+        "amount": -0.024060592145999996,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786953600003,
+        "funding_rate": 4.746e-05,
+        "mark_price": 75.74820038,
+        "qty": 6.8100000000000005,
+        "amount": 0.02448201530813699,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1786982400005,
+        "funding_rate": -1.69e-05,
+        "mark_price": 76.063489,
+        "qty": 6.8100000000000005,
+        "amount": -0.008754070885521001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787011200006,
+        "funding_rate": 3.077e-05,
+        "mark_price": 75.99,
+        "qty": 6.8100000000000005,
+        "amount": 0.015923225763,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787040000001,
+        "funding_rate": -4.037e-05,
+        "mark_price": 76.06,
+        "qty": 6.8100000000000005,
+        "amount": -0.020910392382,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787068800003,
+        "funding_rate": 0.0001,
+        "mark_price": 77.17198251,
+        "qty": 6.8100000000000005,
+        "amount": 0.05255412008931001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787097600000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.03,
+        "qty": 6.8100000000000005,
+        "amount": 0.05245743,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787126400000,
+        "funding_rate": 9.206e-05,
+        "mark_price": 76.92028574,
+        "qty": 6.8100000000000005,
+        "amount": 0.04822352705057817,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787155200004,
+        "funding_rate": 4.058e-05,
+        "mark_price": 81.82991422,
+        "qty": 6.8100000000000005,
+        "amount": 0.02261368042871416,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787184000001,
+        "funding_rate": 0.0001,
+        "mark_price": 85.37,
+        "qty": 6.8100000000000005,
+        "amount": 0.05813697000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787212800000,
+        "funding_rate": 0.0001,
+        "mark_price": 86.16,
+        "qty": 6.8100000000000005,
+        "amount": 0.05867496,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787241600005,
+        "funding_rate": 0.0001,
+        "mark_price": 87.34450119,
+        "qty": 6.8100000000000005,
+        "amount": 0.05948160531039001,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787270400004,
+        "funding_rate": 0.0001,
+        "mark_price": 87.63,
+        "qty": 6.8100000000000005,
+        "amount": 0.059676030000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787299200000,
+        "funding_rate": 0.0001,
+        "mark_price": 90.4,
+        "qty": 6.8100000000000005,
+        "amount": 0.06156240000000002,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787328000001,
+        "funding_rate": 0.0001,
+        "mark_price": 91.34622949,
+        "qty": 6.8100000000000005,
+        "amount": 0.062206782282690005,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       },
+       {
+        "funding_time": 1787356800000,
+        "funding_rate": 0.0001,
+        "mark_price": 93.72244891,
+        "qty": 6.8100000000000005,
+        "amount": 0.06382498770771,
+        "late_backfill": false,
+        "recorded_at": 1793026673631
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": 99.48657386713492,
+      "entry_ts": 1785644100000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4b",
+     "position_id": 1,
+     "bars_checked": 1924,
+     "exited": true
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-02T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.74,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-04T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 69.88,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-04T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.0,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-05T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-08T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-08T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 70.92,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-08T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 71.56,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-08T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.14,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-09T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.27,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-09T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 72.45,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-09T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.2,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-19T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 73.52,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-19T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 76.91,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-19T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 78.13,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 79.77,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 80.18,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.72,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T12:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 81.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.29,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-20T20:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 82.82000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-21T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 83.17,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-21T04:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 84.41,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-21T08:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 85.31,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-21T16:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 86.21000000000001,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-08-22T00:00:00Z",
+     "bar4h_source": "cold",
+     "new_stop": 88.19,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar": "2026-08-22T05:00:00Z",
+     "bar_source": "cold",
+     "bar_low": 87.0,
+     "stop_used": 88.19,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 2,
+      "symbol": "SOLUSDT",
+      "exit_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.8100000000000005,
+      "gross_pnl": 101.40090000000001,
+      "entry_fee": 0.24941625000000003,
+      "exit_fee": 0.30011670000000007,
+      "funding_paid": 1.364793182865081,
+      "funding_paid_this_close": 1.3647931828650808,
+      "n_funding_events": 60,
+      "n_funding_events_this_close": 60,
+      "funding_events": [
+       {
+        "funding_time": 1785657600000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.44,
+        "qty": 6.8100000000000005,
+        "amount": 0.050012640000000004,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785686400000,
+        "funding_rate": 1.348e-05,
+        "mark_price": 72.99,
+        "qty": 6.8100000000000005,
+        "amount": 0.006700394411999999,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785715200000,
+        "funding_rate": 7.985e-05,
+        "mark_price": 73.6,
+        "qty": 6.8100000000000005,
+        "amount": 0.0400220976,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785744000000,
+        "funding_rate": 2.558e-05,
+        "mark_price": 72.48089846,
+        "qty": 6.8100000000000005,
+        "amount": 0.01262615801555231,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785772800000,
+        "funding_rate": 5.86e-05,
+        "mark_price": 73.57891627,
+        "qty": 6.8100000000000005,
+        "amount": 0.02936284380020382,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785801600004,
+        "funding_rate": 0.0001,
+        "mark_price": 73.54,
+        "qty": 6.8100000000000005,
+        "amount": 0.05008074000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785830400002,
+        "funding_rate": 0.0001,
+        "mark_price": 73.66,
+        "qty": 6.8100000000000005,
+        "amount": 0.05016246,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785859200000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.95161115,
+        "qty": 6.8100000000000005,
+        "amount": 0.05036104719315001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785888000003,
+        "funding_rate": 6.418e-05,
+        "mark_price": 73.72,
+        "qty": 6.8100000000000005,
+        "amount": 0.032220490776,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785916800004,
+        "funding_rate": 3.7e-05,
+        "mark_price": 73.94352419,
+        "qty": 6.8100000000000005,
+        "amount": 0.0186315497901543,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785945600000,
+        "funding_rate": 5.055e-05,
+        "mark_price": 73.92,
+        "qty": 6.8100000000000005,
+        "amount": 0.025446627360000005,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1785974400002,
+        "funding_rate": 9e-07,
+        "mark_price": 74.0,
+        "qty": 6.8100000000000005,
+        "amount": 0.00045354600000000004,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786003200000,
+        "funding_rate": -4.113e-05,
+        "mark_price": 73.84,
+        "qty": 6.8100000000000005,
+        "amount": -0.020682236952000003,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786032000000,
+        "funding_rate": -6.988e-05,
+        "mark_price": 73.26412141,
+        "qty": 6.8100000000000005,
+        "amount": -0.03486513523613075,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786060800000,
+        "funding_rate": -1.898e-05,
+        "mark_price": 72.65304517,
+        "qty": 6.8100000000000005,
+        "amount": -0.009390682169794148,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786089600000,
+        "funding_rate": 3.45e-05,
+        "mark_price": 72.9,
+        "qty": 6.8100000000000005,
+        "amount": 0.017127490500000002,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786118400000,
+        "funding_rate": 0.0001,
+        "mark_price": 73.86,
+        "qty": 6.8100000000000005,
+        "amount": 0.05029866,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786147200001,
+        "funding_rate": 8.378e-05,
+        "mark_price": 73.62474308,
+        "qty": 6.8100000000000005,
+        "amount": 0.04200599344140075,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786176000000,
+        "funding_rate": 0.0001,
+        "mark_price": 74.79,
+        "qty": 6.8100000000000005,
+        "amount": 0.05093199000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786204800002,
+        "funding_rate": 0.0001,
+        "mark_price": 76.37432355,
+        "qty": 6.8100000000000005,
+        "amount": 0.05201091433755001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786233600000,
+        "funding_rate": 0.0001,
+        "mark_price": 76.0,
+        "qty": 6.8100000000000005,
+        "amount": 0.05175600000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786262400005,
+        "funding_rate": 0.0001,
+        "mark_price": 76.34,
+        "qty": 6.8100000000000005,
+        "amount": 0.051987540000000006,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786291200000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.4174394,
+        "qty": 6.8100000000000005,
+        "amount": 0.052721276231400015,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786320000001,
+        "funding_rate": 0.0001,
+        "mark_price": 76.23416303,
+        "qty": 6.8100000000000005,
+        "amount": 0.051915465023430016,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786348800005,
+        "funding_rate": 9.534e-05,
+        "mark_price": 76.94098931,
+        "qty": 6.8100000000000005,
+        "amount": 0.04995512220075288,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786377600000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.94,
+        "qty": 6.8100000000000005,
+        "amount": 0.05171514,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786406400000,
+        "funding_rate": 0.0001,
+        "mark_price": 75.95,
+        "qty": 6.8100000000000005,
+        "amount": 0.05172195000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786435200006,
+        "funding_rate": -2.3e-07,
+        "mark_price": 75.65,
+        "qty": 6.8100000000000005,
+        "amount": -0.000118490595,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786464000000,
+        "funding_rate": -5.533e-05,
+        "mark_price": 74.89096746,
+        "qty": 6.8100000000000005,
+        "amount": -0.02821871433331586,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786492800001,
+        "funding_rate": 5.998e-05,
+        "mark_price": 76.27,
+        "qty": 6.8100000000000005,
+        "amount": 0.031153534025999997,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786521600000,
+        "funding_rate": 8.133e-05,
+        "mark_price": 76.25,
+        "qty": 6.8100000000000005,
+        "amount": 0.042231619125,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786550400000,
+        "funding_rate": -5.256e-05,
+        "mark_price": 75.71,
+        "qty": 6.8100000000000005,
+        "amount": -0.027099152856,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786579200000,
+        "funding_rate": -6.47e-05,
+        "mark_price": 75.59,
+        "qty": 6.8100000000000005,
+        "amount": -0.03330548313,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786608000000,
+        "funding_rate": 5.877e-05,
+        "mark_price": 76.41,
+        "qty": 6.8100000000000005,
+        "amount": 0.030581092917000004,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786636800000,
+        "funding_rate": -4.9e-06,
+        "mark_price": 75.60043631,
+        "qty": 6.8100000000000005,
+        "amount": -0.00252271095922839,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786665600000,
+        "funding_rate": 5.622e-05,
+        "mark_price": 76.23,
+        "qty": 6.8100000000000005,
+        "amount": 0.029185280586,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786694400001,
+        "funding_rate": 2.264e-05,
+        "mark_price": 75.55,
+        "qty": 6.8100000000000005,
+        "amount": 0.01164817812,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786723200001,
+        "funding_rate": -6.847e-05,
+        "mark_price": 75.61134247,
+        "qty": 6.8100000000000005,
+        "amount": -0.03525610969485133,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786752000003,
+        "funding_rate": -0.00010912,
+        "mark_price": 75.37,
+        "qty": 6.8100000000000005,
+        "amount": -0.05600798966400001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786780800002,
+        "funding_rate": 6.794e-05,
+        "mark_price": 75.19471835,
+        "qty": 6.8100000000000005,
+        "amount": 0.0347904456116002,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786809600000,
+        "funding_rate": -9.423e-05,
+        "mark_price": 75.49,
+        "qty": 6.8100000000000005,
+        "amount": -0.048442408586999997,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786838400000,
+        "funding_rate": -4.786e-05,
+        "mark_price": 75.31393067,
+        "qty": 6.8100000000000005,
+        "amount": -0.024546813355908827,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786867200002,
+        "funding_rate": -2.592e-05,
+        "mark_price": 75.43731035,
+        "qty": 6.8100000000000005,
+        "amount": -0.013315831923892322,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786896000000,
+        "funding_rate": -1.428e-05,
+        "mark_price": 75.54,
+        "qty": 6.8100000000000005,
+        "amount": -0.007346023272000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786924800001,
+        "funding_rate": -4.738e-05,
+        "mark_price": 74.57,
+        "qty": 6.8100000000000005,
+        "amount": -0.024060592145999996,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786953600003,
+        "funding_rate": 4.746e-05,
+        "mark_price": 75.74820038,
+        "qty": 6.8100000000000005,
+        "amount": 0.02448201530813699,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1786982400005,
+        "funding_rate": -1.69e-05,
+        "mark_price": 76.063489,
+        "qty": 6.8100000000000005,
+        "amount": -0.008754070885521001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787011200006,
+        "funding_rate": 3.077e-05,
+        "mark_price": 75.99,
+        "qty": 6.8100000000000005,
+        "amount": 0.015923225763,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787040000001,
+        "funding_rate": -4.037e-05,
+        "mark_price": 76.06,
+        "qty": 6.8100000000000005,
+        "amount": -0.020910392382,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787068800003,
+        "funding_rate": 0.0001,
+        "mark_price": 77.17198251,
+        "qty": 6.8100000000000005,
+        "amount": 0.05255412008931001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787097600000,
+        "funding_rate": 0.0001,
+        "mark_price": 77.03,
+        "qty": 6.8100000000000005,
+        "amount": 0.05245743,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787126400000,
+        "funding_rate": 9.206e-05,
+        "mark_price": 76.92028574,
+        "qty": 6.8100000000000005,
+        "amount": 0.04822352705057817,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787155200004,
+        "funding_rate": 4.058e-05,
+        "mark_price": 81.82991422,
+        "qty": 6.8100000000000005,
+        "amount": 0.02261368042871416,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787184000001,
+        "funding_rate": 0.0001,
+        "mark_price": 85.37,
+        "qty": 6.8100000000000005,
+        "amount": 0.05813697000000001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787212800000,
+        "funding_rate": 0.0001,
+        "mark_price": 86.16,
+        "qty": 6.8100000000000005,
+        "amount": 0.05867496,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787241600005,
+        "funding_rate": 0.0001,
+        "mark_price": 87.34450119,
+        "qty": 6.8100000000000005,
+        "amount": 0.05948160531039001,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787270400004,
+        "funding_rate": 0.0001,
+        "mark_price": 87.63,
+        "qty": 6.8100000000000005,
+        "amount": 0.059676030000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787299200000,
+        "funding_rate": 0.0001,
+        "mark_price": 90.4,
+        "qty": 6.8100000000000005,
+        "amount": 0.06156240000000002,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787328000001,
+        "funding_rate": 0.0001,
+        "mark_price": 91.34622949,
+        "qty": 6.8100000000000005,
+        "amount": 0.062206782282690005,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       },
+       {
+        "funding_time": 1787356800000,
+        "funding_rate": 0.0001,
+        "mark_price": 93.72244891,
+        "qty": 6.8100000000000005,
+        "amount": 0.06382498770771,
+        "late_backfill": false,
+        "recorded_at": 1793026695465
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": 99.48657386713492,
+      "entry_ts": 1785644100000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4c",
+     "position_id": 1,
+     "bars_checked": 1924,
+     "exited": true
+    }
+   ],
+   "errors": [],
+   "assertions": {
+    "entry_timing": [
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-08-02T02:59:59Z",
+      "earliest_utc": "2026-08-02T03:14:59Z",
+      "entry_bar_utc": "2026-08-02T03:15:00Z",
+      "ledger_entry_ts_utc": "2026-08-02T03:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "cold",
+      "predicted_entry_ref_price": 73.1,
+      "ledger_open_fill_raw_price": 73.1,
+      "raw_price_matches_prediction": true
+     },
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-08-02T03:59:59Z",
+      "earliest_utc": "2026-08-02T04:14:59Z",
+      "entry_bar_utc": "2026-08-02T04:15:00Z",
+      "ledger_entry_ts_utc": "2026-08-02T04:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "cold",
+      "predicted_entry_ref_price": 73.21,
+      "ledger_open_fill_raw_price": 73.21,
+      "raw_price_matches_prediction": true
+     },
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-08-02T03:59:59Z",
+      "earliest_utc": "2026-08-02T04:14:59Z",
+      "entry_bar_utc": "2026-08-02T04:15:00Z",
+      "ledger_entry_ts_utc": "2026-08-02T04:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "cold",
+      "predicted_entry_ref_price": 73.21,
+      "ledger_open_fill_raw_price": 73.21,
+      "raw_price_matches_prediction": true
+     }
+    ],
+    "stop": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "entry_price": 73.14,
+      "initial_stop_price": 69.48,
+      "target_095": 69.483,
+      "price_step": 0.01,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 88.19,
+      "stop_only_moves_up": true
+     },
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "entry_price": 73.25,
+      "initial_stop_price": 69.58,
+      "target_095": 69.58749999999999,
+      "price_step": 0.01,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 88.19,
+      "stop_only_moves_up": true
+     },
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "entry_price": 73.25,
+      "initial_stop_price": 69.58,
+      "target_095": 69.58749999999999,
+      "price_step": 0.01,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 88.19,
+      "stop_only_moves_up": true
+     }
+    ],
+    "orders": [
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 0,
+      "rejected_reasons": [],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     },
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 0,
+      "rejected_reasons": [],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     },
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 0,
+      "rejected_reasons": [],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     }
+    ],
+    "duplicate": [
+     {
+      "scheme": "4a",
+      "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     },
+     {
+      "scheme": "4b",
+      "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     },
+     {
+      "scheme": "4c",
+      "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     }
+    ],
+    "rescan": [
+     {
+      "scheme": "4a",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4a",
+      "orders_before": 2,
+      "orders_after": 2,
+      "fills_before": 2,
+      "fills_after": 2
+     },
+     {
+      "scheme": "4b",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4b",
+      "orders_before": 2,
+      "orders_after": 2,
+      "fills_before": 2,
+      "fills_after": 2
+     },
+     {
+      "scheme": "4c",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4c",
+      "orders_before": 2,
+      "orders_after": 2,
+      "fills_before": 2,
+      "fills_after": 2
+     }
+    ],
+    "summary": {
+     "positions": 3,
+     "closed": 3,
+     "entry_timing_ok": true,
+     "stop_ok": true,
+     "orders_ok": true,
+     "no_add_rule_respected": true,
+     "duplicate_blocked": true,
+     "rescan_no_new_orders": true
+    }
+   }
+  },
+  {
+   "name": "run_hot",
+   "why": "成交 bar 来自热库 ⇒ 冷热两条路都要通",
+   "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot",
+   "env": {
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/live_signals.sqlite3",
+    "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/gate.json",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "WX_MARKET_MERGE": "1",
+    "ACCUM04_CONFIG": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json"
+   },
+   "market_mode": {
+    "merge_enabled": true,
+    "env_flag": "WX_MARKET_MERGE",
+    "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+   },
+   "candidates": [
+    {
+     "scheme": "4a",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+     "confirm_close_ms": 1789387199999,
+     "earliest_entry_ms": 1789388099999,
+     "entry_bar_open_ms": 1789388100000,
+     "entry_ref_price": 7.47,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4b",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+     "confirm_close_ms": 1789390799999,
+     "earliest_entry_ms": 1789391699999,
+     "entry_bar_open_ms": 1789391700000,
+     "entry_ref_price": 7.447,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4c",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+     "confirm_close_ms": 1789394399999,
+     "earliest_entry_ms": 1789395299999,
+     "entry_bar_open_ms": 1789395300000,
+     "entry_ref_price": 7.494,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4a",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999_s1",
+     "signal_uid": "accum04_4a_AVAXUSDT_1789592399999",
+     "confirm_close_ms": 1789592399999,
+     "earliest_entry_ms": 1789593299999,
+     "entry_bar_open_ms": 1789593300000,
+     "entry_ref_price": 7.356,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4b",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789487999999_1789487999999_s1",
+     "signal_uid": "accum04_4b_AVAXUSDT_1789595999999",
+     "confirm_close_ms": 1789595999999,
+     "earliest_entry_ms": 1789596899999,
+     "entry_bar_open_ms": 1789596900000,
+     "entry_ref_price": 7.372,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4c",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789487999999_1789487999999_s1",
+     "signal_uid": "accum04_4c_AVAXUSDT_1789595999999",
+     "confirm_close_ms": 1789595999999,
+     "earliest_entry_ms": 1789596899999,
+     "entry_bar_open_ms": 1789596900000,
+     "entry_ref_price": 7.372,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    }
+   ],
+   "open_results": [
+    {
+     "scheme": "4a",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 7.47,
+     "entry_price": 7.474,
+     "initial_stop_price": 7.1000000000000005,
+     "bar_open_time": 1789388100000,
+     "earliest_fill_ms": 1789388099999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "bar_provenance": {
+      "layer": "hot",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    },
+    {
+     "scheme": "4b",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 7.447,
+     "entry_price": 7.4510000000000005,
+     "initial_stop_price": 7.078,
+     "bar_open_time": 1789391700000,
+     "earliest_fill_ms": 1789391699999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "bar_provenance": {
+      "layer": "hot",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    },
+    {
+     "scheme": "4c",
+     "ok": true,
+     "reason": "filled",
+     "position_id": 1,
+     "raw_price": 7.494,
+     "entry_price": 7.498,
+     "initial_stop_price": 7.123,
+     "bar_open_time": 1789395300000,
+     "earliest_fill_ms": 1789395299999,
+     "fill_lag_ms": 0,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "bar_provenance": {
+      "layer": "hot",
+      "available_at": null,
+      "available_at_proven": false
+     }
+    },
+    {
+     "scheme": "4a",
+     "ok": false,
+     "reason": "position_already_open_no_add",
+     "position_id": null,
+     "raw_price": null,
+     "entry_price": null,
+     "initial_stop_price": null,
+     "bar_open_time": null,
+     "earliest_fill_ms": null,
+     "fill_lag_ms": null,
+     "market_source": null,
+     "bar_provenance": null
+    },
+    {
+     "scheme": "4b",
+     "ok": false,
+     "reason": "position_already_open_no_add",
+     "position_id": null,
+     "raw_price": null,
+     "entry_price": null,
+     "initial_stop_price": null,
+     "bar_open_time": null,
+     "earliest_fill_ms": null,
+     "fill_lag_ms": null,
+     "market_source": null,
+     "bar_provenance": null
+    },
+    {
+     "scheme": "4c",
+     "ok": false,
+     "reason": "position_already_open_no_add",
+     "position_id": null,
+     "raw_price": null,
+     "entry_price": null,
+     "initial_stop_price": null,
+     "bar_open_time": null,
+     "earliest_fill_ms": null,
+     "fill_lag_ms": null,
+     "market_source": null,
+     "bar_provenance": null
+    }
+   ],
+   "ledgers": {
+    "4a": {
+     "account_id": "paper43_4a",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "AVAXUSDT",
+       "status": "closed",
+       "qty": 66.0,
+       "entry_price": 7.474,
+       "entry_ts": 1789388100000,
+       "exit_ts": 1789498799999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 7.172,
+       "stop_price": 7.176,
+       "initial_stop_price": 7.1000000000000005,
+       "entry_fee": 0.246642,
+       "exit_fee": 0.236676,
+       "funding_paid": 0.0747706513407744,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4a_AVAXUSDT_1789387199999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.474,
+       "bar_open_time": 1789388100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "accum04_4a_AVAXUSDT_1789592399999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "rejected",
+       "reject_reason": "position_already_open_no_add",
+       "fill_price": null,
+       "bar_open_time": null,
+       "market_source": null
+      },
+      {
+       "order_id": 3,
+       "event_uid": "exit:4a:1:1789498799999",
+       "symbol": "AVAXUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.172,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 7.474,
+       "raw_price": 7.47,
+       "qty": 66.0,
+       "notional": 493.284,
+       "fee": 0.246642,
+       "bar_open_time": 1789388100000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 3,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 7.172,
+       "raw_price": 7.176,
+       "qty": 66.0,
+       "notional": 473.352,
+       "fee": 0.236676,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 7.1000000000000005,
+       "reason": "initial_stop",
+       "effective_at": 1789388100000,
+       "available_at": 1789387199999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 7.1000000000000005,
+       "new_stop": 7.176,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1789430399999,
+       "available_at": 1789430399999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": -20.490088651340805,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 4979.509911348659,
+       "realized_pnl": -20.490088651340805,
+       "fees_paid": 0.483318,
+       "funding_paid": 0.0747706513407744
+      }
+     ],
+     "pending": [],
+     "blocked": [
+      {
+       "event_uid": "accum04_4a_AVAXUSDT_1789592399999",
+       "reason": "position_already_open_no_add"
+      }
+     ]
+    },
+    "4b": {
+     "account_id": "paper43_4b",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "AVAXUSDT",
+       "status": "closed",
+       "qty": 67.0,
+       "entry_price": 7.4510000000000005,
+       "entry_ts": 1789391700000,
+       "exit_ts": 1789498799999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 7.172,
+       "stop_price": 7.176,
+       "initial_stop_price": 7.078,
+       "entry_fee": 0.24960850000000004,
+       "exit_fee": 0.240262,
+       "funding_paid": 0.0759035399974528,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4b_AVAXUSDT_1789390799999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.4510000000000005,
+       "bar_open_time": 1789391700000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "accum04_4b_AVAXUSDT_1789595999999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "rejected",
+       "reject_reason": "position_already_open_no_add",
+       "fill_price": null,
+       "bar_open_time": null,
+       "market_source": null
+      },
+      {
+       "order_id": 3,
+       "event_uid": "exit:4b:1:1789498799999",
+       "symbol": "AVAXUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.172,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 7.4510000000000005,
+       "raw_price": 7.447,
+       "qty": 67.0,
+       "notional": 499.21700000000004,
+       "fee": 0.24960850000000004,
+       "bar_open_time": 1789391700000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 3,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 7.172,
+       "raw_price": 7.176,
+       "qty": 67.0,
+       "notional": 480.524,
+       "fee": 0.240262,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 7.078,
+       "reason": "initial_stop",
+       "effective_at": 1789391700000,
+       "available_at": 1789390799999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 7.078,
+       "new_stop": 7.176,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1789430399999,
+       "available_at": 1789430399999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": -19.25877403999751,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 4980.741225960002,
+       "realized_pnl": -19.25877403999751,
+       "fees_paid": 0.48987050000000004,
+       "funding_paid": 0.0759035399974528
+      }
+     ],
+     "pending": [],
+     "blocked": [
+      {
+       "event_uid": "accum04_4b_AVAXUSDT_1789595999999",
+       "reason": "position_already_open_no_add"
+      }
+     ]
+    },
+    "4c": {
+     "account_id": "paper43_4c",
+     "positions": [
+      {
+       "position_id": 1,
+       "symbol": "AVAXUSDT",
+       "status": "closed",
+       "qty": 66.0,
+       "entry_price": 7.498,
+       "entry_ts": 1789395300000,
+       "exit_ts": 1789498799999,
+       "exit_reason": "trailing_stop_loss",
+       "exit_price": 7.172,
+       "stop_price": 7.176,
+       "initial_stop_price": 7.123,
+       "entry_fee": 0.24743400000000002,
+       "exit_fee": 0.236676,
+       "funding_paid": 0.0747706513407744,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "stoploss_s": 0.05,
+       "trail_d": 0.05
+      }
+     ],
+     "orders": [
+      {
+       "order_id": 1,
+       "event_uid": "accum04_4c_AVAXUSDT_1789394399999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.498,
+       "bar_open_time": 1789395300000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "order_id": 2,
+       "event_uid": "accum04_4c_AVAXUSDT_1789595999999",
+       "symbol": "AVAXUSDT",
+       "side": "buy",
+       "status": "rejected",
+       "reject_reason": "position_already_open_no_add",
+       "fill_price": null,
+       "bar_open_time": null,
+       "market_source": null
+      },
+      {
+       "order_id": 3,
+       "event_uid": "exit:4c:1:1789498799999",
+       "symbol": "AVAXUSDT",
+       "side": "sell",
+       "status": "filled",
+       "reject_reason": null,
+       "fill_price": 7.172,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "fills": [
+      {
+       "fill_id": 1,
+       "order_id": 1,
+       "position_id": 1,
+       "action": "open",
+       "fill_price": 7.498,
+       "raw_price": 7.494,
+       "qty": 66.0,
+       "notional": 494.868,
+       "fee": 0.24743400000000002,
+       "bar_open_time": 1789395300000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      },
+      {
+       "fill_id": 2,
+       "order_id": 3,
+       "position_id": 1,
+       "action": "close",
+       "fill_price": 7.172,
+       "raw_price": 7.176,
+       "qty": 66.0,
+       "notional": 473.352,
+       "fee": 0.236676,
+       "bar_open_time": 1789497900000,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+      }
+     ],
+     "stop_history": [
+      {
+       "position_id": 1,
+       "old_stop": null,
+       "new_stop": 7.123,
+       "reason": "initial_stop",
+       "effective_at": 1789395300000,
+       "available_at": 1789394399999
+      },
+      {
+       "position_id": 1,
+       "old_stop": 7.123,
+       "new_stop": 7.176,
+       "reason": "ft_low4h_trail",
+       "effective_at": 1789430399999,
+       "available_at": 1789430399999
+      }
+     ],
+     "realized": [
+      {
+       "position_id": 1,
+       "net_pnl": -22.074880651340806,
+       "exit_reason": "trailing_stop_loss"
+      }
+     ],
+     "state": [
+      {
+       "cash": 4977.925119348659,
+       "realized_pnl": -22.074880651340806,
+       "fees_paid": 0.48411000000000004,
+       "funding_paid": 0.0747706513407744
+      }
+     ],
+     "pending": [],
+     "blocked": [
+      {
+       "event_uid": "accum04_4c_AVAXUSDT_1789595999999",
+       "reason": "position_already_open_no_add"
+      }
+     ]
+    }
+   },
+   "steps": [
+    {
+     "step": "trailing",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar4h": "2026-09-14T20:00:00Z",
+     "bar4h_source": "hot",
+     "new_stop": 7.176,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4a",
+     "position_id": 1,
+     "bar": "2026-09-15T18:45:00Z",
+     "bar_source": "hot",
+     "bar_low": 7.176,
+     "stop_used": 7.176,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 3,
+      "symbol": "AVAXUSDT",
+      "exit_price": 7.172,
+      "raw_price": 7.176,
+      "qty": 66.0,
+      "gross_pnl": -19.93200000000003,
+      "entry_fee": 0.246642,
+      "exit_fee": 0.236676,
+      "funding_paid": 0.0747706513407744,
+      "funding_paid_this_close": 0.0747706513407744,
+      "n_funding_events": 4,
+      "n_funding_events_this_close": 4,
+      "funding_events": [
+       {
+        "funding_time": 1789401600000,
+        "funding_rate": 2.648e-05,
+        "mark_price": 7.45755912,
+        "qty": 66.0,
+        "amount": 0.0130334269228416,
+        "late_backfill": false,
+        "recorded_at": 1793026703291
+       },
+       {
+        "funding_time": 1789430400000,
+        "funding_rate": 0.0001,
+        "mark_price": 7.561,
+        "qty": 66.0,
+        "amount": 0.049902600000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026703291
+       },
+       {
+        "funding_time": 1789459200005,
+        "funding_rate": -2.416e-05,
+        "mark_price": 7.46086212,
+        "qty": 66.0,
+        "amount": -0.0118967923020672,
+        "late_backfill": false,
+        "recorded_at": 1793026703291
+       },
+       {
+        "funding_time": 1789488000001,
+        "funding_rate": 4.842e-05,
+        "mark_price": 7.426,
+        "qty": 66.0,
+        "amount": 0.02373141672,
+        "late_backfill": false,
+        "recorded_at": 1793026703291
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": -20.490088651340805,
+      "entry_ts": 1789388100000,
+      "exit_ts": 1789498799999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4a",
+     "position_id": 1,
+     "bars_checked": 123,
+     "exited": true
+    },
+    {
+     "step": "trailing",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar4h": "2026-09-14T20:00:00Z",
+     "bar4h_source": "hot",
+     "new_stop": 7.176,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4b",
+     "position_id": 1,
+     "bar": "2026-09-15T18:45:00Z",
+     "bar_source": "hot",
+     "bar_low": 7.176,
+     "stop_used": 7.176,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 3,
+      "symbol": "AVAXUSDT",
+      "exit_price": 7.172,
+      "raw_price": 7.176,
+      "qty": 67.0,
+      "gross_pnl": -18.693000000000055,
+      "entry_fee": 0.24960850000000004,
+      "exit_fee": 0.240262,
+      "funding_paid": 0.0759035399974528,
+      "funding_paid_this_close": 0.0759035399974528,
+      "n_funding_events": 4,
+      "n_funding_events_this_close": 4,
+      "funding_events": [
+       {
+        "funding_time": 1789401600000,
+        "funding_rate": 2.648e-05,
+        "mark_price": 7.45755912,
+        "qty": 67.0,
+        "amount": 0.013230903088339201,
+        "late_backfill": false,
+        "recorded_at": 1793026709644
+       },
+       {
+        "funding_time": 1789430400000,
+        "funding_rate": 0.0001,
+        "mark_price": 7.561,
+        "qty": 67.0,
+        "amount": 0.0506587,
+        "late_backfill": false,
+        "recorded_at": 1793026709644
+       },
+       {
+        "funding_time": 1789459200005,
+        "funding_rate": -2.416e-05,
+        "mark_price": 7.46086212,
+        "qty": 67.0,
+        "amount": -0.0120770467308864,
+        "late_backfill": false,
+        "recorded_at": 1793026709644
+       },
+       {
+        "funding_time": 1789488000001,
+        "funding_rate": 4.842e-05,
+        "mark_price": 7.426,
+        "qty": 67.0,
+        "amount": 0.02409098364,
+        "late_backfill": false,
+        "recorded_at": 1793026709644
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": -19.25877403999751,
+      "entry_ts": 1789391700000,
+      "exit_ts": 1789498799999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4b",
+     "position_id": 1,
+     "bars_checked": 119,
+     "exited": true
+    },
+    {
+     "step": "trailing",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar4h": "2026-09-14T20:00:00Z",
+     "bar4h_source": "hot",
+     "new_stop": 7.176,
+     "available_at_proven": false,
+     "exit_triggered": false
+    },
+    {
+     "step": "exit_15m",
+     "scheme": "4c",
+     "position_id": 1,
+     "bar": "2026-09-15T18:45:00Z",
+     "bar_source": "hot",
+     "bar_low": 7.176,
+     "stop_used": 7.176,
+     "exit": {
+      "ok": true,
+      "reason": "closed",
+      "position_id": 1,
+      "order_id": 3,
+      "symbol": "AVAXUSDT",
+      "exit_price": 7.172,
+      "raw_price": 7.176,
+      "qty": 66.0,
+      "gross_pnl": -21.516000000000034,
+      "entry_fee": 0.24743400000000002,
+      "exit_fee": 0.236676,
+      "funding_paid": 0.0747706513407744,
+      "funding_paid_this_close": 0.0747706513407744,
+      "n_funding_events": 4,
+      "n_funding_events_this_close": 4,
+      "funding_events": [
+       {
+        "funding_time": 1789401600000,
+        "funding_rate": 2.648e-05,
+        "mark_price": 7.45755912,
+        "qty": 66.0,
+        "amount": 0.0130334269228416,
+        "late_backfill": false,
+        "recorded_at": 1793026716163
+       },
+       {
+        "funding_time": 1789430400000,
+        "funding_rate": 0.0001,
+        "mark_price": 7.561,
+        "qty": 66.0,
+        "amount": 0.049902600000000005,
+        "late_backfill": false,
+        "recorded_at": 1793026716163
+       },
+       {
+        "funding_time": 1789459200005,
+        "funding_rate": -2.416e-05,
+        "mark_price": 7.46086212,
+        "qty": 66.0,
+        "amount": -0.0118967923020672,
+        "late_backfill": false,
+        "recorded_at": 1793026716163
+       },
+       {
+        "funding_time": 1789488000001,
+        "funding_rate": 4.842e-05,
+        "mark_price": 7.426,
+        "qty": 66.0,
+        "amount": 0.02373141672,
+        "late_backfill": false,
+        "recorded_at": 1793026716163
+       }
+      ],
+      "funding_gaps": [],
+      "amount_sign_convention": "expense_positive",
+      "net_pnl": -22.074880651340806,
+      "entry_ts": 1789395300000,
+      "exit_ts": 1789498799999,
+      "exit_reason": "trailing_stop_loss",
+      "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+      "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+     }
+    },
+    {
+     "step": "walk_done",
+     "scheme": "4c",
+     "position_id": 1,
+     "bars_checked": 115,
+     "exited": true
+    }
+   ],
+   "errors": [],
+   "assertions": {
+    "entry_timing": [
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-09-14T11:59:59Z",
+      "earliest_utc": "2026-09-14T12:14:59Z",
+      "entry_bar_utc": "2026-09-14T12:15:00Z",
+      "ledger_entry_ts_utc": "2026-09-14T12:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "hot",
+      "predicted_entry_ref_price": 7.47,
+      "ledger_open_fill_raw_price": 7.47,
+      "raw_price_matches_prediction": true
+     },
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-09-14T12:59:59Z",
+      "earliest_utc": "2026-09-14T13:14:59Z",
+      "entry_bar_utc": "2026-09-14T13:15:00Z",
+      "ledger_entry_ts_utc": "2026-09-14T13:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "hot",
+      "predicted_entry_ref_price": 7.447,
+      "ledger_open_fill_raw_price": 7.447,
+      "raw_price_matches_prediction": true
+     },
+     {
+      "position_id": 1,
+      "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+      "signal_uid_source": "process_memory",
+      "confirm_utc": "2026-09-14T13:59:59Z",
+      "earliest_utc": "2026-09-14T14:14:59Z",
+      "entry_bar_utc": "2026-09-14T14:15:00Z",
+      "ledger_entry_ts_utc": "2026-09-14T14:15:00Z",
+      "same_bar": true,
+      "not_before_earliest": true,
+      "within_one_bar": true,
+      "bar_source": "hot",
+      "predicted_entry_ref_price": 7.494,
+      "ledger_open_fill_raw_price": 7.494,
+      "raw_price_matches_prediction": true
+     }
+    ],
+    "stop": [
+     {
+      "position_id": 1,
+      "symbol": "AVAXUSDT",
+      "entry_price": 7.474,
+      "initial_stop_price": 7.1000000000000005,
+      "target_095": 7.1003,
+      "price_step": 0.001,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 7.176,
+      "stop_only_moves_up": true
+     },
+     {
+      "position_id": 1,
+      "symbol": "AVAXUSDT",
+      "entry_price": 7.4510000000000005,
+      "initial_stop_price": 7.078,
+      "target_095": 7.07845,
+      "price_step": 0.001,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 7.176,
+      "stop_only_moves_up": true
+     },
+     {
+      "position_id": 1,
+      "symbol": "AVAXUSDT",
+      "entry_price": 7.498,
+      "initial_stop_price": 7.123,
+      "target_095": 7.1231,
+      "price_step": 0.001,
+      "not_above_target": true,
+      "within_one_step": true,
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "final_stop_price": 7.176,
+      "stop_only_moves_up": true
+     }
+    ],
+    "orders": [
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 1,
+      "rejected_reasons": [
+       "position_already_open_no_add"
+      ],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     },
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 1,
+      "rejected_reasons": [
+       "position_already_open_no_add"
+      ],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     },
+     {
+      "position_id": 1,
+      "status": "closed",
+      "orders_filled": 2,
+      "orders_rejected": 1,
+      "rejected_reasons": [
+       "position_already_open_no_add"
+      ],
+      "fills_total_for_position": 2,
+      "exit_reason": "trailing_stop_loss",
+      "expected_filled": 2
+     }
+    ],
+    "duplicate": [
+     {
+      "scheme": "4a",
+      "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     },
+     {
+      "scheme": "4b",
+      "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     },
+     {
+      "scheme": "4c",
+      "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+      "ok": false,
+      "reason": "duplicate_signal_uid"
+     }
+    ],
+    "rescan": [
+     {
+      "scheme": "4a",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4a",
+      "orders_before": 3,
+      "orders_after": 3,
+      "fills_before": 2,
+      "fills_after": 2
+     },
+     {
+      "scheme": "4b",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4b",
+      "orders_before": 3,
+      "orders_after": 3,
+      "fills_before": 2,
+      "fills_after": 2
+     },
+     {
+      "scheme": "4c",
+      "position_id": 1,
+      "skipped": "position_not_open"
+     },
+     {
+      "scheme": "4c",
+      "orders_before": 3,
+      "orders_after": 3,
+      "fills_before": 2,
+      "fills_after": 2
+     }
+    ],
+    "summary": {
+     "positions": 3,
+     "closed": 3,
+     "entry_timing_ok": true,
+     "stop_ok": true,
+     "orders_ok": true,
+     "no_add_rule_respected": true,
+     "duplicate_blocked": true,
+     "rescan_no_new_orders": true
+    }
+   }
+  }
+ ],
+ "resume_run": {
+  "ledgers": {
+   "4a": {
+    "account_id": "paper43_4a",
+    "positions": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "status": "closed",
+      "qty": 6.83,
+      "entry_price": 73.14,
+      "entry_ts": 1785640500000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 88.14,
+      "stop_price": 88.19,
+      "initial_stop_price": 69.48,
+      "entry_fee": 0.2497731,
+      "exit_fee": 0.30099810000000005,
+      "funding_paid": 1.3688013860453014,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+     }
+    ],
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "accum04_4a_SOLUSDT_1785639599999",
+      "symbol": "SOLUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 73.14,
+      "bar_open_time": 1785640500000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:4a:1:1787375699999",
+      "symbol": "SOLUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 88.14,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 73.14,
+      "raw_price": 73.1,
+      "qty": 6.83,
+      "notional": 499.5462,
+      "fee": 0.2497731,
+      "bar_open_time": 1785640500000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.83,
+      "notional": 601.9962,
+      "fee": 0.30099810000000005,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "stop_history": [
+     {
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 69.48,
+      "reason": "initial_stop",
+      "effective_at": 1785640500000,
+      "available_at": 1785639599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.48,
+      "new_stop": 69.51,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785657599999,
+      "available_at": 1785657599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.51,
+      "new_stop": 69.74,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785715199999,
+      "available_at": 1785715199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.74,
+      "new_stop": 69.88,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785873599999,
+      "available_at": 1785873599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.88,
+      "new_stop": 70.0,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785887999999,
+      "available_at": 1785887999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.0,
+      "new_stop": 70.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785959999999,
+      "available_at": 1785959999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.2,
+      "new_stop": 70.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786175999999,
+      "available_at": 1786175999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.72,
+      "new_stop": 70.92,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786190399999,
+      "available_at": 1786190399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.92,
+      "new_stop": 71.56,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786204799999,
+      "available_at": 1786204799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 71.56,
+      "new_stop": 72.14,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786219199999,
+      "available_at": 1786219199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.14,
+      "new_stop": 72.27,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786276799999,
+      "available_at": 1786276799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.27,
+      "new_stop": 72.45,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786291199999,
+      "available_at": 1786291199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.45,
+      "new_stop": 73.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786305599999,
+      "available_at": 1786305599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.2,
+      "new_stop": 73.52,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787155199999,
+      "available_at": 1787155199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.52,
+      "new_stop": 76.91,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787169599999,
+      "available_at": 1787169599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 76.91,
+      "new_stop": 78.13,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787183999999,
+      "available_at": 1787183999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 78.13,
+      "new_stop": 79.77,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787198399999,
+      "available_at": 1787198399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 79.77,
+      "new_stop": 80.18,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787212799999,
+      "available_at": 1787212799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 80.18,
+      "new_stop": 81.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787227199999,
+      "available_at": 1787227199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.72,
+      "new_stop": 81.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787241599999,
+      "available_at": 1787241599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.82000000000001,
+      "new_stop": 82.29,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787255999999,
+      "available_at": 1787255999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.29,
+      "new_stop": 82.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787270399999,
+      "available_at": 1787270399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.82000000000001,
+      "new_stop": 83.17,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787284799999,
+      "available_at": 1787284799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 83.17,
+      "new_stop": 84.41,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787299199999,
+      "available_at": 1787299199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 84.41,
+      "new_stop": 85.31,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787313599999,
+      "available_at": 1787313599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 85.31,
+      "new_stop": 86.21000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787342399999,
+      "available_at": 1787342399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 86.21000000000001,
+      "new_stop": 88.19,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787371199999,
+      "available_at": 1787371199999
+     }
+    ],
+    "realized": [
+     {
+      "position_id": 1,
+      "net_pnl": 100.5304274139547,
+      "exit_reason": "trailing_stop_loss"
+     }
+    ],
+    "state": [
+     {
+      "cash": 5100.530427413954,
+      "realized_pnl": 100.5304274139547,
+      "fees_paid": 0.5507712,
+      "funding_paid": 1.3688013860453012
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   },
+   "4b": {
+    "account_id": "paper43_4b",
+    "positions": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "status": "closed",
+      "qty": 6.8100000000000005,
+      "entry_price": 73.25,
+      "entry_ts": 1785644100000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 88.14,
+      "stop_price": 88.19,
+      "initial_stop_price": 69.58,
+      "entry_fee": 0.24941625000000003,
+      "exit_fee": 0.30011670000000007,
+      "funding_paid": 1.364793182865081,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+     }
+    ],
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "accum04_4b_SOLUSDT_1785643199999",
+      "symbol": "SOLUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 73.25,
+      "bar_open_time": 1785644100000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:4b:1:1787375699999",
+      "symbol": "SOLUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 88.14,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 73.25,
+      "raw_price": 73.21,
+      "qty": 6.8100000000000005,
+      "notional": 498.83250000000004,
+      "fee": 0.24941625000000003,
+      "bar_open_time": 1785644100000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.8100000000000005,
+      "notional": 600.2334000000001,
+      "fee": 0.30011670000000007,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "stop_history": [
+     {
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 69.58,
+      "reason": "initial_stop",
+      "effective_at": 1785644100000,
+      "available_at": 1785643199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.58,
+      "new_stop": 69.74,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785715199999,
+      "available_at": 1785715199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.74,
+      "new_stop": 69.88,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785873599999,
+      "available_at": 1785873599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.88,
+      "new_stop": 70.0,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785887999999,
+      "available_at": 1785887999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.0,
+      "new_stop": 70.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785959999999,
+      "available_at": 1785959999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.2,
+      "new_stop": 70.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786175999999,
+      "available_at": 1786175999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.72,
+      "new_stop": 70.92,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786190399999,
+      "available_at": 1786190399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.92,
+      "new_stop": 71.56,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786204799999,
+      "available_at": 1786204799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 71.56,
+      "new_stop": 72.14,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786219199999,
+      "available_at": 1786219199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.14,
+      "new_stop": 72.27,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786276799999,
+      "available_at": 1786276799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.27,
+      "new_stop": 72.45,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786291199999,
+      "available_at": 1786291199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.45,
+      "new_stop": 73.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786305599999,
+      "available_at": 1786305599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.2,
+      "new_stop": 73.52,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787155199999,
+      "available_at": 1787155199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.52,
+      "new_stop": 76.91,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787169599999,
+      "available_at": 1787169599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 76.91,
+      "new_stop": 78.13,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787183999999,
+      "available_at": 1787183999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 78.13,
+      "new_stop": 79.77,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787198399999,
+      "available_at": 1787198399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 79.77,
+      "new_stop": 80.18,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787212799999,
+      "available_at": 1787212799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 80.18,
+      "new_stop": 81.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787227199999,
+      "available_at": 1787227199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.72,
+      "new_stop": 81.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787241599999,
+      "available_at": 1787241599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.82000000000001,
+      "new_stop": 82.29,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787255999999,
+      "available_at": 1787255999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.29,
+      "new_stop": 82.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787270399999,
+      "available_at": 1787270399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.82000000000001,
+      "new_stop": 83.17,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787284799999,
+      "available_at": 1787284799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 83.17,
+      "new_stop": 84.41,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787299199999,
+      "available_at": 1787299199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 84.41,
+      "new_stop": 85.31,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787313599999,
+      "available_at": 1787313599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 85.31,
+      "new_stop": 86.21000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787342399999,
+      "available_at": 1787342399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 86.21000000000001,
+      "new_stop": 88.19,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787371199999,
+      "available_at": 1787371199999
+     }
+    ],
+    "realized": [
+     {
+      "position_id": 1,
+      "net_pnl": 99.48657386713492,
+      "exit_reason": "trailing_stop_loss"
+     }
+    ],
+    "state": [
+     {
+      "cash": 5099.486573867135,
+      "realized_pnl": 99.48657386713492,
+      "fees_paid": 0.5495329500000001,
+      "funding_paid": 1.3647931828650808
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   },
+   "4c": {
+    "account_id": "paper43_4c",
+    "positions": [
+     {
+      "position_id": 1,
+      "symbol": "SOLUSDT",
+      "status": "closed",
+      "qty": 6.8100000000000005,
+      "entry_price": 73.25,
+      "entry_ts": 1785644100000,
+      "exit_ts": 1787375699999,
+      "exit_reason": "trailing_stop_loss",
+      "exit_price": 88.14,
+      "stop_price": 88.19,
+      "initial_stop_price": 69.58,
+      "entry_fee": 0.24941625000000003,
+      "exit_fee": 0.30011670000000007,
+      "funding_paid": 1.364793182865081,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05
+     }
+    ],
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "accum04_4c_SOLUSDT_1785643199999",
+      "symbol": "SOLUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 73.25,
+      "bar_open_time": 1785644100000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:4c:1:1787375699999",
+      "symbol": "SOLUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 88.14,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 73.25,
+      "raw_price": 73.21,
+      "qty": 6.8100000000000005,
+      "notional": 498.83250000000004,
+      "fee": 0.24941625000000003,
+      "bar_open_time": 1785644100000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 88.14,
+      "raw_price": 88.19,
+      "qty": 6.8100000000000005,
+      "notional": 600.2334000000001,
+      "fee": 0.30011670000000007,
+      "bar_open_time": 1787374800000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "stop_history": [
+     {
+      "position_id": 1,
+      "old_stop": null,
+      "new_stop": 69.58,
+      "reason": "initial_stop",
+      "effective_at": 1785644100000,
+      "available_at": 1785643199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.58,
+      "new_stop": 69.74,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785715199999,
+      "available_at": 1785715199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.74,
+      "new_stop": 69.88,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785873599999,
+      "available_at": 1785873599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 69.88,
+      "new_stop": 70.0,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785887999999,
+      "available_at": 1785887999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.0,
+      "new_stop": 70.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1785959999999,
+      "available_at": 1785959999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.2,
+      "new_stop": 70.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786175999999,
+      "available_at": 1786175999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.72,
+      "new_stop": 70.92,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786190399999,
+      "available_at": 1786190399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 70.92,
+      "new_stop": 71.56,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786204799999,
+      "available_at": 1786204799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 71.56,
+      "new_stop": 72.14,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786219199999,
+      "available_at": 1786219199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.14,
+      "new_stop": 72.27,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786276799999,
+      "available_at": 1786276799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.27,
+      "new_stop": 72.45,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786291199999,
+      "available_at": 1786291199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 72.45,
+      "new_stop": 73.2,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1786305599999,
+      "available_at": 1786305599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.2,
+      "new_stop": 73.52,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787155199999,
+      "available_at": 1787155199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 73.52,
+      "new_stop": 76.91,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787169599999,
+      "available_at": 1787169599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 76.91,
+      "new_stop": 78.13,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787183999999,
+      "available_at": 1787183999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 78.13,
+      "new_stop": 79.77,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787198399999,
+      "available_at": 1787198399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 79.77,
+      "new_stop": 80.18,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787212799999,
+      "available_at": 1787212799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 80.18,
+      "new_stop": 81.72,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787227199999,
+      "available_at": 1787227199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.72,
+      "new_stop": 81.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787241599999,
+      "available_at": 1787241599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 81.82000000000001,
+      "new_stop": 82.29,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787255999999,
+      "available_at": 1787255999999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.29,
+      "new_stop": 82.82000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787270399999,
+      "available_at": 1787270399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 82.82000000000001,
+      "new_stop": 83.17,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787284799999,
+      "available_at": 1787284799999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 83.17,
+      "new_stop": 84.41,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787299199999,
+      "available_at": 1787299199999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 84.41,
+      "new_stop": 85.31,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787313599999,
+      "available_at": 1787313599999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 85.31,
+      "new_stop": 86.21000000000001,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787342399999,
+      "available_at": 1787342399999
+     },
+     {
+      "position_id": 1,
+      "old_stop": 86.21000000000001,
+      "new_stop": 88.19,
+      "reason": "ft_low4h_trail",
+      "effective_at": 1787371199999,
+      "available_at": 1787371199999
+     }
+    ],
+    "realized": [
+     {
+      "position_id": 1,
+      "net_pnl": 99.48657386713492,
+      "exit_reason": "trailing_stop_loss"
+     }
+    ],
+    "state": [
+     {
+      "cash": 5099.486573867135,
+      "realized_pnl": 99.48657386713492,
+      "fees_paid": 0.5495329500000001,
+      "funding_paid": 1.3647931828650808
+     }
+    ],
+    "pending": [],
+    "blocked": []
+   }
+  },
+  "assertions": {
+   "entry_timing": [
+    {
+     "position_id": 1,
+     "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+     "signal_uid_source": "ledger",
+     "confirm_utc": "2026-08-02T02:59:59Z",
+     "earliest_utc": "2026-08-02T03:14:59Z",
+     "entry_bar_utc": "2026-08-02T03:15:00Z",
+     "ledger_entry_ts_utc": "2026-08-02T03:15:00Z",
+     "same_bar": true,
+     "not_before_earliest": true,
+     "within_one_bar": true,
+     "bar_source": "cold",
+     "predicted_entry_ref_price": 73.1,
+     "ledger_open_fill_raw_price": 73.1,
+     "raw_price_matches_prediction": true
+    },
+    {
+     "position_id": 1,
+     "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+     "signal_uid_source": "ledger",
+     "confirm_utc": "2026-08-02T03:59:59Z",
+     "earliest_utc": "2026-08-02T04:14:59Z",
+     "entry_bar_utc": "2026-08-02T04:15:00Z",
+     "ledger_entry_ts_utc": "2026-08-02T04:15:00Z",
+     "same_bar": true,
+     "not_before_earliest": true,
+     "within_one_bar": true,
+     "bar_source": "cold",
+     "predicted_entry_ref_price": 73.21,
+     "ledger_open_fill_raw_price": 73.21,
+     "raw_price_matches_prediction": true
+    },
+    {
+     "position_id": 1,
+     "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+     "signal_uid_source": "ledger",
+     "confirm_utc": "2026-08-02T03:59:59Z",
+     "earliest_utc": "2026-08-02T04:14:59Z",
+     "entry_bar_utc": "2026-08-02T04:15:00Z",
+     "ledger_entry_ts_utc": "2026-08-02T04:15:00Z",
+     "same_bar": true,
+     "not_before_earliest": true,
+     "within_one_bar": true,
+     "bar_source": "cold",
+     "predicted_entry_ref_price": 73.21,
+     "ledger_open_fill_raw_price": 73.21,
+     "raw_price_matches_prediction": true
+    }
+   ],
+   "stop": [
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "entry_price": 73.14,
+     "initial_stop_price": 69.48,
+     "target_095": 69.483,
+     "price_step": 0.01,
+     "not_above_target": true,
+     "within_one_step": true,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "final_stop_price": 88.19,
+     "stop_only_moves_up": true
+    },
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "entry_price": 73.25,
+     "initial_stop_price": 69.58,
+     "target_095": 69.58749999999999,
+     "price_step": 0.01,
+     "not_above_target": true,
+     "within_one_step": true,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "final_stop_price": 88.19,
+     "stop_only_moves_up": true
+    },
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "entry_price": 73.25,
+     "initial_stop_price": 69.58,
+     "target_095": 69.58749999999999,
+     "price_step": 0.01,
+     "not_above_target": true,
+     "within_one_step": true,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "final_stop_price": 88.19,
+     "stop_only_moves_up": true
+    }
+   ],
+   "orders": [
+    {
+     "position_id": 1,
+     "status": "closed",
+     "orders_filled": 2,
+     "orders_rejected": 0,
+     "rejected_reasons": [],
+     "fills_total_for_position": 2,
+     "exit_reason": "trailing_stop_loss",
+     "expected_filled": 2
+    },
+    {
+     "position_id": 1,
+     "status": "closed",
+     "orders_filled": 2,
+     "orders_rejected": 0,
+     "rejected_reasons": [],
+     "fills_total_for_position": 2,
+     "exit_reason": "trailing_stop_loss",
+     "expected_filled": 2
+    },
+    {
+     "position_id": 1,
+     "status": "closed",
+     "orders_filled": 2,
+     "orders_rejected": 0,
+     "rejected_reasons": [],
+     "fills_total_for_position": 2,
+     "exit_reason": "trailing_stop_loss",
+     "expected_filled": 2
+    }
+   ],
+   "duplicate": [
+    {
+     "scheme": "4a",
+     "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+     "ok": false,
+     "reason": "duplicate_signal_uid"
+    },
+    {
+     "scheme": "4b",
+     "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+     "ok": false,
+     "reason": "duplicate_signal_uid"
+    },
+    {
+     "scheme": "4c",
+     "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+     "ok": false,
+     "reason": "duplicate_signal_uid"
+    }
+   ],
+   "rescan": [
+    {
+     "scheme": "4a",
+     "position_id": 1,
+     "skipped": "position_not_open"
+    },
+    {
+     "scheme": "4a",
+     "orders_before": 2,
+     "orders_after": 2,
+     "fills_before": 2,
+     "fills_after": 2
+    },
+    {
+     "scheme": "4b",
+     "position_id": 1,
+     "skipped": "position_not_open"
+    },
+    {
+     "scheme": "4b",
+     "orders_before": 2,
+     "orders_after": 2,
+     "fills_before": 2,
+     "fills_after": 2
+    },
+    {
+     "scheme": "4c",
+     "position_id": 1,
+     "skipped": "position_not_open"
+    },
+    {
+     "scheme": "4c",
+     "orders_before": 2,
+     "orders_after": 2,
+     "fills_before": 2,
+     "fills_after": 2
+    }
+   ],
+   "summary": {
+    "positions": 3,
+    "closed": 3,
+    "entry_timing_ok": true,
+    "stop_ok": true,
+    "orders_ok": true,
+    "no_add_rule_respected": true,
+    "duplicate_blocked": true,
+    "rescan_no_new_orders": true
+   },
+   "resume": {
+    "orders_before": 6,
+    "orders_after": 6,
+    "fills_before": 6,
+    "fills_after": 6,
+    "no_duplicate_after_restart": true,
+    "identity_recovered_from_ledger": true
+   }
+  },
+  "duplicate_attempt": [
+   {
+    "scheme": "4a",
+    "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+    "ok": false,
+    "reason": "duplicate_signal_uid"
+   },
+   {
+    "scheme": "4b",
+    "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+    "ok": false,
+    "reason": "duplicate_signal_uid"
+   },
+   {
+    "scheme": "4c",
+    "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+    "ok": false,
+    "reason": "duplicate_signal_uid"
+   }
+  ]
+ }
+}

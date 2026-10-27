@@ -1,0 +1,176 @@
+{
+ "probe": "06_报告数字对撞",
+ "generated_at_utc": "2026-10-26T13:39:42Z",
+ "readme": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/README.md",
+ "readme_bytes": 19554,
+ "claims_total": 55,
+ "claims_checked": 55,
+ "claims_failed": 0,
+ "unresolved_placeholders": [],
+ "leftover_placeholders": [],
+ "failed_detail": [],
+ "method": "每个数字先从 out/*.json 取值渲染，再按同一路径重新取一次，与正文中实际出现的字符串逐字比对；不靠人眼。",
+ "verdict": "通过",
+ "frozen_params": {
+  "stoploss_s": {
+   "expect": 0.05,
+   "actual": 0.05,
+   "same": true
+  },
+  "trail_d": {
+   "expect": 0.05,
+   "actual": 0.05,
+   "same": true
+  },
+  "trailing_trigger_r": {
+   "expect": 0.0,
+   "actual": 0.0,
+   "same": true
+  },
+  "trailing_lookback_4h_bars": {
+   "expect": 1,
+   "actual": 1,
+   "same": true
+  },
+  "max_holding_days": {
+   "expect": null,
+   "actual": null,
+   "same": true
+  },
+  "risk_budget_per_trade": {
+   "expect": 0.005,
+   "actual": 0.005,
+   "same": true
+  },
+  "max_active_positions": {
+   "expect": 3,
+   "actual": 3,
+   "same": true
+  },
+  "max_total_risk_budget": {
+   "expect": 0.015,
+   "actual": 0.015,
+   "same": true
+  },
+  "max_notional_per_position": {
+   "expect": 0.3,
+   "actual": 0.3,
+   "same": true
+  },
+  "max_total_notional": {
+   "expect": 0.9,
+   "actual": 0.9,
+   "same": true
+  },
+  "atr_warmup_bars": {
+   "expect": 200,
+   "actual": 200,
+   "same": true
+  },
+  "taker_fee_bps": {
+   "expect": 5.0,
+   "actual": 5.0,
+   "same": true
+  },
+  "slippage_bps": {
+   "expect": 3.0,
+   "actual": 3.0,
+   "same": true
+  },
+  "max_participation_of_prev_15m_quote": {
+   "expect": 0.001,
+   "actual": 0.001,
+   "same": true
+  }
+ },
+ "code_identity": {
+  "paper_engine.py": {
+   "before_sha256": "61d8839f660dc58e298459c78e4109ac2dd6a2b93b5451762cf07500768921eb",
+   "after_sha256": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784",
+   "changed": true,
+   "bytes": 153943
+  },
+  "research_15m.py": {
+   "before_sha256": "8382fef5bcde19dc250a0f0da6eee643f8d7745a7dc3ab14b9a021fe3dd04f6d",
+   "after_sha256": "0c00ab0e11a72396be5c70521983b250f8e6ee26158a1bcfb0e1d5b673dd815f",
+   "changed": true,
+   "bytes": 29403
+  },
+  "unified_runtime.py": {
+   "before_sha256": "dfe610a832758833529998c6bd62792e078b85e0491f7f44df82ac27d85bb693",
+   "after_sha256": "dfe610a832758833529998c6bd62792e078b85e0491f7f44df82ac27d85bb693",
+   "changed": false,
+   "bytes": 179137
+  },
+  "paper_loop.py": {
+   "before_sha256": "73314b7d0a00235d09a9823faaa49c16499cfee90e4ddb14cf29d85057b8f686",
+   "after_sha256": "73314b7d0a00235d09a9823faaa49c16499cfee90e4ddb14cf29d85057b8f686",
+   "changed": false,
+   "bytes": 14504
+  },
+  "live_api.py": {
+   "before_sha256": null,
+   "after_sha256": "312ecf9cfdd4329b7ad91493e9f2d5bc5b3d709ed91521602d67673cde3d75ed",
+   "changed": false,
+   "bytes": 113929
+  },
+  "live_worker.py": {
+   "before_sha256": "bd1d44c6867ecb4efbc4c455610d28cd4febb28bdb94ed5c5a454f275944c903",
+   "after_sha256": "bd1d44c6867ecb4efbc4c455610d28cd4febb28bdb94ed5c5a454f275944c903",
+   "changed": false,
+   "bytes": 32871
+  },
+  "config.py": {
+   "before_sha256": null,
+   "after_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+   "changed": false,
+   "bytes": 5851
+  }
+ },
+ "view_params_used_by_execution": {
+  "fee_each_side": 0.0005,
+  "slippage_each_side": 0.0005,
+  "stoploss_s": 0.05,
+  "trail_d": 0.05,
+  "risk_per_trade_equity_fraction": 0.005,
+  "initial_equity_USDT": 5000.0,
+  "max_positions": 10,
+  "max_holding_hours": 240,
+  "entry_participation_previous_15m_quote_cap": 0.01,
+  "signal_execution_delay_minutes": 15,
+  "view_sha256": "82dec362c182",
+  "_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared"
+ },
+ "participation_two_standards": [
+  {
+   "event": "E1_TNSR_cold",
+   "symbol": "TNSRUSDT",
+   "prev_15m_quote_volume": 319742.552426,
+   "notional": 497.77772000000004,
+   "cap_1pct": 3197.42552426,
+   "cap_0p1pct": 319.74255242600003,
+   "passes_view_1pct": true,
+   "passes_pack_0p1pct": false
+  },
+  {
+   "event": "E2_AGT_cold",
+   "symbol": "AGTUSDT",
+   "prev_15m_quote_volume": 20868.164055,
+   "notional": 208.676217,
+   "cap_1pct": 208.68164055000003,
+   "cap_0p1pct": 20.868164055,
+   "passes_view_1pct": true,
+   "passes_pack_0p1pct": false
+  },
+  {
+   "event": "E3_METIS_hot",
+   "symbol": "METISUSDT",
+   "prev_15m_quote_volume": 298507.71316,
+   "notional": 498.1452,
+   "cap_1pct": 2985.0771316,
+   "cap_0p1pct": 298.50771316,
+   "passes_view_1pct": true,
+   "passes_pack_0p1pct": false
+  }
+ ]
+}

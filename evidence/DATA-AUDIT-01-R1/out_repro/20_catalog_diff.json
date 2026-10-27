@@ -1,0 +1,75 @@
+{
+  "stats_at_utc": "2026-10-26T03:38:53Z",
+  "population": "全量（磁盘全部 parquet 与索引全部 shards 键双向比对，无抽样）",
+  "query": "os.walk(数据/市场数据/parquet) 全量枚举 vs json.load(_catalog.json)['shards'].keys()",
+  "catalog_path": "_catalog.json",
+  "catalog_updated_at": 1792812883,
+  "catalog_updated_at_utc": "2026-10-24T03:34:43Z",
+  "catalog_shards": 32920,
+  "disk_parquet_files": 42482,
+  "disk_bytes": 20211208793,
+  "disk_by_kind": {
+    "metrics": 1647,
+    "candle_heads": 16883,
+    "candles": 16883,
+    "sources": 4369,
+    "oi": 2174,
+    "funding": 526
+  },
+  "index_by_kind": {
+    "candle_heads": 12551,
+    "candles": 12498,
+    "funding": 525,
+    "oi": 1646,
+    "sources": 5700
+  },
+  "disk_only_total": 11471,
+  "disk_only_by_kind": {
+    "candle_heads": 4385,
+    "candles": 4385,
+    "funding": 526,
+    "metrics": 1647,
+    "oi": 528
+  },
+  "disk_only_by_basename": {
+    "live.parquet": 9298,
+    "2026.parquet": 526,
+    "2025.parquet": 474,
+    "2024.parquet": 270,
+    "2023.parquet": 175,
+    "2022.parquet": 109,
+    "2021.parquet": 92,
+    "0GUSDT.parquet": 1
+  },
+  "disk_only_live_parquet": 9298,
+  "disk_only_year_parquet": 1659,
+  "disk_only_by_kind_and_form": {
+    "candle_heads|live": 4385,
+    "candles|live": 4385,
+    "funding|year_or_flat": 526,
+    "metrics|year_or_flat": 1647,
+    "oi|live": 528
+  },
+  "index_only_total": 1909,
+  "index_only_by_kind": {
+    "candle_heads": 53,
+    "funding": 525,
+    "sources": 1331
+  },
+  "samples": {
+    "disk_only": [
+      "candle_heads/binance/um/0GUSDT/12h/live.parquet",
+      "candle_heads/binance/um/0GUSDT/15m/live.parquet",
+      "candle_heads/binance/um/0GUSDT/1d/live.parquet",
+      "candle_heads/binance/um/0GUSDT/1h/live.parquet",
+      "candle_heads/binance/um/0GUSDT/30m/live.parquet"
+    ],
+    "index_only": [
+      "candle_heads/binance/um/ALLUSDT/12h/2025.parquet",
+      "candle_heads/binance/um/ALLUSDT/12h/2026.parquet",
+      "candle_heads/binance/um/ALLUSDT/15m/2025.parquet",
+      "candle_heads/binance/um/ALLUSDT/15m/2026.parquet",
+      "candle_heads/binance/um/ALLUSDT/1d/2025.parquet"
+    ]
+  }
+}

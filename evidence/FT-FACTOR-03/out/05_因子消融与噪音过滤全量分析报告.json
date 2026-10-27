@@ -1,0 +1,1040 @@
+{
+  "work_order": "FT-FACTOR-03",
+  "description": "扩大样本因子消融回测、噪音排除归因与仓位竞争解耦全量分析报告",
+  "groups": {
+    "reused_36": {
+      "batch_label": "Reused_B01_B02_36Symbols",
+      "baseline": {
+        "metrics": {
+          "trade_count": 11,
+          "win_count": 3,
+          "loss_count": 8,
+          "flat_count": 0,
+          "win_rate": 27.27,
+          "win_rate_ci95_lower": 9.75,
+          "win_rate_ci95_upper": 56.56,
+          "net_pnl": -39.75,
+          "net_return_pct": -1.99,
+          "profit_factor": 0.3622,
+          "expectancy_u": -3.6132,
+          "avg_profit_u": 7.52,
+          "avg_loss_u": -7.79,
+          "max_drawdown_closed_equity_u": 32.06,
+          "max_drawdown_closed_equity_pct": 1.61,
+          "max_profit_trade_u": 17.17,
+          "max_profit_trade_symbol": "AGLD/USDT:USDT",
+          "max_profit_trade_share_pct": -43.2
+        },
+        "slot_competition": {
+          "max_concurrent_trades": 1,
+          "slot_blocked_trades": 0
+        }
+      },
+      "ablations": {
+        "No OI": {
+          "factor_name": "F_OI (6h OI 增幅)",
+          "metrics": {
+            "trade_count": 14,
+            "win_count": 4,
+            "loss_count": 10,
+            "flat_count": 0,
+            "win_rate": 28.57,
+            "win_rate_ci95_lower": 11.72,
+            "win_rate_ci95_upper": 54.65,
+            "net_pnl": -34.96,
+            "net_return_pct": -1.75,
+            "profit_factor": 0.5359,
+            "expectancy_u": -2.4975,
+            "avg_profit_u": 10.09,
+            "avg_loss_u": -7.53,
+            "max_drawdown_closed_equity_u": 34.3,
+            "max_drawdown_closed_equity_pct": 1.72,
+            "max_profit_trade_u": 17.79,
+            "max_profit_trade_symbol": "ALGO/USDT:USDT",
+            "max_profit_trade_share_pct": -50.88
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 1,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 3,
+            "noise_loss_count": 2,
+            "noise_saved_amount_u": 12.91,
+            "opp_win_count": 1,
+            "opp_missed_amount_u": 17.79,
+            "net_filter_gain_u": -4.88,
+            "verdict": "证据不足 (样本极度稀疏，差异未达显著性阈值)",
+            "noise_trades_list": [
+              {
+                "pair": "ADA/USDT:USDT",
+                "open_date": "2022-09-04 02:15:00+00:00",
+                "close_date": "2022-09-14 02:15:00+00:00",
+                "profit_abs": -2.9917,
+                "profit_ratio_pct": -3.98,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ADAUSDT_1661644800000_1662256800000"
+              },
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2023-08-29 18:15:00+00:00",
+                "close_date": "2023-09-01 16:45:00+00:00",
+                "profit_abs": -9.9213,
+                "profit_ratio_pct": -8.66,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1692921600000_1693332000000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "ALGO/USDT:USDT",
+                "open_date": "2023-01-01 13:15:00+00:00",
+                "close_date": "2023-01-11 13:15:00+00:00",
+                "profit_abs": 17.7892,
+                "profit_ratio_pct": 14.54,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ALGOUSDT_1672300800000_1672578000000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -52.75,
+            "max_contributor_symbol": "ALGO/USDT:USDT",
+            "pnl_without_max_symbol_u": -52.75
+          },
+          "bootstrap": {
+            "mean_diff_u": -3.41,
+            "ci_lower": -17.74,
+            "ci_upper": 13.0,
+            "p_value": 0.682,
+            "p_value_holm_bonferroni": 0.682
+          }
+        },
+        "No BreakoutVol": {
+          "factor_name": "F_VOL_BO (突破放量倍数)",
+          "metrics": {
+            "trade_count": 12,
+            "win_count": 3,
+            "loss_count": 9,
+            "flat_count": 0,
+            "win_rate": 25.0,
+            "win_rate_ci95_lower": 8.89,
+            "win_rate_ci95_upper": 53.23,
+            "net_pnl": -42.51,
+            "net_return_pct": -2.13,
+            "profit_factor": 0.3468,
+            "expectancy_u": -3.5424,
+            "avg_profit_u": 7.52,
+            "avg_loss_u": -7.23,
+            "max_drawdown_closed_equity_u": 32.46,
+            "max_drawdown_closed_equity_pct": 1.63,
+            "max_profit_trade_u": 17.17,
+            "max_profit_trade_symbol": "AGLD/USDT:USDT",
+            "max_profit_trade_share_pct": -40.39
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 1,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 1,
+            "noise_loss_count": 1,
+            "noise_saved_amount_u": 2.76,
+            "opp_win_count": 0,
+            "opp_missed_amount_u": 0,
+            "net_filter_gain_u": 2.76,
+            "verdict": "证据不足 (样本极度稀疏，差异未达显著性阈值)",
+            "noise_trades_list": [
+              {
+                "pair": "APE/USDT:USDT",
+                "open_date": "2024-11-10 11:15:00+00:00",
+                "close_date": "2024-11-20 11:15:00+00:00",
+                "profit_abs": -2.7639,
+                "profit_ratio_pct": -6.51,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_APEUSDT_1730692800000_1731236400000"
+              }
+            ],
+            "opportunity_trades_list": []
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -59.68,
+            "max_contributor_symbol": "AGLD/USDT:USDT",
+            "pnl_without_max_symbol_u": -59.68
+          },
+          "bootstrap": {
+            "mean_diff_u": 1.83,
+            "ci_lower": 0.0,
+            "ci_upper": 2.76,
+            "p_value": 0.678,
+            "p_value_holm_bonferroni": 1.0
+          }
+        },
+        "No RetestVol": {
+          "factor_name": "F_VOL_RT (回踩缩量倍数)",
+          "metrics": {
+            "trade_count": 15,
+            "win_count": 5,
+            "loss_count": 10,
+            "flat_count": 0,
+            "win_rate": 33.33,
+            "win_rate_ci95_lower": 15.18,
+            "win_rate_ci95_upper": 58.29,
+            "net_pnl": -6.02,
+            "net_return_pct": -0.3,
+            "profit_factor": 0.9061,
+            "expectancy_u": -0.4012,
+            "avg_profit_u": 11.62,
+            "avg_loss_u": -6.41,
+            "max_drawdown_closed_equity_u": 33.4,
+            "max_drawdown_closed_equity_pct": 1.68,
+            "max_profit_trade_u": 30.91,
+            "max_profit_trade_symbol": "AGLD/USDT:USDT",
+            "max_profit_trade_share_pct": -513.55
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 4,
+            "noise_loss_count": 2,
+            "noise_saved_amount_u": 1.77,
+            "opp_win_count": 2,
+            "opp_missed_amount_u": 35.49,
+            "net_filter_gain_u": -33.72,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "AGLD/USDT:USDT",
+                "open_date": "2023-09-02 22:15:00+00:00",
+                "close_date": "2023-09-04 16:00:00+00:00",
+                "profit_abs": -1.3408,
+                "profit_ratio_pct": -2.11,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGLDUSDT_1693296000000_1693692000000"
+              },
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2024-11-09 20:45:00+00:00",
+                "close_date": "2024-11-19 20:45:00+00:00",
+                "profit_abs": -0.432,
+                "profit_ratio_pct": -1.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1730664000000_1731182400000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "1000FLOKI/USDT:USDT",
+                "open_date": "2024-02-09 07:15:00+00:00",
+                "close_date": "2024-02-19 07:15:00+00:00",
+                "profit_abs": 4.5862,
+                "profit_ratio_pct": 7.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000FLOKIUSDT_1706860800000_1707462000000"
+              },
+              {
+                "pair": "AGLD/USDT:USDT",
+                "open_date": "2024-11-03 19:15:00+00:00",
+                "close_date": "2024-11-13 19:15:00+00:00",
+                "profit_abs": 30.9079,
+                "profit_ratio_pct": 63.83,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGLDUSDT_1730203200000_1730660400000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -36.93,
+            "max_contributor_symbol": "AGLD/USDT:USDT",
+            "pnl_without_max_symbol_u": -52.75
+          },
+          "bootstrap": {
+            "mean_diff_u": -22.71,
+            "ci_lower": -35.5,
+            "ci_upper": 1.78,
+            "p_value": 0.178,
+            "p_value_holm_bonferroni": 0.712
+          }
+        },
+        "No GapFilter": {
+          "factor_name": "F_GAP_IN (入场跳空上限)",
+          "metrics": {
+            "trade_count": 12,
+            "win_count": 4,
+            "loss_count": 8,
+            "flat_count": 0,
+            "win_rate": 33.33,
+            "win_rate_ci95_lower": 13.81,
+            "win_rate_ci95_upper": 60.94,
+            "net_pnl": -12.97,
+            "net_return_pct": -0.65,
+            "profit_factor": 0.7922,
+            "expectancy_u": -1.0811,
+            "avg_profit_u": 12.36,
+            "avg_loss_u": -7.8,
+            "max_drawdown_closed_equity_u": 32.06,
+            "max_drawdown_closed_equity_pct": 1.61,
+            "max_profit_trade_u": 26.87,
+            "max_profit_trade_symbol": "1000BONK/USDT:USDT",
+            "max_profit_trade_share_pct": -207.08
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 1,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 2,
+            "noise_loss_count": 1,
+            "noise_saved_amount_u": 10.03,
+            "opp_win_count": 1,
+            "opp_missed_amount_u": 26.87,
+            "net_filter_gain_u": -16.84,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2022-11-03 10:15:00+00:00",
+                "close_date": "2022-11-08 04:00:00+00:00",
+                "profit_abs": -10.0292,
+                "profit_ratio_pct": -10.88,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1667361600000_1667469600000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "1000BONK/USDT:USDT",
+                "open_date": "2024-02-27 03:15:00+00:00",
+                "close_date": "2024-03-03 07:15:00+00:00",
+                "profit_abs": 26.8658,
+                "profit_ratio_pct": 56.36,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000BONKUSDT_1708718400000_1709002800000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -39.84,
+            "max_contributor_symbol": "AGLD/USDT:USDT",
+            "pnl_without_max_symbol_u": -30.14
+          },
+          "bootstrap": {
+            "mean_diff_u": -17.86,
+            "ci_lower": -26.9,
+            "ci_upper": 0.11,
+            "p_value": 0.484,
+            "p_value_holm_bonferroni": 1.0
+          }
+        }
+      }
+    },
+    "new_batches_38": {
+      "batch_label": "NewBatches_B03_B06_38Symbols",
+      "baseline": {
+        "metrics": {
+          "trade_count": 9,
+          "win_count": 5,
+          "loss_count": 4,
+          "flat_count": 0,
+          "win_rate": 55.56,
+          "win_rate_ci95_lower": 26.67,
+          "win_rate_ci95_upper": 81.12,
+          "net_pnl": 50.24,
+          "net_return_pct": 2.51,
+          "profit_factor": 3.5746,
+          "expectancy_u": 5.5825,
+          "avg_profit_u": 13.95,
+          "avg_loss_u": -4.88,
+          "max_drawdown_closed_equity_u": 8.98,
+          "max_drawdown_closed_equity_pct": 0.44,
+          "max_profit_trade_u": 32.09,
+          "max_profit_trade_symbol": "COTI/USDT:USDT",
+          "max_profit_trade_share_pct": 63.86
+        },
+        "slot_competition": {
+          "max_concurrent_trades": 2,
+          "slot_blocked_trades": 0
+        }
+      },
+      "ablations": {
+        "No OI": {
+          "factor_name": "F_OI (6h OI 增幅)",
+          "metrics": {
+            "trade_count": 14,
+            "win_count": 7,
+            "loss_count": 7,
+            "flat_count": 0,
+            "win_rate": 50.0,
+            "win_rate_ci95_lower": 26.8,
+            "win_rate_ci95_upper": 73.2,
+            "net_pnl": 60.39,
+            "net_return_pct": 3.02,
+            "profit_factor": 2.3938,
+            "expectancy_u": 4.3137,
+            "avg_profit_u": 14.82,
+            "avg_loss_u": -6.19,
+            "max_drawdown_closed_equity_u": 16.19,
+            "max_drawdown_closed_equity_pct": 0.81,
+            "max_profit_trade_u": 31.76,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 52.59
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 5,
+            "noise_loss_count": 3,
+            "noise_saved_amount_u": 23.86,
+            "opp_win_count": 2,
+            "opp_missed_amount_u": 34.6,
+            "net_filter_gain_u": -10.74,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "C98/USDT:USDT",
+                "open_date": "2021-12-02 05:15:00+00:00",
+                "close_date": "2021-12-03 20:15:00+00:00",
+                "profit_abs": -9.7744,
+                "profit_ratio_pct": -17.77,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_C98USDT_1638014400000_1638421200000"
+              },
+              {
+                "pair": "CKB/USDT:USDT",
+                "open_date": "2024-11-07 03:15:00+00:00",
+                "close_date": "2024-11-17 03:15:00+00:00",
+                "profit_abs": -4.2216,
+                "profit_ratio_pct": -7.49,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CKBUSDT_1730721600000_1730948400000"
+              },
+              {
+                "pair": "C98/USDT:USDT",
+                "open_date": "2022-09-10 01:15:00+00:00",
+                "close_date": "2022-09-14 07:45:00+00:00",
+                "profit_abs": -9.8657,
+                "profit_ratio_pct": -16.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_C98USDT_1662537600000_1662771600000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "ATOM/USDT:USDT",
+                "open_date": "2024-02-26 16:15:00+00:00",
+                "close_date": "2024-03-07 16:15:00+00:00",
+                "profit_abs": 22.2533,
+                "profit_ratio_pct": 24.23,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ATOMUSDT_1708603200000_1708963200000"
+              },
+              {
+                "pair": "COMP/USDT:USDT",
+                "open_date": "2024-11-19 00:15:00+00:00",
+                "close_date": "2024-11-29 00:15:00+00:00",
+                "profit_abs": 12.3504,
+                "profit_ratio_pct": 25.7,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_COMPUSDT_1731571200000_1731974400000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 28.63,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": 29.43
+          },
+          "bootstrap": {
+            "mean_diff_u": -6.89,
+            "ci_lower": -29.79,
+            "ci_upper": 19.95,
+            "p_value": 0.65,
+            "p_value_holm_bonferroni": 1.0
+          }
+        },
+        "No BreakoutVol": {
+          "factor_name": "F_VOL_BO (突破放量倍数)",
+          "metrics": {
+            "trade_count": 11,
+            "win_count": 6,
+            "loss_count": 5,
+            "flat_count": 0,
+            "win_rate": 54.55,
+            "win_rate_ci95_lower": 28.01,
+            "win_rate_ci95_upper": 78.73,
+            "net_pnl": 49.06,
+            "net_return_pct": 2.45,
+            "profit_factor": 2.6569,
+            "expectancy_u": 4.4604,
+            "avg_profit_u": 13.11,
+            "avg_loss_u": -5.92,
+            "max_drawdown_closed_equity_u": 19.08,
+            "max_drawdown_closed_equity_pct": 0.94,
+            "max_profit_trade_u": 31.92,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 65.06
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 2,
+            "noise_loss_count": 1,
+            "noise_saved_amount_u": 10.1,
+            "opp_win_count": 1,
+            "opp_missed_amount_u": 9.16,
+            "net_filter_gain_u": 0.94,
+            "verdict": "证据不足 (样本极度稀疏，差异未达显著性阈值)",
+            "noise_trades_list": [
+              {
+                "pair": "CFX/USDT:USDT",
+                "open_date": "2023-11-08 11:15:00+00:00",
+                "close_date": "2023-11-09 16:00:00+00:00",
+                "profit_abs": -10.0967,
+                "profit_ratio_pct": -17.05,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CFXUSDT_1698782400000_1699441200000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "CHR/USDT:USDT",
+                "open_date": "2024-11-09 09:15:00+00:00",
+                "close_date": "2024-11-19 09:15:00+00:00",
+                "profit_abs": 9.1561,
+                "profit_ratio_pct": 17.38,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHRUSDT_1730692800000_1731142800000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 17.14,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": 17.94
+          },
+          "bootstrap": {
+            "mean_diff_u": 0.64,
+            "ci_lower": -9.08,
+            "ci_upper": 10.33,
+            "p_value": 0.506,
+            "p_value_holm_bonferroni": 1.0
+          }
+        },
+        "No RetestVol": {
+          "factor_name": "F_VOL_RT (回踩缩量倍数)",
+          "metrics": {
+            "trade_count": 9,
+            "win_count": 5,
+            "loss_count": 4,
+            "flat_count": 0,
+            "win_rate": 55.56,
+            "win_rate_ci95_lower": 26.67,
+            "win_rate_ci95_upper": 81.12,
+            "net_pnl": 50.62,
+            "net_return_pct": 2.53,
+            "profit_factor": 3.6452,
+            "expectancy_u": 5.6246,
+            "avg_profit_u": 13.95,
+            "avg_loss_u": -4.78,
+            "max_drawdown_closed_equity_u": 8.98,
+            "max_drawdown_closed_equity_pct": 0.44,
+            "max_profit_trade_u": 32.09,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 63.38
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 0,
+            "noise_loss_count": 0,
+            "noise_saved_amount_u": 0,
+            "opp_win_count": 0,
+            "opp_missed_amount_u": 0,
+            "net_filter_gain_u": 0,
+            "verdict": "证据不足 (样本极度稀疏，差异未达显著性阈值)",
+            "noise_trades_list": [],
+            "opportunity_trades_list": []
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 18.54,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": 19.33
+          },
+          "bootstrap": {
+            "mean_diff_u": -0.25,
+            "ci_lower": -0.38,
+            "ci_upper": 0.0,
+            "p_value": 0.182,
+            "p_value_holm_bonferroni": 0.728
+          }
+        },
+        "No GapFilter": {
+          "factor_name": "F_GAP_IN (入场跳空上限)",
+          "metrics": {
+            "trade_count": 11,
+            "win_count": 6,
+            "loss_count": 5,
+            "flat_count": 0,
+            "win_rate": 54.55,
+            "win_rate_ci95_lower": 28.01,
+            "win_rate_ci95_upper": 78.73,
+            "net_pnl": 56.6,
+            "net_return_pct": 2.83,
+            "profit_factor": 3.1078,
+            "expectancy_u": 5.1455,
+            "avg_profit_u": 13.91,
+            "avg_loss_u": -5.37,
+            "max_drawdown_closed_equity_u": 11.98,
+            "max_drawdown_closed_equity_pct": 0.6,
+            "max_profit_trade_u": 32.18,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 56.85
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 3,
+            "noise_loss_count": 2,
+            "noise_saved_amount_u": 8.14,
+            "opp_win_count": 1,
+            "opp_missed_amount_u": 13.49,
+            "net_filter_gain_u": -5.36,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "CELR/USDT:USDT",
+                "open_date": "2022-06-24 14:15:00+00:00",
+                "close_date": "2022-07-04 14:15:00+00:00",
+                "profit_abs": -6.4062,
+                "profit_ratio_pct": -28.09,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CELRUSDT_1655323200000_1656079200000"
+              },
+              {
+                "pair": "COTI/USDT:USDT",
+                "open_date": "2021-12-23 03:15:00+00:00",
+                "close_date": "2022-01-02 03:15:00+00:00",
+                "profit_abs": -1.7297,
+                "profit_ratio_pct": -5.08,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_COTIUSDT_1639900800000_1640228400000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "BEL/USDT:USDT",
+                "open_date": "2022-05-29 01:15:00+00:00",
+                "close_date": "2022-05-31 20:00:00+00:00",
+                "profit_abs": 13.494,
+                "profit_ratio_pct": 62.17,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_BELUSDT_1653595200000_1653786000000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 24.42,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": 26.15
+          },
+          "bootstrap": {
+            "mean_diff_u": -3.94,
+            "ci_lower": -13.7,
+            "ci_upper": 7.24,
+            "p_value": 0.702,
+            "p_value_holm_bonferroni": 0.702
+          }
+        }
+      }
+    },
+    "expanded_all_74": {
+      "batch_label": "Expanded_All_B01_B06_74Symbols",
+      "baseline": {
+        "metrics": {
+          "trade_count": 20,
+          "win_count": 8,
+          "loss_count": 12,
+          "flat_count": 0,
+          "win_rate": 40.0,
+          "win_rate_ci95_lower": 21.88,
+          "win_rate_ci95_upper": 61.34,
+          "net_pnl": 9.88,
+          "net_return_pct": 0.49,
+          "profit_factor": 1.1217,
+          "expectancy_u": 0.4941,
+          "avg_profit_u": 11.38,
+          "avg_loss_u": -6.76,
+          "max_drawdown_closed_equity_u": 47.27,
+          "max_drawdown_closed_equity_pct": 2.36,
+          "max_profit_trade_u": 31.5,
+          "max_profit_trade_symbol": "COTI/USDT:USDT",
+          "max_profit_trade_share_pct": 318.78
+        },
+        "slot_competition": {
+          "max_concurrent_trades": 2,
+          "slot_blocked_trades": 0
+        }
+      },
+      "ablations": {
+        "No OI": {
+          "factor_name": "F_OI (6h OI 增幅)",
+          "metrics": {
+            "trade_count": 28,
+            "win_count": 11,
+            "loss_count": 17,
+            "flat_count": 0,
+            "win_rate": 39.29,
+            "win_rate_ci95_lower": 23.57,
+            "win_rate_ci95_upper": 57.59,
+            "net_pnl": 24.72,
+            "net_return_pct": 1.24,
+            "profit_factor": 1.2104,
+            "expectancy_u": 0.8829,
+            "avg_profit_u": 12.93,
+            "avg_loss_u": -6.91,
+            "max_drawdown_closed_equity_u": 52.97,
+            "max_drawdown_closed_equity_pct": 2.66,
+            "max_profit_trade_u": 31.27,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 126.48
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 8,
+            "noise_loss_count": 5,
+            "noise_saved_amount_u": 36.55,
+            "opp_win_count": 3,
+            "opp_missed_amount_u": 51.58,
+            "net_filter_gain_u": -15.03,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2023-08-29 18:15:00+00:00",
+                "close_date": "2023-09-01 16:45:00+00:00",
+                "profit_abs": -9.7901,
+                "profit_ratio_pct": -8.66,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1692921600000_1693332000000"
+              },
+              {
+                "pair": "C98/USDT:USDT",
+                "open_date": "2021-12-02 05:15:00+00:00",
+                "close_date": "2021-12-03 20:15:00+00:00",
+                "profit_abs": -9.7744,
+                "profit_ratio_pct": -17.77,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_C98USDT_1638014400000_1638421200000"
+              },
+              {
+                "pair": "ADA/USDT:USDT",
+                "open_date": "2022-09-04 02:15:00+00:00",
+                "close_date": "2022-09-14 02:15:00+00:00",
+                "profit_abs": -2.9722,
+                "profit_ratio_pct": -3.98,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ADAUSDT_1661644800000_1662256800000"
+              },
+              {
+                "pair": "CKB/USDT:USDT",
+                "open_date": "2024-11-07 03:15:00+00:00",
+                "close_date": "2024-11-17 03:15:00+00:00",
+                "profit_abs": -4.1458,
+                "profit_ratio_pct": -7.49,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CKBUSDT_1730721600000_1730948400000"
+              },
+              {
+                "pair": "C98/USDT:USDT",
+                "open_date": "2022-09-10 01:15:00+00:00",
+                "close_date": "2022-09-14 07:45:00+00:00",
+                "profit_abs": -9.8657,
+                "profit_ratio_pct": -16.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_C98USDT_1662537600000_1662771600000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "ATOM/USDT:USDT",
+                "open_date": "2024-02-26 16:15:00+00:00",
+                "close_date": "2024-03-07 16:15:00+00:00",
+                "profit_abs": 21.9085,
+                "profit_ratio_pct": 24.23,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ATOMUSDT_1708603200000_1708963200000"
+              },
+              {
+                "pair": "COMP/USDT:USDT",
+                "open_date": "2024-11-19 00:15:00+00:00",
+                "close_date": "2024-11-29 00:15:00+00:00",
+                "profit_abs": 12.1146,
+                "profit_ratio_pct": 25.7,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_COMPUSDT_1731571200000_1731974400000"
+              },
+              {
+                "pair": "ALGO/USDT:USDT",
+                "open_date": "2023-01-01 13:15:00+00:00",
+                "close_date": "2023-01-11 13:15:00+00:00",
+                "profit_abs": 17.5562,
+                "profit_ratio_pct": 14.54,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ALGOUSDT_1672300800000_1672578000000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -6.55,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": -5.75
+          },
+          "bootstrap": {
+            "mean_diff_u": -9.5,
+            "ci_lower": -37.89,
+            "ci_upper": 24.48,
+            "p_value": 0.598,
+            "p_value_holm_bonferroni": 0.598
+          }
+        },
+        "No BreakoutVol": {
+          "factor_name": "F_VOL_BO (突破放量倍数)",
+          "metrics": {
+            "trade_count": 23,
+            "win_count": 9,
+            "loss_count": 14,
+            "flat_count": 0,
+            "win_rate": 39.13,
+            "win_rate_ci95_lower": 22.16,
+            "win_rate_ci95_upper": 59.21,
+            "net_pnl": 6.08,
+            "net_return_pct": 0.3,
+            "profit_factor": 1.0649,
+            "expectancy_u": 0.2645,
+            "avg_profit_u": 11.09,
+            "avg_loss_u": -6.7,
+            "max_drawdown_closed_equity_u": 47.27,
+            "max_drawdown_closed_equity_pct": 2.36,
+            "max_profit_trade_u": 31.36,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 515.55
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 3,
+            "noise_loss_count": 2,
+            "noise_saved_amount_u": 12.7,
+            "opp_win_count": 1,
+            "opp_missed_amount_u": 8.97,
+            "net_filter_gain_u": 3.73,
+            "verdict": "证据不足 (样本极度稀疏，差异未达显著性阈值)",
+            "noise_trades_list": [
+              {
+                "pair": "CFX/USDT:USDT",
+                "open_date": "2023-11-08 11:15:00+00:00",
+                "close_date": "2023-11-09 16:00:00+00:00",
+                "profit_abs": -9.8591,
+                "profit_ratio_pct": -17.05,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CFXUSDT_1698782400000_1699441200000"
+              },
+              {
+                "pair": "APE/USDT:USDT",
+                "open_date": "2024-11-10 11:15:00+00:00",
+                "close_date": "2024-11-20 11:15:00+00:00",
+                "profit_abs": -2.8386,
+                "profit_ratio_pct": -6.51,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_APEUSDT_1730692800000_1731236400000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "CHR/USDT:USDT",
+                "open_date": "2024-11-09 09:15:00+00:00",
+                "close_date": "2024-11-19 09:15:00+00:00",
+                "profit_abs": 8.9705,
+                "profit_ratio_pct": 17.38,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHRUSDT_1730692800000_1731142800000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": -25.28,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": -24.48
+          },
+          "bootstrap": {
+            "mean_diff_u": 2.63,
+            "ci_lower": -6.2,
+            "ci_upper": 10.0,
+            "p_value": 0.532,
+            "p_value_holm_bonferroni": 1.0
+          }
+        },
+        "No RetestVol": {
+          "factor_name": "F_VOL_RT (回踩缩量倍数)",
+          "metrics": {
+            "trade_count": 24,
+            "win_count": 10,
+            "loss_count": 14,
+            "flat_count": 0,
+            "win_rate": 41.67,
+            "win_rate_ci95_lower": 24.47,
+            "win_rate_ci95_upper": 61.17,
+            "net_pnl": 44.8,
+            "net_return_pct": 2.24,
+            "profit_factor": 1.5425,
+            "expectancy_u": 1.8666,
+            "avg_profit_u": 12.74,
+            "avg_loss_u": -5.9,
+            "max_drawdown_closed_equity_u": 48.23,
+            "max_drawdown_closed_equity_pct": 2.41,
+            "max_profit_trade_u": 31.68,
+            "max_profit_trade_symbol": "AGLD/USDT:USDT",
+            "max_profit_trade_share_pct": 70.72
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 4,
+            "noise_loss_count": 2,
+            "noise_saved_amount_u": 1.77,
+            "opp_win_count": 2,
+            "opp_missed_amount_u": 36.3,
+            "net_filter_gain_u": -34.53,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2024-11-09 20:45:00+00:00",
+                "close_date": "2024-11-19 20:45:00+00:00",
+                "profit_abs": -0.4429,
+                "profit_ratio_pct": -1.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1730664000000_1731182400000"
+              },
+              {
+                "pair": "AGLD/USDT:USDT",
+                "open_date": "2023-09-02 22:15:00+00:00",
+                "close_date": "2023-09-04 16:00:00+00:00",
+                "profit_abs": -1.3296,
+                "profit_ratio_pct": -2.11,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGLDUSDT_1693296000000_1693692000000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "AGLD/USDT:USDT",
+                "open_date": "2024-11-03 19:15:00+00:00",
+                "close_date": "2024-11-13 19:15:00+00:00",
+                "profit_abs": 31.6806,
+                "profit_ratio_pct": 63.83,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGLDUSDT_1730203200000_1730660400000"
+              },
+              {
+                "pair": "1000FLOKI/USDT:USDT",
+                "open_date": "2024-02-09 07:15:00+00:00",
+                "close_date": "2024-02-19 07:15:00+00:00",
+                "profit_abs": 4.6184,
+                "profit_ratio_pct": 7.2,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000FLOKIUSDT_1706860800000_1707462000000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 13.12,
+            "max_contributor_symbol": "AGLD/USDT:USDT",
+            "pnl_without_max_symbol_u": -2.72
+          },
+          "bootstrap": {
+            "mean_diff_u": -24.04,
+            "ci_lower": -36.69,
+            "ci_upper": 1.46,
+            "p_value": 0.188,
+            "p_value_holm_bonferroni": 0.752
+          }
+        },
+        "No GapFilter": {
+          "factor_name": "F_GAP_IN (入场跳空上限)",
+          "metrics": {
+            "trade_count": 23,
+            "win_count": 10,
+            "loss_count": 13,
+            "flat_count": 0,
+            "win_rate": 43.48,
+            "win_rate_ci95_lower": 25.63,
+            "win_rate_ci95_upper": 63.19,
+            "net_pnl": 43.34,
+            "net_return_pct": 2.17,
+            "profit_factor": 1.4846,
+            "expectancy_u": 1.8844,
+            "avg_profit_u": 13.28,
+            "avg_loss_u": -6.88,
+            "max_drawdown_closed_equity_u": 54.07,
+            "max_drawdown_closed_equity_pct": 2.69,
+            "max_profit_trade_u": 31.62,
+            "max_profit_trade_symbol": "COTI/USDT:USDT",
+            "max_profit_trade_share_pct": 72.95
+          },
+          "slot_competition": {
+            "max_concurrent_trades": 2,
+            "slot_blocked_trades": 0
+          },
+          "noise_filtering": {
+            "filtered_out_total_count": 5,
+            "noise_loss_count": 3,
+            "noise_saved_amount_u": 18.16,
+            "opp_win_count": 2,
+            "opp_missed_amount_u": 41.07,
+            "net_filter_gain_u": -22.91,
+            "verdict": "支持过滤有损 (严重误伤大波段盈利机会，过滤有损)",
+            "noise_trades_list": [
+              {
+                "pair": "ARPA/USDT:USDT",
+                "open_date": "2022-11-03 10:15:00+00:00",
+                "close_date": "2022-11-08 04:00:00+00:00",
+                "profit_abs": -10.0252,
+                "profit_ratio_pct": -10.88,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_ARPAUSDT_1667361600000_1667469600000"
+              },
+              {
+                "pair": "CELR/USDT:USDT",
+                "open_date": "2022-06-24 14:15:00+00:00",
+                "close_date": "2022-07-04 14:15:00+00:00",
+                "profit_abs": -6.4062,
+                "profit_ratio_pct": -28.09,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_CELRUSDT_1655323200000_1656079200000"
+              },
+              {
+                "pair": "COTI/USDT:USDT",
+                "open_date": "2021-12-23 03:15:00+00:00",
+                "close_date": "2022-01-02 03:15:00+00:00",
+                "profit_abs": -1.7297,
+                "profit_ratio_pct": -5.08,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_COTIUSDT_1639900800000_1640228400000"
+              }
+            ],
+            "opportunity_trades_list": [
+              {
+                "pair": "1000BONK/USDT:USDT",
+                "open_date": "2024-02-27 03:15:00+00:00",
+                "close_date": "2024-03-03 07:15:00+00:00",
+                "profit_abs": 27.5742,
+                "profit_ratio_pct": 56.36,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000BONKUSDT_1708718400000_1709002800000"
+              },
+              {
+                "pair": "BEL/USDT:USDT",
+                "open_date": "2022-05-29 01:15:00+00:00",
+                "close_date": "2022-05-31 20:00:00+00:00",
+                "profit_abs": 13.494,
+                "profit_ratio_pct": 62.17,
+                "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_BELUSDT_1653595200000_1653786000000"
+              }
+            ]
+          },
+          "robustness": {
+            "pnl_without_max_trade_u": 11.72,
+            "max_contributor_symbol": "COTI/USDT:USDT",
+            "pnl_without_max_symbol_u": 13.45
+          },
+          "bootstrap": {
+            "mean_diff_u": -21.63,
+            "ci_lower": -40.95,
+            "ci_upper": 7.63,
+            "p_value": 0.222,
+            "p_value_holm_bonferroni": 0.666
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_METISUSDT_1792896589",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [],
+ "total": 0,
+ "live_order_enabled": false,
+ "trade_id_source": "ledger:positions.jsonl POSITION_CLOSED.payload.trade_id",
+ "unresolved_trade_ids": 0,
+ "missing_initial_stop": 0,
+ "missing_signal_time": 0,
+ "candidate_matrix": null,
+ "candidate_matrix_note": "同一候选在各参数组/模式下的结果（成交/拒单/未成交）；来源 _candidate_matrix.json，由落盘 trades/rejected/not_filled 汇总，不进任何账本",
+ "link_notes": [],
+ "note": "trade_id / 关联订单 / 资金费归属全部取自本 run 账本的真实标识；stop_trace 已统一为 `t`（毫秒），无后续止损调整时即为单点；initial_stop 取 stop_trace 首点；signal_time_ms 优先来自 chart.signals"
+}

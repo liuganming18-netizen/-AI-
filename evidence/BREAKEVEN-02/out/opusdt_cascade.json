@@ -1,0 +1,27 @@
+{
+  "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_OPUSDT_1704499200000_1705068000000",
+  "symbol": "OPUSDT",
+  "entry_time_utc": "2024-01-12 14:15",
+  "fixed_baseline_A": {
+    "qty": 8.3,
+    "net_pnl": -9.327116,
+    "exit_price": 3.04818,
+    "exit_reason": "max_holding_expired"
+  },
+  "fixed_variant_B": {
+    "qty": 8.3,
+    "net_pnl": -9.327116,
+    "exit_price": 3.04818,
+    "exit_reason": "max_holding_expired",
+    "delta_vs_A": 0.0
+  },
+  "dynamic_variant_B": {
+    "qty": 8.2,
+    "net_pnl": -9.214741,
+    "exit_price": 3.04818,
+    "exit_reason": "max_holding_expired",
+    "delta_vs_A": 0.112375
+  },
+  "cascade_discrepancy_U": 0.112375,
+  "explanation": "在串行动态权益下，OPUSDT 第一笔触发 1R 保本平仓使账户权益保持在 2000 U，而 A 组盈利后权益增至 2009.59 U，导致第二笔开仓数量由 8.3 降为 8.2。在固定仓位机制下，开仓数量锁定为 8.3，第二笔未触发保本，净额与 A 组严格一致（delta = 0.000000）。该 0.112375 U 确认为仓位差异产生的串行资金耦合干扰，已单列排除，不计为保本收益。"
+}

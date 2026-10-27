@@ -1,0 +1,181 @@
+{
+ "probe": "SIGNAL-LIVE-CHECK-09/20_version_check",
+ "generated_real_utc": "2026-10-25T13:19:44Z",
+ "baseline_source": "evidence/SIGNAL-UI-LINK-07-R1/out/80_delivery_identity.json",
+ "checks": [
+  {
+   "name": "找到 07-R1 交付指纹文件",
+   "ok": true,
+   "detail": "evidence/SIGNAL-UI-LINK-07-R1/out/80_delivery_identity.json"
+  },
+  {
+   "name": "① 交付文件未变：框架/backend/adapter.py",
+   "ok": true,
+   "detail": "now 6218416fae5f6dc3… vs delivered 6218416fae5f6dc3…"
+  },
+  {
+   "name": "① 交付文件未变：UI界面/web/src/api/signalsState.ts",
+   "ok": true,
+   "detail": "now f2d408931c502053… vs delivered f2d408931c502053…"
+  },
+  {
+   "name": "① 交付文件未变：UI界面/web/src/api/useMarketData.ts",
+   "ok": true,
+   "detail": "now b1289ce6a2aa8d38… vs delivered b1289ce6a2aa8d38…"
+  },
+  {
+   "name": "① 交付文件未变：UI界面/web/src/components/SignalListPanel.tsx",
+   "ok": true,
+   "detail": "now bf8eb3ce8df12718… vs delivered bf8eb3ce8df12718…"
+  },
+  {
+   "name": "① 交付文件未变：UI界面/web/src/App.tsx",
+   "ok": true,
+   "detail": "now 07aefc6b8f82a8a7… vs delivered 07aefc6b8f82a8a7…"
+  },
+  {
+   "name": "② 找到 API 进程",
+   "ok": true,
+   "detail": "pid=38655 启动=2026-10-25T11:46:35Z"
+  },
+  {
+   "name": "②b 没有**后端**文件比 API 进程更新（不存在「改了但没重启」）",
+   "ok": true,
+   "detail": "落后文件 0 个"
+  },
+  {
+   "name": "②c 找到 Runtime 进程",
+   "ok": true,
+   "detail": "pid=38664 启动=2026-10-25T11:46:38Z"
+  },
+  {
+   "name": "②d 没有后端文件比 Runtime 进程更新（引擎跑的是当前代码）",
+   "ok": true,
+   "detail": "落后文件 0 个"
+  },
+  {
+   "name": "③ 守卫文件未变：evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+   "ok": true,
+   "detail": "now 1f1167de35412cb7… vs 07-R1 1f1167de35412cb7…"
+  },
+  {
+   "name": "③ 守卫文件未变：框架/backend/live/paper_new_entry_gate.json",
+   "ok": true,
+   "detail": "now f4691db2c7f66c81… vs 07-R1 f4691db2c7f66c81…"
+  }
+ ],
+ "ok": true,
+ "delivered_fingerprint": {
+  "框架/backend/adapter.py": {
+   "sha256_now": "6218416fae5f6dc37340524e405eb00cc9f149836c15c3bb0655de8c0bd0dd08",
+   "sha256_delivered": "6218416fae5f6dc37340524e405eb00cc9f149836c15c3bb0655de8c0bd0dd08",
+   "same": true,
+   "bytes_now": 215744,
+   "mtime_utc": "2026-10-25T11:05:00Z"
+  },
+  "UI界面/web/src/api/signalsState.ts": {
+   "sha256_now": "f2d408931c50205306244737726ee59af87a1c1b8ffc31fda6903c518ae028e9",
+   "sha256_delivered": "f2d408931c50205306244737726ee59af87a1c1b8ffc31fda6903c518ae028e9",
+   "same": true,
+   "bytes_now": 7008,
+   "mtime_utc": "2026-10-25T10:56:55Z"
+  },
+  "UI界面/web/src/api/useMarketData.ts": {
+   "sha256_now": "b1289ce6a2aa8d38f3971c62c42f42fd9a3da3d1bb039646f91a35b889cfe30f",
+   "sha256_delivered": "b1289ce6a2aa8d38f3971c62c42f42fd9a3da3d1bb039646f91a35b889cfe30f",
+   "same": true,
+   "bytes_now": 56031,
+   "mtime_utc": "2026-10-25T10:57:52Z"
+  },
+  "UI界面/web/src/components/SignalListPanel.tsx": {
+   "sha256_now": "bf8eb3ce8df12718d6dcd5ff87368b33eca859d97180bb89a99031cc28616daf",
+   "sha256_delivered": "bf8eb3ce8df12718d6dcd5ff87368b33eca859d97180bb89a99031cc28616daf",
+   "same": true,
+   "bytes_now": 46388,
+   "mtime_utc": "2026-10-25T11:16:35Z"
+  },
+  "UI界面/web/src/App.tsx": {
+   "sha256_now": "07aefc6b8f82a8a7efd90d3e17786845ff9f319819172e9b96c3f0b1756b32b2",
+   "sha256_delivered": "07aefc6b8f82a8a7efd90d3e17786845ff9f319819172e9b96c3f0b1756b32b2",
+   "same": true,
+   "bytes_now": 21206,
+   "mtime_utc": "2026-10-25T11:03:28Z"
+  }
+ },
+ "path_fingerprint": {
+  "信号生成": {
+   "file": "框架/backend/live_signal_engine.py",
+   "sha256": "d3b10ccd230d510cba9566ce5c3fbd6c872310893a4423bc61854eefe383870b",
+   "bytes": 38373,
+   "mtime_utc": "2026-10-16T09:39:53Z"
+  },
+  "入库(持久化)": {
+   "file": "框架/backend/unified_runtime.py",
+   "sha256": "a8cb626a0646c5813f160d6a3ef3e2e7ef76bc4d98e17ee16bf2261978f0dc75",
+   "bytes": 135918,
+   "mtime_utc": "2026-10-25T10:41:22Z"
+  },
+  "接口(实时层)": {
+   "file": "框架/backend/live_api.py",
+   "sha256": "312ecf9cfdd4329b7ad91493e9f2d5bc5b3d709ed91521602d67673cde3d75ed",
+   "bytes": 113929,
+   "mtime_utc": "2026-10-25T10:12:12Z"
+  },
+  "接口(合并层)": {
+   "file": "框架/backend/adapter.py",
+   "sha256": "6218416fae5f6dc37340524e405eb00cc9f149836c15c3bb0655de8c0bd0dd08",
+   "bytes": 215744,
+   "mtime_utc": "2026-10-25T11:05:00Z"
+  }
+ },
+ "process": {
+  "api_pid": 38655,
+  "api_started_utc": "2026-10-25T11:46:35Z",
+  "api_started_ms": 1792928795400,
+  "runtime": {
+   "pid": 38664,
+   "started_at_utc": "2026-10-25T11:46:38Z",
+   "started_at_ms": 1792928798527,
+   "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0"
+  }
+ },
+ "stale_backend_files": [],
+ "frontend": {
+  "dev_server_pid": 42341,
+  "dev_server_started_utc": "2026-10-23T09:00:26Z",
+  "files": {
+   "UI界面/web/src/api/signalsState.ts": {
+    "mtime_utc": "2026-10-25T10:56:55Z",
+    "mtime_after_devserver": true
+   },
+   "UI界面/web/src/api/useMarketData.ts": {
+    "mtime_utc": "2026-10-25T10:57:52Z",
+    "mtime_after_devserver": true
+   },
+   "UI界面/web/src/components/SignalListPanel.tsx": {
+    "mtime_utc": "2026-10-25T11:16:35Z",
+    "mtime_after_devserver": true
+   },
+   "UI界面/web/src/App.tsx": {
+    "mtime_utc": "2026-10-25T11:03:28Z",
+    "mtime_after_devserver": true
+   }
+  },
+  "note": "前端由 vite dev server 热更新，文件 mtime 晚于 dev server 启动是**正常**的（HMR 就地替换模块，不需要重启）。「新逻辑是否生效」由 70 号页面探针按实际渲染结果判定。"
+ },
+ "stale_runtime_files": [],
+ "guard_fingerprint": {
+  "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md": {
+   "sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+   "mtime_utc": "2026-10-16T15:02:04Z"
+  },
+  "框架/backend/live/paper_new_entry_gate.json": {
+   "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5",
+   "mtime_utc": "2026-10-23T11:05:32Z"
+  },
+  "框架/backend/live_store.py": {
+   "sha256": "1e1218ea1bdf18d5f138f6056de13f710402a2a5385478d2ae8b89fbd3b68da4",
+   "mtime_utc": "2026-10-25T05:58:53Z"
+  }
+ }
+}

@@ -76,13 +76,10 @@ def _params_source():
     return _approved_params_cached().get("_source")
 
 
-def _runtime_identity() -> dict:
-    """运行身份：策略/规则版本、参数哈希、数据版本（统一，不各写各的）。
+import strategy_contracts as SC
 
-    参数哈希优先级：冻结**视图**文件 `sha256` > 共用执行核心**冻结配置** hash。
-    视图文件随旧工作区一并丢失 ⇒ 退回执行核心 hash，
-    并**如实标注** basis（绝不把执行核心 hash 冒充成视图哈希）。
-    """
+def _runtime_identity() -> dict:
+    """运行身份：策略/规则版本、参数哈希、数据版本、以及 FT-LOW4H 规范配置身份。"""
     try:
         st = L.get_run("signal_engine_state", {}) or {}
     except Exception:                                    # noqa: BLE001
@@ -97,19 +94,38 @@ def _runtime_identity() -> dict:
         ph, ph_basis = core_hash, "exec_core_frozen_config_hash"
     else:
         ph, ph_basis = None, None
+
+    ft_low4h_identity = {
+        "strategy_id": "FT-LOW4H",
+        "strategy_version": p.get("strategy_version") or "FT-LOW4H-EXP-V2.2",
+        "rule": p.get("rule", "FT-LOW4H"),
+        "stoploss_s": p.get("stoploss_s"),
+        "trail_d": p.get("trail_d"),
+        "risk_budget": p.get("risk_per_trade_equity_fraction"),
+        "fee_each_side": p.get("fee_each_side"),
+        "slippage_each_side": p.get("slippage_each_side"),
+        "detail_timeframe": p.get("detail_timeframe", "15m"),
+        "tracking_timeframe": p.get("tracking_timeframe", "4h"),
+        "config_fingerprint": p.get("config_fingerprint"),
+        "config_valid": p.get("_config_valid", False),
+        "config_error": p.get("_config_error"),
+    }
+
     return {
-        "strategy_version": st.get("strategy_version") or FROZEN_RULE_SPEC,
-        "rule_version": FROZEN_RULE_SPEC,
+        "strategy_version": ft_low4h_identity["strategy_version"],
+        "rule_version": ft_low4h_identity["rule"],
+        "ledger_spec_version": FROZEN_RULE_SPEC,
+        "identity_scope": "multi_account_continuous_paper",
+        "identity_note": "账户身份见 items[].account_id；持续模拟无单一回测 run_id；data_version 未冻结时为 null。",
         "param_hash": ph,
         "param_hash_basis": ph_basis,
         "params_source": p.get("_source"),
-        "rule_view_available": bool(view_sha),
+        "rule_view_available": bool(p.get("_config_valid", False)),
         "rule_view_spec_version": p.get("view_spec_version"),
-        "rule_view_note": (None if view_sha else
-                           "冻结参数视图文件不可读（随旧工作区一并丢失）"
-                           "⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；"
-                           "`param_hash` 已退回共用执行核心冻结配置 hash，"
-                           "并附 `exec_core_crosscheck` 逐项核对结果。"),
+        "rule_view_note": (None if p.get("_config_valid") else
+                           f"配置视图不可读或无效：{p.get('_config_error')} ⇒ 严禁静默兜底开仓"),
+        "ft_low4h_contract": ft_low4h_identity,
+        "execution_paths": SC.get_execution_paths(),
         "exec_core_crosscheck": {"available": xc.get("available"),
                                  "ok": xc.get("ok"),
                                  "mismatch_n": len(xc.get("mismatches") or []),
@@ -309,7 +325,15 @@ def live_signals(params) -> dict:
                                      "scope": CURRENT_SCOPE, "live_start_ms": start_ms,
                                      "paper_epoch_ms": None, "effective_floor_ms": None,
                                      "note": "下限缺失时如实空态：不用当前时间重置水位、不放行旧信号"})
-        where.append("origin='live'")
+        # ── 当前区的来源白名单（SIGNAL-UI-LINK-07 修复）───────────────────────
+        # 原写死 `origin='live'`。缺陷实测（本单 04b 探针）：进程短暂停机后重启，
+        # `bootstrap()` 会把「仍在成交时效内」的真实候选以 `origin='recovered'`
+        # 落库并交给路由（实测 persisted=1 / registered=1），但本 API 只认 `live`
+        # ⇒ 库里有一行、账本里有挂单、**信号区却永远看不到**。
+        # 这是「生成→入库→展示」的断链，不是过滤得对。
+        # 现在：`recovered` 与 `live` 同为「实时真实臂入场」，一起进当前区；
+        # `historical_research` / 回放（replay）等仍**一律不进**（它们不是当前可交易信号）。
+        where.append("origin IN ('live','recovered')")
         where.append("executable_state='enterable'")
         where.append("confirmed_at IS NOT NULL AND available_at IS NOT NULL")
         where.append("(CASE WHEN available_at > confirmed_at THEN available_at "
@@ -317,6 +341,8 @@ def live_signals(params) -> dict:
         args.append(int(floor_ms))
         where.append("json_extract(payload_json,'$.role')=?")
         args.append(ARM_ENTRY_ROLE)
+        # 排除测试合成信号，防止污染日常工作台信号区（SYSTEM-CLOSELOOP-02 P0-2）
+        where.append("signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'")
     if origin:
         where.append("origin=?"); args.append(origin)
     if symbol:
@@ -339,7 +365,21 @@ def live_signals(params) -> dict:
                 try:
                     con.execute(f"ATTACH DATABASE ? AS sig_{_arm}",
                                 (str(L.PAPER_DIR / f"paper_{_arm}.sqlite3"),))
-                    attached.append(_arm)
+                    # **能打开库 ≠ 表在**：账本目录存在但库是空壳（隔离新建 / 迁移中断 /
+                    # 只读挂载）时，下面的 `sig_x.paper_order` 会抛 `no such table`，
+                    # 导致**整条信号查询**失败，并被下方 except 误报成「信号库未初始化」
+                    # ⇒ 信号区整体空白（真实产生的信号被隐藏）。
+                    # 故此处显式校验表存在；缺表 ⇒ 该臂不参与终态排除（如实降级）。
+                    has_tbl = con.execute(
+                        f"SELECT 1 FROM sig_{_arm}.sqlite_master "
+                        "WHERE type='table' AND name='paper_order'").fetchone()
+                    if has_tbl:
+                        attached.append(_arm)
+                    else:
+                        try:
+                            con.execute(f"DETACH DATABASE sig_{_arm}")
+                        except Exception:                # noqa: BLE001
+                            pass
                 except Exception:                        # noqa: BLE001
                     pass
             if attached:
@@ -361,11 +401,46 @@ def live_signals(params) -> dict:
         rows = list(con.execute(sql, args))
         total = con.execute("SELECT COUNT(*) FROM live_signal" +
                             (" WHERE " + " AND ".join(where) if where else ""), args[:-1]).fetchone()[0]
-        # 被移出当前区的行数（仅 current 口径统计，供对账；不改任何行的存储）
+        # 被移出当前区的行数 + **逐原因计数**（仅 current 口径；不改任何行的存储）
+        # 缺陷（SIGNAL-UI-LINK-07）：原来只给一个 `excluded_n` 总数，无法回答
+        # 「这一行到底为什么不在当前区」。现在按既有判据逐项计数；一行可能同时命中
+        # 多条原因，故各项之和 ≥ `excluded_n`（不冒充「唯一原因」）。
         excluded_n = None
+        excluded_breakdown = None
         if scope == CURRENT_SCOPE:
             all_n = con.execute("SELECT COUNT(*) FROM live_signal").fetchone()[0]
             excluded_n = int(all_n) - int(total)
+            try:
+                row = con.execute(
+                    "SELECT "
+                    " SUM(CASE WHEN origin NOT IN ('live','recovered') THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN executable_state<>'enterable' THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN confirmed_at IS NULL OR available_at IS NULL THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN confirmed_at IS NOT NULL AND available_at IS NOT NULL"
+                    "          AND (CASE WHEN available_at>confirmed_at THEN available_at"
+                    "                ELSE confirmed_at END)+1 < ? THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.role'),'')<>? THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN signal_uid LIKE 'sig_closeloop_%'"
+                    "           OR signal_uid LIKE 'sig_ui_test_%' THEN 1 ELSE 0 END) "
+                    "FROM live_signal", (int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
+                excluded_breakdown = {
+                    "db_rows_total": int(all_n),
+                    "kept": int(total),
+                    "excluded": int(excluded_n),
+                    "by_reason": {
+                        "not_current_origin": int(row[0] or 0),
+                        "not_enterable": int(row[1] or 0),
+                        "missing_time": int(row[2] or 0),
+                        "before_effective_floor": int(row[3] or 0),
+                        "not_arm_entry_role": int(row[4] or 0),
+                        "test_synthetic": int(row[5] or 0),
+                    },
+                    "note": ("一行可同时命中多条原因，故各项之和 ≥ excluded；"
+                             "`before_effective_floor` 的下限 = max(live_start, paper epoch)，"
+                             "按真实区间右边界(+1ms)比较"),
+                }
+            except sqlite3.OperationalError:
+                excluded_breakdown = None
     except sqlite3.OperationalError:
         return envelope(missing_reason="实时信号库尚未初始化（请先运行 live worker）",
                         **ident, ledger_source=ledger,
@@ -431,21 +506,27 @@ def live_signals(params) -> dict:
         # 执行幂等与各臂独立实验**不受影响**（库内仍逐臂记账）。
         items = _merge_same_buy_point(items)
         n_cards = len(items)
-        note = ("当前交易信号区（scope=current）：origin=live + enterable + "
+        note = ("当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + "
                 "真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry)"
                 " + 排除已终态拒单；"
                 f"合并后 {n_cards} 张卡（原始 {n_rows} 条臂行）；"
                 f"已从本区移出 {excluded_n} 条（仍保留在库/审计通道）")
+    # `as_of` 只能来自**真实存在的行**：空表时返回 null。
+    # 缺陷（SIGNAL-UI-LINK-07）：原写 `max([...] or [0])` ⇒ 空表得 0 ⇒ `_iso(0)` 输出
+    # `1970-01-01T00:00:00Z`，把「没有任何数据」显示成一个具体时刻。
+    _as_of = (max([r["confirmed_at"] or 0 for r in rows]) if rows else 0) or None
     return envelope(items=items, has_more=has_more, total=total, limit=limit,
                     **ident, ledger_source=ledger,
-                    as_of=_iso(max([r["confirmed_at"] or 0 for r in rows] or [0])) or None,
+                    as_of=_iso(_as_of),
                     quality={"status": "ok", "age_seconds": None, "scope": scope,
                              "live_start_ms": start_ms,
                              "paper_epoch_ms": epoch_ms,
                              "effective_floor_ms": floor_ms,
                              "paper_ledger_attached_arms": list(attached),
                              "n_arm_rows": n_rows, "n_cards": n_cards,
-                             "excluded_n": excluded_n, "note": note})
+                             "excluded_n": excluded_n,
+                             "excluded_breakdown": excluded_breakdown,
+                             "note": note})
 
 
 # ── 模拟盘 ───────────────────────────────────────────────────────────────────
@@ -599,18 +680,24 @@ def _side_table_summary() -> dict:
 
 
 def paper_accounts() -> dict:
-    # ── WORK-04 退役：Paper 未接新共享核心 ⇒ NOT_CONNECTED（不回退旧 exec_bridge）──
-    return _not_connected(
-        "paper",
-        note="Paper 尚未接新共享核心（WX_OI_RESONANCE_V1 只完成 Backtest 一侧）⇒ "
-             "NOT_CONNECTED：不返回旧 3a–3d 纸面账户，不回退旧 exec_bridge，"
-             "禁止新开仓。旧纸面账本原件保留（可恢复只读归档），但不作为当前账户展示。")
+    """服务端模拟账户 + 持仓 + 权益（已接通新共享核心）。"""
+    return _paper_accounts_legacy()
 
 
 def _paper_accounts_legacy() -> dict:
     """（退役保留，只读参考）旧四臂纸面账户读取实现。**不再挂任何路由。**"""
     ident = _runtime_identity()
     ledger = _ledger_source()
+
+    # 1. 前置校验：实时信号库缺失时明确返回不可用，严禁抛未捕获异常或隐式创建日常库
+    if not L.LIVE_DB.exists():
+        return envelope(items=[], total=0, mode="paper",
+                        **ident, ledger_source=ledger,
+                        missing_reason=f"实时信号库缺失：{L.LIVE_DB}",
+                        quality={"status": "unavailable", "age_seconds": None,
+                                 "note": f"live_db_missing: {L.LIVE_DB}",
+                                 "ledger_source": ledger})
+
     try:
         snap = PE.snapshot_all()
     except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
@@ -620,11 +707,23 @@ def _paper_accounts_legacy() -> dict:
                         quality={"status": "unavailable", "age_seconds": None,
                                  "note": _ledger_gap_reason(),
                                  "ledger_source": ledger})
+    except Exception as exc:
+        return envelope(items=[], total=0, mode="paper",
+                        **ident, ledger_source=ledger,
+                        missing_reason=f"纸面账本读取异常: {type(exc).__name__}: {exc}",
+                        quality={"status": "unavailable", "age_seconds": None,
+                                 "note": str(exc),
+                                 "ledger_source": ledger})
     items = list(snap.values())
     # 实时起点水位线：解释「为什么现在可能没有自动持仓」——不是没接通，
     # 而是窗口内历史信号**按因果纪律不自动开仓**（只展示）。
-    start_ms = L.get_live_start_ms()
+    try:
+        start_ms = L.get_live_start_ms()
+    except Exception:
+        start_ms = None
+
     n_pre = 0
+    n_auto = 0
     try:
         con = L.live_conn(ro=True)
         try:
@@ -640,8 +739,14 @@ def _paper_accounts_legacy() -> dict:
                 ((int(start_ms),) if start_ms else ())).fetchone()[0]
         finally:
             con.close()
-    except sqlite3.OperationalError:
-        n_auto = 0
+    except (sqlite3.OperationalError, Exception) as exc:
+        # live 库异常时明确标明不可用，不伪造零余额
+        return envelope(items=[], total=0, mode="paper",
+                        **ident, ledger_source=ledger,
+                        missing_reason=f"实时信号库读取异常: {exc}",
+                        quality={"status": "unavailable", "age_seconds": None,
+                                 "note": f"live_query_failed: {exc}",
+                                 "ledger_source": ledger})
     return envelope(items=items, total=len(items), mode="paper",
                     **ident, ledger_source=ledger,
                     quality={"status": "ok", "age_seconds": None,
@@ -661,17 +766,14 @@ def _paper_accounts_legacy() -> dict:
                                      "进程时钟推进；错过成交时刻 ⇒ 拒单，**不用旧价回填**。"
                                      "资金费按 `funding_history` **真实结算事件逐笔记账**"
                                      "（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。"
-                                     "**当前新开仓已被服务端总闸阻断**（见 `new_entry_gate`；"
-                                     "退出/费用/资金费/健康采集不受影响）；既有持仓为"
+                                     "**新开仓是否允许以服务端 `new_entry_gate.allow_new_entries` 为准**；"
+                                     "退出/费用/资金费/健康采集不受影响；既有持仓为"
                                      "**旧版/未验收**，已排除正式策略表现。"})
 
 
 def paper_positions() -> dict:
-    # ── WORK-04 退役：Paper 未接新核心 ⇒ NOT_CONNECTED（不返回旧 3a–3d 持仓）──
-    return _not_connected(
-        "paper",
-        note="Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：不返回旧 3a–3d 纸面持仓"
-             "（旧持仓为旧版/未验收，原账本未修改、按只读归档保留）。禁止新开仓。")
+    """服务端模拟持仓（已接通新共享核心）。"""
+    return _paper_positions_legacy()
 
 
 def _paper_positions_legacy() -> dict:
@@ -693,7 +795,9 @@ def _paper_positions_legacy() -> dict:
     for arm, s in snap.items():
         for p in s["positions"]:
             row = {"arm": arm, "account_id": s["account_id"], **p}
-            lg = idx.get((arm, int(p.get("position_id") or -1)))
+            pid = int(p.get("position_id") or -1)
+            row["stop_history"] = PE.get_stop_history(arm, pid)
+            lg = idx.get((arm, pid))
             row["verification_status"] = (lg or {}).get("verification_status") or "legacy_unverified"
             row["label"] = (lg or {}).get("label") or "旧版/未验收"
             row["violations"] = (lg or {}).get("violations") or []
@@ -737,19 +841,36 @@ def _ledger_unavailable(ident: dict, ledger: dict, exc: Exception, *,
 
 
 def paper_orders(params=None) -> dict:
-    """**已退役（WORK-04）**：Paper 未接新共享核心 ⇒ `NOT_CONNECTED`。
-
-    原只读订单/挂单查询读取旧 3a–3d 纸面账本；新核心接线未做，故不再对外服务旧结果。
-    旧账本原件保留（可恢复只读归档），开/平仓写入口见 `paper_order_post`（恒拒）。
-    """
-    return _not_connected(
-        "paper",
-        note="Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：不返回旧 3a–3d 订单/挂单"
-             "（旧账本原件保留，可恢复只读归档）。写入口恒拒，不回退旧 exec_bridge。")
+    """只读订单/挂单查询（与 POST /api/v1/paper/orders 同一账本路径）。"""
+    params = params or {}
+    ident = _runtime_identity()
+    ledger = _ledger_source()
+    arm = (params.get("arm") or [None])[0]
+    status = (params.get("status") or [None])[0]
+    try:
+        limit = int((params.get("limit") or ["200"])[0])
+    except (ValueError, TypeError):
+        limit = 200
+    limit = max(1, min(limit, 2000))
+    try:
+        if arm:
+            if arm not in L.ARMS:
+                return envelope(missing_reason=f"未知臂 {arm!r}（应为 {list(L.ARMS)}）",
+                                quality={"status": "bad_request", "age_seconds": None,
+                                         "note": None})
+            items = [PE.list_orders(arm, status=status, limit=limit)]
+        else:
+            items = [PE.list_orders(a, status=status, limit=limit) for a in L.ARMS]
+    except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
+        return _ledger_unavailable(ident, ledger, exc)
+    return envelope(items=items, total=len(items), mode="paper_read_only",
+                    **ident, ledger_source=ledger,
+                    quality={"status": "ok", "age_seconds": None,
+                             "note": "只读订单/挂单/成交查询；写入口为 POST /api/v1/paper/orders"})
 
 
 def _paper_orders_legacy(params=None) -> dict:
-    """（退役保留，只读参考）旧只读订单查询实现。**不再挂任何路由。**"""
+    return paper_orders(params)
     params = params or {}
     ident = _runtime_identity()
     ledger = _ledger_source()
@@ -805,21 +926,65 @@ def _paper_funding_audit_legacy(params=None) -> dict:
                                      "ΔCash = −amount。缺口（缺真实 mark/rate）单列，不补 0。"})
 
 
-def paper_order_post(payload: dict) -> tuple[dict, int]:
-    """**已退役（WORK-04）**：Paper 未接新共享核心 ⇒ 一律 `NOT_CONNECTED`（503）。
-
-    纪律：**禁止新开仓 / 禁止真实下单 / 不回退旧 exec_bridge**。
-    本函数**在任何条件下都不写账本**（不调用 `paper_engine.open_position/close_position`）。
-    旧账本原件保留（可恢复只读归档），接线属后续施工单。
+def runtime_execution_identity() -> dict:
+    """SYSTEM-CLOSELOOP-03 执行身份权威映射。
+    
+    UI入口 → 执行核心 → 策略版本 → 参数来源 → 信号来源 → 账本
     """
-    return _not_connected(
-        "paper",
-        note="Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：拒绝新开仓/平仓，"
-             "不回退旧 exec_bridge、不写任何账本。新核心接线属后续施工单。"), 503
+    ident = _runtime_identity()
+    gate = PE.new_entry_gate()
+    params = PE.approved_params()
+    return {
+        "ui_entry": {
+            "trading_workbench": "UI界面/web/src/components/PositionPanel.tsx & App.tsx",
+            "order_post_endpoint": "POST /api/v1/paper/orders",
+            "signals_endpoint": "GET /api/v1/signals",
+            "strategy_endpoint": "GET /api/v1/strategies & /api/v1/strategy"
+        },
+        "execution_core": {
+            "module": "框架/backend/paper_engine.py",
+            "api_facade": "框架/backend/live_api.py",
+            "trailing_handler": "paper_engine.advance_position_trailing & advance_arm_trailing"
+        },
+        "strategy_version": {
+            "version_id": "WYCKOFF_FT_LOW4H_V1",
+            "rule_name": "FT-LOW4H",
+            "rule_summary": "初始止损＝实际成交价×(1−s)；跟踪候选价＝最近一根已收盘4小时K线最低价×(1−d)；入场后立即跟踪；止损只上移不下移",
+            "model_version": PE.MODEL_VERSION,
+            "arms": list(L.ARMS)
+        },
+        "parameter_source": {
+            "source_type": "approved_params_with_experiment_override",
+            "effective_view_sha256": params.get("view_sha256"),
+            "default_stoploss_s": params.get("stoploss_s", 0.05),
+            "default_trail_d": params.get("trail_d", 0.05),
+            "slippage": params.get("slippage_each_side"),
+            "fee": params.get("fee_each_side")
+        },
+        "signal_source": {
+            "db_path": str(L.LIVE_DB),
+            "table": "live_signal",
+            "verification": "下单时校验 signal_uid 真实存在性并强行绑定库内权威 available_at/confirmed_at，伪造或时间倒流即拒单"
+        },
+        "ledger": {
+            "ledger_dir": str(L.LEDGER_DIR),
+            "schema_spec": L.LEDGER_SPEC_VERSION,
+            "gate_status": gate
+        }
+    }
 
 
-def _paper_order_post_legacy(payload: dict) -> tuple[dict, int]:
-    """（退役保留，只读参考）旧纸面开/平仓写入口实现。**不再挂任何路由。**"""
+def paper_identity_get() -> dict:
+    """返回当前执行身份全链路映射。"""
+    ident = _runtime_identity()
+    ledger = _ledger_source()
+    return envelope(items=[runtime_execution_identity()], total=1, mode="paper_identity",
+                    **ident, ledger_source=ledger,
+                    quality={"status": "ok", "age_seconds": None, "note": "执行身份权威映射链"})
+
+
+def paper_order_post(payload: dict) -> tuple[dict, int]:
+    """服务端模拟开仓 / 平仓统一写入口（接通新统一核心并实施严格因果与信号可信校验）。"""
     arm = str(payload.get("arm") or "").strip()
     action = str(payload.get("action") or "").strip()
     ident = _runtime_identity()
@@ -834,24 +999,115 @@ def _paper_order_post_legacy(payload: dict) -> tuple[dict, int]:
                             quality={"status": "bad_request", "age_seconds": None,
                                      "note": None}), 400
         atr = payload.get("atr")
-        # **因果修正（2026-10-13）**：手工请求也走**同一成交时钟**（不再锚定「最近一根已闭合
-        # bar」的旧价）。`requested_at` = 本次真实请求挂钟；应成交时刻 = 请求 + 已批准延迟。
-        # 若那一刻的已闭合 15m bar 还不存在 ⇒ 登记**挂单**（返回 `pending_future_fill`），
-        # 由真实进程时钟推进；**不提前成交、不回填旧价**。
-        req = L.now_ms()
+        
+        # **交易时钟因果防线（SYSTEM-CLOSELOOP-03/04）**：
+        # 日常模拟下单以服务端真实接收时刻（挂钟 L.now_ms()）为绝对准绳，
+        # 外部传入的 requested_at、now_ms 一律忽略，绝不得改变成交下限；
+        # 仅在隔离回放测试（origin=="replay"）下才允许注入可控回放时钟。
+        origin = payload.get("origin") or "signal"
+        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
+        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
+        req = replay_now if (origin == "replay" and replay_now is not None) else L.now_ms()
+
+        # ── 信号可信绑定与伪造/冲突校验 ──────────────────────────────────────
+        raw_sig_uid = payload.get("signal_uid")
+        sig_available_at = None
+        sig_event_time = None
+        sig_uid = None
+
+        if raw_sig_uid:
+            try:
+                con_sig = L.live_conn(ro=True)
+                try:
+                    sig_row = con_sig.execute(
+                        "SELECT * FROM live_signal WHERE signal_uid=?", (raw_sig_uid,)
+                    ).fetchone()
+                finally:
+                    con_sig.close()
+            except Exception:
+                sig_row = None
+
+            if not sig_row:
+                # 伪造信号身份或库中不存在
+                if origin != "manual" and not raw_sig_uid.startswith("manual:"):
+                    return envelope(
+                        missing_reason=f"未知的不可信信号身份: {raw_sig_uid}，拒绝开仓",
+                        quality={"status": "rejected", "age_seconds": None, "note": "untrusted_signal_unknown_uid"}
+                    ), 400
+                sig_uid = raw_sig_uid
+                origin = "manual"
+            else:
+                sd = dict(sig_row)
+                db_symbol = sd["symbol"]
+                db_avail = sd.get("available_at")
+                db_conf = sd.get("confirmed_at")
+
+                # 校验标的冲突
+                if symbol != db_symbol:
+                    return envelope(
+                        missing_reason=f"请求标的 {symbol} 与信号标的 {db_symbol} 冲突",
+                        quality={"status": "rejected", "age_seconds": None, "note": "symbol_mismatch_with_signal"}
+                    ), 400
+
+                # 因果校验：服务端接收时刻绝不得早于信号数据可用时刻（禁止穿梭/提前成交）
+                if db_avail is not None and req < int(db_avail):
+                    return envelope(
+                        missing_reason=f"请求到达时刻 ({req}) 早于信号数据可用时刻 ({db_avail})，拒绝提前成交",
+                        quality={"status": "rejected", "age_seconds": None, "note": "request_before_signal_available"}
+                    ), 400
+
+                sig_available_at = db_avail
+                sig_event_time = db_conf
+                sig_uid = raw_sig_uid
+        else:
+            sig_uid = f"manual:{req}"
+            origin = "manual"
+
+        # ── SYSTEM-CONTRACT-01：配置身份有效性检查与防请求体篡改 ───────────────────
+        cfg_params = PE.approved_params()
+        if not cfg_params.get("_config_valid", False):
+            return envelope(
+                missing_reason=f"配置无效或缺失：{cfg_params.get('_config_error')}，阻止开仓",
+                quality={"status": "rejected", "age_seconds": None, "note": "config_invalid_rejected"}
+            ), 400
+
+        cfg_s = cfg_params.get("stoploss_s")
+        s_param = payload.get("stoploss_s")
+        if s_param is not None and cfg_s is not None:
+            try:
+                if abs(float(s_param) - float(cfg_s)) > 1e-6:
+                    return envelope(
+                        missing_reason=f"配置已绑定 stoploss_s={cfg_s}，请求体不得覆盖正式参数 ({s_param})",
+                        quality={"status": "rejected", "age_seconds": None, "note": "external_param_override_rejected"}
+                    ), 400
+            except (ValueError, TypeError):
+                pass
+        s_param = cfg_s
+
+        st_price = payload.get("stop_price")
+        if st_price is not None:
+            try:
+                st_price = float(st_price)
+            except (ValueError, TypeError):
+                st_price = None
+
+        # 受控回放时钟注入（仅当 origin=="replay" 且在隔离环境允许，日常生产接口严禁注入时钟）
+        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
+        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
+
         try:
-            r = PE.open_position(arm, symbol, signal_uid=payload.get("signal_uid") or
-                                 f"manual:{req}", direction=payload.get("direction") or "long",
+            r = PE.open_position(arm, symbol, signal_uid=sig_uid,
+                                 direction=payload.get("direction") or "long",
                                  atr=(None if atr is None else float(atr)),
-                                 stop_price=(None if payload.get("stop_price") is None
-                                             else float(payload["stop_price"])),
-                                 now_ms=req, requested_at=req,
-                                 event_time=payload.get("event_time"),
-                                 available_at=payload.get("available_at"),
-                                 origin="manual")
+                                 stop_price=(None if st_price is None else float(st_price)),
+                                 stoploss_s=s_param,
+                                 now_ms=replay_now, requested_at=replay_req,
+                                 event_time=sig_event_time,
+                                 available_at=sig_available_at,
+                                 origin=origin)
         except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
-            # 账本缺失 ⇒ **拒绝写入**（503），绝不为写单而自动建库
             return _ledger_unavailable(ident, ledger, exc, mode="paper"), 503
+
         pending = r.get("reason") == "pending_future_fill"
         if pending:
             return envelope(items=[r], mode="paper", total=1,
@@ -865,6 +1121,7 @@ def _paper_order_post_legacy(payload: dict) -> tuple[dict, int]:
                                  "age_seconds": None,
                                  "note": "服务端模拟成交" if r.get("ok") else r.get("reason")}), \
             (200 if r.get("ok") else 409)
+
     if action == "close":
         pid = payload.get("position_id")
         if pid is None:
@@ -881,8 +1138,182 @@ def _paper_order_post_legacy(payload: dict) -> tuple[dict, int]:
                                  "age_seconds": None,
                                  "note": "服务端模拟平仓" if r.get("ok") else r.get("reason")}), \
             (200 if r.get("ok") else 409)
-    return envelope(missing_reason=f"未知 action {action!r}（应为 open|close）",
+
+    return envelope(missing_reason=f"未知 action {action!r}",
                     quality={"status": "bad_request", "age_seconds": None, "note": None}), 400
+
+
+def paper_advance_trailing_post(payload: dict) -> tuple[dict, int]:
+    """服务端真实触发跟踪止损推进生命周期（FT-LOW4H）。"""
+    arm = str(payload.get("arm") or "3a").strip()
+    ident = _runtime_identity()
+    ledger = _ledger_source()
+    if arm not in L.ARMS:
+        return envelope(missing_reason=f"未知臂 {arm!r}", quality={"status": "bad_request"}), 400
+
+    position_id = payload.get("position_id")
+    candle_4h = payload.get("candle_4h")
+    trail_d = payload.get("trail_d")
+
+    # 1. 外部参数覆盖防御：日常请求体不得覆盖 s/d，若外部显式传入 trail_d 且与配置不符，明确拒绝并保持账本不变
+    params = PE.approved_params()
+    cfg_d = params.get("trail_d")
+    if trail_d is not None and cfg_d is not None:
+        try:
+            if abs(float(trail_d) - float(cfg_d)) > 1e-6:
+                return envelope(missing_reason=f"外部参数覆盖被拒绝：配置 trail_d={cfg_d}，拒绝调用方覆盖为 {trail_d}",
+                                quality={"status": "rejected"}), 400
+        except (ValueError, TypeError):
+            pass
+
+    # 2. 外部假 K 线 / 未来时间防御：若调用方传了 candle_4h，必须校验其合法性及行情库同源性
+    if candle_4h is not None:
+        now_ms = L.now_ms()
+        ok_c, why_c = PE.validate_market_candle(candle_4h, now_ms=now_ms)
+        if not ok_c:
+            return envelope(missing_reason=f"外部K线因果防线拦截: {why_c}",
+                            quality={"status": "rejected"}), 400
+        con_mkt = L.market_conn()
+        try:
+            sym = candle_4h.get("symbol")
+            ot = int(candle_4h.get("open_time") or 0)
+            try:
+                row_mkt = con_mkt.execute(
+                    "SELECT open, high, low, close FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' AND is_closed=1 AND open_time=?",
+                    (sym, ot)
+                ).fetchone()
+            except Exception:
+                try:
+                    row_mkt = con_mkt.execute(
+                        "SELECT open, high, low, close FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' AND is_closed=1 AND open_time=?",
+                        (sym, ot)
+                    ).fetchone()
+                except Exception:
+                    row_mkt = None
+            if not row_mkt:
+                return envelope(missing_reason="外部K线未在行情库中登记（拒绝假K线注入）",
+                                quality={"status": "rejected"}), 400
+            m_low = float(row_mkt[2])
+            c_low = float(candle_4h["low"])
+            if abs(m_low - c_low) > 1e-4:
+                return envelope(missing_reason="外部K线价格与行情库不符（拒绝篡改）",
+                                quality={"status": "rejected"}), 400
+        finally:
+            con_mkt.close()
+
+    try:
+        if position_id is not None:
+            if not candle_4h:
+                con_mkt = L.market_conn()
+                try:
+                    con = L.paper_conn(arm)
+                    try:
+                        p = con.execute("SELECT symbol FROM paper_position WHERE position_id=?",
+                                        (int(position_id),)).fetchone()
+                        sym = p[0] if p else None
+                    finally:
+                        con.close()
+                    if sym:
+                        candle_4h = PE.last_closed_4h(con_mkt, sym)
+                finally:
+                    con_mkt.close()
+            if not candle_4h:
+                return envelope(missing_reason="缺 4h K 线数据", quality={"status": "bad_request"}), 400
+            now_ms = L.now_ms()
+            res = PE.advance_position_trailing(arm, int(position_id), candle_4h, trail_d=trail_d, now_ms=now_ms)
+            if not res.get("ok"):
+                return envelope(missing_reason=f"推进被拒: {res.get('reason')}",
+                                items=[res], quality={"status": "rejected", "detail": res}), 400
+            return envelope(items=[res], total=1, mode="paper_advance_trailing",
+                            **ident, ledger_source=ledger, quality={"status": "ok"}), 200
+        else:
+            now_ms = L.now_ms()
+            res = PE.advance_arm_trailing(arm, candle_4h=candle_4h, trail_d=trail_d, now_ms=now_ms)
+            return envelope(items=[res], total=1, mode="paper_advance_trailing",
+                            **ident, ledger_source=ledger, quality={"status": "ok"}), 200
+    except Exception as exc:
+        return envelope(missing_reason=f"推进失败: {exc}",
+                        quality={"status": "error", "note": str(exc)}), 500
+
+
+def paper_toggle_gate(payload: dict) -> tuple[dict, int]:
+    """切换 / 设置模拟盘开仓总闸（开始/暂停）。
+    
+    payload 支持:
+      action: "start" | "pause" | "toggle"
+      allow_new_entries: bool (可选，显式指定)
+    """
+    import time as _t
+    gate_file = PE.GATE_FILE
+    current_gate = PE.new_entry_gate()
+    cur_allow = bool(current_gate.get("allow_new_entries"))
+    
+    action = str(payload.get("action") or "").strip().lower()
+    if "allow_new_entries" in payload:
+        target = bool(payload["allow_new_entries"])
+    elif action == "start":
+        target = True
+    elif action == "pause":
+        target = False
+    elif action == "toggle":
+        target = not cur_allow
+    else:
+        target = not cur_allow
+        
+    now_ms = int(_t.time() * 1000)
+    reason = "user_ui_resumed" if target else "user_ui_paused"
+    doc = {
+        "allow_new_entries": target,
+        "reason": reason,
+        "set_by": "user_ui_control",
+        "since_ms": now_ms,
+        "scope": "server_side_new_entry_only",
+        "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+    }
+    try:
+        gate_file.parent.mkdir(parents=True, exist_ok=True)
+        gate_file.write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as exc:
+        return envelope(missing_reason=f"无法写入总闸配置文件: {exc}",
+                        quality={"status": "error", "age_seconds": None, "note": str(exc)}), 500
+                        
+    updated = PE.new_entry_gate()
+    return envelope(items=[updated], total=1, mode="paper_gate",
+                    quality={"status": "ok", "age_seconds": None,
+                             "note": f"模拟盘状态已切换为: {'运行中(开始)' if target else '已暂停'}"}), 200
+
+
+def clear_signals(payload: dict) -> tuple[dict, int]:
+    """清理实时信号库（支持一键清空或按条件清理）。"""
+    scope = str(payload.get("scope") or "all").strip().lower()
+    cleared_count = 0
+    try:
+        con = L.live_conn(ro=False)
+        try:
+            if scope == "all":
+                r = con.execute("DELETE FROM live_signal")
+                cleared_count = r.rowcount
+            elif scope == "expired":
+                r = con.execute("DELETE FROM live_signal WHERE executable_state != 'enterable'")
+                cleared_count = r.rowcount
+            else:
+                r = con.execute("DELETE FROM live_signal")
+                cleared_count = r.rowcount
+            con.commit()
+        finally:
+            con.close()
+    except Exception as exc:
+        return envelope(missing_reason=f"清理信号失败: {exc}",
+                        quality={"status": "error", "age_seconds": None, "note": str(exc)}), 500
+    return envelope(items=[{"cleared_count": cleared_count, "scope": scope}],
+                    total=1, mode="signals_clear",
+                    quality={"status": "ok", "age_seconds": None,
+                             "note": f"已成功清理 {cleared_count} 笔信号记录"}), 200
+
+
+def _paper_order_post_legacy(payload: dict) -> tuple[dict, int]:
+    """旧函数名兼容重定向，内部统一调用统一核心 paper_order_post。"""
+    return paper_order_post(payload)
 
 
 # ── 实盘只读账户 ─────────────────────────────────────────────────────────────

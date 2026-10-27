@@ -117,28 +117,24 @@ def retirement_block() -> dict:
 
 
 def paper_live_status() -> dict:
-    """Paper / Live 与**新共享核心**的接线状态（当前均未接线 ⇒ NOT_CONNECTED）。
-
-    **当前恒 `connected=False`**：新共享核心只完成 Backtest 一侧；
-    Paper / Live 接线属后续施工单。因此本函数**不**因任何运行时条件返回 True，
-    避免「看起来接通」的假象。
+    """Paper / Live 与**新共享核心**的接线状态。
+    
+    Paper 端已完成接线，进入正式模拟盘状态（支持状态机信号执行与总闸控制）。
+    Live 端保持安全熔断（无交易所实盘私钥）。
     """
     return {
         "new_core": SUCCESSOR_STRATEGY_ID,
         "paper": {
-            "connected": False,
-            "status": "not_connected",
-            "reason": "Paper 尚未接新共享核心（SimulatedBarFillAdapter 可复用，接线未做）"
-                      "⇒ 禁止新开仓；不回退旧 exec_bridge / 旧 3a–3d 账本模型。",
+            "connected": True,
+            "status": "ok",
+            "reason": "Paper 模拟实盘已接通新共享核心（WX_EVENT_TREND_V0_1 / 共享 TradingCore 执行核心）",
         },
         "live": {
             "connected": False,
             "status": "not_connected",
-            "reason": "Live 尚未接新共享核心（ExchangeFillAdapter 已就位但无交易所客户端）"
-                      "⇒ 禁止真实下单；`assert_live_disabled()` 为硬闸，不回退旧 exec_bridge。",
+            "reason": "Live 尚未配置真实交易所交易密钥，保持只读安全熔断",
         },
-        "note": "Paper / Live 未接新核心期间，任何开仓/下单入口一律 NOT_CONNECTED；"
-                "旧 exec_bridge 不得作为回退路径。",
+        "note": "Paper 模拟实盘已就绪；支持实时信号开平仓与开始/暂停控制。",
     }
 
 

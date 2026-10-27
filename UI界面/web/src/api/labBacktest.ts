@@ -243,6 +243,16 @@ export interface LabRunSummary {
   trades_count: number | null;
   max_drawdown_pct: number | null;
   failure_reason: string | null;
+  /** CODE-REVIEW-02：false = 无 run.json 的历史批量产物（未登记，只读参考）。
+   *  列表接口（`/backtests` 与 `/batches/{id}/runs`）都会透传。 */
+  registered?: boolean | null;
+  status_basis?: string | null;
+  record_note?: string | null;
+  /** FT-REPLAY-01：true = 研究期结果（由上游落盘 CSV 重建，**非本引擎重跑**）。
+   *  这类 run 允许进列表，但必须能一眼看出来，不能当成当前策略的成绩。 */
+  research_period?: boolean | null;
+  research?: Record<string, unknown> | null;
+  registration?: { registered_by?: string | null; note?: string | null } | null;
 }
 
 export interface LabSpec {
@@ -280,6 +290,10 @@ export interface LabRunDetail extends LabEnvelope {
   created_at: string | null;
   started_at: string | null;
   finished_at: string | null;
+  /** FT-REPLAY-01：true = 研究期结果（按上游落盘成交重建，非本引擎重跑）。 */
+  research_period?: boolean | null;
+  research?: Record<string, unknown> | null;
+  registration?: { registered_by?: string | null; note?: string | null } | null;
 }
 
 export interface LabMetrics {
@@ -384,6 +398,12 @@ export interface LabEquityResponse extends LabEnvelope<LabEquityPoint> {
 export interface LabTradeRow {
   run_id: string;
   trade_id: string;
+  /**
+   * 订单号（`ord_…`）。**只在 `public/all_trades.json`（批量脚本汇总）里出现**，
+   * 账本逐笔接口不返回。曾把订单号错写进 `trade_id` ⇒ 单笔详情 404，
+   * 现由前端硬校验（不在本 run 逐笔里就不拿去查询）。
+   */
+  order_id?: string | null;
   signal_id: string | null;
   symbol: string;
   direction: string;
@@ -406,9 +426,60 @@ export interface LabTradeRow {
   funding_events: number | null;
   funding_gaps_json: string | null;
   stop_trace_json: string | null;
+  /** 初始止损：账本 `stop_trace` 首点（BT-UI-01 后端补字段；无止损记录时为 null） */
+  initial_stop?: number | null;
+  initial_stop_source?: string | null;
+  /** 候选信号时刻（优先 `chart.signals[].t`，其次 `signal_id` 尾段；都没有为 null） */
+  signal_time_ms?: number | null;
+  signal_time_source?: string | null;
+  /* ── FT-REPLAY-01：把「信号 → 确认 → 下单 → 成交 → 出场」五个时刻拆开 ──
+   * 任何一项缺就是 null（界面显示「未知」/「无此环节」/「未记录」），
+   * 绝不用相邻时刻顶替 —— 那正是「把信号时间画成成交时间」的错。 */
+  /** 确认 K 线收盘时刻（C0 无独立确认环节 ⇒ null） */
+  confirm_time_ms?: number | null;
+  confirm_time_source?: string | null;
+  /** 下单即成交时刻（账本没记 ⇒ null） */
+  order_time_ms?: number | null;
+  order_time?: string | null;
+  order_time_source?: string | null;
+  /** 原始 P0（箱体/扫单基准价） */
+  P0?: number | null;
+  P0_source?: string | null;
+  /** 入场时计划风险（USDT）；上游未落盘 ⇒ null，不拿 -99% 兜底值冒充 */
+  planned_risk_usdt?: number | null;
+  planned_risk_source?: string | null;
+  /** 实际仓位金额（stake） */
+  stake_amount?: number | null;
+  stake_amount_source?: string | null;
+  /** 模式（C / C1 / C2）与上游候选事件 ID，供同候选跨模式对照 */
+  mode?: string | null;
+  event_id?: string | null;
 }
 
-export interface LabTradesResponse extends LabEnvelope<LabTradeRow> {}
+/**
+ * 同一候选在其它模式/参数组下的结果（跨模式对照）。
+ * 来源：批次级 `_candidate_matrix.json`（由落盘 trades / rejected / not_filled 汇总），
+ * **不进任何账本**，只做「同一候选 C0/C1/C2 结果有什么不一样」的只读对照。
+ */
+export interface LabCandidateResult {
+  run_id?: string | null;
+  mode?: string | null;
+  strategy?: string | null;
+  symbol?: string | null;
+  status?: 'filled' | 'rejected' | 'not_filled' | string;
+  net_pnl?: number | null;
+  entry_time_ms?: number | null;
+  exit_reason?: string | null;
+  reason?: string | null;
+  vs?: number | null;
+  z?: number | null;
+}
+
+export interface LabTradesResponse extends LabEnvelope<LabTradeRow> {
+  /** 事件 ID ⇒ 该候选在各模式/参数组下的结果列表 */
+  candidate_matrix?: Record<string, LabCandidateResult[]> | null;
+  candidate_matrix_note?: string | null;
+}
 
 export interface LabOrdersResponse extends LabEnvelope<LabOrderRow> {}
 
@@ -453,6 +524,27 @@ export interface LabOrderRow {
   stop_price: number | null;
   signal_type: number | null;
 }
+
+export interface LabFillRow {
+  run_id: string;
+  fill_id: string;
+  order_id: string;
+  trade_id: string | null;
+  trade_link?: string | null;
+  symbol: string;
+  strategy_key?: string | null;
+  action: string;
+  fill_price: number | null;
+  quantity: number | null;
+  fee: number | null;
+  liquidity: string | null;
+  sequence?: number | null;
+  event_time?: number | null;
+  fill_time_ms: number | null;
+  detail?: Record<string, unknown> | null;
+}
+
+export interface LabFillsResponse extends LabEnvelope<LabFillRow> {}
 
 export interface LabFundingRow {
   run_id: string;
@@ -522,6 +614,28 @@ export interface LabChartSignal {
   oi_score: number | null;
   oi_available: boolean | null;
   oi_quality: string | null;
+  /** FT-REPLAY-01 补充：该信号对应的候选 ID / 决策 / 原始 P0 / 时间来源 */
+  signal_id?: string | null;
+  decision?: string | null;
+  P0?: number | null;
+  time_basis?: string | null;
+}
+
+/**
+ * 确认 K 线标记（FT-REPLAY-01）。
+ *
+ * 为什么单独一层：`signals` 是「候选出现」那一刻，`confirms` 是「确认 K 线收盘」那一刻，
+ * `trades` 是「真实成交」那一刻 —— 三者是三个不同的时间点，混成一个标记就等于
+ * 把信号时间画成成交时间。C0 模式没有独立确认环节 ⇒ 该数组为空，图上不画确认点。
+ */
+export interface LabChartConfirm {
+  t: number;
+  signal_id?: string | null;
+  confirm_open?: number | null;
+  confirm_low?: number | null;
+  confirm_close?: number | null;
+  reason?: string | null;
+  time_basis?: string | null;
 }
 
 export interface LabChartStopPoint {
@@ -551,9 +665,38 @@ export interface LabChartFundingEvent {
 export interface LabChart {
   symbol: string;
   exec_timeframe: string;
-  window: { start_ms: number; end_ms: number };
+  window: { start_ms: number; end_ms: number; source?: string | null };
   candles: (LabChartCandle | LabChartCandleTuple)[];
   signals: LabChartSignal[];
+  /** 确认 K 线标记：C1/C2 有、C0 无此环节 ⇒ 缺省空数组（不画假点） */
+  confirms?: LabChartConfirm[];
+  /** K 线是否被截断（研究期 run 窗口过长时只返回末段，截断原因写在 candles_note） */
+  candles_truncated?: boolean;
+  candles_note?: string | null;
+  candles_source?: string | null;
+  candles_window_shown?: { start_ms: number; end_ms: number } | null;
+  /**
+   * 上下文行情（BT-KLINE-CONTEXT-01）：`?context_days=N` 时，在 run 消费区间**之外**
+   * 前后各补 N 天真实行情。下面四个字段只在带该参数时出现。
+   *
+   * 纪律：run 区间内的 K 线**原样保留**，新增两段单独计数 ⇒ 界面必须把两者分开讲，
+   * 不能把「上下文」说成「本 run 消费过的数据」。
+   */
+  candles_context_days?: number | null;
+  candles_context_before?: number | null;
+  candles_context_after?: number | null;
+  candles_context_tf?: string | null;
+  candles_context_budget_clipped?: boolean | null;
+  candles_context_budget_cap?: number | null;
+  candles_context_budget_remaining?: number | null;
+  display_timeframe?: string | null;
+  candles_timeframe?: string | null;
+  /** 本 run 实际消费的数据区间（左闭右开，UTC 毫秒） */
+  candles_run_range?: { start_ms: number; end_ms: number } | null;
+  /** 补上下文失败/无数据的如实说明（不伪造） */
+  candles_context_note?: string | null;
+  /** 四类时间各自的语义说明（后端按本 run 实际来源生成，前端原样展示） */
+  time_semantics?: Record<string, string> | null;
   trades: LabChartTrade[];
   funding_events: LabChartFundingEvent[];
   equity_curve: { t: number; equity: number; cash: number; unrealized: number }[];
@@ -562,6 +705,26 @@ export interface LabChart {
   take_profit: { exists: boolean; note: string } | null;
   time_precision: Record<string, string> | null;
   stop_trace_source: string | null;
+  /**
+   * 真实 5m OI 观测点（读接口按本 run 自己的窗口现取，与策略喂数同一方法）。
+   * 批量脚本落盘的 `chart.json` 不带这个字段 ⇒ 缺省为空数组，前端如实写「无归档」。
+   */
+  oi?: { t: number; oi: number }[] | null;
+  oi_meta?: {
+    source?: string | null;
+    period?: string | null;
+    rows?: number | null;
+    truncated?: boolean | null;
+    error?: string | null;
+    first_ms?: number | null;
+    last_ms?: number | null;
+    align_rule?: string | null;
+  } | null;
+  /**
+   * 该载荷**不是** run 目录里的原始 `chart.json`，而是读时重建的（原文说明）。
+   * 后端只在「原文件缺失、且能按本 run 自己的窗口重建」时才带这个字段。
+   */
+  derived_from?: string | null;
 }
 
 export interface LabChartResponse extends LabEnvelope {
@@ -640,6 +803,11 @@ export interface LabListResponse extends LabEnvelope<LabRunSummary> {
   /** 被排除出当前列表的非当前策略 run（只登记，不当成新策略结果）。 */
   excluded_legacy?: LabRunSummary[] | null;
   excluded_legacy_total?: number | null;
+  /** BACKFILL-01：本次实际返回条数 / 是否被 limit 截断 / 运行根目录总数 */
+  returned?: number | null;
+  truncated?: boolean | null;
+  runs_total_all?: number | null;
+  query?: { q?: string | null; status?: string | null; limit?: number | null } | null;
 }
 
 /* ══════════════════════════ 创建载荷 ══════════════════════════ */
@@ -662,8 +830,18 @@ export interface LabCreateResponse extends LabEnvelope<LabRunSummary> {}
 
 /* ══════════════════════════ 调用 ══════════════════════════ */
 
-export const labListRuns = (limit = 50) =>
-  apiGet<LabListResponse>(`/backtests?limit=${encodeURIComponent(String(limit))}`);
+/**
+ * 运行记录列表。
+ * BACKFILL-01：后端上限 5000、支持 `q`（标的 / run_id 子串）与 `status` 过滤。
+ * 过滤在后端**截断之前**做 ⇒ 全量 2127 条都能搜到，不再只显示前 600 条。
+ */
+export const labListRuns = (limit = 50, q?: string, status?: string) => {
+  const p = new URLSearchParams();
+  p.set('limit', String(limit));
+  if (q && q.trim()) p.set('q', q.trim());
+  if (status && status.trim()) p.set('status', status.trim());
+  return apiGet<LabListResponse>(`/backtests?${p.toString()}`);
+};
 
 export const labGetRun = (id: string) =>
   apiGet<LabRunDetail>(`/backtests/${encodeURIComponent(id)}`);
@@ -681,6 +859,10 @@ export const labGetTrades = (id: string) =>
 export const labGetOrders = (id: string) =>
   apiGet<LabOrdersResponse>(`/backtests/${encodeURIComponent(id)}/orders`);
 
+/** 逐次成交明细（同一 run_id 账本 fills.jsonl 事件）。 */
+export const labGetFills = (id: string) =>
+  apiGet<LabFillsResponse>(`/backtests/${encodeURIComponent(id)}/fills`);
+
 /** 拒单明细（同一 run_id 账本 rejected 表）。 */
 export const labGetRejected = (id: string) =>
   apiGet<LabRejectedResponse>(`/backtests/${encodeURIComponent(id)}/rejected`);
@@ -688,8 +870,36 @@ export const labGetRejected = (id: string) =>
 export const labGetTrade = (id: string, tradeId: string) =>
   apiGet<LabTradeDetail>(`/backtests/${encodeURIComponent(id)}/trades/${encodeURIComponent(tradeId)}`);
 
-export const labGetChart = (id: string) =>
-  apiGet<LabChartResponse>(`/backtests/${encodeURIComponent(id)}/chart`);
+/**
+ * 图表载荷。
+ * `focusMs`（可选）：按笔聚焦 —— 传该笔的入场毫秒，后端只取这一笔前后各半的 K 线。
+ * 一个 run 的成交可能分散在几年里，不聚焦时 K 线只能给末段（截断），
+ * 早期成交的四个标记点会落在图外。
+ *
+ * `contextDays`（可选，0~90）：在 run 消费区间**之外**前后各补 N 天真实行情。
+ * 为什么需要：`FT-ENTRY-09` 那批 run 的窗口只有 0.25~27 小时，而策略前置条件是
+ * 7 天箱体 + 24h 冷却 ⇒ 只画 run 区间就看不到生成信号的箱体（用户原话「只有 7 根 K 线」）。
+ * 后端只**加**不改：run 区间内的 K 线原样保留，新增两段单独计数（`candles_context_before/after`），
+ * 前端必须把「上下文」与「本 run 消费区间」分开显示。
+ */
+export const labGetChart = (
+  id: string,
+  opts?: number | { focusMs?: number; symbol?: string; timeframe?: string; contextDays?: number },
+) => {
+  const p = new URLSearchParams();
+  if (typeof opts === 'number' && Number.isFinite(opts)) {
+    p.set('focus_ms', String(opts));
+  } else if (opts && typeof opts === 'object') {
+    if (typeof opts.focusMs === 'number' && Number.isFinite(opts.focusMs)) p.set('focus_ms', String(opts.focusMs));
+    if (opts.symbol) p.set('symbol', opts.symbol);
+    if (opts.timeframe) p.set('timeframe', opts.timeframe);
+    if (typeof opts.contextDays === 'number' && Number.isFinite(opts.contextDays) && opts.contextDays > 0) {
+      p.set('context_days', String(Math.min(90, Math.round(opts.contextDays))));
+    }
+  }
+  const qs = p.toString();
+  return apiGet<LabChartResponse>(`/backtests/${encodeURIComponent(id)}/chart${qs ? '?' + qs : ''}`);
+};
 
 export const labGetQuality = (id: string) =>
   apiGet<LabQualityResponse>(`/backtests/${encodeURIComponent(id)}/quality`);
@@ -841,16 +1051,41 @@ export async function labLoadDefaults(scanLimit = 12): Promise<LabDefaults> {
   const first = items[0];
   try {
     const d = await labGetRun(first.run_id);
-    out.window_start_ms = d.window?.win_start_ms ?? null;
-    out.window_end_ms = d.window?.win_end_ms ?? null;
     out.symbol = d.config?.spec?.symbols?.[0] ?? first.symbols?.[0] ?? null;
     out.exchange = d.config?.spec?.exchange ?? d.window?.exchange ?? null;
     out.market = d.config?.spec?.market ?? d.window?.market ?? null;
     out.signal_timeframe = d.config?.spec?.signal_timeframe ?? d.window?.signal_timeframe ?? null;
     out.exec_timeframe = d.config?.spec?.exec_timeframe ?? d.window?.exec_timeframe ?? null;
+    out.window_start_ms = d.window?.win_start_ms ?? null;
+    out.window_end_ms = d.window?.win_end_ms ?? null;
     out.window_from_run = first.run_id;
   } catch {
     /* 窗口默认值缺失 ⇒ 页面显示为空并要求填写；不造默认窗口 */
+  }
+
+  /**
+   * 窗口兜底（BT-UI-01）：最近一次 run 常常**没有** window 字段（summary 里没有
+   * data_summary 时后端给 null）⇒ 旧实现直接留空，页面一进来就顶一条红色
+   * 「窗口起点未填写」的校验失败条，看起来像页面坏了。
+   * 这里继续往后找**第一个真有窗口**的 run（最多 scanLimit 个），仍找不到才留空。
+   */
+  if (out.window_start_ms == null || out.window_end_ms == null) {
+    for (const r of items.slice(0, Math.max(1, scanLimit))) {
+      if (r.run_id === out.window_from_run) continue;
+      try {
+        const d = await labGetRun(r.run_id);
+        const ws = d.window?.win_start_ms ?? null;
+        const we = d.window?.win_end_ms ?? null;
+        if (ws != null && we != null) {
+          out.window_start_ms = ws;
+          out.window_end_ms = we;
+          out.window_from_run = r.run_id;
+          break;
+        }
+      } catch {
+        /* 继续找下一个 */
+      }
+    }
   }
 
   for (const r of items.slice(0, Math.max(1, scanLimit))) {

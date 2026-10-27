@@ -147,8 +147,8 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
                             params=params, trail_mode=trail_mode)
     trail = sorted(trail, key=lambda x: x[0])
     trail_i = 0
-    due_expiry = PE.expiry_exit_ts(entry_ts) if EB.CORE_AVAILABLE else \
-        ((entry_ts + int(params["max_holding_hours"]) * H + M15 - 1) // M15) * M15
+    # 用户决定：彻底移除/禁用 10 天 / 720h 强平逻辑
+    due_expiry = None
     delay_ms = int(params["signal_exit_delay_minutes"]) * MIN
     bars = PE.closed_15m(mkt, p["symbol"], entry_ts, T)
     for b in bars:
@@ -167,8 +167,8 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
             if direction == "short" and op >= stop:
                 return (op, ot, ct, "stop_loss", ot,
                         {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op})
-        # ③ 720h 到期：本根开盘
-        if ot >= due_expiry:
+        # ③ 720h 到期（已彻底移除/禁用）
+        if due_expiry is not None and ot >= due_expiry:
             return (op, ot, ct, "max_holding_720h_at_first_15m_open", ot,
                     {"due_ms": due_expiry, "rule": "entry_plus_720h_first_15m_open"})
         # ④ 预约信号退出：本根开盘（信号事件 + 延迟 <= 本根开盘）

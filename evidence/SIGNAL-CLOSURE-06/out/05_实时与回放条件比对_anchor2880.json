@@ -1,0 +1,78 @@
+{
+ "generated_at_utc": "2026-10-25T07:39:02Z",
+ "upto_utc": "2026-10-25T06:59:59Z",
+ "depth_hours": 2880,
+ "n4h": 24,
+ "window": {
+  "first_4h_close_utc": "2026-10-21T07:59:59Z",
+  "last_4h_close_utc": "2026-10-25T03:59:59Z"
+ },
+ "symbols": [
+  "BATUSDT",
+  "BTWUSDT",
+  "CTRUSDT",
+  "EDUUSDT",
+  "GRVTUSDT",
+  "TAKEUSDT",
+  "AIGENSYNUSDT",
+  "LUNA2USDT",
+  "MASKUSDT",
+  "XRPUSDT",
+  "ADAUSDT",
+  "BTCUSDT"
+ ],
+ "n_symbols": 12,
+ "n_state_comparisons": 288,
+ "n_transitions_compared": 8603,
+ "n_metric_items_compared": 28404,
+ "n_metric_items_mismatched": 0,
+ "n_1h_processed_live": {
+  "n": 288,
+  "min": 1964,
+  "max": 2877
+ },
+ "n_1h_processed_replay": {
+  "n": 288,
+  "min": 1964,
+  "max": 2877
+ },
+ "n_diff": 0,
+ "verdict": "PASS",
+ "judgement": "判据：① 每个 (标的, 4h 收盘) 的状态指纹与迁移流水完全相同；② 迁移流水里的 metrics_snapshot 逐键逐值相同；③ 全部候选都能在「其快照时刻现场重建」中复现出同一个 candidate_id。三项全中才是 PASS；比对条数为 0 也算 FAIL（不能空过）。",
+ "elapsed_sec": {
+  "live_cadence": 2.9,
+  "replay_rebuild": 41.8
+ },
+ "candidate_reproduction": [
+  {
+   "symbol": "AIGENSYNUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+   "snapshot_utc": "2026-09-07T07:00:00Z",
+   "replay_bootstrap_utc": "2026-09-07T03:59:59Z",
+   "breakout_close": 0.02111,
+   "volume_ratio": 24.270007761969424,
+   "reproduced": true,
+   "replay_candidates": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000"
+   ]
+  },
+  {
+   "symbol": "AIGENSYNUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+   "snapshot_utc": "2026-09-21T04:00:00Z",
+   "replay_bootstrap_utc": "2026-09-21T03:59:59Z",
+   "breakout_close": 0.02075,
+   "volume_ratio": 4.512360662362889,
+   "reproduced": true,
+   "replay_candidates": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000"
+   ]
+  }
+ ],
+ "diff_detail": [],
+ "zero_signal_explanation_n": 0,
+ "runner": "MultiSymbolSignalEngine（生产类）via 00_common.prod_session",
+ "replay_mode": "anchor2880",
+ "state_anchor_utc": "2026-06-27T06:59:59Z"
+}

@@ -1,0 +1,147 @@
+{
+  "ticket": "UI-PENDING-01",
+  "kind": "source-hashes",
+  "generated_at_utc": "2026-10-23T08:19:02.389456+00:00",
+  "algorithm": "sha256",
+  "files": [
+    {
+      "path": "UI界面/web/src/components/PositionPanel.tsx",
+      "role": "changed",
+      "sha256": "c4617a9f3fbb71a1f84c4e7eaff4a16c4a1a847532605ebd077c54ae07f4ccaf",
+      "bytes": 58088,
+      "note": "本工单唯一改动的生产文件（仅挂单展示块 + 两个纯展示辅助常量）"
+    },
+    {
+      "path": "UI界面/web/tests_pending/fixtures.ts",
+      "role": "added",
+      "sha256": "9e3a754b7e28caeb239a421cbb1d3b1468bd457811bc3794b719f129c9c96ba1",
+      "bytes": 4333,
+      "note": "TEST FIXTURE（人工构造，标的带 TESTFIX 前缀）"
+    },
+    {
+      "path": "UI界面/web/tests_pending/pending_states.test.tsx",
+      "role": "added",
+      "sha256": "a5cc73dc0accca92d362bfa218377d5cf99d633a39bfb45846c4a26b5a5d6733",
+      "bytes": 10732,
+      "note": "三态独立组件测试（react-dom/server + 机械断言）"
+    },
+    {
+      "path": "UI界面/web/tests_pending/baseline_before_fix.test.tsx",
+      "role": "added",
+      "sha256": "be838c37def25e6b7831b9334f83092c749adfe836cd527ee9050a870ade72dc",
+      "bytes": 9236,
+      "note": "改动前缺陷对照（生成 baseline 副本并确认 4 项缺陷存在）"
+    },
+    {
+      "path": "UI界面/web/tests_pending/harness.html",
+      "role": "added",
+      "sha256": "89a1cddf5a70edf586e16296c6ceb78960ddf0ea99dbd0cd897915f3cd393e28",
+      "bytes": 368,
+      "note": "三态截图夹具页（vite dev 下 /tests_pending/harness.html）"
+    },
+    {
+      "path": "UI界面/web/tests_pending/harness.tsx",
+      "role": "added",
+      "sha256": "c13f519d86fcea8e3d4e70c0d23b958d68bed7738f1eb44019ea37e3ab222096",
+      "bytes": 2739,
+      "note": "三态截图夹具页入口"
+    },
+    {
+      "path": "UI界面/web/tests_pending/shots.mjs",
+      "role": "added",
+      "sha256": "9a7de0138398c15b273e2de26bdfe0162800332ae1373e2b06f8f7b3cd1acd9a",
+      "bytes": 3718,
+      "note": "playwright 截图 + 结构化事实落盘"
+    },
+    {
+      "path": "UI界面/web/tests_pending/_baseline/PositionPanel.baseline.tsx",
+      "role": "generated",
+      "sha256": "fb3e4fa6b46a6183771f73dff425b53ba6d6dcf401e708cfd2dd5566bfb3d388",
+      "bytes": 51989,
+      "note": "改动前副本（由 baseline 脚本机械生成，仅对照用，不参与构建）"
+    },
+    {
+      "path": "框架/backend/paper_engine.py",
+      "role": "readonly",
+      "sha256": "3cc2c06583add471e97cc8ae2f630d1724d1bd4704aa7d627be924ab9d5c68fa",
+      "bytes": 140147,
+      "note": "契约来源：account_view() 的挂单投影（1904-1910 行）、pending_orders()（705 行）、advance_pending()（717 行）"
+    },
+    {
+      "path": "框架/backend/live_store.py",
+      "role": "readonly",
+      "sha256": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+      "bytes": 42566,
+      "note": "契约来源：paper_pending 表结构（333-357 行）"
+    },
+    {
+      "path": "框架/backend/live_api.py",
+      "role": "readonly",
+      "sha256": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+      "bytes": 108614,
+      "note": "契约来源：/paper/accounts 端点（items=list(snap.values())，636-651 行）"
+    },
+    {
+      "path": "UI界面/web/src/api/liveTrading.ts",
+      "role": "readonly",
+      "sha256": "75cb2a1bfe0798ca43ee363739200deb984828cdd1d07ba52c624fb695b005fa",
+      "bytes": 20817,
+      "note": "前端视图模型 PaperPendingView / mapPaperPending / fetchPaperLedger（未改动）"
+    },
+    {
+      "path": "UI界面/web/src/api/types.ts",
+      "role": "readonly",
+      "sha256": "275dce687e058d23f99d0edd3c9c0de39f18e42176be4feca255b9545fa50ac0",
+      "bytes": 37196,
+      "note": "RawPaperPending 原始字段（未改动）"
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/01_has_pending_block.png",
+      "role": "screenshot",
+      "sha256": "d4816e1b1ca19548d6a0349a3e28a41e63c6dd1c1e7a76b30e17bf0960275fd6",
+      "bytes": 140199
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/01_has_pending_full.png",
+      "role": "screenshot",
+      "sha256": "f30b4de0fa10a66c9942626ab7a61e121c5caec67014854dace2ba4116a08f1a",
+      "bytes": 387389
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/02_empty_block.png",
+      "role": "screenshot",
+      "sha256": "14fbc0802f39b1712d4d51b63f7894276cdfc543d83b9fdbd14bd551dc87d9de",
+      "bytes": 25093
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/02_empty_full.png",
+      "role": "screenshot",
+      "sha256": "386557cd6b2e1c3a190d982cb4e584f8d4ca17887727ed2cf114915c14e64af4",
+      "bytes": 268269
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/03_unreadable_block.png",
+      "role": "screenshot",
+      "sha256": "0e4b42a9a31b97b944dfda7ec325c4e4b1ad2f1b1bfb18906a9842ae3850cf96",
+      "bytes": 55916
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/03_unreadable_full.png",
+      "role": "screenshot",
+      "sha256": "67f169188ef2d803fcc01a0dd435f8e75233a01c80d5615ae45a3ed3fce1e9d6",
+      "bytes": 303071
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/04_not_connected_full.png",
+      "role": "screenshot",
+      "sha256": "e0b72186e817cfdf1ab7a47b41179c956551cef7ed732a97e3ec3273052cb6d4",
+      "bytes": 226037
+    },
+    {
+      "path": "evidence/UI-PENDING-01/截图/shots_facts.json",
+      "role": "screenshot",
+      "sha256": "82289439a6e25ff930629d59db86d81f3665af4732d79b27e945e079721a4ffe",
+      "bytes": 4363
+    }
+  ]
+}

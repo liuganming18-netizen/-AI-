@@ -1,0 +1,477 @@
+{
+ "probe": "03_接线前后对照",
+ "generated_at_utc": "2026-10-26T13:23:12Z",
+ "env_flag": "WX_MARKET_MERGE",
+ "events": {
+  "E1_TNSR_cold": {
+   "symbol": "TNSRUSDT",
+   "signal_uid": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+   "snapshot_utc": "2026-07-24T08:00:00Z",
+   "expect_layer": "cold",
+   "why": "快照与成交都落在热库 15m 起点（2026-09-12）之前 ⇒ 老路径根本取不到成交 bar",
+   "hot": {
+    "verdict": "rejected_at_order",
+    "reject_reason": "bar_after_attempt_clock_no_lookahead",
+    "entry_bar_utc": null,
+    "entry_price": null,
+    "entry_raw": null,
+    "market_source": null,
+    "bar_provenance": null,
+    "status": null,
+    "exit_price": null,
+    "exit_reason": null,
+    "exit_bar_utc": null,
+    "net_pnl": null,
+    "gross_pnl": null,
+    "funding_paid": null,
+    "counts": {
+     "positions": 0,
+     "orders": 1,
+     "fills": 0,
+     "realized": 0,
+     "stop_history": 0
+    },
+    "stop_history": [],
+    "walk_bars_checked": null,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": false,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E1_TNSR_cold_hot",
+     "mode": "hot",
+     "elapsed_s": 0.11,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E1_TNSR_cold_hot",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E1_TNSR_cold_hot/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "0f6cc0994cbaa5cabd736e01f92a6422b96ee239a0cc6eac67ab3c3afe825256"
+    }
+   },
+   "merge": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "entry_bar_utc": "2026-07-24T08:15:00Z",
+    "entry_price": 0.03365,
+    "entry_raw": 0.03363,
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+    "bar_provenance": {
+     "layer": "cold",
+     "available_at": null,
+     "available_at_proven": false
+    },
+    "status": "closed",
+    "exit_price": 0.03194,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_utc": "2026-07-25T16:00:00Z",
+    "net_pnl": -21.71010143448406,
+    "gross_pnl": -25.295687999999945,
+    "funding_paid": -4.070716441515886,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 1
+    },
+    "stop_history": [
+     [
+      null,
+      0.03196
+     ]
+    ],
+    "walk_bars_checked": 143,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": true,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E1_TNSR_cold_merge",
+     "mode": "merge",
+     "elapsed_s": 1.05,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E1_TNSR_cold_merge",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E1_TNSR_cold_merge/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "07de38c3ec1f21382fb28d87d2be3962c2a1b94fa8d90bb13e0dc2f91c1e0028"
+    }
+   }
+  },
+  "E2_AGT_cold": {
+   "symbol": "AGTUSDT",
+   "signal_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+   "snapshot_utc": "2026-09-07T09:00:00Z",
+   "expect_layer": "cold",
+   "why": "成交 bar 在热库 15m 起点之前；且 4h 也在热库 4h 起点（2026-09-09）之前",
+   "hot": {
+    "verdict": "rejected_at_order",
+    "reject_reason": "bar_after_attempt_clock_no_lookahead",
+    "entry_bar_utc": null,
+    "entry_price": null,
+    "entry_raw": null,
+    "market_source": null,
+    "bar_provenance": null,
+    "status": null,
+    "exit_price": null,
+    "exit_reason": null,
+    "exit_bar_utc": null,
+    "net_pnl": null,
+    "gross_pnl": null,
+    "funding_paid": null,
+    "counts": {
+     "positions": 0,
+     "orders": 1,
+     "fills": 0,
+     "realized": 0,
+     "stop_history": 0
+    },
+    "stop_history": [],
+    "walk_bars_checked": null,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": false,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E2_AGT_cold_hot",
+     "mode": "hot",
+     "elapsed_s": 0.07,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E2_AGT_cold_hot",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E2_AGT_cold_hot/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "25c30f167418ecb2628a153a01cc665b8ea221f9938dcb2f3d451d2f19d1855d"
+    }
+   },
+   "merge": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "entry_bar_utc": "2026-09-07T09:15:00Z",
+    "entry_price": 0.017151,
+    "entry_raw": 0.017142,
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+    "bar_provenance": {
+     "layer": "cold",
+     "available_at": null,
+     "available_at_proven": false
+    },
+    "status": "closed",
+    "exit_price": 0.016494,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_utc": "2026-09-08T07:30:00Z",
+    "net_pnl": -8.198398357499974,
+    "gross_pnl": -7.993718999999974,
+    "funding_paid": 0.0,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 4
+    },
+    "stop_history": [
+     [
+      null,
+      0.016293
+     ],
+     [
+      0.016293,
+      0.016319999999999998
+     ],
+     [
+      0.016319999999999998,
+      0.016399999999999998
+     ],
+     [
+      0.016399999999999998,
+      0.016503
+     ]
+    ],
+    "walk_bars_checked": 90,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": true,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E2_AGT_cold_merge",
+     "mode": "merge",
+     "elapsed_s": 1.67,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E2_AGT_cold_merge",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E2_AGT_cold_merge/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "89607fa8f58fd5aa48689ddd2f9b5acc0b7b97edd0c3dde4f3d29c8dfe6dfdc8"
+    }
+   }
+  },
+  "E3_METIS_hot": {
+   "symbol": "METISUSDT",
+   "signal_uid": "ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999",
+   "snapshot_utc": "2026-10-11T20:00:00Z",
+   "expect_layer": "hot",
+   "why": "成交 bar 在热库里 ⇒ 对照组：接线前后结果必须逐位相同（零漂移）",
+   "hot": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "entry_bar_utc": "2026-10-11T20:15:00Z",
+    "entry_price": 3.826,
+    "entry_raw": 3.824,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "bar_provenance": {
+     "layer": null,
+     "available_at": null,
+     "available_at_proven": false
+    },
+    "status": "closed",
+    "exit_price": 3.723,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_utc": "2026-10-12T13:15:00Z",
+    "net_pnl": -13.929955214351574,
+    "gross_pnl": -13.410600000000025,
+    "funding_paid": 0.02791531435154868,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 2
+    },
+    "stop_history": [
+     [
+      null,
+      3.634
+     ],
+     [
+      3.634,
+      3.725
+     ]
+    ],
+    "walk_bars_checked": 69,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": false,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E3_METIS_hot_hot",
+     "mode": "hot",
+     "elapsed_s": 0.69,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E3_METIS_hot_hot",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E3_METIS_hot_hot/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "74419de81c1709954f7c781197745075ac849344f443d5382a13c488e92b2544"
+    }
+   },
+   "merge": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "entry_bar_utc": "2026-10-11T20:15:00Z",
+    "entry_price": 3.826,
+    "entry_raw": 3.824,
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.hot",
+    "bar_provenance": {
+     "layer": "hot",
+     "available_at": 1791750600530,
+     "available_at_proven": true
+    },
+    "status": "closed",
+    "exit_price": 3.723,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_utc": "2026-10-12T13:15:00Z",
+    "net_pnl": -13.929955214351574,
+    "gross_pnl": -13.410600000000025,
+    "funding_paid": 0.02791531435154868,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 2
+    },
+    "stop_history": [
+     [
+      null,
+      3.634
+     ],
+     [
+      3.634,
+      3.725
+     ]
+    ],
+    "walk_bars_checked": 69,
+    "errors": [],
+    "market_mode": {
+     "merge_enabled": true,
+     "env_flag": "WX_MARKET_MERGE",
+     "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+    },
+    "run": {
+     "name": "03_E3_METIS_hot_merge",
+     "mode": "merge",
+     "elapsed_s": 0.68,
+     "run_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E3_METIS_hot_merge",
+     "worker_rc": 0
+    },
+    "ledger_identity": {
+     "exists": true,
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/03_E3_METIS_hot_merge/paper/paper_3a.sqlite3",
+     "bytes": 163840,
+     "sha256": "40a51e378c7f9bef3be873763842c7d8585d603480b3ce452cea22f09f25afd2"
+    }
+   }
+  }
+ },
+ "checks": {
+  "E1_TNSR_cold": {
+   "判据": "冷窗事件：只读热库跑不通；合并后跑通且成交 bar 来自冷档",
+   "hot_verdict": "rejected_at_order",
+   "hot_reject": "bar_after_attempt_clock_no_lookahead",
+   "merge_verdict": "closed",
+   "merge_bar_layer": "cold",
+   "merge_net_pnl": -21.71010143448406,
+   "结果": "通过",
+   "说明": "改前：热库第一根 15m 是 2026-09-12，晚于本事件应成交时刻 ⇒ 按「不许用未来 bar 成交」被拒（fail-closed，没有回填）；改后：冷档补齐该时刻的 bar，成交价=该根开盘价。"
+  },
+  "E2_AGT_cold": {
+   "判据": "冷窗事件：只读热库跑不通；合并后跑通且成交 bar 来自冷档",
+   "hot_verdict": "rejected_at_order",
+   "hot_reject": "bar_after_attempt_clock_no_lookahead",
+   "merge_verdict": "closed",
+   "merge_bar_layer": "cold",
+   "merge_net_pnl": -8.198398357499974,
+   "结果": "通过",
+   "说明": "改前：热库第一根 15m 是 2026-09-12，晚于本事件应成交时刻 ⇒ 按「不许用未来 bar 成交」被拒（fail-closed，没有回填）；改后：冷档补齐该时刻的 bar，成交价=该根开盘价。"
+  },
+  "E3_METIS_hot": {
+   "判据": "热窗事件：两臂成交价/退出价/净额/止损轨迹必须逐位相同（零漂移）",
+   "hot": {
+    "verdict": "closed",
+    "entry_price": 3.826,
+    "exit_price": 3.723,
+    "net_pnl": -13.929955214351574,
+    "stop_history": [
+     [
+      null,
+      3.634
+     ],
+     [
+      3.634,
+      3.725
+     ]
+    ]
+   },
+   "merge": {
+    "verdict": "closed",
+    "entry_price": 3.826,
+    "exit_price": 3.723,
+    "net_pnl": -13.929955214351574,
+    "stop_history": [
+     [
+      null,
+      3.634
+     ],
+     [
+      3.634,
+      3.725
+     ]
+    ]
+   },
+   "结果": "通过",
+   "说明": "合并开启后结果逐位不变 ⇒ 接线没有改变原本能跑通的那条路。"
+  }
+ },
+ "errors": [],
+ "生产账本指纹_跑前": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "生产账本指纹_跑后": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "生产账本是否被改动": {
+  "changed_arms": [],
+  "verdict": "未被改动"
+ },
+ "总判定": "通过"
+}

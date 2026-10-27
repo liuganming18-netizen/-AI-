@@ -1,0 +1,136 @@
+{
+ "generated_at_utc": "2026-10-25T09:03:33Z",
+ "why": "20 号采样脚本在第二根小时线触发时因键名写错崩溃，逐币名单丢失；本文件用离线重放补回并做两端校验。",
+ "upto_pre_utc": "2026-10-25T07:59:59Z",
+ "prod_watermark_utc": "2026-10-25T08:00:00Z",
+ "anchor_ms": 1782542715686,
+ "anchor_utc": "2026-06-27T06:45:15Z",
+ "read_days": 130,
+ "keep_from_utc": "2026-06-27T06:45:15Z",
+ "pre_counter_offline": {
+  "IDLE": 167,
+  "BOX": 326,
+  "RETEST": 28,
+  "SWEEP": 5
+ },
+ "pre_counter_expected_from_production": {
+  "IDLE": 167,
+  "BOX": 326,
+  "RETEST": 28,
+  "SWEEP": 5
+ },
+ "check_pre_matches_production": true,
+ "post_counter_production": {
+  "IDLE": 181,
+  "BOX": 318,
+  "RETEST": 17,
+  "SWEEP": 10
+ },
+ "counter_delta": {
+  "BOX": -8,
+  "IDLE": 14,
+  "RETEST": -11,
+  "SWEEP": 5
+ },
+ "n_phase_changes": 19,
+ "phase_changes": [
+  {
+   "symbol": "2ZUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "AEVOUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "ALPINEUSDT",
+   "prev": "BOX",
+   "now": "SWEEP"
+  },
+  {
+   "symbol": "CFGUSDT",
+   "prev": "BOX",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "IMXUSDT",
+   "prev": "BOX",
+   "now": "SWEEP"
+  },
+  {
+   "symbol": "LDOUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "LSKUSDT",
+   "prev": "BOX",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "MANAUSDT",
+   "prev": "BOX",
+   "now": "SWEEP"
+  },
+  {
+   "symbol": "ORDIUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "PNUTUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "POLUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "RIFUSDT",
+   "prev": "BOX",
+   "now": "SWEEP"
+  },
+  {
+   "symbol": "SPELLUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "SSVUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "VANAUSDT",
+   "prev": "BOX",
+   "now": "SWEEP"
+  },
+  {
+   "symbol": "WLDUSDT",
+   "prev": "BOX",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "XAIUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "YFIUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  },
+  {
+   "symbol": "ZENUSDT",
+   "prev": "RETEST",
+   "now": "IDLE"
+  }
+ ],
+ "check_change_list_consistent_with_counters": true,
+ "verdict": "PASS",
+ "note": "名单可信的前提是 check-1 通过：离线重放在 07:59:59Z 的状态分布必须与生产在 08:01:21Z 观测到的完全相同。"
+}

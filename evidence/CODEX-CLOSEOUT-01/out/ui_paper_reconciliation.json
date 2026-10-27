@@ -1,0 +1,152 @@
+{
+  "run_id": "bt_20261023T162149Z_59f3c8fa",
+  "generated_at_utc": "2026-10-24T05:25:59.498344+00:00",
+  "rule": "FT-LOW4H",
+  "scope_kind": "historical_sample_mechanism",
+  "scope": "同一历史样本的机制闭环；不代表当前自然行情成交或策略有效性",
+  "clock_note": "paper exit_ts为15m收盘确认时刻；backtest exit_time为同根15m开盘标记，按同根bar规范化比较，不宣称原始时刻相等。",
+  "checks": [
+    {
+      "field": "entry_price",
+      "backtest": 0.06692,
+      "paper": 0.06692000000000001,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "qty",
+      "backtest": 7462.0,
+      "paper": 7462.0,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "entry_fee",
+      "backtest": 0.24967851999999996,
+      "paper": 0.24967852000000001,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "exit_price",
+      "backtest": 0.0697,
+      "paper": 0.0697,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "exit_fee",
+      "backtest": 0.2600507,
+      "paper": 0.2600507,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "gross_pnl",
+      "backtest": 20.744360000000036,
+      "paper": 20.744359999999933,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "net_pnl",
+      "backtest": 19.732990145542892,
+      "paper": 19.73299014554279,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "funding_fee",
+      "backtest": 0.501640634457144,
+      "paper": 0.501640634457144,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "signal_id",
+      "backtest": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "paper": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "pass": true,
+      "tolerance": null
+    },
+    {
+      "field": "entry_time_ms",
+      "backtest": 1790954100000,
+      "paper": 1790954100000,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "initial_stop",
+      "backtest": 0.06357,
+      "paper": 0.06357,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "trail_effective_ms",
+      "backtest": 1790985600000,
+      "paper": 1790985600000,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "final_stop",
+      "backtest": 0.06974,
+      "paper": 0.06974000000000001,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "trail_count",
+      "backtest": 1,
+      "paper": 1,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "exit_bar_open_ms",
+      "backtest": 1791004500000,
+      "paper": 1791004500000,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "end_equity",
+      "backtest": 5019.732990145542,
+      "paper": 5019.732990145542,
+      "pass": true,
+      "tolerance": 1e-08
+    },
+    {
+      "field": "fees_total",
+      "backtest": 0.50972922,
+      "paper": 0.5097292200000001,
+      "pass": true,
+      "tolerance": 1e-08
+    }
+  ],
+  "passed": 17,
+  "total": 17,
+  "source_hashes": {
+    "框架/backend/paper_engine.py": "9fc4e3a11389ee3c72ce16a6a0872f3b284245aec079b03eae62d4fb0207143c",
+    "框架/backend/unified_runtime.py": "a4292310c8163602719e2fa434f742a4224c64c73cc20b187d9fb2d96d276c0c",
+    "框架/backend/backtest_runner.py": "72a4f2497b1c6fed623e656f0797bf67b941b2be015197a2f0d777dac2398382",
+    "框架/backend/backtest_api.py": "218796a5d38519eead533d975110b3336ef0e1e3e6b2b7f459e200d736e16cd3",
+    "框架/backend/ledger_links.py": "afea7b0f99be051800ad01fff43b351b07fefe78ea4930d4d6b6ea48252cbe32",
+    "框架/backend/strategy_contracts.py": "d0143f19d03b87b5c60442e8af46ce789a81ca40114d043241def1262ba5ea46",
+    "框架/backend/experiment_registry.py": "7523344d2b530e01f1793154b8b0f2c6d0eb9815eeeb0f37f85e6c3415f56e6c",
+    "策略/WyckoffMaster/event_trend_v0_1/config.py": "d51e188a6dfbc9834c1cf2b3009f496f94e48fc355c30c2ea101cee7cd19b36d",
+    "策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py": "e59a2271bdfa72fcf6faf4977c96e9a57ed5b28168fe6a8e1d7a39b0ae62d5d5",
+    "策略/WyckoffMaster/event_trend_v0_1/runner.py": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801",
+    "策略/WyckoffMaster/trading_core/fill.py": "f050652c0d83b41a8a60f4d088c7864d553a935814496ad3f481563ec303ec5b",
+    "UI界面/web/src/components/BacktestWorkbench.tsx": "a541082c088fddc233b4b083bc7b582c55db4ad029399374799e202cc0dc2fe9",
+    "evidence/CODEX-CLOSEOUT-01/iso/VELVETUSDT/paper/paper_3a.sqlite3": "c4cb95afd6603040580c50011bc38d8140311f215682ba7fb4b7fed99c6dc7c7",
+    "回测日志/event_trend_v0_1/runs/bt_20261023T162149Z_59f3c8fa/run.json": "b9bce4f7e2d670b2d1acbbbd806c27b06c0a035aedba409b0e676a98e9a75db0",
+    "回测日志/event_trend_v0_1/runs/bt_20261023T162149Z_59f3c8fa/summary.json": "eac8194346cb3405216bca5daae50b117ba5377d0a35d5a75ef4f726f9346b03",
+    "回测日志/event_trend_v0_1/runs/bt_20261023T162149Z_59f3c8fa/trades.jsonl": "a4e3daaf981dffb8743fd9601b6377d9d04bcad654b591201b5f9509f652f47c"
+  },
+  "paper_ledger": "evidence/CODEX-CLOSEOUT-01/iso/VELVETUSDT/paper/paper_3a.sqlite3",
+  "trade_id": "trd_edfeb086690a19e3b79b7982",
+  "reverify_note": "SIGNAL-LINK-01（2026-10-24）：unified_runtime.py 有两处改动，均为纯新增/纯防护，不改成交、止损、仓位、路由判定与时钟口径：① 新增 signal_engine.funnel 漏斗计数（since_start / history / candidates_since_start / last_candidate_utc / bootstrap_window_hours / watermark_clamped），只读统计；② 修 bootstrap 的全局水位取值——原取全库最大值，改为「本次预热到的那批 bar 的最大 open_time」，仅当库最大值 > upto_ms 时才生效（生产实测 watermark_clamped=false，即语义不变），避免库内未来时间戳坏 bar 或预热到过去某刻时引擎永久空转且无报错。另新增 pool_scope.py + logs/_pool_scope.py 恢复被丢失的池口径模块，标的集合与行情库逐币相同（526=526）。故 source_hashes 中 unified_runtime.py 与本次 run 产出时不同；对账的成交/费用/止损/权益字段不受影响。UI 仅改 public/system-flow.html 第5段文案与漏斗展示，未动 src 组件。"
+}

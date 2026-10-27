@@ -1,0 +1,33 @@
+﻿交接字段名,原始字段名,来源层,说明
+gross_pnl,gross_pnl,引擎 _close_position 返回的 trade rec,毛盈亏（未扣费、未扣资金费）；引擎原值，未做任何换算
+entry_fee,entry_fee,引擎 trade rec,开仓手续费，正=支出
+exit_fee,exit_fee,引擎 trade rec,平仓手续费，正=支出
+fees,fees,引擎 trade rec,= entry_fee + exit_fee；⚠ 不是上游的 total_fees
+funding_fee,funding_fee,引擎 trade rec,资金费成本口径，正=支出、负=收入；⚠ 不是上游的 total_funding
+net_pnl,net_pnl,引擎 trade rec,= gross_pnl − fees − funding_fee
+slippage_loss,slippage_loss,引擎 trade rec,= slippage_loss_pure + rounding_loss；已体现在成交价里，不再从 net_pnl 扣
+slippage_loss_pure,slippage_loss_pure,引擎 trade rec,纯滑点段（3bps）
+rounding_loss,rounding_loss,引擎 trade rec,取整段（Decimal 买 ceil / 卖 floor）
+qty,qty,引擎 trade rec,成交数量（取整后）
+entry_price,entry_price,引擎 trade rec,成交价 = price_audit.post_round_price
+exit_price,exit_price,引擎 trade rec,成交价 = price_audit.post_round_price
+exit_reason,exit_reason,引擎 trade rec,退出原因原串
+entry_time_ms,entry_time,引擎 trade rec,开仓成交时刻（毫秒 UTC）
+exit_time_ms,exit_time,引擎 trade rec,平仓成交时刻（毫秒 UTC）
+funding_gaps_n,funding_gaps,引擎 trade rec,资金费结算缺字段的次数；>0 表示这些结算没有计入费用，方向未知
+engine_signal_id,signal_id,引擎 trade rec,引擎侧信号 ID；⚠ 窗口代际这里是引擎自生成的 cand_ev_*，不是 old_cand_*
+order_id,order_id,引擎 trade rec,开仓订单号（账本 ORDER_FILLED 侧同值）
+exit_order_id,exit_order_id,引擎 trade rec,平仓订单号
+candidate_id,candidate_id,ENTRY-AUDIT-03 身份映射,候选 ID；连续回放为 cand_ev_*，窗口回放为 old_cand_*
+event_id,event_id,ENTRY-AUDIT-03 身份映射,⚠ 227 条各不相同，但窗口代际取的是 cand_exec_earliest_ms 而非快照时刻 ⇒ 不能当「唯一信号键」用
+signal_key,（派生）,ENTRY-AUDIT-04 派生,= {symbol}_{snapshot_time_ms}，226 个唯一值；跨代际比对唯一信号请用这个
+snapshot_time_ms,（派生）,ENTRY-AUDIT-03,快照时刻。ValidationResult 本身没有这个字段，是用 cand_exec_earliest_ms − 900000 还原的（连续回放 185/185 验证成立）
+cancel_reason,execution_canceled_reason,引擎 ValidationResult,取消原因原串。22 条未成交全部有值；已成交为 None（不是空串、不是 0）
+raw_signal_rejected_reason,reason,账本 SIGNAL_REJECTED 事件 payload,原始拒单事件里的原因串；与 cancel_reason 逐字相同才算「原因来自原始事件」
+spec_qualification,（判定结果）,合约规格资格判定,verified / unverified_historical / contradicted / not_listed
+formal_pass_allowed,（判定结果）,合约规格资格判定,是否允许正式回测；227 条全 false
+exec_validity,run_valid + invalid_reasons,引擎 run 级自检,valid / invalid
+research_usability,（判定结果）,ENTRY-AUDIT-03 可用性判定,usable / usable_with_caveat / not_usable
+price_audit.*,price_audit,引擎 trade rec,价格链路 raw_price → post_slip_price → post_round_price；⚠ 没有 final_price 这个键
+ledger_record_locator,（派生）,ENTRY-AUDIT-04 派生,该笔在独立 run 目录 trades.csv 里的精确位置（行号从数据行 1 起，+1 为表头）
+ledger_position_closed_net_pnl,payload.net_pnl,账本 POSITION_CLOSED 事件,账本侧的净盈亏，用于多重集比对；仅 5 个探针 run 有

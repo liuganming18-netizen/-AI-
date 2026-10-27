@@ -1,0 +1,85 @@
+{
+ "generated_at": "2026-10-26T13:22:26Z",
+ "action": "重启停摆的热转冷导出器（exporter.sh start，断点原样保留）",
+ "code_changed": false,
+ "V1_api_history_bar": {
+  "before": null,
+  "before_available": false,
+  "before_reason": "归档内无已收盘 K 线",
+  "before_source": "out/chain_audit.json @ 2026-10-26T12:49:46Z",
+  "after": "2026-10-26T12:00:00Z",
+  "after_close_time": "2026-10-26T12:59:59Z",
+  "after_source": "GET http://127.0.0.1:8787/api/v1/markets/binance/BTCUSDT/metrics",
+  "observed_at": "2026-10-26T13:22:26Z",
+  "advanced": true,
+  "direct_reader_retest": {
+   "available": true,
+   "open_time": "2026-10-26T12:00:00Z",
+   "second_call_same": true
+  },
+  "note": "恢复前那一次探测落在归档读取不稳定的窗口里：落盘的 chain_audit.json 记录的是 available=false（归档内无已收盘 K 线），本报告只采用这条可复现的记录，不引用未落盘的中间探测值"
+ },
+ "V2_cold_parquet": {
+  "live": {
+   "path": "数据/市场数据/parquet/candles/binance/um/BTCUSDT/1h/live.parquet",
+   "mtime_utc": "2026-10-26T13:14:04Z",
+   "size": 67049
+  },
+  "year": {
+   "path": "数据/市场数据/parquet/candles/binance/um/BTCUSDT/1h/2026.parquet",
+   "mtime_utc": "2026-10-14T07:09:09Z",
+   "size": 390185
+  }
+ },
+ "V4_first_catchup_round": {
+  "fast": {
+   "log_line": "[2026-10-26 21:15:54] K线快车道 15m,1h,4h：{\"组合\": 1653, \"新增行\": 557801, \"写文件\": 3306, \"跳过无新增\": 0}",
+   "stats": {
+    "组合": 1653,
+    "新增行": 557801,
+    "写文件": 3306,
+    "跳过无新增": 0
+   },
+   "log_ts": "2026-10-26 21:15:54"
+  },
+  "slow": {
+   "log_line": "[2026-10-26 21:19:04] K线慢车道 5m,30m,8h,12h,1d：{\"组合\": 2732, \"新增行\": 1561510, \"写文件\": 5464, \"跳过无新增\": 0}",
+   "stats": {
+    "组合": 2732,
+    "新增行": 1561510,
+    "写文件": 5464,
+    "跳过无新增": 0
+   },
+   "log_ts": "2026-10-26 21:19:04"
+  },
+  "oi": {
+   "log_line": "[2026-10-26 21:19:40] 持仓量：{\"组合\": 525, \"新增行\": 768612, \"写文件\": 525}",
+   "stats": {
+    "组合": 525,
+    "新增行": 768612,
+    "写文件": 525
+   },
+   "log_ts": "2026-10-26 21:19:40"
+  }
+ },
+ "V3_checkpoint": {
+  "before_last_completed_round": "[2026-10-18 20:16:10] 本轮结束，用时 20.0 秒，磁盘剩余 15.0 GiB",
+  "before_last_line_of_that_day": "[2026-10-18 20:26:15] K线快车道 15m,1h,4h：{\"组合\": 0, \"新增行\": 0, \"写文件\": 0, \"跳过无新增\": 1102}",
+  "after": {
+   "slow_candles_utc": "2026-10-26T13:19:04Z",
+   "oi_utc": "2026-10-26T13:19:40Z",
+   "finished_at_utc": "2026-10-26T13:19:40Z",
+   "duration_s": 359.7,
+   "candles_watermark": 1793016000000
+  },
+  "note": "before_last_line_of_that_day 若不是「本轮结束」，说明进程死在半轮，属于被杀而不是正常退出"
+ },
+ "metrics_archive_unaffected": {
+  "before_last": "2026-10-14T23:55:00Z",
+  "before_rows": 643046,
+  "after_last": "2026-10-14T23:55:00Z",
+  "after_rows": 643046,
+  "unchanged": true,
+  "note": "指标归档没有任何写入者，重启导出器也不会变；这条用来证明本单没有把它「顺手改成有值」"
+ }
+}

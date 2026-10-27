@@ -1,0 +1,486 @@
+{
+  "write_symbols": [
+    "place_order",
+    "open_position",
+    "close_position",
+    "match_pending",
+    "execute_pending",
+    "apply_fill",
+    "insert_fill",
+    "append_equity",
+    "save_state",
+    "record_fill",
+    "process_signal",
+    "handle_signal",
+    "submit_order",
+    "do_open",
+    "do_close"
+  ],
+  "tests_hits": [],
+  "evidence_hits": [
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-03/test_isolated_ft_low4h.py",
+      "line": 207,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "legal_open_res = PE.open_position(\"3a\", \"BTCUSDT\", signal_uid=replay_sig_uid,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-03/test_isolated_ft_low4h.py",
+      "line": 314,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "open_res = PE.open_position(\"3b\", \"BTCUSDT\", signal_uid=sig_chain_uid,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-05/test_automated_closeloop_05.py",
+      "line": 224,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "cfg = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-05/test_automated_closeloop_05.py",
+      "line": 231,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "reg_res = PE.open_position(\"3a\", SYM, signal_uid=f\"sig_{tag}_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 7,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "· `paper_engine.open_position(origin=\"replay\")` —— 引擎**自己设计**的回放通道"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 222,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r1 = PE.open_position(\"3a\", _iso.SYM, signal_uid=sig_uid, direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 307,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_dup = PE.open_position(\"3a\", _iso.SYM, signal_uid=sig_uid, direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 324,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_la = PE.open_position(\"3d\", \"SOLUSDT\", signal_uid=\"audit03_e19\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 339,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", _iso.SYM2, signal_uid=\"audit03_f1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 350,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"SOLUSDT\", signal_uid=\"audit03_f3\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 357,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"BNBUSDT\", signal_uid=\"audit03_f4\", direction=\"sideways\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 362,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"XRPUSDT\", signal_uid=\"audit03_f5\", direction=\"short\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 368,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"DOGEUSDT\", signal_uid=\"audit03_f6\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 383,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r7 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f7\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 394,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", _iso.SYM_NODATA, signal_uid=\"audit03_f8\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 405,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r9 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f9\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 415,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r10 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f10\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 423,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3c\", \"SOLUSDT\", signal_uid=\"audit03_f11\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 439,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", _iso.SYM, signal_uid=\"audit03_f12\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/03_exit_engine.py",
+      "line": 365,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(\"3c\", _iso.SYM2, signal_uid=\"audit03_c9\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/04_backtest_vs_paper.py",
+      "line": 154,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "op = PE.open_position(ARM, SYM, signal_uid=\"audit04_entry\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/04_backtest_vs_paper.py",
+      "line": 288,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "params = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/05_isolation.py",
+      "line": 177,
+      "symbol": "new_entry_gate",
+      "kind": "READ",
+      "text": "gate_iso = PE.new_entry_gate()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/05_isolation.py",
+      "line": 243,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(\"3b\", SYM_D, signal_uid=\"audit03_d1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/05_isolation.py",
+      "line": 309,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "dup = PE.open_position(\"3a\", _iso.SYM, signal_uid=\"audit03_s1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/07_ui_isolated.py",
+      "line": 208,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "op = PE.open_position(ARM, SYM, signal_uid=\"audit07_ui\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/09_api_ledger.py",
+      "line": 318,
+      "symbol": "new_entry_gate",
+      "kind": "READ",
+      "text": "\"print(json.dumps(PE.new_entry_gate(),ensure_ascii=False))\""
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-04/queries/02_autoloop.py",
+      "line": 156,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto04_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-04/queries/04_engine.py",
+      "line": 136,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "p = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-04/queries/04_engine.py",
+      "line": 197,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(ARM, SYM, signal_uid=\"fx04_open\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 203,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "p_def = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 211,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "p_a = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 214,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "p_b = PE.approved_params()"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 253,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_miss = PE.open_position(\"3a\", sym, signal_uid=\"sig_audit05_missing_cfg\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 285,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto05_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 431,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "rB = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto05_cfgB\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/Work_闭环整改_2026-10-15/tools/validate_shared_budget_isolation.py",
+      "line": 55,
+      "symbol": "approved_params",
+      "kind": "READ",
+      "text": "params = PE.approved_params()"
+    }
+  ],
+  "tests_write_calls": [],
+  "evidence_write_calls": [
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-03/test_isolated_ft_low4h.py",
+      "line": 207,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "legal_open_res = PE.open_position(\"3a\", \"BTCUSDT\", signal_uid=replay_sig_uid,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-03/test_isolated_ft_low4h.py",
+      "line": 314,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "open_res = PE.open_position(\"3b\", \"BTCUSDT\", signal_uid=sig_chain_uid,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-05/test_automated_closeloop_05.py",
+      "line": 231,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "reg_res = PE.open_position(\"3a\", SYM, signal_uid=f\"sig_{tag}_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 7,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "· `paper_engine.open_position(origin=\"replay\")` —— 引擎**自己设计**的回放通道"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 222,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r1 = PE.open_position(\"3a\", _iso.SYM, signal_uid=sig_uid, direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 307,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_dup = PE.open_position(\"3a\", _iso.SYM, signal_uid=sig_uid, direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 324,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_la = PE.open_position(\"3d\", \"SOLUSDT\", signal_uid=\"audit03_e19\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 339,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", _iso.SYM2, signal_uid=\"audit03_f1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 350,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"SOLUSDT\", signal_uid=\"audit03_f3\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 357,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"BNBUSDT\", signal_uid=\"audit03_f4\", direction=\"sideways\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 362,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"XRPUSDT\", signal_uid=\"audit03_f5\", direction=\"short\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 368,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", \"DOGEUSDT\", signal_uid=\"audit03_f6\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 383,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r7 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f7\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 394,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3b\", _iso.SYM_NODATA, signal_uid=\"audit03_f8\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 405,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r9 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f9\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 415,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r10 = dict(PE.open_position(\"3b\", _iso.SYM, signal_uid=\"audit03_f10\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 423,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3c\", \"SOLUSDT\", signal_uid=\"audit03_f11\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/02_causal.py",
+      "line": 439,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", _iso.SYM, signal_uid=\"audit03_f12\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/03_exit_engine.py",
+      "line": 365,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(\"3c\", _iso.SYM2, signal_uid=\"audit03_c9\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/04_backtest_vs_paper.py",
+      "line": 154,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "op = PE.open_position(ARM, SYM, signal_uid=\"audit04_entry\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/05_isolation.py",
+      "line": 243,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(\"3b\", SYM_D, signal_uid=\"audit03_d1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/05_isolation.py",
+      "line": 309,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "dup = PE.open_position(\"3a\", _iso.SYM, signal_uid=\"audit03_s1\", direction=\"long\", atr=5.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-03/queries/07_ui_isolated.py",
+      "line": 208,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "op = PE.open_position(ARM, SYM, signal_uid=\"audit07_ui\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-04/queries/02_autoloop.py",
+      "line": 156,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto04_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-04/queries/04_engine.py",
+      "line": 197,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_open = PE.open_position(ARM, SYM, signal_uid=\"fx04_open\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 253,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r_miss = PE.open_position(\"3a\", sym, signal_uid=\"sig_audit05_missing_cfg\", direction=\"long\","
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 285,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "r = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto05_01\", direction=\"long\", atr=1.0,"
+    },
+    {
+      "file": "evidence/SYSTEM-CLOSELOOP-AUDIT-05/queries/04_autoloop.py",
+      "line": 431,
+      "symbol": "open_position",
+      "kind": "WRITE",
+      "text": "rB = PE.open_position(\"3a\", sym, signal_uid=\"sig_auto05_cfgB\", direction=\"long\", atr=1.0,"
+    }
+  ],
+  "summary": {
+    "tests_files_with_hits": 0,
+    "tests_write_calls": 0,
+    "evidence_files_with_hits": 12,
+    "evidence_write_calls": 28
+  }
+}

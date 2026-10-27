@@ -1,0 +1,6 @@
+﻿scenario,note,upto_utc,sim_now_utc,bootstrap_recovered,bootstrap_discarded,route_registered,route_rejected,live_signal,live_signal_recovered,paper_order,paper_pending,paper_position,paper_processed
+S1_过期历史候选_截止现在,预热回放里的候选全部早于 成交时效 ⇒ 应 recovered=0，且账本 0 行,2026-10-25T04:59:59Z,2026-10-25T04:59:59Z,0,6,0,0,0,0,0,0,0,0
+S2_停机候选仍在时效内,候选 exec_earliest=+15m，重启在 +20m ⇒ 应 recovered>=1 并落库；成交 bar 尚未收盘 ⇒ 应登记为挂单,2026-10-02T12:20:00Z,2026-10-02T12:20:00Z,1,5,0,1,1,1,1,0,0,1
+S3_同一候选重复重启,与 S2 完全相同的重启时刻再跑一次 ⇒ 信号/挂单/持仓行数不得增加,2026-10-02T12:20:00Z,2026-10-02T12:20:00Z,1,5,0,0,1,1,1,0,0,1
+S4_超过时效不补,重启时刻已超过 exec_earliest+MAX_FILL_LAG ⇒ 应 recovered=0，账本不新增,2026-10-02T14:15:00Z,2026-10-02T14:15:00Z,0,6,0,0,1,1,1,0,0,1
+S5_恢复后新候选,重启后逐 1h 推进 6 小时，新候选应走 origin=live 正常落库,2026-10-02T12:20:00Z,2026-10-02T12:20:00Z,1,5,0,0,1,1,1,0,0,1

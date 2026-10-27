@@ -1,0 +1,89 @@
+{
+  "timestamp": "2026-10-18T22:48:17.719662+08:00",
+  "total_executed": 10,
+  "failures": 2,
+  "errors": 0,
+  "was_successful": false,
+  "results": [
+    {
+      "test_id": "VERIFY-A-FLOW-OI-PIT-BYPASS",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "evidence/FLOW-OI-01/generate_flow_oi_01.py::extract_features_for_candidate",
+      "status": "FAIL",
+      "details": "leaked_future_volume=True, leaked_future_oi=True, coverage=COMPLETE, has_pit_proven=False",
+      "conclusion": "FLOW-OI 实验入口未接入任何 PIT 守卫，依然读取当根未收盘 K 线并标为 COMPLETE"
+    },
+    {
+      "test_id": "VERIFY-B-FIRST-FORMAL-RUN-DEADLOCK",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_create",
+      "status": "FAIL",
+      "details": "ok=False, blockers=['尚无已登记运行（试验次数为 0，不能宣称有结果）', '当前代码/参数/规则/样本/分组/指标与登记身份不一致（登记 2891512fe308… / 当前 b9476a038cd4…）⇒ 请登记新实验版本，不得沿用旧身份']",
+      "conclusion": "首次合法正式实验因尚未有运行记录被 guard_create 错误判定不合格，陷入死锁"
+    },
+    {
+      "test_id": "VERIFY-C1-UNCLOSED-CANDLE-REJECTION",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/runner.py::run_state_machine_simulation",
+      "status": "PASS",
+      "details": "[SOLUSDT] 1h bar 未收盘即被用于决策：close_time=1600115200000 +1ms > decision_time=1600111600000",
+      "conclusion": "真实策略 Runner 正确通过 assert_candles_closed 拦截未收盘 K 线"
+    },
+    {
+      "test_id": "VERIFY-C2-FUTURE-PERTURBATION-INVARIANCE",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/runner.py::run_state_machine_simulation",
+      "status": "PASS",
+      "details": "cands_count=0, cutoff_ms=1600072000000",
+      "conclusion": "未来数据扰动后，过去时点的决策与特征 100% 保持不变"
+    },
+    {
+      "test_id": "VERIFY-C3-UNPROVEN-SOURCE-UNQUALIFIED",
+      "domain": "FRAME-PIT-01",
+      "entrypoint": "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py::qualified",
+      "status": "PASS",
+      "details": "qualified=False, oi_source_proven=False",
+      "conclusion": "无发布凭证时，bridge.qualified 严格为 False，绝不冒充正式合格"
+    },
+    {
+      "test_id": "VERIFY-D1-UNFROZEN-UNSEAL-BLOCKED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::unseal_holdout",
+      "status": "PASS",
+      "details": "配置未冻结：必须先 freeze 设计身份才能解封最终留出",
+      "conclusion": "未冻结配置尝试解封留出被物理拒绝"
+    },
+    {
+      "test_id": "VERIFY-D2-OBSERVED-HOLDOUT-BLOCKED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::unseal_holdout",
+      "status": "PASS",
+      "details": "留出段内含有已观察样本（登记集：dataset_227）⇒ 该段已被污染，不能声称未见留出",
+      "conclusion": "已观察样本改名作为留出集被命中并拒绝解封"
+    },
+    {
+      "test_id": "VERIFY-D3-IDENTITY-DRIFT-INVALIDATED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::guard_execute",
+      "status": "PASS",
+      "details": "err=设计身份漂移：冻结时 b2a2796297aa… / 执行时 74a8c47e42ad… ⇒ 冻结已失效，须登记新实验版本, invalidations_count=1",
+      "conclusion": "参数漂移被 guard_execute 拦截并自动标记冻结失效"
+    },
+    {
+      "test_id": "VERIFY-D4-TRIAL-AND-ABANDON-RECORDED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::record_trial & abandon",
+      "status": "PASS",
+      "details": "trials_count=1, abandon_reason=因子不显著",
+      "conclusion": "失败试验与放弃试验均原子记入事件流与哈希链"
+    },
+    {
+      "test_id": "VERIFY-D5-HASH-CHAIN-TAMPER-DETECTED",
+      "domain": "FRAME-FIT-01",
+      "entrypoint": "框架/backend/experiment_registry.py::verify",
+      "status": "PASS",
+      "details": "tamper_detected=True, problems=['第 1 条 hash 不符（内容被改写）']",
+      "conclusion": "事件流中间篡改 100% 被哈希链断链捕获"
+    }
+  ]
+}

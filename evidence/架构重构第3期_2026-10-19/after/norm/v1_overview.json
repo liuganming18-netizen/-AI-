@@ -1,0 +1,70 @@
+{
+ "account_id": null,
+ "account_summary": null,
+ "alerts": [],
+ "as_of": "<易变>",
+ "counts": {
+  "markets_eligible": null,
+  "markets_total": 549,
+  "signals_open": null,
+  "signals_today": null
+ },
+ "data_health": [
+  {
+   "age_seconds": "<易变>",
+   "detail": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3；已入库 4385 个（标的,周期）组合，共 113911567 根真实K线",
+   "last_event_time": "2026-10-18T16:59:59Z",
+   "last_received_at": null,
+   "name": "统一行情数据库",
+   "status": "ok"
+  },
+  {
+   "age_seconds": "<易变>",
+   "detail": "成功公共 REST 请求计数**暂不可得**（无界全表 COUNT 已移出请求路径，重统计未就绪）：币安 USD-M exchangeInfo 合约目录、币安现货目录；经统一网关（限频 + 缓存 + 并发租约）。前端读取不触发外部采集。",
+   "last_event_time": null,
+   "last_received_at": null,
+   "name": "公共 REST 网关（目录/端点）",
+   "status": "missing"
+  },
+  {
+   "age_seconds": "<易变>",
+   "detail": "由 `历史下载/batch_download.py` 直连 data.binance.vision / S3 列举端点下载，**不经 REST 网关、不计入 api_calls**；每包核验官方 CHECKSUM。来源归档 3114533 个",
+   "last_event_time": "2026-10-18T16:59:59Z",
+   "last_received_at": null,
+   "name": "官方归档下载（独立下载器）",
+   "status": "ok"
+  },
+  {
+   "age_seconds": "<易变>",
+   "detail": "realtime_quotes 覆盖 814 标的；最新价格事件 2026-10-18T12:26:24Z（19561s 前，新鲜=False）；心跳 2026-10-18T12:26:20Z（19565s 前，有效=False，pid=91617）；WS 消息 币安 2583243 / 欧易 22092223；OI 642597 行，费率结算 2089491 行。判定要求**新鲜价格时点与有效心跳同时成立**，缺一即 stale",
+   "last_event_time": "2026-10-18T12:26:24Z",
+   "last_received_at": "2026-10-18T12:26:25Z",
+   "name": "实时行情采集（价格/OI/费率）",
+   "status": "stale"
+  },
+  {
+   "age_seconds": "<易变>",
+   "detail": "未配置账户，不读取凭据",
+   "last_event_time": null,
+   "last_received_at": null,
+   "name": "账户/交易",
+   "status": "not_connected"
+  }
+ ],
+ "data_version": null,
+ "evidence_level": null,
+ "missing_reason": null,
+ "mode": null,
+ "param_hash": null,
+ "quality": null,
+ "rule_version": null,
+ "run_id": null,
+ "source_url": null,
+ "strategy_version": null,
+ "time": {
+  "available_at": null,
+  "event_time": null,
+  "fetched_at": "<易变>",
+  "received_at": null
+ }
+}

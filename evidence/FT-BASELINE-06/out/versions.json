@@ -1,0 +1,47 @@
+{
+    "work_order": "FT-BASELINE-06",
+    "title": "资金费数量证据表修正",
+    "description": "修正 FT-BASELINE-05 中旧持仓数量填0缺陷，统一收付符号，实证数量比与资金费比在1e-15量级完全吻合",
+    "timestamp_utc": "2026-10-20T08:08:00Z",
+    "supersedes": "evidence/FT-BASELINE-05/out/03_资金费按笔汇总对账表.csv 中的错误数量列与填0记录已被本交付取代",
+    "input_sources": {
+        "evidence/FT-DATA-01/out/05_旧引擎基准成交.csv": {
+            "description": "旧引擎基准5笔成交记录（含真实qty与funding_fee）",
+            "size_bytes": 2165,
+            "sha256": "a7c996619a52b4ab6cd2598d5bc762ff125142a6e1166b22d33e27ebf5ae95cb"
+        },
+        "evidence/FT-METRICS-03/out/02_逐笔核对表.csv": {
+            "description": "FT-METRICS-03 独立核对表（含独立验证的数量与资金费）",
+            "size_bytes": 1914,
+            "sha256": "ab03dcc753cb1677055f7df13ab855197a1ed191799092ce106fdca9904847a5"
+        },
+        "evidence/FT-BASELINE-05/out/04_freqtrade_trades.csv": {
+            "description": "FT-BASELINE-05 冻结的官方成交记录",
+            "size_bytes": 4387,
+            "sha256": "1c0944687ef596a326d67f81eb22505d38d11a8e35404e4b65e59d8583b945b8"
+        },
+        "evidence/FT-BASELINE-05/out/02_资金费逐事件核对表.csv": {
+            "description": "FT-BASELINE-05 冻结的168次逐事件核对表",
+            "size_bytes": 37366,
+            "sha256": "b6f9b9219249b367d04e43081a0853b4ff38534b0bebce40a4aee73dc5e3da68"
+        }
+    },
+    "delivery_files": {
+        "evidence/FT-BASELINE-06/code/01_build_funding_qty_table.py": {
+            "size_bytes": 6491,
+            "sha256": "2bf6e00bf8c39dd2de578b02e27e1bf12c7db5bc86c89b346f7dc5b6e87ac787"
+        },
+        "evidence/FT-BASELINE-06/out/03_资金费与持仓数量对照表.csv": {
+            "size_bytes": 1974,
+            "sha256": "da4e37f59b9679374ab44b06f0dc2ce53bcce7c515cb454ed8ec004f807ce077"
+        },
+        "evidence/FT-BASELINE-06/logs/generate.log": {
+            "size_bytes": 1562,
+            "sha256": "0f0c770b3d1adf2bfab61bda9e4858de1ad7f54e52cdc3e8bc473f89c5e6e11b"
+        },
+        "evidence/FT-BASELINE-06/00_收尾说明.md": {
+            "size_bytes": 8010,
+            "sha256": "0916ccb3911804ef3b88a8da912e3a80b4f05a784404e1f0748a8b06a04a9b68"
+        }
+    }
+}

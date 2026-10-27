@@ -45,7 +45,13 @@ W43 = HERE.parent / "最新唐奇安威科夫接通与收尾_2026-10-11" / "量�
 #   · 仅当显式 `PAPER_LEDGER_ALLOW_INIT=1`（供隔离测试/受控建档）才允许创建空库；
 #   · 账本身份以 `ledger_identity.json`（本目录内）为权威声明，并与库内
 #     `paper_state/paper_account.account_id` 交叉核对。
-LEDGER_DIR = Path(os.environ.get("PAPER_LEDGER_DIR", str(PROJECT_ROOT / "数据" / "paper")))
+def get_ledger_dir() -> Path:
+    if os.environ.get("PAPER_LEDGER_DIR"):
+        return Path(os.environ["PAPER_LEDGER_DIR"]).resolve()
+    return (PROJECT_ROOT / "数据" / "paper").resolve()
+
+
+LEDGER_DIR = get_ledger_dir()
 PAPER_DIR = LEDGER_DIR                               # 兼容旧名（调用方仍引用 L.PAPER_DIR）
 LEDGER_MANIFEST = LEDGER_DIR / "ledger_identity.json"
 LEDGER_ALLOW_INIT = os.environ.get("PAPER_LEDGER_ALLOW_INIT", "0") == "1"
@@ -65,6 +71,11 @@ MARKET_DB = Path(os.environ.get(
     "MARKET_DB", str(PROJECT_ROOT / "数据" / "市场数据" / "db" / "market_v2.sqlite3")))
 
 ARMS = ("3a", "3b", "3c", "3d")
+#: **研究臂**（ACCUM-EARLY-04-B）：只在显式隔离的账本目录里存在。
+#: 为什么不直接扩 `ARMS`：`ARMS` 被生产汇总、迁移清单、页面、`paper_conns()` 共用，
+#: 扩它会把这些研究账户算进生产视图。这里只放开「路径解析」，并且**强制**要求
+#: `PAPER_LEDGER_DIR` 显式给出（默认目录 = 生产 ⇒ 研究臂一律拒绝建/读）。
+RESEARCH_ARMS = ("4a", "4b", "4c")
 INIT_EQUITY = 5000.0
 
 
@@ -87,7 +98,10 @@ ACC_STATUSES = (
 )
 
 SIGNAL_SOURCES = ("structure_prototype_39", "arm_event")
-ORIGINS = ("live", "historical_research")
+ORIGINS = ("live", "historical_research",
+           # 重启恢复的候选（SIGNAL-CLOSURE-06）：仍是实时信号，只是来源可分辨，
+           # 便于「重启恢复」与「实时产生」分开审计，不参与任何过滤语义。
+           "recovered")
 
 
 def now_ms() -> int:
@@ -109,9 +123,10 @@ def _connect(path: Path, *, ro: bool, create: bool = True) -> sqlite3.Connection
     return con
 
 
-def market_conn() -> sqlite3.Connection:
-    """行情库**只读**连接（绝不写、绝不 DDL）。"""
-    return _connect(MARKET_DB, ro=True)
+def market_conn(*args, **kwargs) -> sqlite3.Connection:
+    """行情库只读连接（支持环境变量 MARKET_DB 隔离）。"""
+    mdb = Path(os.environ["MARKET_DB"]) if os.environ.get("MARKET_DB") else MARKET_DB
+    return _connect(mdb, ro=True)
 
 
 # ── 实时信号库 schema ──────────────────────────────────────────────────────
@@ -176,7 +191,8 @@ CREATE TABLE IF NOT EXISTS live_run(
 
 
 def live_conn(*, ro: bool = False) -> sqlite3.Connection:
-    con = _connect(LIVE_DB, ro=ro, create=not ro)
+    ldb = Path(os.environ["LIVE_DB"]) if os.environ.get("LIVE_DB") else LIVE_DB
+    con = _connect(ldb, ro=ro, create=not ro)
     if not ro:
         con.executescript(LIVE_SCHEMA)
         con.commit()
@@ -333,6 +349,10 @@ CREATE TABLE IF NOT EXISTS paper_pending(
   origin         TEXT,                    -- signal | manual
   atr            REAL,
   stop_price     REAL,
+  stoploss_s     REAL,
+  trail_d        REAL,
+  model_version  TEXT,
+  config_fingerprint TEXT,
   event_time     INTEGER,                 -- 信号经济时刻（确认 bar 收盘）
   available_at   INTEGER,                 -- 信号可用时刻
   requested_at   INTEGER NOT NULL,        -- 真实请求时刻（挂钟）
@@ -377,6 +397,25 @@ CREATE TABLE IF NOT EXISTS paper_request_anchor(
   created_at       INTEGER NOT NULL,
   PRIMARY KEY(account_id, event_uid)
 );
+-- **止损变更历史轨迹**（2026-10-22 SYSTEM-CLOSELOOP-02）：持久化每次止损初始化及上移，
+-- 记录持仓ID、旧值、新值、原因、引用K线、可用时间、决策时间与生效时间，防重放与真实审计。
+CREATE TABLE IF NOT EXISTS paper_stop_history(
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id       TEXT NOT NULL,
+  position_id      INTEGER NOT NULL,
+  old_stop         REAL,
+  new_stop         REAL NOT NULL,
+  reason           TEXT NOT NULL,
+  ref_bar_open_ms  INTEGER,
+  available_at     INTEGER,
+  decision_at      INTEGER NOT NULL,
+  effective_at     INTEGER NOT NULL,
+  created_at       INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ix_paper_stop_hist_pos_eff
+  ON paper_stop_history(position_id, effective_at);
+CREATE INDEX IF NOT EXISTS ix_paper_stop_hist_pos
+  ON paper_stop_history(position_id);
 """
 # **可能失败**的加性索引（若既有账本已有重复行 ⇒ 唯一索引建不上）：
 # 单独执行、失败不阻断启动；幂等性另有「存在性预检」兜底（见 `paper_engine._settle_funding`）。
@@ -398,10 +437,31 @@ PAPER_COLUMNS = (
     ("paper_position", "stop_price", "REAL"),
     ("paper_position", "atr_at_entry", "REAL"),
     ("paper_position", "model_version", "TEXT"),
+    ("paper_position", "stoploss_s", "REAL"),
+    ("paper_position", "trail_d", "REAL"),
+    ("paper_position", "config_fingerprint", "TEXT"),
+    ("paper_position", "initial_stop_price", "REAL"),
+    ("paper_position", "planned_risk", "REAL"),
+    ("paper_pending", "stoploss_s", "REAL"),
+    ("paper_pending", "trail_d", "REAL"),
+    ("paper_pending", "model_version", "TEXT"),
+    ("paper_pending", "config_fingerprint", "TEXT"),
+    ("paper_pending", "initial_stop_price", "REAL"),
     ("paper_order", "fill_price", "REAL"),
     ("paper_order", "notional", "REAL"),
     ("paper_order", "bar_open_time", "INTEGER"),
     ("paper_order", "model_version", "TEXT"),
+    ("paper_order", "stoploss_s", "REAL"),
+    ("paper_order", "trail_d", "REAL"),
+    ("paper_order", "config_fingerprint", "TEXT"),
+    ("paper_order", "config_source", "TEXT"),
+    ("paper_order", "initial_stop_price", "REAL"),
+    ("paper_order", "planned_risk", "REAL"),
+    ("paper_fill", "stoploss_s", "REAL"),
+    ("paper_fill", "trail_d", "REAL"),
+    ("paper_fill", "config_fingerprint", "TEXT"),
+    ("paper_fill", "initial_stop_price", "REAL"),
+    ("paper_fill", "planned_risk", "REAL"),
     # ── 因果审计列（2026-10-13）：**经济时刻 / 确认(可用)时刻 / 请求时刻 / 成交时刻 / 行情来源**
     # 必须逐笔可核对：只记挂钟会造成「事后可得价格」无法被发现（本窗口真实缺陷）。
     ("paper_position", "event_time", "INTEGER"),
@@ -435,12 +495,17 @@ PAPER_COLUMNS = (
     ("paper_order", "first_request_ms", "INTEGER"),
     ("paper_order", "epoch_ms", "INTEGER"),
     ("paper_order", "voided", "INTEGER DEFAULT 0"),
+    ("paper_order", "void_reason", "TEXT"),
     ("paper_fill", "first_request_ms", "INTEGER"),
     ("paper_fill", "epoch_ms", "INTEGER"),
     ("paper_fill", "voided", "INTEGER DEFAULT 0"),
+    ("paper_fill", "void_reason", "TEXT"),
     ("paper_pending", "first_request_ms", "INTEGER"),
     ("paper_pending", "epoch_ms", "INTEGER"),
     ("paper_pending", "voided", "INTEGER DEFAULT 0"),
+    ("paper_pending", "void_reason", "TEXT"),
+    ("paper_realized", "voided", "INTEGER DEFAULT 0"),
+    ("paper_realized", "void_reason", "TEXT"),
     # `paper_equity.voided=1` = 该快照**落在被纠错区间内**（含已作废持仓的估值），
     # 消费方应排除；**不删除、不改写**原快照（历史证据原样保留，只加标记）。
     ("paper_equity", "voided", "INTEGER DEFAULT 0"),
@@ -448,10 +513,21 @@ PAPER_COLUMNS = (
 
 
 def ledger_path(arm: str) -> Path:
-    """某臂账本**权威**路径（不做任何相对推导）。"""
+    """某臂账本**权威**路径（不做任何相对推导）。
+
+    ACCUM-EARLY-04-B 追加：研究臂（`RESEARCH_ARMS`）只允许在**显式**的
+    `PAPER_LEDGER_DIR` 下解析；未显式指定 ⇒ 直接拒绝，绝不让研究账户落进生产目录。
+    生产四臂的行为逐字未变；未知臂仍然报错。
+    """
+    if arm in RESEARCH_ARMS:
+        if not os.environ.get("PAPER_LEDGER_DIR"):
+            raise ValueError(
+                "研究臂 %r 必须显式设置 PAPER_LEDGER_DIR（拒绝落在生产账本目录 %s）"
+                % (arm, get_ledger_dir()))
+        return get_ledger_dir() / f"paper_{arm}.sqlite3"
     if arm not in ARMS:
         raise ValueError("未知臂：%r" % (arm,))
-    return LEDGER_DIR / f"paper_{arm}.sqlite3"
+    return get_ledger_dir() / f"paper_{arm}.sqlite3"
 
 
 def expected_account_id(arm: str) -> str:
@@ -474,7 +550,8 @@ def read_manifest() -> dict:
     """账本目录身份声明（`ledger_identity.json`）；缺失返回 `{}`（不视为错误）。"""
     import json
     try:
-        doc = json.loads(LEDGER_MANIFEST.read_text(encoding="utf-8"))
+        man_p = get_ledger_dir() / "ledger_identity.json"
+        doc = json.loads(man_p.read_text(encoding="utf-8"))
         return doc if isinstance(doc, dict) else {}
     except Exception:                                    # noqa: BLE001
         return {}
@@ -507,13 +584,36 @@ def _db_identity(con: sqlite3.Connection) -> dict:
     return ident
 
 
-def verify_ledger_identity(con: sqlite3.Connection, arm: str, *, strict: bool = True) -> dict:
+def get_configured_initial_equity() -> float:
+    """获取当前生效配置中的初始本金声明，杜绝硬编码常量覆盖。"""
+    if os.environ.get("PAPER_INITIAL_EQUITY"):
+        try:
+            return float(os.environ["PAPER_INITIAL_EQUITY"])
+        except (ValueError, TypeError):
+            pass
+    # 若单测通过猴子补丁显式修改了全局 INIT_EQUITY，优先尊重
+    if INIT_EQUITY != 5000.0:
+        return float(INIT_EQUITY)
+    try:
+        import strategy_contracts as SC
+        _, p, _ = SC.load_ft_low4h_config()
+        if p and p.get("_config_valid", False) and p.get("initial_equity_USDT"):
+            return float(p["initial_equity_USDT"])
+    except Exception:
+        pass
+    return INIT_EQUITY
+
+
+def verify_ledger_identity(con: sqlite3.Connection, arm: str, *, strict: bool = True,
+                           expected_initial_equity: float | None = None) -> dict:
     """核对账本身份。返回身份 dict；不符且 `strict` ⇒ 抛 `LedgerIdentityMismatch`。
 
     判据（**任一不符即拒绝**）：
       · 库内若已声明 `account_id`，必须 == `paper43_{arm}`；
       · 目录 `ledger_identity.json` 若声明该臂，其 `account_id` 必须一致，
-        且（若给 `sha256`）与库文件摘要一致。
+        且（若给 `sha256`）与库文件摘要一致；
+      · 配置与已有账本身份冲突核验：配置指定初始本金与已有账本记录不符时拒绝操作，
+        严禁已有账户被重新注资或重置余额，必须等待迁移方案。
     """
     ident = _db_identity(con)
     db_acc = ident.get("account_id")
@@ -523,6 +623,23 @@ def verify_ledger_identity(con: sqlite3.Connection, arm: str, *, strict: bool = 
                 f"账本身份不符：{LEDGER_DIR}/paper_{arm}.sqlite3 内 account_id="
                 f"{db_acc!r}，期望 {expected_account_id(arm)!r}")
         ident["identity_mismatch"] = True
+
+    # 核对初始本金身份冲突
+    # 判据：若显式传入 expected_initial_equity，或显式设置了环境变量 PAPER_INITIAL_EQUITY，
+    # 声明的本金与已有账本不符时，严禁建立连接，严格拒绝！
+    cfg_init_eq = expected_initial_equity if expected_initial_equity is not None else (
+        float(os.environ["PAPER_INITIAL_EQUITY"]) if os.environ.get("PAPER_INITIAL_EQUITY") else None
+    )
+    db_init_eq = ident.get("initial_equity")
+    if db_init_eq is not None and cfg_init_eq is not None:
+        if abs(float(db_init_eq) - float(cfg_init_eq)) > 1e-4:
+            if strict:
+                raise LedgerIdentityMismatch(
+                    f"配置与已有账本身份冲突：当前配置初始本金为 {cfg_init_eq} USDT，"
+                    f"但已有账本 {get_ledger_dir()}/paper_{arm}.sqlite3 记录为 {db_init_eq} USDT。"
+                    f"已有账户不得被重新注资或重置余额，已严格拦截，等待迁移方案。")
+            ident["equity_mismatch"] = True
+
     man = read_manifest()
     man_arms = (man.get("accounts") or {}) if isinstance(man, dict) else {}
     m = man_arms.get(arm)
@@ -540,9 +657,10 @@ def verify_ledger_identity(con: sqlite3.Connection, arm: str, *, strict: bool = 
     return ident
 
 
-def _provision_ledger(arm: str, path: Path) -> sqlite3.Connection:
+def _provision_ledger(arm: str, path: Path, initial_equity: float | None = None) -> sqlite3.Connection:
     """**受控建档**（仅 `PAPER_LEDGER_ALLOW_INIT=1` 时可达）：创建空账本 + 声明身份。"""
     import json
+    init_eq = float(initial_equity) if initial_equity is not None else get_configured_initial_equity()
     path.parent.mkdir(parents=True, exist_ok=True)
     con = _connect(path, ro=False, create=True)
     con.executescript(PAPER_ADDITIVE)
@@ -564,10 +682,10 @@ def _provision_ledger(arm: str, path: Path) -> sqlite3.Connection:
             pass
     con.execute("INSERT OR IGNORE INTO paper_account(account_id,arm,initial_equity,cash,"
                 "leverage,dry_run,created_at) VALUES(?,?,?,?,1,1,?)",
-                (expected_account_id(arm), arm, INIT_EQUITY, INIT_EQUITY, now_ms()))
+                (expected_account_id(arm), arm, init_eq, init_eq, now_ms()))
     con.execute("INSERT OR IGNORE INTO paper_state(account_id,cash,realized_pnl,fees_paid,"
                 "funding_paid,updated_at) VALUES(?,?,0,0,0,?)",
-                (expected_account_id(arm), INIT_EQUITY, now_ms()))
+                (expected_account_id(arm), init_eq, now_ms()))
     con.commit()
     # 落身份清单（**追加式**：保留既有其它臂声明）
     try:
@@ -577,20 +695,21 @@ def _provision_ledger(arm: str, path: Path) -> sqlite3.Connection:
         man.setdefault("accounts", {})
         man["accounts"][arm] = {
             "account_id": expected_account_id(arm),
-            "initial_equity": INIT_EQUITY,
+            "initial_equity": init_eq,
             "provisioned_at_ms": now_ms(),
         }
         man["note"] = ("受控建档（PAPER_LEDGER_ALLOW_INIT=1）；"
                        "正式账本须按迁移清单 M002–M005 迁入，不得用空库冒充原账户。")
-        LEDGER_MANIFEST.write_text(json.dumps(man, ensure_ascii=False, indent=1),
-                                   encoding="utf-8")
+        man_p = get_ledger_dir() / "ledger_identity.json"
+        man_p.write_text(json.dumps(man, ensure_ascii=False, indent=1),
+                         encoding="utf-8")
     except OSError:
         pass
     return con
 
 
 def paper_conn(arm: str, *, ro: bool = False, create: bool | None = None,
-               strict_identity: bool = True) -> sqlite3.Connection:
+               strict_identity: bool = True, initial_equity: float | None = None) -> sqlite3.Connection:
     """复用既有 `paper_{arm}.sqlite3`；**缺库即报错，绝不自动创建**。
 
     · `ro=True`  → 只读打开（并核对身份）；
@@ -599,15 +718,16 @@ def paper_conn(arm: str, *, ro: bool = False, create: bool | None = None,
     · 身份不符 ⇒ `LedgerIdentityMismatch`。
     """
     path = ledger_path(arm)
-    allow_create = (create is True) or (create is None and LEDGER_ALLOW_INIT)
+    allow_create = (create is True) or (create is None and (LEDGER_ALLOW_INIT or os.environ.get("PAPER_LEDGER_ALLOW_INIT", "0") == "1"))
     if not path.exists():
         if not allow_create:
+            _mig = (f"M00{ARMS.index(arm) + 2}" if arm in ARMS else "研究臂无迁移清单")
             raise LedgerUnavailable(
                 f"纸面账本缺失：{path} —— 拒绝自动创建（不得用空库冒充原账户）。"
-                f"请按迁移清单 M00{ARMS.index(arm) + 2} 受控迁入，或显式设置 "
+                f"请按迁移清单 {_mig} 受控迁入，或显式设置 "
                 f"PAPER_LEDGER_DIR / PAPER_LEDGER_ALLOW_INIT=1（仅隔离建档）。")
-        con = _provision_ledger(arm, path)
-        verify_ledger_identity(con, arm, strict=strict_identity)
+        con = _provision_ledger(arm, path, initial_equity=initial_equity)
+        verify_ledger_identity(con, arm, strict=strict_identity, expected_initial_equity=initial_equity)
         return con
     con = _connect(path, ro=ro, create=False)
     if not ro:
@@ -630,7 +750,7 @@ def paper_conn(arm: str, *, ro: bool = False, create: bool | None = None,
                 pass
         con.commit()
     try:
-        verify_ledger_identity(con, arm, strict=strict_identity)
+        verify_ledger_identity(con, arm, strict=strict_identity, expected_initial_equity=initial_equity)
     except (LedgerIdentityMismatch, sqlite3.OperationalError):
         con.close()
         raise
@@ -720,6 +840,45 @@ def ensure_live_start_ms(ts=None) -> int:
     return val
 
 
+# ── 状态重建的**绝对锚点**（SIGNAL-CLOSURE-06）─────────────────────────────────
+# 为什么要它：实测「按 截止时刻-固定深度 重建」的终态**永远带着重放起点的印记**
+# （箱体/冷却是相位周期，起点定相位），深度从 1160h 加到 3360h，有效状态差异
+# 8→2→2→1 从不归零 ⇒ 重启时刻不同，终态就不同，重启必然改变当前有效状态。
+# 改成：重建一律从**同一个绝对时刻**开始。重启与持续运行于是走完全相同的行情序列，
+# 终态逐币恒等 —— 构造上成立，不依赖「深度足够」。
+# 纪律：只落一次、**不随后移**（否则每次重启都换锚点，等于没修）。
+# 需要重锚（如数据被裁剪）必须显式调用 `reset_state_anchor_ms` 并留痕。
+STATE_ANCHOR_KEY = "state_anchor_ms"
+
+
+def get_state_anchor_ms():
+    cur = get_run(STATE_ANCHOR_KEY)
+    try:
+        return int(cur) if cur is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def ensure_state_anchor_ms(depth_ms: int, now_ms_: int | None = None) -> int:
+    """首次调用时落定锚点 = `now - depth`（幂等，**不覆盖**既有值）。"""
+    cur = get_state_anchor_ms()
+    if cur is not None:
+        return int(cur)
+    val = int((now_ms_ if now_ms_ is not None else now_ms()) - int(depth_ms))
+    set_run(STATE_ANCHOR_KEY, val)
+    return val
+
+
+def reset_state_anchor_ms(new_ms: int, reason: str = "") -> dict:
+    """**显式重锚**（唯一允许改变锚点的入口；必须说明原因，留痕在 live_run）。"""
+    old = get_state_anchor_ms()
+    set_run(STATE_ANCHOR_KEY, int(new_ms))
+    set_run("state_anchor_reset_log", {
+        "from_ms": old, "to_ms": int(new_ms), "reason": reason,
+        "at_ms": now_ms()})
+    return {"from_ms": old, "to_ms": int(new_ms), "reason": reason}
+
+
 # ── 模拟交易启用边界（**本轮 paper epoch**，2026-10-14 09 契约整改）──────────────
 # 用户明确指令（北京时间 2026-10-14）：**开仓必须不早于今天 09:00**。
 #   · 边界 = 2026-10-14 09:00:00 Asia/Shanghai = 2026-10-14T01:00:00Z
@@ -790,13 +949,19 @@ def set_run(key: str, value) -> None:
 
 def get_run(key: str, default=None):
     import json
-    con = live_conn(ro=True)
+    try:
+        con = live_conn(ro=True)
+    except (sqlite3.OperationalError, FileNotFoundError, OSError):
+        return default
     try:
         r = con.execute("SELECT value_json FROM live_run WHERE key=?", (key,)).fetchone()
     except sqlite3.OperationalError:
         return default
     finally:
-        con.close()
+        try:
+            con.close()
+        except Exception:
+            pass
     if not r or r[0] is None:
         return default
     try:

@@ -1,0 +1,75 @@
+{
+ "_WARNING": [
+  "本文件不是批准书。它是本单（ACCUM-EARLY-04-B）用来验证「接线是否工作」的测试配置。",
+  "kind=fixture ⇒ 任何记录都会带 fixture 标记；没有 ACCUM04_FIXTURE_OK=1 时它连开仓都不允许。",
+  "这里的每一个数值都是工程自测取值，没有任何一项来自用户批准；不得据此得出甲乙丙的绩效或可行性结论。",
+  "真实批准配置的落点 = 数据/research/ACCUM-EARLY-04/approved_rules.json（本单没有创建该文件）。"
+ ],
+ "schema_version": "accum-early-04/v1",
+ "kind": "fixture",
+ "approved": false,
+ "approval_ref": "NOT-APPROVED / fixture-for-wiring-selfcheck-only",
+ "approved_at_utc": null,
+ "approved_by": "none",
+ "shared": {
+  "sweep_recovery_scope": {
+   "mode": "single_bar",
+   "max_bars": 1
+  },
+  "sweep_reference": {
+   "mode": "box_low",
+   "n": 20
+  },
+  "sweep_max_overshoot_atr": 0.5,
+  "sweep_min_recovery_atr": 0.1,
+  "local_resistance": {
+   "n": 20,
+   "timeframe": "1h"
+  },
+  "local_resistance_confirm": {
+   "mode": "1h_close",
+   "buffer_atr": 0.0
+  },
+  "sell_pressure": {
+   "baseline": "v20_median",
+   "n": 20,
+   "buy_ratio_min": 0.5,
+   "require": false
+  },
+  "observe_deadline_hours": 168,
+  "intrabar_break_cancel": {
+   "mode": "close_only",
+   "buffer_atr": 0.1
+  },
+  "entry_price_deviation_cap": 0.02,
+  "entry_delay_minutes": 15,
+  "oi_role": "evidence_only",
+  "repeat_candidate_limit": {
+   "per_event": 1,
+   "cooldown_hours": 24
+  }
+ },
+ "conflict_resolution": {
+  "slippage_source": "effective_view",
+  "risk_config": "effective_view",
+  "participation_cap": "effective_view"
+ },
+ "schemes": {
+  "4a": {
+   "enabled": true,
+   "confirm": "close_above_resistance_first"
+  },
+  "4b": {
+   "enabled": true,
+   "confirm": "next_close_holds_above_resistance"
+  },
+  "4c": {
+   "enabled": true,
+   "confirm": "pullback_to_resistance_then_close_up",
+   "pullback": {
+    "zone_atr": 0.5,
+    "deadline_hours": 72
+   }
+  }
+ }
+}

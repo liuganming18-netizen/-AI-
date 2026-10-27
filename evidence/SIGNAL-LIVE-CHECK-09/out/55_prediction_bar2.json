@@ -1,0 +1,20 @@
+{
+ "probe": "SIGNAL-LIVE-CHECK-09/55_prediction_bar2",
+ "written_at_utc": "2026-10-25T12:23:23Z",
+ "为什么要写这个": "要求 2 的逐币记录如果只是事后描述，证明不了判据真的在起作用。这里把「下一根小时线应该发生什么」先写死，等第二根到了再核，对不上就说明我对状态机的理解有偏差（或者状态机有缺陷）。",
+ "依据": "生产 idle_breakdown 只返回每类一个样例；IDLE_READY_BOX 共 8 个，样例给出的是 CHZUSDT（宽 7.04A、ER 0.1229，unmet 为空）",
+ "预测": [
+  {
+   "symbol": "CHZUSDT",
+   "预期": "IDLE → BOX",
+   "理由": "条件全满足，只等下一根 4h 收盘；12:00Z 那根 4h 会随第二根 1h 一起入库",
+   "若不成立的解释方向": "4h 12:00Z 那根未在本次处理窗口内闭合，或宽度/ER 在 4h 新数据上变化"
+  },
+  {
+   "symbol": null,
+   "预期": "IDLE_READY_BOX 的 8 个里至少有一部分转为 BOX",
+   "理由": "同上"
+  }
+ ],
+ "可证伪判据": "第二根处理后看 per_symbol_state：CHZUSDT 是否 BOX；IDLE_READY_BOX 计数是否下降"
+}

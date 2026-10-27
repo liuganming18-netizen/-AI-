@@ -1,0 +1,90 @@
+{
+  "stats_at_utc": "2026-10-26T02:59:11Z",
+  "population": "全量（candles 冷档 15m 全目录 GROUP BY symbol，含 live.parquet 滚动分片）",
+  "query": "SELECT symbol, COUNT(*) AS n, COUNT(DISTINCT open_time) AS n_uniq\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/candles/*/*/*/15m/*.parquet', union_by_name = true)\nGROUP BY symbol",
+  "symbols": 551,
+  "rows_total": 47089998,
+  "dup_rows_total": 596736,
+  "symbols_with_dup": 222,
+  "dup_pct_dist": {
+    "n": 551,
+    "min": 0.0,
+    "p10": 0.0,
+    "p50": 0.0,
+    "p90": 2.6267,
+    "max": 3.6176,
+    "mean": 0.8285
+  },
+  "top10": [
+    [
+      "1INCHUSDT",
+      206505,
+      203817,
+      2688,
+      1.3017
+    ],
+    [
+      "1MBABYDOGEUSDT",
+      75843,
+      73155,
+      2688,
+      3.5442
+    ],
+    [
+      "AAVEUSDT",
+      213237,
+      210549,
+      2688,
+      1.2606
+    ],
+    [
+      "ADAUSDT",
+      238097,
+      235409,
+      2688,
+      1.129
+    ],
+    [
+      "AGLDUSDT",
+      115719,
+      113031,
+      2688,
+      2.3229
+    ],
+    [
+      "API3USDT",
+      165827,
+      163139,
+      2688,
+      1.621
+    ],
+    [
+      "APTUSDT",
+      142889,
+      140201,
+      2688,
+      1.8812
+    ],
+    [
+      "ARKMUSDT",
+      115814,
+      113126,
+      2688,
+      2.321
+    ],
+    [
+      "BANANAUSDT",
+      78953,
+      76265,
+      2688,
+      3.4046
+    ],
+    [
+      "BATUSDT",
+      236849,
+      234161,
+      2688,
+      1.1349
+    ]
+  ]
+}

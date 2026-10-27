@@ -1,0 +1,30 @@
+{
+  "generated_by": "ACCUM-EARLY-05-E::04_isolation_idempotency.py",
+  "results": {
+    "isolation_checks": {
+      "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+      "production_dir_has_research_files": [],
+      "default_env_isolated": false,
+      "prod_env_isolated": false,
+      "try_open_on_prod_allowed": false,
+      "try_open_on_prod_reason": "isolation_violation",
+      "pass": true
+    },
+    "idempotency_checks": {
+      "first_open_ok": true,
+      "first_open_orders": 1,
+      "first_open_fills": 1,
+      "repeat_open_ok": false,
+      "repeat_open_reason": "duplicate_signal_uid",
+      "repeat_open_orders": 1,
+      "repeat_open_fills": 1,
+      "resume_open_ok": false,
+      "resume_open_reason": "duplicate_signal_uid",
+      "orders_before_resume": 1,
+      "orders_after_resume": 1,
+      "fills_before_resume": 1,
+      "fills_after_resume": 1,
+      "pass": true
+    }
+  }
+}

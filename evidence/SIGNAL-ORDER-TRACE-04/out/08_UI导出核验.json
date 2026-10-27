@@ -1,0 +1,191 @@
+{
+  "generated_at_utc": "2026-10-25T03:04:48Z",
+  "run_id": "run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099",
+  "ports": {
+    "backend": 8799,
+    "frontend": 3001
+  },
+  "isolation": {
+    "api_proxy_target": "http://127.0.0.1:8799",
+    "vite_cache_dir": "node_modules/.vite-sot04"
+  },
+  "steps": [
+    {
+      "step": "backend_spawn",
+      "pid": 71245
+    },
+    {
+      "step": "frontend_spawn",
+      "pid": 71246
+    },
+    {
+      "step": "backend_ready",
+      "at": "2026-10-25T03:04:49.821Z"
+    },
+    {
+      "step": "frontend_ready",
+      "at": "2026-10-25T03:04:51.410Z"
+    },
+    {
+      "step": "navigate",
+      "url": "http://127.0.0.1:3001/?run=run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099"
+    },
+    {
+      "step": "trades_panel_visible",
+      "at": "2026-10-25T03:04:53.059Z"
+    },
+    {
+      "step": "trades_chip_ready",
+      "count": 2
+    },
+    {
+      "step": "kline_canvas",
+      "count": 11
+    },
+    {
+      "step": "done",
+      "at": "2026-10-25T03:04:56.363Z"
+    }
+  ],
+  "downloads": [
+    {
+      "label": "逐笔交易",
+      "selector": "[data-testid=\"lab-trades\"] button:has-text(\"导出逐笔 CSV\")",
+      "suggested_filename": "trades_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/trades_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "bytes": 930,
+      "header": [
+        "run_id",
+        "trade_id",
+        "symbol",
+        "direction",
+        "signal_id",
+        "entry_order_id",
+        "exit_order_id",
+        "entry_time_ms",
+        "entry_time_utc",
+        "entry_price",
+        "qty",
+        "exit_time_ms",
+        "exit_time_utc",
+        "exit_price",
+        "exit_reason",
+        "initial_stop",
+        "net_pnl",
+        "gross_pnl",
+        "fees",
+        "funding_fee",
+        "holding_hours",
+        "mae",
+        "mfe"
+      ],
+      "rows": 2,
+      "sample": "\"run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099\",\"trd_paper_pos_1\",\"NEARUSDT\",\"long\",\"cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1780185599999_1780495200000\",\"1\",\"2\",1780496100000,\"2026-06-03 14:15\",3.051,163,1780501499999,\"2026-06-03 15:44\",2.896,\"trailing_stop_loss\",2.898,-25.74968050000004,-25.26500000000004,0.4846805,0,1.5,,"
+    },
+    {
+      "label": "委托订单",
+      "selector": "[data-testid=\"lab-orders\"] button:has-text(\"导出订单 CSV\")",
+      "suggested_filename": "orders_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/orders_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "bytes": 1306,
+      "header": [
+        "run_id",
+        "strategy_version",
+        "symbol",
+        "signal_id",
+        "order_id",
+        "trade_id",
+        "side",
+        "order_type",
+        "phase",
+        "status",
+        "action",
+        "price",
+        "qty",
+        "fee",
+        "stop_price",
+        "reason",
+        "ts_ms",
+        "time_utc"
+      ],
+      "rows": 4,
+      "sample": "\"run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099\",\"WX_EVENT_TREND_V0_1\",\"NEARUSDT\",\"cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1780185599999_1780495200000\",\"1\",\"trd_paper_pos_1\",\"buy\",\"MARKET\",\"entry\",\"filled\",\"filled\",3.051,163,0.24865650000000003,2.898,\"\",1780496100000,\"2026-06-03 14:15\""
+    },
+    {
+      "label": "逐次成交",
+      "selector": "[data-testid=\"lab-fills\"] button:has-text(\"导出成交 CSV\")",
+      "suggested_filename": "fills_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/fills_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv",
+      "bytes": 886,
+      "header": [
+        "run_id",
+        "strategy_version",
+        "symbol",
+        "fill_id",
+        "order_id",
+        "trade_id",
+        "action",
+        "fill_price",
+        "quantity",
+        "fee",
+        "liquidity",
+        "sequence",
+        "fill_time_ms",
+        "fill_time_utc"
+      ],
+      "rows": 4,
+      "sample": "\"run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099\",\"WX_EVENT_TREND_V0_1\",\"NEARUSDT\",\"paper_fill:1\",\"1\",\"trd_paper_pos_1\",\"open\",3.051,163,0.24865650000000003,\"\",1,1780496100000,\"2026-06-03 14:15\""
+    }
+  ],
+  "errors": [],
+  "page_facts": {
+    "run_id_in_page": false,
+    "symbol_in_page": true,
+    "has_kline_canvas": true,
+    "canvas_count": 11,
+    "trades_chip": "本 run 共 2 笔",
+    "trades_chip_count": 2,
+    "text_len": 1618,
+    "text_head": "趋势研判系统\n交易工作台\n数据中心\n策略管理\n回测复盘\n浅色主题\nLight\nWebSocket\n—\nBTC\n—\n—\nETH\n—\n—\n模拟盘权益\n—\n行情连接\n—\n电报提醒\n未配置\n03:04:52\nUTC\n只读\n回测复盘\n历史回测（当前页）\n验收复盘\n历史回测与验收复盘分别查看\n净收益\n+0.37%\n账户成本后收益\n最大回撤\n-1.29%\n含未平仓权益\n夏普比率\n—\n后端未返回该指标\n收益因子\n1.28\n净盈利 ÷ 净亏损\n成交笔数\n2\n权益点 3\n胜率\n50.0%\n盈 1 · 亏 1\n盈亏比\n1.28\n平均盈利 ÷ 平均亏损（均值口径）\n总费用\n-1.27\n手续费 + 资金费（支出为正）\n样本太少，结论不可靠。\n窗口 102 天、2 笔交易；不足 30 笔时，胜率与夏普都不能当作结论。\n历史回测配置\n交易对\nNEAR/USDT\n数据来源\n—\n信号 / 执行周期\n1h / 15m\n运行时间 (UTC)\n2026-09-07 22:44\n初始权益\n—\n单笔风险预算\n—\n手续费率\n—\n滑点\n—\n回测引擎：—\n权益采样点：3\n手续费 / 资金费：0.9523 / 0.3137 USDT\n回测范围\n无批次目录\n— 个 run · 有成交 — · 合计 — 笔\n按批次\n按单 run\n运行回测\nK 线 · 成交量 · 持仓量（OI）\n— · 0 根（1h 原始）\nID: run_WX_EVE"
+  },
+  "page_vs_summary": {
+    "base_equity_from_equity_curve": 2000,
+    "net_pct": {
+      "page": 0.37,
+      "expected": 0.37,
+      "match": true
+    },
+    "n_trades": {
+      "page": 2,
+      "expected": 2,
+      "match": true
+    },
+    "fees": {
+      "page": 0.9523,
+      "expected": 0.9523,
+      "match": true
+    },
+    "funding": {
+      "page": 0.3137,
+      "expected": 0.3137,
+      "match": true
+    },
+    "all_match": true
+  },
+  "order_locate": {
+    "clicked": true,
+    "focused_trade_id_shown": true,
+    "matched_trade_ids": [
+      "trd_paper_pos_1"
+    ]
+  },
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "bad_responses": [
+    {
+      "status": 500,
+      "url": "http://127.0.0.1:3001/api/v1/accounts"
+    }
+  ]
+}

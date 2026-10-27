@@ -1,0 +1,272 @@
+diff --git "a/\346\241\206\346\236\266/backend/public_market_read.py" "b/\346\241\206\346\236\266/backend/public_market_read.py"
+index 63218e0..a967cfb 100644
+--- "a/\346\241\206\346\236\266/backend/public_market_read.py"
++++ "b/\346\241\206\346\236\266/backend/public_market_read.py"
+@@ -267,7 +267,8 @@ def _parse_fields(raw):
+     return want & {"ratio", "oi", "orderbook"}
+ 
+ 
+-def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None, core=False):
++def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None, core=False,
++                        ratio_full=False):
+     """币安公开数据归一化。**不落库**；所有取数走统一网关（有缓存/限频）。
+ 
+     `gw`    —— 可注入既有采集工作器持有的网关实例（见 `_gw_get`）。
+@@ -275,6 +276,11 @@ def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None,
+                （持仓量多空比 + 总持仓名义额 USD），其余比率块显式标注未取，
+                使单标上游请求从 6 次降到 **2 次**，供采集器**有界**周期刷新。
+                默认 `False`，行为与既有契约完全一致。
++    `ratio_full` —— 在 `core` 基础上**额外**取齐 3 个未接通的比率块
++               （大户账户多空比 / 全市场账户多空比 / taker 买卖量比），
++               单标上游从 2 次升到 **5 次**（OI 1 + 4 个比率）。
++               仅供采集器按**轮转窗口**对有界子集使用，避免整轮预算翻倍。
++               `core=False` 时本参数无意义（本来就取齐）。
+     """
+     ident = resolve_identity(exchange, market_id)
+     if not ident.get("ok"):
+@@ -309,33 +315,45 @@ def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None,
+             oi_row = _last(oih) if isinstance(oih, list) else None
+             if (oi_err and oih_err) or (oih_err and not core):
+                 block = {"available": False, "reason": f"OI 取数失败：{oih_err or oi_err}"}
++            elif core and not isinstance(oi_row, dict):
++                # 精简口径只靠这一行；拿不到行 ⇒ 必须判**不可用**，
++                # 否则会写出 `available:true` 但 amount/usd 全 null 的空壳块
++                block = {"available": False,
++                         "reason": f"OI 未取到有效行：{oih_err or '上游返回空'}"}
+             else:
+                 if core:
+                     amount = (float(oi_row["sumOpenInterest"])
+                               if isinstance(oi_row, dict) and oi_row.get("sumOpenInterest") else None)
+                     amount_et = iso(oi_row.get("timestamp")) if isinstance(oi_row, dict) else None
+                     oi_src = "币安 /futures/data/openInterestHist（同一行给总量与名义额）"
++                    usd = (float(oi_row["sumOpenInterestValue"])
++                           if isinstance(oi_row, dict) and oi_row.get("sumOpenInterestValue") else None)
+                 else:
+                     amount = (float(oi["openInterest"])
+                               if isinstance(oi, dict) and oi.get("openInterest") else None)
+                     amount_et = iso(oi.get("time")) if isinstance(oi, dict) else None
+                     oi_src = "币安 fapi/v1/openInterest + /futures/data/openInterestHist"
+-                block = {
+-                    "available": True,
+-                    "amount": amount,
+-                    "amount_event_time": amount_et,
+                     # 唯一公开的「总持仓名义额」来源：
+                     # /futures/data/openInterestHist.sumOpenInterestValue
+-                    "usd": (float(oi_row["sumOpenInterestValue"])
+-                            if isinstance(oi_row, dict) and oi_row.get("sumOpenInterestValue") else None),
+-                    "usd_event_time": iso(oi_row.get("timestamp")) if isinstance(oi_row, dict) else None,
+-                    "fetched_at": iso(oi_ms or oih_ms),
+-                    "origin": oi_origin or oih_origin,
+-                    "source": oi_src,
+-                    "note": ("**全市场总量**，无多空拆分、无身份；不是「聪明钱持仓额」"
+-                             + ("；快照精简口径：总量与名义额取自同一行（5m 边界采样）"
+-                                if core else "")),
+-                }
++                    usd = (float(oi_row["sumOpenInterestValue"])
++                           if isinstance(oi_row, dict) and oi_row.get("sumOpenInterestValue") else None)
++                if amount is None and usd is None:
++                    block = {"available": False,
++                             "reason": f"OI 未取到有效值：{oih_err or '上游返回空/缺字段'}"}
++                else:
++                    block = {
++                        "available": True,
++                        "amount": amount,
++                        "amount_event_time": amount_et,
++                        "usd": usd,
++                        "usd_event_time": iso(oi_row.get("timestamp")) if isinstance(oi_row, dict) else None,
++                        "fetched_at": iso(oi_ms or oih_ms),
++                        "origin": oi_origin or oih_origin,
++                        "source": oi_src,
++                        "note": ("**全市场总量**，无多空拆分、无身份；不是「聪明钱持仓额」"
++                                 + ("；快照精简口径：总量与名义额取自同一行（5m 边界采样）"
++                                    if core else "")),
++                    }
+             out["open_interest"] = block
+             out["source_urls"].append(
+                 "https://fapi.binance.com/futures/data/openInterestHist?symbol=" + sym + "&period=5m")
+@@ -349,7 +367,7 @@ def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None,
+                 "binance.top_position_ratio", sym, period,
+                 [("longShortRatio", "value"), ("longAccount", "long_account"),
+                  ("shortAccount", "short_account")], gw=gw)
+-            if core:
++            if core and not ratio_full:
+                 # 快照精简口径：只取原版 UI 用到的「持仓量多空比」，
+                 # 其余 3 块**显式标注未取**（不静默省略、不伪造）。
+                 skip = {"available": False, "reason": CORE_SKIP_REASON}
+@@ -366,6 +384,8 @@ def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None,
+                              "**不得**改名成「聪明钱金额/均价/身份」。"),
+                 }
+             else:
++                # 全量比率口径（`ratio_full=True` 的轮转窗口，或 `core=False`）：
++                # 4 个**各自独立命名**的官方原始指标，逐个如实返回。
+                 out["long_short"] = {
+                     "period": period,
+                     "top_position_long_short_ratio": top_pos,
+@@ -392,7 +412,7 @@ def fetch_public_extras(exchange, market_id, period="1h", fields=None, gw=None,
+             out["source_urls"] += [
+                 "https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=" + sym,
+             ]
+-            if not core:
++            if not core or ratio_full:
+                 out["source_urls"] += [
+                     "https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol=" + sym,
+                     "https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=" + sym,
+@@ -477,7 +497,96 @@ class _CountingGateway:
+                 "deferred": self.deferred, "rejected": self.rejected, "failed": self.failed}
+ 
+ 
+-def refresh_snapshot(gw, symbols, period="1h", fields="ratio,oi", extra=None):
++RATIO_EXTRA_BLOCKS = ("top_account_long_short_ratio", "global_account_long_short_ratio",
++                      "taker_buy_sell_ratio")
++# 核心口径每轮都取的比率块。它也会被预算推迟（`DeferredRequest`），
++# 若不参与继承，某轮被推迟就会把上一轮的好值**冲成空** —— 这正是
++# 「失败不覆盖」要防的情况（2026-10-18 实测：round 1 首请求被推迟，
++# BTC 的 top_position 从 1.7772 变 null）。
++RATIO_CORE_BLOCKS = ("top_position_long_short_ratio",)
++RATIO_ALL_BLOCKS = RATIO_CORE_BLOCKS + RATIO_EXTRA_BLOCKS
++
++
++def _block_ok(blk):
++    """块是否**真有值** —— 只看 `available` 不够。
++
++    实测：币安 OI 请求被本地预算推迟时，块会被写成
++    `{"available": true, "amount": null, "usd": null}`（空壳），
++    于是界面显示「有值但为空」，并且把上一轮的好值覆盖掉。
++    """
++    if not isinstance(blk, dict) or not blk.get("available"):
++        return False
++    for k in ("value", "amount", "usd"):
++        v = blk.get(k)
++        if v is not None and str(v).strip() != "":
++            return True
++    return False
++
++
++def _carry_over_ratio(ex, mid, payload):
++    """把上一轮**已取到**的块原样带过来（含各自的 `fetched_at`）。
++
++    覆盖 4 个多空比块 + 1 个持仓量块：
++      · 额外 3 块只有轮转窗口才取，不继承就每轮被覆盖成「未取」，轮转等于白做；
++      · 核心块与持仓量块每轮都取，但会被本地预算推迟，不继承就把已有值冲成空。
++    **继承不等于刷新**：每块保留自己原本的 `fetched_at` / `event_time`，
++    读取侧按该块自己的时点算新鲜度 ⇒ 老数据会如实显示为过期，不会被"洗新"。
++    """
++    try:
++        import public_snapshot as _snap
++        old = _snap.read(ex, mid)
++    except Exception:                                          # noqa: BLE001
++        return payload
++    if not isinstance(old, dict):
++        return payload
++    carried_from = old.get("snapshot_refreshed_at")
++    carried = []
++
++    def carry(new_block, old_block):
++        if _block_ok(new_block) or not _block_ok(old_block):
++            return None
++        keep = dict(old_block)
++        keep["carried_over"] = True
++        keep["carried_from"] = carried_from
++        return keep
++
++    new_ls = payload.get("long_short") or {}
++    old_ls = old.get("long_short") or {}
++    if isinstance(new_ls, dict) and new_ls:
++        for name in RATIO_ALL_BLOCKS:
++            keep = carry(new_ls.get(name) or {}, old_ls.get(name) or {})
++            if keep is not None:
++                new_ls[name] = keep
++                carried.append(name)
++        if carried:
++            new_ls["carried_over_blocks"] = carried
++            new_ls["carried_over_note"] = (
++                "本轮未取到的块沿用上一轮值，**按该块自己的 fetched_at 判新鲜度**；"
++                "轮转窗口会逐轮补齐")
++            payload["long_short"] = new_ls
++
++    new_oi = payload.get("open_interest") or {}
++    old_oi = old.get("open_interest") or {}
++    if isinstance(new_oi, dict) and new_oi:
++        keep = carry(new_oi, old_oi)
++        if keep is not None:
++            payload["open_interest"] = keep
++            payload["open_interest_carried_over"] = True
++    return payload
++
++
++def _ratio_blocks_complete(payload):
++    """窗口内标的的 3 个额外比率块是否**全部**取到（`available:true`）。
++
++    只数"处理过"不算数：本轮可能因本地预算用尽被推迟（`DeferredRequest`），
++    块会写成 `available:false`。必须逐块看是否真有值。
++    """
++    ls = (payload or {}).get("long_short") or {}
++    return all(_block_ok(ls.get(b)) for b in RATIO_EXTRA_BLOCKS)
++
++
++def refresh_snapshot(gw, symbols, period="1h", fields="ratio,oi", extra=None,
++                     ratio_extra=None):
+     """**采集器侧**周期刷新：把有界标的集合的公开扩展字段写入本机可读快照。
+ 
+     口径（与用户要求逐条对应）：
+@@ -486,6 +595,9 @@ def refresh_snapshot(gw, symbols, period="1h", fields="ratio,oi", extra=None):
+       · **有界**：`symbols` 由调用方给**有界集合**（页首 N 个标的），本函数不自行扩张；
+       · **精简取数**：`core=True` ⇒ 单标 **2 次**上游（OI 名义额/总量取自
+         `openInterestHist` 同一行 + 持仓量多空比），只覆盖原版 UI 实际使用的字段；
++      · **轮转补采**：`ratio_extra` 给出**本轮**要取齐 3 个额外比率块的标的（有界子集），
++        这些标的单标 5 次上游；未在窗口内的标的沿用上一轮值（见 `_carry_over_ratio`）。
++        这样既接通了原先"未取"的三块，又不让整轮预算翻倍；
+       · **只写快照**：不落库、不写历史、不新增进程/端口；
+       · **失败不覆盖**：仅当 `available:true` 才落盘；失败保留上一份好快照，
+         由读取侧按写入时点判过期（不把失败静默写成空值）。
+@@ -495,23 +607,35 @@ def refresh_snapshot(gw, symbols, period="1h", fields="ratio,oi", extra=None):
+     import time as _t
+     import public_snapshot as _snap
+     counted = _CountingGateway(gw)
++    extra_set = {str(s) for s in (ratio_extra or ())}
+     t0 = _t.monotonic()
+     ok = failed = skipped = 0
++    ratio_full_done = 0
++    ratio_incomplete = []
+     failures = []
+     for item in symbols or ():
+         if isinstance(item, (tuple, list)) and len(item) == 2:
+             ex, mid = item[0], item[1]
+         else:
+             ex, mid = "binance", item
++        full = mid in extra_set
+         try:
+             payload = fetch_public_extras(ex, mid, period=period, fields=fields,
+-                                          gw=counted, core=True)
++                                          gw=counted, core=True, ratio_full=full)
+         except Exception as exc:                                   # noqa: BLE001
+             failed += 1
+             if len(failures) < 12:
+                 failures.append(f"{ex}:{mid} → {type(exc).__name__}")
+             continue
+         if payload.get("available"):
++            if full and _ratio_blocks_complete(payload):
++                ratio_full_done += 1
++            else:
++                if full:
++                    # 窗口内但没取齐（多为本地预算推迟）⇒ 记下来供下一轮优先重试，
++                    # 同时把缺的块沿用旧值，**不把已有值覆盖成空**
++                    ratio_incomplete.append(mid)
++                payload = _carry_over_ratio(ex, mid, payload)
+             _snap.write(ex, mid, payload)
+             ok += 1
+         else:
+@@ -521,7 +645,12 @@ def refresh_snapshot(gw, symbols, period="1h", fields="ratio,oi", extra=None):
+     elapsed = round(_t.monotonic() - t0, 2)
+     stats = {
+         "targets": len(symbols or ()), "ok": ok, "failed": failed, "skipped": skipped,
+-        "period": period, "fields": fields, "mode": "core（精简：OI名义额+持仓量多空比，单标2次上游）",
++        "period": period, "fields": fields,
++        "mode": ("core+轮转（OI名义额+持仓量多空比，单标2次上游；"
++                 "轮转窗口内单标5次，补采大户账户/全市场账户/taker 三个比率）"),
++        "ratio_extra_targets": sorted(extra_set),
++        "ratio_extra_done": ratio_full_done,
++        "ratio_extra_incomplete": sorted(set(ratio_incomplete)),
+         "requests": counted.stats(), "elapsed_s": elapsed,
+         "snapshot_dir": str(_snap.SNAP_DIR),
+         "failures": failures,

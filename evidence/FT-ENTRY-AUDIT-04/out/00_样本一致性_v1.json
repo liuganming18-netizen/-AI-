@@ -1,0 +1,78 @@
+{
+  "unique_single_value": {
+    "timerange": [
+      "20211201-20241231"
+    ],
+    "backtest_start": [
+      "2021-12-01 00:00:00"
+    ],
+    "backtest_end": [
+      "2024-12-31 00:00:00"
+    ],
+    "backtest_days": [
+      "1126"
+    ],
+    "timeframe": [
+      "15m"
+    ],
+    "max_open_trades": [
+      "3"
+    ],
+    "stake_amount": [
+      "unlimited"
+    ],
+    "dry_run_wallet": [
+      "2000"
+    ],
+    "trading_mode": [
+      "futures"
+    ],
+    "market_change": [
+      "-0.092338"
+    ],
+    "pairlist_n": [
+      "70"
+    ]
+  },
+  "unique_multi_value": {},
+  "csv_vs_archive_rows_mismatch": [],
+  "config_sha256": "9d2bab6a64f0afa69cd5022055ca8266f2ca3209b439b5e77b3b824688b95a52",
+  "config_whitelist_n": 70,
+  "config_whitelist_sha256": "b371c7ee3ccfcae1fa9d6fc579925ec7c64ec60faf5825ff845c6041a6aa870e",
+  "strategy_base_sha256": "684855bc904760bc6fc2b1a3181c9c869d061158c8ba705e07325696d8d4c43b",
+  "event_config_sha256_now": "29a42d98f7b7c5302b7adc0cef20b4ea832d76c41acdef2f2447ee234afc69ae",
+  "event_config_note": "策略 import 的冻结参数模块；批次内无运行时快照，只能记录当前哈希",
+  "base_class_diff_vs_entry02": {
+    "hunks": 3,
+    "changed_lines": [
+      "-            # A 组参数化提前触发",
+      "+            # A 组参数化提前触发 (FT-ENTRY-03 严格规则：信号收盘价严格低于突破位 H)",
+      "-                is_pre_bo_trigger = (close_p >= target_level) and (close_p <= H + self.config.breakout_buffer_atr * A)",
+      "+                is_pre_bo_trigger = (close_p >= target_level) and (close_p < H)",
+      "-                        box_high_h=target_level,",
+      "+                        box_high_h=H,"
+    ]
+  },
+  "cross_batch_baseline": {
+    "old_baseline_trades": 19,
+    "new_baseline_trades": 19,
+    "old_net": 19.728207,
+    "new_net": 19.728207,
+    "same_trade_keys": 19,
+    "only_in_old": 0,
+    "only_in_new": 0,
+    "trades_in_removed_4_coins_old_baseline": 0,
+    "trades_csv_sha256_old": "f6f47c765cb515dcecc703c427be5cc19b42b6de43329b0cd12b6d63ed37cd9e",
+    "trades_csv_sha256_new": "0f52b7dfed5fce7afe8337ab893abe88aea1c467e663766a671ba4427ae87dff",
+    "baseline_csv_byte_identical": false,
+    "baseline_bytes_identical_after_bom_strip": true,
+    "bom_old": true,
+    "bom_new": false,
+    "sha256_after_bom_strip": "0f52b7dfed5fce7afe8337ab893abe88aea1c467e663766a671ba4427ae87dff",
+    "note": "两版基线 CSV 的唯一字节差异是 UTF-8 BOM（旧版有、新版无）；去掉 BOM 后逐字节一致 ⇒ 74→70 的样本收缩对基线零影响"
+  },
+  "data_fingerprint_vs_audit03": {
+    "compared": 140,
+    "all_identical": true
+  }
+}

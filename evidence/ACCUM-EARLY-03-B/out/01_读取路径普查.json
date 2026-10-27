@@ -1,0 +1,629 @@
+{
+ "probe": "01_读取路径普查",
+ "generated_at_utc": "2026-10-26T13:17:50Z",
+ "files_scanned": [
+  "accum_pending.py",
+  "accum_research.py",
+  "adapter.py",
+  "backtest_api.py",
+  "backtest_batches.py",
+  "backtest_chart.py",
+  "backtest_metrics.py",
+  "backtest_runner.py",
+  "backtest_store.py",
+  "bt_run_log.py",
+  "datacenter_service.py",
+  "event_trend_bridge.py",
+  "experiment_registry.py",
+  "gateway_ext.py",
+  "history_lifecycle.py",
+  "history_loader.py",
+  "ledger_links.py",
+  "legacy_retirement.py",
+  "live_account.py",
+  "live_api.py",
+  "live_pool.py",
+  "live_signal_engine.py",
+  "live_store.py",
+  "live_worker.py",
+  "market_repository.py",
+  "metrics_api.py",
+  "metrics_feed.py",
+  "migrate.py",
+  "observe_store.py",
+  "oi_feed.py",
+  "oi_resonance_bridge.py",
+  "paper_engine.py",
+  "paper_loop.py",
+  "pool_scope.py",
+  "project_paths.py",
+  "public_market_read.py",
+  "public_snapshot.py",
+  "realtime_collector.py",
+  "replay_calc.py",
+  "research_15m.py",
+  "service_manager.py",
+  "smart_money.py",
+  "spawn_detached.py",
+  "strategy_contracts.py",
+  "strategy_runner.py",
+  "telegram_notifier.py",
+  "unified_runtime.py",
+  "verify_exec_wiring.py"
+ ],
+ "static": [
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/live_api.py",
+   "line": 1217,
+   "owner": "paper_advance_trailing_post",
+   "callee": "last_closed_4h",
+   "classified": "取数函数调用",
+   "snippet": "candle_4h = PE.last_closed_4h(con_mkt, sym)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/live_api.py",
+   "line": 1182,
+   "owner": "paper_advance_trailing_post",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT open, high, low, close FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' AND"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/live_api.py",
+   "line": 1188,
+   "owner": "paper_advance_trailing_post",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT open, high, low, close FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe="
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/live_worker.py",
+   "line": 153,
+   "owner": "_scan_position_exit",
+   "callee": "closed_15m",
+   "classified": "取数函数调用",
+   "snippet": "bars = PE.closed_15m(mkt, p[\"symbol\"], entry_ts, T)"
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 634,
+   "owner": "mark_position",
+   "callee": "last_closed_15m",
+   "classified": "取数函数调用",
+   "snippet": "row = last_closed_15m(con_mkt, pos[\"symbol\"])"
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 1104,
+   "owner": "open_position",
+   "callee": "bar_at_or_after",
+   "classified": "取数函数调用",
+   "snippet": "bar = bar_at_or_after(con_mkt, symbol, earliest_fill_ms)"
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 1176,
+   "owner": "open_position",
+   "callee": "bar_before",
+   "classified": "取数函数调用",
+   "snippet": "prev_bar = bar_before(con_mkt, symbol, bar_open)"
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 1727,
+   "owner": "close_position",
+   "callee": "last_closed_15m",
+   "classified": "取数函数调用",
+   "snippet": "row = last_closed_15m(con_mkt, symbol)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 447,
+   "owner": "closed_15m",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles \""
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 1999,
+   "owner": "enforce_drawdown",
+   "callee": "bar_at_or_after",
+   "classified": "取数函数调用",
+   "snippet": "nxt = bar_at_or_after(con_mkt, p[\"symbol\"], T)"
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2538,
+   "owner": "advance_position_trailing",
+   "callee": "last_closed_4h",
+   "classified": "取数函数调用",
+   "snippet": "candle_4h = last_closed_4h(con_mkt, symbol, upto_ms=effective_now)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 458,
+   "owner": "bar_at_or_after",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 470,
+   "owner": "last_closed_15m",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 477,
+   "owner": "last_closed_15m",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 518,
+   "owner": "bar_before",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 541,
+   "owner": "latest_closed_detail",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2374,
+   "owner": "last_closed_4h",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2381,
+   "owner": "last_closed_4h",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2668,
+   "owner": "advance_arm_trailing",
+   "callee": "last_closed_4h",
+   "classified": "取数函数调用",
+   "snippet": "c4h = last_closed_4h(con_mkt, p[\"symbol\"], upto_ms=clk)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 488,
+   "owner": "last_closed_15m",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 495,
+   "owner": "last_closed_15m",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2392,
+   "owner": "last_closed_4h",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_engine.py",
+   "line": 2399,
+   "owner": "last_closed_4h",
+   "classified": "合并派发内",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at \""
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/paper_loop.py",
+   "line": 173,
+   "owner": "execute_cycle",
+   "callee": "last_closed_4h",
+   "classified": "取数函数调用",
+   "snippet": "c4h = PE.last_closed_4h(con_mkt, sym, upto_ms=now)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_loop.py",
+   "line": 197,
+   "owner": "execute_cycle",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/paper_loop.py",
+   "line": 206,
+   "owner": "execute_cycle",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at \""
+  },
+  {
+   "kind": "read_func_call",
+   "file": "框架/backend/unified_runtime.py",
+   "line": 2330,
+   "owner": "execute_cycle",
+   "callee": "last_closed_4h",
+   "classified": "取数函数调用",
+   "snippet": "c4h = PE.last_closed_4h(con_mkt, sym, upto_ms=now_ms)"
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/unified_runtime.py",
+   "line": 1609,
+   "owner": "idle_breakdown",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT high, low, close, volume FROM candles \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/unified_runtime.py",
+   "line": 2369,
+   "owner": "execute_cycle",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at \""
+  },
+  {
+   "kind": "sql_literal",
+   "file": "框架/backend/unified_runtime.py",
+   "line": 2378,
+   "owner": "execute_cycle",
+   "classified": "绕过取数函数",
+   "snippet": "\"SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at \""
+  }
+ ],
+ "by_file": {
+  "框架/backend/live_api.py": [
+   {
+    "line": 1217,
+    "kind": "read_func_call",
+    "owner": "paper_advance_trailing_post",
+    "classified": "取数函数调用",
+    "callee": "last_closed_4h"
+   },
+   {
+    "line": 1182,
+    "kind": "sql_literal",
+    "owner": "paper_advance_trailing_post",
+    "classified": "绕过取数函数"
+   },
+   {
+    "line": 1188,
+    "kind": "sql_literal",
+    "owner": "paper_advance_trailing_post",
+    "classified": "绕过取数函数"
+   }
+  ],
+  "框架/backend/live_worker.py": [
+   {
+    "line": 153,
+    "kind": "read_func_call",
+    "owner": "_scan_position_exit",
+    "classified": "取数函数调用",
+    "callee": "closed_15m"
+   }
+  ],
+  "框架/backend/paper_engine.py": [
+   {
+    "line": 634,
+    "kind": "read_func_call",
+    "owner": "mark_position",
+    "classified": "取数函数调用",
+    "callee": "last_closed_15m"
+   },
+   {
+    "line": 1104,
+    "kind": "read_func_call",
+    "owner": "open_position",
+    "classified": "取数函数调用",
+    "callee": "bar_at_or_after"
+   },
+   {
+    "line": 1176,
+    "kind": "read_func_call",
+    "owner": "open_position",
+    "classified": "取数函数调用",
+    "callee": "bar_before"
+   },
+   {
+    "line": 1727,
+    "kind": "read_func_call",
+    "owner": "close_position",
+    "classified": "取数函数调用",
+    "callee": "last_closed_15m"
+   },
+   {
+    "line": 447,
+    "kind": "sql_literal",
+    "owner": "closed_15m",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 1999,
+    "kind": "read_func_call",
+    "owner": "enforce_drawdown",
+    "classified": "取数函数调用",
+    "callee": "bar_at_or_after"
+   },
+   {
+    "line": 2538,
+    "kind": "read_func_call",
+    "owner": "advance_position_trailing",
+    "classified": "取数函数调用",
+    "callee": "last_closed_4h"
+   },
+   {
+    "line": 458,
+    "kind": "sql_literal",
+    "owner": "bar_at_or_after",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 470,
+    "kind": "sql_literal",
+    "owner": "last_closed_15m",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 477,
+    "kind": "sql_literal",
+    "owner": "last_closed_15m",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 518,
+    "kind": "sql_literal",
+    "owner": "bar_before",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 541,
+    "kind": "sql_literal",
+    "owner": "latest_closed_detail",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 2374,
+    "kind": "sql_literal",
+    "owner": "last_closed_4h",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 2381,
+    "kind": "sql_literal",
+    "owner": "last_closed_4h",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 2668,
+    "kind": "read_func_call",
+    "owner": "advance_arm_trailing",
+    "classified": "取数函数调用",
+    "callee": "last_closed_4h"
+   },
+   {
+    "line": 488,
+    "kind": "sql_literal",
+    "owner": "last_closed_15m",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 495,
+    "kind": "sql_literal",
+    "owner": "last_closed_15m",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 2392,
+    "kind": "sql_literal",
+    "owner": "last_closed_4h",
+    "classified": "合并派发内"
+   },
+   {
+    "line": 2399,
+    "kind": "sql_literal",
+    "owner": "last_closed_4h",
+    "classified": "合并派发内"
+   }
+  ],
+  "框架/backend/paper_loop.py": [
+   {
+    "line": 173,
+    "kind": "read_func_call",
+    "owner": "execute_cycle",
+    "classified": "取数函数调用",
+    "callee": "last_closed_4h"
+   },
+   {
+    "line": 197,
+    "kind": "sql_literal",
+    "owner": "execute_cycle",
+    "classified": "绕过取数函数"
+   },
+   {
+    "line": 206,
+    "kind": "sql_literal",
+    "owner": "execute_cycle",
+    "classified": "绕过取数函数"
+   }
+  ],
+  "框架/backend/unified_runtime.py": [
+   {
+    "line": 2330,
+    "kind": "read_func_call",
+    "owner": "execute_cycle",
+    "classified": "取数函数调用",
+    "callee": "last_closed_4h"
+   },
+   {
+    "line": 1609,
+    "kind": "sql_literal",
+    "owner": "idle_breakdown",
+    "classified": "绕过取数函数"
+   },
+   {
+    "line": 2369,
+    "kind": "sql_literal",
+    "owner": "execute_cycle",
+    "classified": "绕过取数函数"
+   },
+   {
+    "line": 2378,
+    "kind": "sql_literal",
+    "owner": "execute_cycle",
+    "classified": "绕过取数函数"
+   }
+  ]
+ },
+ "summary": {
+  "sql_literal_hits": 19,
+  "read_func_calls": 11,
+  "bypass_points": 4,
+  "bypass_detail": [
+   {
+    "where": "框架/backend/live_api.py::paper_advance_trailing_post",
+    "lines": [
+     1182,
+     1188
+    ],
+    "kinds": [
+     "sql_literal"
+    ],
+    "covered_by_merge": false,
+    "on_fill_chain": true,
+    "role": "页面手工推进跟踪止损（会直接决定止损线）",
+    "coordination_change": "把第 1182、1188 行两段 SQL 换成 `PE.last_closed_4h(con_mkt, sym, upto_ms)`（它已在四个取数函数里，自动继承合并能力）；入参 `con_mkt` 由 `L.market_conn()` 改为 `PE.open_market()`。",
+    "note": "自己写 SQL 查 candles ⇒ 只读热库。属共享入口，本单按工单要求只登记具体修改点、不擅自改动。"
+   },
+   {
+    "where": "框架/backend/paper_loop.py::execute_cycle",
+    "lines": [
+     197,
+     206
+    ],
+    "kinds": [
+     "sql_literal"
+    ],
+    "covered_by_merge": false,
+    "on_fill_chain": true,
+    "role": "15m 明细周期退出扫描（每轮取最近一根已收盘 15m 给 check_position_exit_on_bar）",
+    "coordination_change": "把 `con_mkt.execute(\"SELECT ... FROM candles ... timeframe='15m' ...\")`（第 197、206 行两段）换成 `PE.latest_closed_detail(mkt, sym, min_t, now)`；该函数本单已加进 paper_engine，语义与原 SQL 逐字相同，只是多一条合并分支。",
+    "note": "自己写 SQL 查 candles ⇒ 只读热库。属共享入口，本单按工单要求只登记具体修改点、不擅自改动。"
+   },
+   {
+    "where": "框架/backend/unified_runtime.py::execute_cycle",
+    "lines": [
+     2369,
+     2378
+    ],
+    "kinds": [
+     "sql_literal"
+    ],
+    "covered_by_merge": false,
+    "on_fill_chain": true,
+    "role": "同上：15m 明细退出扫描（统一执行守护器每轮）",
+    "coordination_change": "把第 2369、2378 行两段 SQL 换成 `PE.latest_closed_detail(mkt, sym, min_t, now_ms)`；其余不动。",
+    "note": "自己写 SQL 查 candles ⇒ 只读热库。属共享入口，本单按工单要求只登记具体修改点、不擅自改动。"
+   },
+   {
+    "where": "框架/backend/unified_runtime.py::idle_breakdown",
+    "lines": [
+     1609
+    ],
+    "kinds": [
+     "sql_literal"
+    ],
+    "covered_by_merge": false,
+    "on_fill_chain": false,
+    "role": "诊断展示（水位/断流说明），不参与成交与退出定价",
+    "coordination_change": "可不改；若要在隔离回放里也看到合并口径，再换成取数函数。",
+    "note": "自己写 SQL 查 candles ⇒ 只读热库。属共享入口，本单按工单要求只登记具体修改点、不擅自改动。"
+   }
+  ],
+  "conclusion": "成交/退出链路上还有自写 SQL 的取数点，它们不受合并门面影响；这些点在 `paper_loop.py` 与 `unified_runtime.py` 里，属共享入口，本单按工单要求只报具体修改点、不擅自改动。"
+ },
+ "runtime": {
+  "event": "E1_TNSR_cold",
+  "symbol": "TNSRUSDT",
+  "merge_enabled": true,
+  "verdict": "closed",
+  "15m": {
+   "reads": {
+    "bars": 1,
+    "at_or_after": 0,
+    "before": 0,
+    "last_closed": 0
+   },
+   "returned_by_source": {
+    "cold": 2879,
+    "hot": 0
+   },
+   "returned_available_at_missing": 2879,
+   "unbounded_latest_calls": 0,
+   "passthrough_sql_count": 0,
+   "cache_loads": [
+    {
+     "symbol": "TNSRUSDT",
+     "timeframe": "15m",
+     "start_utc": "2026-07-17T08:15:00Z",
+     "end_utc": "2026-09-22T08:00:00Z",
+     "rows_cold": 5661,
+     "rows_hot": 992,
+     "rows_merged": 6431,
+     "overlap_hot_wins": 222,
+     "gap_segment_count": 0
+    }
+   ]
+  },
+  "4h": {
+   "reads": {
+    "bars": 1,
+    "at_or_after": 0,
+    "before": 0,
+    "last_closed": 0
+   },
+   "returned_by_source": {
+    "cold": 180,
+    "hot": 0
+   },
+   "returned_available_at_missing": 180,
+   "passthrough_sql_count": 0
+  },
+  "passthrough_samples": [],
+  "passthrough_candle_sql": [],
+  "passthrough_candle_sql_count": 0,
+  "judgement": "通过：链路里没有 K 线 SQL 落到热库穿透（穿透只用于资金费等非 K 线表）"
+ }
+}

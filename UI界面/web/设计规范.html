@@ -1,15 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>设计规范系统 · 趋势研判系统</title>
 <!--
-  本页与线上应用**共用同一份 CSS**（src/design/tokens.css + components.css）。
+  本页与线上应用**共用同一份 CSS**（src/design/tokens.css + components.css + backtest.css）。
   规范页不是「文档副本」，它就是设计事实源的可视化投影 —— 改一处，两处同步。
 -->
+<script>
+  /* 首屏防闪：与线上 index.html 完全同一套判定顺序（URL > localStorage > 缺省深色）。
+     必须放在 <link rel="stylesheet"> 之前执行，否则会先画一帧默认色再翻色。 */
+  (function () {
+    try {
+      var q = new URLSearchParams(location.search).get('theme');
+      var s = q === 'light' || q === 'dark' ? q : localStorage.getItem('wk-theme');
+      document.documentElement.dataset.theme = s === 'light' ? 'light' : 'dark';
+    } catch (e) {}
+  })();
+</script>
 <link rel="stylesheet" href="./src/design/tokens.css" />
 <link rel="stylesheet" href="./src/design/components.css" />
+<link rel="stylesheet" href="./src/design/backtest.css" />
 <style>
   html, body { margin: 0; padding: 0; }
   body {
@@ -29,7 +41,7 @@
     border: 1px solid var(--ds-border-subtle);
     border-radius: var(--ds-r-sm);
     padding: 0.5px 4px;
-    color: var(--ds-accent-700);
+    color: var(--ds-accent-text);
   }
 
   /* 布局：左侧目录 + 右侧内容 */
@@ -43,6 +55,21 @@
     overflow-y: auto;
   }
   .toc__brand { display: flex; align-items: center; gap: 9px; margin-bottom: 20px; }
+  .toc__toggle {
+    margin-left: auto; flex: 0 0 auto;
+    width: 26px; height: 26px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--ds-surface-3); color: var(--ds-text-3);
+    border: 1px solid var(--ds-border); border-radius: var(--ds-r-md);
+    cursor: pointer; transition: color var(--ds-dur-fast) var(--ds-ease),
+      border-color var(--ds-dur-fast) var(--ds-ease);
+  }
+  .toc__toggle:hover { color: var(--ds-text); border-color: var(--ds-border-strong); }
+  .toc__toggle:focus-visible { outline: none; box-shadow: var(--ds-ring); }
+  .toc__toggle svg { width: 13px; height: 13px; }
+  /* 深色主题下显示「太阳」（点击去浅色），浅色主题下显示「月亮」 */
+  html[data-theme="dark"] .ico-moon { display: none; }
+  html[data-theme="light"] .ico-sun { display: none; }
   .toc__mark {
     width: 30px; height: 30px; border-radius: var(--ds-r-lg);
     background: var(--ds-accent); color: #fff;
@@ -190,6 +217,67 @@
   .principle h4 { font-size: var(--ds-fs-sm); color: var(--ds-text); margin-bottom: 3px; }
   .principle p { font-size: var(--ds-fs-xs); color: var(--ds-text-3); line-height: 1.6; }
   .principles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); }
+
+  /* ── 双主题：并排对照面板 ─────────────────────────────────────────────
+   * 关键点：右侧面板直接带 data-theme="light"，令牌在子树内重新声明，
+   * 所以两块面板用的是**同一段标记**、同一份 CSS，只是令牌解析结果不同。
+   * 这就是「双主题不是两套样式」的可视化证明。 */
+  .themepair { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .themepanel {
+    border: 1px solid var(--ds-border); border-radius: var(--ds-r-lg);
+    background: var(--ds-canvas); padding: 14px; overflow: hidden;
+  }
+  .themepanel__tag {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    font-family: var(--ds-mono); font-size: 10px; font-weight: 700;
+    color: var(--ds-text-3); letter-spacing: .04em; text-transform: uppercase;
+  }
+  .themepanel__tag i { width: 8px; height: 8px; border-radius: 50%; background: var(--ds-accent); }
+
+  /* ── 中性阶梯 ─────────────────────────────────────────────────────── */
+  .ladder { display: flex; flex-direction: column; gap: 3px; }
+  .ladder__row {
+    display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 9px;
+    align-items: center; padding: 4px 0;
+  }
+  .ladder__chip {
+    height: 22px; border-radius: var(--ds-r-sm);
+    border: 1px solid var(--ds-border-subtle);
+  }
+  .ladder__meta { min-width: 0; }
+  .ladder__tok { font-family: var(--ds-mono); font-size: 10px; color: var(--ds-text-2); }
+  .ladder__use { font-size: 10px; color: var(--ds-text-4); margin-top: 1px; }
+  .ladder__val {
+    font-family: var(--ds-mono); font-size: 10px; color: var(--ds-text-3);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  /* ── 回测页组件演示区 ─────────────────────────────────────────────── */
+  .bt-demo { display: flex; flex-direction: column; gap: 10px; }
+  .bt-demo__cap {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 10px; color: var(--ds-text-4);
+  }
+  .bt-demo__cap code { font-size: 10px; }
+  .bt-demo__side { max-width: 300px; }
+  /* 骨架示意图：只用描边 + 文字，不画真实图表 */
+  .shellmap {
+    display: flex; height: 132px; border: 1px solid var(--ds-border);
+    border-radius: var(--ds-r-md); overflow: hidden; background: var(--ds-canvas);
+  }
+  .shellmap__side {
+    width: 108px; flex: 0 0 108px; display: flex; flex-direction: column; gap: 5px;
+    padding: 8px; border-right: 1px solid var(--ds-border-subtle); background: var(--ds-surface);
+  }
+  .shellmap__main {
+    flex: 1 1 auto; display: flex; flex-direction: column; gap: 5px; padding: 8px;
+  }
+  .shellmap__bar { height: 9px; border-radius: 2px; background: var(--ds-surface-3); }
+  .shellmap__bar--accent { background: var(--ds-accent-100); border: 1px solid var(--ds-accent-300); }
+  .shellmap__lbl {
+    font-family: var(--ds-mono); font-size: 9px; color: var(--ds-text-4);
+    letter-spacing: .04em;
+  }
 </style>
 </head>
 <body class="ds-scope">
@@ -201,14 +289,25 @@
       <div class="toc__mark">趋</div>
       <div>
         <div class="toc__name">设计规范系统</div>
-        <div class="toc__ver">v1.0 · 2026-10-16</div>
+        <div class="toc__ver">v1.1 · 2026-10-17</div>
       </div>
+      <button class="toc__toggle" id="themeToggle" type="button" aria-label="切换深色 / 浅色">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path class="ico-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+          <g class="ico-sun">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </g>
+        </svg>
+      </button>
     </div>
 
     <div class="toc__group">
       <div class="toc__gtitle">基础</div>
       <a href="#principles">设计原则</a>
       <a href="#color">色彩系统</a>
+      <a href="#theme">双主题与中性阶梯</a>
       <a href="#type">字体与排版</a>
       <a href="#space">间距 · 圆角 · 阴影</a>
       <a href="#motion">动效</a>
@@ -232,6 +331,7 @@
       <a href="#pagehead">页头与工具条</a>
       <a href="#nav">区块导航</a>
       <a href="#chart">图表配色</a>
+      <a href="#backtest">回测页组件</a>
     </div>
     <div class="toc__group">
       <div class="toc__gtitle">规范</div>
@@ -246,15 +346,16 @@
     <div class="hero">
       <h1>趋势研判系统 · 设计规范</h1>
       <p>
-        这是一套「量化研究终端」的界面语言：浅色、克制、以数据为中心。规范分三层 ——
+        这是一套「量化研究终端」的界面语言：克制、以数据为中心、深色与浅色双主题。规范分三层 ——
         <b>令牌层</b>（颜色 / 字号 / 间距等原子值）、<b>组件层</b>（按钮 / 卡片 / 表格等可复用块）、
         <b>页面层</b>（页头、区块导航、工具条的固定组合）。所有层级只允许向下引用，不允许跳层硬编码。
       </p>
       <div class="hero__meta">
         <span class="ds-badge ds-badge--accent">tokens.css</span>
         <span class="ds-badge ds-badge--accent">components.css</span>
+        <span class="ds-badge ds-badge--accent">backtest.css</span>
         <span class="ds-badge ds-badge--neutral">与线上同源</span>
-        <span class="ds-badge ds-badge--pos">浅色主题</span>
+        <span class="ds-badge ds-badge--info">深色 / 浅色双主题</span>
       </div>
     </div>
 
@@ -300,35 +401,37 @@
       <p class="sec-desc">
         五个色族，各司其职。<b>表面</b>表达层级，<b>描边</b>表达边界，<b>文字</b>表达主次，
         <b>强调</b>表达交互，<b>语义</b>表达数据含义。语义色三件套（文字 / 底 / 边）必须成组使用，不允许只取其中一支。
+        下表的色值是<b>当前主题下的实时值</b>（由脚本读 <code>getComputedStyle</code> 填入），
+        切换右上角主题开关会同步变化 —— 文档不会和令牌脱钩。
       </p>
 
       <div class="sub">表面层 · Surface</div>
       <div class="subnote">按「层级」选择，不按「深浅」选择。画布永远最底，卡片永远最上。</div>
       <div class="swatches">
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-canvas)"></div><div class="sw__body"><div class="sw__name">画布</div><div class="sw__tok">--ds-canvas</div><div class="sw__val">#f5f7fb</div><div class="sw__use">页面底色</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface)"></div><div class="sw__body"><div class="sw__name">卡片面</div><div class="sw__tok">--ds-surface</div><div class="sw__val">#ffffff</div><div class="sw__use">卡片 / 面板</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-2)"></div><div class="sw__body"><div class="sw__name">次级面</div><div class="sw__tok">--ds-surface-2</div><div class="sw__val">#fafbfe</div><div class="sw__use">表头 / 折叠摘要</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-3)"></div><div class="sw__body"><div class="sw__name">内嵌面</div><div class="sw__tok">--ds-surface-3</div><div class="sw__val">#eef2f8</div><div class="sw__use">分段控件底 / 代码块</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-inverse)"></div><div class="sw__body"><div class="sw__name">反色面</div><div class="sw__tok">--ds-surface-inverse</div><div class="sw__val">#0f1a2e</div><div class="sw__use">哈希 / 终端块</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-canvas)"></div><div class="sw__body"><div class="sw__name">画布</div><div class="sw__tok">--ds-canvas</div><div class="sw__val" data-token="--ds-canvas"></div><div class="sw__use">页面底色</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface)"></div><div class="sw__body"><div class="sw__name">卡片面</div><div class="sw__tok">--ds-surface</div><div class="sw__val" data-token="--ds-surface"></div><div class="sw__use">卡片 / 面板</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-2)"></div><div class="sw__body"><div class="sw__name">次级面</div><div class="sw__tok">--ds-surface-2</div><div class="sw__val" data-token="--ds-surface-2"></div><div class="sw__use">表头 / 折叠摘要</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-3)"></div><div class="sw__body"><div class="sw__name">内嵌面</div><div class="sw__tok">--ds-surface-3</div><div class="sw__val" data-token="--ds-surface-3"></div><div class="sw__use">分段控件底 / 代码块</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-surface-inverse)"></div><div class="sw__body"><div class="sw__name">反色面</div><div class="sw__tok">--ds-surface-inverse</div><div class="sw__val" data-token="--ds-surface-inverse"></div><div class="sw__use">哈希 / 终端块</div></div></div>
       </div>
 
       <div class="sub">文字层 · Text</div>
-      <div class="subnote">四级层次，均满足浅底可读对比度（正文 ≥ 4.5:1）。</div>
+      <div class="subnote">四级层次。深色底上 一级 ≥ 12:1、二级 ≥ 7:1、三级 ≥ 4.5:1；浅色底上 三级 ≥ 4.5:1。正文一律 ≥ AA。</div>
       <div class="swatches">
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-text)"></div><div class="sw__body"><div class="sw__name">一级文字</div><div class="sw__tok">--ds-text</div><div class="sw__val">#0b1526</div><div class="sw__use">标题 / 关键数字</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-2)"></div><div class="sw__body"><div class="sw__name">二级文字</div><div class="sw__tok">--ds-text-2</div><div class="sw__val">#3d4c63</div><div class="sw__use">正文</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-3)"></div><div class="sw__body"><div class="sw__name">三级文字</div><div class="sw__tok">--ds-text-3</div><div class="sw__val">#6b7a91</div><div class="sw__use">标签 / 说明</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-4)"></div><div class="sw__body"><div class="sw__name">四级文字</div><div class="sw__tok">--ds-text-4</div><div class="sw__val">#93a1b5</div><div class="sw__use">占位 / 极弱辅助</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-text)"></div><div class="sw__body"><div class="sw__name">一级文字</div><div class="sw__tok">--ds-text</div><div class="sw__val" data-token="--ds-text"></div><div class="sw__use">标题 / 关键数字</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-2)"></div><div class="sw__body"><div class="sw__name">二级文字</div><div class="sw__tok">--ds-text-2</div><div class="sw__val" data-token="--ds-text-2"></div><div class="sw__use">正文</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-3)"></div><div class="sw__body"><div class="sw__name">三级文字</div><div class="sw__tok">--ds-text-3</div><div class="sw__val" data-token="--ds-text-3"></div><div class="sw__use">标签 / 说明</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-text-4)"></div><div class="sw__body"><div class="sw__name">四级文字</div><div class="sw__tok">--ds-text-4</div><div class="sw__val" data-token="--ds-text-4"></div><div class="sw__use">占位 / 极弱辅助</div></div></div>
       </div>
 
       <div class="sub">强调色 · Accent</div>
       <div class="subnote">只用于交互与选中：主按钮、焦点环、当前区块。<b>不得</b>用于表达数据涨跌。</div>
       <div class="swatches">
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-50)"></div><div class="sw__body"><div class="sw__name">强调-50</div><div class="sw__tok">--ds-accent-50</div><div class="sw__val">#eef3ff</div><div class="sw__use">选中行底色</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-100)"></div><div class="sw__body"><div class="sw__name">强调-100</div><div class="sw__tok">--ds-accent-100</div><div class="sw__val">#dce7ff</div><div class="sw__use">焦点环</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent)"></div><div class="sw__body"><div class="sw__name">强调</div><div class="sw__tok">--ds-accent</div><div class="sw__val">#3b6ef6</div><div class="sw__use">主按钮 / 竖条</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-600)"></div><div class="sw__body"><div class="sw__name">强调-hover</div><div class="sw__tok">--ds-accent-600</div><div class="sw__val">#2f5ce0</div><div class="sw__use">悬停态</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-700)"></div><div class="sw__body"><div class="sw__name">强调-文字</div><div class="sw__tok">--ds-accent-700</div><div class="sw__val">#2449bb</div><div class="sw__use">选中项文字</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-50)"></div><div class="sw__body"><div class="sw__name">强调-50</div><div class="sw__tok">--ds-accent-50</div><div class="sw__val" data-token="--ds-accent-50"></div><div class="sw__use">选中行底色</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-100)"></div><div class="sw__body"><div class="sw__name">强调-100</div><div class="sw__tok">--ds-accent-100</div><div class="sw__val" data-token="--ds-accent-100"></div><div class="sw__use">焦点环</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent)"></div><div class="sw__body"><div class="sw__name">强调</div><div class="sw__tok">--ds-accent</div><div class="sw__val" data-token="--ds-accent"></div><div class="sw__use">主按钮 / 竖条</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-600)"></div><div class="sw__body"><div class="sw__name">强调-hover</div><div class="sw__tok">--ds-accent-600</div><div class="sw__val" data-token="--ds-accent-600"></div><div class="sw__use">悬停态</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-accent-700)"></div><div class="sw__body"><div class="sw__name">强调-文字</div><div class="sw__tok">--ds-accent-700</div><div class="sw__val" data-token="--ds-accent-700"></div><div class="sw__use">选中项文字</div></div></div>
       </div>
 
       <div class="sub">语义色 · Semantic</div>
@@ -338,14 +441,14 @@
         只需在 <code>tokens.css</code> 互换两组色值，全站自动跟随。
       </div>
       <div class="swatches">
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-pos)"></div><div class="sw__body"><div class="sw__name">正向 · 盈利/上涨</div><div class="sw__tok">--ds-pos</div><div class="sw__val">#0f9d63</div><div class="sw__use">正收益 / 多单 / 通过</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-pos-bg)"></div><div class="sw__body"><div class="sw__name">正向-底</div><div class="sw__tok">--ds-pos-bg</div><div class="sw__val">#e9f8f1</div><div class="sw__use">通过徽标底</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-neg)"></div><div class="sw__body"><div class="sw__name">负向 · 亏损/下跌</div><div class="sw__tok">--ds-neg</div><div class="sw__val">#d92d48</div><div class="sw__use">回撤 / 空单 / 失败</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-neg-bg)"></div><div class="sw__body"><div class="sw__name">负向-底</div><div class="sw__tok">--ds-neg-bg</div><div class="sw__val">#fdeef1</div><div class="sw__use">失败徽标底</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-warn)"></div><div class="sw__body"><div class="sw__name">告警</div><div class="sw__tok">--ds-warn</div><div class="sw__val">#b26a00</div><div class="sw__use">待确认 / 假设值 / 拒单</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-warn-bg)"></div><div class="sw__body"><div class="sw__name">告警-底</div><div class="sw__tok">--ds-warn-bg</div><div class="sw__val">#fff6e5</div><div class="sw__use">告警条底</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-info)"></div><div class="sw__body"><div class="sw__name">信息</div><div class="sw__tok">--ds-info</div><div class="sw__val">#1f6fd0</div><div class="sw__use">进行中 / 队列</div></div></div>
-        <div class="sw"><div class="sw__chip" style="background:var(--ds-neutral-fg)"></div><div class="sw__body"><div class="sw__name">中性</div><div class="sw__tok">--ds-neutral-fg</div><div class="sw__val">#45536b</div><div class="sw__use">无状态徽标</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-pos)"></div><div class="sw__body"><div class="sw__name">正向 · 盈利/上涨</div><div class="sw__tok">--ds-pos</div><div class="sw__val" data-token="--ds-pos"></div><div class="sw__use">正收益 / 多单 / 通过</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-pos-bg)"></div><div class="sw__body"><div class="sw__name">正向-底</div><div class="sw__tok">--ds-pos-bg</div><div class="sw__val" data-token="--ds-pos-bg"></div><div class="sw__use">通过徽标底</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-neg)"></div><div class="sw__body"><div class="sw__name">负向 · 亏损/下跌</div><div class="sw__tok">--ds-neg</div><div class="sw__val" data-token="--ds-neg"></div><div class="sw__use">回撤 / 空单 / 失败</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-neg-bg)"></div><div class="sw__body"><div class="sw__name">负向-底</div><div class="sw__tok">--ds-neg-bg</div><div class="sw__val" data-token="--ds-neg-bg"></div><div class="sw__use">失败徽标底</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-warn)"></div><div class="sw__body"><div class="sw__name">告警</div><div class="sw__tok">--ds-warn</div><div class="sw__val" data-token="--ds-warn"></div><div class="sw__use">待确认 / 假设值 / 拒单</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-warn-bg)"></div><div class="sw__body"><div class="sw__name">告警-底</div><div class="sw__tok">--ds-warn-bg</div><div class="sw__val" data-token="--ds-warn-bg"></div><div class="sw__use">告警条底</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-info)"></div><div class="sw__body"><div class="sw__name">信息</div><div class="sw__tok">--ds-info</div><div class="sw__val" data-token="--ds-info"></div><div class="sw__use">进行中 / 队列</div></div></div>
+        <div class="sw"><div class="sw__chip" style="background:var(--ds-neutral-fg)"></div><div class="sw__body"><div class="sw__name">中性</div><div class="sw__tok">--ds-neutral-fg</div><div class="sw__val" data-token="--ds-neutral-fg"></div><div class="sw__use">无状态徽标</div></div></div>
       </div>
 
       <div class="sub">描边层 · Border</div>
@@ -353,18 +456,146 @@
         <table class="spec">
           <thead><tr><th>令牌</th><th>值</th><th>用途</th><th>示例</th></tr></thead>
           <tbody>
-            <tr><td><code>--ds-border-subtle</code></td><td class="mono">#edf1f7</td><td>同层分隔（表格行线、卡片内分区）</td><td><div style="height:0;border-top:1px solid var(--ds-border-subtle)"></div></td></tr>
-            <tr><td><code>--ds-border</code></td><td class="mono">#dde5ef</td><td>卡片轮廓、输入框默认边</td><td><div style="height:0;border-top:1px solid var(--ds-border)"></div></td></tr>
-            <tr><td><code>--ds-border-strong</code></td><td class="mono">#c6d1e0</td><td>悬停边界、需要强调的边界</td><td><div style="height:0;border-top:1px solid var(--ds-border-strong)"></div></td></tr>
-            <tr><td><code>--ds-border-focus</code></td><td class="mono">#3b6ef6</td><td>键盘焦点环</td><td><div style="height:0;border-top:2px solid var(--ds-border-focus)"></div></td></tr>
+            <tr><td><code>--ds-border-subtle</code></td><td class="mono" data-token="--ds-border-subtle"></td><td>同层分隔（表格行线、卡片内分区）</td><td><div style="height:0;border-top:1px solid var(--ds-border-subtle)"></div></td></tr>
+            <tr><td><code>--ds-border</code></td><td class="mono" data-token="--ds-border"></td><td>卡片轮廓、输入框默认边</td><td><div style="height:0;border-top:1px solid var(--ds-border)"></div></td></tr>
+            <tr><td><code>--ds-border-strong</code></td><td class="mono" data-token="--ds-border-strong"></td><td>悬停边界、需要强调的边界</td><td><div style="height:0;border-top:1px solid var(--ds-border-strong)"></div></td></tr>
+            <tr><td><code>--ds-border-focus</code></td><td class="mono" data-token="--ds-border-focus"></td><td>键盘焦点环</td><td><div style="height:0;border-top:2px solid var(--ds-border-focus)"></div></td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- ══════════ 双主题 ══════════ -->
+    <section id="theme">
+      <div class="sec-head"><span class="idx">03</span><h2>双主题与中性阶梯</h2></div>
+      <p class="sec-desc">
+        全站只有<b>一条</b>色彩通道：<code>--ds-n-950 … --ds-n-100</code> 十一级中性阶梯。
+        表面 / 描边 / 文字三组语义令牌全部写成 <code>var(--ds-n-*)</code>，所以切主题只换这 11 个值，
+        页面里一个 <code>className</code> 都不用改。浅色主题<b>不重声明</b>语义令牌 —— 阶梯一变，它们自动跟随；
+        只有不跟随阶梯的（强调色亮度、语义色、图表色、遮罩、阴影）才写两套。
+      </p>
+
+      <div class="sub">同一段标记 · 两套解析结果</div>
+      <div class="subnote">
+        下面两块面板的 HTML 完全一致，只是外层多了 <code>data-theme</code>。这就是「双主题不是两套样式」的证据。
+      </div>
+      <div class="themepair">
+        <div class="themepanel" data-theme="dark">
+          <div class="themepanel__tag"><i></i>data-theme="dark" · 默认</div>
+          <div class="ladder">
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-950)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-950</div><div class="ladder__use">画布 · 页面底</div></div><span class="ladder__val" data-token="--ds-n-950"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-900)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-900</div><div class="ladder__use">卡片面</div></div><span class="ladder__val" data-token="--ds-n-900"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-850)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-850</div><div class="ladder__use">卡片内次级块 · 表头</div></div><span class="ladder__val" data-token="--ds-n-850"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-800)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-800</div><div class="ladder__use">内嵌区 · 描边 subtle</div></div><span class="ladder__val" data-token="--ds-n-800"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-700)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-700</div><div class="ladder__use">卡片轮廓</div></div><span class="ladder__val" data-token="--ds-n-700"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-600)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-600</div><div class="ladder__use">强调边界</div></div><span class="ladder__val" data-token="--ds-n-600"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-500)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-500</div><div class="ladder__use">四级文字 · 占位</div></div><span class="ladder__val" data-token="--ds-n-500"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-400)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-400</div><div class="ladder__use">三级文字 · 标签</div></div><span class="ladder__val" data-token="--ds-n-400"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-300)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-300</div><div class="ladder__use">二级文字 · 正文</div></div><span class="ladder__val" data-token="--ds-n-300"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-200)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-200</div><div class="ladder__use">一级文字备用</div></div><span class="ladder__val" data-token="--ds-n-200"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-100)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-100</div><div class="ladder__use">一级文字 · 标题</div></div><span class="ladder__val" data-token="--ds-n-100"></span></div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--ds-border-subtle)">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="ds-badge ds-badge--pos">盈利</span>
+              <span class="ds-badge ds-badge--neg">亏损</span>
+              <span class="ds-badge ds-badge--warn">告警</span>
+              <span class="ds-badge ds-badge--info">进行中</span>
+              <span class="ds-badge ds-badge--accent">选中</span>
+              <span class="ds-badge ds-badge--neutral">中性</span>
+            </div>
+            <div style="margin-top:9px;font-size:var(--ds-fs-xs);color:var(--ds-text-3)">三级文字 · 标签与说明</div>
+            <div style="margin-top:2px;font-size:var(--ds-fs-xs);color:var(--ds-text-4)">四级文字 · 占位与极弱辅助</div>
+            <div style="margin-top:4px;font-family:var(--ds-mono);font-size:var(--ds-fs-lg);font-weight:700;color:var(--ds-text);font-variant-numeric:tabular-nums">+18.42%</div>
+          </div>
+        </div>
+
+        <div class="themepanel" data-theme="light">
+          <div class="themepanel__tag"><i></i>data-theme="light"</div>
+          <div class="ladder">
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-950)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-950</div><div class="ladder__use">画布 · 页面底</div></div><span class="ladder__val" data-token="--ds-n-950"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-900)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-900</div><div class="ladder__use">卡片面</div></div><span class="ladder__val" data-token="--ds-n-900"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-850)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-850</div><div class="ladder__use">卡片内次级块 · 表头</div></div><span class="ladder__val" data-token="--ds-n-850"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-800)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-800</div><div class="ladder__use">内嵌区 · 描边 subtle</div></div><span class="ladder__val" data-token="--ds-n-800"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-700)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-700</div><div class="ladder__use">卡片轮廓</div></div><span class="ladder__val" data-token="--ds-n-700"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-600)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-600</div><div class="ladder__use">强调边界</div></div><span class="ladder__val" data-token="--ds-n-600"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-500)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-500</div><div class="ladder__use">四级文字 · 占位</div></div><span class="ladder__val" data-token="--ds-n-500"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-400)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-400</div><div class="ladder__use">三级文字 · 标签</div></div><span class="ladder__val" data-token="--ds-n-400"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-300)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-300</div><div class="ladder__use">二级文字 · 正文</div></div><span class="ladder__val" data-token="--ds-n-300"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-200)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-200</div><div class="ladder__use">一级文字备用</div></div><span class="ladder__val" data-token="--ds-n-200"></span></div>
+            <div class="ladder__row"><span class="ladder__chip" style="background:var(--ds-n-100)"></span><div class="ladder__meta"><div class="ladder__tok">--ds-n-100</div><div class="ladder__use">一级文字 · 标题</div></div><span class="ladder__val" data-token="--ds-n-100"></span></div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--ds-border-subtle)">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="ds-badge ds-badge--pos">盈利</span>
+              <span class="ds-badge ds-badge--neg">亏损</span>
+              <span class="ds-badge ds-badge--warn">告警</span>
+              <span class="ds-badge ds-badge--info">进行中</span>
+              <span class="ds-badge ds-badge--accent">选中</span>
+              <span class="ds-badge ds-badge--neutral">中性</span>
+            </div>
+            <div style="margin-top:9px;font-size:var(--ds-fs-xs);color:var(--ds-text-3)">三级文字 · 标签与说明</div>
+            <div style="margin-top:2px;font-size:var(--ds-fs-xs);color:var(--ds-text-4)">四级文字 · 占位与极弱辅助</div>
+            <div style="margin-top:4px;font-family:var(--ds-mono);font-size:var(--ds-fs-lg);font-weight:700;color:var(--ds-text);font-variant-numeric:tabular-nums">+18.42%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">主题开关的四个约束</div>
+      <div class="spec-wrap">
+        <table class="spec">
+          <thead><tr><th>约束</th><th>做法</th><th>为什么</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>切换入口</td>
+              <td><code>&lt;html data-theme="dark|light"&gt;</code></td>
+              <td>令牌挂在属性选择器上，属性一换全站重算；不用给任何组件传参。</td>
+            </tr>
+            <tr>
+              <td>首屏不闪</td>
+              <td>在 <code>&lt;link rel="stylesheet"&gt;</code> <b>之前</b>跑一段内联脚本</td>
+              <td>判定顺序 <code>?theme=</code> → <code>localStorage['wk-theme']</code> → 缺省深色。放到 CSS 之后就必然先画一帧默认色。</td>
+            </tr>
+            <tr>
+              <td>原生控件跟随</td>
+              <td>两套主题里都声明 <code>color-scheme</code></td>
+              <td>否则滚动条、<code>&lt;select&gt;</code> 下拉、日期选择器仍是系统浅色，出现「半深半浅」。</td>
+            </tr>
+            <tr>
+              <td>图表跟随</td>
+              <td><code>setTheme()</code> <b>先写 DOM 再 setState</b></td>
+              <td>图表用 <code>getComputedStyle</code> 读令牌取色；先 setState 会在同一帧读到旧值，图例与 K 线颜色错位。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ds-note ds-note--warn" style="margin-top:12px">
+        <div class="ds-note__title">图表颜色是「数据级」的，不是「选项级」的</div>
+        lightweight-charts 的 <code>series.applyOptions({ color })</code> 管不到成交量柱、买卖标记、指标柱的<b>已写入数据</b>。
+        切主题时必须 <code>setData()</code> / <code>setMarkers()</code> 重设一遍，否则会出现「坐标轴变了、柱子还是旧色」。
+      </div>
+
+      <div class="sub">踩过的坑：强调底上的文字不能用 accent-700</div>
+      <div class="subnote">
+        选中态（分段控件当前项、当前导航项、<code>--accent</code> 徽标）都是「<code>accent-50</code> 底 + 深蓝字」。
+        深色主题里 <code>accent-50</code> 本身就是深蓝，再叠 <code>accent-700</code>（#2449bb）只剩 <b>2.2:1</b>，文字等于消失。
+        正确做法是引入 <code>--ds-accent-text</code>：深色取 <code>accent-300</code>（5.8:1），浅色取 <code>accent-700</code>（6.9:1）。
+      </div>
+      <div class="bt-demo">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="ds-badge ds-badge--accent">选中 · 正确</span>
+          <span style="display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:var(--ds-r-pill);font-size:var(--ds-fs-2xs);font-weight:600;background:var(--ds-accent-50);border:1px solid var(--ds-accent-100);color:var(--ds-accent-700)">选中 · 错误示范</span>
+          <span class="ds-seg" style="width:max-content">
+            <button class="ds-seg__item" type="button" aria-selected="true">当前项</button>
+            <button class="ds-seg__item" type="button" aria-selected="false">其他</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
     <!-- ══════════ 字体 ══════════ -->
     <section id="type">
-      <div class="sec-head"><span class="idx">03</span><h2>字体与排版</h2></div>
+      <div class="sec-head"><span class="idx">04</span><h2>字体与排版</h2></div>
       <p class="sec-desc">
         两族字体：正文用系统无衬线（中文优先 PingFang SC / 微软雅黑），数字与代码用等宽。
         <b>凡是数值，一律等宽 + tabular-nums</b>，这是本系统最不可妥协的一条。
@@ -400,7 +631,7 @@
 
     <!-- ══════════ 间距 / 圆角 / 阴影 ══════════ -->
     <section id="space">
-      <div class="sec-head"><span class="idx">04</span><h2>间距 · 圆角 · 阴影</h2></div>
+      <div class="sec-head"><span class="idx">05</span><h2>间距 · 圆角 · 阴影</h2></div>
       <p class="sec-desc">间距以 4px 为基，只允许使用下列八档。禁止出现 7px、13px 这类散值——散值会让节奏感崩掉。</p>
 
       <div class="demo">
@@ -444,7 +675,7 @@
 
     <!-- ══════════ 动效 ══════════ -->
     <section id="motion">
-      <div class="sec-head"><span class="idx">05</span><h2>动效</h2></div>
+      <div class="sec-head"><span class="idx">06</span><h2>动效</h2></div>
       <p class="sec-desc">
         只做「状态变化」的过渡，不做装饰性动画。三档时长：<code>120ms</code> 悬停/焦点、
         <code>180ms</code> 面板展开、<code>260ms</code> 布局位移。缓动统一 <code>cubic-bezier(.4,0,.2,1)</code>。
@@ -464,7 +695,7 @@
 
     <!-- ══════════ 按钮 ══════════ -->
     <section id="button">
-      <div class="sec-head"><span class="idx">06</span><h2>按钮</h2></div>
+      <div class="sec-head"><span class="idx">07</span><h2>按钮</h2></div>
       <p class="sec-desc">
         四种变体：<b>primary</b> 一个视图最多一个（主操作）、<b>secondary</b> 次要操作、
         <b>ghost</b> 弱化操作与图标按钮、<b>danger</b> 破坏性操作。三档尺寸：sm 24px / md 28px / lg 32px。
@@ -494,7 +725,7 @@
 
     <!-- ══════════ 输入 ══════════ -->
     <section id="input">
-      <div class="sec-head"><span class="idx">07</span><h2>输入与表单</h2></div>
+      <div class="sec-head"><span class="idx">08</span><h2>输入与表单</h2></div>
       <p class="sec-desc">
         输入框高 28px，等宽字体。<b>每个输入都必须有单位标注</b>（% / bps / USD / 根），
         并在下方给出等价换算，避免用户在心算里出错。
@@ -527,7 +758,7 @@
 
     <!-- ══════════ 分段控件 ══════════ -->
     <section id="segment">
-      <div class="sec-head"><span class="idx">08</span><h2>分段控件</h2></div>
+      <div class="sec-head"><span class="idx">09</span><h2>分段控件</h2></div>
       <p class="sec-desc">
         用于「互斥的少量选项」：视图切换、周期选择、交易所选择。未支持的选项<b>禁用并给原因</b>，
         而不是隐藏——隐藏会让人以为功能不存在。
@@ -560,7 +791,7 @@
 
     <!-- ══════════ 徽标 ══════════ -->
     <section id="badge">
-      <div class="sec-head"><span class="idx">09</span><h2>徽标与状态</h2></div>
+      <div class="sec-head"><span class="idx">10</span><h2>徽标与状态</h2></div>
       <p class="sec-desc">
         徽标只承载<b>状态</b>，不承载描述性文字。六种色调对应六种状态，不允许自定义新色。
       </p>
@@ -583,7 +814,7 @@
 
     <!-- ══════════ 指标卡 ══════════ -->
     <section id="stat">
-      <div class="sec-head"><span class="idx">10</span><h2>指标卡</h2></div>
+      <div class="sec-head"><span class="idx">11</span><h2>指标卡</h2></div>
       <p class="sec-desc">
         指标卡是本系统最重要的数据容器。<b>数值必须限长</b>——超过 12 个有效位就截断，
         完整值放 <code>title</code> 里悬停查看。绝不因为数字长就把卡片撑变形。
@@ -639,7 +870,7 @@
 
     <!-- ══════════ 表格 ══════════ -->
     <section id="table">
-      <div class="sec-head"><span class="idx">11</span><h2>数据表格</h2></div>
+      <div class="sec-head"><span class="idx">12</span><h2>数据表格</h2></div>
       <p class="sec-desc">
         表头 sticky、等宽字体、数字右对齐。选中行用左侧色条 + 浅底，而不是整行变色——
         整行变色会淹没盈亏的颜色语义。
@@ -696,7 +927,7 @@
 
     <!-- ══════════ 键值对 ══════════ -->
     <section id="kv">
-      <div class="sec-head"><span class="idx">12</span><h2>键值对</h2></div>
+      <div class="sec-head"><span class="idx">13</span><h2>键值对</h2></div>
       <p class="sec-desc">用于展示「结果身份」这类只读元数据。键用四级文字，值用等宽二级文字，长值截断 + title。</p>
       <div class="demo">
         <div class="ds-kvgrid ds-kvgrid--4">
@@ -714,7 +945,7 @@
 
     <!-- ══════════ 提示条 ══════════ -->
     <section id="note">
-      <div class="sec-head"><span class="idx">13</span><h2>提示条</h2></div>
+      <div class="sec-head"><span class="idx">14</span><h2>提示条</h2></div>
       <p class="sec-desc">四种语义。提示条内必须有<b>结论</b>（加粗）+ <b>依据</b>（等宽），不能只给一句模糊的「注意」。</p>
       <div class="demo" style="display:flex;flex-direction:column;gap:10px">
         <div class="ds-note ds-note--pos">
@@ -738,7 +969,7 @@
 
     <!-- ══════════ 空态 ══════════ -->
     <section id="empty">
-      <div class="sec-head"><span class="idx">14</span><h2>空态与加载</h2></div>
+      <div class="sec-head"><span class="idx">15</span><h2>空态与加载</h2></div>
       <p class="sec-desc">
         空态要回答三个问题：<b>空的是什么</b>、<b>为什么空</b>、<b>怎么让它不空</b>。
         禁止只写「暂无数据」。
@@ -766,7 +997,7 @@
 
     <!-- ══════════ 折叠区 ══════════ -->
     <section id="details">
-      <div class="sec-head"><span class="idx">15</span><h2>折叠区</h2></div>
+      <div class="sec-head"><span class="idx">16</span><h2>折叠区</h2></div>
       <p class="sec-desc">
         审计类信息（hash、原始 JSON、快照文件）默认折叠——它们重要但不需要常驻视野。
         折叠摘要必须写明<b>里面是什么</b>，而不是「更多」。
@@ -787,7 +1018,7 @@
 
     <!-- ══════════ 栅格与等高 ══════════ -->
     <section id="grid">
-      <div class="sec-head"><span class="idx">16</span><h2>栅格与等高</h2></div>
+      <div class="sec-head"><span class="idx">17</span><h2>栅格与等高</h2></div>
       <p class="sec-desc">
         单屏仪表盘用 <b>12 列栅格</b>排布：<code>.ds-col-7</code> / <code>.ds-col-5</code> 左右并排，
         <code>.ds-col-6</code> 等宽对分，<code>.ds-col-12</code>（默认）整行。
@@ -856,7 +1087,7 @@
 
     <!-- ══════════ 页头与工具条 ══════════ -->
     <section id="pagehead">
-      <div class="sec-head"><span class="idx">17</span><h2>页头与工具条</h2></div>
+      <div class="sec-head"><span class="idx">18</span><h2>页头与工具条</h2></div>
       <p class="sec-desc">
         页头 sticky 在顶部，承载「我是谁 + 主操作」；工具条 sticky 在页头下方，承载
         「当前上下文（选中的 run / 状态 / 关键指标速览）」。两者都必须毛玻璃 + 细描边，
@@ -938,7 +1169,7 @@
 
     <!-- ══════════ 区块导航 ══════════ -->
     <section id="nav">
-      <div class="sec-head"><span class="idx">18</span><h2>区块导航</h2></div>
+      <div class="sec-head"><span class="idx">19</span><h2>区块导航</h2></div>
       <p class="sec-desc">
         长页面（超过 3 屏）必须提供区块导航。序号用等宽数字小方块，当前区块用强调色高亮。
         导航项文案用「做什么」而不是「第几节」。
@@ -957,28 +1188,262 @@
 
     <!-- ══════════ 图表配色 ══════════ -->
     <section id="chart">
-      <div class="sec-head"><span class="idx">19</span><h2>图表配色</h2></div>
+      <div class="sec-head"><span class="idx">20</span><h2>图表配色</h2></div>
       <p class="sec-desc">
-        图表是回测页的核心视图，配色必须与语义色一致：<b>策略净值用强调蓝、买入持有基准用中性灰、
+        图表是回测页的核心视图，配色必须与语义色一致：<b>策略净值用强调蓝、买入持有基准用黄、
         回撤用负向红、涨跌沿用绿涨红跌</b>。基准永远比策略弱一档，避免喧宾夺主。
+        所有图表色都落在 <code>--ds-chart-*</code> 上 —— lightweight-charts 拿不到 CSS 变量，
+        运行时由 <code>chartTheme.ts</code> 用 <code>getComputedStyle</code> 读出后传进图表配置。
       </p>
-      <div class="demo">
-        <div class="demo__row">
-          <span class="ds-badge ds-badge--accent">策略净值</span><span class="mono" style="font-size:11px">#3b6ef6</span>
-          <span style="width:1px;height:14px;background:var(--ds-border)"></span>
-          <span class="ds-badge ds-badge--neutral">买入持有基准</span><span class="mono" style="font-size:11px">#93a1b5</span>
-          <span style="width:1px;height:14px;background:var(--ds-border)"></span>
-          <span class="ds-badge ds-badge--neg">回撤</span><span class="mono" style="font-size:11px">#d92d48</span>
-          <span style="width:1px;height:14px;background:var(--ds-border)"></span>
-          <span class="ds-badge ds-badge--pos">上涨 K</span><span class="mono" style="font-size:11px">#0f9d63</span>
-          <span class="ds-badge ds-badge--neg">下跌 K</span><span class="mono" style="font-size:11px">#d92d48</span>
+      <div class="spec-wrap">
+        <table class="spec">
+          <thead><tr><th>令牌</th><th>用途</th><th>当前值</th></tr></thead>
+          <tbody>
+            <tr><td><code>--ds-chart-bg</code></td><td>绘图区底色</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-bg)"></span><span data-token="--ds-chart-bg"></span></td></tr>
+            <tr><td><code>--ds-chart-grid</code></td><td>横向网格线</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-grid)"></span><span data-token="--ds-chart-grid"></span></td></tr>
+            <tr><td><code>--ds-chart-grid-v</code></td><td>纵向网格线（比横向更弱）</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-grid-v)"></span><span data-token="--ds-chart-grid-v"></span></td></tr>
+            <tr><td><code>--ds-chart-text</code></td><td>坐标轴刻度文字</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-text)"></span><span data-token="--ds-chart-text"></span></td></tr>
+            <tr><td><code>--ds-chart-border</code></td><td>坐标轴轴线</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-border)"></span><span data-token="--ds-chart-border"></span></td></tr>
+            <tr><td><code>--ds-chart-up</code></td><td>阳线 / 正收益</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-up)"></span><span data-token="--ds-chart-up"></span></td></tr>
+            <tr><td><code>--ds-chart-down</code></td><td>阴线 / 回撤</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-down)"></span><span data-token="--ds-chart-down"></span></td></tr>
+            <tr><td><code>--ds-chart-forming</code></td><td>未收盘（forming）K 线</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-forming)"></span><span data-token="--ds-chart-forming"></span></td></tr>
+            <tr><td><code>--ds-chart-signal</code></td><td>信号标记</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-signal)"></span><span data-token="--ds-chart-signal"></span></td></tr>
+            <tr><td><code>--ds-chart-oi</code></td><td>持仓量柱</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-oi)"></span><span data-token="--ds-chart-oi"></span></td></tr>
+            <tr><td><code>--ds-chart-benchmark</code></td><td>买入持有基准（虚线）</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-benchmark)"></span><span data-token="--ds-chart-benchmark"></span></td></tr>
+            <tr><td><code>--ds-chart-ma-fast</code></td><td>MA 快线（20）</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-ma-fast)"></span><span data-token="--ds-chart-ma-fast"></span></td></tr>
+            <tr><td><code>--ds-chart-ma-slow</code></td><td>MA 慢线（60）</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-ma-slow)"></span><span data-token="--ds-chart-ma-slow"></span></td></tr>
+            <tr><td><code>--ds-chart-crosshair</code></td><td>十字光标线</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-crosshair)"></span><span data-token="--ds-chart-crosshair"></span></td></tr>
+            <tr><td><code>--ds-chart-crosshair-label</code></td><td>十字光标轴标签底</td><td class="mono"><span class="ladder__chip" style="display:inline-block;width:16px;height:10px;vertical-align:-1px;margin-right:6px;background:var(--ds-chart-crosshair-label)"></span><span data-token="--ds-chart-crosshair-label"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ds-note ds-note--info" style="margin-top:12px">
+        <div class="ds-note__title">新增图表色的唯一入口</div>
+        先在本表登记 <code>--ds-chart-*</code>，再在 <code>chartTheme.ts</code> 的 <code>ChartPalette</code> 里加同名字段，
+        最后才在组件里引用。<b>不允许</b>在图表代码里写 <code>#22c55e</code> 这类字面量 —— 换到浅色主题会直接失真。
+      </div>
+    </section>
+
+    <!-- ══════════ 回测页组件 ══════════ -->
+    <section id="backtest">
+      <div class="sec-head"><span class="idx">21</span><h2>回测页组件</h2></div>
+      <p class="sec-desc">
+        回测复盘页是「一屏装下一次完整回测」的密集型页面：左侧 run 列表、右侧指标条 + K 线 + 分析面板 + 逐笔明细。
+        这些版式只服务本页，因此单独收在 <code>backtest.css</code>，但同样<b>只引用令牌</b>，深浅主题自动跟随。
+      </p>
+
+      <div class="sub">页面骨架 · .ds-bt-shell</div>
+      <div class="subnote">左列表固定 264px 不参与伸缩，右主区 <code>min-width:0</code> 防止图表把栅格撑破。两栏各自独立滚动。</div>
+      <div class="bt-demo">
+        <div class="shellmap">
+          <div class="shellmap__side">
+            <div class="shellmap__lbl">RUN LIST · 264px</div>
+            <div class="shellmap__bar shellmap__bar--accent" style="height:22px"></div>
+            <div class="shellmap__bar" style="height:22px"></div>
+            <div class="shellmap__bar" style="height:22px"></div>
+          </div>
+          <div class="shellmap__main">
+            <div class="shellmap__lbl">MAIN · 指标条 / K线 / 分析 / 明细</div>
+            <div class="shellmap__bar" style="height:18px"></div>
+            <div class="shellmap__bar" style="height:46px"></div>
+            <div class="shellmap__bar" style="height:26px"></div>
+          </div>
         </div>
+      </div>
+
+      <div class="sub">指标条 · .ds-metricstrip / .ds-metric</div>
+      <div class="subnote">
+        固定 7 格等分，格间 1px 竖线，不画卡片边框。窄屏（&lt; 1400px）降为 4 列。
+        <b>副标必须写口径</b>：是区间值、折算值，还是「后端没算」。
+      </div>
+      <div class="ds-metricstrip">
+        <div class="ds-metric"><div class="ds-metric__k">总收益</div><div class="ds-metric__v ds-metric__v--pos">+18.42%</div><div class="ds-metric__note">区间累计</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">年化收益</div><div class="ds-metric__v ds-metric__v--pos">+24.10%</div><div class="ds-metric__note">按窗口折算</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">最大回撤</div><div class="ds-metric__v ds-metric__v--neg">-12.83%</div><div class="ds-metric__note">权益峰值回落</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">夏普比率</div><div class="ds-metric__v ds-metric__v--muted">—</div><div class="ds-metric__note">后端未计算</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">胜率</div><div class="ds-metric__v">58.3%</div><div class="ds-metric__note">7 胜 / 5 负</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">盈亏比</div><div class="ds-metric__v">1.87</div><div class="ds-metric__note">平均盈 / 平均亏</div></div>
+        <div class="ds-metric"><div class="ds-metric__k">交易次数</div><div class="ds-metric__v">12</div><div class="ds-metric__note">已成交</div></div>
+      </div>
+      <div class="spec-wrap" style="margin-top:12px">
+        <table class="spec">
+          <thead><tr><th>指标</th><th>取不到时</th><th>口径</th></tr></thead>
+          <tbody>
+            <tr><td>总收益 / 最大回撤 / 胜率 / 交易次数</td><td>—</td><td>直接取 <code>/metrics</code> 字段，原值呈现，不做四舍五入美化。</td></tr>
+            <tr><td>年化收益</td><td>—</td><td>后端不返回。窗口 ≥ 30 天时按 <code>(1+r)^(365/天数)-1</code> 折算，副标写「按窗口折算」；窗口缺失或不足 30 天一律 <code>—</code>（短窗口年化没有意义）。</td></tr>
+            <tr><td>夏普比率</td><td>—</td><td>后端未计算，<b>恒为 <code>—</code></b>。不用日收益标准差自己估 —— 那会和引擎口径不一致。</td></tr>
+            <tr><td>盈亏比</td><td>—</td><td><code>PF = 0</code> 表示「一笔盈利都没有」，不是可比比值，显示 <code>—</code> + 「缺少盈利样本」。</td></tr>
+            <tr><td>平均盈利 / 平均亏损</td><td>—</td><td>后端给美元。按「÷ 初始权益」折算成百分比显示，副标注明「派生」，避免被读成引擎原生百分比。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub">回测列表卡 · .ds-runitem</div>
+      <div class="subnote">
+        固定高 100px，虚拟滚动按此高度计算位移，<b>改高度必须同步改 <code>ITEM_H</code></b>。
+        选中态用 3px 内阴影竖条，不用整块变色 —— 密集列表里整块变色会盖掉涨跌色。
+      </div>
+      <div class="bt-demo">
+        <div class="bt-demo__side">
+          <button class="ds-runitem" type="button" aria-selected="true" style="margin-bottom:8px">
+            <div class="ds-runitem__top">
+              <span class="ds-runitem__avatar" style="background:var(--ds-chart-ma-fast)">HA</span>
+              <span class="ds-runitem__title">HAEDALUSDT</span>
+              <span class="ds-runitem__ret ds-runitem__ret--pos">+18.42%</span>
+            </div>
+            <div class="ds-runitem__meta">10-01 00:00 → 10-15 23:45 · 15 天</div>
+            <div class="ds-runitem__foot">
+              <span class="ds-runitem__param">ema_fast 21 · ema_slow 55</span>
+              <span class="ds-runitem__ret ds-runitem__ret--muted" style="font-size:10px">12 笔</span>
+            </div>
+          </button>
+          <button class="ds-runitem" type="button" aria-selected="false">
+            <div class="ds-runitem__top">
+              <span class="ds-runitem__avatar" style="background:var(--ds-chart-ma-slow)">CY</span>
+              <span class="ds-runitem__title">CYBERUSDT</span>
+              <span class="ds-runitem__ret ds-runitem__ret--muted">无成交</span>
+            </div>
+            <div class="ds-runitem__meta">10-01 00:00 → 10-15 23:45 · 15 天</div>
+            <div class="ds-runitem__foot">
+              <span class="ds-runitem__param">ema_fast 13 · ema_slow 34</span>
+              <span class="ds-runitem__ret ds-runitem__ret--muted" style="font-size:10px">日志</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="ds-note ds-note--info" style="margin-top:12px">
+        <div class="ds-note__title">无成交的 run 不隐藏</div>
+        成交笔数为 0 时右侧照样显示，只是把「逐笔明细」换成「运行日志」（信号 / 订单 / 拒单三段），
+        并明写「该 run 账本 trades = 0」。<b>不要</b>用空表格冒充 —— 那会被读成「加载失败」。
+      </div>
+
+      <div class="sub">周期切换 · .ds-tfbar / .ds-tf</div>
+      <div class="subnote">源数据只有 15m。<b>不能合成的周期直接 <code>disabled</code></b> 并用 <code>title</code> 说明原因，不给假图。</div>
+      <div class="bt-demo">
+        <div class="ds-tfbar" style="width:max-content">
+          <button class="ds-tf" type="button" disabled title="源数据为 15m，无法还原分时">分时</button>
+          <button class="ds-tf" type="button" disabled title="源数据为 15m，无法还原 1 分钟">1m</button>
+          <button class="ds-tf" type="button" disabled title="源数据为 15m，无法还原 5 分钟">5m</button>
+          <button class="ds-tf" type="button" aria-pressed="true">15m</button>
+          <button class="ds-tf" type="button" aria-pressed="false">1H</button>
+          <button class="ds-tf" type="button" aria-pressed="false">4H</button>
+          <button class="ds-tf" type="button" aria-pressed="false">1D</button>
+        </div>
+      </div>
+
+      <div class="sub">图内图例 · .ds-chartlegend</div>
+      <div class="subnote">压在图上方一行，用 7px 圆点 + 数值；数值必须走 <code>tabular-nums</code>，鼠标划过时不抖动。</div>
+      <div class="bt-demo">
+        <div style="border:1px solid var(--ds-border-subtle);border-radius:var(--ds-r-md);overflow:hidden">
+          <div class="ds-chartlegend">
+            <span><span class="ds-chartlegend__dot" style="background:var(--ds-chart-ma-fast)"></span>MA20 <b class="ds-chartlegend__num">2.4183</b></span>
+            <span><span class="ds-chartlegend__dot" style="background:var(--ds-chart-ma-slow)"></span>MA60 <b class="ds-chartlegend__num">2.3651</b></span>
+            <span><span class="ds-chartlegend__dot" style="background:var(--ds-pos)"></span>买入 <b class="ds-chartlegend__num">4</b></span>
+            <span><span class="ds-chartlegend__dot" style="background:var(--ds-neg)"></span>卖出 <b class="ds-chartlegend__num">4</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">胜率圆环 · .ds-donut</div>
+      <div class="subnote">
+        SVG 双 <code>circle</code> + <code>stroke-dasharray</code>，不用 <code>conic-gradient</code>：
+        这样描边可以留缝、也能被屏幕阅读器读到 <code>aria-label</code>。
+      </div>
+      <div class="bt-demo">
+        <div class="ds-donut" style="max-width:320px">
+          <div class="ds-donut__chart">
+            <svg viewBox="0 0 120 120" width="116" height="116" role="img" aria-label="胜率 58.3%">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--ds-surface-3)" stroke-width="11" />
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--ds-pos)" stroke-width="11"
+                      stroke-dasharray="168.5 120.5" transform="rotate(-90 60 60)" />
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--ds-neg)" stroke-width="11"
+                      stroke-dasharray="120.5 168.5" stroke-dashoffset="-168.5" transform="rotate(-90 60 60)" />
+            </svg>
+            <div class="ds-donut__center">
+              <div class="ds-donut__value">58.3%</div>
+              <div class="ds-donut__label">胜率</div>
+            </div>
+          </div>
+          <div class="ds-donut__legend">
+            <div class="ds-donut__row"><span class="ds-chartlegend__dot" style="background:var(--ds-pos)"></span>盈利 <b>7</b></div>
+            <div class="ds-donut__row"><span class="ds-chartlegend__dot" style="background:var(--ds-neg)"></span>亏损 <b>5</b></div>
+            <div class="ds-donut__row" style="color:var(--ds-text-4)"><span class="ds-chartlegend__dot" style="background:var(--ds-text-4)"></span>平盘 <b>0</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">键值行 · .ds-kvline</div>
+      <div class="subnote">左键右值、虚线分隔。派生值在键名后加「派生」小字，不藏在 tooltip 里。</div>
+      <div class="bt-demo">
+        <div style="max-width:340px">
+          <div class="ds-kvline"><span class="ds-kvline__k">平均盈利</span><span class="ds-kvline__v ds-kvline__v--pos">+3.41% <span style="font-size:9px;color:var(--ds-text-4);font-weight:400">派生</span></span></div>
+          <div class="ds-kvline"><span class="ds-kvline__k">平均亏损</span><span class="ds-kvline__v ds-kvline__v--neg">-1.82% <span style="font-size:9px;color:var(--ds-text-4);font-weight:400">派生</span></span></div>
+          <div class="ds-kvline"><span class="ds-kvline__k">最大单笔盈亏</span><span class="ds-kvline__v ds-kvline__v--pos">+5.06% <span style="font-size:9px;color:var(--ds-text-4);font-weight:400">派生</span></span></div>
+          <div class="ds-kvline"><span class="ds-kvline__k">平均持仓时长</span><span class="ds-kvline__v ds-kvline__v--muted">—</span></div>
+        </div>
+      </div>
+
+      <div class="sub">分页 · .ds-pager</div>
+      <div class="subnote">表格底部一行，左计数右翻页；当前页用强调底，禁用态只降不透明度、不换色。</div>
+      <div class="bt-demo">
+        <div class="ds-pager" style="border-top:0;max-width:420px">
+          <span>第 1 / 2 页 · 共 12 条</span>
+          <div class="ds-pager__btns">
+            <button class="ds-pager__btn" type="button" disabled>‹</button>
+            <button class="ds-pager__btn" type="button" aria-current="true">1</button>
+            <button class="ds-pager__btn" type="button">2</button>
+            <button class="ds-pager__btn" type="button">›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">运行日志行 · .ds-logrow</div>
+      <div class="subnote">三列定宽：时间 120px / 类型 96px / 说明自适应。说明列允许断词（<code>overflow-wrap:anywhere</code>），否则长哈希会把表格撑破。</div>
+      <div class="bt-demo">
+        <div style="border:1px solid var(--ds-border-subtle);border-radius:var(--ds-r-md);overflow:hidden">
+          <div class="ds-logrow"><span class="ds-logrow__t">10-01 00:15</span><span class="ds-logrow__k">信号</span><span class="ds-logrow__v">EMA21 未上穿 EMA55，本窗口无入场信号</span></div>
+          <div class="ds-logrow"><span class="ds-logrow__t">10-01 00:30</span><span class="ds-logrow__k">信号</span><span class="ds-logrow__v">同上，连续 2 根未触发</span></div>
+          <div class="ds-logrow"><span class="ds-logrow__t">10-15 23:45</span><span class="ds-logrow__k">订单</span><span class="ds-logrow__v">无委托（信号为 0，未进入下单环节）</span></div>
+          <div class="ds-logrow"><span class="ds-logrow__t">10-15 23:45</span><span class="ds-logrow__k">拒单</span><span class="ds-logrow__v">无</span></div>
+        </div>
+      </div>
+
+      <div class="sub">空态 · .ds-bt-empty</div>
+      <div class="subnote">空态必须回答三个问题：空的是什么、为什么空、怎么让它不空。</div>
+      <div class="bt-demo">
+        <div style="border:1px dashed var(--ds-border-strong);border-radius:var(--ds-r-md)">
+          <div class="ds-bt-empty" style="min-height:180px;flex-direction:column;gap:6px;text-align:center">
+            <div style="font-size:var(--ds-fs-md);font-weight:600;color:var(--ds-text-2)">没有匹配的回测记录</div>
+            <div style="font-size:var(--ds-fs-xs);color:var(--ds-text-3)">当前筛选：策略 <b>ema_cross</b> · 币种 <b>BTC</b> · 关键词 <b>xyz</b></div>
+            <div style="font-size:var(--ds-fs-xs);color:var(--ds-text-4)">清空筛选，或在「工作台」发起一次新回测</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">回测页专属类名</div>
+      <div class="spec-wrap">
+        <table class="spec">
+          <thead><tr><th>块</th><th>类名</th><th>约束</th></tr></thead>
+          <tbody>
+            <tr><td>骨架</td><td><code>.ds-bt-shell</code> <code>.ds-bt-side</code> <code>.ds-bt-main</code></td><td>侧栏固定 264px；主区必须 <code>min-width:0</code></td></tr>
+            <tr><td>页头</td><td><code>.ds-bt-head</code> <code>.ds-bt-head__title|__sub|__actions</code></td><td>标题右侧放导出与「新建回测」</td></tr>
+            <tr><td>指标条</td><td><code>.ds-metricstrip</code> <code>.ds-metric</code> <code>.ds-metric__k|__v|__note</code></td><td>7 格；<code>__v</code> 19px mono；副标 9px</td></tr>
+            <tr><td>列表</td><td><code>.ds-runlist</code> <code>.ds-runlist__spacer</code> <code>.ds-runitem</code> + <code>__avatar|__title|__meta|__param|__ret</code></td><td>固定 100px 高；<code>aria-selected</code> 驱动选中态</td></tr>
+            <tr><td>周期条</td><td><code>.ds-tfbar</code> <code>.ds-tf</code></td><td><code>aria-pressed</code> 驱动选中；不可用周期加 <code>disabled</code> + <code>title</code></td></tr>
+            <tr><td>图表</td><td><code>.ds-chartbox</code> <code>.ds-chartlegend</code> <code>.ds-chartlegend__dot|__num</code></td><td>容器必须给确定高度，否则图表塌成 0</td></tr>
+            <tr><td>分析面板</td><td><code>.ds-analysis</code> <code>.ds-donut</code> + <code>__chart|__center|__value|__label|__legend|__row</code></td><td>圆环 116px 固定，图例自适应</td></tr>
+            <tr><td>键值行</td><td><code>.ds-kvline</code> <code>.ds-kvline__k</code> <code>.ds-kvline__v</code> + <code>--pos|--neg|--muted</code></td><td>派生值必须带「派生」小字</td></tr>
+            <tr><td>分页</td><td><code>.ds-pager</code> <code>.ds-pager__btns</code> <code>.ds-pager__btn</code></td><td><code>aria-current="true"</code> 标记当前页</td></tr>
+            <tr><td>日志</td><td><code>.ds-logrow</code> <code>.ds-logrow__t|__k|__v</code></td><td>120 / 96 / 1fr 三列</td></tr>
+            <tr><td>空态</td><td><code>.ds-bt-empty</code></td><td>三问必答：空什么 / 为什么 / 怎么办</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
     <!-- ══════════ 使用准则 ══════════ -->
     <section id="usage">
-      <div class="sec-head"><span class="idx">20</span><h2>使用准则</h2></div>
+      <div class="sec-head"><span class="idx">22</span><h2>使用准则</h2></div>
       <p class="sec-desc">写代码时对照这组正误示例。判据只有一条：<b>新代码里不允许出现硬编码的色值、字号、间距</b>。</p>
       <div class="dd">
         <div class="dd__card">
@@ -1014,23 +1479,26 @@
 
     <!-- ══════════ 令牌索引 ══════════ -->
     <section id="api">
-      <div class="sec-head"><span class="idx">21</span><h2>令牌索引</h2></div>
+      <div class="sec-head"><span class="idx">23</span><h2>令牌索引</h2></div>
       <p class="sec-desc">完整清单。新增令牌必须先加进这里，再在页面使用。</p>
       <div class="spec-wrap">
         <table class="spec">
           <thead><tr><th>分类</th><th>令牌</th><th>值</th></tr></thead>
           <tbody>
-            <tr><td>表面</td><td><code>--ds-canvas</code> / <code>--ds-surface</code> / <code>--ds-surface-2</code> / <code>--ds-surface-3</code> / <code>--ds-surface-inverse</code></td><td class="mono">#f5f7fb / #fff / #fafbfe / #eef2f8 / #0f1a2e</td></tr>
-            <tr><td>描边</td><td><code>--ds-border-subtle</code> / <code>--ds-border</code> / <code>--ds-border-strong</code> / <code>--ds-border-focus</code></td><td class="mono">#edf1f7 / #dde5ef / #c6d1e0 / #3b6ef6</td></tr>
-            <tr><td>文字</td><td><code>--ds-text</code> / <code>--ds-text-2</code> / <code>--ds-text-3</code> / <code>--ds-text-4</code></td><td class="mono">#0b1526 / #3d4c63 / #6b7a91 / #93a1b5</td></tr>
-            <tr><td>强调</td><td><code>--ds-accent-50/100/300</code> / <code>--ds-accent</code> / <code>--ds-accent-600/700</code></td><td class="mono">#eef3ff…#2449bb</td></tr>
-            <tr><td>语义</td><td><code>--ds-pos[-bg|-border]</code> · <code>--ds-neg…</code> · <code>--ds-warn…</code> · <code>--ds-info…</code></td><td class="mono">三件套</td></tr>
+            <tr><td>中性阶梯</td><td><code>--ds-n-950 … --ds-n-100</code>（11 级，深色 / 浅色各一套）</td><td class="mono">唯一明暗事实源</td></tr>
+            <tr><td>表面</td><td><code>--ds-canvas</code> / <code>--ds-surface</code> / <code>--ds-surface-2</code> / <code>--ds-surface-3</code> / <code>--ds-surface-inverse</code></td><td class="mono">n-950 / n-900 / n-850 / n-800 / #05080f</td></tr>
+            <tr><td>浮层</td><td><code>--ds-overlay</code> / <code>--ds-scrim</code></td><td class="mono">半透明，两套主题各一份</td></tr>
+            <tr><td>描边</td><td><code>--ds-border-subtle</code> / <code>--ds-border</code> / <code>--ds-border-strong</code> / <code>--ds-border-focus</code></td><td class="mono">n-800 / n-700 / n-600 / #3b6df6</td></tr>
+            <tr><td>文字</td><td><code>--ds-text</code> / <code>--ds-text-2</code> / <code>--ds-text-3</code> / <code>--ds-text-4</code> / <code>--ds-text-inverse</code></td><td class="mono">n-100 / n-300 / n-400 / n-500 / #0b1526</td></tr>
+            <tr><td>强调</td><td><code>--ds-accent-50/100/300</code> / <code>--ds-accent</code> / <code>--ds-accent-600/700</code> / <code>--ds-accent-text</code></td><td class="mono">深色偏暗、浅色偏亮；<code>accent-text</code> 专供强调底上的文字</td></tr>
+            <tr><td>语义</td><td><code>--ds-pos[-bg|-border]</code> · <code>--ds-neg…</code> · <code>--ds-warn…</code> · <code>--ds-info…</code> · <code>--ds-neutral-*</code></td><td class="mono">三件套</td></tr>
+            <tr><td>图表</td><td><code>--ds-chart-bg|grid|grid-v|text|border|up|down|forming|signal|oi|benchmark|ma-fast|ma-slow|crosshair|crosshair-label</code></td><td class="mono">15 支，见「图表配色」</td></tr>
             <tr><td>字体</td><td><code>--ds-font</code> / <code>--ds-mono</code></td><td class="mono">system / SF Mono</td></tr>
             <tr><td>字号</td><td><code>--ds-fs-2xs … --ds-fs-2xl</code></td><td class="mono">10 / 11 / 12 / 13 / 15 / 20 / 26</td></tr>
             <tr><td>行高</td><td><code>--ds-lh-tight</code> / <code>--ds-lh-base</code></td><td class="mono">1.25 / 1.5</td></tr>
             <tr><td>间距</td><td><code>--ds-1 … --ds-8</code></td><td class="mono">4 / 8 / 12 / 16 / 20 / 24 / 32</td></tr>
             <tr><td>圆角</td><td><code>--ds-r-sm/md/lg/xl/pill</code></td><td class="mono">4 / 6 / 10 / 14 / 999</td></tr>
-            <tr><td>阴影</td><td><code>--ds-shadow-xs/sm/md/lg</code> / <code>--ds-ring</code></td><td class="mono">4 档 + 焦点环</td></tr>
+            <tr><td>阴影</td><td><code>--ds-shadow-xs/sm/md/lg</code> / <code>--ds-shadow-freeze</code> / <code>--ds-ring</code></td><td class="mono">4 档 + 冻结列投影 + 焦点环</td></tr>
             <tr><td>动效</td><td><code>--ds-dur-fast</code> / <code>--ds-dur</code> / <code>--ds-ease</code></td><td class="mono">120ms / 180ms / cubic-bezier(.4,0,.2,1)</td></tr>
             <tr><td>布局</td><td><code>--ds-pagehead-h</code> / <code>--ds-sticky-gap</code> / <code>--ds-toolbar-h</code> / <code>--ds-scroll-pad</code></td><td class="mono">89px / 8px / 42px / 16px</td></tr>
           </tbody>
@@ -1060,6 +1528,8 @@
             <tr><td>行内指标</td><td><code>.ds-mi</code> <code>.ds-mi__k</code> <code>.ds-mi__v</code> + <code>--pos|--neg|--muted</code></td></tr>
             <tr><td>表格限高</td><td><code>.ds-tablewrap--tight</code> <code>.ds-tablewrap--mid</code> <code>.ds-tablewrap--tall</code></td></tr>
             <tr><td>工具类</td><td><code>.ds-num</code> <code>.ds-row</code> <code>.ds-stack</code> <code>.ds-grid-auto</code> <code>.ds-truncate</code> <code>.ds-hr</code></td></tr>
+            <tr><td>回测页</td><td><code>.ds-bt-shell|side|main|head|row1|row2|col</code> <code>.ds-runlist</code> <code>.ds-runitem</code> <code>.ds-metricstrip</code> <code>.ds-metric</code> <code>.ds-tfbar</code> <code>.ds-tf</code> <code>.ds-chartbox</code> <code>.ds-chartlegend</code> <code>.ds-analysis</code> <code>.ds-donut</code> <code>.ds-kvline</code> <code>.ds-pager</code> <code>.ds-logrow</code> <code>.ds-bt-empty</code></td></tr>
+            <tr><td>主题</td><td><code>html[data-theme="dark|light"]</code> · <code>ThemeProvider</code> / <code>useTheme()</code> / <code>ThemeToggle</code> · <code>useChartPalette()</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -1067,5 +1537,46 @@
 
   </main>
 </div>
+
+<script>
+  /* ── 主题开关 ───────────────────────────────────────────────────────────
+   * 与线上 ThemeProvider 同一套规则：先写 DOM，再落 localStorage。
+   * 顺序不能反 —— 本页的色值读数（下面 paintValues）依赖 DOM 已经切好。 */
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+
+    function paintValues() {
+      /* 所有带 data-token 的元素就地读自己的计算值：
+       * 因为令牌是在元素所在子树上解析的，所以「深色面板」和「浅色面板」
+       * 用同一段脚本就能各自读到自己的值。 */
+      var nodes = document.querySelectorAll('[data-token]');
+      for (var i = 0; i < nodes.length; i++) {
+        var v = getComputedStyle(nodes[i]).getPropertyValue(nodes[i].dataset.token);
+        nodes[i].textContent = (v || '').trim() || '—';
+      }
+    }
+
+    function sync() {
+      var dark = root.dataset.theme !== 'light';
+      if (btn) {
+        btn.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到深色主题');
+        btn.setAttribute('title', dark ? '切换到浅色主题' : '切换到深色主题');
+      }
+      paintValues();
+    }
+
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var next = root.dataset.theme === 'light' ? 'dark' : 'light';
+        root.dataset.theme = next;
+        try { localStorage.setItem('wk-theme', next); } catch (e) {}
+        sync();
+      });
+    }
+
+    sync();
+  })();
+</script>
 </body>
 </html>

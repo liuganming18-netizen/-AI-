@@ -1,0 +1,876 @@
+{
+  "工单": "SYSTEM-INDEPENDENT-AUDIT-03 / A-3",
+  "检查时刻": "2026-10-23 15:00:07",
+  "隔离根目录": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd",
+  "端口": 49158,
+  "配置": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-05/config/exp1_config.json",
+  "源码绑定": {
+    "service_manager.py": "ddd02d32f34623927904768cb0506fd24938e629eeba9a2b45f46051bc13d02d",
+    "unified_runtime.py": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+    "live_store.py": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+    "adapter.py": "cf92bd7850df574ba2c518d48ab7d0cf49669263e51129e1660bb32c5c16a73f",
+    "backtest_worker.py": "7d11aea99db0c6e9ae4c7a67c33244c7772160d1de6da862ba88ef1403b8c258"
+  },
+  "环境注入检查": {
+    "MARKET_ARCHIVE_是否被shared_env设置": false
+  },
+  "生产快照_起前": {
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3": {
+      "exists": true,
+      "mtime": 1792737226.006,
+      "size": 2170880
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3": {
+      "exists": true,
+      "mtime": 1792734447.656,
+      "size": 10611236864
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3": {
+      "exists": true,
+      "mtime": 1792726922.077,
+      "size": 45056
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3": {
+      "exists": true,
+      "mtime": 1792724063.84,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.735,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.739,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.742,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet": {
+      "exists": true,
+      "mtime": 1792325770.241,
+      "entries": 13
+    }
+  },
+  "start_return": {
+    "timestamp": "2026-10-23T07:00:10.604277+00:00",
+    "config_identity": {
+      "port": 49158,
+      "py": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+      "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+      "paper_enabled": true,
+      "paper_arm": "3a",
+      "symbol": "BTCUSDT"
+    },
+    "overall_health": "unhealthy"
+  },
+  "services": {
+    "api": {
+      "name": "adapter_api",
+      "port": 49158,
+      "pid": 28856,
+      "recorded_pid": 28856,
+      "listener_pid": 28856,
+      "identity_matched": false,
+      "status": "port_conflict",
+      "started_at": "2026-10-23T07:00:07.433892+00:00",
+      "last_heartbeat": "2026-10-23T07:00:10.762177+00:00",
+      "http_health": {
+        "ok": true,
+        "code": 200,
+        "url": "http://127.0.0.1:49158/api/health"
+      },
+      "exit_reason": "端口被外部进程占用 (pid=28856, cmd='')"
+    },
+    "worker": {
+      "name": "backtest_worker",
+      "pid": 28859,
+      "recorded_pid": 28859,
+      "identity_matched": false,
+      "status": "unverified_process",
+      "started_at": "2026-10-23T07:00:07.433892+00:00",
+      "last_heartbeat": "2026-10-23T07:00:10.873884+00:00",
+      "exit_reason": null
+    },
+    "collector": {
+      "name": "realtime_collector",
+      "pid": null,
+      "recorded_pid": 39067,
+      "status": "stopped",
+      "health_probe_ok": false,
+      "managed_by_this_instance": false
+    },
+    "runtime": {
+      "name": "unified_runtime",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "pid": 28862,
+      "recorded_pid": 28862,
+      "identity_matched": false,
+      "status": "running",
+      "started_at": "2026-10-23T07:00:07.433892+00:00",
+      "last_heartbeat": null,
+      "runtime_snapshot": {},
+      "exit_reason": null
+    }
+  },
+  "api_calls": [
+    {
+      "path": "/api/v1/paper/accounts",
+      "status": 200,
+      "len": 8275,
+      "head": "{\"mode\": \"paper\", \"account_id\": null, \"run_id\": null, \"strategy_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"rule_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"param_hash\": \"c2aeddb3fa0a\", \"data_version\": null, \"as_of\": null, \"quality\": {\"status\": \"unavailable\", \"age_seconds\":"
+    },
+    {
+      "path": "/api/v1/paper/state?arm=3a",
+      "error": "HTTPError: HTTP Error 404: Not Found"
+    },
+    {
+      "path": "/api/v1/paper/positions?arm=3a",
+      "status": 200,
+      "len": 17444,
+      "head": "{\"mode\": \"paper\", \"account_id\": null, \"run_id\": null, \"strategy_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"rule_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"param_hash\": \"c2aeddb3fa0a\", \"data_version\": null, \"as_of\": null, \"quality\": {\"status\": \"ok\", \"age_seconds\": null, \"l"
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "len": 26,
+      "head": "{\"状态\": \"可用\", \"模式\": \"本机只读\"}"
+    }
+  ],
+  "子进程实测": [
+    {
+      "name": "api",
+      "pid": 28856,
+      "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+      "cmdline": "",
+      "opened_total": 75,
+      "生产访问": [],
+      "隔离内": [
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/backend-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/backend-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/market_iso.sqlite3"
+      ],
+      "其他": [
+        {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+          "why": "目录句柄(非数据)"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3.13",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/private/var/db/diagnostics/logd/.plist-cache.ihDWrrOI",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/usr/lib/dyld",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/lib/libpython3.13.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_common.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_python.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_acero.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/lib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_dataset.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/pandas_parser.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/pandas_datetime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/ccalendar.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/base.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/_cyutility.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/dtypes.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_substrait.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/missing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/ops_dispatch.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libparquet.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/np_datetime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/properties.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/indexing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/conversion.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timezones.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/nattype.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/hashing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/interval.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timestamps.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/vectorized.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/ops.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/hashtable.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/offsets.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/fields.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/tzconversion.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timedeltas.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/parsing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/strptime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/arrays.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/writers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/json.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/period.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/testing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/window/indexers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/lib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/internals.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/algos.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/window/aggregations.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/reshape.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_compute.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/_compute.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/sparse.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/index.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/parsers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/join.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/groupby.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/dev/null",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "localhost:49158",
+          "why": "socket"
+        },
+        {
+          "path": "localhost:49158",
+          "why": "socket"
+        },
+        {
+          "path": "->0x10c69a3d331b665b",
+          "why": "anon_mmap"
+        }
+      ],
+      "verdict": "隔离成立"
+    },
+    {
+      "name": "worker",
+      "pid": 28859,
+      "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+      "cmdline": "",
+      "opened_total": 13,
+      "生产访问": [],
+      "隔离内": [
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/jobs_iso.sqlite3-shm",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/worker-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/worker-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/jobs_iso.sqlite3.lock",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/jobs_iso.sqlite3",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/jobs_iso.sqlite3-wal",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/market/jobs_iso.sqlite3-shm"
+      ],
+      "其他": [
+        {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+          "why": "目录句柄(非数据)"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3.13",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/usr/lib/dyld",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/lib/libpython3.13.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/dev/null",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "->0xd2060b745936aa1a",
+          "why": "anon_mmap"
+        }
+      ],
+      "verdict": "隔离成立"
+    },
+    {
+      "name": "runtime",
+      "pid": 28862,
+      "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+      "cmdline": "",
+      "opened_total": 82,
+      "生产访问": [],
+      "隔离内": [
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-shm",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/runtime-3a-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/logs/runtime-3a-49158.log",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/locks/paper_runtime_3a.lock",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-wal",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-shm",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-wal",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-wal",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3",
+        "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_full_50lf6swd/live/live_iso.sqlite3-wal"
+      ],
+      "其他": [
+        {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+          "why": "目录句柄(非数据)"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3.13",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/private/var/db/diagnostics/logd/.plist-cache.ihDWrrOI",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/usr/lib/dyld",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/pandas_parser.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/pandas_datetime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/lib/libpython3.13.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/ccalendar.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_common.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/base.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/properties.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/dtypes.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/_cyutility.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/missing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/np_datetime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/conversion.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/ops_dispatch.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/indexing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_python.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/vectorized.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/hashing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/lib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/nattype.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timezones.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_acero.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/fields.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/ops.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_substrait.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_dataset.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/tzconversion.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/json.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libparquet.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/parsing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/strptime.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timestamps.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/interval.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/offsets.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/timedeltas.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/arrays.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/hashtable.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/writers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/tslibs/period.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/testing.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/internals.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/algos.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/lib.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/reshape.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/_compute.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/window/indexers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow_compute.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/sparse.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/index.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/window/aggregations.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/parsers.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/join.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pandas/_libs/groupby.cpython-313-darwin.so",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/lib/python3.13/site-packages/pyarrow/libarrow.2600.dylib",
+          "why": "系统/第三方"
+        },
+        {
+          "path": "/dev/null",
+          "why": "系统/第三方"
+        }
+      ],
+      "verdict": "隔离成立"
+    }
+  ],
+  "runtime_log_tail": "",
+  "stop_error": "RuntimeError: 拒绝停止未知 runtime 进程：pid=28862, cmd=''，身份无法确认为本实例",
+  "兜底清理": [
+    {
+      "name": "api",
+      "pid": 28856,
+      "action": "SIGTERM->SIGKILL"
+    },
+    {
+      "name": "worker",
+      "pid": 28859,
+      "action": "SIGTERM->SIGKILL"
+    },
+    {
+      "name": "runtime",
+      "pid": 28862,
+      "action": "SIGTERM->SIGKILL"
+    }
+  ],
+  "停止后存活": [
+    {
+      "name": "api",
+      "pid": 28856,
+      "alive": false
+    },
+    {
+      "name": "worker",
+      "pid": 28859,
+      "alive": false
+    },
+    {
+      "name": "runtime",
+      "pid": 28862,
+      "alive": false
+    }
+  ],
+  "生产快照_停后": {
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3": {
+      "exists": true,
+      "mtime": 1792737226.006,
+      "size": 2170880
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3": {
+      "exists": true,
+      "mtime": 1792734447.656,
+      "size": 10611236864
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3": {
+      "exists": true,
+      "mtime": 1792726922.077,
+      "size": 45056
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3": {
+      "exists": true,
+      "mtime": 1792724063.84,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.735,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.739,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3": {
+      "exists": true,
+      "mtime": 1792725224.742,
+      "size": 163840
+    },
+    "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet": {
+      "exists": true,
+      "mtime": 1792325770.241,
+      "entries": 13
+    }
+  },
+  "生产被改": []
+}

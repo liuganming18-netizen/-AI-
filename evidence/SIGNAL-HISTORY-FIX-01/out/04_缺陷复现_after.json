@@ -1,0 +1,1208 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-01",
+  "stage": "defects_after",
+  "generated_at_utc": "2026-10-24T13:39:48Z",
+  "config_identity": {
+    "config_file": "/Users/boos/Desktop/威科夫因子共振趋势/策略/WyckoffMaster/event_trend_v0_1/config.py",
+    "config_file_sha256": "d51e188a6dfbc9834c1cf2b3009f496f94e48fc355c30c2ea101cee7cd19b36d",
+    "state_machine_file": "/Users/boos/Desktop/威科夫因子共振趋势/策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+    "state_machine_sha256": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+    "unified_runtime_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+    "unified_runtime_sha256": "b3dd374490ca18da469620aa6494206f93166f68c74b08308e6890cff041297a",
+    "frozen_params": {
+      "box_bars_4h": 42,
+      "atr_period_4h": 14,
+      "atr_warmup_bars": 200,
+      "er_threshold": 0.3,
+      "box_min_width_atr": 2.0,
+      "box_max_width_atr": 8.0,
+      "sweep_max_hours": 168,
+      "sweep_max_overshoot_atr": 0.5,
+      "sweep_min_recovery_atr": 0.1,
+      "retest_max_hours": 72,
+      "retest_max_zone_atr": 0.5,
+      "retest_vol_multiplier": 0.8,
+      "retest_fail_buffer_atr": 0.1,
+      "breakout_buffer_atr": 0.1,
+      "breakout_vol_lookback": 20,
+      "breakout_vol_multiplier": 1.5,
+      "breakout_max_hours_after_retest": 168,
+      "breakout_max_total_hours": 336,
+      "cooling_hours": 24,
+      "oi_min_growth_pct": 0.02,
+      "oi_lookback_hours": 6
+    }
+  },
+  "isolated_market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-HISTORY-FIX-01/out/00_isolated_market/defects_market.sqlite3",
+  "symbols": [
+    "BBUSDT",
+    "ANIMEUSDT",
+    "DEXEUSDT",
+    "ELSAUSDT",
+    "0GUSDT",
+    "1000000BOBUSDT",
+    "1000000MOGUSDT",
+    "1000BONKUSDT",
+    "1000CATUSDT",
+    "1000CHEEMSUSDT",
+    "1000FLOKIUSDT",
+    "1000LUNCUSDT",
+    "1000PEPEUSDT",
+    "1000RATSUSDT",
+    "AIAUSDT",
+    "AZTECUSDT",
+    "CKBUSDT",
+    "CTSIUSDT",
+    "DIAUSDT",
+    "APRUSDT",
+    "AXLUSDT",
+    "BLURUSDT",
+    "BULLAUSDT",
+    "SUSDT",
+    "VELVETUSDT",
+    "WALUSDT",
+    "PROMPTUSDT",
+    "PUMPBTCUSDT"
+  ],
+  "T1_utc": "2026-10-24T12:59:59Z",
+  "data_start_utc": "2026-09-07T02:00:00Z",
+  "defects": {
+    "D1_bootstrap_watermark": {
+      "what": "bootstrap 用 `last_1h_open[sym]=b1[-1].open_time` 记账，但回放只按 4h 收盘时刻驱动 process_market ⇒ 最后一根 4h 收盘之后才开盘的 1h 从未被喂进状态机，却被标成已处理 ⇒ step() 的 has_new 判 False ⇒ 该根推迟到下一根 1h 到达才处理。",
+      "where": "框架/backend/unified_runtime.py:525（记账）、:593-596（has_new 判据）",
+      "symbols_checked": 28,
+      "symbols_with_tail_gap": 0,
+      "tail_gap_bars_total": 0,
+      "tail_gap_bars_max": 0,
+      "step_has_new_true_now": 28,
+      "state_changed_if_gap_bar_processed": 28,
+      "state_changed_structurally": 2,
+      "structural_changes": [
+        {
+          "symbol": "0GUSDT",
+          "diff": {
+            "current_state": [
+              "BOX",
+              "SWEEP"
+            ],
+            "sweep_time_ms": [
+              null,
+              1792846800000
+            ],
+            "n_transitions": [
+              13,
+              14
+            ],
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          }
+        },
+        {
+          "symbol": "DIAUSDT",
+          "diff": {
+            "current_state": [
+              "RETEST",
+              "IDLE"
+            ],
+            "event_id": [
+              "ev_WX_EVENT_TREND_V0_1_binance_DIAUSDT_1792454399999",
+              null
+            ],
+            "created_at_ms": [
+              1792454399999,
+              null
+            ],
+            "sweep_time_ms": [
+              1792800000000,
+              null
+            ],
+            "retest_time_ms": [
+              1792839600000,
+              null
+            ],
+            "n_transitions": [
+              13,
+              14
+            ],
+            "n_completed": [
+              5,
+              6
+            ],
+            "cooling_until_ms": [
+              1792443600000,
+              1792933200000
+            ],
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          }
+        }
+      ],
+      "state_changes": [
+        {
+          "symbol": "BBUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "ANIMEUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "DEXEUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "ELSAUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "0GUSDT",
+          "diff": {
+            "current_state": [
+              "BOX",
+              "SWEEP"
+            ],
+            "sweep_time_ms": [
+              null,
+              1792846800000
+            ],
+            "n_transitions": [
+              13,
+              14
+            ],
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "current_state",
+            "last_processed_1h",
+            "n_transitions",
+            "sweep_time_ms"
+          ]
+        },
+        {
+          "symbol": "1000000BOBUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000000MOGUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000CATUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000CHEEMSUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000LUNCUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "1000RATSUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "AIAUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "AZTECUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "CKBUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "DIAUSDT",
+          "diff": {
+            "current_state": [
+              "RETEST",
+              "IDLE"
+            ],
+            "event_id": [
+              "ev_WX_EVENT_TREND_V0_1_binance_DIAUSDT_1792454399999",
+              null
+            ],
+            "created_at_ms": [
+              1792454399999,
+              null
+            ],
+            "sweep_time_ms": [
+              1792800000000,
+              null
+            ],
+            "retest_time_ms": [
+              1792839600000,
+              null
+            ],
+            "n_transitions": [
+              13,
+              14
+            ],
+            "n_completed": [
+              5,
+              6
+            ],
+            "cooling_until_ms": [
+              1792443600000,
+              1792933200000
+            ],
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "cooling_until_ms",
+            "created_at_ms",
+            "current_state",
+            "event_id",
+            "last_processed_1h",
+            "n_completed",
+            "n_transitions",
+            "retest_time_ms",
+            "sweep_time_ms"
+          ]
+        },
+        {
+          "symbol": "APRUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "AXLUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "BLURUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "BULLAUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "SUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "VELVETUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "WALUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "PROMPTUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        },
+        {
+          "symbol": "PUMPBTCUSDT",
+          "diff": {
+            "last_processed_1h": [
+              1792839600000,
+              1792843200000
+            ]
+          },
+          "diff_fields": [
+            "last_processed_1h"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "symbol": "BBUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "ANIMEUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "DEXEUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "ELSAUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "0GUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000000BOBUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000000MOGUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000CATUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000CHEEMSUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000LUNCUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "1000RATSUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "AIAUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "AZTECUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "CKBUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "DIAUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "APRUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "AXLUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "BLURUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "BULLAUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "SUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "VELVETUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "WALUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "PROMPTUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        },
+        {
+          "symbol": "PUMPBTCUSDT",
+          "last_processed_1h_utc": "2026-10-24T11:00:00Z",
+          "engine_marked_1h_utc": "2026-10-24T11:00:00Z",
+          "db_latest_1h_utc": "2026-10-24T12:00:00Z",
+          "tail_gap_bars": 0,
+          "tail_gap_utc": [],
+          "step_has_new_now": true
+        }
+      ],
+      "verdict": "FIXED",
+      "harm": "被推迟的那根 1h 里的状态迁移与候选，在下一根到达前不体现；期间进程停止/重启则该根永不处理（重启会全量重放，故仅当不再重启时成立）。"
+    },
+    "D2_state_recovery_chain": {
+      "what": "「历史状态恢复」这条链逐层实测：哪一层能导出/恢复，哪一层是桩。",
+      "layers": {
+        "L1_EventStateMachine": {
+          "export_keys": [
+            "active_event",
+            "candidates",
+            "completed_events",
+            "consecutive_closes_below_l",
+            "cooling_until_ms",
+            "enable_oi_filter",
+            "h1_close_times",
+            "h1_closes",
+            "h1_highs",
+            "h1_lows",
+            "h1_open_times",
+            "h1_opens",
+            "h1_volumes",
+            "pit_mode",
+            "pit_oi_bucket_ms",
+            "pit_oi_declared_lag_ms",
+            "processed_1h_bar_opens",
+            "symbol",
+            "traces",
+            "transitions",
+            "venue"
+          ],
+          "roundtrip_identical": true,
+          "instance_attrs": [
+            "active_event",
+            "candidates",
+            "completed_events",
+            "config",
+            "consecutive_closes_below_l",
+            "cooling_until_ms",
+            "enable_oi_filter",
+            "h1_close_times",
+            "h1_closes",
+            "h1_highs",
+            "h1_lows",
+            "h1_open_times",
+            "h1_opens",
+            "h1_volumes",
+            "last_clock",
+            "pit",
+            "processed_1h_bar_opens",
+            "symbol",
+            "traces",
+            "transitions",
+            "venue"
+          ],
+          "attrs_not_in_export": [
+            "config",
+            "last_clock",
+            "pit"
+          ]
+        },
+        "L2_RealSignalEngine": {
+          "export_keys": [
+            "processed_1h_opens",
+            "processed_4h_closes",
+            "signals_count",
+            "sm_state",
+            "symbol"
+          ],
+          "attrs": [
+            "config",
+            "enable_oi_filter",
+            "history_floor_ms",
+            "last_cycle_ms",
+            "processed_1h_opens",
+            "processed_4h_closes",
+            "signals_generated",
+            "sm",
+            "symbol"
+          ],
+          "attrs_not_restored": [
+            "signals_generated",
+            "last_cycle_ms",
+            "history_floor_ms"
+          ],
+          "roundtrip_identical": false
+        },
+        "L3_MultiSymbolSignalEngine": {
+          "has_restore_state": false,
+          "export_keys": [
+            "bootstrap",
+            "ready",
+            "recovery_method",
+            "recovery_note",
+            "restore_supported",
+            "state_persisted",
+            "symbols"
+          ],
+          "per_symbol_state_in_export": false,
+          "note": "export_state 只导出 symbols/ready/bootstrap，**不含任何逐标的状态机状态**；且类上没有 restore_state ⇒ 多标层无法冷热重启。"
+        },
+        "L4_UnifiedRuntime_startup": {
+          "recover_fn_mentions_signal_engine": false,
+          "recover_fn_lines": [
+            "def _recover_state_on_startup(self):",
+            "\"\"\"从 SQLite 账本恢复已有持仓与已处理信号，实现热重启与断点接管。\"\"\"",
+            "con_p = L.paper_conn(self.arm, ro=True)",
+            "try:",
+            "n_pos = con_p.execute(",
+            "\"SELECT COUNT(*) FROM paper_position WHERE account_id=? AND status='open'\",",
+            "(f\"paper43_{self.arm}\",)",
+            ").fetchone()[0]",
+            "n_pen = con_p.execute(",
+            "\"SELECT COUNT(*) FROM paper_pending WHERE account_id=? AND status='pending'\",",
+            "(f\"paper43_{self.arm}\",)",
+            ").fetchone()[0]",
+            "logger.info(f\"[*] [Runtime-{self.arm}] 启动恢复：发现 {n_pos} 个在途持仓，{n_pen} 个待撮合挂单\")",
+            "except Exception:"
+          ],
+          "note": "启动只数纸面账本行数，不碰信号引擎状态；信号状态一律靠 bootstrap 全量重放。"
+        },
+        "L2b_continue_after_restore": {
+          "restore_at_utc": "2026-10-12T06:00:00Z",
+          "t_end_utc": "2026-10-24T12:59:59Z",
+          "symbols": 28,
+          "n_diff": 0,
+          "identical": true,
+          "diffs": [],
+          "note": "用 `RealSignalEngine.export_state/restore_state` 内建机制在中途换引擎，与不换引擎跑到同一截止时刻对比。"
+        }
+      },
+      "verdict": "BROKEN_AT_MULTI_SYMBOL_LAYER",
+      "harm": "进程重启后没有任何状态被恢复，只能靠 bootstrap 全量重放；副作用：`transition_counts`（since_start）与 `candidates_since_start` 归零 ⇒ 「信号 0」在每次重启后都从 0 重新计数，无法跨重启累积。"
+    },
+    "D3_bootstrap_hard_gate": {
+      "what": "bootstrap 硬门槛 4h>=box_bars_4h+8(=50) 且 1h>=200，达不到即整币跳过。",
+      "isolated_universe": 28,
+      "ready": 28,
+      "skipped": 0,
+      "skipped_reasons": {},
+      "verdict": "NOT_TRIGGERED_THIS_WINDOW",
+      "latent_risk": "新上市标的在预热窗口内达不到 200 根 1h 时会被静默跳过，且 skipped_reasons 只进 bootstrap_stats，不进 state_counter / 前端 ⇒ 展示为「无信号」而不是「未就绪」。"
+    },
+    "D4_dead_bars_atr_zero": {
+      "what": "4h 全零（volume=0、high==low==close）⇒ compute_wilder_atr_series 返回 0.0 ⇒ `if np.isfinite(value) and value > 0` 不成立 ⇒ check_and_form_box 静默不执行 ⇒ 当前阶段显示为 IDLE_ATR_INVALID，看不出是数据坏死。",
+      "where": "框架/backend/unified_runtime.py:315-318",
+      "symbols_checked": 28,
+      "symbols_atr_zero": 3,
+      "atr_zero_symbols": [
+        "1000000BOBUSDT",
+        "PROMPTUSDT",
+        "PUMPBTCUSDT"
+      ],
+      "detail": [
+        {
+          "symbol": "BBUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.00024326572486563488,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "ANIMEUSDT",
+          "bars_4h": 42,
+          "atr_last42": 9.721015662716688e-05,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "DEXEUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.030164802019180353,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "ELSAUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.005674559285442689,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "0GUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.007236771230394362,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000000BOBUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0,
+          "atr_ok": false,
+          "all_zero_bars_in_last42": 42,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000000MOGUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.002674372841288772,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "bars_4h": 42,
+          "atr_last42": 9.303144577254878e-05,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000CATUSDT",
+          "bars_4h": 42,
+          "atr_last42": 4.131700632394123e-05,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000CHEEMSUSDT",
+          "bars_4h": 42,
+          "atr_last42": 9.200092567409807e-06,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0005517428781419486,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000LUNCUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0008880359491958881,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.00016312029027995266,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "1000RATSUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0007905719668259153,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "AIAUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0021358992974927645,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "AZTECUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0005673791016843517,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "CKBUSDT",
+          "bars_4h": 42,
+          "atr_last42": 4.423674785728716e-05,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0006892365406089574,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "DIAUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0037988593876420217,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "APRUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.002415480503986368,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "AXLUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0020599741618746257,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "BLURUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0002766503482828408,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "BULLAUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.006352810810652727,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "SUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0016067317870936113,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "VELVETUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0020643624716698223,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "WALUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0011342044011631222,
+          "atr_ok": true,
+          "all_zero_bars_in_last42": 0,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "PROMPTUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0,
+          "atr_ok": false,
+          "all_zero_bars_in_last42": 42,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        },
+        {
+          "symbol": "PUMPBTCUSDT",
+          "bars_4h": 42,
+          "atr_last42": 0.0,
+          "atr_ok": false,
+          "all_zero_bars_in_last42": 42,
+          "last_4h_open_utc": "2026-10-24T08:00:00Z"
+        }
+      ],
+      "verdict": "DEFECT_PRESENT"
+    }
+  },
+  "cleared": {
+    "D5_4h_vs_1h_ordering": {
+      "realtime": "process_market: events sorted by (close_time, kind)，kind=0(4h) 先于 kind=1(1h)",
+      "backtest": "runner.py:409/432 先 check_and_form_box(t_close)，再 process_1h_bar(t_open=t_close-1h)",
+      "same_order": true,
+      "conclusion": "顺序一致，不是缺陷；回测与实时的差异只来自 ATR 计算口径（见 02）。"
+    },
+    "D6_available_at_vs_execution": {
+      "candidate_samples": [
+        {
+          "symbol": "BBUSDT",
+          "snapshot_time_utc": "2026-10-11T07:00:00Z",
+          "available_at_utc": "2026-10-11T07:00:00Z",
+          "execution_earliest_utc": "2026-10-11T07:15:00Z",
+          "delta_available_to_exec_ms": 900000
+        },
+        {
+          "symbol": "SUSDT",
+          "snapshot_time_utc": "2026-10-06T06:00:00Z",
+          "available_at_utc": "2026-10-06T06:00:00Z",
+          "execution_earliest_utc": "2026-10-06T06:15:00Z",
+          "delta_available_to_exec_ms": 900000
+        },
+        {
+          "symbol": "VELVETUSDT",
+          "snapshot_time_utc": "2026-10-02T15:00:00Z",
+          "available_at_utc": "2026-10-02T15:00:00Z",
+          "execution_earliest_utc": "2026-10-02T15:15:00Z",
+          "delta_available_to_exec_ms": 900000
+        }
+      ],
+      "paper_engine_rule": "paper_engine.py:103-107  order_request_ms=max(event_time, available_at)；earliest_fill_ms=order_request_ms+15m；成交 bar=第一根 open_time>=earliest_fill_ms 的已闭合 15m bar",
+      "backtest_rule": "contracts.py execution_earliest_ms = snapshot_time_ms + 15m（state_machine.py:616）",
+      "conclusion": "两者都等于「1h 收盘 + 15m」，口径一致，不是缺陷。`available_at` 只是决策可得时刻（=1h 收盘），不承担执行时点语义。"
+    }
+  }
+}

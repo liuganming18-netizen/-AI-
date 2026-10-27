@@ -1,0 +1,213 @@
+<!doctype html><html lang="zh"><meta charset="utf-8">
+<title>ACCUM-EARLY-01 事件回放</title>
+<style>
+body{font:14px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+     margin:0;padding:32px;color:#1a1a1a;background:#fafafa;max-width:1100px;margin:0 auto}
+h2{margin:0 0 6px} h3{margin:0 0 12px;font-size:17px}
+h4{margin:20px 0 8px;font-size:14px;color:#333;border-left:3px solid #4a7;
+    padding-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0 4px}
+th,td{border:1px solid #e2e2e2;padding:6px 9px;text-align:left;font-size:13px;
+      vertical-align:top}
+th{background:#f2f4f6;font-weight:600}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.strong{font-weight:700;color:#b3261e}
+td.dim,.dim{color:#777;font-size:12px}
+td.ok,.ok{color:#1a7f37} td.warn,.warn{color:#b3261e}
+.card{background:#fff;border:1px solid #e6e6e6;border-radius:8px;padding:18px 20px;
+      margin:18px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card.err{color:#b3261e}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 18px;margin:6px 0 4px}
+.grid .k{display:block;color:#777;font-size:12px}
+.grid .v{display:block;font-variant-numeric:tabular-nums;font-size:15px}
+.tag{font-size:11px;font-weight:400;color:#666;background:#eef1f4;
+      padding:2px 7px;border-radius:10px;margin-left:8px;vertical-align:middle}
+.banner{border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13px}
+.banner.warn{background:#fdf1f0;border:1px solid #f3c9c5;color:#8c1d18}
+.lead{color:#555;font-size:13px;margin:6px 0 0}
+.foot{color:#888;font-size:12px;margin-top:28px;border-top:1px solid #e6e6e6;
+       padding-top:12px}
+</style>
+<h2>ACCUM-EARLY-01 逐事件回放</h2>
+<p class="lead">真实历史候选共 51 条，取窗口 2026-07-24T08:00:00Z → 2026-10-11T20:00:00Z
+里的代表事件逐条重建。本页只重建过程，<b>不产生任何订单</b>；持仓量当时未参与判定（喂的是空数组）。</p>
+<div class='banner warn'><b>参与率约束未满足：TNSRUSDT、AGTUSDT、METISUSDT</b>——500 名义额超过「前一根 15m 成交额的 0.1%」上限。真实下单时会被拒单或必须缩量，本页的盈亏数字是按全额成交算的，偏乐观。</div>
+
+<div class="card">
+  <h3>TNSRUSDT
+      <span class="tag">真实历史（生产状态文件预热期候选）</span></h3>
+  <div class="grid">
+    <div><span class="k">箱体上沿 H</span><span class="v">0.03333</span></div>
+    <div><span class="k">箱体下沿 L</span><span class="v">0.03095</span></div>
+    <div><span class="k">ATR</span><span class="v">0.000494341</span></div>
+    <div><span class="k">方向效率 ER</span><span class="v">0.22312139</span></div>
+    <div><span class="k">突破收盘</span><span class="v">0.03343</span></div>
+    <div><span class="k">量能比</span><span class="v">41.5992</span></div>
+  </div>
+
+  <h4>结构确认与成交</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>结构确认</td><td>2026-07-24T08:00:00Z</td><td class="dim">1h 收盘确认</td></tr>
+    <tr><td>最早可成交</td><td>2026-07-24T08:15:00Z</td><td class="dim">1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行</td></tr>
+    <tr><td>实际成交</td><td>2026-07-24T08:15:00Z</td><td class="dim">15m 开盘价，来源 cold</td></tr>
+    <tr><td>原始成交价</td><td class="num">0.03363</td><td class="dim">含滑点后 0.033646815</td></tr>
+    <tr><td>数量 / 名义</td><td class="num">14,867.6777 / 500</td><td class="dim">—</td></tr>
+    <tr><td>参与率上限（名义）</td><td class="num warn">319.74</td>
+        <td class="warn">不满足：名义额超过前一根 15m 成交额的 0.1%</td></tr>
+    <tr><td>候选丢弃原因</td><td colspan="2" class="dim">before_paper_epoch_no_backfill（早于模拟盘起点，按纪律不补开）；missed_fill_moment_no_backfill（错过成交时刻，只拒单不回填）</td></tr>
+  </table>
+
+  <h4>判定依据</h4>
+  <table><tr><th>方向</th><th>项</th><th>值</th></tr><tr><td class='ok'>支持</td><td>成交量/前20根中位</td><td class='num'>41.5992</td></tr><tr><td class='ok'>支持</td><td>量能门槛 1.5</td><td class='num'>是</td></tr><tr><td class='ok'>支持</td><td>箱体宽度(ATR 倍数)</td><td class='num'>4.81</td></tr><tr><td class='warn'>反对</td><td>方向效率 ER</td><td class='num'>0.22312139</td></tr><tr><td class='warn'>反对</td><td>ER 门槛 0.30（越低越像震荡）</td><td class='num'>0.22312139</td></tr><tr><td class='dim'>缺失</td><td>oi_growth_6h</td><td class='num'>—</td></tr></table>
+
+  <h4>止损（只上移，向后生效）</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>初始止损（执行侧重算）</td><td class="num">0.0319485</td>
+        <td class="dim">实际成交价 × 0.95（不是候选快照里的 initial_stop_price）</td></tr>
+    <tr><td>候选快照里的值</td><td class="num">0.0309905658902</td>
+        <td class="warn">两者差异 <b>-3.00%</b>，<b>不能混用</b></td></tr>
+    <tr><td>最终止损</td><td class="num">0.034029</td>
+        <td class="dim">只上移：是</td></tr>
+  </table>
+  <table><tr><th>生效时刻</th><th>止损价</th><th>依据</th></tr><tr><td>2026-07-24T08:15:00Z</td><td class='num'>0.0319485</td><td class='dim'>入场价×0.95</td></tr><tr><td>2026-08-21T03:59:59Z</td><td class='num'>0.032433</td><td class='dim'>4h 低点 0.03414×0.95（cold）</td></tr><tr><td>2026-08-21T07:59:59Z</td><td class='num'>0.0326705</td><td class='dim'>4h 低点 0.03439×0.95（cold）</td></tr><tr><td>2026-08-21T11:59:59Z</td><td class='num'>0.03325</td><td class='dim'>4h 低点 0.035×0.95（cold）</td></tr><tr><td>2026-08-21T15:59:59Z</td><td class='num'>0.0338485</td><td class='dim'>4h 低点 0.03563×0.95（cold）</td></tr><tr><td>2026-08-21T23:59:59Z</td><td class='num'>0.033896</td><td class='dim'>4h 低点 0.03568×0.95（cold）</td></tr><tr><td>2026-08-22T03:59:59Z</td><td class='num'>0.034029</td><td class='dim'>4h 低点 0.03582×0.95（cold）</td></tr></table>
+
+  <h4>退出与成本</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>退出时刻</td><td>2026-07-25T19:45:00Z</td><td class="dim">trailing_stop_loss</td></tr>
+    <tr><td>退出价</td><td class="num">0.0319485</td>
+        <td class="warn">按止损价成交（生效路径模型）；缺口未单独建模</td></tr>
+    <tr><td>毛盈亏</td><td class="num">-25.4875</td><td class="dim">—</td></tr>
+    <tr><td>手续费（5bps）</td><td class="num">0.4875</td><td class="dim">—</td></tr>
+    <tr><td>资金费（8 次结算）</td><td class="num">-4.0736</td>
+        <td class="dim">按真实结算事件，不按固定窗口</td></tr>
+    <tr><td><b>净额（生效视图 5bps 滑点）</b></td>
+        <td class="num strong">-21.9014</td><td class="dim">执行链实际读的口径</td></tr>
+    <tr><td>净额（策略包 3bps 滑点）</td>
+        <td class="num">-21.7064</td>
+        <td class="dim">两套差 0.195，<b>不择一</b></td></tr>
+  </table>
+</div>
+<div class="card">
+  <h3>AGTUSDT
+      <span class="tag">真实历史（生产状态文件预热期候选）</span></h3>
+  <div class="grid">
+    <div><span class="k">箱体上沿 H</span><span class="v">0.017131</span></div>
+    <div><span class="k">箱体下沿 L</span><span class="v">0.014489</span></div>
+    <div><span class="k">ATR</span><span class="v">0.000385693</span></div>
+    <div><span class="k">方向效率 ER</span><span class="v">0.0010243802</span></div>
+    <div><span class="k">突破收盘</span><span class="v">0.017232</span></div>
+    <div><span class="k">量能比</span><span class="v">3.5299</span></div>
+  </div>
+
+  <h4>结构确认与成交</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>结构确认</td><td>2026-09-07T09:00:00Z</td><td class="dim">1h 收盘确认</td></tr>
+    <tr><td>最早可成交</td><td>2026-09-07T09:15:00Z</td><td class="dim">1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行</td></tr>
+    <tr><td>实际成交</td><td>2026-09-07T09:15:00Z</td><td class="dim">15m 开盘价，来源 cold</td></tr>
+    <tr><td>原始成交价</td><td class="num">0.017142</td><td class="dim">含滑点后 0.017150571</td></tr>
+    <tr><td>数量 / 名义</td><td class="num">29,168.1251 / 500</td><td class="dim">—</td></tr>
+    <tr><td>参与率上限（名义）</td><td class="num warn">20.87</td>
+        <td class="warn">不满足：名义额超过前一根 15m 成交额的 0.1%</td></tr>
+    <tr><td>候选丢弃原因</td><td colspan="2" class="dim">before_paper_epoch_no_backfill（早于模拟盘起点，按纪律不补开）；missed_fill_moment_no_backfill（错过成交时刻，只拒单不回填）</td></tr>
+  </table>
+
+  <h4>判定依据</h4>
+  <table><tr><th>方向</th><th>项</th><th>值</th></tr><tr><td class='ok'>支持</td><td>成交量/前20根中位</td><td class='num'>3.5299</td></tr><tr><td class='ok'>支持</td><td>量能门槛 1.5</td><td class='num'>是</td></tr><tr><td class='ok'>支持</td><td>箱体宽度(ATR 倍数)</td><td class='num'>6.85</td></tr><tr><td class='warn'>反对</td><td>方向效率 ER</td><td class='num'>0.0010243802</td></tr><tr><td class='warn'>反对</td><td>ER 门槛 0.30（越低越像震荡）</td><td class='num'>0.0010243802</td></tr><tr><td class='dim'>缺失</td><td>oi_growth_6h</td><td class='num'>—</td></tr></table>
+
+  <h4>止损（只上移，向后生效）</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>初始止损（执行侧重算）</td><td class="num">0.0162849</td>
+        <td class="dim">实际成交价 × 0.95（不是候选快照里的 initial_stop_price）</td></tr>
+    <tr><td>候选快照里的值</td><td class="num">0.0144974307351</td>
+        <td class="warn">两者差异 <b>-10.98%</b>，<b>不能混用</b></td></tr>
+    <tr><td>最终止损</td><td class="num">0.02491945</td>
+        <td class="dim">只上移：是</td></tr>
+  </table>
+  <table><tr><th>生效时刻</th><th>止损价</th><th>依据</th></tr><tr><td>2026-09-07T09:15:00Z</td><td class='num'>0.0162849</td><td class='dim'>入场价×0.95</td></tr><tr><td>2026-09-07T15:59:59Z</td><td class='num'>0.01632005</td><td class='dim'>4h 低点 0.017179×0.95（cold）</td></tr><tr><td>2026-09-07T19:59:59Z</td><td class='num'>0.0164008</td><td class='dim'>4h 低点 0.017264×0.95（cold）</td></tr><tr><td>2026-09-07T23:59:59Z</td><td class='num'>0.0165034</td><td class='dim'>4h 低点 0.017372×0.95（cold）</td></tr><tr><td>2026-09-10T23:59:59Z</td><td class='num'>0.01661645</td><td class='dim'>4h 低点 0.017491×0.95（hot）</td></tr><tr><td>2026-09-22T07:59:59Z</td><td class='num'>0.0180956</td><td class='dim'>4h 低点 0.019048×0.95（hot）</td></tr><tr><td>2026-09-25T19:59:59Z</td><td class='num'>0.0182362</td><td class='dim'>4h 低点 0.019196×0.95（hot）</td></tr><tr><td>2026-09-25T23:59:59Z</td><td class='num'>0.0186504</td><td class='dim'>4h 低点 0.019632×0.95（hot）</td></tr><tr><td>2026-09-30T15:59:59Z</td><td class='num'>0.02048675</td><td class='dim'>4h 低点 0.021565×0.95（hot）</td></tr><tr><td>2026-09-30T19:59:59Z</td><td class='num'>0.02242665</td><td class='dim'>4h 低点 0.023607×0.95（hot）</td></tr><tr><td>2026-10-01T07:59:59Z</td><td class='num'>0.023655</td><td class='dim'>4h 低点 0.0249×0.95（hot）</td></tr><tr><td>2026-10-01T11:59:59Z</td><td class='num'>0.02491945</td><td class='dim'>4h 低点 0.026231×0.95（hot）</td></tr></table>
+
+  <h4>退出与成本</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>退出时刻</td><td>2026-09-08T07:30:00Z</td><td class="dim">trailing_stop_loss</td></tr>
+    <tr><td>退出价</td><td class="num">0.0165034</td>
+        <td class="warn">按止损价成交（生效路径模型）；缺口未单独建模</td></tr>
+    <tr><td>毛盈亏</td><td class="num">-19.1175</td><td class="dim">—</td></tr>
+    <tr><td>手续费（5bps）</td><td class="num">0.4907</td><td class="dim">—</td></tr>
+    <tr><td>资金费（0 次结算）</td><td class="num">0</td>
+        <td class="dim">按真实结算事件，不按固定窗口</td></tr>
+    <tr><td><b>净额（生效视图 5bps 滑点）</b></td>
+        <td class="num strong">-19.6081</td><td class="dim">执行链实际读的口径</td></tr>
+    <tr><td>净额（策略包 3bps 滑点）</td>
+        <td class="num">-19.4119</td>
+        <td class="dim">两套差 0.1963，<b>不择一</b></td></tr>
+  </table>
+</div>
+<div class="card">
+  <h3>METISUSDT
+      <span class="tag">真实历史（生产状态文件预热期候选）</span></h3>
+  <div class="grid">
+    <div><span class="k">箱体上沿 H</span><span class="v">3.79</span></div>
+    <div><span class="k">箱体下沿 L</span><span class="v">3.108</span></div>
+    <div><span class="k">ATR</span><span class="v">0.102715</span></div>
+    <div><span class="k">方向效率 ER</span><span class="v">0.021594684</span></div>
+    <div><span class="k">突破收盘</span><span class="v">3.856</span></div>
+    <div><span class="k">量能比</span><span class="v">9.1432</span></div>
+  </div>
+
+  <h4>结构确认与成交</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>结构确认</td><td>2026-10-11T20:00:00Z</td><td class="dim">1h 收盘确认</td></tr>
+    <tr><td>最早可成交</td><td>2026-10-11T20:15:00Z</td><td class="dim">1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行</td></tr>
+    <tr><td>实际成交</td><td>2026-10-11T20:15:00Z</td><td class="dim">15m 开盘价，来源 hot</td></tr>
+    <tr><td>原始成交价</td><td class="num">3.824</td><td class="dim">含滑点后 3.8259</td></tr>
+    <tr><td>数量 / 名义</td><td class="num">130.7531 / 500</td><td class="dim">—</td></tr>
+    <tr><td>参与率上限（名义）</td><td class="num warn">298.51</td>
+        <td class="warn">不满足：名义额超过前一根 15m 成交额的 0.1%</td></tr>
+    <tr><td>候选丢弃原因</td><td colspan="2" class="dim">before_paper_epoch_no_backfill（早于模拟盘起点，按纪律不补开）；missed_fill_moment_no_backfill（错过成交时刻，只拒单不回填）</td></tr>
+  </table>
+
+  <h4>判定依据</h4>
+  <table><tr><th>方向</th><th>项</th><th>值</th></tr><tr><td class='ok'>支持</td><td>成交量/前20根中位</td><td class='num'>9.1432</td></tr><tr><td class='ok'>支持</td><td>量能门槛 1.5</td><td class='num'>是</td></tr><tr><td class='ok'>支持</td><td>箱体宽度(ATR 倍数)</td><td class='num'>6.64</td></tr><tr><td class='warn'>反对</td><td>方向效率 ER</td><td class='num'>0.021594684</td></tr><tr><td class='warn'>反对</td><td>ER 门槛 0.30（越低越像震荡）</td><td class='num'>0.021594684</td></tr><tr><td class='dim'>缺失</td><td>oi_growth_6h</td><td class='num'>—</td></tr></table>
+
+  <h4>止损（只上移，向后生效）</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>初始止损（执行侧重算）</td><td class="num">3.6328</td>
+        <td class="dim">实际成交价 × 0.95（不是候选快照里的 initial_stop_price）</td></tr>
+    <tr><td>候选快照里的值</td><td class="num">3.1017</td>
+        <td class="warn">两者差异 <b>-14.62%</b>，<b>不能混用</b></td></tr>
+    <tr><td>最终止损</td><td class="num">3.9301</td>
+        <td class="dim">只上移：是</td></tr>
+  </table>
+  <table><tr><th>生效时刻</th><th>止损价</th><th>依据</th></tr><tr><td>2026-10-11T20:15:00Z</td><td class='num'>3.6328</td><td class='dim'>入场价×0.95</td></tr><tr><td>2026-10-12T07:59:59Z</td><td class='num'>3.7259</td><td class='dim'>4h 低点 3.922×0.95（hot）</td></tr><tr><td>2026-10-17T03:59:59Z</td><td class='num'>3.8123</td><td class='dim'>4h 低点 4.013×0.95（hot）</td></tr><tr><td>2026-10-17T11:59:59Z</td><td class='num'>3.8237</td><td class='dim'>4h 低点 4.025×0.95（hot）</td></tr><tr><td>2026-10-20T07:59:59Z</td><td class='num'>3.8333</td><td class='dim'>4h 低点 4.035×0.95（hot）</td></tr><tr><td>2026-10-20T15:59:59Z</td><td class='num'>3.8352</td><td class='dim'>4h 低点 4.037×0.95（hot）</td></tr><tr><td>2026-10-21T19:59:59Z</td><td class='num'>3.9301</td><td class='dim'>4h 低点 4.137×0.95（hot）</td></tr></table>
+
+  <h4>退出与成本</h4>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>退出时刻</td><td>2026-10-12T13:15:00Z</td><td class="dim">trailing_stop_loss</td></tr>
+    <tr><td>退出价</td><td class="num">3.7259</td>
+        <td class="warn">按止损价成交（生效路径模型）；缺口未单独建模</td></tr>
+    <tr><td>毛盈亏</td><td class="num">-13.3205</td><td class="dim">—</td></tr>
+    <tr><td>手续费（5bps）</td><td class="num">0.4936</td><td class="dim">—</td></tr>
+    <tr><td>资金费（4 次结算）</td><td class="num">0.0277</td>
+        <td class="dim">按真实结算事件，不按固定窗口</td></tr>
+    <tr><td><b>净额（生效视图 5bps 滑点）</b></td>
+        <td class="num strong">-13.8418</td><td class="dim">执行链实际读的口径</td></tr>
+    <tr><td>净额（策略包 3bps 滑点）</td>
+        <td class="num">-13.6443</td>
+        <td class="dim">两套差 0.1974，<b>不择一</b></td></tr>
+  </table>
+</div>
+<div class="banner warn"><b>三项未建模／待裁决，看数字时必须知道：</b>
+① 跳空止损未单独建模 —— 跳空与盘中触及都按止损价成交，真实跳空会高估成交价；
+② 滑点两套（3bps / 5bps）并列，不择一；
+③ 候选快照的 <code>initial_stop_price</code> 与执行侧重算值不是同一个数，混用会把止损放宽 3%~15%。</div>
+<p class="foot">隔离样例：隔离样例（合成，非真实行情，不计入任何成绩）。完整字段与数据缺口见同名 JSON；
+行为核验见 06 脚本，观察流回放见 09 脚本。</p>
+</html>

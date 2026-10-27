@@ -1,0 +1,193 @@
+{
+  "stats_at_utc": "2026-10-26T03:40:51Z",
+  "discipline": "行号现算；文件 sha256 一并记录 ⇒ 结论绑定「文件+行+内容」",
+  "anchors": [
+    {
+      "id": "A1_oi_empty_call",
+      "file": "框架/backend/unified_runtime.py",
+      "exists": true,
+      "desc": "实时链路给状态机喂空 OI 数组",
+      "file_sha256": "fd096626b91180ecedd92f25af6b4951144457dbe6db85c80e4607acd9c727ee",
+      "file_bytes": 162028,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 557,
+          "text": "oi_timestamps=np.array([], dtype=np.int64), oi_values=np.array([], dtype=np.float64))"
+        }
+      ]
+    },
+    {
+      "id": "A2_engine_default",
+      "file": "框架/backend/unified_runtime.py",
+      "exists": true,
+      "desc": "信号引擎构造默认 False",
+      "file_sha256": "fd096626b91180ecedd92f25af6b4951144457dbe6db85c80e4607acd9c727ee",
+      "file_bytes": 162028,
+      "hit_count": 3,
+      "hits": [
+        {
+          "line": 353,
+          "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+        },
+        {
+          "line": 656,
+          "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+        },
+        {
+          "line": 2143,
+          "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+        }
+      ]
+    },
+    {
+      "id": "A3_argparse",
+      "file": "框架/backend/unified_runtime.py",
+      "exists": true,
+      "desc": "命令行参数清单（判断有没有 OI 开关）",
+      "file_sha256": "fd096626b91180ecedd92f25af6b4951144457dbe6db85c80e4607acd9c727ee",
+      "file_bytes": 162028,
+      "hit_count": 5,
+      "hits": [
+        {
+          "line": 2836,
+          "text": "parser.add_argument(\"--arm\", default=\"3a\", choices=[\"3a\", \"3b\", \"3c\", \"3d\"], help=\"Paper account arm\")"
+        },
+        {
+          "line": 2837,
+          "text": "parser.add_argument(\"--symbol\", default=\"all\","
+        },
+        {
+          "line": 2839,
+          "text": "parser.add_argument(\"--interval\", type=float, default=2.0, help=\"Poll interval seconds\")"
+        },
+        {
+          "line": 2840,
+          "text": "parser.add_argument(\"--once\", action=\"store_true\", help=\"Run one cycle and exit\")"
+        },
+        {
+          "line": 2841,
+          "text": "parser.add_argument(\"--status\", action=\"store_true\", help=\"Print current status and exit\")"
+        }
+      ]
+    },
+    {
+      "id": "A4_runtime_ctor",
+      "file": "框架/backend/unified_runtime.py",
+      "exists": true,
+      "desc": "生产构造点（判断是否传 enable_oi_filter）",
+      "file_sha256": "fd096626b91180ecedd92f25af6b4951144457dbe6db85c80e4607acd9c727ee",
+      "file_bytes": 162028,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 2857,
+          "text": "runtime = UnifiedRuntime(arm=args.arm, symbols=symbols, poll_interval_sec=args.interval)"
+        }
+      ]
+    },
+    {
+      "id": "A5_runner_hardcode",
+      "file": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "exists": true,
+      "desc": "FT-LOW4H 回测分支写死 False",
+      "file_sha256": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801",
+      "file_bytes": 38089,
+      "hit_count": 2,
+      "hits": [
+        {
+          "line": 620,
+          "text": "engine = U.RealSignalEngine(symbol=symbol, enable_oi_filter=False)"
+        },
+        {
+          "line": 635,
+          "text": "sm_b = self.run_state_machine_simulation(symbol, df_4h, df_1h, oi_ts, oi_vals, enable_oi_filter=False)"
+        }
+      ]
+    },
+    {
+      "id": "A6_ab_same_source",
+      "file": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "exists": true,
+      "desc": "A/B 两组共用同一份候选",
+      "file_sha256": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801",
+      "file_bytes": 38089,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 625,
+          "text": "sm_a = sm_b = engine.sm"
+        }
+      ]
+    },
+    {
+      "id": "A7_sm_default",
+      "file": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "exists": true,
+      "desc": "状态机自身默认 True",
+      "file_sha256": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+      "file_bytes": 31658,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 38,
+          "text": "enable_oi_filter: bool = True, pit_mode: str = \"declared_assumption\","
+        }
+      ]
+    },
+    {
+      "id": "A8_flat_shards",
+      "file": "框架/backend/market_repository.py",
+      "exists": true,
+      "desc": "资金费/OI 冷档分片定位（目录式）",
+      "file_sha256": "31a4e6d3329c9360aaba58ff232605b0eb3c2dddc2b14e9260a7ca77917cef5b",
+      "file_bytes": 18016,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 127,
+          "text": "def _flat_shards(self, exchange, market, symbol, metric):"
+        }
+      ]
+    },
+    {
+      "id": "A9_candle_shards",
+      "file": "框架/backend/market_repository.py",
+      "exists": true,
+      "desc": "K 线冷档分片定位（目录式）",
+      "file_sha256": "31a4e6d3329c9360aaba58ff232605b0eb3c2dddc2b14e9260a7ca77917cef5b",
+      "file_bytes": 18016,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 123,
+          "text": "def _candle_shards(self, exchange, market, symbol, timeframe, metric=\"candles\"):"
+        }
+      ]
+    },
+    {
+      "id": "A10_metrics_no_write",
+      "file": "框架/backend/realtime_collector.py",
+      "exists": true,
+      "desc": "大户/比率类实时只写快照、不落库",
+      "file_sha256": "363011632583249f65b5968b7ab353b1fc24a5cc292357ad0a760af4646d2d65",
+      "file_bytes": 153890,
+      "hit_count": 1,
+      "hits": [
+        {
+          "line": 2295,
+          "text": "· 只写本机可读快照（`public_snapshot`），**不落库、不写历史**；"
+        }
+      ]
+    }
+  ],
+  "runtime_ctor_passes_oi_filter": false,
+  "cli_flags": [
+    "--arm",
+    "--interval",
+    "--once",
+    "--status",
+    "--symbol"
+  ],
+  "cli_has_oi_switch": false
+}

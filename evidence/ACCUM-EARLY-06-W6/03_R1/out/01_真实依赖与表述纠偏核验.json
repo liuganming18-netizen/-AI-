@@ -1,0 +1,270 @@
+{
+  "task": "ACCUM-EARLY-06-W6-R1",
+  "step": "01_真实依赖审计与接口消费核验",
+  "generated_at_utc": "2026-10-27T01:09:42Z",
+  "window1_audit": {
+    "delivered": true,
+    "delivery_time_utc": "2026-10-26T18:15:00Z",
+    "readme_path": "evidence/ACCUM-EARLY-06-W1/README.md",
+    "conflicts_c01_c08": [
+      {
+        "id": "C-01",
+        "item": "确认周期 1h 的来源归因",
+        "type": "归因错误",
+        "a": "04-A/02_规则接口.md:99、05-A-R1/03:42 写「用户已确认 1h」",
+        "b": "《用户要求与决策.md》全文无「1h」；仅冻结包 config.py:21 timeframe_event=\"1h\"",
+        "blocked": "该项「用户已定」资格撤销；1h 降为沿用值",
+        "does_not_block": "窗口二不改确认周期，可继续施工"
+      },
+      {
+        "id": "C-02",
+        "item": "承接不达标时停在哪一步",
+        "type": "行为口径分歧",
+        "a": "04-A:28/137「不满足不进 ARMED」",
+        "b": "代码 :1024 与 05-E-R1:188「不满足不进 SWEEP」",
+        "blocked": "该项；不得声称代码与方案文本等价",
+        "does_not_block": "「承接必须在扫低根判定」这一条本身无冲突"
+      },
+      {
+        "id": "C-03",
+        "item": "multi_bar 下扫低根的取法",
+        "type": "依据缺失",
+        "a": "04-A 只定义 single_bar",
+        "b": "代码按窗口最低价取并标 unverified",
+        "blocked": "multi_bar 档",
+        "does_not_block": "single_bar 档（默认、已批准白名单内）"
+      },
+      {
+        "id": "C-04",
+        "item": "局部压制位窗口用扫低根还是确认根",
+        "type": "同类时序缺陷未修",
+        "a": "04-A/README.md:52「扫低根之前 48 根」",
+        "b": "代码 :1089 传确认根 i；06-W2 已证 103.9 vs 105.0",
+        "blocked": "该项（窗口二范围外，需单独立项）",
+        "does_not_block": "承接时序修正本身"
+      },
+      {
+        "id": "C-05",
+        "item": "跟踪止损生效时刻公式",
+        "type": "实现分歧/未证等价",
+        "a": "研究入口 (c4//M15+1)*M15",
+        "b": "生产引擎 max(dec_ms, ref_close_ms)，调用方传 now",
+        "blocked": "「全链同一生效口径」这一结论",
+        "does_not_block": "用户决定「只上移、不追溯」的执行"
+      },
+      {
+        "id": "C-06",
+        "item": "check_fixed_rules 的 5 行恒真",
+        "type": "判据恒真",
+        "a": "05-B:19/94 称 9 项逐项对撞",
+        "b": "代码 :115/:116/:125/:126/:127 expected==actual",
+        "blocked": "「已确定语义已逐项对撞」的结论",
+        "does_not_block": "4 行真对撞项（延迟/初始止损/跟踪幅度/手续费）"
+      },
+      {
+        "id": "C-07",
+        "item": "手续费 5bps 是否已定",
+        "type": "定性冲突",
+        "a": "04-A:106 归入「已确定（两套一致）」",
+        "b": "05-A-R1 纠错清单:16 要求降为「基线默认值（待确认）」",
+        "blocked": "该项「已批准」资格",
+        "does_not_block": "窗口二不改费率"
+      },
+      {
+        "id": "C-08",
+        "item": "经济口径三冲突（滑点/风控/参与率）",
+        "type": "两套值并列",
+        "a": "策略包 3bps / 2000U·3仓·30% / 0.1%",
+        "b": "生效视图 5bps / 5000U·10仓·10% / 1.0%",
+        "blocked": "该项；必须显式指名并与引擎一致",
+        "does_not_block": "研究侧用 R 倍数绕开的工作"
+      }
+    ],
+    "pending_questions_q01_q12": [
+      {
+        "id": "Q1",
+        "question": "扫低扫的是什么：局部支撑（前 N 根 1h 最低）还是箱体下沿 L？",
+        "fields_covered_count": 7,
+        "fields": [
+          "shared.sweep_reference.mode",
+          "shared.sweep_reference.n",
+          "shared.sweep_reference.must_be_above_box_low",
+          "shared.sweep_recovery_scope.mode",
+          "shared.sweep_recovery_scope.max_bars",
+          "shared.sweep_max_overshoot_atr",
+          "shared.sweep_min_recovery_atr"
+        ]
+      },
+      {
+        "id": "Q2",
+        "question": "局部压制位怎么取：摆动高点、前 N 根最高、还是箱顶？",
+        "fields_covered_count": 5,
+        "fields": [
+          "shared.local_resistance.mode",
+          "shared.local_resistance.lookback_bars",
+          "shared.local_resistance.swing_k",
+          "shared.local_resistance.timeframe",
+          "shared.resistance_qualify.min_gap_atr"
+        ]
+      },
+      {
+        "id": "Q3",
+        "question": "承接与卖压：门槛倍率取多少，是否作为硬门槛？",
+        "fields_covered_count": 6,
+        "fields": [
+          "shared.sell_pressure.require",
+          "shared.sell_pressure.baseline",
+          "shared.sell_pressure.n",
+          "shared.sell_pressure.buy_ratio_mult",
+          "shared.sell_pressure.require_upper_half",
+          "shared.sell_pressure.sell_pressure_mult"
+        ]
+      },
+      {
+        "id": "Q4",
+        "question": "确认方式与失效：收阳要求、连续几根失效、观察期多久、盘中破位算不算？",
+        "fields_covered_count": 10,
+        "fields": [
+          "shared.local_resistance_confirm.mode",
+          "shared.local_resistance_confirm.buffer_atr",
+          "shared.confirm.require_bull_close",
+          "shared.armed_fail.bars",
+          "shared.armed_fail.buffer_atr",
+          "shared.invalidate.close_below_l_bars",
+          "shared.invalidate.l_overshoot_atr",
+          "shared.intrabar_break_cancel.mode",
+          "shared.intrabar_break_cancel.buffer_atr",
+          "shared.observe_deadline_hours"
+        ]
+      },
+      {
+        "id": "Q5",
+        "question": "甲/乙/丙三组是否继续并行？回抽带与期限取多少？",
+        "fields_covered_count": 8,
+        "fields": [
+          "schemes.4a.enabled",
+          "schemes.4a.confirm",
+          "schemes.4b.enabled",
+          "schemes.4b.confirm",
+          "schemes.4c.enabled",
+          "schemes.4c.confirm",
+          "schemes.4c.pullback.zone_atr",
+          "schemes.4c.pullback.deadline_hours"
+        ]
+      },
+      {
+        "id": "Q6",
+        "question": "风控口径：本金、最大仓位数、单笔风险、单名上限、总风险预算取哪一套？",
+        "fields_covered_count": 1,
+        "fields": [
+          "conflict_resolution.risk_config"
+        ]
+      },
+      {
+        "id": "Q7",
+        "question": "摩擦成本：滑点取 3bps 还是 5bps？手续费 5bps 是否确认？",
+        "fields_covered_count": 1,
+        "fields": [
+          "conflict_resolution.slippage_source"
+        ]
+      },
+      {
+        "id": "Q8",
+        "question": "参与率上限取 0.1% 还是 1.0%？超限缩量还是拒单？",
+        "fields_covered_count": 1,
+        "fields": [
+          "conflict_resolution.participation_cap"
+        ]
+      },
+      {
+        "id": "Q9",
+        "question": "同一事件最多几个候选？事件终结后冷却多久？",
+        "fields_covered_count": 2,
+        "fields": [
+          "shared.repeat_candidate_limit.per_event",
+          "shared.repeat_candidate_limit.cooldown_hours"
+        ]
+      },
+      {
+        "id": "Q10",
+        "question": "跳空与成交价闸门：止损跳空按开盘价还是止损价？入场跳空/偏离上限多少？",
+        "fields_covered_count": 3,
+        "fields": [
+          "exit.gap_model",
+          "shared.entry_gate.max_gap_up_atr",
+          "shared.entry_gate.entry_price_deviation_cap"
+        ]
+      },
+      {
+        "id": "Q11",
+        "question": "资金费结算与退出同刻时，先结算还是先退出？",
+        "fields_covered_count": 0,
+        "fields": []
+      },
+      {
+        "id": "Q12",
+        "question": "持仓量（OI）在入场门槛里扮演什么角色？",
+        "fields_covered_count": 1,
+        "fields": [
+          "shared.oi_role"
+        ]
+      }
+    ],
+    "correction_statement": "彻底纠正总交接旧版中将窗口一写成“未交”的错误。窗口一已交付 06-01（31 条规则来源，8 项冲突逐项圈定并阻塞）与 06-02（12 题覆盖 49 项必填字段）。"
+  },
+  "window3_0606_audit": {
+    "adapter_delivered": true,
+    "adapter_test_result": "成功导入适配器，版本: funding-adapter-06/v1",
+    "manifest_exists": true,
+    "jsonl_exists": true,
+    "jsonl_bytes": 14904198,
+    "dataset_summary": {
+      "symbols": 48,
+      "events": 31811,
+      "observed_both": 24918,
+      "observed_hot_only": 3138,
+      "observed_cold_only": 3755,
+      "resolved": 31811,
+      "resolved_single_side": 0,
+      "pending_conflict": 0,
+      "pending_missing": 0,
+      "with_rate": 31811,
+      "with_mark": 31811
+    },
+    "known_limits": [
+      "全部事件的 availability 为 unproven：本文件**不能**用于证明「当时就能看到这条数据」，只能用于事后复算资金费成本。",
+      "冷档覆盖末端之后（见 per_symbol.cold_hi_utc 的最大值）只能靠热库，该段不是「合并后完整」，而是「没有第二个源」。",
+      "period 不可推算的标的（02 报 grid_unreliable）其「是否缺事件」无法判定，本文件只保证「有的都给了、没有的不编」。",
+      "热库侧同键重复、冷档侧同键重复均为 0（见 counts / 03 I2），若上游将来出现重复，本文件的去重只保留首条并会在 per_symbol.notes 里记 hot_dup/cold_dup。"
+    ],
+    "phrasing_corrections": [
+      {
+        "point": "冷档 available_at 列真相",
+        "flawed_phrasing": "冷档 available_at 填充率 0%",
+        "corrected_phrasing": "冷档 Schema 中根本不存在 available_at 列（无该列），全部事件 availability 恒为 unproven，事后不可补造。",
+        "reason": "不存在该列与有列但全为空是不同性质的物理事实，必须准确表述为字段缺失。"
+      },
+      {
+        "point": "隔离研究适配器 vs 生产实时读取链",
+        "flawed_phrasing": "热库缺口已由冷档合并修复",
+        "corrected_phrasing": "资金费冷热合并仅在隔离研究层由 funding_events_adapter.py 适配器完成；正式生产实时读取链（paper_engine.funding_events）未做修改，仍只读热库，生产运行依然会漏该 380h 段。",
+        "reason": "严禁将离线研究适配器的交付混淆为生产共享代码的修复，杜绝虚假安全感。"
+      }
+    ]
+  },
+  "downstream_audit": {
+    "w4_r1": {
+      "delivered": true,
+      "out_files_count": 1,
+      "readme_exists": true,
+      "status": "DELIVERED"
+    },
+    "w5_r1": {
+      "delivered": true,
+      "out_files_count": 4,
+      "hard_gate_verdict": "READY_FOR_E2E_AUDIT",
+      "status": "DELIVERED"
+    }
+  },
+  "verdict": "真实依赖审计就绪，W1已纠偏为已交，06-06适配器已消费，表述偏误已彻底修正。"
+}

@@ -1,0 +1,142 @@
+{
+  "V1_落库与可见": {
+    "persist_stats": {
+      "new": 1,
+      "updated": 0,
+      "total_written": 1
+    },
+    "api_total": 1,
+    "api_items": 1,
+    "item_role": "enterable_arm_entry",
+    "item_arm": "3a",
+    "item_strategy_key": "wyckoff_v0_1",
+    "item_executable_state": "enterable"
+  },
+  "V2_旧行补角色": {
+    "persist_stats": {
+      "new": 0,
+      "updated": 1,
+      "total_written": 1
+    },
+    "api_total_before": 1,
+    "api_total_after": 2,
+    "payload_role_after": "enterable_arm_entry"
+  },
+  "V3_扫描限定": {
+    "scanned_uids": [
+      "cand_v1_1792747677371",
+      "cand_v2_1792747677371"
+    ],
+    "cross_venue_excluded": true
+  },
+  "V4_暂停期": {
+    "route_result": {
+      "processed": 0,
+      "registered": 0,
+      "rejected": 0,
+      "waiting_gate": 2,
+      "terminal": 0,
+      "errors": []
+    },
+    "ledger_counts": {
+      "pending": 0,
+      "processed": 0,
+      "orders": 0,
+      "blocked": 0
+    }
+  },
+  "V5_恢复后": {
+    "route_result": {
+      "processed": 2,
+      "registered": 2,
+      "rejected": 0,
+      "waiting_gate": 0,
+      "terminal": 0,
+      "errors": []
+    },
+    "ledger_counts": {
+      "pending": 2,
+      "processed": 0,
+      "orders": 0,
+      "blocked": 0
+    }
+  },
+  "V6_重复轮": {
+    "route_result": {
+      "processed": 0,
+      "registered": 0,
+      "rejected": 0,
+      "waiting_gate": 0,
+      "terminal": 0,
+      "errors": []
+    },
+    "ledger_counts": {
+      "pending": 2,
+      "processed": 0,
+      "orders": 0,
+      "blocked": 0
+    }
+  },
+  "V7_可重试拒单不拉黑": {
+    "route_result": {
+      "processed": 1,
+      "registered": 0,
+      "rejected": 1,
+      "waiting_gate": 0,
+      "terminal": 0,
+      "errors": []
+    },
+    "processed_row": null,
+    "order_row": {
+      "status": "rejected",
+      "reject_reason": "market_db_unavailable"
+    },
+    "ledger_counts": {
+      "pending": 2,
+      "processed": 0,
+      "orders": 1,
+      "blocked": 1
+    }
+  },
+  "V8_恢复后重试成功": {
+    "route_result": {
+      "processed": 2,
+      "registered": 2,
+      "rejected": 0,
+      "waiting_gate": 0,
+      "terminal": 0,
+      "errors": []
+    },
+    "processed_row": null,
+    "pending_row": {
+      "status": "pending",
+      "earliest_fill_ms": 1792748638217
+    },
+    "pending_earliest_fill_is_future": true,
+    "ledger_counts": {
+      "pending": 4,
+      "processed": 0,
+      "orders": 1,
+      "blocked": 1
+    }
+  },
+  "V9_终态拒单写黑名单": {
+    "route_result": {
+      "processed": 1,
+      "registered": 0,
+      "rejected": 1,
+      "waiting_gate": 0,
+      "terminal": 1,
+      "errors": []
+    },
+    "processed_row": {
+      "action": "rejected_terminal"
+    },
+    "ledger_counts": {
+      "pending": 4,
+      "processed": 1,
+      "orders": 1,
+      "blocked": 1
+    }
+  }
+}

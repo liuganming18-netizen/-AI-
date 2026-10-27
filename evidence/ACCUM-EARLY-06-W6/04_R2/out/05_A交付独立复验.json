@@ -1,0 +1,171 @@
+{
+ "工单": "ACCUM-EARLY-06-W6-R2",
+ "性质": "对 A（W4-R2）交付的独立复验（只读，不重跑 A 的脚本）",
+ "被验文件": "evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.json",
+ "被验文件_sha256": "48b949dcfd7be27f399b0e7dea50941b40aee9f23bdcbd233bcba1152d05895b",
+ "A_README_sha256": "ec06bd576bcaa4583e9348fa61e5027bc7fc349e066821c8eff8bdd4d9ab349d",
+ "基线对照文件": "evidence/ACCUM-EARLY-06-W4/03_R1/out/01_资金费重算与判据整改明细.json",
+ "基线对照_sha256": "837aab2b8da756152e87ea09e5258ce210796125eea85470718a0c955125c8aa",
+ "checks": [
+  {
+   "检查": "A01 交付文件存在、可解析、schema/task 自述正确",
+   "通过": true,
+   "明细": {
+    "path": "evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.json",
+    "bytes": 132965,
+    "schema": "accum-early-06-w4-r2/v1",
+    "task": "ACCUM-EARLY-06-W4-R2"
+   }
+  },
+  {
+   "检查": "A02 51 个候选 / 候选 ID 唯一 / 每候选 2 套口径 / 合计 102 行",
+   "通过": true,
+   "明细": {
+    "candidates": 51,
+    "unique_ids": 51,
+    "calibers_per_candidate": [
+     2
+    ],
+    "rows": 102
+   }
+  },
+  {
+   "检查": "A03 code_hashes 全部复算一致",
+   "通过": true,
+   "明细": {
+    "声明条数": 7,
+    "不一致": []
+   }
+  },
+  {
+   "检查": "A04 inputs.hashes 全部复算一致（适配器 / 共享计算 / 候选来源 / R1 产物）",
+   "通过": true,
+   "明细": {
+    "声明条数": 8,
+    "不一致": []
+   }
+  },
+  {
+   "检查": "A05 102 行逐行满足三条恒等式（容差 2e-9 = 9 位小数舍入的 2 ulp）",
+   "通过": true,
+   "明细": {
+    "检查行数": 102,
+    "最大偏差": 1.0000018590972104e-09,
+    "违例": []
+   }
+  },
+  {
+   "检查": "A06 逐口径合计与 summary_by_caliber 逐字段一致（11 个字段 × 2 口径）",
+   "通过": true,
+   "明细": {
+    "不一致": []
+   }
+  },
+  {
+   "检查": "A07a change_reason 分布覆盖全部候选且计数一致（分母 51）",
+   "通过": true,
+   "明细": {
+    "不一致": []
+   }
+  },
+  {
+   "检查": "A07b completeness / claim 分布的分母与 change_reason 一致（都应为 51）",
+   "通过": false,
+   "明细": {
+    "说明": "A 的 策略包_3bps 口径里 CARVUSDT 是 rejected（completeness=NOT_APPLICABLE、claim=UNKNOWN），但 summary 的两个分布只统计了 50 笔成交，与 change_reason 的 51 分母不一致 ⇒ 下游按分布读会漏掉这个拒单候选",
+    "不一致": [
+     {
+      "caliber": "策略包_3bps",
+      "字段": "completeness_dist",
+      "summary合计": 50,
+      "行数": 51,
+      "summary": {
+       "NO_GAP_DETECTED": 50
+      },
+      "重算": {
+       "NO_GAP_DETECTED": 50,
+       "NOT_APPLICABLE": 1
+      }
+     },
+     {
+      "caliber": "策略包_3bps",
+      "字段": "claim_dist",
+      "summary合计": 50,
+      "行数": 51,
+      "summary": {
+       "PROVEN": 43,
+       "NOT_PROVEN": 7
+      },
+      "重算": {
+       "PROVEN": 43,
+       "NOT_PROVEN": 7,
+       "UNKNOWN": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "检查": "A08 与 R1 逐笔逐字段对齐（资金费旧/新、净额差、事件数）⇒ 换的是判据不是钱",
+   "通过": true,
+   "明细": {
+    "比对行数": 102,
+    "不一致": []
+   }
+  },
+  {
+   "检查": "A09 A 的 README 里 6 个关键金额与 JSON 逐位可查",
+   "通过": true,
+   "明细": {
+    "缺": []
+   }
+  },
+  {
+   "检查": "A10 A 的数字对撞自检 21/21 且反向未登记 0（读其结论，不重跑）",
+   "通过": true,
+   "明细": {
+    "检查项": 21,
+    "通过": 21,
+    "未登记": 0
+   }
+  },
+  {
+   "检查": "A11 A 的 5 件主产物都在且哈希已记录（供交接引用）",
+   "通过": true,
+   "明细": {
+    "产物": [
+     {
+      "path": "evidence/ACCUM-EARLY-06-W4/04_R2/README.md",
+      "bytes": 22653,
+      "sha256": "ec06bd576bcaa4583e9348fa61e5027bc7fc349e066821c8eff8bdd4d9ab349d"
+     },
+     {
+      "path": "evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.json",
+      "bytes": 132965,
+      "sha256": "48b949dcfd7be27f399b0e7dea50941b40aee9f23bdcbd233bcba1152d05895b"
+     },
+     {
+      "path": "evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.csv",
+      "bytes": 30790,
+      "sha256": "77552090d76412a9c37d6aed59212eaaa5d0f917113a4388a61e7a56efba74df"
+     },
+     {
+      "path": "evidence/ACCUM-EARLY-06-W4/04_R2/out/07_正文数字台账.json",
+      "bytes": 42844,
+      "sha256": "70b56008b4e0889e6766bdc309337ed00dff00aefd1d8690f4f0e264494f8c55"
+     },
+     {
+      "path": "evidence/ACCUM-EARLY-06-W4/04_R2/out/08_数字对撞.json",
+      "bytes": 4887,
+      "sha256": "fd6c0b0d5dd1ff4d623914aa83b7eec27e1c3ba7d6ee9da9de699f11cea0eac0"
+     }
+    ]
+   }
+  }
+ ],
+ "通过项": 11,
+ "失败项": [
+  "A07b completeness / claim 分布的分母与 change_reason 一致（都应为 51）"
+ ],
+ "结论": "**独立复验：可用但需 1 项返工**。结构、规模、代码/输入哈希、三条恒等式、逐口径合计、与 R1 逐笔对齐、README 数字一致、A 自身对撞均成立 ⇒ **金额与结构可用，可直接供 B 接入**。返工项：`策略包_3bps` 的 completeness/claim 分布只统计 50 笔，与 change_reason 的 51 分母不一致（漏掉 CARVUSDT 拒单行的 NOT_APPLICABLE/UNKNOWN）。**这不等于 Codex 验收**；本复验不覆盖 A 的未验证项（当时可得 / 官方证据边界 / IRYSUSDT 周期歧义 / 端点抖动先后）。"
+}

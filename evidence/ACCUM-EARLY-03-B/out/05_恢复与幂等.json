@@ -1,0 +1,553 @@
+{
+ "probe": "05_恢复与幂等",
+ "generated_at_utc": "2026-10-26T13:25:26Z",
+ "cases": {
+  "E1_TNSR_cold": {
+   "symbol": "TNSRUSDT",
+   "第1段": {
+    "verdict": "still_open",
+    "reject_reason": null,
+    "status": "open",
+    "entry_price": 0.03365,
+    "exit_price": null,
+    "exit_reason": null,
+    "net_pnl": null,
+    "gross_pnl": null,
+    "funding_paid": null,
+    "counts": {
+     "positions": 1,
+     "orders": 1,
+     "fills": 1,
+     "realized": 0,
+     "stop_history": 1
+    },
+    "stop_history": [
+     [
+      null,
+      0.03196,
+      1784880900000
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1784880900000
+     ]
+    ],
+    "walk_bars_checked": 20,
+    "steps": [
+     "open_position",
+     "walk_truncated",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "只推进 20 根 15m，故意让持仓开着"
+   },
+   "第2段": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "status": "closed",
+    "entry_price": 0.03365,
+    "exit_price": 0.03194,
+    "exit_reason": "trailing_stop_loss",
+    "net_pnl": -21.71010143448406,
+    "gross_pnl": -25.295687999999945,
+    "funding_paid": -4.070716441515886,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 1
+    },
+    "stop_history": [
+     [
+      null,
+      0.03196,
+      1784880900000
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1784880900000
+     ],
+     [
+      2,
+      "sell",
+      "filled",
+      1784995200000
+     ]
+    ],
+    "walk_bars_checked": 143,
+    "steps": [
+     "resume_found_position",
+     "open_position",
+     "open_position_retry_same_signal",
+     "ledger_reopen",
+     "trailing",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "新进程、同一账本、resume=true"
+   },
+   "恢复时找到的持仓": {
+    "step": "resume_found_position",
+    "position_id": 1,
+    "status": "open",
+    "entry_ts": 1784880900000,
+    "stop_price": 0.03196
+   },
+   "重复下单尝试的结果": {
+    "reason": "duplicate_signal_uid",
+    "是否被挡住": true
+   },
+   "重复扫描退出": {
+    "step": "rescan_exits",
+    "result": [
+     {
+      "position_id": 1,
+      "skipped": "position_not_open"
+     }
+    ]
+   },
+   "基准": {
+    "exit_price": 0.03194,
+    "net_pnl": -21.71010143448406,
+    "stop_history": [
+     [
+      null,
+      0.03196
+     ]
+    ]
+   }
+  },
+  "E2_AGT_cold": {
+   "symbol": "AGTUSDT",
+   "第1段": {
+    "verdict": "still_open",
+    "reject_reason": null,
+    "status": "open",
+    "entry_price": 0.017151,
+    "exit_price": null,
+    "exit_reason": null,
+    "net_pnl": null,
+    "gross_pnl": null,
+    "funding_paid": null,
+    "counts": {
+     "positions": 1,
+     "orders": 1,
+     "fills": 1,
+     "realized": 0,
+     "stop_history": 1
+    },
+    "stop_history": [
+     [
+      null,
+      0.016293,
+      1788772500000
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1788772500000
+     ]
+    ],
+    "walk_bars_checked": 20,
+    "steps": [
+     "open_position",
+     "walk_truncated",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "只推进 20 根 15m，故意让持仓开着"
+   },
+   "第2段": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "status": "closed",
+    "entry_price": 0.017151,
+    "exit_price": 0.016494,
+    "exit_reason": "trailing_stop_loss",
+    "net_pnl": -8.198398357499974,
+    "gross_pnl": -7.993718999999974,
+    "funding_paid": 0.0,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 4
+    },
+    "stop_history": [
+     [
+      null,
+      0.016293,
+      1788772500000
+     ],
+     [
+      0.016293,
+      0.016319999999999998,
+      1788796799999
+     ],
+     [
+      0.016319999999999998,
+      0.016399999999999998,
+      1788811199999
+     ],
+     [
+      0.016399999999999998,
+      0.016503,
+      1788825599999
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1788772500000
+     ],
+     [
+      2,
+      "sell",
+      "filled",
+      1788852600000
+     ]
+    ],
+    "walk_bars_checked": 90,
+    "steps": [
+     "resume_found_position",
+     "open_position",
+     "open_position_retry_same_signal",
+     "ledger_reopen",
+     "trailing",
+     "trailing",
+     "trailing",
+     "exit_15m",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "新进程、同一账本、resume=true"
+   },
+   "恢复时找到的持仓": {
+    "step": "resume_found_position",
+    "position_id": 1,
+    "status": "open",
+    "entry_ts": 1788772500000,
+    "stop_price": 0.016293
+   },
+   "重复下单尝试的结果": {
+    "reason": "duplicate_signal_uid",
+    "是否被挡住": true
+   },
+   "重复扫描退出": {
+    "step": "rescan_exits",
+    "result": [
+     {
+      "position_id": 1,
+      "skipped": "position_not_open"
+     }
+    ]
+   },
+   "基准": {
+    "exit_price": 0.016494,
+    "net_pnl": -8.198398357499974,
+    "stop_history": [
+     [
+      null,
+      0.016293
+     ],
+     [
+      0.016293,
+      0.016319999999999998
+     ],
+     [
+      0.016319999999999998,
+      0.016399999999999998
+     ],
+     [
+      0.016399999999999998,
+      0.016503
+     ]
+    ]
+   }
+  },
+  "E3_METIS_hot": {
+   "symbol": "METISUSDT",
+   "第1段": {
+    "verdict": "still_open",
+    "reject_reason": null,
+    "status": "open",
+    "entry_price": 3.826,
+    "exit_price": null,
+    "exit_reason": null,
+    "net_pnl": null,
+    "gross_pnl": null,
+    "funding_paid": null,
+    "counts": {
+     "positions": 1,
+     "orders": 1,
+     "fills": 1,
+     "realized": 0,
+     "stop_history": 1
+    },
+    "stop_history": [
+     [
+      null,
+      3.634,
+      1791749700000
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1791749700000
+     ]
+    ],
+    "walk_bars_checked": 20,
+    "steps": [
+     "open_position",
+     "walk_truncated",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "只推进 20 根 15m，故意让持仓开着"
+   },
+   "第2段": {
+    "verdict": "closed",
+    "reject_reason": null,
+    "status": "closed",
+    "entry_price": 3.826,
+    "exit_price": 3.723,
+    "exit_reason": "trailing_stop_loss",
+    "net_pnl": -13.929955214351574,
+    "gross_pnl": -13.410600000000025,
+    "funding_paid": 0.02791531435154868,
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 2
+    },
+    "stop_history": [
+     [
+      null,
+      3.634,
+      1791749700000
+     ],
+     [
+      3.634,
+      3.725,
+      1791791999999
+     ]
+    ],
+    "orders": [
+     [
+      1,
+      "buy",
+      "filled",
+      1791749700000
+     ],
+     [
+      2,
+      "sell",
+      "filled",
+      1791810900000
+     ]
+    ],
+    "walk_bars_checked": 69,
+    "steps": [
+     "resume_found_position",
+     "open_position",
+     "open_position_retry_same_signal",
+     "ledger_reopen",
+     "trailing",
+     "exit_15m",
+     "rescan_exits"
+    ],
+    "errors": [],
+    "说明": "新进程、同一账本、resume=true"
+   },
+   "恢复时找到的持仓": {
+    "step": "resume_found_position",
+    "position_id": 1,
+    "status": "open",
+    "entry_ts": 1791749700000,
+    "stop_price": 3.634
+   },
+   "重复下单尝试的结果": {
+    "reason": "duplicate_signal_uid",
+    "是否被挡住": true
+   },
+   "重复扫描退出": {
+    "step": "rescan_exits",
+    "result": [
+     {
+      "position_id": 1,
+      "skipped": "position_not_open"
+     }
+    ]
+   },
+   "基准": {
+    "exit_price": 3.723,
+    "net_pnl": -13.929955214351574,
+    "stop_history": [
+     [
+      null,
+      3.634
+     ],
+     [
+      3.634,
+      3.725
+     ]
+    ]
+   }
+  }
+ },
+ "checks": {
+  "E1_TNSR_cold": {
+   "A 不重复下单（入场单仍只有 1 条）": true,
+   "B 状态可恢复（读到旧持仓并走完平仓）": true,
+   "C 结果与连续跑逐位相同": true,
+   "D 平仓单只有 1 条（重复扫描无副作用）": true,
+   "entry_orders": 1,
+   "exit_orders": 1,
+   "结果": "通过"
+  },
+  "E2_AGT_cold": {
+   "A 不重复下单（入场单仍只有 1 条）": true,
+   "B 状态可恢复（读到旧持仓并走完平仓）": true,
+   "C 结果与连续跑逐位相同": true,
+   "D 平仓单只有 1 条（重复扫描无副作用）": true,
+   "entry_orders": 1,
+   "exit_orders": 1,
+   "结果": "通过"
+  },
+  "E3_METIS_hot": {
+   "A 不重复下单（入场单仍只有 1 条）": true,
+   "B 状态可恢复（读到旧持仓并走完平仓）": true,
+   "C 结果与连续跑逐位相同": true,
+   "D 平仓单只有 1 条（重复扫描无副作用）": true,
+   "entry_orders": 1,
+   "exit_orders": 1,
+   "结果": "通过"
+  }
+ },
+ "errors": [],
+ "生产账本指纹_跑前": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "基准（04 连续跑）": {
+  "E1_TNSR_cold": {
+   "exit_price": 0.03194,
+   "net_pnl": -21.71010143448406,
+   "stop_history": [
+    [
+     null,
+     0.03196
+    ]
+   ]
+  },
+  "E2_AGT_cold": {
+   "exit_price": 0.016494,
+   "net_pnl": -8.198398357499974,
+   "stop_history": [
+    [
+     null,
+     0.016293
+    ],
+    [
+     0.016293,
+     0.016319999999999998
+    ],
+    [
+     0.016319999999999998,
+     0.016399999999999998
+    ],
+    [
+     0.016399999999999998,
+     0.016503
+    ]
+   ]
+  },
+  "E3_METIS_hot": {
+   "exit_price": 3.723,
+   "net_pnl": -13.929955214351574,
+   "stop_history": [
+    [
+     null,
+     3.634
+    ],
+    [
+     3.634,
+     3.725
+    ]
+   ]
+  }
+ },
+ "生产账本指纹_跑后": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "生产账本是否被改动": {
+  "changed_arms": [],
+  "verdict": "未被改动"
+ },
+ "总判定": "通过"
+}

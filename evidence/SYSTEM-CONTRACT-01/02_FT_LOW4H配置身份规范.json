@@ -1,0 +1,61 @@
+{
+  "contract_name": "FT-LOW4H-CONFIG-CONTRACT",
+  "contract_version": "v1.0",
+  "description": "FT-LOW4H 规范配置身份定义与验证契约（取消静默5%兜底，严格开仓前置防御）",
+  "fields": {
+    "strategy_id": "策略标识，固定为 FT-LOW4H",
+    "strategy_version": "策略版本，例如 FT-LOW4H-EXP-V2.2",
+    "rule": "跟踪规则，固定为 FT-LOW4H",
+    "stoploss_s": "初始止损百分比，必须在 [0.001, 0.50] 区间",
+    "trail_d": "跟踪止损百分比，必须在 [0.001, 0.50] 区间",
+    "risk_per_trade_equity_fraction": "单笔风险预算占权益比例，必须在 [0.0001, 0.10]",
+    "portfolio_initial_stop_risk_cap": "组合初始止损风险上限，必须在 [0.001, 0.50]",
+    "fee_each_side": "单边手续费率，必须在 [0.0, 0.01]",
+    "slippage_each_side": "单边滑点率，必须在 [0.0, 0.01]",
+    "detail_timeframe": "撮合执行周期，允许 1m/5m/15m/1h",
+    "tracking_timeframe": "跟踪参考周期，允许 1h/4h/1d",
+    "max_holding_hours": "最大持仓小时数，必须为正整数",
+    "config_fingerprint": "规范化配置字节的 SHA-256 唯一指纹（前12位或完整64位）"
+  },
+  "samples": {
+    "effective_config_A": {
+      "strategy_id": "FT-LOW4H",
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule": "FT-LOW4H",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "risk_per_trade_equity_fraction": 0.005,
+      "portfolio_initial_stop_risk_cap": 0.05,
+      "fee_each_side": 0.0005,
+      "slippage_each_side": 0.0005,
+      "detail_timeframe": "15m",
+      "tracking_timeframe": "4h",
+      "max_holding_hours": 240,
+      "config_fingerprint": "80943cb3bb88",
+      "spec_version": "F_WX_v2.2_contract_A"
+    },
+    "effective_config_B": {
+      "strategy_id": "FT-LOW4H",
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule": "FT-LOW4H",
+      "stoploss_s": 0.08,
+      "trail_d": 0.12,
+      "risk_per_trade_equity_fraction": 0.005,
+      "portfolio_initial_stop_risk_cap": 0.05,
+      "fee_each_side": 0.0005,
+      "slippage_each_side": 0.0005,
+      "detail_timeframe": "15m",
+      "tracking_timeframe": "4h",
+      "max_holding_hours": 240,
+      "config_fingerprint": "84c6abd9871c",
+      "spec_version": "F_WX_v2.2_contract_B"
+    }
+  },
+  "gate_rules": [
+    "缺配置（文件不存在或不可读）⇒ 严禁静默兜底，拒绝开仓，阻断挂单，守护启动自检报错退出",
+    "坏配置（缺 stoploss_s 或 trail_d、越界数值、JSON 损坏）⇒ 明确拒绝开仓并报告原因",
+    "错误指纹（调用方指定 expected_fingerprint 与配置指纹不一致）⇒ 拒绝开仓",
+    "参数覆盖防御（HTTP 请求体或显式调用试图覆盖已绑定的正式配置）⇒ 拒绝开仓",
+    "既有持仓保护（已有持仓依赖入场时已绑定的配置身份自主退出，不受新单配置缺失阻断）"
+  ]
+}

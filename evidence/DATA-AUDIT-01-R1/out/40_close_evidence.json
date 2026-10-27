@@ -1,0 +1,390 @@
+{
+  "stats_at_utc": "2026-10-26T03:08:29Z",
+  "question": "持仓量门槛是何时、被谁、依据什么关闭的",
+  "discipline": "文件存在 ≠ 当时状态。mtime 只能证明「该载体此刻在盘上」，不能证明「当时已关闭」；代码副本的 mtime 只能证明「复制那一刻内容如此」。",
+  "class_1_explicit_record": {
+    "definition": "文本记录里**明确写出**持仓量/OI 被关闭或不参与决策的那一条",
+    "population": "全量扫描 evidence/ + .workbuddy-ai/memory/ 下 8444 个文本载体",
+    "hits_total": 85,
+    "buckets": {
+      "全池扫描/B组引擎": {
+        "n": 1,
+        "earliest": {
+          "kind": "文本记录",
+          "file": "evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md",
+          "file_mtime_utc": "2026-10-23T10:28:05Z",
+          "line_no": 16,
+          "text": "> 突破瞬间的 **OI 闸门**在「关闭 OI 过滤」（B 组）时**仍然拦单**。",
+          "target": "全池扫描/B组引擎",
+          "classified_by": "原文「突破瞬间的 OI 闸门在『关闭 OI 过滤』（B 组）时仍然拦单」，指向全池扫描用的引擎，不是 daemon，也不是回测 run"
+        }
+      },
+      "回测 run note": {
+        "n": 2,
+        "earliest": {
+          "kind": "文本记录",
+          "file": "evidence/CODEX-CLOSEOUT-01/out/api_run.json",
+          "file_mtime_utc": "2026-10-23T16:19:35Z",
+          "line_no": 73,
+          "text": "\"note\": \"FT-LOW4H 冻结配置；B 变体关闭 OI 门槛；仅研究模拟\",",
+          "target": "回测 run note",
+          "classified_by": "api_run.json 里 spec.note 是「标准回测」，这句在 run.json 顶层"
+        }
+      },
+      "回测/研究变体": {
+        "n": 75,
+        "earliest": {
+          "kind": "文本记录",
+          "file": "evidence/Work_策略逻辑审计_2026-10-16/策略逻辑审计报告_2026-10-16.md",
+          "file_mtime_utc": "2026-10-16T07:09:44Z",
+          "line_no": 109,
+          "text": "一个名字里有 OI、行为上不含 OI 的策略，不是\"参数待调\"，是**因子未启用**。",
+          "target": "回测/研究变体",
+          "classified_by": "机器初筛（上下文关键词）"
+        }
+      },
+      "生产运行时": {
+        "n": 7,
+        "earliest": {
+          "kind": "文本记录",
+          "file": ".workbuddy-ai/memory/2026-10-23.md",
+          "file_mtime_utc": "2026-10-23T14:32:00Z",
+          "line_no": 318,
+          "text": "**③ 「0 信号」真因（核心发现，已修）**：`state_machine.py` 突破分支的 OI 闸门**无条件执行**，而运行时是 B 组（`enable_oi_filter=False`）且 OI 传空数组 ⇒ `read_oi` 返回 `oi_empty` ⇒ **每次突破都被 `OI_UNAVAILABLE` 打死**。全池 30 天：3182 箱体 / 614 扫低 / 370 回踩 / **4 次突破穿越 → 4 次全被 OI 闸门杀死 → 候选 0**。冻结规则 §3.D 原文「B：完全相同价格事件和执行规则，**仅关闭 OI 门槛**」⇒ 两道 OI 闸门（缺失即拒 + 增幅不足即拒）都属「OI 门槛本身」，B 组必须整段跳过。修复：收进 `if self.enable_oi_filter:`；B 组候选如实标 `pit_proven=False`、`note=\"OI",
+          "target": "生产运行时",
+          "classified_by": "原文「运行时是 B 组（enable_oi_filter=False）且 OI 传空数组」，明确指 daemon"
+        }
+      }
+    },
+    "earliest_production_runtime": {
+      "kind": "文本记录",
+      "file": ".workbuddy-ai/memory/2026-10-23.md",
+      "file_mtime_utc": "2026-10-23T14:32:00Z",
+      "line_no": 318,
+      "text": "**③ 「0 信号」真因（核心发现，已修）**：`state_machine.py` 突破分支的 OI 闸门**无条件执行**，而运行时是 B 组（`enable_oi_filter=False`）且 OI 传空数组 ⇒ `read_oi` 返回 `oi_empty` ⇒ **每次突破都被 `OI_UNAVAILABLE` 打死**。全池 30 天：3182 箱体 / 614 扫低 / 370 回踩 / **4 次突破穿越 → 4 次全被 OI 闸门杀死 → 候选 0**。冻结规则 §3.D 原文「B：完全相同价格事件和执行规则，**仅关闭 OI 门槛**」⇒ 两道 OI 闸门（缺失即拒 + 增幅不足即拒）都属「OI 门槛本身」，B 组必须整段跳过。修复：收进 `if self.enable_oi_filter:`；B 组候选如实标 `pit_proven=False`、`note=\"OI",
+      "target": "生产运行时",
+      "classified_by": "原文「运行时是 B 组（enable_oi_filter=False）且 OI 传空数组」，明确指 daemon"
+    },
+    "earliest_pool_scan": {
+      "kind": "文本记录",
+      "file": "evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md",
+      "file_mtime_utc": "2026-10-23T10:28:05Z",
+      "line_no": 16,
+      "text": "> 突破瞬间的 **OI 闸门**在「关闭 OI 过滤」（B 组）时**仍然拦单**。",
+      "target": "全池扫描/B组引擎",
+      "classified_by": "原文「突破瞬间的 OI 闸门在『关闭 OI 过滤』（B 组）时仍然拦单」，指向全池扫描用的引擎，不是 daemon，也不是回测 run"
+    },
+    "earliest_run_note": {
+      "kind": "文本记录",
+      "file": "evidence/CODEX-CLOSEOUT-01/out/api_run.json",
+      "file_mtime_utc": "2026-10-23T16:19:35Z",
+      "line_no": 73,
+      "text": "\"note\": \"FT-LOW4H 冻结配置；B 变体关闭 OI 门槛；仅研究模拟\",",
+      "target": "回测 run note",
+      "classified_by": "api_run.json 里 spec.note 是「标准回测」，这句在 run.json 顶层"
+    },
+    "earliest_any_closure_statement": {
+      "kind": "文本记录",
+      "file": "evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md",
+      "file_mtime_utc": "2026-10-23T10:28:05Z",
+      "line_no": 16,
+      "text": "> 突破瞬间的 **OI 闸门**在「关闭 OI 过滤」（B 组）时**仍然拦单**。",
+      "target": "全池扫描/B组引擎",
+      "classified_by": "原文「突破瞬间的 OI 闸门在『关闭 OI 过滤』（B 组）时仍然拦单」，指向全池扫描用的引擎，不是 daemon，也不是回测 run"
+    },
+    "proves": "在某一时刻，有人/某产物明确写下了「关闭」这件事",
+    "does_not_prove": "写下这句话的时刻 ≠ 关闭发生的时刻；也不证明实施者与批准",
+    "mtime_caveat": "记忆日志是当日追加写，mtime = 当日最后一次追加 ⇒ 该条记录本身时间 ≤ mtime"
+  },
+  "class_2_code_snapshot": {
+    "definition": "盘上现存最早的、内容为 `enable_oi_filter` 默认 False 的 unified_runtime 副本",
+    "population": "全量枚举 evidence/ 下所有 unified_runtime*.py + 生产文件，共 5 个",
+    "snapshots": [
+      {
+        "file": "evidence/SIGNAL-HISTORY-FIX-02/out/unified_runtime_post_fix.py",
+        "bytes": 89831,
+        "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+        "mtime_utc": "2026-10-24T14:49:10Z",
+        "enable_oi_filter_lines": [
+          {
+            "line": 300,
+            "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 304,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 308,
+            "text": "enable_oi_filter=self.enable_oi_filter"
+          },
+          {
+            "line": 490,
+            "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 494,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 564,
+            "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+          },
+          {
+            "line": 1235,
+            "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+          },
+          {
+            "line": 1252,
+            "text": "enable_oi_filter=enable_oi_filter)"
+          }
+        ],
+        "has_false_default": true,
+        "is_production_path": false
+      },
+      {
+        "file": "evidence/SIGNAL-HISTORY-FIX-03/out/unified_runtime_before.py",
+        "bytes": 89831,
+        "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+        "mtime_utc": "2026-10-25T00:54:45Z",
+        "enable_oi_filter_lines": [
+          {
+            "line": 300,
+            "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 304,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 308,
+            "text": "enable_oi_filter=self.enable_oi_filter"
+          },
+          {
+            "line": 490,
+            "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 494,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 564,
+            "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+          },
+          {
+            "line": 1235,
+            "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+          },
+          {
+            "line": 1252,
+            "text": "enable_oi_filter=enable_oi_filter)"
+          }
+        ],
+        "has_false_default": true,
+        "is_production_path": false
+      },
+      {
+        "file": "evidence/SIGNAL-ZERO-CAUSE-05/out/unified_runtime_before.py",
+        "bytes": 112988,
+        "sha256": "d58f95fe9608335db88b811c65fe4b96a2318af2b27840c67b0bfa04df4f9e55",
+        "mtime_utc": "2026-10-25T03:47:40Z",
+        "enable_oi_filter_lines": [
+          {
+            "line": 340,
+            "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 344,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 348,
+            "text": "enable_oi_filter=self.enable_oi_filter"
+          },
+          {
+            "line": 615,
+            "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 620,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 703,
+            "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+          },
+          {
+            "line": 1588,
+            "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+          },
+          {
+            "line": 1605,
+            "text": "enable_oi_filter=enable_oi_filter)"
+          }
+        ],
+        "has_false_default": true,
+        "is_production_path": false
+      },
+      {
+        "file": "evidence/SIGNAL-CLOSURE-06/out/unified_runtime_before.py",
+        "bytes": 117977,
+        "sha256": "3b3d6d2da7a12d4eecb319c2179a5ea181ad3f594b9408a83a7820f24e695d52",
+        "mtime_utc": "2026-10-25T05:20:58Z",
+        "enable_oi_filter_lines": [
+          {
+            "line": 340,
+            "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 345,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 361,
+            "text": "enable_oi_filter=self.enable_oi_filter"
+          },
+          {
+            "line": 643,
+            "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 648,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 733,
+            "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+          },
+          {
+            "line": 1646,
+            "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+          },
+          {
+            "line": 1663,
+            "text": "enable_oi_filter=enable_oi_filter)"
+          }
+        ],
+        "has_false_default": true,
+        "is_production_path": false
+      },
+      {
+        "file": "框架/backend/unified_runtime.py",
+        "bytes": 162028,
+        "sha256": "fd096626b91180ecedd92f25af6b4951144457dbe6db85c80e4607acd9c727ee",
+        "mtime_utc": "2026-10-25T16:04:55Z",
+        "enable_oi_filter_lines": [
+          {
+            "line": 353,
+            "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 358,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 374,
+            "text": "enable_oi_filter=self.enable_oi_filter"
+          },
+          {
+            "line": 656,
+            "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+          },
+          {
+            "line": 661,
+            "text": "self.enable_oi_filter = enable_oi_filter"
+          },
+          {
+            "line": 822,
+            "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+          },
+          {
+            "line": 2143,
+            "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+          },
+          {
+            "line": 2160,
+            "text": "enable_oi_filter=enable_oi_filter)"
+          }
+        ],
+        "has_false_default": true,
+        "is_production_path": true
+      }
+    ],
+    "earliest_with_false": {
+      "file": "evidence/SIGNAL-HISTORY-FIX-02/out/unified_runtime_post_fix.py",
+      "bytes": 89831,
+      "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+      "mtime_utc": "2026-10-24T14:49:10Z",
+      "enable_oi_filter_lines": [
+        {
+          "line": 300,
+          "text": "def __init__(self, symbol: str = \"BTCUSDT\", enable_oi_filter: bool = False,"
+        },
+        {
+          "line": 304,
+          "text": "self.enable_oi_filter = enable_oi_filter"
+        },
+        {
+          "line": 308,
+          "text": "enable_oi_filter=self.enable_oi_filter"
+        },
+        {
+          "line": 490,
+          "text": "def __init__(self, symbols: List[str], enable_oi_filter: bool = False,"
+        },
+        {
+          "line": 494,
+          "text": "self.enable_oi_filter = enable_oi_filter"
+        },
+        {
+          "line": 564,
+          "text": "e = RealSignalEngine(symbol=sym, enable_oi_filter=self.enable_oi_filter,"
+        },
+        {
+          "line": 1235,
+          "text": "lock_dir: Optional[Path] = None, enable_oi_filter: bool = False):"
+        },
+        {
+          "line": 1252,
+          "text": "enable_oi_filter=enable_oi_filter)"
+        }
+      ],
+      "has_false_default": true,
+      "is_production_path": false
+    },
+    "proves": "复制那一刻，代码内容确实是默认 False",
+    "does_not_prove": "该副本第一次被写成 False 的时刻（副本是后来拷的）"
+  },
+  "class_3_runtime_evidence": {
+    "definition": "运行/扫描产物里能证明「OI 没参与决策」的结构化字段（oi_used=false / oi_empty）",
+    "population": "全量扫描 evidence/ 下 json/csv/log/txt，命中 10 条",
+    "earliest": {
+      "kind": "运行产物",
+      "file": "evidence/SYSTEM-RUNTIME-01-FIX/candidates_pool.json",
+      "file_mtime_utc": "2026-10-23T10:23:26Z",
+      "match": "\"oi_used\": false",
+      "text": "\"oi_used\": false,"
+    },
+    "proves": "在那个运行时点，OI 确实没有参与决策（产物本身是运行时输出）",
+    "does_not_prove": "关闭是谁在何时做的；也不证明在此之前从未参与"
+  },
+  "unknown": {
+    "exact_close_time": "未知（无版本库、无变更单、无带时刻的变更记录）",
+    "implementer": "未知（文件未入库，无提交作者；代码注释无署名）",
+    "approval": "未找到批准依据（检索 evidence/ 与记忆日志，只有研究口径定义，无生产授权）",
+    "why_unknown": "证据载体不存在，而不是没查"
+  },
+  "vcs": {
+    "tracked": false,
+    "ls_files_output": "",
+    "ls_files_error_unmatch": "",
+    "last_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3|2026-10-18T12:06:31+08:00|chore(ui-data): 更新页面交易数据与数据中心行情快照",
+    "implication": "文件未纳入版本库 ⇒ 没有提交历史、没有 diff、没有作者、没有首次写入时间 ⇒ 「何时第一次写成 False」「谁改的」都无版本库证据"
+  },
+  "retracted_inference": {
+    "old_claim": "「2026-10-23 02:48 工作日志记录 unified_runtime.py 已存在」⇒ 最晚在 2026-10-23 02:48 UTC 生产运行时已是关闭状态",
+    "why_invalid": "该推理的前提是「文件存在 ⇒ 文件内容为 False」。文件在某个时刻被创建，但内容可以是后来改的；没有版本库就没有内容时间线。正确表述只能是：现存最早代码副本（见 class_2）证明「不晚于该副本时刻内容已是 False」。",
+    "status": "作废，不得再引用"
+  }
+}

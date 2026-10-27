@@ -1,0 +1,453 @@
+{
+  "title": "ACCUM-EARLY-03-C 真实历史运行因果追踪与全链路关联事实",
+  "generated_at_utc": "2026-10-26T12:33:50.972586+00:00",
+  "runs": [
+    {
+      "symbol": "VELVETUSDT",
+      "run_id": "bt_20261024T120001Z_e1a10001",
+      "description": "突破成交，盈利平仓退出",
+      "persistence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/bt_20261024T120001Z_e1a10001",
+      "files_count": 19,
+      "has_chart_json": true,
+      "candidates_count": 1,
+      "orders_count": 2,
+      "fills_count": 2,
+      "trades_count": 1,
+      "funding_events_count": 4,
+      "equity_curve_points": 3985,
+      "metrics": {
+        "initial_equity": 5000.0,
+        "final_equity": 5019.732990145542,
+        "net_pnl": 19.732990145542892,
+        "net_return_pct": 0.39466,
+        "trades_count": 1,
+        "wins": null,
+        "losses": null,
+        "win_rate_pct": null,
+        "max_drawdown_pct": null,
+        "profit_factor": null,
+        "avg_win_loss_ratio": null
+      },
+      "causal_flow": [
+        {
+          "step": "1_SIGNAL",
+          "name": "Wyckoff 4h 突破信号生成",
+          "timestamp_ms": null,
+          "timestamp_utc": "",
+          "details": {
+            "signal_id": null,
+            "rule": null,
+            "breakout_price": null,
+            "initial_stop": null
+          }
+        },
+        {
+          "step": "2_ORDER_SUBMIT",
+          "name": "次根 15m 开盘委托下单",
+          "timestamp_ms": 1790954100000,
+          "timestamp_utc": "2026-10-02 15:15:00 UTC",
+          "details": {
+            "order_id": "ord_af1ce46b242122be4dff48a9",
+            "side": "BUY",
+            "order_type": "MARKET",
+            "quantity": 7462.0,
+            "status": "FILLED"
+          }
+        },
+        {
+          "step": "3_FILL",
+          "name": "市价撮合成交",
+          "timestamp_ms": 1790954100000,
+          "timestamp_utc": "2026-10-02 15:15:00 UTC",
+          "details": {
+            "fill_id": "evt_2599eecae2003ae21592b1096ae0320b",
+            "fill_price": 0.06692,
+            "quantity": 7462.0,
+            "fee": 0.24967851999999996,
+            "liquidity": "taker"
+          }
+        },
+        {
+          "step": "4_POSITION_AND_TRAILING_STOP",
+          "name": "持仓与移动跟踪止损保护",
+          "stop_trace_count": 2,
+          "details": {
+            "trade_id": "trd_edfeb086690a19e3b79b7982",
+            "initial_stop": 0.06357399999999999,
+            "stop_updates": [
+              {
+                "t": 1790954100000,
+                "stop": 0.06357,
+                "reason": "init",
+                "ts": 1790954100000
+              },
+              {
+                "t": 1790985600000,
+                "stop": 0.06974,
+                "reason": "trail",
+                "ts": 1790985600000
+              }
+            ]
+          }
+        },
+        {
+          "step": "5_EXIT",
+          "name": "触及止损平仓退出",
+          "timestamp_ms": 1791004500000,
+          "timestamp_utc": "2026-10-03 05:15:00 UTC",
+          "details": {
+            "exit_order_id": null,
+            "exit_fill_id": null,
+            "exit_price": 0.0697,
+            "exit_reason": "intrabar_stop",
+            "gross_pnl": 20.744360000000036,
+            "total_fees": 0.50972922,
+            "funding_fee": 0.501640634457144,
+            "net_pnl": 19.732990145542892
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "SUSDT",
+      "run_id": "bt_20261024T120002Z_e1a10002",
+      "description": "突破成交，移动止损平仓退出",
+      "persistence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/bt_20261024T120002Z_e1a10002",
+      "files_count": 19,
+      "has_chart_json": true,
+      "candidates_count": 1,
+      "orders_count": 2,
+      "fills_count": 2,
+      "trades_count": 1,
+      "funding_events_count": 5,
+      "equity_curve_points": 3985,
+      "metrics": {
+        "initial_equity": 5000.0,
+        "final_equity": 4974.238253699416,
+        "net_pnl": -25.761746300584214,
+        "net_return_pct": -0.515235,
+        "trades_count": 1,
+        "wins": null,
+        "losses": null,
+        "win_rate_pct": null,
+        "max_drawdown_pct": null,
+        "profit_factor": null,
+        "avg_win_loss_ratio": null
+      },
+      "causal_flow": [
+        {
+          "step": "1_SIGNAL",
+          "name": "Wyckoff 4h 突破信号生成",
+          "timestamp_ms": null,
+          "timestamp_utc": "",
+          "details": {
+            "signal_id": null,
+            "rule": null,
+            "breakout_price": null,
+            "initial_stop": null
+          }
+        },
+        {
+          "step": "2_ORDER_SUBMIT",
+          "name": "次根 15m 开盘委托下单",
+          "timestamp_ms": 1791267300000,
+          "timestamp_utc": "2026-10-06 06:15:00 UTC",
+          "details": {
+            "order_id": "ord_3fa8eb78a0c09c64b574b870",
+            "side": "BUY",
+            "order_type": "MARKET",
+            "quantity": 11363.0,
+            "status": "FILLED"
+          }
+        },
+        {
+          "step": "3_FILL",
+          "name": "市价撮合成交",
+          "timestamp_ms": 1791267300000,
+          "timestamp_utc": "2026-10-06 06:15:00 UTC",
+          "details": {
+            "fill_id": "evt_049081eec82a59d5884ee2e8853d05c3",
+            "fill_price": 0.04396,
+            "quantity": 11363.0,
+            "fee": 0.24975874,
+            "liquidity": "taker"
+          }
+        },
+        {
+          "step": "4_POSITION_AND_TRAILING_STOP",
+          "name": "持仓与移动跟踪止损保护",
+          "stop_trace_count": 1,
+          "details": {
+            "trade_id": "trd_a8bf5bb30e5b0addf232b4f5",
+            "initial_stop": 0.041762,
+            "stop_updates": [
+              {
+                "t": 1791267300000,
+                "stop": 0.04176,
+                "reason": "init",
+                "ts": 1791267300000
+              }
+            ]
+          }
+        },
+        {
+          "step": "5_EXIT",
+          "name": "触及止损平仓退出",
+          "timestamp_ms": 1791338400000,
+          "timestamp_utc": "2026-10-07 02:00:00 UTC",
+          "details": {
+            "exit_order_id": null,
+            "exit_fill_id": null,
+            "exit_price": 0.04173,
+            "exit_reason": "intrabar_stop",
+            "gross_pnl": -25.33948999999995,
+            "total_fees": 0.486847735,
+            "funding_fee": -0.064591434415739,
+            "net_pnl": -25.761746300584214
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "WALUSDT",
+      "run_id": "bt_20261024T120003Z_e1a10003",
+      "description": "突破成交，移动止损平仓退出",
+      "persistence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/bt_20261024T120003Z_e1a10003",
+      "files_count": 19,
+      "has_chart_json": true,
+      "candidates_count": 1,
+      "orders_count": 2,
+      "fills_count": 2,
+      "trades_count": 1,
+      "funding_events_count": 0,
+      "equity_curve_points": 3985,
+      "metrics": {
+        "initial_equity": 5000.0,
+        "final_equity": 4974.254422905,
+        "net_pnl": -25.745577095000005,
+        "net_return_pct": -0.514912,
+        "trades_count": 1,
+        "wins": null,
+        "losses": null,
+        "win_rate_pct": null,
+        "max_drawdown_pct": null,
+        "profit_factor": null,
+        "avg_win_loss_ratio": null
+      },
+      "causal_flow": [
+        {
+          "step": "1_SIGNAL",
+          "name": "Wyckoff 4h 突破信号生成",
+          "timestamp_ms": null,
+          "timestamp_utc": "",
+          "details": {
+            "signal_id": null,
+            "rule": null,
+            "breakout_price": null,
+            "initial_stop": null
+          }
+        },
+        {
+          "step": "2_ORDER_SUBMIT",
+          "name": "次根 15m 开盘委托下单",
+          "timestamp_ms": 1791630900000,
+          "timestamp_utc": "2026-10-10 11:15:00 UTC",
+          "details": {
+            "order_id": "ord_3512d9dd0f18fde1faa66d13",
+            "side": "BUY",
+            "order_type": "MARKET",
+            "quantity": 12953.0,
+            "status": "FILLED"
+          }
+        },
+        {
+          "step": "3_FILL",
+          "name": "市价撮合成交",
+          "timestamp_ms": 1791630900000,
+          "timestamp_utc": "2026-10-10 11:15:00 UTC",
+          "details": {
+            "fill_id": "evt_21dc4b2297a3fd092635fd0b75140571",
+            "fill_price": 0.03859,
+            "quantity": 12953.0,
+            "fee": 0.249928135,
+            "liquidity": "taker"
+          }
+        },
+        {
+          "step": "4_POSITION_AND_TRAILING_STOP",
+          "name": "持仓与移动跟踪止损保护",
+          "stop_trace_count": 1,
+          "details": {
+            "trade_id": "trd_9583820ea048f845df03ac7b",
+            "initial_stop": 0.0366605,
+            "stop_updates": [
+              {
+                "t": 1791630900000,
+                "stop": 0.03666,
+                "reason": "init",
+                "ts": 1791630900000
+              }
+            ]
+          }
+        },
+        {
+          "step": "5_EXIT",
+          "name": "触及止损平仓退出",
+          "timestamp_ms": 1791633600000,
+          "timestamp_utc": "2026-10-10 12:00:00 UTC",
+          "details": {
+            "exit_order_id": null,
+            "exit_fill_id": null,
+            "exit_price": 0.03664,
+            "exit_reason": "intrabar_stop",
+            "gross_pnl": -25.258350000000004,
+            "total_fees": 0.487227095,
+            "funding_fee": 0.0,
+            "net_pnl": -25.745577095000005
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "BBUSDT",
+      "run_id": "bt_20261024T120004Z_e1a10004",
+      "description": "突破成交，移动止损平仓退出",
+      "persistence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/bt_20261024T120004Z_e1a10004",
+      "files_count": 19,
+      "has_chart_json": true,
+      "candidates_count": 1,
+      "orders_count": 2,
+      "fills_count": 2,
+      "trades_count": 1,
+      "funding_events_count": 1,
+      "equity_curve_points": 3985,
+      "metrics": {
+        "initial_equity": 5000.0,
+        "final_equity": 4974.267534030256,
+        "net_pnl": -25.732465969744894,
+        "net_return_pct": -0.514649,
+        "trades_count": 1,
+        "wins": null,
+        "losses": null,
+        "win_rate_pct": null,
+        "max_drawdown_pct": null,
+        "profit_factor": null,
+        "avg_win_loss_ratio": null
+      },
+      "causal_flow": [
+        {
+          "step": "1_SIGNAL",
+          "name": "Wyckoff 4h 突破信号生成",
+          "timestamp_ms": null,
+          "timestamp_utc": "",
+          "details": {
+            "signal_id": null,
+            "rule": null,
+            "breakout_price": null,
+            "initial_stop": null
+          }
+        },
+        {
+          "step": "2_ORDER_SUBMIT",
+          "name": "次根 15m 开盘委托下单",
+          "timestamp_ms": 1791702900000,
+          "timestamp_utc": "2026-10-11 07:15:00 UTC",
+          "details": {
+            "order_id": "ord_049bae36dd04106fa10f04d2",
+            "side": "BUY",
+            "order_type": "MARKET",
+            "quantity": 48355.0,
+            "status": "FILLED"
+          }
+        },
+        {
+          "step": "3_FILL",
+          "name": "市价撮合成交",
+          "timestamp_ms": 1791702900000,
+          "timestamp_utc": "2026-10-11 07:15:00 UTC",
+          "details": {
+            "fill_id": "evt_0fc66bb0c043ad6acf0da3d18ccfc626",
+            "fill_price": 0.010336,
+            "quantity": 48355.0,
+            "fee": 0.24989864,
+            "liquidity": "taker"
+          }
+        },
+        {
+          "step": "4_POSITION_AND_TRAILING_STOP",
+          "name": "持仓与移动跟踪止损保护",
+          "stop_trace_count": 1,
+          "details": {
+            "trade_id": "trd_f8b399311bf4a7e1f7c650b5",
+            "initial_stop": 0.009819199999999998,
+            "stop_updates": [
+              {
+                "t": 1791702900000,
+                "stop": 0.009819,
+                "reason": "init",
+                "ts": 1791702900000
+              }
+            ]
+          }
+        },
+        {
+          "step": "5_EXIT",
+          "name": "触及止损平仓退出",
+          "timestamp_ms": 1791705600000,
+          "timestamp_utc": "2026-10-11 08:00:00 UTC",
+          "details": {
+            "exit_order_id": null,
+            "exit_fill_id": null,
+            "exit_price": 0.009814,
+            "exit_reason": "intrabar_stop",
+            "gross_pnl": -25.241309999999995,
+            "total_fees": 0.48717662500000003,
+            "funding_fee": 0.0039793447449,
+            "net_pnl": -25.732465969744894
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "SOLUSDT",
+      "run_id": "bt_20261024T020045Z_25b81923",
+      "description": "自然历史区间无突破信号，零成交运行",
+      "persistence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/bt_20261024T020045Z_25b81923",
+      "files_count": 19,
+      "has_chart_json": true,
+      "candidates_count": 0,
+      "orders_count": 0,
+      "fills_count": 0,
+      "trades_count": 0,
+      "funding_events_count": 0,
+      "equity_curve_points": 192,
+      "metrics": {
+        "initial_equity": 5000.0,
+        "final_equity": 5000.0,
+        "net_pnl": 0.0,
+        "net_return_pct": 0.0,
+        "trades_count": 0,
+        "wins": null,
+        "losses": null,
+        "win_rate_pct": null,
+        "max_drawdown_pct": null,
+        "profit_factor": null,
+        "avg_win_loss_ratio": null
+      },
+      "causal_flow": [
+        {
+          "step": "1_NO_SIGNAL",
+          "name": "区间内无有效 4h 箱体突破候选",
+          "timestamp_ms": null,
+          "timestamp_utc": "",
+          "details": {
+            "reason": "4h 箱体未发生有效突破或被冷区条件抑制",
+            "orders_generated": 0,
+            "trades_generated": 0,
+            "final_equity": 5000.0
+          }
+        }
+      ]
+    }
+  ]
+}

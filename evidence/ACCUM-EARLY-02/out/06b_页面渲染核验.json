@@ -1,0 +1,131 @@
+{
+ "probe": "06b_页面渲染核验",
+ "generated_real_utc": "2026-10-26T12:10:47.293Z",
+ "target": {
+  "frontend": "http://127.0.0.1:3000",
+  "backend": "http://127.0.0.1:8787"
+ },
+ "steps": [
+  {
+   "name": "接口：有观察事件且都带 evidence",
+   "ok": true,
+   "detail": "事件 366 条，带证据 366 条",
+   "soft": false
+  },
+  {
+   "name": "① 观察区面板在，且是「有数据」态（不是空态/故障）",
+   "ok": true,
+   "detail": "kind=ok reason=has_items total=366",
+   "soft": false
+  },
+  {
+   "name": "② 渲染行数 == 接口条数（默认上限 60）",
+   "ok": true,
+   "detail": "页面 60 行 / 接口 366 条 / 期望 60",
+   "soft": false
+  },
+  {
+   "name": "③ 每一行都有证据条，且状态只有 ok / stale",
+   "ok": true,
+   "detail": "证据条 60 / 行 60；异常状态 0",
+   "soft": false
+  },
+  {
+   "name": "④ 面板顶部「观察中 N」== 接口 observing_total",
+   "ok": true,
+   "detail": "页面「观察中 366」/ 接口 366",
+   "soft": false
+  },
+  {
+   "name": "⑤ 页面的主动买卖 == 接口值",
+   "ok": true,
+   "detail": "页面 0.53 / 接口 0.5294",
+   "soft": false
+  },
+  {
+   "name": "⑤b 页面的多空比（去重后）== 接口值",
+   "ok": true,
+   "detail": "页面 [3.74,1.37,3.59] / 接口去重 [3.7416,1.369,3.5851]",
+   "soft": false
+  },
+  {
+   "name": "⑤c 页面的阶段均价 == 接口值",
+   "ok": true,
+   "detail": "页面 0.10399 / 接口 0.10399372932415119",
+   "soft": false
+  },
+  {
+   "name": "⑥ 陈旧徽标出现，且小时数与接口一致",
+   "ok": true,
+   "detail": "徽标「指标停更 276h（旧市场）」/ 页面 276.08 / 接口 276.08",
+   "soft": false
+  },
+  {
+   "name": "⑦ 展开后逐列明细含 5 个多空比列名",
+   "ok": true,
+   "detail": "5 列齐全",
+   "soft": false
+  },
+  {
+   "name": "⑦b 明细含「时间范围 / 来源 / 可得性」三项",
+   "ok": true,
+   "detail": "时间范围=true 来源=true 可得性=true",
+   "soft": false
+  },
+  {
+   "name": "⑧ 全程无 JS 报错",
+   "ok": true,
+   "detail": "无",
+   "soft": false
+  }
+ ],
+ "ok": true,
+ "api": {
+  "observing_total": 366,
+  "shown": 366,
+  "truncated": false,
+  "quality_status": "ok",
+  "counts": {
+   "BOX": 328,
+   "SWEEP": 13,
+   "RETEST": 25
+  },
+  "with_evidence": 366
+ },
+ "page": {
+  "panel": {
+   "kind": "ok",
+   "reason": "has_items",
+   "total": "366"
+  },
+  "row_count": 60,
+  "evidence_count": 60,
+  "evidence_states": [
+   "stale",
+   "ok"
+  ],
+  "pick": {
+   "symbol": "1000000MOGUSDT",
+   "api_taker": 0.5294,
+   "page_taker": 0.53,
+   "api_ratios_indep": [
+    3.7416,
+    1.369,
+    3.5851
+   ],
+   "page_ratios": [
+    3.74,
+    1.37,
+    3.59
+   ],
+   "api_phase": 0.10399372932415119,
+   "page_phase": 0.10399,
+   "api_stale_hours": 276.08,
+   "page_stale_hours": "276.08",
+   "evidence_text": "证据主动买卖 0.53·多空比 3.74/1.37/3.59·阶段均价 0.10399指标停更 276h（旧市场）"
+  },
+  "detail_text": "sum_taker_long_short_vol_ratio 0.53 @10-14 23:50（回退值，非最新行） 缺失：最新行(2026-10-14T23:55:00Z)该列为空，已回退到 2026-10-14T23:50:00Zretail_account_ls_ratio 3.74 @10-14 23:55（与 count_long_short_ratio 同值＝别名）top_position_ls_ratio 1.37 @10-14 23:55（与 sum_toptrader_long_short_ratio 同值＝别名）count_long_short_ratio 3.74 @10-14 23:55（与 retail_account_ls_ratio 同值＝别名）sum_toptrader_long_short_ratio 1.37 @10-14 23:55（与 top_position_ls_ratio 同值＝别名）count_toptrader_long_short_ratio 3.59 @10-14 23:55阶段均价 0.10399 156 根 1h（10-20 00:00 → 10-26 11:59）时间范围 2026-10-14 23:50 → 2026-10-14 23:55 · 来源 parquet metrics/binance/um/1000000MOGUSDT/2026.parquet可得性 unproven：parquet 只有桶起点 ts，无发布时点、无抓取时点；归档为离线导出 ⇒ 当时是否可得无法证明，只能作证据本轮未采到、历史有值：sum_taker_long_short_vol_ratio只作证据：指标 parquet 只有桶起点 ts，无发布时点、无抓取时点，归档为离线导出 ⇒ 当时是否可得无法证明；阶段均价只描述阶段位置，不是入场价",
+  "screenshot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-02/out/06b_观察证据_页面.png"
+ },
+ "fail_count": 0
+}

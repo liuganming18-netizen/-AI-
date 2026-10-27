@@ -1,0 +1,252 @@
+{
+ "生成时刻": "2026-10-22T20:39:06+08:00",
+ "E1_接收锚点": {
+  "明细": [
+   {
+    "event_uid": "sig_closeloop_btc_1792668586",
+    "first_request_ms": 1792665900000,
+    "first_request_时刻": "10-22 18:45:00.000",
+    "created_at_ms": 1792668586609,
+    "created_at_时刻": "10-22 19:29:46.609",
+    "差_秒": 2686.609,
+    "判定": "回填（锚点早于写入时刻）"
+   },
+   {
+    "event_uid": "sig_closeloop_btc_1792668605",
+    "first_request_ms": 1792666800000,
+    "first_request_时刻": "10-22 19:00:00.000",
+    "created_at_ms": 1792668605988,
+    "created_at_时刻": "10-22 19:30:05.988",
+    "差_秒": 1805.988,
+    "判定": "回填（锚点早于写入时刻）"
+   },
+   {
+    "event_uid": "sig_ui_test_1792668684487",
+    "first_request_ms": 1792666800000,
+    "first_request_时刻": "10-22 19:00:00.000",
+    "created_at_ms": 1792668684527,
+    "created_at_时刻": "10-22 19:31:24.527",
+    "差_秒": 1884.527,
+    "判定": "回填（锚点早于写入时刻）"
+   },
+   {
+    "event_uid": "sig_test_closeloop_01",
+    "first_request_ms": 1792668419751,
+    "first_request_时刻": "10-22 19:26:59.751",
+    "created_at_ms": 1792668419752,
+    "created_at_时刻": "10-22 19:26:59.752",
+    "差_秒": 0.001,
+    "判定": "正常（锚点≈写入时刻）"
+   },
+   {
+    "event_uid": "sig_closeloop_btc_1792668513",
+    "first_request_ms": 1792668513352,
+    "first_request_时刻": "10-22 19:28:33.352",
+    "created_at_ms": 1792668513353,
+    "created_at_时刻": "10-22 19:28:33.353",
+    "差_秒": 0.001,
+    "判定": "正常（锚点≈写入时刻）"
+   },
+   {
+    "event_uid": "sig_ui_test_1792668631241",
+    "first_request_ms": 1792668631263,
+    "first_request_时刻": "10-22 19:30:31.263",
+    "created_at_ms": 1792668631268,
+    "created_at_时刻": "10-22 19:30:31.268",
+    "差_秒": 0.005,
+    "判定": "正常（锚点≈写入时刻）"
+   }
+  ],
+  "回填条数": 3,
+  "总条数": 6,
+  "含义": "锚点本应是「请求到达服务端那一刻」的时间戳，它必须 ≈ created_at。差出几十秒以上，说明这个时间是从调用方传来的信号时间回填进去的。"
+ },
+ "E2_成交早于请求": {
+  "明细": [
+   {
+    "position_id": 1,
+    "signal_uid": "sig_closeloop_btc_1792668586",
+    "账面requested_at": "10-22 18:45:00.000",
+    "成交fill_ts": "10-22 19:01:00.000",
+    "真实请求到达": "10-22 19:29:46.609",
+    "成交早于真实请求_秒": 1726.609,
+    "判定": "**成交早于请求**"
+   },
+   {
+    "position_id": 2,
+    "signal_uid": "sig_closeloop_btc_1792668605",
+    "账面requested_at": "10-22 19:00:00.000",
+    "成交fill_ts": "10-22 19:16:00.000",
+    "真实请求到达": "10-22 19:30:05.988",
+    "成交早于真实请求_秒": 845.988,
+    "判定": "**成交早于请求**"
+   },
+   {
+    "position_id": 3,
+    "signal_uid": "sig_ui_test_1792668684487",
+    "账面requested_at": "10-22 19:00:00.000",
+    "成交fill_ts": "10-22 19:16:00.000",
+    "真实请求到达": "10-22 19:31:24.527",
+    "成交早于真实请求_秒": 924.527,
+    "判定": "**成交早于请求**"
+   }
+  ],
+  "违规笔数": 3,
+  "含义": "账面 requested_at 被回填成信号 bar 时间，看起来「请求在成交之前」；用锚点的真实写入时刻一比，成交反而发生在请求之前。"
+ },
+ "E3_平仓侧订单": {
+  "paper_order_行数": 3,
+  "paper_order_方向": [
+   "buy"
+  ],
+  "平仓成交数": 3,
+  "平仓成交中_order_id_为NULL": 3,
+  "明细": [
+   {
+    "fill_id": 2,
+    "position_id": 1,
+    "order_id": null
+   },
+   {
+    "fill_id": 4,
+    "position_id": 2,
+    "order_id": null
+   },
+   {
+    "fill_id": 6,
+    "position_id": 3,
+    "order_id": null
+   }
+  ],
+  "含义": "平仓产生了成交与已实现盈亏，但没有对应的订单行 ⇒ 「订单→成交→持仓→退出→费用→权益」这条链在平仓侧缺一环，无法逐项闭合。"
+ },
+ "E4_挂单": {
+  "行数": 3,
+  "status分布": [
+   "pending"
+  ],
+  "已resolve数": 0,
+  "明细": [
+   {
+    "pending_id": 1,
+    "signal_uid": "sig_test_closeloop_01",
+    "status": "pending",
+    "resolved_at": null,
+    "fill_position_id": null,
+    "该uid是否对应某笔持仓": false
+   },
+   {
+    "pending_id": 2,
+    "signal_uid": "sig_closeloop_btc_1792668513",
+    "status": "pending",
+    "resolved_at": null,
+    "fill_position_id": null,
+    "该uid是否对应某笔持仓": false
+   },
+   {
+    "pending_id": 3,
+    "signal_uid": "sig_ui_test_1792668631241",
+    "status": "pending",
+    "resolved_at": null,
+    "fill_position_id": null,
+    "该uid是否对应某笔持仓": false
+   }
+  ],
+  "反重力文档声称": "3 笔挂单记录（已 resolve）",
+  "实际": "全部 status='pending'，resolved_at 为 NULL，fill_position_id 为 NULL",
+  "含义": "挂单既没被解析也没关联到任何持仓，且三行 uid 与三笔持仓的 uid **完全不相交** ⇒ 这批挂单和持仓不是同一批动作，合成污染的 uid 实际不止 3 个。"
+ },
+ "E5_初始止损合规": {
+  "明细": [
+   {
+    "position_id": 1,
+    "entry_price": 82033.1,
+    "atr_at_entry": 500.0,
+    "stop_price": 81200.0,
+    "按规则应为": 80533.1,
+    "差": 666.9,
+    "符合规则": false
+   },
+   {
+    "position_id": 2,
+    "entry_price": 81970.0,
+    "atr_at_entry": 500.0,
+    "stop_price": 80470.0,
+    "按规则应为": 80470.0,
+    "差": 0.0,
+    "符合规则": true
+   },
+   {
+    "position_id": 3,
+    "entry_price": 81970.0,
+    "atr_at_entry": 500.0,
+    "stop_price": 80470.0,
+    "按规则应为": 80470.0,
+    "差": 0.0,
+    "符合规则": true
+   }
+  ],
+  "违规笔数": 1,
+  "规则出处": "paper_engine.py 头部 L19：`stops.uniform = 入场价 − 3×信号 ATR`",
+  "含义": "同一套声明规则在三笔持仓里有一笔不成立 ⇒ 要么规则不是声明的那样，要么这笔走了另一条代码路径。"
+ },
+ "E6_文档与库比对": {
+  "明细": [
+   {
+    "项": "position 1 的 stop_price",
+    "文档": 80533.1,
+    "库内": 81200.0,
+    "一致": false
+   },
+   {
+    "项": "position 2 的 stop_price",
+    "文档": 80470.0,
+    "库内": 80470.0,
+    "一致": true
+   },
+   {
+    "项": "position 3 的 stop_price",
+    "文档": 80470.0,
+    "库内": 80470.0,
+    "一致": true
+   },
+   {
+    "项": "paper_pending 状态",
+    "文档": "已 resolve",
+    "库内": "全部 pending",
+    "一致": false
+   }
+  ],
+  "不一致数": 2
+ },
+ "合成uid全量": {
+  "总数": 6,
+  "live_signal库内": [
+   "sig_closeloop_btc_1792668513",
+   "sig_closeloop_btc_1792668586",
+   "sig_closeloop_btc_1792668605"
+  ],
+  "账本内": [
+   "sig_closeloop_btc_1792668513",
+   "sig_closeloop_btc_1792668586",
+   "sig_closeloop_btc_1792668605",
+   "sig_test_closeloop_01",
+   "sig_ui_test_1792668631241",
+   "sig_ui_test_1792668684487"
+  ],
+  "并集": [
+   "sig_closeloop_btc_1792668513",
+   "sig_closeloop_btc_1792668586",
+   "sig_closeloop_btc_1792668605",
+   "sig_test_closeloop_01",
+   "sig_ui_test_1792668631241",
+   "sig_ui_test_1792668684487"
+  ],
+  "只在账本不在信号库": [
+   "sig_test_closeloop_01",
+   "sig_ui_test_1792668631241",
+   "sig_ui_test_1792668684487"
+  ],
+  "含义": "反重力文档只列了 3 个 uid，实际并集更大；「只在账本不在信号库」的 uid 说明有请求绕过信号库直接下单。"
+ }
+}

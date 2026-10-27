@@ -1,0 +1,1273 @@
+{
+ "probe": "04_全链贯通",
+ "generated_at_utc": "2026-10-26T13:24:53Z",
+ "隔离方式": {
+  "账本": "PAPER_LEDGER_DIR = evidence/ACCUM-EARLY-03-B/runs/04_*/paper",
+  "行情库": "MARKET_DB 只读指向生产热库；WX_ARCHIVE_DIR 指向生产冷档",
+  "闸门": "PAPER_GATE_FILE 在隔离目录内自建（生产闸门文件不动）",
+  "回放时钟": "origin=replay + epoch_ms=0（仅隔离账本；生产 epoch 不可下调）"
+ },
+ "chains": {
+  "E1_TNSR_cold::merge": {
+   "事件身份": {
+    "symbol": "TNSRUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+    "snapshot_utc": "2026-07-24T08:00:00Z",
+    "为什么选它": "快照与成交都落在热库 15m 起点（2026-09-12）之前 ⇒ 老路径根本取不到成交 bar"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+    "symbol": "TNSRUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 0.03333,
+     "box_low_l": 0.03095,
+     "box_atr_a": 0.0004943410976959284,
+     "box_er": 0.2231213872832367,
+     "breakout_close": 0.03343,
+     "volume_ratio": 41.59920006536136,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-07-24T08:00:00Z",
+     "available_at_utc": "2026-07-24T08:00:00Z",
+     "execution_earliest_utc": "2026-07-24T08:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 0.030990565890230408
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "closed",
+    "reason": "filled",
+    "reject_reason": null,
+    "earliest_fill_ms_utc": "2026-07-24T08:15:00Z",
+    "filled_at_utc": "2026-07-24T08:15:00Z",
+    "fill_lag_ms": 0,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "filled",
+    "entry_bar_utc": "2026-07-24T08:15:00Z",
+    "raw_open": 0.03363,
+    "entry_price_after_slippage_and_rounding": 0.03365,
+    "qty": 14792.800000000001,
+    "notional": 497.77772000000004,
+    "fee": 0.24888886000000002,
+    "initial_stop": 0.03196,
+    "planned_risk": 24.99983199999996,
+    "数据来源": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+    "bar_provenance": {
+     "layer": "cold",
+     "available_at": null,
+     "available_at_proven": false
+    }
+   },
+   "④ 退出": {
+    "status": "closed",
+    "exit_bar_utc": "2026-07-25T16:00:00Z",
+    "exit_path": "4h 收盘击穿生效止损",
+    "exit_price": 0.03194,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_source": "cold",
+    "止损轨迹（只上移）": [
+     [
+      null,
+      0.03196,
+      "2026-07-24T08:15:00Z",
+      "2026-07-24T08:00:00Z"
+     ]
+    ],
+    "止损轨迹可用时刻是否有证据": [
+     {
+      "effective_utc": "2026-07-24T08:15:00Z",
+      "available_at_utc": "2026-07-24T08:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     }
+    ]
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 4978.289898565516,
+     "realized_pnl": -21.71010143448406,
+     "fees_paid": 0.485129876,
+     "funding_paid": -4.070716441515886
+    },
+    "realized": {
+     "id": 1,
+     "position_id": 1,
+     "gross_pnl": -25.295687999999945,
+     "entry_fee": 0.24888886000000002,
+     "exit_fee": 0.23624101600000003,
+     "funding_paid": -4.070716441515886,
+     "net_pnl": -21.71010143448406,
+     "entry_ts": 1784880900000,
+     "exit_ts": 1785009599999,
+     "exit_reason": "trailing_stop_loss"
+    },
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+      "symbol": "TNSRUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 0.03365,
+      "bar_open_time": 1784880900000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:3a:1:1785009599999",
+      "symbol": "TNSRUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 0.03194,
+      "bar_open_time": 1784995200000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 0.03365,
+      "raw_price": 0.03363,
+      "qty": 14792.800000000001,
+      "notional": 497.77772000000004,
+      "fee": 0.24888886000000002,
+      "bar_open_time": 1784880900000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 0.03194,
+      "raw_price": 0.03196,
+      "qty": 14792.800000000001,
+      "notional": 472.48203200000006,
+      "fee": 0.23624101600000003,
+      "bar_open_time": 1784995200000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 1
+    },
+    "pending": [],
+    "blocked": []
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": {
+      "cold": 2879,
+      "hot": 0
+     },
+     "returned_available_at_missing": 2879,
+     "cache_loads": [
+      {
+       "symbol": "TNSRUSDT",
+       "timeframe": "15m",
+       "start_utc": "2026-07-17T08:15:00Z",
+       "end_utc": "2026-09-22T08:00:00Z",
+       "rows_cold": 5661,
+       "rows_hot": 992,
+       "rows_merged": 6431,
+       "overlap_hot_wins": 222,
+       "gap_segment_count": 0
+      }
+     ],
+     "passthrough_sql_count": 0
+    },
+    "4h": {
+     "returned_by_source": {
+      "cold": 180,
+      "hot": 0
+     },
+     "returned_available_at_missing": 180
+    },
+    "结论": "成交与退出 bar 来自冷档；冷档 available_at 填充率 0 ⇒ 「计算没用到未来 K 线」成立，但「当时确实拿得到这根 bar」**没有证明**"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": false,
+    "reason": "不可以：成交 bar 的 available_at 无证据 ⇒ 只能算「计算不超前」，不能算「当时可得」"
+   },
+   "错误": [],
+   "模式": "merge",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E1_TNSR_cold_merge/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "9ba1a4a0fd4c039c746976c7b1c5cb036802ab991b8891858a28530f5a9b15d8"
+   }
+  },
+  "E1_TNSR_cold::hot": {
+   "事件身份": {
+    "symbol": "TNSRUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+    "snapshot_utc": "2026-07-24T08:00:00Z",
+    "为什么选它": "快照与成交都落在热库 15m 起点（2026-09-12）之前 ⇒ 老路径根本取不到成交 bar"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+    "symbol": "TNSRUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 0.03333,
+     "box_low_l": 0.03095,
+     "box_atr_a": 0.0004943410976959284,
+     "box_er": 0.2231213872832367,
+     "breakout_close": 0.03343,
+     "volume_ratio": 41.59920006536136,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-07-24T08:00:00Z",
+     "available_at_utc": "2026-07-24T08:00:00Z",
+     "execution_earliest_utc": "2026-07-24T08:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 0.030990565890230408
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "rejected_at_order",
+    "reason": "bar_after_attempt_clock_no_lookahead",
+    "reject_reason": "bar_after_attempt_clock_no_lookahead",
+    "earliest_fill_ms_utc": null,
+    "filled_at_utc": null,
+    "fill_lag_ms": null,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "rejected",
+    "entry_bar_utc": null,
+    "raw_open": null,
+    "entry_price_after_slippage_and_rounding": null,
+    "qty": null,
+    "notional": null,
+    "fee": null,
+    "initial_stop": null,
+    "planned_risk": null,
+    "数据来源": null,
+    "bar_provenance": null
+   },
+   "④ 退出": {
+    "status": null,
+    "exit_bar_utc": null,
+    "exit_path": "窗口内未退出",
+    "exit_price": null,
+    "exit_reason": null,
+    "exit_bar_source": null,
+    "止损轨迹（只上移）": [],
+    "止损轨迹可用时刻是否有证据": []
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 5000.0,
+     "realized_pnl": 0.0,
+     "fees_paid": 0.0,
+     "funding_paid": 0.0
+    },
+    "realized": null,
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+      "symbol": "TNSRUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "bar_after_attempt_clock_no_lookahead",
+      "fill_price": null,
+      "bar_open_time": null,
+      "market_source": null
+     }
+    ],
+    "fills": [],
+    "counts": {
+     "positions": 0,
+     "orders": 1,
+     "fills": 0,
+     "realized": 0,
+     "stop_history": 0
+    },
+    "pending": [],
+    "blocked": [
+     {
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999",
+      "reason": "bar_after_attempt_clock_no_lookahead"
+     }
+    ]
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null,
+     "cache_loads": null,
+     "passthrough_sql_count": null
+    },
+    "4h": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null
+    },
+    "结论": "成交与退出 bar 来自冷档；冷档 available_at 填充率 0 ⇒ 「计算没用到未来 K 线」成立，但「当时确实拿得到这根 bar」**没有证明**"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": false,
+    "reason": "不可以：成交 bar 的 available_at 无证据 ⇒ 只能算「计算不超前」，不能算「当时可得」"
+   },
+   "错误": [],
+   "模式": "hot",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E1_TNSR_cold_hot/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "f567b9c6d97200b7131ed3ce70a3a6af0a4d74a9b53c30f9bea49d6d84794603"
+   }
+  },
+  "E2_AGT_cold::merge": {
+   "事件身份": {
+    "symbol": "AGTUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+    "snapshot_utc": "2026-09-07T09:00:00Z",
+    "为什么选它": "成交 bar 在热库 15m 起点之前；且 4h 也在热库 4h 起点（2026-09-09）之前"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+    "symbol": "AGTUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 0.017131,
+     "box_low_l": 0.014489,
+     "box_atr_a": 0.0003856926493415601,
+     "box_er": 0.0010243802499487374,
+     "breakout_close": 0.017232,
+     "volume_ratio": 3.529902750095728,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-09-07T09:00:00Z",
+     "available_at_utc": "2026-09-07T09:00:00Z",
+     "execution_earliest_utc": "2026-09-07T09:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 0.014497430735065844
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "closed",
+    "reason": "filled",
+    "reject_reason": null,
+    "earliest_fill_ms_utc": "2026-09-07T09:15:00Z",
+    "filled_at_utc": "2026-09-07T09:15:00Z",
+    "fill_lag_ms": 0,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "filled",
+    "entry_bar_utc": "2026-09-07T09:15:00Z",
+    "raw_open": 0.017142,
+    "entry_price_after_slippage_and_rounding": 0.017151,
+    "qty": 12167.0,
+    "notional": 208.676217,
+    "fee": 0.10433810850000001,
+    "initial_stop": 0.016293,
+    "planned_risk": 10.439286000000013,
+    "数据来源": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+    "bar_provenance": {
+     "layer": "cold",
+     "available_at": null,
+     "available_at_proven": false
+    }
+   },
+   "④ 退出": {
+    "status": "closed",
+    "exit_bar_utc": "2026-09-08T07:30:00Z",
+    "exit_path": "15m 明细触损",
+    "exit_price": 0.016494,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_source": "cold",
+    "止损轨迹（只上移）": [
+     [
+      null,
+      0.016293,
+      "2026-09-07T09:15:00Z",
+      "2026-09-07T09:00:00Z"
+     ],
+     [
+      0.016293,
+      0.016319999999999998,
+      "2026-09-07T15:59:59Z",
+      "2026-09-07T15:59:59Z"
+     ],
+     [
+      0.016319999999999998,
+      0.016399999999999998,
+      "2026-09-07T19:59:59Z",
+      "2026-09-07T19:59:59Z"
+     ],
+     [
+      0.016399999999999998,
+      0.016503,
+      "2026-09-07T23:59:59Z",
+      "2026-09-07T23:59:59Z"
+     ]
+    ],
+    "止损轨迹可用时刻是否有证据": [
+     {
+      "effective_utc": "2026-09-07T09:15:00Z",
+      "available_at_utc": "2026-09-07T09:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     },
+     {
+      "effective_utc": "2026-09-07T15:59:59Z",
+      "available_at_utc": "2026-09-07T15:59:59Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     },
+     {
+      "effective_utc": "2026-09-07T19:59:59Z",
+      "available_at_utc": "2026-09-07T19:59:59Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     },
+     {
+      "effective_utc": "2026-09-07T23:59:59Z",
+      "available_at_utc": "2026-09-07T23:59:59Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     }
+    ]
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 4991.8016016425,
+     "realized_pnl": -8.198398357499974,
+     "fees_paid": 0.20467935750000002,
+     "funding_paid": 0.0
+    },
+    "realized": {
+     "id": 1,
+     "position_id": 1,
+     "gross_pnl": -7.993718999999974,
+     "entry_fee": 0.10433810850000001,
+     "exit_fee": 0.10034124900000001,
+     "funding_paid": 0.0,
+     "net_pnl": -8.198398357499974,
+     "entry_ts": 1788772500000,
+     "exit_ts": 1788853499999,
+     "exit_reason": "trailing_stop_loss"
+    },
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+      "symbol": "AGTUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 0.017151,
+      "bar_open_time": 1788772500000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:3a:1:1788853499999",
+      "symbol": "AGTUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 0.016494,
+      "bar_open_time": 1788852600000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 0.017151,
+      "raw_price": 0.017142,
+      "qty": 12167.0,
+      "notional": 208.676217,
+      "fee": 0.10433810850000001,
+      "bar_open_time": 1788772500000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 0.016494,
+      "raw_price": 0.016503,
+      "qty": 12167.0,
+      "notional": 200.682498,
+      "fee": 0.10034124900000001,
+      "bar_open_time": 1788852600000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+     }
+    ],
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 4
+    },
+    "pending": [],
+    "blocked": []
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": {
+      "cold": 443,
+      "hot": 2436
+     },
+     "returned_available_at_missing": 2747,
+     "cache_loads": [
+      {
+       "symbol": "AGTUSDT",
+       "timeframe": "15m",
+       "start_utc": "2026-08-31T09:15:00Z",
+       "end_utc": "2026-11-06T09:00:00Z",
+       "rows_cold": 1337,
+       "rows_hot": 4277,
+       "rows_merged": 5392,
+       "overlap_hot_wins": 222,
+       "gap_segment_count": 0
+      }
+     ],
+     "passthrough_sql_count": 0
+    },
+    "4h": {
+     "returned_by_source": {
+      "cold": 15,
+      "hot": 166
+     },
+     "returned_available_at_missing": 172
+    },
+    "结论": "成交与退出 bar 来自冷档；冷档 available_at 填充率 0 ⇒ 「计算没用到未来 K 线」成立，但「当时确实拿得到这根 bar」**没有证明**"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": false,
+    "reason": "不可以：成交 bar 的 available_at 无证据 ⇒ 只能算「计算不超前」，不能算「当时可得」"
+   },
+   "错误": [],
+   "模式": "merge",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E2_AGT_cold_merge/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "37bb1e7770e6ff197383d914a6ca91c332ed17be6a6b1dca6354defa863512d5"
+   }
+  },
+  "E2_AGT_cold::hot": {
+   "事件身份": {
+    "symbol": "AGTUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+    "snapshot_utc": "2026-09-07T09:00:00Z",
+    "为什么选它": "成交 bar 在热库 15m 起点之前；且 4h 也在热库 4h 起点（2026-09-09）之前"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+    "symbol": "AGTUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 0.017131,
+     "box_low_l": 0.014489,
+     "box_atr_a": 0.0003856926493415601,
+     "box_er": 0.0010243802499487374,
+     "breakout_close": 0.017232,
+     "volume_ratio": 3.529902750095728,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-09-07T09:00:00Z",
+     "available_at_utc": "2026-09-07T09:00:00Z",
+     "execution_earliest_utc": "2026-09-07T09:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 0.014497430735065844
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "rejected_at_order",
+    "reason": "bar_after_attempt_clock_no_lookahead",
+    "reject_reason": "bar_after_attempt_clock_no_lookahead",
+    "earliest_fill_ms_utc": null,
+    "filled_at_utc": null,
+    "fill_lag_ms": null,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "rejected",
+    "entry_bar_utc": null,
+    "raw_open": null,
+    "entry_price_after_slippage_and_rounding": null,
+    "qty": null,
+    "notional": null,
+    "fee": null,
+    "initial_stop": null,
+    "planned_risk": null,
+    "数据来源": null,
+    "bar_provenance": null
+   },
+   "④ 退出": {
+    "status": null,
+    "exit_bar_utc": null,
+    "exit_path": "窗口内未退出",
+    "exit_price": null,
+    "exit_reason": null,
+    "exit_bar_source": null,
+    "止损轨迹（只上移）": [],
+    "止损轨迹可用时刻是否有证据": []
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 5000.0,
+     "realized_pnl": 0.0,
+     "fees_paid": 0.0,
+     "funding_paid": 0.0
+    },
+    "realized": null,
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+      "symbol": "AGTUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "bar_after_attempt_clock_no_lookahead",
+      "fill_price": null,
+      "bar_open_time": null,
+      "market_source": null
+     }
+    ],
+    "fills": [],
+    "counts": {
+     "positions": 0,
+     "orders": 1,
+     "fills": 0,
+     "realized": 0,
+     "stop_history": 0
+    },
+    "pending": [],
+    "blocked": [
+     {
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999",
+      "reason": "bar_after_attempt_clock_no_lookahead"
+     }
+    ]
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null,
+     "cache_loads": null,
+     "passthrough_sql_count": null
+    },
+    "4h": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null
+    },
+    "结论": "成交与退出 bar 来自冷档；冷档 available_at 填充率 0 ⇒ 「计算没用到未来 K 线」成立，但「当时确实拿得到这根 bar」**没有证明**"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": false,
+    "reason": "不可以：成交 bar 的 available_at 无证据 ⇒ 只能算「计算不超前」，不能算「当时可得」"
+   },
+   "错误": [],
+   "模式": "hot",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E2_AGT_cold_hot/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "542bcce5c82e98e431159ce7da136f893f1c748bfd900ac6a4caebfe481bd60e"
+   }
+  },
+  "E3_METIS_hot::merge": {
+   "事件身份": {
+    "symbol": "METISUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999",
+    "snapshot_utc": "2026-10-11T20:00:00Z",
+    "为什么选它": "成交 bar 在热库里 ⇒ 对照组：接线前后结果必须逐位相同（零漂移）"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+    "symbol": "METISUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 3.79,
+     "box_low_l": 3.108,
+     "box_atr_a": 0.10271541696043371,
+     "box_er": 0.021594684385382087,
+     "breakout_close": 3.856,
+     "volume_ratio": 9.143213625120667,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-10-11T20:00:00Z",
+     "available_at_utc": "2026-10-11T20:00:00Z",
+     "execution_earliest_utc": "2026-10-11T20:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 3.1017284583039566
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "closed",
+    "reason": "filled",
+    "reject_reason": null,
+    "earliest_fill_ms_utc": "2026-10-11T20:15:00Z",
+    "filled_at_utc": "2026-10-11T20:15:00Z",
+    "fill_lag_ms": 0,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "filled",
+    "entry_bar_utc": "2026-10-11T20:15:00Z",
+    "raw_open": 3.824,
+    "entry_price_after_slippage_and_rounding": 3.826,
+    "qty": 130.2,
+    "notional": 498.1452,
+    "fee": 0.2490726,
+    "initial_stop": 3.634,
+    "planned_risk": 24.99840000000002,
+    "数据来源": "binance.um.candles_15m.is_closed.open|merged.hot",
+    "bar_provenance": {
+     "layer": "hot",
+     "available_at": 1791750600530,
+     "available_at_proven": true
+    }
+   },
+   "④ 退出": {
+    "status": "closed",
+    "exit_bar_utc": "2026-10-12T13:15:00Z",
+    "exit_path": "15m 明细触损",
+    "exit_price": 3.723,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_source": "hot",
+    "止损轨迹（只上移）": [
+     [
+      null,
+      3.634,
+      "2026-10-11T20:15:00Z",
+      "2026-10-11T20:00:00Z"
+     ],
+     [
+      3.634,
+      3.725,
+      "2026-10-12T07:59:59Z",
+      "2026-10-12T08:00:00Z"
+     ]
+    ],
+    "止损轨迹可用时刻是否有证据": [
+     {
+      "effective_utc": "2026-10-11T20:15:00Z",
+      "available_at_utc": "2026-10-11T20:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     },
+     {
+      "effective_utc": "2026-10-12T07:59:59Z",
+      "available_at_utc": "2026-10-12T08:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     }
+    ]
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 4986.070044785649,
+     "realized_pnl": -13.929955214351574,
+     "fees_paid": 0.4914399,
+     "funding_paid": 0.027915314351548676
+    },
+    "realized": {
+     "id": 1,
+     "position_id": 1,
+     "gross_pnl": -13.410600000000025,
+     "entry_fee": 0.2490726,
+     "exit_fee": 0.24236729999999998,
+     "funding_paid": 0.02791531435154868,
+     "net_pnl": -13.929955214351574,
+     "entry_ts": 1791749700000,
+     "exit_ts": 1791811799999,
+     "exit_reason": "trailing_stop_loss"
+    },
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999",
+      "symbol": "METISUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 3.826,
+      "bar_open_time": 1791749700000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:3a:1:1791811799999",
+      "symbol": "METISUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 3.723,
+      "bar_open_time": 1791810900000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 3.826,
+      "raw_price": 3.824,
+      "qty": 130.2,
+      "notional": 498.1452,
+      "fee": 0.2490726,
+      "bar_open_time": 1791749700000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 3.723,
+      "raw_price": 3.725,
+      "qty": 130.2,
+      "notional": 484.73459999999994,
+      "fee": 0.24236729999999998,
+      "bar_open_time": 1791810900000,
+      "market_source": "binance.um.candles_15m.is_closed.open|merged.hot"
+     }
+    ],
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 2
+    },
+    "pending": [],
+    "blocked": []
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": {
+      "cold": 0,
+      "hot": 1412
+     },
+     "returned_available_at_missing": 0,
+     "cache_loads": [
+      {
+       "symbol": "METISUSDT",
+       "timeframe": "15m",
+       "start_utc": "2026-10-04T20:15:00Z",
+       "end_utc": "2026-12-10T20:00:00Z",
+       "rows_cold": 0,
+       "rows_hot": 2084,
+       "rows_merged": 2084,
+       "overlap_hot_wins": 0,
+       "gap_segment_count": 0
+      }
+     ],
+     "passthrough_sql_count": 0
+    },
+    "4h": {
+     "returned_by_source": {
+      "cold": 0,
+      "hot": 88
+     },
+     "returned_available_at_missing": 0
+    },
+    "结论": "成交 bar 来自热库且 available_at 有值 ⇒ 可得性有证据"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": true,
+    "reason": "可以（成交 bar 的可得时刻有证据）"
+   },
+   "错误": [],
+   "模式": "merge",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E3_METIS_hot_merge/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "77b215a5c5decc179ef6417d66ec2c40627b795617a9c81fa0dbd9eb0503f3d9"
+   }
+  },
+  "E3_METIS_hot::hot": {
+   "事件身份": {
+    "symbol": "METISUSDT",
+    "event_id": "ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999",
+    "snapshot_utc": "2026-10-11T20:00:00Z",
+    "为什么选它": "成交 bar 在热库里 ⇒ 对照组：接线前后结果必须逐位相同（零漂移）"
+   },
+   "① 观察与候选（生产记录）": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+    "symbol": "METISUSDT",
+    "来源": "evidence/ACCUM-EARLY-01/out/07_事件回放.json（原始来源=生产状态机 bootstrap.discarded_detail）",
+    "观察与候选时可见的数据": {
+     "box_high_h": 3.79,
+     "box_low_l": 3.108,
+     "box_atr_a": 0.10271541696043371,
+     "box_er": 0.021594684385382087,
+     "breakout_close": 3.856,
+     "volume_ratio": 9.143213625120667,
+     "source": "框架/backend/locks/paper_runtime_3a_status.json signal_engine.bootstrap.discarded_detail"
+    },
+    "结构确认": {
+     "snapshot_utc": "2026-10-11T20:00:00Z",
+     "available_at_utc": "2026-10-11T20:00:00Z",
+     "execution_earliest_utc": "2026-10-11T20:15:00Z",
+     "rule": "1h 收盘确认，最早下一根 15m（+15 分钟）开盘执行"
+    },
+    "候选记录": {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "discard_reasons": [
+      "before_paper_epoch_no_backfill",
+      "missed_fill_moment_no_backfill"
+     ],
+     "note": "预热期候选按纪律丢弃、不补开；本回放只重建过程，不产生新订单"
+    },
+    "旧口径止损（候选快照）": 3.1017284583039566
+   },
+   "② 委托（隔离账本，真实 open_position）": {
+    "verdict": "closed",
+    "reason": "filled",
+    "reject_reason": null,
+    "earliest_fill_ms_utc": "2026-10-11T20:15:00Z",
+    "filled_at_utc": "2026-10-11T20:15:00Z",
+    "fill_lag_ms": 0,
+    "口径": "成交价 = 第一根 open_time >= max(事件时刻, 可得时刻, 首次请求) + 15 分钟 的已闭合 15m bar 的 open"
+   },
+   "③ 成交": {
+    "status": "filled",
+    "entry_bar_utc": "2026-10-11T20:15:00Z",
+    "raw_open": 3.824,
+    "entry_price_after_slippage_and_rounding": 3.826,
+    "qty": 130.2,
+    "notional": 498.1452,
+    "fee": 0.2490726,
+    "initial_stop": 3.634,
+    "planned_risk": 24.99840000000002,
+    "数据来源": "binance.um.candles_15m.is_closed.open",
+    "bar_provenance": {
+     "layer": null,
+     "available_at": null,
+     "available_at_proven": false
+    }
+   },
+   "④ 退出": {
+    "status": "closed",
+    "exit_bar_utc": "2026-10-12T13:15:00Z",
+    "exit_path": "15m 明细触损",
+    "exit_price": 3.723,
+    "exit_reason": "trailing_stop_loss",
+    "exit_bar_source": null,
+    "止损轨迹（只上移）": [
+     [
+      null,
+      3.634,
+      "2026-10-11T20:15:00Z",
+      "2026-10-11T20:00:00Z"
+     ],
+     [
+      3.634,
+      3.725,
+      "2026-10-12T07:59:59Z",
+      "2026-10-12T08:00:00Z"
+     ]
+    ],
+    "止损轨迹可用时刻是否有证据": [
+     {
+      "effective_utc": "2026-10-11T20:15:00Z",
+      "available_at_utc": "2026-10-11T20:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     },
+     {
+      "effective_utc": "2026-10-12T07:59:59Z",
+      "available_at_utc": "2026-10-12T08:00:00Z",
+      "note": "available_at 为空/等于 close_time 时只是占位，不是可得性证据"
+     }
+    ]
+   },
+   "⑤ 账本": {
+    "state": {
+     "cash": 4986.070044785649,
+     "realized_pnl": -13.929955214351574,
+     "fees_paid": 0.4914399,
+     "funding_paid": 0.027915314351548676
+    },
+    "realized": {
+     "id": 1,
+     "position_id": 1,
+     "gross_pnl": -13.410600000000025,
+     "entry_fee": 0.2490726,
+     "exit_fee": 0.24236729999999998,
+     "funding_paid": 0.02791531435154868,
+     "net_pnl": -13.929955214351574,
+     "entry_ts": 1791749700000,
+     "exit_ts": 1791811799999,
+     "exit_reason": "trailing_stop_loss"
+    },
+    "orders": [
+     {
+      "order_id": 1,
+      "event_uid": "ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999",
+      "symbol": "METISUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 3.826,
+      "bar_open_time": 1791749700000,
+      "market_source": "binance.um.candles_15m.is_closed.open"
+     },
+     {
+      "order_id": 2,
+      "event_uid": "exit:3a:1:1791811799999",
+      "symbol": "METISUSDT",
+      "side": "sell",
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 3.723,
+      "bar_open_time": 1791810900000,
+      "market_source": "binance.um.candles_15m.is_closed.open"
+     }
+    ],
+    "fills": [
+     {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "action": "open",
+      "fill_price": 3.826,
+      "raw_price": 3.824,
+      "qty": 130.2,
+      "notional": 498.1452,
+      "fee": 0.2490726,
+      "bar_open_time": 1791749700000,
+      "market_source": "binance.um.candles_15m.is_closed.open"
+     },
+     {
+      "fill_id": 2,
+      "order_id": 2,
+      "position_id": 1,
+      "action": "close",
+      "fill_price": 3.723,
+      "raw_price": 3.725,
+      "qty": 130.2,
+      "notional": 484.73459999999994,
+      "fee": 0.24236729999999998,
+      "bar_open_time": 1791810900000,
+      "market_source": "binance.um.candles_15m.is_closed.open"
+     }
+    ],
+    "counts": {
+     "positions": 1,
+     "orders": 2,
+     "fills": 2,
+     "realized": 1,
+     "stop_history": 2
+    },
+    "pending": [],
+    "blocked": []
+   },
+   "⑥ 数据来源与可得性": {
+    "15m": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null,
+     "cache_loads": null,
+     "passthrough_sql_count": null
+    },
+    "4h": {
+     "returned_by_source": null,
+     "returned_available_at_missing": null
+    },
+    "结论": "成交与退出 bar 来自冷档；冷档 available_at 填充率 0 ⇒ 「计算没用到未来 K 线」成立，但「当时确实拿得到这根 bar」**没有证明**"
+   },
+   "⑦ 能否进严格有效性成绩": {
+    "eligible": false,
+    "reason": "不可以：成交 bar 的 available_at 无证据 ⇒ 只能算「计算不超前」，不能算「当时可得」"
+   },
+   "错误": [],
+   "模式": "hot",
+   "账本身份": {
+    "exists": true,
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-03-B/runs/04_E3_METIS_hot_hot/paper/paper_3a.sqlite3",
+    "bytes": 163840,
+    "sha256": "5cb3ba1780325ebd273a57fcf4ca920ccf4b2afcc4b9f75c48756f0ba9a15961"
+   }
+  }
+ },
+ "checks": {
+  "E1_TNSR_cold": {
+   "① 观察/候选有生产记录": true,
+   "② 委托在隔离账本内": true,
+   "③ 成交（合并模式）": true,
+   "④ 退出并平仓（合并模式）": true,
+   "⑤ 账本落了已实现记录": true,
+   "对照：只读热库时被拒（缺陷复现）": true,
+   "⑦ 可进严格有效性成绩": false,
+   "结果": "通过（链路贯通）"
+  },
+  "E2_AGT_cold": {
+   "① 观察/候选有生产记录": true,
+   "② 委托在隔离账本内": true,
+   "③ 成交（合并模式）": true,
+   "④ 退出并平仓（合并模式）": true,
+   "⑤ 账本落了已实现记录": true,
+   "对照：只读热库时被拒（缺陷复现）": true,
+   "⑦ 可进严格有效性成绩": false,
+   "结果": "通过（链路贯通）"
+  },
+  "E3_METIS_hot": {
+   "① 观察/候选有生产记录": true,
+   "② 委托在隔离账本内": true,
+   "③ 成交（合并模式）": true,
+   "④ 退出并平仓（合并模式）": true,
+   "⑤ 账本落了已实现记录": true,
+   "对照：只读热库也能跑通（对照组有效）": true,
+   "⑦ 可进严格有效性成绩": true,
+   "结果": "通过（链路贯通）"
+  }
+ },
+ "errors": [],
+ "生产账本指纹_跑前": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "生产账本指纹_跑后": {
+  "3a": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-25T15:01:27Z",
+   "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a"
+  },
+  "3b": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "3c": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "3d": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+   "bytes": 163840,
+   "mtime": "2026-10-23T03:13:44Z",
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "生产账本是否被改动": {
+  "changed_arms": [],
+  "verdict": "未被改动"
+ },
+ "合法成交样本": {
+  "合并模式下成交笔数": 3,
+  "其中可进严格有效性成绩": 1,
+  "逐笔": [
+   {
+    "事件": "E1_TNSR_cold::merge",
+    "成交": "filled",
+    "成交bar来源": "cold",
+    "可得时刻有证据": false,
+    "净额": -21.71010143448406,
+    "可进严格成绩": false
+   },
+   {
+    "事件": "E2_AGT_cold::merge",
+    "成交": "filled",
+    "成交bar来源": "cold",
+    "可得时刻有证据": false,
+    "净额": -8.198398357499974,
+    "可进严格成绩": false
+   },
+   {
+    "事件": "E3_METIS_hot::merge",
+    "成交": "filled",
+    "成交bar来源": "hot",
+    "可得时刻有证据": true,
+    "净额": -13.929955214351574,
+    "可进严格成绩": true
+   }
+  ],
+  "说明": "合并模式下共成交 3 笔，其中 1 笔的成交 bar 可得时刻有证据。其余成交 bar 来自冷档，冷档 available_at 填充率为 0 ⇒ 只能声称「计算不超前」，不能声称「当时可得」，因此不进严格有效性成绩。",
+  "不夸大的说法": "本单证明了「真实历史事件能在隔离环境里走完观察→候选→委托→成交→退出→账本」；**没有**证明「自然行情下会自动成交」——后者需要真实挂钟与自然候选，当前自然候选为 0，账本里也没有自然成交。"
+ },
+ "总判定": "通过（链路贯通；严格有效性仍不可声明）"
+}

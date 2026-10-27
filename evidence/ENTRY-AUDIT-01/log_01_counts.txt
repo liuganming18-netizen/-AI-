@@ -1,0 +1,70 @@
+{
+ "ticket": "ENTRY-AUDIT-01",
+ "section": "01 独立计数",
+ "record_level": {
+  "特征表总行数": 227,
+  "enriched表总行数": 227,
+  "两表行数一致": true,
+  "唯一event_id": 227,
+  "唯一candidate_id": 227,
+  "唯一标的数": 152,
+  "唯一(symbol,snapshot_time_ms)": 226,
+  "唯一入场(symbol,entry_time)_仅成交": 205,
+  "实际成交FILLED": 205,
+  "未成交UNFILLED_TIMEOUT": 22,
+  "成交+未成交=总行数": true
+ },
+ "duplicates": {
+  "同标的同快照重复组数": 1,
+  "重复涉及记录数": 2,
+  "重复明细": [
+   "COTIUSDT_1640228400000",
+   "COTIUSDT_1640229300000"
+  ],
+  "说明": "同一快照由两种 candidate_id 命名（cand_ev_… 与 old_cand_…）各产生 1 行，一行 UNFILLED、一行 FILLED；按「唯一候选」计应视为 1 个候选。"
+ },
+ "truncation": {
+  "has_truncated_twin_True": 72,
+  "exit_why_force_close_eod_仅成交": 1,
+  "exit_why_分布": {
+   "max_holding_expired": 115,
+   "intrabar_stop": 89,
+   "force_close_eod": 1
+  },
+  "box_atr_4h缺失或<=0_仅成交": 42,
+  "box_high等于p_entry_仅成交": 42,
+  "breakout_atr_dist缺失_仅成交": 42,
+  "数据末端快照": "2026-10-11 20:00:00",
+  "距末端不足4h的记录": 1
+ },
+ "collapse_296_to_205": {
+  "trades_rich行数": 296,
+  "映射表行数": 297,
+  "其中old_row_idx=-1合成行": 1,
+  "映射覆盖旧行数": 296,
+  "旧行是否完整覆盖0..295": true,
+  "唯一目标event数": 205,
+  "被折叠掉的旧行数": 91,
+  "每个目标对应的旧行数分布": {
+   "1": 133,
+   "2": 54,
+   "3": 16,
+   "4": 2
+  },
+  "reconciliation_action分布": {
+   "RETAINED_PRIMARY_ENTRY": 229,
+   "MERGED_TRUNCATED_TWIN": 67,
+   "NEW_ENTRY_IN_CONTINUOUS_RUN": 1
+  },
+  "RETAINED_PRIMARY_ENTRY行数": 229,
+  "RETAINED但目标重复(应1:1却多行)": 25
+ },
+ "mapping_227_to_205": {
+  "总记录": 227,
+  "成交且1:1对上": 205,
+  "未成交(单列)": 22,
+  "成交但无法关联": 0,
+  "净盈亏最大绝对偏差": 2.842170943040401e-14,
+  "结论": "227 = 205 成交 + 22 未成交；205 成交与 296→205 映射表的 205 个目标事件完全一一对应。"
+ }
+}

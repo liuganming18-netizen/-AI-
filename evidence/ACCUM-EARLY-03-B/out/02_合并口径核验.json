@@ -1,0 +1,345 @@
+{
+ "probe": "02_合并口径核验",
+ "generated_at_utc": "2026-10-26T13:21:41Z",
+ "module": "research_15m.Merged15m / MergedMarket（同一套合并逻辑）",
+ "windows": {
+  "cold_only": [
+   "2026-06-27T08:00:00Z",
+   "2026-09-12T00:00:00Z"
+  ],
+  "seam_15m_utc": "2026-09-12T00:00:00Z",
+  "seam_4h_utc": "2026-09-09T00:00:00Z"
+ },
+ "A_去重与优先级": {
+  "BTCUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "ETHUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "SOLUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "DOGEUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "XRPUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "TNSRUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "AGTUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "METISUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "AIAUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "GUAUSDT": {
+   "rows_cold": 7582,
+   "rows_hot": 1344,
+   "rows_merged": 8704,
+   "overlap_hot_wins": 222,
+   "dup_removed": 222,
+   "dup_removed_equals_overlap": true,
+   "unique_open_time": true,
+   "conflict_priority": "hot_over_cold",
+   "dedup_key": "open_time"
+  },
+  "优先级方向实证": [
+   {
+    "symbol": "BTCUSDT",
+    "overlap_bars": 192,
+    "overlap_all_labeled_hot": true,
+    "not_labeled_hot": 0,
+    "merged_equals_hot": true,
+    "merged_equals_cold": true,
+    "diff_from_hot": 0,
+    "diff_from_cold": 0,
+    "cold_diff_examples": [],
+    "verdict": "规则已应用（重叠行标记为热层），但冷热数值完全相同 ⇒ 「热层优先」在本数据上数值不可判，不能算证明通过"
+   },
+   {
+    "symbol": "METISUSDT",
+    "overlap_bars": 192,
+    "overlap_all_labeled_hot": true,
+    "not_labeled_hot": 0,
+    "merged_equals_hot": true,
+    "merged_equals_cold": true,
+    "diff_from_hot": 0,
+    "diff_from_cold": 0,
+    "cold_diff_examples": [],
+    "verdict": "规则已应用（重叠行标记为热层），但冷热数值完全相同 ⇒ 「热层优先」在本数据上数值不可判，不能算证明通过"
+   }
+  ]
+ },
+ "B_已收盘": {
+  "热库未收盘 15m 版本行数": 0,
+  "合并器规则": "只取 is_closed=1（冷档 SQL 与热库 SQL 都带这个条件）",
+  "窗口内最后一根已收盘 15m": "2026-10-26T13:00:00Z",
+  "说明": "未收盘 bar 不进合并结果；回放里也不存在「用未收盘 bar 定价」的路径。"
+ },
+ "C_冷热交界": {
+  "15m": {
+   "label": "15m 交界（热库起点）",
+   "first_hot_bar_utc": "2026-09-12T00:00:00Z",
+   "last_cold_bar_utc": "2026-09-11T23:45:00Z",
+   "seam_step_ok": true,
+   "duplicate_open_time": 0,
+   "gap_segments_in_window": 0,
+   "gaps": [],
+   "around_seam": [
+    {
+     "utc": "2026-09-11T23:15:00Z",
+     "source": "cold",
+     "open": 77097.5,
+     "close": 77160.0,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-11T23:30:00Z",
+     "source": "cold",
+     "open": 77160.0,
+     "close": 77146.0,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-11T23:45:00Z",
+     "source": "cold",
+     "open": 77146.0,
+     "close": 77191.1,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-12T00:00:00Z",
+     "source": "hot",
+     "open": 77191.1,
+     "close": 77258.2,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-12T00:15:00Z",
+     "source": "hot",
+     "open": 77258.2,
+     "close": 77240.6,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-12T00:30:00Z",
+     "source": "hot",
+     "open": 77240.6,
+     "close": 77248.6,
+     "available_at": null
+    }
+   ],
+   "overlap_hot_wins": 222,
+   "verdict": "交界连续：无重复、无跳空、步长正确"
+  },
+  "4h": {
+   "label": "4h 交界（热库起点）",
+   "first_hot_bar_utc": "2026-09-09T20:00:00Z",
+   "last_cold_bar_utc": "2026-09-09T16:00:00Z",
+   "seam_step_ok": true,
+   "duplicate_open_time": 0,
+   "gap_segments_in_window": 0,
+   "gaps": [],
+   "around_seam": [
+    {
+     "utc": "2026-09-09T08:00:00Z",
+     "source": "cold",
+     "open": 79246.0,
+     "close": 79281.7,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-09T12:00:00Z",
+     "source": "cold",
+     "open": 79281.6,
+     "close": 78570.0,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-09T16:00:00Z",
+     "source": "cold",
+     "open": 78569.9,
+     "close": 78194.4,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-09T20:00:00Z",
+     "source": "hot",
+     "open": 78194.4,
+     "close": 78264.1,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-10T00:00:00Z",
+     "source": "hot",
+     "open": 78264.0,
+     "close": 78297.4,
+     "available_at": null
+    },
+    {
+     "utc": "2026-09-10T04:00:00Z",
+     "source": "hot",
+     "open": 78297.4,
+     "close": 78071.1,
+     "available_at": null
+    }
+   ],
+   "overlap_hot_wins": 13,
+   "verdict": "交界连续：无重复、无跳空、步长正确"
+  }
+ },
+ "D_缺口": {
+  "全池冷档 2026 年 15m 缺口": {
+   "扫描区间": [
+    "2026-01-01T00:00:00Z",
+    "2026-09-12T00:00:00Z"
+   ],
+   "有缺口的标的数": 1,
+   "明细": [
+    {
+     "symbol": "AIAUSDT",
+     "gap_segments": 1,
+     "max_missing_bars": 45,
+     "at_prev_utc": "2026-01-19T23:45:00Z"
+    }
+   ],
+   "说明": "冷档在本次验证窗口内几乎无缺口；唯一缺口用于验证「不补造」。"
+  },
+  "真实缺口行为": {
+   "symbol": "AIAUSDT",
+   "缺口起点（上一根）": "2026-01-19T23:45:00Z",
+   "缺口后第一根": "2026-01-20T11:15:00Z",
+   "缺口内请求 at_or_after 返回": "2026-01-20T11:15:00Z",
+   "缺口内 bars() 返回根数": 0,
+   "缺口内是否有补造行": false,
+   "缺口长度（缺根数）": 45,
+   "verdict": "不补造成立：缺口内取不到行，at_or_after 直接跳到缺口之后那根"
+  }
+ },
+ "E_价格精度": {
+  "15m_与 MergedHistory 对撞": {
+   "symbol": "BTCUSDT",
+   "compared_bars": 7360,
+   "only_in_mine": 0,
+   "only_in_theirs": 0,
+   "mismatch_count": 0,
+   "mismatches": [],
+   "verdict": "consistent"
+  },
+  "4h_与 MergedHistory 对撞": {
+   "symbol": "BTCUSDT",
+   "compared_bars": 484,
+   "only_in_mine": 0,
+   "only_in_theirs": 0,
+   "mismatch_count": 0,
+   "mismatches": [],
+   "verdict": "consistent"
+  },
+  "价格取整口径": {
+   "成交价": "取 bar.open 原值 → paper_engine._apply_order_rounding（冻结实现）",
+   "退出价": "close_at_price → trading_core.fill.price_breakdown（同一实现）",
+   "合并层是否做任何取整": false,
+   "说明": "合并层只做去重与来源选择，**不改任何价格数值**；取整仍只在冻结的成交/平仓实现里发生一次。"
+  }
+ },
+ "F_缓存一致性": {
+  "同一请求两次结果相同": true,
+  "窄窗-宽窗-再窄窗 结果相同": true,
+  "窄窗根数": 10,
+  "宽窗根数": 8640,
+  "缓存装载次数": 2,
+  "说明": "缓存只在内存，扩窗后重载；窄窗语义不因缓存而变。"
+ },
+ "errors": [],
+ "结论": {
+  "A1_去重键唯一（open_time）": true,
+  "A2_重叠行按规则取热层（标记+数值一致）": true,
+  "A3_优先级数值方向被证明": false,
+  "A_小计": "部分完成：规则已应用，但冷热重叠段数值完全相同 ⇒ 方向不可判",
+  "B_只取已收盘": true,
+  "C_冷热交界连续": true,
+  "D_缺口不补造": true,
+  "E_价格精度与既有实现一致": true,
+  "F_缓存不改变语义": true,
+  "总判定": "部分完成（A3 与 D 见明细；A3 不是缺陷，是数据不支持证明）",
+  "口径提醒": "「A3 未证明」不等于「优先级实现错了」。本数据上冷热重叠段逐位相同，所以无法用数值区分两种取法；只能证明规则被应用（重叠行标记为 hot）。要真正证明方向，需要一份冷热确实不一致的数据（当前没有）。"
+ }
+}

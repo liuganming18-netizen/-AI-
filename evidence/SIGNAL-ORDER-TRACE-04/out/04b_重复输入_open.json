@@ -1,0 +1,107 @@
+{
+  "case": "open",
+  "generated_at_utc": "2026-10-25T02:51:20Z",
+  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1780185599999_1780495200000",
+  "symbol": "NEARUSDT",
+  "isolated_paths": {
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_market.sqlite3",
+    "LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_ledger/duplicate_open",
+    "LIVE_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_live",
+    "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_gate.json"
+  },
+  "expect_reason": "duplicate_signal_uid",
+  "attempts": [
+    {
+      "label": "first",
+      "now_ms": 1780496100000,
+      "now_utc": "2026-06-03T14:15:00Z",
+      "requested_at_ms": 1780495200000,
+      "ok": true,
+      "reason": "filled",
+      "position_id": 1,
+      "order_id": 1,
+      "ledger_counts_after": {
+        "paper_order": 1,
+        "paper_fill": 1,
+        "paper_position": 1,
+        "paper_realized": 0,
+        "paper_blocked": 0,
+        "paper_processed": 1,
+        "paper_pending": 0,
+        "paper_request_anchor": 1
+      }
+    },
+    {
+      "label": "repeat_same_clock",
+      "now_ms": 1780496100000,
+      "now_utc": "2026-06-03T14:15:00Z",
+      "requested_at_ms": 1780495200000,
+      "ok": false,
+      "reason": "duplicate_signal_uid",
+      "position_id": null,
+      "order_id": null,
+      "ledger_counts_after": {
+        "paper_order": 1,
+        "paper_fill": 1,
+        "paper_position": 1,
+        "paper_realized": 0,
+        "paper_blocked": 0,
+        "paper_processed": 1,
+        "paper_pending": 0,
+        "paper_request_anchor": 1
+      }
+    },
+    {
+      "label": "repeat_later_clock",
+      "now_ms": 1780510500000,
+      "now_utc": "2026-06-03T18:15:00Z",
+      "requested_at_ms": 1780509600000,
+      "ok": false,
+      "reason": "duplicate_signal_uid",
+      "position_id": null,
+      "order_id": null,
+      "ledger_counts_after": {
+        "paper_order": 1,
+        "paper_fill": 1,
+        "paper_position": 1,
+        "paper_realized": 0,
+        "paper_blocked": 0,
+        "paper_processed": 1,
+        "paper_pending": 0,
+        "paper_request_anchor": 1
+      }
+    }
+  ],
+  "ledger_rows_for_candidate": {
+    "orders": [
+      {
+        "order_id": 1,
+        "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1780185599999_1780495200000",
+        "status": "filled",
+        "reject_reason": null
+      }
+    ],
+    "blocked": [],
+    "processed": [
+      {
+        "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1780185599999_1780495200000",
+        "action": "open"
+      }
+    ]
+  },
+  "verdict": {
+    "first_ok": true,
+    "second_reason": "duplicate_signal_uid",
+    "third_reason": "duplicate_signal_uid",
+    "second_no_new_rows": true,
+    "third_no_new_rows": true,
+    "single_order": true,
+    "single_position": true,
+    "processed_one": true
+  },
+  "passed": true,
+  "dedup_mechanism": {
+    "open": "`paper_engine.open_position` 幂等闸：`SELECT 1 FROM paper_processed WHERE signal_uid=?` 命中即返回 `duplicate_signal_uid`（paper_engine.py:951-954），写入口在 paper_engine.py:1219",
+    "gate": "`_reject` 先 `INSERT OR IGNORE INTO paper_order`（event_uid UNIQUE），再查 `paper_blocked` 是否已有同 event_uid 才插（paper_engine.py:1244-1259）"
+  }
+}

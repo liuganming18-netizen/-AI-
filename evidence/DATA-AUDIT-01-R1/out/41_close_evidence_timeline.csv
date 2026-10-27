@@ -1,0 +1,101 @@
+﻿证据类别,时刻(UTC，文件mtime),载体,位置/摘要,指向,内容
+文本记录,2026-10-16T07:09:44Z,evidence/Work_策略逻辑审计_2026-10-16/策略逻辑审计报告_2026-10-16.md,L109,回测/研究变体,"一个名字里有 OI、行为上不含 OI 的策略，不是""参数待调""，是**因子未启用**。"
+文本记录,2026-10-16T14:46:33Z,.workbuddy-ai/memory/2026-10-16.md,L276,回测/研究变体,4. 低：`oi_min_resonance=0.0` ⇒ 因子门槛未启用，「OI 共振」在本 run 不参与决策；7 天 7 笔 0 胜。
+文本记录,2026-10-16T14:51:27Z,evidence/WORK-07_市场事件闭环_现有实现盘点与数据契约设计_2026-10-16.md,L74,回测/研究变体,- **核查结论**：**当前冻结配置下，OI 实际参与决策度为 0（仅计算展示，未参与决策，FAIL）**。
+文本记录,2026-10-16T15:02:04Z,evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md,L112,回测/研究变体,2. B：完全相同价格事件和执行规则，仅关闭 OI 门槛；缺 OI 的事件也从两组配对评价中共同排除，并另报覆盖损失。
+文本记录,2026-10-16T15:07:12Z,evidence/WORK-07_Codex独立复核_2026-10-16.md,L18,回测/研究变体,| OI 不参与候选决策 | 将全部 open_interest 置零后重放，仍为 9 个候选，candidate_id 和 entry_reference_price 全部相同 | 未证明 OI 参与入选，与闭环目标不符。 |
+文本记录,2026-10-16T15:24:13Z,evidence/WORK-07_市场事件闭环_整改验收报告_2026-10-16.md,L23,回测/研究变体,| **2. OI 没参与候选决策** | 将全部 OI 置零仍出 9 候选 | 在突破时刻强制检验 $\frac{\text{OI}(T)}{\text{OI}(T-6\text{h})} - 1 \ge 0.02$；低 OI 时 A 组准确判为 `OI_REJECTED` 阻断，B 组放行；证明 OI 具有关键因果决策权。 | **PASS (消融有效)** |
+文本记录,2026-10-16T15:24:13Z,evidence/WORK-07_市场事件闭环_整改验收报告_2026-10-16.md,L119,回测/研究变体,- `Variant B`（消融版，关闭 OI 门槛）：跳过 OI 检验，**成功产生候选数 = 1**；
+文本记录,2026-10-16T16:16:06Z,evidence/WORK-07_先行工程实现与三币验证报告_2026-10-16.md,L99,回测/研究变体,- B 组 (关OI消融)：`run_WX_EVENT_TREND_V0_1_BTCUSDT_B_1792165761`
+文本记录,2026-10-17T01:09:05Z,evidence/audit_375_runs_20261017/REPORT_375_RUNS_AUDIT.md,L38,回测/研究变体,- **变体分布**：全部 375 个运行的 `variant` 均记录为 `A`（主策略含真实 OI 过滤），并在内部附带 Variant B（关闭OI）与 Variant C（成本压力）结果；
+文本记录,2026-10-17T21:58:30Z,evidence/FULL_SWEEP_200x100/report.md,L113,回测/研究变体,1. 只跑变体 A，没有做「关掉持仓量过滤」的消融对比，所以不能说「OI 过滤贡献了多少」。
+文本记录,2026-10-20T11:52:37Z,evidence/FT-FACTOR-03/out/07_基础价量研究变体执行与逐笔清单.csv,L2,回测/研究变体,"WyckoffPVVariant_Baseline,价量基线 (关闭OI，完整价量规则),研究变体基准,统一关闭 OI (同一设置),有效基础价量研究变体,74,20211201-20241231,28,11,17,24.7202,out/trades_Full74_WyckoffPVVariant_Baseline.csv,out/backtest-result-Full74-WyckoffPVVariant_Baseline.zip,logs/WyckoffPVVariant_Baseline_full74_backtest.log"
+文本记录,2026-10-20T11:52:37Z,evidence/FT-FACTOR-03/out/07_基础价量研究变体执行与逐笔清单.csv,L3,回测/研究变体,"WyckoffPVVariant_NoBreakoutVol,F_VOL_BO (移除突破 1.5x V20 放量),研究变体消融组 1,统一关闭 OI (同一设置),有效基础价量研究变体,74,20211201-20241231,37,13,24,15.344,out/trades_Full74_WyckoffPVVariant_NoBreakoutVol.csv,out/backtest-result-Full74-WyckoffPVVariant_NoBreakoutVol.zip,logs/WyckoffPVVariant_NoBreakoutVol_full74_backtest.log"
+文本记录,2026-10-20T11:52:37Z,evidence/FT-FACTOR-03/out/07_基础价量研究变体执行与逐笔清单.csv,L4,回测/研究变体,"WyckoffPVVariant_NoRetestVol,F_VOL_RT (移除回踩 0.8x Vs 缩量),研究变体消融组 2,统一关闭 OI (同一设置),有效基础价量研究变体,74,20211201-20241231,32,12,20,57.8927,out/trades_Full74_WyckoffPVVariant_NoRetestVol.csv,out/backtest-result-Full74-WyckoffPVVariant_NoRetestVol.zip,logs/WyckoffPVVariant_NoRetestVol_full74_backtest.log"
+文本记录,2026-10-20T11:52:37Z,evidence/FT-FACTOR-03/out/07_基础价量研究变体执行与逐笔清单.csv,L5,回测/研究变体,"WyckoffPVVariant_NoGapFilter,F_GAP_IN (移除入场跳空上限),研究变体消融组 3,统一关闭 OI (同一设置),有效基础价量研究变体,74,20211201-20241231,32,14,18,85.9948,out/trades_Full74_WyckoffPVVariant_NoGapFilter.csv,out/backtest-result-Full74-WyckoffPVVariant_NoGapFilter.zip,logs/WyckoffPVVariant_NoGapFilter_full74_backtest.log"
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L24,回测/研究变体,2. **基础价量研究变体（统一关闭 OI）独立命名与组别一致性**：
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L25,回测/研究变体,- 为纯粹检验突破放量、回踩缩量、跳空上限等基础价量因子的增益与噪音过滤效果，在全池基础价量合格数据上**统一关闭 OI 过滤**；
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L26,回测/研究变体,- **单独命名策略**并保持所有对应对照组**同一 OI 设置（全部关闭 OI）**，变量严格单一：
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L27,回测/研究变体,- **基线变体**：[`WyckoffPVVariant_Baseline`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/user_data/strategies/WyckoffPVVariant_Baseline.py)（关闭 OI，保留完整价量过滤）；
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L28,回测/研究变体,- **消融组 1**：[`WyckoffPVVariant_NoBreakoutVol`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/user_data/strategies/WyckoffPVVariant_NoBreakoutVol.py)（关闭 OI，移除突破 1.5x V20 放量过滤）；
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L29,回测/研究变体,- **消融组 2**：[`WyckoffPVVariant_NoRetestVol`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/user_data/strategies/WyckoffPVVariant_NoRetestVol.py)（关闭 OI，移除回踩 0.8x Vs 缩量过滤）；
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L30,回测/研究变体,- **消融组 3**：[`WyckoffPVVariant_NoGapFilter`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/user_data/strategies/WyckoffPVVariant_NoGapFilter.py)（关闭 OI，移除入场跳空上限过滤）；
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L45,回测/研究变体,| **WyckoffPVVariant_Baseline** | **价量基线 (完整价量规则)** | **研究变体基准** | **统一关闭 OI** | 74 | **28** | **11 / 17** | **+24.7202** | [`trades_Full74_WyckoffPVVariant_Baseline.csv`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out/trades_Full74_WyckoffPVVariant_Baseline.csv) | [`Full74-WyckoffPVVariant_Baseline.zip`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out/backtest-resul
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L46,回测/研究变体,| **WyckoffPVVariant_NoBreakoutVol** | **F_VOL_BO (移除突破放量)** | **消融组 1** | **统一关闭 OI** | 74 | **37** | **13 / 24** | **+15.3440** | [`trades_Full74_WyckoffPVVariant_NoBreakoutVol.csv`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out/trades_Full74_WyckoffPVVariant_NoBreakoutVol.csv) | [`Full74-WyckoffPVVariant_NoBreakoutVol.zip`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTO
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L47,回测/研究变体,| **WyckoffPVVariant_NoRetestVol** | **F_VOL_RT (移除回踩缩量)** | **消融组 2** | **统一关闭 OI** | 74 | **32** | **12 / 20** | **+57.8927** | [`trades_Full74_WyckoffPVVariant_NoRetestVol.csv`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out/trades_Full74_WyckoffPVVariant_NoRetestVol.csv) | [`Full74-WyckoffPVVariant_NoRetestVol.zip`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L48,回测/研究变体,| **WyckoffPVVariant_NoGapFilter** | **F_GAP_IN (移除跳空上限)** | **消融组 3** | **统一关闭 OI** | 74 | **32** | **14 / 18** | **+85.9948** | [`trades_Full74_WyckoffPVVariant_NoGapFilter.csv`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out/trades_Full74_WyckoffPVVariant_NoGapFilter.csv) | [`Full74-WyckoffPVVariant_NoGapFilter.zip`](file:///Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-FACTOR-03/out
+文本记录,2026-10-20T11:53:27Z,evidence/FT-FACTOR-03/05_全池清单接入与价量研究变体执行报告.md,L65,回测/研究变体,| **WyckoffAblationNoOI** | 原策略消融 | **关闭 OI** | 全池 74 标的 | 28 笔 | 11 / 17 | +24.72 | 探索记录 (消融对照，等同于 WyckoffPVVariant_Baseline) |
+文本记录,2026-10-20T12:32:27Z,evidence/FT-FACTOR-AUDIT-01/out/08_批次锁定_v1.json,L5,回测/研究变体,"""audited_scope_note"": ""本脚本只核对 WyckoffEventTrendBaseline / WyckoffAblation* 共 10 个回测。out/ 下的 WyckoffPVVariant_*（Full74，统一关闭 OI 的价量研究变体）在 19:45~19:53 才落盘并补写报告，本审计 19:32 启动时不存在，故不在本脚本范围内；该批已由 queries/06_pv_variant_audit.py 单独核对，见 out/18~22 与报告第九节。"","
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/19_PV变体逐笔重算与自报对照_v1.csv,L2,回测/研究变体,"PV基线 (关闭OI+完整价量),—,28,28,True,11/17/0,11/17/0,39.2857,""[23.5657, 57.591]"",24.720173,24.7202,-2.7e-05,1.210402,12.9282,-6.911178,0.882863,62.741228,52.966803,未披露,31.265436,-10.510001,3,True"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/21_PV变体极值与稳健性_v1.csv,L2,回测/研究变体,"PV基线 (关闭OI+完整价量),—,24.720173,31.265436,COTI/USDT:USDT,-6.545263,COTI/USDT:USDT,30.468019,-5.747846,28"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L2,回测/研究变体,"PV基线 (关闭OI+完整价量),按开仓时间,2021,2,0,-10.571842,-5.285921,1"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L3,回测/研究变体,"PV基线 (关闭OI+完整价量),按开仓时间,2022,5,0,-38.095953,-7.619191,2"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L4,回测/研究变体,"PV基线 (关闭OI+完整价量),按开仓时间,2023,11,5,21.208427,1.928039,3"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L5,回测/研究变体,"PV基线 (关闭OI+完整价量),按开仓时间,2024,10,6,52.179541,5.217954,2"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L6,回测/研究变体,"PV基线 (关闭OI+完整价量),按平仓时间,2021,1,0,-9.774425,-9.774425,1"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L7,回测/研究变体,"PV基线 (关闭OI+完整价量),按平仓时间,2022,6,0,-38.893371,-6.482228,2"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L8,回测/研究变体,"PV基线 (关闭OI+完整价量),按平仓时间,2023,10,5,31.718428,3.171843,3"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/22_PV变体年度切片与并发_v1.csv,L9,回测/研究变体,"PV基线 (关闭OI+完整价量),按平仓时间,2024,11,6,41.669541,3.78814,2"
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/out/18_PV变体批次锁定_v1.json,L3,回测/研究变体,"""batch"": ""WyckoffPVVariant_*（Full74，统一关闭 OI 的价量研究变体）"","
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/logs/06_pv_variant_audit.log,L9,回测/研究变体,PV基线 (关闭OI+完整价量)           n= 28/28  net=   24.72/24.7202  PF=1.210402 exp=+0.883 dd_true=62.741 dd_x1=52.967 maxconc=3 hit=True
+文本记录,2026-10-20T12:32:28Z,evidence/FT-FACTOR-AUDIT-01/logs/06_pv_variant_audit.log,L18,回测/研究变体,PV基线 (关闭OI+完整价量)           net=+24.72 max=+31.27(COTI/USDT:USDT) ex_max=-6.55 top=COTI/USDT:USDT(+30.47) ex_top=-5.75
+文本记录,2026-10-20T12:35:02Z,evidence/FT-FACTOR-AUDIT-01/00_报告.md,L20,回测/研究变体,"4. **审计期间对方又落了一批（19:45~19:53）`WyckoffPVVariant_*`**：4 个组""统一关闭 OI""，是本轮**唯一变量严格单一**的价量对照，我补做了核对（第九节）。结论对原判断有两处实质修正：**突破放量的净增益在两个设计里都为正，且干净设计下拦截 9 笔、净增益 +9.24 U**（原混合设计只有 3 笔、+3.73 U）；**""仓位竞争 100% 解耦""被这一批直接证伪**（`API3 2024-11-10 05:15` 在基线有、在 No RetestVol 无，原因是那一刻 3 个槽位已满）。"
+文本记录,2026-10-20T12:35:02Z,evidence/FT-FACTOR-AUDIT-01/00_报告.md,L266,回测/研究变体,"> **这一节被第九节部分修正**：本批 4 个消融的背景是""OI 开着""，而 OI 本身会先拦掉一批候选，导致价量因子""无事可做""（突破放量只拦到 3 笔）。19:45 后落盘的 PV 变体批把 OI 在**所有组**统一关掉，同样单变量对照，突破放量拦到 **9 笔**、净增益 **+9.24 U**。两个设计方向一致、量级差 2.5 倍——这是**因子交互**，不是算错。完整数字见第九节。"
+文本记录,2026-10-20T12:35:02Z,evidence/FT-FACTOR-AUDIT-01/00_报告.md,L434,回测/研究变体,- **不能评价 F_OI**：4 个组都把 OI 关掉了，F_OI 的效应在本批被设计性移除。
+文本记录,2026-10-20T12:35:02Z,evidence/FT-FACTOR-AUDIT-01/00_报告.md,L478,回测/研究变体,"5. 第九节的 PV 变体批 4 个组都把 OI 关掉，因此**该批不能评价 F_OI**；它测的是""OI 关闭背景下""的价量条件效应；"
+文本记录,2026-10-20T14:56:52Z,evidence/FT-ENTRY-AUDIT-02/00_报告.md,L81,回测/研究变体,"| **OI 保留** | 成立，但阈值不同 | Baseline/A1/A2 `oi_growth ≥ 2%`；C1/C2 `oi_growth ≥ 0%`（负值直接终止事件）。**OI 未被关闭**，但 C 组把 2% 放宽到 0%，属参数变更，不能把 C 的差异全归给""入场时点"" |"
+文本记录,2026-10-23T03:31:29Z,evidence/SYSTEM-UI-01/02_上一轮10项未验证逐项关闭证据表.csv,L3,回测/研究变体,"2,W4,行情 9 列逐列比对,未验证,核验代币/市值/成交额/聪明钱多空均价/总OI/资金费率/趋势图 9 列完整对应,已关闭 · 验证通过"
+文本记录,2026-10-23T03:31:29Z,evidence/SYSTEM-UI-01/02_上一轮10项未验证逐项关闭证据表.csv,L5,回测/研究变体,"4,D1,数据源 17 维映射,未验证,DataCenterView 完整展示 8 周期 K 线、OI、费率、聪明钱等 17 维核心数据源,已关闭 · 验证通过"
+运行产物,2026-10-23T10:23:26Z,evidence/SYSTEM-RUNTIME-01-FIX/candidates_pool.json,"""oi_used"": false",运行时/扫描,"""oi_used"": false,"
+运行产物,2026-10-23T10:27:25Z,evidence/SYSTEM-RUNTIME-01-FIX/step_advance_probe.json,oi_empty,运行时/扫描,"""oi_note"": ""OI 不可用：oi_empty"""
+文本记录,2026-10-23T10:28:05Z,evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md,L16,全池扫描/B组引擎,> 突破瞬间的 **OI 闸门**在「关闭 OI 过滤」（B 组）时**仍然拦单**。
+文本记录,2026-10-23T10:28:05Z,evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md,L65,回测/研究变体,> 「A：上述完整价格事件链 + OI 门槛。B：完全相同价格事件和执行规则，**仅关闭 OI 门槛**。」
+文本记录,2026-10-23T10:28:05Z,evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md,L76,回测/研究变体,状态迁移理由如实写「放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)」，
+文本记录,2026-10-23T10:28:05Z,evidence/SYSTEM-RUNTIME-01-FIX/README-POOL-526.md,L84,回测/研究变体,| 合成序列（形态全中 + 量能达标）· B 组 | **出候选**，理由如实标注 B 组未启用 OI |
+运行产物,2026-10-23T13:54:23Z,evidence/DATA-LOOP-ACCEPT-01/out/q03_signal_replay.json,oi_empty,运行时/扫描,"""pit_assumption_note"": ""OI 不可用：oi_empty"","
+运行产物,2026-10-23T14:31:16Z,evidence/AUTO-LOOP-01/out/selfcheck.json,oi_empty,运行时/扫描,"""payload_json"": ""{\""candidate_id\"": \""cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000\"", \""event_id\"": \""ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999\"", \""strategy_version\"": \""v0.1.0\"", \""symbol\"": \""VELVETUSDT\"", \""venue\"": \""binance\"", \""snapshot_time_ms\"": 1790953200000, \""available_at_ms\"": 1790953200000, \""box_high_h\"": 0.0666, \""box_low_l\"": 0.05388, \"""
+文本记录,2026-10-23T14:32:00Z,.workbuddy-ai/memory/2026-10-23.md,L318,生产运行时,"**③ 「0 信号」真因（核心发现，已修）**：`state_machine.py` 突破分支的 OI 闸门**无条件执行**，而运行时是 B 组（`enable_oi_filter=False`）且 OI 传空数组 ⇒ `read_oi` 返回 `oi_empty` ⇒ **每次突破都被 `OI_UNAVAILABLE` 打死**。全池 30 天：3182 箱体 / 614 扫低 / 370 回踩 / **4 次突破穿越 → 4 次全被 OI 闸门杀死 → 候选 0**。冻结规则 §3.D 原文「B：完全相同价格事件和执行规则，**仅关闭 OI 门槛**」⇒ 两道 OI 闸门（缺失即拒 + 增幅不足即拒）都属「OI 门槛本身」，B 组必须整段跳过。修复：收进 `if self.enable_oi_filter:`；B 组候选如实标 `pit_proven=False`、`note=""OI"
+运行产物,2026-10-23T14:52:29Z,evidence/AUTO-LOOP-01/out/backtest_VELVETUSDT.json,oi_empty,运行时/扫描,"""pit_assumption_note"": ""OI 不可用：oi_empty"","
+文本记录,2026-10-23T16:19:35Z,evidence/CODEX-CLOSEOUT-01/out/api_run.json,L73,回测 run note,"""note"": ""FT-LOW4H 冻结配置；B 变体关闭 OI 门槛；仅研究模拟"","
+文本记录,2026-10-23T16:19:35Z,evidence/CODEX-CLOSEOUT-01/runs/bt_20261023T161934Z_c91ebcfe/run.json,L73,回测 run note,"""note"": ""FT-LOW4H 冻结配置；B 变体关闭 OI 门槛；仅研究模拟"","
+文本记录,2026-10-24T05:27:51Z,evidence/SIGNAL-LINK-01/out/funnel.json,L8917,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-24T05:27:51Z,evidence/SIGNAL-LINK-01/out/funnel.json,L46849,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-24T05:27:51Z,evidence/SIGNAL-LINK-01/out/funnel.json,L51680,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-24T05:27:51Z,evidence/SIGNAL-LINK-01/out/funnel.json,L52238,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+运行产物,2026-10-24T05:27:51Z,evidence/SIGNAL-LINK-01/out/funnel.json,oi_empty,运行时/扫描,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+代码快照,2026-10-24T14:49:10Z,evidence/SIGNAL-HISTORY-FIX-02/out/unified_runtime_post_fix.py,9e2572e08a35,证据副本,enable_oi_filter 默认 False：True
+代码快照,2026-10-25T00:54:45Z,evidence/SIGNAL-HISTORY-FIX-03/out/unified_runtime_before.py,9e2572e08a35,证据副本,enable_oi_filter 默认 False：True
+代码快照,2026-10-25T03:47:40Z,evidence/SIGNAL-ZERO-CAUSE-05/out/unified_runtime_before.py,d58f95fe9608,证据副本,enable_oi_filter 默认 False：True
+代码快照,2026-10-25T05:20:58Z,evidence/SIGNAL-CLOSURE-06/out/unified_runtime_before.py,3b3d6d2da7a1,证据副本,enable_oi_filter 默认 False：True
+文本记录,2026-10-25T09:59:16Z,evidence/SIGNAL-UI-LINK-07/out/01_funnel_fullhistory.json,L9327,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-25T09:59:16Z,evidence/SIGNAL-UI-LINK-07/out/01_funnel_fullhistory.json,L48999,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-25T09:59:16Z,evidence/SIGNAL-UI-LINK-07/out/01_funnel_fullhistory.json,L54055,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+文本记录,2026-10-25T09:59:16Z,evidence/SIGNAL-UI-LINK-07/out/01_funnel_fullhistory.json,L54648,回测/研究变体,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+运行产物,2026-10-25T09:59:16Z,evidence/SIGNAL-UI-LINK-07/out/01_funnel_fullhistory.json,oi_empty,运行时/扫描,"""reason"": ""放量突破通过(B组未启用OI门槛，OI不可用：oi_empty)"","
+运行产物,2026-10-25T10:07:56Z,evidence/SIGNAL-UI-LINK-07/out/03_iso_e2e.json,oi_empty,运行时/扫描,"""payload_json"": ""{\""candidate_id\"": \""cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000\"", \""event_id\"": \""ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999\"", \""strategy_version\"": \""v0.1.0\"", \""symbol\"": \""VELVETUSDT\"", \""venue\"": \""binance\"", \""snapshot_time_ms\"": 1790953200000, \""available_at_ms\"": 1790953200000, \""box_high_h\"": 0.0666, \""box_low_l\"": 0.05388, \"""
+运行产物,2026-10-25T11:14:13Z,evidence/SIGNAL-UI-LINK-07-R1/out/40_two_paths_live.json,oi_empty,运行时/扫描,"""payload_json"": ""{\""candidate_id\"": \""cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000\"", \""event_id\"": \""ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999\"", \""strategy_version\"": \""v0.1.0\"", \""symbol\"": \""VELVETUSDT\"", \""venue\"": \""binance\"", \""snapshot_time_ms\"": 1790953200000, \""available_at_ms\"": 1790953200000, \""box_high_h\"": 0.0666, \""box_low_l\"": 0.05388, \"""
+运行产物,2026-10-25T11:16:05Z,evidence/SIGNAL-UI-LINK-07-R1/out/40_two_paths_recovered.json,oi_empty,运行时/扫描,"""payload_json"": ""{\""candidate_id\"": \""cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000\"", \""event_id\"": \""ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999\"", \""strategy_version\"": \""v0.1.0\"", \""symbol\"": \""VELVETUSDT\"", \""venue\"": \""binance\"", \""snapshot_time_ms\"": 1790953200000, \""available_at_ms\"": 1790953200000, \""box_high_h\"": 0.0666, \""box_low_l\"": 0.05388, \"""
+代码快照,2026-10-25T16:04:55Z,框架/backend/unified_runtime.py,fd096626b911,生产文件,enable_oi_filter 默认 False：True
+文本记录,2026-10-25T17:41:43Z,evidence/DATA-AUDIT-01/03_使用链路.md,L19,生产运行时,| 8 | 持仓量 5m | `runner.py:249-253`（A 组）；实时链路**传空数组** | 6 小时回看 | `OI(T)/OI(T−6h)−1 ≥ 2%` | **未使用**（B 组关闭，见 04） |
+文本记录,2026-10-25T17:41:43Z,evidence/DATA-AUDIT-01/03_使用链路.md,L88,生产运行时,### 4.3 持仓量：当前**不参与任何判断**
+文本记录,2026-10-25T17:42:50Z,evidence/DATA-AUDIT-01/05_受影响结果清单.md,L3,回测/研究变体,"> 判定标准：**只要一项结论的成立前提里含""持仓量参与/不参与决策""，就算受影响**。"
+文本记录,2026-10-25T17:42:50Z,evidence/DATA-AUDIT-01/05_受影响结果清单.md,L47,回测/研究变体,1. **OI 不参与**：这 22 个 run 跑的是 B 组，持仓量门槛根本没执行。
+文本记录,2026-10-25T17:42:50Z,evidence/DATA-AUDIT-01/05_受影响结果清单.md,L87,回测/研究变体,"| 关闭 OI 的价量变体净增益 | `FT-FACTOR-03`（4 组统一关 OI） | 有效，但**只能说明""关掉 OI 后价量因子的效应""**，不能反过来证明 OI 无用 |"
+文本记录,2026-10-25T17:52:51Z,evidence/DATA-AUDIT-01/06_接入方案.md,L440,回测/研究变体,"| V13 | 生产 run note 是否写明""未使用持仓量门槛"" | 是 | 仅 `CODEX-CLOSEOUT-01` 那一条有 |"
+文本记录,2026-10-25T17:52:51Z,evidence/DATA-AUDIT-01/06_接入方案.md,L452,回测/研究变体,"- 跑 B ⇒ 必须在页面/报告明确标注""当前为消融组，未使用持仓量门槛""，停止把结果称作主策略。"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L1,回测/研究变体,# 04 · 持仓量过滤关闭追溯
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L52,生产运行时,"| 2026-10-23 16:19 | `evidence/CODEX-CLOSEOUT-01/out/api_run.json` 的 `note` | 原文：**""FT-LOW4H 冻结配置；B 变体关闭 OI 门槛；仅研究模拟""** |"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L82,生产运行时,补充：`FT-FACTOR-03` 那批价量研究变体（`WyckoffPVVariant_*`）也是**统一关闭 OI**，
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L100,回测/研究变体,"关键词覆盖""关闭/关掉/停用/禁用 OI""""B 组""""B 变体""""批准""。"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L106,回测/研究变体,"| 冻结规则 §7 | ""A：完整价格事件链 + OI 门槛。B：完全相同价格事件和执行规则，**仅关闭 OI 门槛**"" | 定义**对照实验**，未授权 B 作生产默认 |"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L108,回测/研究变体,"| `FT-FACTOR-AUDIT-01/00_报告.md` §9.6 | ""4 个组都把 OI 关掉了，F_OI 的效应在本批被设计性移除"" | 说明这是**实验设计**，且明确""不能评价 OI"" |"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L110,回测/研究变体,"**没有一条记录写着""批准生产使用 B 组（关闭 OI）""。**"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L119,回测/研究变体,"这句话批准的是**扩大币池**，不是""关闭 OI""。修复本身的正当性来自""实现与冻结规则文字不一致""，"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L120,回测/研究变体,"这一点成立；但**它没有解决""生产该跑 A 还是 B""这个治理问题**——B 组在此之前就已经是关闭状态了。"
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L128,生产运行时,| 模拟盘运行时 `unified_runtime.py`（当前 PID 70516） | **是** | B 组，OI 完全不参与 |
+文本记录,2026-10-25T17:53:37Z,evidence/DATA-AUDIT-01/04_持仓量过滤关闭追溯.md,L168,回测/研究变体,"- 跑 B ⇒ 必须在页面/报告里明确标注""当前为消融组，未使用持仓量门槛""，并停止把结果称作主策略"
+文本记录,2026-10-25T17:58:00Z,evidence/DATA-AUDIT-01/README.md,L1,回测/研究变体,# DATA-AUDIT-01 · 全量数据与持仓量关闭追溯
+文本记录,2026-10-25T17:58:00Z,evidence/DATA-AUDIT-01/README.md,L3,回测/研究变体,- 工单：工单一｜Work：全量数据与持仓量关闭追溯
+文本记录,2026-10-25T17:58:00Z,evidence/DATA-AUDIT-01/README.md,L13,生产运行时,**持仓量数据存了 1.28 亿行却完全没有进当前运行路径**——因为运行时把 OI 开关硬编码成关闭，
+文本记录,2026-10-25T17:58:00Z,evidence/DATA-AUDIT-01/README.md,L46,回测/研究变体,| `04_持仓量过滤关闭追溯.md` | 何时/为何/由谁/有无批准 + 受影响路径 |
+文本记录,2026-10-25T17:58:00Z,evidence/DATA-AUDIT-01/README.md,L73,回测/研究变体,"| 持仓量关闭的""何时/由谁/批准"" | **部分未知**——代码事实清楚，**批准记录不存在**，实施者与首次时点无版本库证据 |"

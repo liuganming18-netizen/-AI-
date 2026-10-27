@@ -1,0 +1,18 @@
+{
+  "stats_at_utc": "2026-10-26T03:40:29Z",
+  "population": "全量（read_parquet 全目录，逐行比较，无抽样）",
+  "query": "SELECT COUNT(*) AS n,\n       SUM(CASE WHEN retail_account_ls_ratio IS DISTINCT FROM count_long_short_ratio\n                THEN 1 ELSE 0 END) AS diff_retail,\n       SUM(CASE WHEN top_position_ls_ratio IS DISTINCT FROM sum_toptrader_long_short_ratio\n                THEN 1 ELSE 0 END) AS diff_top\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/metrics/*/*/*/*.parquet', union_by_name = true)",
+  "rows": 127973455,
+  "pair_retail_vs_count_ls": {
+    "differ_rows": 0,
+    "same": true,
+    "note": "retail_account_ls_ratio 与 count_long_short_ratio"
+  },
+  "pair_top_pos_vs_sum_toptrader": {
+    "differ_rows": 0,
+    "same": true,
+    "note": "top_position_ls_ratio 与 sum_toptrader_long_short_ratio"
+  },
+  "old_sample_claim": "原报告抽样 10/10 币两组字段全部相同 ⇒ 判为「纯别名」",
+  "upgraded": "全量成立"
+}

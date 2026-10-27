@@ -1,0 +1,78 @@
+{
+  "audit_ticket": "FACTOR-ENTRY-07",
+  "generated_at_utc": "2026-10-18T09:55:48.845080+00:00",
+  "input_hashes": {
+    "FE06_features_csv": "d8e8a387572a9e969ebcab706584bcc3b186a9ae846d7137448acc21316b5c6d",
+    "EA03_identity_csv": "18e28dd85f7fb856b1c7d5eedeafe1552b4098f0c3e29220ef714782a0483f45",
+    "EA03_cost_csv": "ac12c170963067ebd77ad18ae457426617af51dd022e967a14b27aff4727ad75"
+  },
+  "sample_counts": {
+    "total_rows": 227,
+    "filled_trades": 205,
+    "unfilled_candidates": 22,
+    "generation_breakdown": {
+      "continuous_cand_ev": {
+        "total": 185,
+        "filled": 163,
+        "unfilled": 22,
+        "net_pnl_sum": 144.10596,
+        "fee_paid_sum": 10.308546,
+        "funding_cost_sum": 5.209154,
+        "gross_pnl_sum": 159.62366
+      },
+      "window_old_cand": {
+        "total": 42,
+        "filled": 42,
+        "unfilled": 0,
+        "net_pnl_sum": -42.573989,
+        "fee_paid_sum": 2.817325,
+        "funding_cost_sum": 1.768352,
+        "gross_pnl_sum": -37.988312
+      },
+      "combined_205_filled": {
+        "net_pnl_sum": 101.531971,
+        "fee_paid_sum": 13.125871,
+        "funding_cost_sum": 6.977506,
+        "gross_pnl_sum": 121.635348,
+        "identity_equation_verified": true,
+        "max_identity_residual": 2.842170943040401e-14
+      }
+    }
+  },
+  "classification_results": {
+    "standard_mixed_category": {
+      "CHOPPY_OR_OTHER": 94,
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 36,
+      "UNFILLED": 22,
+      "MFE_PULLBACK": 8
+    },
+    "pure_atr_4h_category": {
+      "CHOPPY_OR_OTHER": 79,
+      "EARLY_WEAKNESS": 67,
+      "MFE_PULLBACK": 39,
+      "UNFILLED": 22,
+      "SUSTAINED_TREND": 20
+    },
+    "pure_atr_full_category": {
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 64,
+      "MFE_PULLBACK": 47,
+      "CHOPPY_OR_OTHER": 27,
+      "UNFILLED": 22
+    },
+    "labels_changed_count": 0,
+    "signs_flipped_count": 0
+  },
+  "cost_rootcause_correction": {
+    "old_claim_retracted": "撤回‘163笔手续费和资金费为真实0’的旧表述",
+    "factual_verdict": "查明163笔费用为0源于上游特征抽取代码键名错误（读 total_fees/total_funding），引擎真实键名为 fees/funding_fee；重放163/163笔费用均非零，真实费用合计10.3085 USDT，资金费合计5.2092 USDT",
+    "net_pnl_alignment": "上游旧表 net_pnl 实际直接取自引擎扣费后结果，因此补齐费用明细后净盈亏数值无漂移，分类标签保持稳定"
+  },
+  "restrictions_and_warnings": [
+    "历史规格仍未验证：全池 verified 数量为 0，formal_pass_allowed 全部为 false",
+    "PIT 发布时点仍未证实：无法排除未来信息穿越假设",
+    "两代际样本严重分裂：连续回放 (+144.11) 与窗口回放 (-42.57) 方向相反，绝对禁止简单相加宣称为组合收益",
+    "已看过样本性质：205笔特征与参数探索仍属于探索性假设，不得重新宣称 Crowding 或因子改善有效"
+  ]
+}

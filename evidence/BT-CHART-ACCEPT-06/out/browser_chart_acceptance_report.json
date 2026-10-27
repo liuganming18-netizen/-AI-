@@ -1,0 +1,217 @@
+{
+  "task": "BT-CHART-ACCEPT-06",
+  "total_checks": 14,
+  "passed_checks": 14,
+  "all_pass": true,
+  "checks": [
+    {
+      "id": "ACCEPT_01_TIMEFRAME_30M",
+      "name": "周期 30m 实际渲染 K 线时间间隔严格等于 1800000ms (30分钟) 且 OHLCV 真实非空",
+      "pass": true,
+      "detail": {
+        "target_tf": "30m",
+        "expected_step_ms": 1800000,
+        "rendered_count": 1039,
+        "first_diffs_ms": [
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000
+        ],
+        "ohlcv_finite": true,
+        "first_bar_time": "2021-11-24T00:00:00.000Z",
+        "last_bar_time": "2025-01-07T23:30:00.000Z"
+      }
+    },
+    {
+      "id": "ACCEPT_01_TIMEFRAME_15M",
+      "name": "周期 15m 实际渲染 K 线时间间隔严格等于 900000ms (15分钟) 且 OHLCV 真实非空",
+      "pass": true,
+      "detail": {
+        "target_tf": "15m",
+        "expected_step_ms": 900000,
+        "rendered_count": 2080,
+        "first_diffs_ms": [
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000
+        ],
+        "ohlcv_finite": true,
+        "first_bar_time": "2021-11-24T00:00:00.000Z",
+        "last_bar_time": "2025-01-07T23:45:00.000Z"
+      }
+    },
+    {
+      "id": "ACCEPT_01_TIMEFRAME_4H",
+      "name": "周期 4h 实际渲染 K 线时间间隔严格等于 14400000ms (240分钟) 且 OHLCV 真实非空",
+      "pass": true,
+      "detail": {
+        "target_tf": "4h",
+        "expected_step_ms": 14400000,
+        "rendered_count": 129,
+        "first_diffs_ms": [
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000
+        ],
+        "ohlcv_finite": true,
+        "first_bar_time": "2021-11-24T00:00:00.000Z",
+        "last_bar_time": "2025-01-07T20:00:00.000Z"
+      }
+    },
+    {
+      "id": "ACCEPT_01_TIMEFRAME_1H",
+      "name": "周期 1h 实际渲染 K 线时间间隔严格等于 3600000ms (60分钟) 且 OHLCV 真实非空",
+      "pass": true,
+      "detail": {
+        "target_tf": "1h",
+        "expected_step_ms": 3600000,
+        "rendered_count": 519,
+        "first_diffs_ms": [
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000
+        ],
+        "ohlcv_finite": true,
+        "first_bar_time": "2021-11-24T00:00:00.000Z",
+        "last_bar_time": "2025-01-07T23:00:00.000Z"
+      }
+    },
+    {
+      "id": "ACCEPT_02_CROSSHAIR_TIME_SYNC",
+      "name": "十字线移动时主图与资金图目标时点严格对齐，无精确采样时明确标注实际采样时间，绝不伪装同步",
+      "pass": true,
+      "detail": {
+        "kline_reading": "时刻 2021-12-14 16:00 UTC (闭 2021-12-14 17:00) 开 427.79 高 431.10 低 425.10 收 427.74 量（base） 1",
+        "fund_reading": "时刻 12-14 16:00 UTC（无精确采样，最近采样 12-15 00:00） 策略净值 $2,002.98 (+0.15%)",
+        "kline_target_time": "2021-12-14 16:00",
+        "fund_target_time": "12-14 16:00",
+        "sample_honestly_noted": true
+      }
+    },
+    {
+      "id": "ACCEPT_02_PAN_VIEWPORT_SYNC",
+      "name": "主图拖拽平移时可见时间窗口平滑移动，视窗联动总线正常工作",
+      "pass": true,
+      "detail": {
+        "before": {
+          "fromMs": 1637712000000,
+          "toMs": 1736290800000,
+          "logicalToMs": 1736294400000
+        },
+        "after": {
+          "fromMs": 1638158400000,
+          "toMs": 1736290800000,
+          "logicalToMs": 1736294400000
+        },
+        "moved": true
+      }
+    },
+    {
+      "id": "ACCEPT_02_ZOOM_VIEWPORT_SYNC",
+      "name": "主图滚轮缩放时可见时间跨度自适应调整，图表缩放无卡死",
+      "pass": true,
+      "detail": {
+        "span_before": 98132400000,
+        "span_after": 98049600000,
+        "changed": true
+      }
+    },
+    {
+      "id": "ACCEPT_03_BUY_ORDER_FOCUS",
+      "name": "点击开仓买单高亮该订单行并精准定位归属 K 线与精确分级时刻 (22:15)",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "ts_ms": 1639433700000,
+        "selected": true,
+        "focus_badge": "🎯 定位事件 2021-12-13 22:15 UTC (1h归桶 2021-12-13 22:00)",
+        "bucket_orders_badge": "🎯 委托 2021-12-13 22:15 @429.45 (买入)"
+      }
+    },
+    {
+      "id": "ACCEPT_03_SELL_ORDER_FOCUS",
+      "name": "点击平仓卖单高亮该订单行并精准定位归属 K 线与精确出场时刻 (14:30)",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+        "selected": true,
+        "focus_badge": "🎯 定位事件 2021-12-17 14:30 UTC (1h归桶 2021-12-17 14:00)",
+        "bucket_orders_badge": "🎯 委托 2021-12-17 14:30 @421.25 (卖出)"
+      }
+    },
+    {
+      "id": "ACCEPT_03_CROSS_SYMBOL_FOCUS",
+      "name": "点击跨币 COMP 订单自动联动切图至 COMP 真实蜡烛并精准定位 12:15",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "chart_head": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 2883 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 上下文 ±7 天 · 前168",
+        "focus_badge": "🎯 定位事件 2022-01-18 12:15 UTC (1h归桶 2022-01-18 12:00)"
+      }
+    },
+    {
+      "id": "ACCEPT_03_MARKER_INVERSE_LOOKUP",
+      "name": "点击图表时间点精准反查命中同一订单并自动展开高亮该订单行",
+      "pass": true,
+      "detail": {
+        "clicked_sec": 1642508100,
+        "target_order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "row_selected": true
+      }
+    },
+    {
+      "id": "ACCEPT_03_SAME_HOUR_EVENTS_DISTINCT",
+      "name": "同小时事件读数条保留精确成交时间与价格，多个委托清晰可区分",
+      "pass": true,
+      "detail": {
+        "bucket_badge_text": "🎯 同柱 2 笔委托: #1 12-13 22:15 @79.89 | #2 12-13 22:15 @429.45"
+      }
+    },
+    {
+      "id": "ACCEPT_04_DEEP_LINK_REOPEN",
+      "name": "通过深链地址关闭重开，100% 精确恢复所选运行、COMP 标的与订单记录",
+      "pass": true,
+      "detail": {
+        "url": "http://127.0.0.1:3000/?nav=backtest&run=run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02&symbol=COMP&order=ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0&trade=trd_Wyckoff_C1_S05_D05_Vs04_Z02_0001",
+        "head": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 2029 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 上下文 ±7 天 · 前168"
+      }
+    },
+    {
+      "id": "ACCEPT_04_ROOT_REOPEN_RESTORE",
+      "name": "从根地址重开仍从持久化存储恢复上一次选中的运行、币种 (COMP) 与图表记录",
+      "pass": true,
+      "detail": {
+        "fresh_url": "http://127.0.0.1:3000/?nav=backtest&run=run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02&symbol=COMP&order=ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0&trade=trd_Wyckoff_C1_S05_D05_Vs04_Z02_0001",
+        "fresh_head": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 2029 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 上下文 ±7 天 · 前168"
+      }
+    }
+  ]
+}

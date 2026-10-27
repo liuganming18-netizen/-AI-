@@ -1,0 +1,382 @@
+{
+  "task": "ACCUM-EARLY-06-05",
+  "probe": "05_读取器与接入点",
+  "generated_at_utc": "2026-10-26T18:06:48Z",
+  "冷档资金费分片": {
+    "files": 526,
+    "pattern": "数据/市场数据/parquet/funding/binance/um/<标的>.parquet",
+    "列": [
+      "funding_time",
+      "funding_rate",
+      "mark_price",
+      "rate_type",
+      "source"
+    ]
+  },
+  "现成读取器": "有：MarketDataRepository.funding(prefer='cold') → _cold_flat(metric='funding')；不需要新建采集器",
+  "读取器清单": [
+    {
+      "名称": "replay_calc.settle_funding_events",
+      "层": "参数注入（本身不取数）",
+      "位置": "框架/backend/replay_calc.py:350",
+      "取数": "调用方传 funding_events；本函数只做区间过滤 entry<结算≤exit 与逐笔结算",
+      "含mark": "看入参",
+      "含可得时点": "不使用（入参里的 fetched_at 不参与判定）",
+      "被replay使用": true
+    },
+    {
+      "名称": "replay_calc.replay_one",
+      "层": "参数注入（接入点）",
+      "位置": "框架/backend/replay_calc.py:523（参数）/565（调用结算）",
+      "取数": "`funding_events: List[dict]` 直接透传给 settle_funding_events",
+      "含mark": "看入参",
+      "含可得时点": "否",
+      "被replay使用": true,
+      "结论": "这是**唯一需要的接入点**：换掉调用方的取数函数即可，不必改本文件"
+    },
+    {
+      "名称": "trading_core.funding.settle_funding",
+      "层": "结算内核",
+      "位置": "策略/WyckoffMaster/trading_core/funding.py:67",
+      "取数": "不取数；只消费 (time_ms, rate, mark_price)",
+      "含mark": "必需",
+      "含可得时点": "否",
+      "被replay使用": true,
+      "结论": "缺 rate/mark ⇒ funding_gap，不补 0；不认 funding_rate 这个列名"
+    },
+    {
+      "名称": "paper_engine.funding_events",
+      "层": "热库",
+      "位置": "框架/backend/paper_engine.py:563",
+      "取数": "SELECT funding_time,funding_rate,mark_price FROM funding_history（无 exchange 之外的层路由）",
+      "含mark": "是",
+      "含可得时点": "否（不返回 fetched_at）",
+      "被replay使用": "否（生产记账）",
+      "结论": "生产侧只读热库 ⇒ 15.8 天缺口段里持仓的资金费在模拟盘上会漏记"
+    },
+    {
+      "名称": "MarketDataRepository.funding",
+      "层": "热+冷（已有路由）",
+      "位置": "框架/backend/market_repository.py:241",
+      "取数": "prefer='hot'：先热库 LIMIT n；仅当 prefer='cold' 或热库不足 n 条时才读冷档 parquet，按 funding_time 去重（热优先）",
+      "含mark": "是（冷档也有）",
+      "含可得时点": "否（冷档无此列，热库返回 fetched_at 但未用于判定）",
+      "被replay使用": "否（被 backtest_runner 使用）",
+      "结论": "**现成的冷档读取器**；但热优先去重挡住「同事件补字段」，且 limit 满额时不查冷档"
+    },
+    {
+      "名称": "backtest_runner.load_symbol_data",
+      "层": "热+冷（经仓库层）",
+      "位置": "框架/backend/backtest_runner.py:362",
+      "取数": "repo.funding(ex, mk, sym, start=..., end=...)（未显式传 prefer ⇒ 默认 hot 优先）",
+      "含mark": "是",
+      "含可得时点": "否",
+      "被replay使用": "间接（回测主链）",
+      "结论": "回测链已有冷档能力，但优先级是热优先 ⇒ 同事件缺字段仍补不上"
+    },
+    {
+      "名称": "research_15m（冷热合并读取器）",
+      "层": "仅 K 线",
+      "位置": "框架/backend/research_15m.py",
+      "取数": "只合并 15m/1h/4h K 线，**没有任何 funding 代码**",
+      "含mark": "—",
+      "含可得时点": "K 线层有 available_at，资金费层没有",
+      "被replay使用": "否",
+      "结论": "「冷热合并」目前只做了行情，没做资金费 ⇒ 缺口不是读取器能力问题，是没接"
+    },
+    {
+      "名称": "strategies/funding_interval_meta_source",
+      "层": "周期元数据（只读伴生库）",
+      "位置": "框架/backend/strategies/funding_interval_meta_source.py",
+      "取数": "读 `funding_interval_meta.sqlite3`（401 MB）→ interval_hours_at",
+      "含mark": "—",
+      "含可得时点": "有（available_at_ms，因果口径 HUMAN_RATIFIED_*）",
+      "被replay使用": "否",
+      "结论": "伴生库**不在本仓库**（`Path.glob` 与 tests 里的路径都不存在）⇒ 原生周期元数据不可用，本单只能用实测周期推断"
+    },
+    {
+      "名称": "05-C/scripts/02.load_funding",
+      "层": "热库",
+      "位置": "evidence/ACCUM-EARLY-05-C/scripts/02_逐事件基线重建.py:71",
+      "取数": "funding_history 单表，窗口 entry→entry+14 天（区间外由结算函数再过滤）",
+      "含mark": "是",
+      "含可得时点": "取 fetched_at 但只落盘不判定",
+      "被replay使用": "是（51 笔基线）",
+      "结论": "51 笔基线的资金费就是这里算的 ⇒ 04-C/05-C 的资金费口径 = 只读热库"
+    }
+  ],
+  "代码取证": [
+    {
+      "file": "框架/backend/replay_calc.py",
+      "exists": true,
+      "sha256_16": "c9fecd6a1e91273c",
+      "bytes": 33009,
+      "mtime_utc": "2026-10-26T14:11:50Z",
+      "lines": 617,
+      "hits": [
+        {
+          "line": 350,
+          "text": "def settle_funding_events(*, symbol: str, qty: float, direction: int,"
+        },
+        {
+          "line": 366,
+          "text": "from 策略.WyckoffMaster.trading_core.funding import funding_events_ms, settle_funding"
+        },
+        {
+          "line": 523,
+          "text": "def replay_one(*, symbol: str, entry_bar: dict, prev_bar: Optional[dict],"
+        },
+        {
+          "line": 567,
+          "text": "funding_events=funding_events)"
+        }
+      ]
+    },
+    {
+      "file": "策略/WyckoffMaster/trading_core/funding.py",
+      "exists": true,
+      "sha256_16": "436ebba29be84993",
+      "bytes": 4920,
+      "mtime_utc": "2026-10-16T07:45:19Z",
+      "lines": 115,
+      "hits": [
+        {
+          "line": 23,
+          "text": "FUNDING_MODEL_ASSUMPTION = \"assumption_fixed_8h\""
+        },
+        {
+          "line": 26,
+          "text": "def funding_events_ms(events, default_unit: Optional[str] = None) -> List[dict]:"
+        },
+        {
+          "line": 57,
+          "text": "\"rate\": ev.get(\"rate\"), \"mark_price\": ev.get(\"mark_price\")})"
+        },
+        {
+          "line": 67,
+          "text": "def settle_funding(pos: Position, cash: float, *, model: str, t_ms: int,"
+        },
+        {
+          "line": 71,
+          "text": "if model == FUNDING_MODEL_ASSUMPTION:"
+        },
+        {
+          "line": 90,
+          "text": "r, m = ev.get(\"rate\"), ev.get(\"mark_price\")"
+        },
+        {
+          "line": 114,
+          "text": "\"FUNDING_MODEL_ASSUMPTION\", \"funding_events_ms\", \"settle_funding\","
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "exists": true,
+      "sha256_16": "e8a994b6750d8532",
+      "bytes": 153943,
+      "mtime_utc": "2026-10-26T13:23:40Z",
+      "lines": 2711,
+      "hits": [
+        {
+          "line": 128,
+          "text": "FUNDING_SOURCE = \"funding_history.settled\""
+        },
+        {
+          "line": 563,
+          "text": "def funding_events(con: sqlite3.Connection, symbol: str, after_ms: int, upto_ms: int):"
+        },
+        {
+          "line": 1458,
+          "text": "return funding_events(con_mkt, symbol, lo_ms, hi_ms)"
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/market_repository.py",
+      "exists": true,
+      "sha256_16": "499b4ad94e524c7a",
+      "bytes": 18843,
+      "mtime_utc": "2026-10-26T05:44:44Z",
+      "lines": 336,
+      "hits": [
+        {
+          "line": 67,
+          "text": "def from_archive(cls, hot_db, archive_root, retention_days=None, min_bars=200,"
+        },
+        {
+          "line": 127,
+          "text": "def _flat_shards(self, exchange, market, symbol, metric):"
+        },
+        {
+          "line": 199,
+          "text": "def _merge_dedup(a, b, key, limit):"
+        },
+        {
+          "line": 241,
+          "text": "def funding(self, exchange, market, symbol, start=None, end=None, limit=500, prefer=\"hot\"):"
+        },
+        {
+          "line": 272,
+          "text": "def _cold_flat(self, exchange, market, symbol, metric, where, params, limit, order_by,"
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/backtest_runner.py",
+      "exists": true,
+      "sha256_16": "72a4f2497b1c6fed",
+      "bytes": 79762,
+      "mtime_utc": "2026-10-23T16:20:28Z",
+      "lines": 1531,
+      "hits": [
+        {
+          "line": 52,
+          "text": "FUNDING_GRID_TOL_MS = 60_000       # 网格时刻 vs 真实事件的匹配容差（funding_time 可能有毫秒抖动）"
+        },
+        {
+          "line": 362,
+          "text": "fu_rows = repo.funding(ex, mk, sym, start=win[\"win_start_ms\"] - FUNDING_LOOKBACK_MS,"
+        },
+        {
+          "line": 437,
+          "text": "i = bisect.bisect_left(actual_ms, g - FUNDING_GRID_TOL_MS)"
+        },
+        {
+          "line": 438,
+          "text": "hit = (i < len(actual_ms)) and (actual_ms[i] <= g + FUNDING_GRID_TOL_MS)"
+        },
+        {
+          "line": 458,
+          "text": "\"match_tolerance_ms\": FUNDING_GRID_TOL_MS,"
+        }
+      ]
+    },
+    {
+      "file": "框架/backend/research_15m.py",
+      "exists": true,
+      "sha256_16": "0c00ab0e11a72396",
+      "bytes": 29403,
+      "mtime_utc": "2026-10-26T13:04:44Z",
+      "lines": 625,
+      "hits": []
+    },
+    {
+      "file": "框架/backend/strategies/funding_interval_meta_source.py",
+      "exists": true,
+      "sha256_16": "685dcfa863857ea6",
+      "bytes": 10016,
+      "mtime_utc": "2026-10-13T02:08:29Z",
+      "lines": 215,
+      "hits": [
+        {
+          "line": 6,
+          "text": "把**独立只读伴生库** `funding_interval_meta.sqlite3`（401 MB，始终 `mode=ro`）里的"
+        },
+        {
+          "line": 87,
+          "text": "or (delivery_dir() / \"周期元数据表\" / \"funding_interval_meta.sqlite3\"))"
+        },
+        {
+          "line": 128,
+          "text": "def load_interval_meta(symbol, start_ms, end_ms, *, basis=\"settlement\","
+        }
+      ]
+    },
+    {
+      "file": "evidence/ACCUM-EARLY-05-C/scripts/02_逐事件基线重建.py",
+      "exists": true,
+      "sha256_16": "8bc19093dd4b882e",
+      "bytes": 27718,
+      "mtime_utc": "2026-10-26T15:48:45Z",
+      "lines": 497,
+      "hits": [
+        {
+          "line": 71,
+          "text": "def load_funding(con, symbol: str, entry_ms: int, span_days: int = 14):"
+        },
+        {
+          "line": 148,
+          "text": "funding_events=funding, caliber_name=cal_name)"
+        }
+      ]
+    }
+  ],
+  "行为验证_列名坑": {
+    "冷档形状行（funding_rate）": {
+      "normalized": [
+        {
+          "time_ms": 1788307200000,
+          "time_sec": 1788307200,
+          "rate": null,
+          "mark_price": 100.0
+        }
+      ],
+      "cum_funding_fee": 0.0,
+      "gaps": [
+        {
+          "time_ms": 1788307200000,
+          "time_sec": 1788307200,
+          "reason": "funding_event_missing_fields:rate",
+          "rate": null,
+          "mark_price": 100.0
+        }
+      ]
+    },
+    "热库形状行（rate）": {
+      "normalized": [
+        {
+          "time_ms": 1788307200000,
+          "time_sec": 1788307200,
+          "rate": 0.0001,
+          "mark_price": 100.0
+        }
+      ],
+      "cum_funding_fee": 0.01,
+      "gaps": []
+    },
+    "结论": "原样喂冷档行 ⇒ rate 归一化为 None ⇒ 记 funding_gap、成本 0、**不报错**；所以接入时必须显式把 funding_rate 映射成 rate，否则「接上了」和「没接」在账面上完全一样"
+  },
+  "行为验证_热优先坑": {
+    "输入_热": [
+      {
+        "funding_time": 1000,
+        "funding_rate": "0.001",
+        "mark_price": null
+      }
+    ],
+    "输入_冷": [
+      {
+        "funding_time": 1000,
+        "funding_rate": 0.001,
+        "mark_price": 123.0
+      }
+    ],
+    "合并结果": [
+      {
+        "funding_time": 1000,
+        "funding_rate": "0.001",
+        "mark_price": null
+      }
+    ],
+    "结论": "同键保留先出现的（热）⇒ mark 仍为 None，冷档的有效 mark 被丢弃；补「整段缺事件」有效，补「同事件缺字段」无效"
+  },
+  "接入方案（只描述，本单不改代码）": {
+    "接入点": "replay_one(funding_events=...)：调用方取数函数返回 List[dict]",
+    "最小改动面": [
+      "调用方的取数函数（05-C 的 load_funding / paper_engine 的 funding_events）"
+    ],
+    "不必改": [
+      "replay_calc.py",
+      "trading_core/funding.py"
+    ],
+    "必须做的映射": "冷档列 funding_rate → rate；mark_price 原样；时间 funding_time → time_ms",
+    "必须处理的三件事": [
+      "热优先去重会挡住「同事件缺 mark」⇒ 需按「有值优先」而非「先出现优先」",
+      "冷档无 fetched_at/available_at ⇒ 合并后必须把可得性标为未验证，不能伪造",
+      "冷档覆盖到某时刻为止（本单实测其窗口内最后一条）⇒ 之后的结算只能靠热库，不能声明「合并后全窗口完整」"
+    ],
+    "验证方式建议": "合并前后对同一笔交易算两次成本，差 = 补回的结算；并用「把冷档行原样喂进去」的负例证明映射缺失会静默记 gap"
+  },
+  "elapsed_sec": 0.35
+}

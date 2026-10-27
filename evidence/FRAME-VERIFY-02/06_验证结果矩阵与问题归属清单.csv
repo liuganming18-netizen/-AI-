@@ -1,0 +1,11 @@
+测试编号,测试名称,防护领域,被测真实入口,测试类别,机器状态,对应版本/哈希,归属责任,缺陷现象与技术原因,最小整改要求
+VERIFY-A,FLOW-OI实验入口绕过PIT实测,PIT,evidence/FLOW-OI-01/generate_flow_oi_01.py::extract_features_for_candidate,真实入口测试,FAIL,generate_flow_oi_01.py:3b403f50,FRAME-PIT-01,未收盘1h蜡烛(volume=8888888)与未结束5m桶(ts=12:00:00)全被直接吃入特征字典且标为COMPLETE输出无资格标记,将K线切片改为close_time<ts；桶切片改为ts+300000<=ts；接入pit_guard硬校验并透出pit_proven/qualified状态
+VERIFY-B,首次合法正式实验启动死锁验证,FIT,框架/backend/backtest_api.py::create_run -> guard_create,真实入口测试,FAIL,experiment_registry.py:0ea2336f,FRAME-FIT-01,guard_create处理formal模式时误调formal_eligible后者因runs为空直接判ok=False导致合法首次实验返回409被阻断,严格区分启动许可与结果交付资格；guard_create只校验冻结、身份一致、分组自洽、未被污染不得要求runs/trials非空
+VERIFY-C1,未收盘1hK线注入真实策略Runner,PIT,策略/WyckoffMaster/event_trend_v0_1/runner.py::run_state_machine_simulation,真实入口测试,PASS,runner.py:b20bf07e,FRAME-PIT-01,遇到close_time+1ms>decision_time的未收盘K线时assert_candles_closed抛出PitViolation,保持现有实现已通过
+VERIFY-C2,未来数据剧烈扰动历史不变性,PIT,策略/WyckoffMaster/event_trend_v0_1/runner.py::run_state_machine_simulation,真实入口测试,PASS,runner.py:b20bf07e,FRAME-PIT-01,未来K线与OI数据被100倍扰动后决策时刻及以前的候选快照与特征100%保持不变,保持现有实现已通过
+VERIFY-C3,假设性研究严格标记不合格,PIT,策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py::qualified,真实入口测试,PASS,pit_bridge.py:de65fa08,FRAME-PIT-01,在未声明发布时延凭证时bridge.qualified严格返回False绝不冒充正式合格,保持现有实现已通过
+VERIFY-D1,未冻结配置不能解封最终留出,FIT,框架/backend/experiment_registry.py::unseal_holdout,真实入口测试,PASS,experiment_registry.py:0ea2336f,FRAME-FIT-01,未冻结配置调用unseal_holdout被抛出ExperimentBlocked拦截,保持现有实现已通过
+VERIFY-D2,已观察样本改名不能变成未见留出,FIT,框架/backend/experiment_registry.py::unseal_holdout,真实入口测试,PASS,experiment_registry.py:0ea2336f,FRAME-FIT-01,已观察样本时间点落入holdout段时解封被hit_sets识别并抛出ExperimentBlocked拦截,保持现有实现已通过
+VERIFY-D3,改动参数或代码不能沿用旧冻结资格,FIT,框架/backend/experiment_registry.py::guard_execute,真实入口测试,PASS,experiment_registry.py:0ea2336f,FRAME-FIT-01,执行时参数被修改后guard_execute识别设计身份漂移写入EV_INVALIDATE事件并使冻结失效,保持现有实现已通过
+VERIFY-D4,失败和放弃试验必须留下真实记录,FIT,框架/backend/experiment_registry.py::record_trial & abandon,真实入口测试,PASS,experiment_registry.py:0ea2336f,FRAME-FIT-01,record_trial(outcome='failure')与abandon均原子追加写入事件流与哈希链,保持现有实现已通过
+VERIFY-D5,事件流哈希链篡改检测,FIT,框架/backend/experiment_registry.py::verify,真实入口测试,PASS,experiment_registry.py:0ea2336f,FRAME-FIT-01,人为篡改events.jsonl中任意字段后verify()立即发现哈希不符并拒绝,保持现有实现已通过

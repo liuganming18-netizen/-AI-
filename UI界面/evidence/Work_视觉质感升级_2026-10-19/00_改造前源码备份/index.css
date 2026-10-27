@@ -1,0 +1,526 @@
+@import "tailwindcss";
+/* 设计规范系统（2026-10-16）：令牌层 + 组件层。新代码只允许引用这里的变量与 .ds-* 类。 */
+@import "./design/tokens.css";
+@import "./design/components.css";
+@import "./design/backtest.css";
+@import "./design/shell.css";
+
+/* ============================================================================
+ * 浅色清爽风 · 设计令牌层（Style Layer）
+ * ----------------------------------------------------------------------------
+ * 纪律（本次改版约束）：
+ *   · 不改页面布局、不改内容、不新增/删除任何 DOM 元素。
+ *   · 只改「风格」与「AI 特效」。所有特效一律用伪元素实现，不占节点。
+ *
+ * 实现方式：Tailwind v4 的调色板本身就是 CSS 变量（--color-*），工具类通过
+ * var() 引用。因此**只覆盖变量**即可把整套深色界面翻转为浅色，无需逐处改
+ * className。未分层（unlayered）的 :root 在级联层优先级上高于 Tailwind 的
+ * @layer theme，所以这里一定能覆盖，不依赖构建顺序。
+ *
+ * 中性色阶做的是「整体反转」：原色阶里越深的色值（页面底）现在越浅，
+ * 越浅的色值（正文）现在越深。所以 bg-neutral-950 仍是「页面画布」、
+ * text-neutral-100 仍是「一级正文」，语义位不动。
+ * ========================================================================== */
+
+:root {
+  /* —— 中性色阶：只做映射，不写死色值 ——
+   * 2026-10-17 双主题改造：深浅两套值统一收在 tokens.css 的 `--ds-n-*`，
+   * 这里只把 Tailwind 的色阶变量指过去。语义位不变：
+   *   950 = 页面画布，900 = 卡片，800 = 内嵌区，100 = 一级正文。
+   * 主题切换只需改 `<html data-theme>`，本文件一行都不用动。 */
+  --color-neutral-950: var(--ds-n-950);
+  --color-neutral-900: var(--ds-n-900);
+  --color-neutral-850: var(--ds-n-850);
+  --color-neutral-800: var(--ds-n-800);
+  --color-neutral-700: var(--ds-n-700);
+  --color-neutral-600: var(--ds-n-600);
+  --color-neutral-500: var(--ds-n-500);
+  --color-neutral-400: var(--ds-n-400);
+  --color-neutral-300: var(--ds-n-300);
+  --color-neutral-200: var(--ds-n-200);
+  --color-neutral-100: var(--ds-n-100);
+
+  /* —— 涨跌 / 多空语义色 ——
+   * 口径**沿用原版**（页脚与图表注释均写明「方向绿多红空、K线涨绿跌红」），
+   * 未改动语义方向。色值收敛到 `--ds-pos / --ds-neg / --ds-warn`，
+   * 深浅主题各一套，页面里的 `text-emerald-400` 自动跟随。
+   * 若要改为 A 股习惯的「涨红跌绿」，只需在 tokens.css 互换 pos 与 neg。 */
+  --color-emerald-200: var(--ds-pos-border);
+  --color-emerald-300: var(--ds-pos);
+  --color-emerald-400: var(--ds-pos);
+  --color-emerald-500: var(--ds-pos);
+  --color-emerald-600: var(--ds-pos);
+  --color-emerald-700: var(--ds-pos);
+
+  --color-rose-200: var(--ds-neg-border);
+  --color-rose-300: var(--ds-neg);
+  --color-rose-400: var(--ds-neg);
+  --color-rose-500: var(--ds-neg);
+  --color-rose-600: var(--ds-neg);
+  --color-rose-700: var(--ds-neg);
+
+  /* —— 告警 / 待确认 / 陈旧 —— */
+  --color-amber-200: var(--ds-warn-border);
+  --color-amber-300: var(--ds-warn);
+  --color-amber-400: var(--ds-warn);
+  --color-amber-500: var(--ds-warn);
+  --color-amber-600: var(--ds-warn);
+
+  /* —— 浅底色（提示条 / 徽章的底）——
+   * 深色主题下必须换成半透明暗底，否则 `bg-amber-50` 会变成一块刺眼的浅黄。 */
+  --color-emerald-50: var(--ds-pos-bg);
+  --color-emerald-100: var(--ds-pos-bg);
+  --color-rose-50: var(--ds-neg-bg);
+  --color-rose-100: var(--ds-neg-bg);
+  --color-amber-50: var(--ds-warn-bg);
+  --color-amber-100: var(--ds-warn-bg);
+  --color-sky-50: var(--ds-info-bg);
+  --color-sky-100: var(--ds-info-bg);
+  --color-sky-200: var(--ds-info-border);
+  --color-sky-300: var(--ds-info);
+  --color-sky-400: var(--ds-info);
+  --color-sky-500: var(--ds-info);
+  --color-sky-600: var(--ds-info);
+  --color-sky-700: var(--ds-info);
+  --color-sky-800: var(--ds-info);
+  --color-indigo-50: var(--ds-accent-50);
+  --color-indigo-100: var(--ds-accent-100);
+
+  /* —— AI / 数据强调色（品牌蓝紫，用于信号、标记、AI 光效） —— */
+  --color-indigo-200: #d3d7f8;
+  --color-indigo-300: #6c79e8;
+  --color-indigo-400: #4f5bd5;
+  --color-indigo-500: #4f46e5;
+  --color-indigo-600: #4338ca;
+
+  /* ======================================================================
+   * AI 特效调色板（仅本文件内部使用，不参与 Tailwind 工具类）
+   * ==================================================================== */
+  --ai-1: #2b6bff;   /* 蓝 */
+  --ai-2: #6d5ef8;   /* 紫 */
+  --ai-3: #00b8d9;   /* 青 */
+  --ai-ring: 1px;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-neutral-950);
+  color: var(--color-neutral-100);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--ai-1) 22%, transparent);
+}
+
+/* ============================================================================
+ * AI 特效层
+ * 全部以 ::before / ::after 承载 —— 不新增任何 DOM 节点，不改变任何布局尺寸。
+ * ========================================================================== */
+
+@property --ai-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* 1) 清除极光流光霓虹特效 */
+.ai-aurora {
+  position: relative;
+}
+.ai-aurora::before {
+  display: none !important;
+}
+
+/* 2) 状态点：克制显示，清除呼吸光晕 */
+.ai-pulse {
+  position: relative;
+}
+.ai-pulse::after {
+  display: none !important;
+}
+
+/* 3) 扫光：清除扫光动画 */
+.ai-shimmer {
+  position: relative;
+}
+.ai-shimmer::after {
+  display: none !important;
+}
+
+/* 4) 渐变文字：恢复正常前景色 */
+.ai-gradient-text {
+  color: var(--color-neutral-100);
+}
+
+/* 5) 背景网格：清除漂移与网格特效 */
+.ai-grid {
+  background-image: none !important;
+  animation: none !important;
+}
+
+/* 6) 扫描线：清除扫描线特效 */
+.ai-scanline {
+  position: relative;
+}
+.ai-scanline::after {
+  display: none !important;
+}
+
+/* 7) 悬停：清除任何外发光霓虹阴影，只保留克制的平滑微调 */
+.ai-glow-hover {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.ai-glow-hover:hover {
+  box-shadow: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-aurora::before,
+  .ai-pulse::after,
+  .ai-shimmer::after,
+  .ai-grid,
+  .ai-scanline::after {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+ * 可读性收敛（2026-10-15）
+ * ----------------------------------------------------------------------------
+ * 背景：全项目 130+ 处使用 `text-[10px]` / `text-[11px]`，底部图例、信号卡
+ * 状态行、持仓参数行等已低到接近不可读。
+ *
+ * 做法与上面 :root 覆盖色值**同一条纪律**：不改任何 className、不增删任何
+ * DOM 节点、不改布局结构，只在未分层（unlayered）处覆盖这两个工具类的
+ * font-size。Tailwind 的 `@layer utilities` 优先级低于未分层规则，因此这里
+ * 一定能覆盖，不依赖构建顺序。
+ *
+ * 量级：统一提到 12px（= text-xs，与全站正文一致）。只做「抬底」，
+ * 原本 ≥12px 的字号一律不动，所以层级关系不变，只是最小的两档并到 12px。
+ *
+ * 2026-10-17 补充：原规则只覆盖了 10px / 11px，漏掉了第三档 `text-[9px]`
+ * （全项目 21 处，数据页 17 处渲染节点），它在浅色底上实际只有 9px，是页面里
+ * 最不可读的一档。此处一并抬到 12px，与另两档口径一致。
+ *
+ * 回退：删掉下面三条规则即完全恢复原状。
+ * ========================================================================== */
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\] {
+  font-size: 12px;
+}
+
+/* 行情表是 `table-layout: fixed` + `white-space: nowrap` 的窄列结构，
+ * 列宽由 colgroup 写死，字号抬升会让单元格文字溢出到相邻列。
+ * 该表内**维持原字号**，可读性靠列宽与对比度解决，不靠放大字号。 */
+.workbench-market-table .text-\[10px\] {
+  font-size: 10px;
+}
+.workbench-market-table .text-\[11px\] {
+  font-size: 11px;
+}
+
+/* ============================================================================
+ * 结构样式（原有，仅把写死的深色值换成浅色令牌）
+ * ========================================================================== */
+
+.workbench-columns {
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.workbench-columns > .workbench-signal-panel {
+  order: 2;
+  width: 100%;
+  flex: 0 0 auto;
+  border-right: 0;
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.workbench-columns > .workbench-market-panel {
+  order: 1;
+  width: 100%;
+  height: min(72vh, 760px);
+  min-height: 480px;
+  flex: 0 0 auto;
+  padding: 12px;
+}
+
+.workbench-columns > .workbench-position-panel {
+  order: 3;
+  width: 100%;
+  flex: 0 0 auto;
+  border-left: 0;
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.workbench-signal-content {
+  height: 360px;
+  flex: 0 0 auto;
+}
+
+.workbench-position-content {
+  max-height: 460px;
+  flex: 0 0 auto;
+}
+
+.market-table-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.workbench-market-table {
+  width: 100%;
+  min-width: 1210px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.workbench-market-table th,
+.workbench-market-table td {
+  white-space: nowrap;
+}
+
+.workbench-market-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.workbench-market-table thead th:first-child,
+.workbench-market-table tbody tr[data-token-id] > td:first-child {
+  position: sticky;
+  left: 0;
+  width: 40px;
+  min-width: 40px;
+  z-index: 10;
+}
+
+.workbench-market-table thead th:nth-child(2),
+.workbench-market-table tbody tr[data-token-id] > td:nth-child(2) {
+  position: sticky;
+  left: 40px;
+  width: 158px;
+  min-width: 158px;
+  z-index: 10;
+  /* 冻结列右缘投影：深浅主题各一套（令牌里定义） */
+  box-shadow: var(--ds-shadow-freeze);
+}
+
+.workbench-market-table thead th:first-child,
+.workbench-market-table thead th:nth-child(2) {
+  z-index: 30;
+  background: var(--color-neutral-900);
+}
+
+/**
+ * 冻结列底色必须**不透明**。
+ *
+ * 原实现给冻结 td 写的是 `background-color: inherit`，继承到的是行上的
+ * `bg-neutral-900/30` / `bg-neutral-850/90` —— 带透明度的色值。深色主题下
+ * rgba(23,23,23,.3) 压在 #0d0d0d 上几乎看不出差别；换成浅色后变成
+ * rgba(255,255,255,.3) 压在近白底上，横向滚动时下层单元格的深色文字会
+ * 直接透出来，冻结列与滚动内容糊在一起。
+ *
+ * 修法：把三种行状态（默认 / 悬停 / 展开）在行级换成**等价的实色**，
+ * 冻结 td 继续 inherit 即可自动拿到实色。不新增节点、不改结构，
+ * 三种状态的视觉层次与原版一一对应。
+ */
+.workbench-market-table tbody tr[data-token-id] {
+  background-color: var(--ds-surface);
+}
+.workbench-market-table tbody tr[data-token-id]:hover {
+  background-color: var(--ds-surface-2);
+}
+.workbench-market-table tbody tr[data-token-id].font-medium {
+  background-color: var(--ds-surface-3);
+}
+
+.workbench-market-table tbody tr[data-token-id] > td:first-child,
+.workbench-market-table tbody tr[data-token-id] > td:nth-child(2) {
+  background-color: inherit;
+}
+
+/* 行悬停：左侧一条品牌色光带，替代原来的整行变色（更克制、更易跟行） */
+.workbench-market-table tbody tr[data-token-id] > td:first-child {
+  transition: box-shadow 0.18s ease;
+}
+.workbench-market-table tbody tr[data-token-id]:hover > td:first-child {
+  box-shadow: inset 2px 0 0 0 var(--ai-1);
+}
+
+/* 数据来源弹窗：深底 → 浅底毛玻璃 */
+.market-source-dialog {
+  width: min(42rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 1.25rem;
+  overflow: auto;
+  color: var(--color-neutral-200);
+  background: color-mix(in oklab, var(--color-neutral-900) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--color-neutral-800);
+  border-radius: 1rem;
+  box-shadow: var(--ds-shadow-xs), var(--ds-shadow-lg);
+}
+
+.market-source-dialog::backdrop {
+  background: var(--ds-scrim);
+  backdrop-filter: blur(2px);
+}
+
+.market-source-dialog pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 滚动条：浅色纤细样式，保持原 scrollbar-gutter 占位不变 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-700);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-600);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (max-width: 520px) {
+  .workbench-columns > .workbench-market-panel {
+    height: 72vh;
+    min-height: 440px;
+    padding: 8px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .workbench-columns {
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  .workbench-columns > .workbench-signal-panel {
+    order: initial;
+    width: 310px;
+    flex: 0 0 310px;
+    border-top: 0;
+    border-right: 1px solid var(--color-neutral-800);
+  }
+
+  .workbench-columns > .workbench-market-panel {
+    order: initial;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 16px;
+  }
+
+  .workbench-columns > .workbench-position-panel {
+    order: initial;
+    width: 280px;
+    flex: 0 0 280px;
+    border-top: 0;
+    border-left: 1px solid var(--color-neutral-800);
+  }
+
+  .workbench-signal-content {
+    height: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .workbench-position-content {
+    max-height: none;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+}
+
+/* ============================================================================
+ * 行情表窄屏提示（2026-10-17 响应式改造）
+ * ----------------------------------------------------------------------------
+ * `.workbench-market-table` 最小宽度 1210px（7 组列 + 两列冻结），
+ * 容器放不下时横向滚动。桌面有可见滚动条，触屏没有 ⇒ 补一句文字提示，
+ * 否则用户会以为右侧几列根本没渲染。
+ *
+ * ⚠ **显隐由容器实测决定，不再用视口断点**（`TokenTable.tsx` 的 `hScrollable`）：
+ * 这张表嵌在工作台**中栏**里，1600px 视口下中栏只有约 600px、表格照样溢出，
+ * 而原来的 `max-width: 1199.98px` 会让这一段「溢出但没提示」。
+ * 所以这里只管排版，不管显隐。
+ * ========================================================================== */
+
+.market-scroll-hint {
+  margin-top: 4px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 1199.98px) {
+  .market-table-scroll {
+    -webkit-overflow-scrolling: touch;
+    /* 触屏上滚动条默认隐藏，这里保留一条细的，作为「还有内容」的第二重提示 */
+    scrollbar-width: thin;
+  }
+}
+
+/* 行情表行：键盘聚焦时给出整行可见的焦点框（行本身是焦点目标） */
+.workbench-market-table tbody tr[data-token-id]:focus-visible {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: -2px;
+}
+
+/* ============================================================================
+ * 数据中心：主分栏窄屏堆叠（2026-10-17）
+ * ----------------------------------------------------------------------------
+ * 该页是「左主视窗 + 右归档队列」的双栏看板。窄屏仍并排时，左栏会被压到
+ * ~90px，卡片标题逐字竖排（实测 480px）。< 1024 改成纵向堆叠，
+ * 由分栏容器自己纵向滚动，页面根节点仍是 overflow:hidden（不动整体骨架）。
+ * ========================================================================== */
+
+.ds-dc-split {
+  overflow: hidden;
+}
+
+/* 断点取 1280 而不是 1024：1024–1279 时左栏只有 ~430px，
+ * 17 个数据源图标挤成 9 列后标签全被截成「5分…」，不如整栏堆叠。 */
+@media (max-width: 1279.98px) {
+  .ds-dc-split {
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .ds-dc-split > * {
+    flex: 0 0 auto;
+  }
+  /* 堆叠后左栏卡片不再被 flex 拉伸，给一个最小高度保证图表/网格可见 */
+  .ds-dc-split > * > .ds-card {
+    min-height: 320px;
+  }
+}

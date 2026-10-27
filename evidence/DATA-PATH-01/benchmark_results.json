@@ -1,0 +1,93 @@
+{
+  "task_id": "DATA-PATH-01",
+  "timestamp_utc": "2026-10-23T14:01:43Z",
+  "root_causes": [
+    "paper_engine.py 存在两个同名 last_closed_15m，后方定义覆盖了前方定义，且未限定 exchange 和 market",
+    "last_closed_4h 与 last_closed_15m 直接查询 candle_versions 表，缺少复合主键前缀 exchange 与 market，引发对 845 万行进行全表扫描 (SCAN candle_versions)",
+    "unified_runtime.py / paper_loop.py 中 15m 退出检查查询缺少 exchange 与 market，全表扫描卡住持仓维护",
+    "live_api.py 中 4h 外部K线校验查询缺少 exchange 与 market，导致全表扫描",
+    "equity 与 snapshot 重复计算未实现盈亏，放大全表扫描耗时至 23 秒以上"
+  ],
+  "database_metrics": {
+    "total_candle_versions_rows": 8465004,
+    "index_reused": "sqlite_autoindex_candle_versions_1 (exchange, market, symbol, timeframe, open_time, source_id)",
+    "new_indexes_created": 0,
+    "lock_wait_seconds": 0.0,
+    "rollback_needed": false
+  },
+  "query_plan_comparison": {
+    "15m_query_before": {
+      "plan": [
+        "(4, 0, 216, 'SCAN candle_versions')",
+        "(27, 0, 0, 'USE TEMP B-TREE FOR ORDER BY')"
+      ],
+      "type": "SCAN candle_versions (全表扫描 845 万行 + 临时 B-Tree 排序)",
+      "latency_ms": 8626.25
+    },
+    "15m_query_after": {
+      "plan": [
+        "(6, 0, 59, 'SEARCH v USING INDEX sqlite_autoindex_candle_versions_1 (exchange=? AND market=? AND symbol=? AND timeframe=?)')",
+        "(18, 0, 45, 'SEARCH h USING PRIMARY KEY (exchange=? AND market=? AND symbol=? AND timeframe=? AND open_time=?)')"
+      ],
+      "type": "SEARCH v USING INDEX sqlite_autoindex_candle_versions_1 (主键复合索引，零全表扫描)",
+      "latency_ms": 0.106
+    },
+    "speedup_ratio": 81379
+  },
+  "data_chain_status": {
+    "latest_15m_close_time": 1792763999999,
+    "latest_15m_available_at": 1792764000433,
+    "latest_4h_close_time": 1792756799999,
+    "collector_pid": 42278,
+    "collector_heartbeat_healthy": true,
+    "universe_total": 526,
+    "universe_ready": 526,
+    "universe_skipped": 0,
+    "skipped_reasons": {},
+    "scan_errors_total": 0
+  },
+  "benchmark_with_positions": {
+    "environment": "isolated_sandbox_with_3_active_positions (BTCUSDT, ETHUSDT, SOLUSDT)",
+    "data_source": "production_market_v2_845w_rows (read-only)",
+    "iterations": 10,
+    "target_p95_seconds": 2.0,
+    "snapshot_all_latencies_ms": [
+      21.094,
+      25.216,
+      28.543,
+      16.153,
+      14.033,
+      17.032,
+      21.113,
+      33.428,
+      17.847,
+      17.506
+    ],
+    "snapshot_all_p95_ms": 33.428,
+    "paper_accounts_func_p95_ms": 42.126,
+    "http_end_to_end_with_positions_p95_ms": 38.897
+  },
+  "benchmark_production_http": {
+    "endpoint": "http://127.0.0.1:8787/api/v1/paper/accounts",
+    "iterations": 10,
+    "latencies_ms": [
+      75.704,
+      51.259,
+      46.198,
+      48.69,
+      50.021,
+      42.21,
+      38.803,
+      40.077,
+      54.913,
+      57.552
+    ],
+    "min_ms": 38.803,
+    "max_ms": 75.704,
+    "avg_ms": 50.543,
+    "p50_ms": 50.021,
+    "p95_ms": 75.704,
+    "target_p95_seconds": 2.0,
+    "pass_target": true
+  }
+}

@@ -1,0 +1,153 @@
+{
+ "generated_at": "2026-10-26T12:52:29Z",
+ "ticket_start_utc": "2026-10-26T12:30:00Z",
+ "ticket_start_source": "命令行传入",
+ "P1_P2_processes": {
+  "collector_count": 1,
+  "collectors": [
+   {
+    "pid": 42278,
+    "created_utc": "2026-10-23T09:00:16Z",
+    "created_epoch": 1792746016.284061,
+    "started_before_ticket": true,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py"
+   }
+  ],
+  "unique_writer_ok": true,
+  "no_restart_during_ticket": true
+ },
+ "P3_code_unchanged": {
+  "files": [
+   {
+    "file": "框架/backend/realtime_collector.py",
+    "sha256": "363011632583249f65b5968b7ab353b1fc24a5cc292357ad0a760af4646d2d65",
+    "size": 153890,
+    "mtime_utc": "2026-10-18T05:59:38Z",
+    "mtime_epoch": 1792303178.9562232
+   },
+   {
+    "file": "框架/backend/public_market_read.py",
+    "sha256": "6e38e317ade749a7acc5339575bcf4545b617e9ad62cab6163e27e820b97804b",
+    "size": 36958,
+    "mtime_utc": "2026-10-18T03:35:40Z",
+    "mtime_epoch": 1792294540.9607282
+   },
+   {
+    "file": "框架/backend/public_snapshot.py",
+    "sha256": "8099a1a628a3454096f4505131d8d2a59f4467111ad81e3446f174095c7125a0",
+    "size": 8063,
+    "mtime_utc": "2026-10-06T15:17:56Z",
+    "mtime_epoch": 1791299876.0
+   },
+   {
+    "file": "框架/backend/metrics_feed.py",
+    "sha256": "006c0ad2ba755cb30cf2c80a2c7c86c0c39439f709d8555b6fcfd76d8f282adc",
+    "size": 14191,
+    "mtime_utc": "2026-10-26T10:50:42Z",
+    "mtime_epoch": 1793011842.1532109
+   },
+   {
+    "file": "工具_热转冷导出.py",
+    "sha256": "805c9e8dec00d038686e77bca87a9fa1e4090c9de53afde76248478b25b45379",
+    "size": 17235,
+    "mtime_utc": "2026-10-17T18:14:16Z",
+    "mtime_epoch": 1792260856.52026
+   }
+  ],
+  "all_mtime_before_ticket": true
+ },
+ "P4_db_growth": {
+  "sample_a": {
+   "candle_heads_1h": {
+    "rows": 583307,
+    "max_open_utc": "2026-10-26T11:00:00Z"
+   },
+   "candle_heads_5m": {
+    "rows": 4078207,
+    "max_open_utc": "2026-10-26T12:45:00Z"
+   },
+   "candles_1h": {
+    "rows": 583307,
+    "max_close_utc": "2026-10-26T11:59:59Z"
+   },
+   "oi_history": {
+    "rows": 6983542,
+    "max_ts_utc": "2026-10-26T12:40:00Z"
+   },
+   "realtime_quotes": {
+    "rows": 814,
+    "max_updated_utc": "2026-10-26T12:52:44Z"
+   }
+  },
+  "sample_b": {
+   "candle_heads_1h": {
+    "rows": 583307,
+    "max_open_utc": "2026-10-26T11:00:00Z"
+   },
+   "candle_heads_5m": {
+    "rows": 4078735,
+    "max_open_utc": "2026-10-26T12:50:00Z"
+   },
+   "candles_1h": {
+    "rows": 583307,
+    "max_close_utc": "2026-10-26T11:59:59Z"
+   },
+   "oi_history": {
+    "rows": 6985275,
+    "max_ts_utc": "2026-10-26T12:55:00Z"
+   },
+   "realtime_quotes": {
+    "rows": 814,
+    "max_updated_utc": "2026-10-26T13:00:00Z"
+   }
+  },
+  "growth": {
+   "candle_heads_1h": {
+    "rows_before": 583307,
+    "rows_after": 583307,
+    "delta": 0,
+    "max_open_utc": {
+     "before": "2026-10-26T11:00:00Z",
+     "after": "2026-10-26T11:00:00Z"
+    }
+   },
+   "candle_heads_5m": {
+    "rows_before": 4078207,
+    "rows_after": 4078735,
+    "delta": 528,
+    "max_open_utc": {
+     "before": "2026-10-26T12:45:00Z",
+     "after": "2026-10-26T12:50:00Z"
+    }
+   },
+   "candles_1h": {
+    "rows_before": 583307,
+    "rows_after": 583307,
+    "delta": 0,
+    "max_close_utc": {
+     "before": "2026-10-26T11:59:59Z",
+     "after": "2026-10-26T11:59:59Z"
+    }
+   },
+   "oi_history": {
+    "rows_before": 6983542,
+    "rows_after": 6985275,
+    "delta": 1733,
+    "max_ts_utc": {
+     "before": "2026-10-26T12:40:00Z",
+     "after": "2026-10-26T12:55:00Z"
+    }
+   },
+   "realtime_quotes": {
+    "rows_before": 814,
+    "rows_after": 814,
+    "delta": 0,
+    "max_updated_utc": {
+     "before": "2026-10-26T12:52:44Z",
+     "after": "2026-10-26T13:00:00Z"
+    }
+   }
+  }
+ },
+ "P4_gap_s": 420.0
+}

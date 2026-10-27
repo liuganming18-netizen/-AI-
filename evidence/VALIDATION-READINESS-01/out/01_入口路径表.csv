@@ -1,0 +1,16 @@
+﻿环节,实现位置,符号,关键字段,证据/约束
+1 冻结规则,evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md:1,全文,规则文件本体,sha256=1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab
+2 冻结配置,策略/WyckoffMaster/event_trend_v0_1/config.py:13,EventTrendConfig(frozen=True),initial_equity / risk_budget_per_trade / taker_fee_bps / slippage_bps / trailing_trigger_r / max_holding_days,config.py sha256=29a42d98f7b7c5302b7adc0cef20b4ea832d76c41acdef2f2447ee234afc69ae
+3 输入数据加载,策略/WyckoffMaster/event_trend_v0_1/runner.py:201,"load_symbol_data(symbol,start_date,end_date,allow_auto_window)",df_4h(含ATR预热220根) / df_1h / df_15m / oi_ts / oi_vals / funding_events,4h 取目标区间前 220 根；allow_auto_window 必须 False
+4 事件状态机,策略/WyckoffMaster/event_trend_v0_1/runner.py:305,run_state_machine_simulation,boxes / sweeps / retests / breakouts / candidates,策略/WyckoffMaster/event_trend_v0_1/state_machine.py:34
+5 PIT 守卫,策略/WyckoffMaster/event_trend_v0_1/runner.py:347,pit.assert_candles_closed,决策时刻 = 1h 开盘 + 3600s；未收盘 K 线抛 PitViolation,策略/WyckoffMaster/trading_core/pit_guard.py:249
+6 候选快照,策略/WyckoffMaster/event_trend_v0_1/contracts.py:141,CandidateSnapshot,candidate_id / symbol / entry_time / stop / signal_id,candidates.jsonl
+7 执行入口,策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py:341,run_event_trend_backtest,candidates=[...] / variant(A/B/C) / instrument_spec / initial_equity,缺 instrument_spec 且缺 price_step ⇒ 抛 ExecutionInputError
+8 撮合取整,策略/WyckoffMaster/trading_core/fill.py:108,"price_breakdown(raw_price,is_buy,price_step,slippage_rate)",买 ROUND_CEILING / 卖 ROUND_FLOOR（Decimal）,策略/WyckoffMaster/trading_core/fill.py:190
+9 资金费,策略/WyckoffMaster/trading_core/funding.py:67,settle_funding（模型常量 settlement_events / assumption_fixed_8h）,"(time_ms, rate, mark_price) 三字段；判据 last_funding_ms < ev_ms <= t_ms",缺 rate/mark 记 funding_gaps，不补 0（funding.py:95-102）
+10 交易核心相位,策略/WyckoffMaster/trading_core/engine.py:248,TradingCore.run,A 锁利+资金费 → B 跳空退出 → C 新开仓 → D bar内止损 → E 盯市权益,相位顺序不可换
+11 产物装配,策略/WyckoffMaster/event_trend_v0_1/runner.py:489,_build_run_files,策略包直跑 17 个产物文件（含 trades/fills/orders/positions/ledger/equity_curve）；后端 API 入口另加 chart.json / run.json 共 19 个,两套入口产物集不同，须在报告里声明用的是哪套
+12 原子提交,策略/WyckoffMaster/event_trend_v0_1/runner.py:163,_commit_run_dir,写 .partial-{pid} → 逐文件 fsync → os.replace,manifest.json 含每文件 sha256
+13 汇总报告,策略/WyckoffMaster/event_trend_v0_1/runner.py:715,summary.json,net_pnl / fee_total / funding_total / slippage_total / rounding_total / final_equity / trade_count,无组合层回撤与盈亏比
+14 图表载荷,框架/backend/backtest_chart.py:437,generate_chart_payload,chart.json,不在 runner 内，需调用方另行生成
+15 四类指纹,策略/WyckoffMaster/event_trend_v0_1/runner.py:127,code/rules/config/input_fingerprint,rules.sha256 / code.combined_sha256 / config.sha256 / inputs.*,inputs.json.fingerprints

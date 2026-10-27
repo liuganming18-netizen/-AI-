@@ -1,0 +1,5 @@
+﻿数据集,来源,区间口径,边界说明
+价格,candle_heads/coverage_cache,事件时间 open_time 起 → close_time 止,热库近 30~45 天 + 冷档 2019-12-31 起；冷档归档滞后热库约 7 天
+OI 5m,parquet/oi + oi_history(period=5m),观测时刻 ts,冷档 2020-09-01 起；热库 5m 仅 2026-09-12 起；无发布时点证据
+资金费,parquet/funding + funding_history,结算时刻 funding_time,冷档 2020-01-01 起；rate_type=settled；2022 年部分币大段空缺
+指标(多空比/大户),parquet/metrics,观测时刻 ts,2020-09-01 起；无 fetched_at；仅 526 币；生产代码无读取

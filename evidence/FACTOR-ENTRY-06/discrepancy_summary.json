@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "ticket": "FACTOR-ENTRY-06",
+    "task": "分类契约与研究产物一致性修复",
+    "calculation_engine": "audit_and_reconstruct_06.py",
+    "single_source_of_truth": true
+  },
+  "sample_denominators": {
+    "total_feature_rows": 227,
+    "unique_candidate_signals": 226,
+    "duplicate_signal_groups": 1,
+    "duplicate_signal_symbol": "COTIUSDT",
+    "total_filled_trades": 205,
+    "continuous_replay_filled_trades": 163,
+    "window_slice_replay_filled_trades": 42,
+    "total_unfilled_records": 22,
+    "unique_unfilled_signals": 21
+  },
+  "atr_scale_audit": {
+    "fallback_records_count": 42,
+    "fallback_ratio_median": 5.5382,
+    "fallback_ratio_min": 3.2654,
+    "fallback_ratio_max": 10.8101,
+    "fallback_ratio_mean": 6.0051,
+    "scale_inflation_description": "止损距离占入场价中位16.86%，ATR占入场价中位2.60%；逐笔比值中位数5.5382倍，区间3.2654~10.8101倍"
+  },
+  "first_move_audit": {
+    "first_move_distribution": {
+      "FIRST_ADVERSE": 101,
+      "FIRST_FAVORABLE": 77,
+      "UNKNOWN_SAME_BAR": 27,
+      "NEITHER_REACHED_0.3ATR": 0
+    },
+    "first_move_changes_count": 52,
+    "same_bar_unknown_unforced": true
+  },
+  "category_reconciliation": {
+    "standard_mixed_system": {
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 36,
+      "MFE_PULLBACK": 8,
+      "CHOPPY_OR_OTHER": 94,
+      "UNFILLED": 22
+    },
+    "pure_atr_4h_system": {
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 20,
+      "MFE_PULLBACK": 39,
+      "CHOPPY_OR_OTHER": 79,
+      "UNFILLED": 22
+    },
+    "category_changes_vs_04": {
+      "total_changed_trades": 16,
+      "into_early_weakness_total": 14,
+      "into_early_weakness_from_fallback": 13,
+      "into_early_weakness_from_true_atr": 1,
+      "out_of_early_weakness_total": 2,
+      "out_of_early_weakness_from_fallback": 1,
+      "out_of_early_weakness_from_true_atr": 1,
+      "net_early_weakness_increase": 12
+    },
+    "fe05_defect_repaired_count": 44
+  },
+  "financial_grouping_facts": {
+    "total_net_pnl_205": 101.532,
+    "first_move_groups": {
+      "first_adverse_pnl_sum": 70.51,
+      "first_favorable_pnl_sum": 57.6,
+      "unknown_same_bar_pnl_sum": -26.57,
+      "non_first_adverse_pnl_sum": 31.02
+    },
+    "quality_category_groups": {
+      "early_weakness_pnl_sum": -38.7,
+      "sustained_trend_pnl_sum": 541.13,
+      "mfe_pullback_pnl_sum": -65.38,
+      "choppy_or_other_pnl_sum": -335.51,
+      "non_early_weakness_pnl_sum": 140.24
+    }
+  },
+  "research_limitations_and_retractions": {
+    "causal_claims_retracted": true,
+    "stale_number_142_cleared": true,
+    "pnl_conclusion_status": "PAUSED_AND_RESTRICTED",
+    "reason": "205笔成交跨越两个回放代际（163条连续回放+42条窗口切片），且163条连续回放记录的费用与资金费上游取错键名导致全为0。因此不得继续将205笔的PF、净盈亏作为策略收益或指标优化的实盘依据，相关结论暂停适用。",
+    "parameter_status": "0.80 ATR 距箱体距离与 4.5% 阈值严格保留为探索性研究假设，不作为生产参数。"
+  }
+}

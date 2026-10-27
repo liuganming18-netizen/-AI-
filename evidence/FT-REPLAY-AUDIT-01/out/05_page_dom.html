@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FT-ENTRY-09 研究期实验系统复盘工作台</title>
+  <script src="./lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root {
+      --bg-base: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: #24334a;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-yellow: #facc15;
+      --accent-green: #4ade80;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title { display: flex; align-items: center; gap: 12px; }
+    .header-title h1 { font-size: 16px; font-weight: 600; color: #fff; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge-research { background: #312e81; color: #c7d2fe; border: 1px solid #4338ca; }
+    .badge-pass { background: #064e3b; color: #6ee7b7; border: 1px solid #047857; }
+    .badge-warn { background: #78350f; color: #fde68a; border: 1px solid #b45309; }
+    .badge-err { background: #7f1d1d; color: #fca5a5; border: 1px solid #b91c1c; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: #2d3e58; border-color: var(--accent-blue); }
+    .btn-active { background: #0284c7; border-color: #38bdf8; color: #fff; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      height: calc(100vh - 53px);
+      overflow: hidden;
+    }
+    .left-panel {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .filter-bar {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #172033;
+    }
+    .filter-row { display: flex; gap: 8px; align-items: center; }
+    select, input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+      flex: 1;
+    }
+    select:focus, input:focus { border-color: var(--accent-blue); }
+
+    .stats-bar {
+      padding: 6px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      background: #131c2e;
+    }
+
+    .record-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .record-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .record-card:hover { border-color: #475569; background: #2a3b56; }
+    .record-card.active { border-color: var(--accent-blue); background: #1e3352; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .card-sym { font-weight: 600; font-size: 13px; color: #fff; }
+    .card-meta { display: flex; gap: 6px; font-size: 11px; }
+    .card-times { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .card-pnl { display: flex; justify-content: space-between; font-size: 11px; }
+    .pnl-pos { color: var(--accent-green); font-weight: 600; }
+    .pnl-neg { color: var(--accent-red); font-weight: 600; }
+
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-base);
+      overflow-y: auto;
+      height: 100%;
+    }
+    .detail-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+    }
+    .detail-title { display: flex; justify-content: space-between; align-items: center; }
+    .detail-title h2 { font-size: 15px; font-weight: 600; color: #fff; }
+
+    .chart-container {
+      position: relative;
+      background: #0b1120;
+      border-bottom: 1px solid var(--border-color);
+      height: 400px;
+      width: 100%;
+    }
+    #tv_chart { width: 100%; height: 100%; }
+
+    .chart-legend {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      z-index: 10;
+      display: flex;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      font-size: 11px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    .cross-mode-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: #111a2e;
+    }
+    .cross-mode-section h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--accent-blue); display: flex; align-items: center; gap: 6px; }
+    .cross-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .cross-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .cross-title { font-weight: 600; font-size: 12px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .cross-item { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+    .cross-val { color: var(--text-main); font-weight: 500; }
+
+    .audit-grid {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .audit-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .audit-card h4 { font-size: 12px; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; }
+    .audit-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; }
+    .audit-lbl { color: var(--text-muted); }
+    .audit-val { color: #fff; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>FT-ENTRY-09 系统复盘工作台</h1>
+      <span class="badge badge-research">研究期结果 · 离线回测验证</span>
+      <span class="badge badge-pass">资格违规 0 笔 (PASS)</span>
+    </div>
+    <div class="header-actions">
+      <button id="btn_tz" class="btn" onclick="toggleTimezone()">当前时区: UTC</button>
+      <a href="http://127.0.0.1:3000" target="_blank" class="btn">打开系统原生回测工作台 ↗</a>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- 左侧列表 -->
+    <div class="left-panel">
+      <div class="filter-bar">
+        <div class="filter-row">
+          <select id="sel_mode" onchange="applyFilters()">
+            <option value="ALL">全部模式 (C0 / C1 / C2)</option>
+            <option value="C">C0 (原缩量回踩对照)</option>
+            <option value="C1" selected="">C1 (次根收盘企稳确认)</option>
+            <option value="C2">C2 (次根重心上移确认)</option>
+          </select>
+          <select id="sel_param" onchange="applyFilters()">
+            <option value="ALL">全部参数网格 (9组)</option>
+            <option value="Vs04_Z02">Vs04_Z02 (Vs:0.4, Z:0.2)</option>
+            <option value="Vs04_Z04">Vs04_Z04 (Vs:0.4, Z:0.4)</option>
+            <option value="Vs04_Z06">Vs04_Z06 (Vs:0.4, Z:0.6)</option>
+            <option value="Vs06_Z02">Vs06_Z02 (Vs:0.6, Z:0.2)</option>
+            <option value="Vs06_Z04">Vs06_Z04 (Vs:0.6, Z:0.4)</option>
+            <option value="Vs06_Z06">Vs06_Z06 (Vs:0.6, Z:0.6)</option>
+            <option value="Vs08_Z02">Vs08_Z02 (Vs:0.8, Z:0.2)</option>
+            <option value="Vs08_Z04">Vs08_Z04 (Vs:0.8, Z:0.4)</option>
+            <option value="Vs08_Z06">Vs08_Z06 (Vs:0.8, Z:0.6)</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <select id="sel_status" onchange="applyFilters()">
+            <option value="ALL">全部执行状态</option>
+            <option value="FILLED" selected="">真实成交 (FILLED)</option>
+            <option value="REJECTED">执行拒单 (REJECTED)</option>
+            <option value="CONFIRMATION_FAILED">确认未通过放弃</option>
+          </select>
+          <input type="text" id="inp_sym" placeholder="搜索币种 (如 BTC, ETH, COMP)..." oninput="applyFilters()">
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <span id="txt_filter_count">显示 0 / 0 项</span>
+        <span id="txt_pnl_sum">总盈亏: 0.00 USDT</span>
+      </div>
+
+      <div class="record-list" id="record_list">
+        <!-- 动态渲染卡片 -->
+      </div>
+    </div>
+
+    <!-- 右侧复盘详情 -->
+    <div class="right-panel">
+      <div class="detail-header">
+        <div class="detail-title">
+          <div>
+            <h2 id="cur_title">请选择左侧交易或候选记录进行复盘</h2>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="cur_sub">
+              选择记录后将自动渲染 15m/1h 高保真真实 K 线与四重时点标记
+            </div>
+          </div>
+          <div id="cur_badges" style="display: flex; gap: 6px;"></div>
+        </div>
+      </div>
+
+      <!-- K 线图 -->
+      <div class="chart-container">
+        <div class="chart-legend">
+          <div class="legend-item"><span class="dot" style="background: var(--accent-yellow);"></span> 信号(1h收盘)</div>
+          <div class="legend-item"><span class="dot" style="background: var(--accent-blue);"></span> 确认(次根1h收盘)</div>
+          <div class="legend-item"><span class="dot" style="background: var(--accent-green);"></span> 实际成交(15m入场)</div>
+          <div class="legend-item"><span class="dot" style="background: var(--accent-red);"></span> 实际出场(平仓)</div>
+          <div class="legend-item"><span style="border-bottom: 2px dashed #94a3b8; width: 14px; display: inline-block;"></span> 原始P0止损线</div>
+        </div>
+        <div id="tv_chart"><div class="tv-lightweight-charts" style="overflow: hidden; direction: ltr; width: 266px; height: 0px; user-select: none; -webkit-tap-highlight-color: transparent;"><table cellspacing="0" style="height: 0px; width: 266px;"><tr><td style="padding: 0px;"></td><td style="padding: 0px; position: relative; width: 266px; height: 2px;"><div style="width: 100%; height: 100%; position: relative; overflow: hidden;"><canvas width="266" height="2" style="width: 266px; height: 2px; position: absolute; z-index: 1; left: 0px; top: 0px;"></canvas><canvas width="266" height="2" style="width: 266px; height: 2px; position: absolute; z-index: 2; left: 0px; top: 0px;"></canvas></div><style>a#tv-attr-logo{--fill:#131722;--stroke:#fff;position:absolute;left:10px;bottom:10px;height:19px;width:35px;margin:0;padding:0;border:0;z-index:3;}a#tv-attr-logo[data-dark]{--fill:#D1D4DC;--stroke:#131722;}</style><a href="https://www.tradingview.com/?utm_medium=lwc-link&amp;utm_campaign=lwc-chart&amp;utm_source=127.0.0.1/" title="Charting by TradingView" id="tv-attr-logo" target="_blank" data-dark=""><svg xmlns="http://www.w3.org/2000/svg" width="35" height="19" fill="none"><g fill-rule="evenodd" clip-path="url(#a)" clip-rule="evenodd"><path fill="var(--stroke)" d="M2 0H0v10h6v9h21.4l.5-1.3 6-15 1-2.7H23.7l-.5 1.3-.2.6a5 5 0 0 0-7-.9V0H2Zm20 17h4l5.2-13 .8-2h-7l-1 2.5-.2.5-1.5 3.8-.3.7V17Zm-.8-10a3 3 0 0 0 .7-2.7A3 3 0 1 0 16.8 7h4.4ZM14 7V2H2v6h6v9h4V7h2Z"></path><path fill="var(--fill)" d="M14 2H2v6h6v9h6V2Zm12 15h-7l6-15h7l-6 15Zm-7-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path></g><defs><clipPath id="a"><path fill="var(--stroke)" d="M0 0h35v19H0z"></path></clipPath></defs></svg></a></td><td style="padding: 0px;"><div style="height: 2px; overflow: hidden; width: 0px; left: 0px; position: relative;"><canvas width="0" height="2" style="width: 0px; height: 2px; position: absolute; z-index: 1; left: 0px; top: 0px;"></canvas><canvas width="0" height="2" style="width: 0px; height: 2px; position: absolute; z-index: 2; left: 0px; top: 0px;"></canvas></div></td></tr><tr><td style="padding: 0px;"></td><td style="height: 28px; padding: 0px; width: 266px;"><div style="width: 100%; height: 100%; position: relative; overflow: hidden;"><canvas width="266" height="28" style="width: 266px; height: 28px; position: absolute; z-index: 1; left: 0px; top: 0px;"></canvas><canvas width="266" height="28" style="width: 266px; height: 28px; position: absolute; z-index: 2; left: 0px; top: 0px;"></canvas></div></td><td style="padding: 0px;"><div style="width: 0px; height: 28px; overflow: hidden;"><canvas style="width: 0px; height: 28px;"></canvas></div></td></tr></table></div></div>
+      </div>
+
+      <!-- 三模式对照抽屉 (C0 vs C1 vs C2) -->
+      <div class="cross-mode-section">
+        <h3><span>⚡</span> 同一候选在 C0 / C1 / C2 中的结果对照（全生命周期对比）</h3>
+        <div class="cross-grid">
+          <div class="cross-card" id="card_c0">
+            <div class="cross-title"><span>C0 (原缩量回踩)</span><span class="badge badge-warn" id="c0_badge">—</span></div>
+            <div class="cross-item"><span>执行结果:</span><span class="cross-val" id="c0_res">—</span></div>
+            <div class="cross-item"><span>入场时点:</span><span class="cross-val" id="c0_entry_t">—</span></div>
+            <div class="cross-item"><span>平仓原因:</span><span class="cross-val" id="c0_exit_r">—</span></div>
+          </div>
+          <div class="cross-card" id="card_c1" style="border-color: #0284c7;">
+            <div class="cross-title"><span>C1 (次根企稳确认)</span><span class="badge badge-pass" id="c1_badge">—</span></div>
+            <div class="cross-item"><span>确认决策:</span><span class="cross-val" id="c1_dec">—</span></div>
+            <div class="cross-item"><span>归因分类:</span><span class="cross-val" id="c1_attr">—</span></div>
+            <div class="cross-item"><span>净盈亏:</span><span class="cross-val" id="c1_pnl">—</span></div>
+          </div>
+          <div class="cross-card" id="card_c2">
+            <div class="cross-title"><span>C2 (重心上移确认)</span><span class="badge badge-warn" id="c2_badge">—</span></div>
+            <div class="cross-item"><span>重心上移:</span><span class="cross-val" id="c2_dec">—</span></div>
+            <div class="cross-item"><span>归因分类:</span><span class="cross-val" id="c2_attr">—</span></div>
+            <div class="cross-item"><span>净盈亏:</span><span class="cross-val" id="c2_pnl">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 四时点与风险审计面板 -->
+      <div class="audit-grid">
+        <div class="audit-card">
+          <h4>时点物理隔离与时间戳审计（绝不将信号画成成交）</h4>
+          <div class="audit-row"><span class="audit-lbl">原信号产生时刻 (1h收盘):</span><span class="audit-val" id="aud_sig_t">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">确认K线收盘时刻 (1h确认):</span><span class="audit-val" id="aud_conf_t">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">下单时刻 (15m挂单开始):</span><span class="audit-val" id="aud_order_t">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">实际成交时刻 (15m撮合成交):</span><span class="audit-val" id="aud_fill_t">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">实际平仓时刻 (出场撮合):</span><span class="audit-val" id="aud_exit_t">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">真实交易 ID (Trade ID):</span><span class="audit-val" id="aud_trade_id">—</span></div>
+        </div>
+
+        <div class="audit-card">
+          <h4>价格、原始 P0 与风险仓位审计</h4>
+          <div class="audit-row"><span class="audit-lbl">原始止损锚点 P0:</span><span class="audit-val" id="aud_p0">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">实际成交入场价格:</span><span class="audit-val" id="aud_entry_p">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">计划单笔风险距离 R (Entry - P0):</span><span class="audit-val" id="aud_r">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">实际成交持仓数量 (Qty):</span><span class="audit-val" id="aud_qty">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">实际仓位金额 (Stake USDT):</span><span class="audit-val" id="aud_stake">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">扣费后净盈亏 (Net Profit):</span><span class="audit-val" id="aud_net_pnl">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">平仓退出原因 (Exit Reason):</span><span class="audit-val" id="aud_exit_r">—</span></div>
+          <div class="audit-row"><span class="audit-lbl">对应策略与数据版本:</span><span class="audit-val">FT_ENTRY_09 · FT-FACTOR-03</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+
+
+</body></html>

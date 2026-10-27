@@ -1,0 +1,293 @@
+{
+ "stats_at_utc": "2026-10-26T17:50:46Z",
+ "code_before_fix": {
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+  "exists": true,
+  "bytes": 113875,
+  "sha256": "d96ad60eca61f7e53e273414196100ac21b33650a19480beafb0eb60c4d41a52",
+  "hashed_bytes": 113875
+ },
+ "code_mtime_utc": "2026-10-26T16:20:48Z",
+ "version": "accum_early_05b_v1",
+ "config_schema": "accum-early-05/v1",
+ "rule_version": "accum-early-05::v1",
+ "upstream_06_01": {
+  "dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W1",
+  "delivered": false,
+  "note": "06-01（窗口一：规则来源矩阵）未交付 ⇒ 本单依据改为**直取原始文档**并逐条读回校验；不引用不存在的上游产物。"
+ },
+ "basis": [
+  {
+   "id": "B1",
+   "claim": "承接判定的判断时点 = 扫低根 1h 收盘",
+   "file": "evidence/ACCUM-EARLY-04-A/README.md",
+   "line": 53,
+   "must_contain": "扫低根 1h 收盘",
+   "kind": "方案文本（04-A 规则接口的可得时点表）",
+   "line_text": "| 承接/卖压怎么判 | `taker_buy_quote_volume / quote_volume`，基准为前 20 根中位数；卖压 = `quote_volume − taker_buy_quote_volume`（推导量） | 扫低根 1h 收盘 |",
+   "verified": true
+  },
+  {
+   "id": "B2",
+   "claim": "承接基准窗口 = 扫低根之前 20 根 1h 的中位数",
+   "file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md",
+   "line": 134,
+   "must_contain": "扫低根之前 20 根 1h 的中位数",
+   "kind": "方案文本（参数表 absorption_baseline_bars）",
+   "line_text": "| `absorption_baseline_bars` | `20` | 承接与卖压的比较基准 = 扫低根之前 20 根 1h 的中位数 | 与冻结规则 V20（前 20 根成交量中位数）同窗口，避免多立一套基准 | 窗口越短越敏感、越容易被单根异常带偏 | 中位数对「连续放量」不敏感，趋势末段可能仍判为「卖压减弱」 |",
+   "verified": true
+  },
+  {
+   "id": "B3",
+   "claim": "承接是硬门槛（不满足不进 ARMED）",
+   "file": "evidence/ACCUM-EARLY-04-A/03_决策表.md",
+   "line": 28,
+   "must_contain": "承接条件是**硬门槛**",
+   "kind": "方案文本（决策表第 6 项）",
+   "line_text": "| 6 | 承接条件是**硬门槛**（不满足不进 ARMED），不只是证据 | 硬门槛 / 只作证据 | `absorption_is_gate` = `True` | 策略命题是「发现承接后提前入场」；若只作证据，三组与原策略的差别就只剩触发价位，命题不成立 | 关掉后事件数大增，等于做「无承接的提前入场」 | 硬门槛会把「承接发生在扫低之后几根」的情形全部排除 |",
+   "verified": true
+  },
+  {
+   "id": "B4",
+   "claim": "参考实现在**扫低成立的那一根**就调用 absorption 并把不通过记为 SWEEP_REJECTED（不进 SWEEP）",
+   "file": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py",
+   "line": 1065,
+   "must_contain": "ab = absorption(bars_1h, i, p)",
+   "kind": "方案文本（04-A 参考实现）",
+   "line_text": "ab = absorption(bars_1h, i, p)",
+   "verified": true
+  },
+  {
+   "id": "B5",
+   "claim": "扫低与收回必须在同一根 1h 内完成（single_bar）",
+   "file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md",
+   "line": 128,
+   "must_contain": "扫低与收回必须在**同一根** 1h 内完成",
+   "kind": "方案文本（参数表 sweep_recovery_scope，未批准）",
+   "line_text": "| `sweep_recovery_scope` | `single_bar` | 扫低与收回必须在**同一根** 1h 内完成（不允许多根拼） | 与原策略同构（单根完成）。**本单未做双根实现的对照**，因此这是「没有数据支持的建议」，只是为了让规则可执行；风险栏写明放宽后会怎样 | 放宽到 2 根会显著增加事件数 | 多根完成时，「收回」可能只是下一根反弹，承接证据被稀释 |",
+   "verified": true
+  },
+  {
+   "id": "B6",
+   "claim": "sell_pressure.require 仍是「建议未批准」",
+   "file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md",
+   "line": 48,
+   "must_contain": "shared.sell_pressure.require",
+   "kind": "批准状态表",
+   "line_text": "| 27 | `shared.sell_pressure.require` | `true` | **建议未批准<br>(核心决策 3)** | 04-A 建议（核心命题门槛） | 承接与卖压减弱是否作为进场的硬性门槛 | 关掉则做无量价证据的纯价格突破 |",
+   "verified": true
+  },
+  {
+   "id": "B7",
+   "claim": "局部压制位也定义为「扫低根之前 48 根 1h」（本单不修，只交证据）",
+   "file": "evidence/ACCUM-EARLY-04-A/README.md",
+   "line": 52,
+   "must_contain": "扫低根之前 48 根 1h",
+   "kind": "方案文本（可得时点表）",
+   "line_text": "| 局部压制位怎么取 | 扫低根之前 48 根 1h 内最后一个「左右各 3 根都不高于它」的最高价；找不到回退为 48 根最高 | 扫低根 1h 收盘 |",
+   "verified": true
+  }
+ ],
+ "basis_all_verified": true,
+ "blocked_items": [
+  {
+   "item": "sweep_recovery_scope = multi_bar 时的「扫低根」",
+   "why": "B5 只规定了 single_bar（同根完成）；多根完成时「扫低根」取最低价那根还是收回那根，原文没有规定，且该档未批准 ⇒ 不猜。",
+   "blocked_scope": "仅该项；single_bar 路径不受影响"
+  }
+ ],
+ "no_conflict_items": [
+  "承接时点=扫低根 1h 收盘（B1/B4 一致）",
+  "基准窗口=扫低根之前 20 根（B2 唯一口径）",
+  "承接是硬门槛（B3/B6 一致：门槛存在但倍率未批准）"
+ ],
+ "static": {
+  "definitions": {
+   "_resistance": 703,
+   "_sweep_check": 765,
+   "_absorption": 815,
+   "on_bar": 955,
+   "_confirm_actions": 1047
+  },
+  "call_sites": [
+   {
+    "callee": "_sweep_check",
+    "line": 983,
+    "enclosing": [
+     "on_bar"
+    ],
+    "arg_i_repr": "i",
+    "n_args": 5
+   },
+   {
+    "callee": "_resistance",
+    "line": 1050,
+    "enclosing": [
+     "_confirm_actions"
+    ],
+    "arg_i_repr": "i",
+    "n_args": 4
+   },
+   {
+    "callee": "_absorption",
+    "line": 1073,
+    "enclosing": [
+     "_confirm_actions"
+    ],
+    "arg_i_repr": "i",
+    "n_args": 3
+   }
+  ]
+ },
+ "static_summary": {
+  "absorption_enclosing": [
+   [
+    "_confirm_actions"
+   ]
+  ],
+  "absorption_in_sweep_check": false,
+  "absorption_in_confirm_actions": true,
+  "absorption_in_on_bar": false,
+  "absorption_arg_i": [
+   "i"
+  ]
+ },
+ "config": {
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/01/config/fixture_rules_06w2.json",
+  "kind": "fixture",
+  "ready": true,
+  "open_allowed": true,
+  "open_scope": "fixture_chain_selfcheck",
+  "config_sha256": "203d9b316583d4c16ca185cee08ee759f11bcdf00ee691cc83adfaeb97440e58",
+  "blocked_by": []
+ },
+ "runtime_before_fix": {
+  "A_扫低承接通过_突破根不通过": {
+   "n_candidates": 0,
+   "final_state": "SWEEP",
+   "closed_reason": null,
+   "absorption_calls": [
+    {
+     "fn": "absorption",
+     "i": 61,
+     "bar_open_ms": 1780491600000,
+     "bar_close_ms": 1780495199999,
+     "bar_open_utc": "2026-06-03T13:00:00Z",
+     "bar_close_utc": "2026-06-03T13:59:59Z",
+     "n_bars_in_series": 62
+    }
+   ],
+   "sweep_bar_i": 60,
+   "confirm_bar_i": 61,
+   "sweep_bar_close_utc": "2026-06-03T12:59:59Z",
+   "confirm_bar_close_utc": "2026-06-03T13:59:59Z",
+   "transitions": [
+    {
+     "to": "BOX",
+     "at": "2026-06-03T02:59:59Z",
+     "reason": "事件建档（初始锚点冻结）"
+    },
+    {
+     "to": "SWEEP",
+     "at": "2026-06-03T12:59:59Z",
+     "reason": "扫低收回成立"
+    }
+   ]
+  },
+  "B_扫低不通过_突破根通过": {
+   "n_candidates": 0,
+   "final_state": "SWEEP",
+   "closed_reason": null,
+   "absorption_calls": [
+    {
+     "fn": "absorption",
+     "i": 61,
+     "bar_open_ms": 1780491600000,
+     "bar_close_ms": 1780495199999,
+     "bar_open_utc": "2026-06-03T13:00:00Z",
+     "bar_close_utc": "2026-06-03T13:59:59Z",
+     "n_bars_in_series": 62
+    }
+   ],
+   "sweep_bar_i": 60,
+   "confirm_bar_i": 61,
+   "sweep_bar_close_utc": "2026-06-03T12:59:59Z",
+   "confirm_bar_close_utc": "2026-06-03T13:59:59Z",
+   "transitions": [
+    {
+     "to": "BOX",
+     "at": "2026-06-03T02:59:59Z",
+     "reason": "事件建档（初始锚点冻结）"
+    },
+    {
+     "to": "SWEEP",
+     "at": "2026-06-03T12:59:59Z",
+     "reason": "扫低收回成立"
+    },
+    {
+     "to": "WAIT_ENTRY",
+     "at": "2026-06-03T13:59:59Z",
+     "reason": "候选生成"
+    }
+   ]
+  },
+  "C_扫低根数据不足": {
+   "n_candidates": 0,
+   "final_state": "DATA_INSUFFICIENT",
+   "closed_reason": "承接证据缺字段（quote_volume / taker_buy_quote_volume）",
+   "absorption_calls": [
+    {
+     "fn": "absorption",
+     "i": 61,
+     "bar_open_ms": 1780491600000,
+     "bar_close_ms": 1780495199999,
+     "bar_open_utc": "2026-06-03T13:00:00Z",
+     "bar_close_utc": "2026-06-03T13:59:59Z",
+     "n_bars_in_series": 62
+    }
+   ],
+   "sweep_bar_i": 60,
+   "confirm_bar_i": 61,
+   "sweep_bar_close_utc": "2026-06-03T12:59:59Z",
+   "confirm_bar_close_utc": "2026-06-03T13:59:59Z",
+   "transitions": [
+    {
+     "to": "BOX",
+     "at": "2026-06-03T02:59:59Z",
+     "reason": "事件建档（初始锚点冻结）"
+    },
+    {
+     "to": "SWEEP",
+     "at": "2026-06-03T12:59:59Z",
+     "reason": "扫低收回成立"
+    },
+    {
+     "to": "DATA_INSUFFICIENT",
+     "at": "2026-06-03T13:59:59Z",
+     "reason": "承接证据缺字段（quote_volume / taker_buy_quote_volume）"
+    }
+   ]
+  }
+ },
+ "before_fix_reads_bar_index": {
+  "A_扫低承接通过_突破根不通过": [
+   61
+  ],
+  "B_扫低不通过_突破根通过": [
+   61
+  ],
+  "C_扫低根数据不足": [
+   61
+  ]
+ },
+ "before_fix_reads_sweep_bar": {
+  "A_扫低承接通过_突破根不通过": false,
+  "B_扫低不通过_突破根通过": false,
+  "C_扫低根数据不足": false
+ },
+ "before_fix_reads_confirm_bar": {
+  "A_扫低承接通过_突破根不通过": true,
+  "B_扫低不通过_突破根通过": true,
+  "C_扫低根数据不足": true
+ }
+}

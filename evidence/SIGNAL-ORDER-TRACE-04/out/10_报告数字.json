@@ -1,0 +1,2199 @@
+{
+  "generated_at_utc": "2026-10-25T03:05:42Z",
+  "source_files": {
+    "01_A_身份静态取证.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/01_A_身份静态取证.json",
+    "01_B_身份确定性验证.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/01_B_身份确定性验证.json",
+    "01_C_生产账本只读实证.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/01_C_生产账本只读实证.json",
+    "02_候选扫描.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/02_候选扫描.json",
+    "02_数据源等价性.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/02_数据源等价性.json",
+    "03_隔离行情库.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/03_隔离行情库.json",
+    "04_prod_epoch.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/04_prod_epoch.json",
+    "04_replay.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/04_replay.json",
+    "04_gate_closed.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/04_gate_closed.json",
+    "04b_重复输入_open.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/04b_重复输入_open.json",
+    "04b_重复输入_gate.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/04b_重复输入_gate.json",
+    "05_核对_replay.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/05_核对_replay.json",
+    "06_工作台注册.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/06_工作台注册.json",
+    "07_导出核验.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/07_导出核验.json",
+    "08_UI导出核验.json": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_UI导出核验.json"
+  },
+  "1_identity": {
+    "exchange_order_id_hits_in_backend": [],
+    "exchange_order_tokens_searched": [
+      "exchange_order_id",
+      "exchangeOrderId",
+      "clientOrderId",
+      "client_order_id",
+      "newOrderResp",
+      "orderId",
+      "order_id_exchange"
+    ],
+    "exchange_order_verdict": "纸面模拟链路**没有交易所订单号**：本模块不含任何交易所写接口，成交由「已闭合 15m bar 开盘价」本地撮合（`paper_engine.FILL_POLICY`）。因此 `exchange_order_id` 一律 `None` + 原因，**不用引擎自增 `paper_order.order_id` 冒充**。",
+    "B1_same_window_identical_candidate_id": true,
+    "B1_same_window_identical_cross_run_key": true,
+    "B2_verdict": "两者同时变化 ⇒ 位移改变了候选集合本身（不只是 ID），属真实语义差异，不是身份问题；身份结论以 B3 为准",
+    "B3_n_common": 1,
+    "B3_candidate_id_identical": true,
+    "B3_verdict": "同一确认 bar 上的候选，换窗口后 candidate_id **逐位相同** ⇒ candidate_id 可直接作跨运行匹配键（不含窗口起点/计数器/挂钟）；cross_run_key 属冗余二次校验",
+    "prod_ledger_sha256_before": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+    "prod_ledger_sha256_after": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+    "prod_ledger_unchanged": true,
+    "prod_ledger_row_counts": {
+      "paper_account": 0,
+      "paper_order": 13,
+      "paper_fill": 6,
+      "paper_pending": 3,
+      "paper_position": 3,
+      "paper_realized": 3,
+      "paper_blocked": 12,
+      "paper_processed": 3,
+      "paper_stop_history": 0,
+      "paper_funding": 0
+    },
+    "prod_order_has_signal_uid": false,
+    "prod_fill_has_signal_uid": true,
+    "prod_exchange_order_column_present": false,
+    "capability_boundary": "`paper_order` 只有 `event_uid`（= 候选 `candidate_id`），**没有** `signal_uid` 列；`paper_fill` 有 `signal_uid` 且直接带 `order_id` / `position_id`。⇒ 订单→候选 走 `paper_order.event_uid`；成交→候选 走 `paper_fill.signal_uid`；成交→订单 走 `paper_fill.order_id`。三者都是真实外键，不需要按顺序猜。"
+  },
+  "2_candidates": {
+    "n_candidates": 65,
+    "n_symbols_scanned": 526,
+    "n_errors": 0,
+    "elapsed_sec": 149.0,
+    "equivalence_all_counters_identical": true,
+    "equivalence_n_symbols": 6
+  },
+  "3_isolated_market": {
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_market.sqlite3",
+    "downloaded_anything": false,
+    "wrote_production": false,
+    "size_mb": 353.3,
+    "symbols": 60,
+    "inserted": {
+      "AGTUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "AIGENSYNUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "ATUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "AXSUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "BABYUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "BBUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "BLESSUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "BLURUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "BUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "CARVUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "CHZUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "COLLECTUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "CROSSUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "DOLOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "DOTUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "DUSKUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "EDUUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "ENSOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "ETHWUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "EVAAUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "GOATUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "HYPERUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "IRYSUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "JELLYJELLYUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "KAITOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "KATUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "KMNOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "KOMAUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "MEGAUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "METISUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "METUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "MITOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "NEARUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "NILUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PIXELUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PLUMEUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PORTALUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PROVEUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PTBUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PUMPUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "PYTHUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "RUNEUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SAFEUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SANDUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SKRUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SPELLUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SQDUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "SUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "TAIKOUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "TNSRUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "TRADOORUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "UNIUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "VELVETUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "WALUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "WUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "XLMUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "XPLUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "YGGUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "ZECUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      },
+      "ZKUSDT": {
+        "15m": {
+          "n": 14016,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:45:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "1h": {
+          "n": 3504,
+          "first_utc": "2026-06-01T02:00:00Z",
+          "last_utc": "2026-10-25T01:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        },
+        "4h": {
+          "n": 875,
+          "first_utc": "2026-06-01T04:00:00Z",
+          "last_utc": "2026-10-24T20:00:00Z",
+          "sources": [
+            "cold",
+            "hot"
+          ]
+        }
+      }
+    },
+    "funding_rows": 43599,
+    "window": {
+      "start_utc": "2026-06-01T02:00:00Z",
+      "end_utc": "2026-10-25T02:00:00Z",
+      "days": 146.0
+    },
+    "scope_statement": "本库**只物化 60 个标的**（AGTUSDT, AIGENSYNUSDT, ATUSDT, AXSUSDT, BABYUSDT, BBUSDT, BLESSUSDT, BLURUSDT, BUSDT, CARVUSDT, CHZUSDT, COLLECTUSDT, CROSSUSDT, DOLOUSDT, DOTUSDT, DUSKUSDT, EDUUSDT, ENSOUSDT, ETHWUSDT, EVAAUSDT, GOATUSDT, HYPERUSDT, IRYSUSDT, JELLYJELLYUSDT, KAITOUSDT, KATUSDT, KMNOUSDT, KOMAUSDT, MEGAUSDT, METISUSDT, METUSDT, MITOUSDT, NEARUSDT, NILUSDT, PIXELUSDT, PLUMEUSDT, PORTALUSDT, PROVEUSDT, PTBUSDT, PUMPUSDT, PYTHUSDT, RUNEUSDT, SAFEUSDT, SANDUSDT, SKRUSDT, SPELLUSDT, SQDUSDT, SUSDT, TAIKOUSDT, TNSRUSDT, TRADOORUSDT, UNIUSDT, VELVETUSDT, WALUSDT, WUSDT, XLMUSDT, XPLUSDT, YGGUSDT, ZECUSDT, ZKUSDT）；1h/4h 来自 180 天隔离库对应的冷+热合并读取，15m 来自冷层 parquet + 热库合并。**不把本库可用外推为全池可用**；全池数据资格见 SIGNAL-HISTORY-FIX-03 的结论。"
+  },
+  "4_pass_prod_epoch": {
+    "n_cases": 65,
+    "n_open_ok": 0,
+    "reason_histogram": {
+      "before_paper_epoch_no_backfill": 65
+    },
+    "ledger_counts": {
+      "paper_order": 65,
+      "paper_fill": 0,
+      "paper_position": 0,
+      "paper_realized": 0,
+      "paper_blocked": 65,
+      "paper_processed": 0,
+      "paper_pending": 0,
+      "paper_stop_history": 0,
+      "paper_funding": 0,
+      "paper_request_anchor": 65
+    },
+    "verdict": "严格按生产 epoch ⇒ 65/65 被 before_paper_epoch_no_backfill 拒绝，0 成交"
+  },
+  "5_pass_replay": {
+    "n_cases": 65,
+    "n_open_ok": 48,
+    "n_closed": 48,
+    "reason_histogram": {
+      "account_drawdown_locked": 17
+    },
+    "ledger_counts": {
+      "paper_order": 113,
+      "paper_fill": 96,
+      "paper_position": 48,
+      "paper_realized": 48,
+      "paper_blocked": 17,
+      "paper_processed": 48,
+      "paper_pending": 0,
+      "paper_stop_history": 126,
+      "paper_funding": 239,
+      "paper_request_anchor": 65
+    },
+    "epoch_ms_used": 1780272000000,
+    "epoch_note": "`replay` = 显式传 `epoch_ms`（引擎为回放提供的正式参数）",
+    "elapsed_sec": 401.3,
+    "wrote_production": false
+  },
+  "6_pass_gate_closed": {
+    "n_cases": 65,
+    "n_open_ok": 0,
+    "reason_histogram": {
+      "new_entry_blocked_pending_closure_review": 65
+    },
+    "ledger_counts": {
+      "paper_order": 65,
+      "paper_fill": 0,
+      "paper_position": 0,
+      "paper_realized": 0,
+      "paper_blocked": 65,
+      "paper_processed": 0,
+      "paper_pending": 0,
+      "paper_stop_history": 0,
+      "paper_funding": 0,
+      "paper_request_anchor": 0
+    }
+  },
+  "7_duplicate": {
+    "open_passed": true,
+    "open_attempts": [
+      {
+        "label": "first",
+        "ok": true,
+        "reason": "filled"
+      },
+      {
+        "label": "repeat_same_clock",
+        "ok": false,
+        "reason": "duplicate_signal_uid"
+      },
+      {
+        "label": "repeat_later_clock",
+        "ok": false,
+        "reason": "duplicate_signal_uid"
+      }
+    ],
+    "gate_passed": true,
+    "gate_attempts": [
+      {
+        "label": "first",
+        "ok": false,
+        "reason": "new_entry_blocked_pending_closure_review"
+      },
+      {
+        "label": "repeat_same_clock",
+        "ok": false,
+        "reason": "new_entry_blocked_pending_closure_review"
+      },
+      {
+        "label": "repeat_later_clock",
+        "ok": false,
+        "reason": "new_entry_blocked_pending_closure_review"
+      }
+    ]
+  },
+  "8_verify": {
+    "n_candidates": 65,
+    "n_open_ok": 48,
+    "n_filled_positions": 48,
+    "n_closed": 48,
+    "chain_ok_all": true,
+    "value_ok_all": true,
+    "n_chain_broken": [],
+    "n_value_mismatch": [],
+    "wins_losses_flats": [
+      9,
+      39,
+      0
+    ],
+    "win_rate_pct": 18.75,
+    "net_pnl_sum": -637.9036706339,
+    "gross_pnl_sum": -614.9958413,
+    "fee_sum": 20.7531642433,
+    "slippage_sum": 27.4416353,
+    "funding_sum": 2.1546650907,
+    "exit_path_histogram": {
+      "15m_check_position_exit_on_bar": 33,
+      "4h_advance_position_trailing": 15
+    },
+    "n_close_bar_before_entry": 14,
+    "n_exit_not_after_entry": [],
+    "holding_hours_range": [
+      0.25,
+      212.75
+    ],
+    "gap_case_total": 0,
+    "capability_boundary": {
+      "has_per_fill_events": true,
+      "per_fill_rows": 96,
+      "per_order_fill_rows_histogram": {
+        "1": 96
+      },
+      "exchange_order_id": null,
+      "exchange_order_absent_reason": "模拟盘不下真单；本模块无任何交易所写接口",
+      "partial_fill_supported": false,
+      "partial_fill_note": "引擎每张成交订单只落 **1 条** `paper_fill`（全量成交），不支持部分成交展开 ⇒ 逐次成交=逐订单成交，**不是订单级投影**，但也不能据此推断撮合深度。",
+      "gap_stop_note": "15m 跳空穿线时 `check_position_exit_on_bar` 仍按 `cur_stop` 成交（未用更差的 `open`）⇒ 对多头偏乐观。本单**只记录不改**（改即改冻结出场规则）。"
+    },
+    "ledger_counts": {
+      "paper_order": 113,
+      "paper_fill": 96,
+      "paper_position": 48,
+      "paper_realized": 48,
+      "paper_blocked": 17,
+      "paper_processed": 48,
+      "paper_pending": 0,
+      "paper_stop_history": 126,
+      "paper_funding": 239,
+      "paper_request_anchor": 65
+    }
+  },
+  "9_workbench": {
+    "n_symbols": 60,
+    "n_built": 60,
+    "n_error": 0,
+    "runs_root": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_runs",
+    "runs_root_is_isolated": true,
+    "chart_json_written": false,
+    "total_trades": 48,
+    "total_rejected": 17,
+    "reject_only_runs": 13,
+    "n_exit_4h_path": 15
+  },
+  "10_export": {
+    "n_runs_registered": 60,
+    "n_runs_in_list_endpoint": 60,
+    "runs_missing_from_list": [],
+    "batches_endpoint": {
+      "http": 200,
+      "total": 0,
+      "batch_ids": [],
+      "batch_root": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/iso_batch_root",
+      "isolated": true
+    },
+    "coverage_groups": 180,
+    "coverage_all_ok": 154,
+    "coverage_not_applicable": 26,
+    "coverage_failed": 0,
+    "row_count_mismatch": 0,
+    "recon_runs": 60,
+    "recon_mismatch": 0,
+    "chart_checks": [
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_AGTUSDT_1788853499",
+        "timeframe": "4h",
+        "envelope_missing_reason": null,
+        "candles": 672,
+        "first_t": 1788480000000,
+        "last_t": 1789083900000,
+        "symbol": "AGTUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（AGTUSDT/4h），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 1,
+        "trades_markers": 1,
+        "ok": true
+      },
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_AGTUSDT_1788853499",
+        "timeframe": "15m",
+        "envelope_missing_reason": null,
+        "candles": 672,
+        "first_t": 1788480000000,
+        "last_t": 1789083900000,
+        "symbol": "AGTUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（AGTUSDT/15m），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 1,
+        "trades_markers": 1,
+        "ok": true
+      },
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_AIGENSYNUSDT_1788796799",
+        "timeframe": "4h",
+        "envelope_missing_reason": null,
+        "candles": 576,
+        "first_t": 1788480000000,
+        "last_t": 1788997500000,
+        "symbol": "AIGENSYNUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（AIGENSYNUSDT/4h），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 2,
+        "trades_markers": 1,
+        "ok": true
+      },
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_AIGENSYNUSDT_1788796799",
+        "timeframe": "15m",
+        "envelope_missing_reason": null,
+        "candles": 576,
+        "first_t": 1788480000000,
+        "last_t": 1788997500000,
+        "symbol": "AIGENSYNUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（AIGENSYNUSDT/15m），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 2,
+        "trades_markers": 1,
+        "ok": true
+      },
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099",
+        "timeframe": "4h",
+        "envelope_missing_reason": null,
+        "candles": 9792,
+        "first_t": 1780185600000,
+        "last_t": 1788997500000,
+        "symbol": "NEARUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（NEARUSDT/4h），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 2,
+        "trades_markers": 2,
+        "ok": true
+      },
+      {
+        "run_id": "run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099",
+        "timeframe": "15m",
+        "envelope_missing_reason": null,
+        "candles": 9792,
+        "first_t": 1780185600000,
+        "last_t": 1788997500000,
+        "symbol": "NEARUSDT",
+        "display_timeframe": "15m",
+        "exec_timeframe": "15m",
+        "signal_timeframe": "1h",
+        "candles_source": "读时按本 run 自己的标的与窗口取真实 K 线（NEARUSDT/15m），未写回 run 目录",
+        "window_matches_run_window": false,
+        "derived_from": "chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h)；K 线为该窗口真实行情，未写回 run 目录",
+        "signals": 2,
+        "trades_markers": 2,
+        "ok": true
+      }
+    ],
+    "chart_sample_runs": [
+      "run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099",
+      "run_WX_EVENT_TREND_V0_1_AGTUSDT_1788853499",
+      "run_WX_EVENT_TREND_V0_1_AIGENSYNUSDT_1788796799"
+    ],
+    "isolation_proof": {
+      "prod_runs_unchanged": true,
+      "prod_ledger_unchanged": true
+    }
+  },
+  "11_ui": {
+    "run_id": "run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099",
+    "downloads": [
+      {
+        "label": "逐笔交易",
+        "rows": 2,
+        "bytes": 930,
+        "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/trades_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv"
+      },
+      {
+        "label": "委托订单",
+        "rows": 4,
+        "bytes": 1306,
+        "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/orders_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv"
+      },
+      {
+        "label": "逐次成交",
+        "rows": 4,
+        "bytes": 886,
+        "saved_as": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-ORDER-TRACE-04/out/08_ui_download/fills_run_WX_EVENT_TREND_V0_1_NEARUSDT_1788821099.csv"
+      }
+    ],
+    "page_facts": {
+      "run_id_in_page": false,
+      "has_kline_canvas": true,
+      "canvas_count": 11,
+      "trades_chip": "本 run 共 2 笔",
+      "text_len": 1618
+    },
+    "page_vs_summary": {
+      "base_equity_from_equity_curve": 2000,
+      "net_pct": {
+        "page": 0.37,
+        "expected": 0.37,
+        "match": true
+      },
+      "n_trades": {
+        "page": 2,
+        "expected": 2,
+        "match": true
+      },
+      "fees": {
+        "page": 0.9523,
+        "expected": 0.9523,
+        "match": true
+      },
+      "funding": {
+        "page": 0.3137,
+        "expected": 0.3137,
+        "match": true
+      },
+      "all_match": true
+    },
+    "order_locate": {
+      "clicked": true,
+      "focused_trade_id_shown": true,
+      "matched_trade_ids": [
+        "trd_paper_pos_1"
+      ]
+    },
+    "bad_responses": [
+      {
+        "status": 500,
+        "url": "http://127.0.0.1:3001/api/v1/accounts"
+      }
+    ],
+    "console_errors": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ]
+  }
+}

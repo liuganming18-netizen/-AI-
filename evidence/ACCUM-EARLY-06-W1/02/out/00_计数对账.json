@@ -1,0 +1,603 @@
+{
+  "schema": "accum-early-06-w1/decision-inventory/v1",
+  "checked_at_utc": "2026-10-26T18:15:46Z",
+  "required_paths": {
+    "total": 49,
+    "meta": [
+      "schema_version",
+      "kind",
+      "approved",
+      "approval_ref"
+    ],
+    "pending_mapped": [
+      "conflict_resolution.risk_config",
+      "conflict_resolution.slippage_source",
+      "schemes.4c.pullback.deadline_hours",
+      "shared.entry_gate.entry_price_deviation_cap",
+      "shared.intrabar_break_cancel.buffer_atr",
+      "shared.intrabar_break_cancel.mode",
+      "shared.local_resistance.lookback_bars",
+      "shared.local_resistance.mode",
+      "shared.local_resistance.swing_k",
+      "shared.local_resistance_confirm.buffer_atr",
+      "shared.local_resistance_confirm.mode",
+      "shared.observe_deadline_hours",
+      "shared.oi_role",
+      "shared.repeat_candidate_limit.cooldown_hours",
+      "shared.repeat_candidate_limit.per_event",
+      "shared.sell_pressure.baseline",
+      "shared.sell_pressure.buy_ratio_mult",
+      "shared.sell_pressure.n",
+      "shared.sell_pressure.require",
+      "shared.sweep_recovery_scope.max_bars",
+      "shared.sweep_recovery_scope.mode"
+    ],
+    "conflict_fields": [
+      "conflict_resolution.slippage_source",
+      "conflict_resolution.risk_config",
+      "conflict_resolution.participation_cap"
+    ],
+    "conflict_only": [
+      "conflict_resolution.participation_cap"
+    ],
+    "other_behavior": [
+      "exit.gap_model",
+      "schemes.4a.confirm",
+      "schemes.4a.enabled",
+      "schemes.4b.confirm",
+      "schemes.4b.enabled",
+      "schemes.4c.confirm",
+      "schemes.4c.enabled",
+      "schemes.4c.pullback.zone_atr",
+      "shared.armed_fail.bars",
+      "shared.armed_fail.buffer_atr",
+      "shared.confirm.require_bull_close",
+      "shared.entry_gate.max_gap_up_atr",
+      "shared.invalidate.close_below_l_bars",
+      "shared.invalidate.l_overshoot_atr",
+      "shared.local_resistance.timeframe",
+      "shared.resistance_qualify.min_gap_atr",
+      "shared.sell_pressure.require_upper_half",
+      "shared.sell_pressure.sell_pressure_mult",
+      "shared.sweep_max_overshoot_atr",
+      "shared.sweep_min_recovery_atr",
+      "shared.sweep_reference.mode",
+      "shared.sweep_reference.must_be_above_box_low",
+      "shared.sweep_reference.n"
+    ],
+    "counts": {
+      "total": 49,
+      "meta": 4,
+      "pending_mapped": 21,
+      "conflict_only": 1,
+      "other_behavior": 23
+    },
+    "decomposition_ok": true
+  },
+  "pending_decisions": {
+    "count": 13,
+    "fields": 21,
+    "map": {
+      "local_resistance_definition": [
+        "shared.local_resistance.mode",
+        "shared.local_resistance.lookback_bars",
+        "shared.local_resistance.swing_k"
+      ],
+      "local_resistance_confirm": [
+        "shared.local_resistance_confirm.mode",
+        "shared.local_resistance_confirm.buffer_atr"
+      ],
+      "sweep_bars": [
+        "shared.sweep_recovery_scope.mode",
+        "shared.sweep_recovery_scope.max_bars"
+      ],
+      "sell_pressure_baseline": [
+        "shared.sell_pressure.baseline",
+        "shared.sell_pressure.n"
+      ],
+      "sell_pressure_threshold": [
+        "shared.sell_pressure.buy_ratio_mult",
+        "shared.sell_pressure.require"
+      ],
+      "observe_deadline_hours": [
+        "shared.observe_deadline_hours"
+      ],
+      "pullback_deadline_hours": [
+        "schemes.4c.pullback.deadline_hours"
+      ],
+      "intrabar_break_cancel": [
+        "shared.intrabar_break_cancel.mode",
+        "shared.intrabar_break_cancel.buffer_atr"
+      ],
+      "entry_distance_limit": [
+        "shared.entry_gate.entry_price_deviation_cap"
+      ],
+      "oi_necessity": [
+        "shared.oi_role"
+      ],
+      "repeat_candidate_limit": [
+        "shared.repeat_candidate_limit.per_event",
+        "shared.repeat_candidate_limit.cooldown_hours"
+      ],
+      "risk_budget_new_scheme": [
+        "conflict_resolution.risk_config"
+      ],
+      "slippage_source": [
+        "conflict_resolution.slippage_source"
+      ]
+    }
+  },
+  "blank_form": {
+    "leaves": 49,
+    "null": 48,
+    "prefilled": [
+      {
+        "path": "schema_version",
+        "value": "accum-early-05/v1"
+      }
+    ]
+  },
+  "fixture": {
+    "leaves": 53,
+    "notes": 4,
+    "rule_fields": 49
+  },
+  "doc_04a": {
+    "6.一": 8,
+    "6.二": 9,
+    "6.三": 23,
+    "6.四": 3
+  },
+  "doc_05a_r1": {
+    "rows": 49,
+    "buckets": {
+      "用户已定": {
+        "n": 2,
+        "paths": [
+          "shared.local_resistance.timeframe",
+          "shared.local_resistance_confirm.mode"
+        ]
+      },
+      "建议未批准": {
+        "n": 34,
+        "paths": [
+          "schemes.4a.enabled",
+          "schemes.4a.confirm",
+          "schemes.4b.enabled",
+          "schemes.4b.confirm",
+          "schemes.4c.enabled",
+          "schemes.4c.confirm",
+          "schemes.4c.pullback.zone_atr",
+          "schemes.4c.pullback.deadline_hours",
+          "shared.sweep_reference.mode",
+          "shared.sweep_reference.n",
+          "shared.sweep_reference.must_be_above_box_low",
+          "shared.sweep_recovery_scope.mode",
+          "shared.sweep_recovery_scope.max_bars",
+          "shared.sweep_max_overshoot_atr",
+          "shared.sweep_min_recovery_atr",
+          "shared.local_resistance.mode",
+          "shared.local_resistance.lookback_bars",
+          "shared.local_resistance.swing_k",
+          "shared.resistance_qualify.min_gap_atr",
+          "shared.local_resistance_confirm.buffer_atr",
+          "shared.sell_pressure.require",
+          "shared.sell_pressure.baseline",
+          "shared.sell_pressure.n",
+          "shared.sell_pressure.buy_ratio_mult",
+          "shared.sell_pressure.require_upper_half",
+          "shared.sell_pressure.sell_pressure_mult",
+          "shared.confirm.require_bull_close",
+          "shared.intrabar_break_cancel.mode",
+          "shared.intrabar_break_cancel.buffer_atr",
+          "shared.armed_fail.bars",
+          "shared.armed_fail.buffer_atr",
+          "shared.entry_gate.max_gap_up_atr",
+          "shared.entry_gate.entry_price_deviation_cap",
+          "shared.oi_role"
+        ]
+      },
+      "待确认": {
+        "n": 5,
+        "paths": [
+          "shared.repeat_candidate_limit.per_event",
+          "exit.gap_model",
+          "conflict_resolution.slippage_source",
+          "conflict_resolution.risk_config",
+          "conflict_resolution.participation_cap"
+        ]
+      },
+      "建议沿用": {
+        "n": 4,
+        "paths": [
+          "shared.invalidate.close_below_l_bars",
+          "shared.invalidate.l_overshoot_atr",
+          "shared.observe_deadline_hours",
+          "shared.repeat_candidate_limit.cooldown_hours"
+        ]
+      },
+      "格式/身份": {
+        "n": 4,
+        "paths": [
+          "schema_version",
+          "kind",
+          "approved",
+          "approval_ref"
+        ]
+      },
+      "未分类": {
+        "n": 0,
+        "paths": []
+      }
+    },
+    "rows_count": {
+      "用户已定": 2,
+      "建议未批准": 34,
+      "待确认": 5,
+      "建议沿用": 4,
+      "格式/身份": 4,
+      "未分类": 0
+    },
+    "overview": {
+      "用户已定": 4,
+      "建议未批准": 30,
+      "待确认": 6,
+      "格式/身份": 9
+    },
+    "mismatch": {
+      "用户已定": {
+        "overview": 4,
+        "rows": 2
+      },
+      "建议未批准": {
+        "overview": 30,
+        "rows": 34
+      },
+      "待确认": {
+        "overview": 6,
+        "rows": 5
+      },
+      "格式/身份": {
+        "overview": 9,
+        "rows": 4
+      }
+    },
+    "detail": [
+      {
+        "no": 1,
+        "path": "schema_version",
+        "status": "格式/身份",
+        "cell": "**格式字段**"
+      },
+      {
+        "no": 2,
+        "path": "kind",
+        "status": "格式/身份",
+        "cell": "**身份字段**"
+      },
+      {
+        "no": 3,
+        "path": "approved",
+        "status": "格式/身份",
+        "cell": "**身份字段**"
+      },
+      {
+        "no": 4,
+        "path": "approval_ref",
+        "status": "格式/身份",
+        "cell": "**身份字段**"
+      },
+      {
+        "no": 5,
+        "path": "schemes.4a.enabled",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 6,
+        "path": "schemes.4a.confirm",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 7,
+        "path": "schemes.4b.enabled",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 8,
+        "path": "schemes.4b.confirm",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 9,
+        "path": "schemes.4c.enabled",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 10,
+        "path": "schemes.4c.confirm",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 11,
+        "path": "schemes.4c.pullback.zone_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 12,
+        "path": "schemes.4c.pullback.deadline_hours",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 13,
+        "path": "shared.sweep_reference.mode",
+        "status": "建议未批准",
+        "cell": "**建议未批准<br>(核心决策 1)**"
+      },
+      {
+        "no": 14,
+        "path": "shared.sweep_reference.n",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 15,
+        "path": "shared.sweep_reference.must_be_above_box_low",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 16,
+        "path": "shared.sweep_recovery_scope.mode",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 17,
+        "path": "shared.sweep_recovery_scope.max_bars",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 18,
+        "path": "shared.sweep_max_overshoot_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 19,
+        "path": "shared.sweep_min_recovery_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 20,
+        "path": "shared.local_resistance.mode",
+        "status": "建议未批准",
+        "cell": "**建议未批准<br>(核心决策 2)**"
+      },
+      {
+        "no": 21,
+        "path": "shared.local_resistance.timeframe",
+        "status": "用户已定",
+        "cell": "**用户已定**"
+      },
+      {
+        "no": 22,
+        "path": "shared.local_resistance.lookback_bars",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 23,
+        "path": "shared.local_resistance.swing_k",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 24,
+        "path": "shared.resistance_qualify.min_gap_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 25,
+        "path": "shared.local_resistance_confirm.mode",
+        "status": "用户已定",
+        "cell": "**用户已定**"
+      },
+      {
+        "no": 26,
+        "path": "shared.local_resistance_confirm.buffer_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 27,
+        "path": "shared.sell_pressure.require",
+        "status": "建议未批准",
+        "cell": "**建议未批准<br>(核心决策 3)**"
+      },
+      {
+        "no": 28,
+        "path": "shared.sell_pressure.baseline",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 29,
+        "path": "shared.sell_pressure.n",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 30,
+        "path": "shared.sell_pressure.buy_ratio_mult",
+        "status": "建议未批准",
+        "cell": "**建议未批准<br>(核心决策 3)**"
+      },
+      {
+        "no": 31,
+        "path": "shared.sell_pressure.require_upper_half",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 32,
+        "path": "shared.sell_pressure.sell_pressure_mult",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 33,
+        "path": "shared.confirm.require_bull_close",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 34,
+        "path": "shared.intrabar_break_cancel.mode",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 35,
+        "path": "shared.intrabar_break_cancel.buffer_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 36,
+        "path": "shared.invalidate.close_below_l_bars",
+        "status": "建议沿用",
+        "cell": "**建议沿用**"
+      },
+      {
+        "no": 37,
+        "path": "shared.invalidate.l_overshoot_atr",
+        "status": "建议沿用",
+        "cell": "**建议沿用**"
+      },
+      {
+        "no": 38,
+        "path": "shared.armed_fail.bars",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 39,
+        "path": "shared.armed_fail.buffer_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 40,
+        "path": "shared.entry_gate.max_gap_up_atr",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 41,
+        "path": "shared.entry_gate.entry_price_deviation_cap",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 42,
+        "path": "shared.observe_deadline_hours",
+        "status": "建议沿用",
+        "cell": "**建议沿用**"
+      },
+      {
+        "no": 43,
+        "path": "shared.repeat_candidate_limit.per_event",
+        "status": "待确认",
+        "cell": "**待确认**"
+      },
+      {
+        "no": 44,
+        "path": "shared.repeat_candidate_limit.cooldown_hours",
+        "status": "建议沿用",
+        "cell": "**建议沿用**"
+      },
+      {
+        "no": 45,
+        "path": "shared.oi_role",
+        "status": "建议未批准",
+        "cell": "**建议未批准**"
+      },
+      {
+        "no": 46,
+        "path": "exit.gap_model",
+        "status": "待确认",
+        "cell": "**待确认<br>(核心决策 5)**"
+      },
+      {
+        "no": 47,
+        "path": "conflict_resolution.slippage_source",
+        "status": "待确认",
+        "cell": "**待确认<br>(核心决策 5)**"
+      },
+      {
+        "no": 48,
+        "path": "conflict_resolution.risk_config",
+        "status": "待确认",
+        "cell": "**待确认<br>(核心决策 5)**"
+      },
+      {
+        "no": 49,
+        "path": "conflict_resolution.participation_cap",
+        "status": "待确认",
+        "cell": "**待确认<br>(核心决策 5)**"
+      }
+    ]
+  },
+  "doc_5decisions": {
+    "count": 5,
+    "ids": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ]
+  },
+  "coverage": {
+    "unapproved_by_rows": 43,
+    "mapped_to_13": 21,
+    "unmapped": [
+      "schemes.4a.enabled",
+      "schemes.4a.confirm",
+      "schemes.4b.enabled",
+      "schemes.4b.confirm",
+      "schemes.4c.enabled",
+      "schemes.4c.confirm",
+      "schemes.4c.pullback.zone_atr",
+      "shared.sweep_reference.mode",
+      "shared.sweep_reference.n",
+      "shared.sweep_reference.must_be_above_box_low",
+      "shared.sweep_max_overshoot_atr",
+      "shared.sweep_min_recovery_atr",
+      "shared.resistance_qualify.min_gap_atr",
+      "shared.sell_pressure.require_upper_half",
+      "shared.sell_pressure.sell_pressure_mult",
+      "shared.confirm.require_bull_close",
+      "shared.invalidate.close_below_l_bars",
+      "shared.invalidate.l_overshoot_atr",
+      "shared.armed_fail.bars",
+      "shared.armed_fail.buffer_atr",
+      "shared.entry_gate.max_gap_up_atr",
+      "exit.gap_model"
+    ],
+    "unmapped_n": 22,
+    "funding_fields_in_49": [],
+    "funding_field_count": 0
+  }
+}

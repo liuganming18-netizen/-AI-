@@ -1,18 +1,59 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>加密货币趋势判断系统</title>
-    <meta name="description" content="基于 1800×1180 设计草图渲染的专业加密货币趋势判断系统，涵盖信号区联动、全市场排序、全宽K线与OI图、模拟/实盘双持仓。" />
-    <meta property="og:title" content="加密货币趋势判断系统" />
-    <meta property="og:description" content="基于 1800×1180 设计草图渲染的专业加密货币趋势判断系统，涵盖信号区联动、全市场排序、全宽K线与OI图、模拟/实盘双持仓。" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <title>威科夫因子共振趋势</title>
+    <meta name="description" content="威科夫因子共振趋势 · 回测分析、信号研判与持仓监控一体的量化工作台。" />
+    <!-- 主题预设：必须在样式表与 React 之前同步执行，否则首屏会先闪一下默认色。
+         规则与 ThemeProvider 保持一致（localStorage 键 wk-theme，缺省浅色，与设计稿一致）。 -->
+    <script>
+      (function () {
+        try {
+          var t = null;
+          try {
+            t = new URLSearchParams(location.search).get('theme');
+          } catch (e) {}
+          if (t !== 'light' && t !== 'dark') t = localStorage.getItem('wk-theme');
+          if (t !== 'light' && t !== 'dark') t = 'light';
+          document.documentElement.dataset.theme = t;
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <!-- 白屏自愈：脚本没挂上（缓存错位 / 模块 404 / 热更新状态坏掉）时，
+         #root 会一直是空的，用户看到的就是「什么都没有」。
+         这里 5 秒后检查一次，若仍为空就带缓存击穿参数强制重载**一次**；
+         重载后仍为空则不再刷（避免死循环）。页面正常时会把标记清掉，下次仍可自愈。 -->
+    <script>
+      (function () {
+        var KEY = 'wk-blank-reload';
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          var filled = !!(root && root.childElementCount > 0);
+          if (filled) {
+            try { sessionStorage.removeItem(KEY); } catch (e) {}
+            return;
+          }
+          try {
+            if (sessionStorage.getItem(KEY) === '1') return; // 已经重试过一次
+            sessionStorage.setItem(KEY, '1');
+          } catch (e) {}
+          try {
+            var u = new URL(location.href);
+            u.searchParams.set('_r', String(Date.now()));
+            location.replace(u.toString());
+          } catch (e) {
+            location.reload();
+          }
+        }, 5000);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

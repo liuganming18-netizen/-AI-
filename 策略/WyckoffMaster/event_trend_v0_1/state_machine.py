@@ -18,22 +18,38 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import numpy as np
 import pandas as pd
 
+from ..trading_core.pit_guard import DecisionClock, PitMode
 from .config import EventTrendConfig
 from .contracts import (BoxVersion, CandidateSnapshot, EventDossier, EventState,
                         RawTrace, StateTransition)
-from .features import (compute_efficiency_ratio, compute_v20_median_volume,
-                       compute_wilder_atr_series, extract_real_oi_growth)
+from .features import (OI_BUCKET_MS, OI_STATUS_ASSUMED,
+                       compute_efficiency_ratio, compute_v20_median_volume,
+                       compute_wilder_atr_series, extract_real_oi_growth_ex)
+from .pit_bridge import PitBridge
+
+#: 1 小时 = 3 600 000 ms（决策时钟按「区间起点 + 周期」推导）
+HOUR_MS = 3600 * 1000
 
 
 class EventStateMachine:
     """确定性低频事件状态机。"""
 
-    def __init__(self, config: Optional[EventTrendConfig] = None, symbol: str = "SOLUSDT", enable_oi_filter: bool = True):
+    def __init__(self, config: Optional[EventTrendConfig] = None, symbol: str = "SOLUSDT",
+                 enable_oi_filter: bool = True, pit_mode: str = "declared_assumption",
+                 oi_bucket_ms: int = OI_BUCKET_MS,
+                 oi_declared_lag_ms: Optional[int] = None):
         self.config = config or EventTrendConfig()
         self.symbol = symbol
         self.enable_oi_filter = enable_oi_filter
         self.venue = self.config.venue
-        
+
+        # ── PIT 守卫（FRAME-PIT-01）──
+        # `pit_mode`：strict = 未证明可得时点就拒用；declared_assumption = 照用但判不合格
+        self.pit = PitBridge(symbol=symbol, mode=pit_mode,
+                             bucket_ms=oi_bucket_ms,
+                             declared_lag_ms=oi_declared_lag_ms)
+        self.last_clock = None
+
         # 活跃事件与已完结事件档案
         self.active_event: Optional[EventDossier] = None
         self.completed_events: List[EventDossier] = []
@@ -65,6 +81,10 @@ class EventStateMachine:
             "symbol": self.symbol,
             "venue": self.venue,
             "enable_oi_filter": self.enable_oi_filter,
+            # PIT 配置必须随状态一起走，否则热重启会悄悄换回默认（更宽松）的口径
+            "pit_mode": self.pit.mode.value,
+            "pit_oi_bucket_ms": self.pit.bucket_ms,
+            "pit_oi_declared_lag_ms": self.pit.declared_lag_ms,
             "cooling_until_ms": self.cooling_until_ms,
             "processed_1h_bar_opens": sorted(list(self.processed_1h_bar_opens)),
             "h1_open_times": list(self.h1_open_times),
@@ -89,6 +109,12 @@ class EventStateMachine:
         sm = cls(config=cfg, enable_oi_filter=state_dict.get("enable_oi_filter", True))
         sm.symbol = state_dict.get("symbol", "SOLUSDT")
         sm.venue = state_dict.get("venue", cfg.venue)
+        sm.pit = PitBridge(
+            symbol=sm.symbol,
+            mode=state_dict.get("pit_mode", "declared_assumption"),
+            bucket_ms=int(state_dict.get("pit_oi_bucket_ms", OI_BUCKET_MS)),
+            declared_lag_ms=state_dict.get("pit_oi_declared_lag_ms"),
+        )
         sm.cooling_until_ms = state_dict.get("cooling_until_ms", 0)
         sm.processed_1h_bar_opens = set(state_dict.get("processed_1h_bar_opens", []))
         sm.h1_open_times = list(state_dict.get("h1_open_times", []))
@@ -272,20 +298,38 @@ class EventStateMachine:
         close_p: float,
         volume_v: float,
         oi_timestamps: np.ndarray,
-        oi_values: np.ndarray
+        oi_values: np.ndarray,
+        oi_available_at: Optional[np.ndarray] = None,
+        oi_assumed: Optional[bool] = None
     ) -> Optional[CandidateSnapshot]:
         """处理一根 1h K 线并推动状态演化。
-        
+
         严格因果：输入去重，先判断失效再判断升级。
         返回生成的候选快照（若当根突破确认通过）。
+
+        `oi_available_at` / `oi_assumed`（ACCUM-EARLY-02）
+        -------------------------------------------------
+        `oi_available_at` 是**逐行可得时点**（毫秒，`NaN` = 无法证明当时可得）。
+        传了它，桥接层就按逐行证据判可用（`observed_fetch` 口径），
+        不再用「桶结束」当假设；不传则保持旧行为（假设口径），供历史实验复现。
         """
         # 1. 严格输入去重（杜绝重复 bar 污染特征滑窗）
         if open_time_ms in self.processed_1h_bar_opens:
             return None
         self.processed_1h_bar_opens.add(open_time_ms)
-        
-        close_time_ms = open_time_ms + 3600 * 1000
-        
+
+        # ── 决策时钟（FRAME-PIT-01）──
+        # 四个时刻显式分开：event=区间起点、close=区间最后一毫秒、decision=收盘后第一个时刻。
+        # ⚠ 数值上 decision == 旧 close_time_ms（open + 3600s），**不改变任何信号时点**；
+        #   改动只在「允许读哪些数据行」，不允许借修 PIT 之名挪动决策时刻。
+        clock = DecisionClock.for_bar(open_time_ms, HOUR_MS, source="1h_bar_close")
+        decision_ms = clock.decision_time_ms
+        close_time_ms = decision_ms
+        self.last_clock = clock
+
+        # 硬闸：本根 1h bar 必须已收盘（close+1ms <= decision），否则不许用于决策
+        self.pit.assert_candles_closed(clock.close_time_ms, decision_ms, label="1h")
+
         # 维护滚动历史
         self.h1_open_times.append(open_time_ms)
         self.h1_close_times.append(close_time_ms)
@@ -495,34 +539,68 @@ class EventStateMachine:
                     )
                     return None
                     
-                # 2. 真实 OI 检验
-                oi_curr, oi_past, oi_growth, oi_status = extract_real_oi_growth(
-                    oi_timestamps, oi_values, close_time_ms,
+                # 2. 真实 OI 检验（PIT 受控读取：只看决策时刻已可得的观测）
+                # ── 注册守卫（ACCUM-EARLY-02 修复）──────────────────────────
+                # 修复前的缺陷：`if self.pit.oi_available_at is None:` —— 只要**注册过一次**
+                # 就永不更新。而空数组注册后 `oi_available_at` 是 `np.array([])`（不是 None）
+                # ⇒ 第一次突破拿到空 OI，该进程后续所有突破读到的都还是空；
+                # 反过来说，先到的数据也不会被后来的新观测替换。
+                # 现在的规则只有两条：
+                #   · 本次传入**非空**序列 ⇒ 一律重新注册（决策序列必须逐根更新）；
+                #   · 本次传入空序列且此前从未注册过 ⇒ 注册一次空序列占位（保证 read_oi
+                #     不抛「未登记」），之后一旦有数据到达就会被上面的规则替换。
+                # 这条守卫改的是「数据接入」，不改变任何阈值、状态迁移条件与判定顺序。
+                _oi_n = 0 if oi_timestamps is None else int(len(oi_timestamps))
+                if _oi_n > 0 or self.pit.oi_available_at is None:
+                    self.pit.register_oi(oi_timestamps, oi_values,
+                                         available_at=oi_available_at,
+                                         assumed=oi_assumed)
+                oi_res = self.pit.read_oi(
+                    decision_ms,
                     lookback_ms=self.config.oi_lookback_hours * 3600 * 1000,
-                    max_distance_ms=self.config.oi_max_time_distance_sec * 1000
+                    max_distance_ms=self.config.oi_max_time_distance_sec * 1000,
                 )
-                
+                oi_curr = oi_res["oi_curr"]
+                oi_past = oi_res["oi_past"]
+                oi_growth = oi_res["growth"]
+                oi_status = oi_res["status"]
+
                 event.oi_at_breakout = oi_curr
                 event.oi_6h_ago = oi_past
                 event.oi_growth_6h = oi_growth
-                
-                if oi_status != "ok" or oi_growth is None:
-                    self._terminate_event(
-                        event, EventState.OI_UNAVAILABLE, close_time_ms,
-                        f"OI数据缺失或不可用({oi_status})",
-                        {"oi_status": oi_status, "oi_curr": oi_curr, "oi_past": oi_past}
-                    )
-                    return None
-                    
-                # 若开启 OI 过滤，检验增幅是否达到 2%
-                if self.enable_oi_filter and oi_growth < self.config.oi_min_growth_pct:
-                    self._terminate_event(
-                        event, EventState.OI_REJECTED, close_time_ms,
-                        f"6小时OI增长率不足2%(实际: {oi_growth * 100:.2f}%)",
-                        {"oi_growth": oi_growth, "threshold": self.config.oi_min_growth_pct}
-                    )
-                    return None
-                    
+
+                # strict 模式下「可得时刻未证明」= 拒用，不得填默认值继续
+                if self.pit.mode is PitMode.STRICT and oi_status == OI_STATUS_ASSUMED:
+                    oi_status = "oi_pit_unproven"
+
+                # ── OI 闸门的适用范围（2026-10-23 修复：与冻结规则 §D 对齐）──
+                # 冻结规则原文：「A：完整价格事件链 + OI 门槛；B：完全相同价格事件和执行规则，
+                # **仅关闭 OI 门槛**」。因此 OI 的「缺失即拒」与「增幅不足即拒」这两道闸门
+                # 都属于 OI 门槛本身，B 组（`enable_oi_filter=False`）必须整段跳过。
+                # 修复前的缺陷：`oi_status` 校验写成无条件执行 ⇒ B 组形态全中、量能达标，
+                # 仍在突破瞬间被 `OI_UNAVAILABLE(oi_empty)` 打死 ⇒ 全池永远出不了候选
+                # （实测 526 标的 30 天：3179 箱体 / 612 扫低 / 369 回踩 / 4 次突破穿越 / 0 候选）。
+                # 注意：A 组语义不变，缺 OI 仍 fail-closed（`tests/test_frame_pit_01.py`
+                # 的 T04c 仍要求 strict 下归档为 OI_UNAVAILABLE）。
+                if self.enable_oi_filter:
+                    if oi_status not in ("ok", OI_STATUS_ASSUMED) or oi_growth is None:
+                        self._terminate_event(
+                            event, EventState.OI_UNAVAILABLE, close_time_ms,
+                            f"OI数据缺失或不可用({oi_status})",
+                            {"oi_status": oi_status, "oi_curr": oi_curr, "oi_past": oi_past,
+                             "pit_detail": oi_res.get("detail", "")}
+                        )
+                        return None
+
+                    # 检验增幅是否达到 2%
+                    if oi_growth < self.config.oi_min_growth_pct:
+                        self._terminate_event(
+                            event, EventState.OI_REJECTED, close_time_ms,
+                            f"6小时OI增长率不足2%(实际: {oi_growth * 100:.2f}%)",
+                            {"oi_growth": oi_growth, "threshold": self.config.oi_min_growth_pct}
+                        )
+                        return None
+
                 # 3. 两项均通过 (或 B 组跳过 OI 过滤)，生成不可变候选快照！
                 cand_id = f"cand_{event.event_id}_{close_time_ms}"
                 initial_stop = event.retest_low_lr - self.config.initial_stop_buffer_atr * A
@@ -557,8 +635,13 @@ class EventStateMachine:
                     max_entry_price=max_entry,
                     min_entry_price=min_entry,
                     execution_earliest_ms=earliest_exec,
-                    pit_proven=False,
-                    pit_assumption_note="Based on observation timestamp; exchange publication latency certificate unverified",
+                    pit_proven=bool(oi_status == "ok"),
+                    pit_assumption_note=(
+                        "OI 可得时刻按 5m 桶结束计算，交易所发布延迟未证"
+                        if oi_status == OI_STATUS_ASSUMED else
+                        "OI 可得时刻由显式声明的发布延迟推导"
+                        if oi_status == "ok" else
+                        f"OI 不可用：{oi_status}"),
                     missing_fields=[]
                 )
                 
@@ -570,12 +653,17 @@ class EventStateMachine:
                 
                 self._make_transition(
                     event, EventState.CANDIDATE, close_time_ms,
-                    "放量突破与OI确认通过，生成候选快照",
+                    # B 组没有 OI 确认，理由必须如实写「未启用 OI 门槛」，
+                    # 不能沿用「OI 确认通过」这种与事实不符的措辞。
+                    ("放量突破与OI确认通过" if self.enable_oi_filter
+                     else "放量突破通过(B组未启用OI门槛，OI不可用：" + str(oi_status) + ")"),
                     {
                         "candidate_id": cand_id,
                         "breakout_close": close_p,
                         "volume_ratio": volume_v / v20,
-                        "oi_growth_6h": oi_growth
+                        "oi_growth_6h": oi_growth,
+                        "oi_filter_enabled": self.enable_oi_filter,
+                        "oi_status": oi_status,
                     }
                 )
                 self.candidates.append(snapshot)

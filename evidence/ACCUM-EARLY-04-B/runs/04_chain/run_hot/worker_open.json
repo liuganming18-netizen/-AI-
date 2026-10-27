@@ -1,0 +1,1082 @@
+{
+ "phase": "open",
+ "env": {
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/live_signals.sqlite3",
+  "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/gate.json",
+  "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "WX_MARKET_MERGE": "1",
+  "ACCUM04_CONFIG": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json"
+ },
+ "market_mode": {
+  "merge_enabled": true,
+  "env_flag": "WX_MARKET_MERGE",
+  "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+  "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+ },
+ "errors": [],
+ "steps": [
+  {
+   "step": "trailing",
+   "scheme": "4a",
+   "position_id": 1,
+   "bar4h": "2026-09-14T20:00:00Z",
+   "bar4h_source": "hot",
+   "new_stop": 7.176,
+   "available_at_proven": false,
+   "exit_triggered": false
+  },
+  {
+   "step": "exit_15m",
+   "scheme": "4a",
+   "position_id": 1,
+   "bar": "2026-09-15T18:45:00Z",
+   "bar_source": "hot",
+   "bar_low": 7.176,
+   "stop_used": 7.176,
+   "exit": {
+    "ok": true,
+    "reason": "closed",
+    "position_id": 1,
+    "order_id": 3,
+    "symbol": "AVAXUSDT",
+    "exit_price": 7.172,
+    "raw_price": 7.176,
+    "qty": 66.0,
+    "gross_pnl": -19.93200000000003,
+    "entry_fee": 0.246642,
+    "exit_fee": 0.236676,
+    "funding_paid": 0.0747706513407744,
+    "funding_paid_this_close": 0.0747706513407744,
+    "n_funding_events": 4,
+    "n_funding_events_this_close": 4,
+    "funding_events": [
+     {
+      "funding_time": 1789401600000,
+      "funding_rate": 2.648e-05,
+      "mark_price": 7.45755912,
+      "qty": 66.0,
+      "amount": 0.0130334269228416,
+      "late_backfill": false,
+      "recorded_at": 1793026703291
+     },
+     {
+      "funding_time": 1789430400000,
+      "funding_rate": 0.0001,
+      "mark_price": 7.561,
+      "qty": 66.0,
+      "amount": 0.049902600000000005,
+      "late_backfill": false,
+      "recorded_at": 1793026703291
+     },
+     {
+      "funding_time": 1789459200005,
+      "funding_rate": -2.416e-05,
+      "mark_price": 7.46086212,
+      "qty": 66.0,
+      "amount": -0.0118967923020672,
+      "late_backfill": false,
+      "recorded_at": 1793026703291
+     },
+     {
+      "funding_time": 1789488000001,
+      "funding_rate": 4.842e-05,
+      "mark_price": 7.426,
+      "qty": 66.0,
+      "amount": 0.02373141672,
+      "late_backfill": false,
+      "recorded_at": 1793026703291
+     }
+    ],
+    "funding_gaps": [],
+    "amount_sign_convention": "expense_positive",
+    "net_pnl": -20.490088651340805,
+    "entry_ts": 1789388100000,
+    "exit_ts": 1789498799999,
+    "exit_reason": "trailing_stop_loss",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+   }
+  },
+  {
+   "step": "walk_done",
+   "scheme": "4a",
+   "position_id": 1,
+   "bars_checked": 123,
+   "exited": true
+  },
+  {
+   "step": "trailing",
+   "scheme": "4b",
+   "position_id": 1,
+   "bar4h": "2026-09-14T20:00:00Z",
+   "bar4h_source": "hot",
+   "new_stop": 7.176,
+   "available_at_proven": false,
+   "exit_triggered": false
+  },
+  {
+   "step": "exit_15m",
+   "scheme": "4b",
+   "position_id": 1,
+   "bar": "2026-09-15T18:45:00Z",
+   "bar_source": "hot",
+   "bar_low": 7.176,
+   "stop_used": 7.176,
+   "exit": {
+    "ok": true,
+    "reason": "closed",
+    "position_id": 1,
+    "order_id": 3,
+    "symbol": "AVAXUSDT",
+    "exit_price": 7.172,
+    "raw_price": 7.176,
+    "qty": 67.0,
+    "gross_pnl": -18.693000000000055,
+    "entry_fee": 0.24960850000000004,
+    "exit_fee": 0.240262,
+    "funding_paid": 0.0759035399974528,
+    "funding_paid_this_close": 0.0759035399974528,
+    "n_funding_events": 4,
+    "n_funding_events_this_close": 4,
+    "funding_events": [
+     {
+      "funding_time": 1789401600000,
+      "funding_rate": 2.648e-05,
+      "mark_price": 7.45755912,
+      "qty": 67.0,
+      "amount": 0.013230903088339201,
+      "late_backfill": false,
+      "recorded_at": 1793026709644
+     },
+     {
+      "funding_time": 1789430400000,
+      "funding_rate": 0.0001,
+      "mark_price": 7.561,
+      "qty": 67.0,
+      "amount": 0.0506587,
+      "late_backfill": false,
+      "recorded_at": 1793026709644
+     },
+     {
+      "funding_time": 1789459200005,
+      "funding_rate": -2.416e-05,
+      "mark_price": 7.46086212,
+      "qty": 67.0,
+      "amount": -0.0120770467308864,
+      "late_backfill": false,
+      "recorded_at": 1793026709644
+     },
+     {
+      "funding_time": 1789488000001,
+      "funding_rate": 4.842e-05,
+      "mark_price": 7.426,
+      "qty": 67.0,
+      "amount": 0.02409098364,
+      "late_backfill": false,
+      "recorded_at": 1793026709644
+     }
+    ],
+    "funding_gaps": [],
+    "amount_sign_convention": "expense_positive",
+    "net_pnl": -19.25877403999751,
+    "entry_ts": 1789391700000,
+    "exit_ts": 1789498799999,
+    "exit_reason": "trailing_stop_loss",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+   }
+  },
+  {
+   "step": "walk_done",
+   "scheme": "4b",
+   "position_id": 1,
+   "bars_checked": 119,
+   "exited": true
+  },
+  {
+   "step": "trailing",
+   "scheme": "4c",
+   "position_id": 1,
+   "bar4h": "2026-09-14T20:00:00Z",
+   "bar4h_source": "hot",
+   "new_stop": 7.176,
+   "available_at_proven": false,
+   "exit_triggered": false
+  },
+  {
+   "step": "exit_15m",
+   "scheme": "4c",
+   "position_id": 1,
+   "bar": "2026-09-15T18:45:00Z",
+   "bar_source": "hot",
+   "bar_low": 7.176,
+   "stop_used": 7.176,
+   "exit": {
+    "ok": true,
+    "reason": "closed",
+    "position_id": 1,
+    "order_id": 3,
+    "symbol": "AVAXUSDT",
+    "exit_price": 7.172,
+    "raw_price": 7.176,
+    "qty": 66.0,
+    "gross_pnl": -21.516000000000034,
+    "entry_fee": 0.24743400000000002,
+    "exit_fee": 0.236676,
+    "funding_paid": 0.0747706513407744,
+    "funding_paid_this_close": 0.0747706513407744,
+    "n_funding_events": 4,
+    "n_funding_events_this_close": 4,
+    "funding_events": [
+     {
+      "funding_time": 1789401600000,
+      "funding_rate": 2.648e-05,
+      "mark_price": 7.45755912,
+      "qty": 66.0,
+      "amount": 0.0130334269228416,
+      "late_backfill": false,
+      "recorded_at": 1793026716163
+     },
+     {
+      "funding_time": 1789430400000,
+      "funding_rate": 0.0001,
+      "mark_price": 7.561,
+      "qty": 66.0,
+      "amount": 0.049902600000000005,
+      "late_backfill": false,
+      "recorded_at": 1793026716163
+     },
+     {
+      "funding_time": 1789459200005,
+      "funding_rate": -2.416e-05,
+      "mark_price": 7.46086212,
+      "qty": 66.0,
+      "amount": -0.0118967923020672,
+      "late_backfill": false,
+      "recorded_at": 1793026716163
+     },
+     {
+      "funding_time": 1789488000001,
+      "funding_rate": 4.842e-05,
+      "mark_price": 7.426,
+      "qty": 66.0,
+      "amount": 0.02373141672,
+      "late_backfill": false,
+      "recorded_at": 1793026716163
+     }
+    ],
+    "funding_gaps": [],
+    "amount_sign_convention": "expense_positive",
+    "net_pnl": -22.074880651340806,
+    "entry_ts": 1789395300000,
+    "exit_ts": 1789498799999,
+    "exit_reason": "trailing_stop_loss",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+    "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+   }
+  },
+  {
+   "step": "walk_done",
+   "scheme": "4c",
+   "position_id": 1,
+   "bars_checked": 115,
+   "exited": true
+  }
+ ],
+ "scan": [
+  {
+   "symbol": "AVAXUSDT",
+   "candidates": [
+    {
+     "scheme": "4a",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+     "confirm_close_ms": 1789387199999,
+     "earliest_entry_ms": 1789388099999,
+     "entry_bar_open_ms": 1789388100000,
+     "entry_ref_price": 7.47,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4b",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+     "confirm_close_ms": 1789390799999,
+     "earliest_entry_ms": 1789391699999,
+     "entry_bar_open_ms": 1789391700000,
+     "entry_ref_price": 7.447,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4c",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+     "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+     "confirm_close_ms": 1789394399999,
+     "earliest_entry_ms": 1789395299999,
+     "entry_bar_open_ms": 1789395300000,
+     "entry_ref_price": 7.494,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.45,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4a",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999_s1",
+     "signal_uid": "accum04_4a_AVAXUSDT_1789592399999",
+     "confirm_close_ms": 1789592399999,
+     "earliest_entry_ms": 1789593299999,
+     "entry_bar_open_ms": 1789593300000,
+     "entry_ref_price": 7.356,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4b",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789487999999_1789487999999_s1",
+     "signal_uid": "accum04_4b_AVAXUSDT_1789595999999",
+     "confirm_close_ms": 1789595999999,
+     "earliest_entry_ms": 1789596899999,
+     "entry_bar_open_ms": 1789596900000,
+     "entry_ref_price": 7.372,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    },
+    {
+     "scheme": "4c",
+     "symbol": "AVAXUSDT",
+     "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789487999999_1789487999999_s1",
+     "signal_uid": "accum04_4c_AVAXUSDT_1789595999999",
+     "confirm_close_ms": 1789595999999,
+     "earliest_entry_ms": 1789596899999,
+     "entry_bar_open_ms": 1789596900000,
+     "entry_ref_price": 7.372,
+     "entry_bar_source": "hot",
+     "entry_bar_available_at": null,
+     "resistance": 7.359,
+     "status": "WAIT_ENTRY",
+     "status_reason": "条件成立，待委托"
+    }
+   ],
+   "open_results": [
+    {
+     "scheme": "4a",
+     "result": {
+      "ok": true,
+      "paper_result": {
+       "ok": true,
+       "reason": "filled",
+       "position_id": 1,
+       "order_id": 1,
+       "qty": 66.0,
+       "entry_price": 7.474,
+       "raw_price": 7.47,
+       "stop_price": 7.1000000000000005,
+       "initial_stop_price": 7.1000000000000005,
+       "stop_dist": 0.37399999999999967,
+       "planned_risk": 24.683999999999976,
+       "notional": 493.284,
+       "fee": 0.246642,
+       "slippage_cost": 0.26400000000002954,
+       "bar_open_time": 1789388100000,
+       "bar_close_time": 1789388999999,
+       "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+       "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+       "origin": "replay",
+       "event_time": 1789387199999,
+       "available_at": 1789387199999,
+       "requested_at": 1789387199999,
+       "earliest_fill_ms": 1789388099999,
+       "filled_at": 1789388100000,
+       "fill_lag_ms": 0,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "bar_provenance": {
+        "layer": "hot",
+        "available_at": null,
+        "available_at_proven": false
+       }
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    },
+    {
+     "scheme": "4b",
+     "result": {
+      "ok": true,
+      "paper_result": {
+       "ok": true,
+       "reason": "filled",
+       "position_id": 1,
+       "order_id": 1,
+       "qty": 67.0,
+       "entry_price": 7.4510000000000005,
+       "raw_price": 7.447,
+       "stop_price": 7.078,
+       "initial_stop_price": 7.078,
+       "stop_dist": 0.3730000000000002,
+       "planned_risk": 24.991000000000014,
+       "notional": 499.21700000000004,
+       "fee": 0.24960850000000004,
+       "slippage_cost": 0.26800000000003,
+       "bar_open_time": 1789391700000,
+       "bar_close_time": 1789392599999,
+       "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+       "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+       "origin": "replay",
+       "event_time": 1789390799999,
+       "available_at": 1789390799999,
+       "requested_at": 1789390799999,
+       "earliest_fill_ms": 1789391699999,
+       "filled_at": 1789391700000,
+       "fill_lag_ms": 0,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "bar_provenance": {
+        "layer": "hot",
+        "available_at": null,
+        "available_at_proven": false
+       }
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    },
+    {
+     "scheme": "4c",
+     "result": {
+      "ok": true,
+      "paper_result": {
+       "ok": true,
+       "reason": "filled",
+       "position_id": 1,
+       "order_id": 1,
+       "qty": 66.0,
+       "entry_price": 7.498,
+       "raw_price": 7.494,
+       "stop_price": 7.123,
+       "initial_stop_price": 7.123,
+       "stop_dist": 0.375,
+       "planned_risk": 24.75,
+       "notional": 494.868,
+       "fee": 0.24743400000000002,
+       "slippage_cost": 0.26400000000002954,
+       "bar_open_time": 1789395300000,
+       "bar_close_time": 1789396199999,
+       "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+       "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+       "origin": "replay",
+       "event_time": 1789394399999,
+       "available_at": 1789394399999,
+       "requested_at": 1789394399999,
+       "earliest_fill_ms": 1789395299999,
+       "filled_at": 1789395300000,
+       "fill_lag_ms": 0,
+       "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+       "bar_provenance": {
+        "layer": "hot",
+        "available_at": null,
+        "available_at_proven": false
+       }
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    },
+    {
+     "scheme": "4a",
+     "result": {
+      "ok": false,
+      "paper_result": {
+       "ok": false,
+       "reason": "position_already_open_no_add",
+       "symbol": "AVAXUSDT",
+       "signal_uid": "accum04_4a_AVAXUSDT_1789592399999"
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    },
+    {
+     "scheme": "4b",
+     "result": {
+      "ok": false,
+      "paper_result": {
+       "ok": false,
+       "reason": "position_already_open_no_add",
+       "symbol": "AVAXUSDT",
+       "signal_uid": "accum04_4b_AVAXUSDT_1789595999999"
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    },
+    {
+     "scheme": "4c",
+     "result": {
+      "ok": false,
+      "paper_result": {
+       "ok": false,
+       "reason": "position_already_open_no_add",
+       "symbol": "AVAXUSDT",
+       "signal_uid": "accum04_4c_AVAXUSDT_1789595999999"
+      },
+      "called_paper_engine": true,
+      "isolation": {
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_hot/paper",
+       "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "explicit_env": true,
+       "inside_production": false,
+       "isolated": true,
+       "account_ids": {
+        "4a": "paper43_4a",
+        "4b": "paper43_4b",
+        "4c": "paper43_4c"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "rescan": [
+  {
+   "scheme": "4a",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4a",
+   "orders_before": 3,
+   "orders_after": 3,
+   "fills_before": 2,
+   "fills_after": 2
+  },
+  {
+   "scheme": "4b",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4b",
+   "orders_before": 3,
+   "orders_after": 3,
+   "fills_before": 2,
+   "fills_after": 2
+  },
+  {
+   "scheme": "4c",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4c",
+   "orders_before": 3,
+   "orders_after": 3,
+   "fills_before": 2,
+   "fills_after": 2
+  }
+ ],
+ "duplicate_attempt": [
+  {
+   "scheme": "4a",
+   "signal_uid": "accum04_4a_AVAXUSDT_1789387199999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  },
+  {
+   "scheme": "4b",
+   "signal_uid": "accum04_4b_AVAXUSDT_1789390799999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  },
+  {
+   "scheme": "4c",
+   "signal_uid": "accum04_4c_AVAXUSDT_1789394399999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  }
+ ],
+ "ledgers": {
+  "4a": {
+   "account_id": "paper43_4a",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "AVAXUSDT",
+     "status": "closed",
+     "qty": 66.0,
+     "entry_price": 7.474,
+     "entry_ts": 1789388100000,
+     "exit_ts": 1789498799999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 7.172,
+     "stop_price": 7.176,
+     "initial_stop_price": 7.1000000000000005,
+     "entry_fee": 0.246642,
+     "exit_fee": 0.236676,
+     "funding_paid": 0.0747706513407744,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4a_AVAXUSDT_1789387199999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.474,
+     "bar_open_time": 1789388100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "accum04_4a_AVAXUSDT_1789592399999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "rejected",
+     "reject_reason": "position_already_open_no_add",
+     "fill_price": null,
+     "bar_open_time": null,
+     "market_source": null
+    },
+    {
+     "order_id": 3,
+     "event_uid": "exit:4a:1:1789498799999",
+     "symbol": "AVAXUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.172,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 7.474,
+     "raw_price": 7.47,
+     "qty": 66.0,
+     "notional": 493.284,
+     "fee": 0.246642,
+     "bar_open_time": 1789388100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 3,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 7.172,
+     "raw_price": 7.176,
+     "qty": 66.0,
+     "notional": 473.352,
+     "fee": 0.236676,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 7.1000000000000005,
+     "reason": "initial_stop",
+     "effective_at": 1789388100000,
+     "available_at": 1789387199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 7.1000000000000005,
+     "new_stop": 7.176,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1789430399999,
+     "available_at": 1789430399999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": -20.490088651340805,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 4979.509911348659,
+     "realized_pnl": -20.490088651340805,
+     "fees_paid": 0.483318,
+     "funding_paid": 0.0747706513407744
+    }
+   ],
+   "pending": [],
+   "blocked": [
+    {
+     "event_uid": "accum04_4a_AVAXUSDT_1789592399999",
+     "reason": "position_already_open_no_add"
+    }
+   ]
+  },
+  "4b": {
+   "account_id": "paper43_4b",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "AVAXUSDT",
+     "status": "closed",
+     "qty": 67.0,
+     "entry_price": 7.4510000000000005,
+     "entry_ts": 1789391700000,
+     "exit_ts": 1789498799999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 7.172,
+     "stop_price": 7.176,
+     "initial_stop_price": 7.078,
+     "entry_fee": 0.24960850000000004,
+     "exit_fee": 0.240262,
+     "funding_paid": 0.0759035399974528,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4b_AVAXUSDT_1789390799999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.4510000000000005,
+     "bar_open_time": 1789391700000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "accum04_4b_AVAXUSDT_1789595999999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "rejected",
+     "reject_reason": "position_already_open_no_add",
+     "fill_price": null,
+     "bar_open_time": null,
+     "market_source": null
+    },
+    {
+     "order_id": 3,
+     "event_uid": "exit:4b:1:1789498799999",
+     "symbol": "AVAXUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.172,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 7.4510000000000005,
+     "raw_price": 7.447,
+     "qty": 67.0,
+     "notional": 499.21700000000004,
+     "fee": 0.24960850000000004,
+     "bar_open_time": 1789391700000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 3,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 7.172,
+     "raw_price": 7.176,
+     "qty": 67.0,
+     "notional": 480.524,
+     "fee": 0.240262,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 7.078,
+     "reason": "initial_stop",
+     "effective_at": 1789391700000,
+     "available_at": 1789390799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 7.078,
+     "new_stop": 7.176,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1789430399999,
+     "available_at": 1789430399999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": -19.25877403999751,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 4980.741225960002,
+     "realized_pnl": -19.25877403999751,
+     "fees_paid": 0.48987050000000004,
+     "funding_paid": 0.0759035399974528
+    }
+   ],
+   "pending": [],
+   "blocked": [
+    {
+     "event_uid": "accum04_4b_AVAXUSDT_1789595999999",
+     "reason": "position_already_open_no_add"
+    }
+   ]
+  },
+  "4c": {
+   "account_id": "paper43_4c",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "AVAXUSDT",
+     "status": "closed",
+     "qty": 66.0,
+     "entry_price": 7.498,
+     "entry_ts": 1789395300000,
+     "exit_ts": 1789498799999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 7.172,
+     "stop_price": 7.176,
+     "initial_stop_price": 7.123,
+     "entry_fee": 0.24743400000000002,
+     "exit_fee": 0.236676,
+     "funding_paid": 0.0747706513407744,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4c_AVAXUSDT_1789394399999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.498,
+     "bar_open_time": 1789395300000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "accum04_4c_AVAXUSDT_1789595999999",
+     "symbol": "AVAXUSDT",
+     "side": "buy",
+     "status": "rejected",
+     "reject_reason": "position_already_open_no_add",
+     "fill_price": null,
+     "bar_open_time": null,
+     "market_source": null
+    },
+    {
+     "order_id": 3,
+     "event_uid": "exit:4c:1:1789498799999",
+     "symbol": "AVAXUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 7.172,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 7.498,
+     "raw_price": 7.494,
+     "qty": 66.0,
+     "notional": 494.868,
+     "fee": 0.24743400000000002,
+     "bar_open_time": 1789395300000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 3,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 7.172,
+     "raw_price": 7.176,
+     "qty": 66.0,
+     "notional": 473.352,
+     "fee": 0.236676,
+     "bar_open_time": 1789497900000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 7.123,
+     "reason": "initial_stop",
+     "effective_at": 1789395300000,
+     "available_at": 1789394399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 7.123,
+     "new_stop": 7.176,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1789430399999,
+     "available_at": 1789430399999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": -22.074880651340806,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 4977.925119348659,
+     "realized_pnl": -22.074880651340806,
+     "fees_paid": 0.48411000000000004,
+     "funding_paid": 0.0747706513407744
+    }
+   ],
+   "pending": [],
+   "blocked": [
+    {
+     "event_uid": "accum04_4c_AVAXUSDT_1789595999999",
+     "reason": "position_already_open_no_add"
+    }
+   ]
+  }
+ },
+ "connections": [],
+ "config": {
+  "schema_version": "accum-early-04/v1",
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json",
+  "present": true,
+  "parse_ok": true,
+  "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+  "kind": "fixture",
+  "approved": false,
+  "approval_ref": "NOT-APPROVED / fixture-for-wiring-selfcheck-only",
+  "missing": [],
+  "unsupported": [],
+  "fixture": true,
+  "ready": true,
+  "open_allowed": true,
+  "blocked_by": [],
+  "doc_sha256_declared": null,
+  "open_scope": "fixture_chain_selfcheck",
+  "reason": "允许开仓（fixture_chain_selfcheck）"
+ }
+}

@@ -1,0 +1,290 @@
+{
+  "symbol": "TRXUSDT",
+  "group": 85,
+  "window": [
+    "2023-01-16",
+    "2024-01-16"
+  ],
+  "initial_equity": 2000.0,
+  "historical_run": {
+    "group": 85,
+    "symbol": "TRXUSDT",
+    "start": "2023-01-16",
+    "end": "2024-01-16",
+    "status": "ok",
+    "bars15": 35040,
+    "bars1h": 8760,
+    "candidates": 2,
+    "trades": 2,
+    "wins": 0,
+    "net": -13.700843,
+    "gross": -13.57445,
+    "fees": 0.204817,
+    "funding": -0.078423,
+    "slip": 0.156151,
+    "spec_status": "spec_applied",
+    "formal": false,
+    "err": "",
+    "elapsed_s": 5.8,
+    "trade_list": [
+      {
+        "group": 85,
+        "symbol": "TRXUSDT",
+        "t_in": 1685744100000,
+        "t_out": 1686338100000,
+        "p_in": 0.08117,
+        "p_out": 0.07412,
+        "qty": 1404.0,
+        "net": -9.859949,
+        "why": "intrabar_stop"
+      },
+      {
+        "group": 85,
+        "symbol": "TRXUSDT",
+        "t_in": 1705140900000,
+        "t_out": 1705362300000,
+        "p_in": 0.11288,
+        "p_out": 0.10863,
+        "qty": 865.0,
+        "net": -3.840894,
+        "why": "force_close_eod"
+      }
+    ]
+  },
+  "chain_legacy_oi": {
+    "candidates": [
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1685289600000_1685743200000",
+        "snapshot_time_ms": 1685743200000,
+        "initial_stop_price": 0.07415193122615275,
+        "max_entry_price": 0.08226034386923622,
+        "min_entry_price": 0.07992
+      },
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1704571200000_1705140000000",
+        "snapshot_time_ms": 1705140000000,
+        "initial_stop_price": 0.10152014068418644,
+        "max_entry_price": 0.11368929657906783,
+        "min_entry_price": 0.11079
+      }
+    ],
+    "trades": [
+      {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1685289600000_1685743200000",
+        "entry_time": 1685744100000,
+        "exit_time": 1686338100000,
+        "entry_price": 0.08117,
+        "exit_price": 0.07412,
+        "qty": 1404.0,
+        "initial_stop": NaN,
+        "gross_pnl": -9.898200000000001,
+        "entry_fee": 0.056981340000000005,
+        "exit_fee": 0.05203224,
+        "fees": 0.10901358,
+        "funding_fee": -0.14726445598523888,
+        "slippage_loss": 0.08695144151846168,
+        "net_pnl": -9.859949124014763,
+        "exit_reason": "intrabar_stop"
+      },
+      {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1704571200000_1705140000000",
+        "entry_time": 1705140900000,
+        "exit_time": 1705362300000,
+        "entry_price": 0.11288,
+        "exit_price": 0.10863,
+        "qty": 865.0,
+        "initial_stop": NaN,
+        "gross_pnl": -3.676249999999991,
+        "entry_fee": 0.0488206,
+        "exit_fee": 0.046982475,
+        "fees": 0.095803075,
+        "funding_fee": 0.068841209245,
+        "slippage_loss": 0.06919999999999718,
+        "net_pnl": -3.840894284244991,
+        "exit_reason": "force_close_eod"
+      }
+    ],
+    "summary": {
+      "trade_count": 2,
+      "net_pnl": -13.700843408259754,
+      "fee_total": 0.20481665500000001,
+      "funding_total": -0.07842324674023887,
+      "slippage_total": 0.15615144151845886,
+      "final_equity": 1986.2991565917398,
+      "spec_status": "spec_applied"
+    },
+    "oi_audit": {
+      "pit_guard_version": "pit_guard_v1.0.0",
+      "symbol": "SOLUSDT",
+      "mode": "declared_assumption",
+      "qualified": false,
+      "unproven_sources": [
+        "oi_5m"
+      ],
+      "assumptions": [
+        {
+          "source": "oi_5m",
+          "status": "unproven",
+          "mode": "declared_assumption",
+          "note": "桶结束时间不得当作已证明的发布时间"
+        }
+      ],
+      "refusal_count": 0,
+      "refusal_reason_counts": {},
+      "sources": {
+        "oi_5m": {
+          "name": "oi_5m",
+          "event_col": "ts",
+          "close_col": null,
+          "bucket_ms": 300000,
+          "status": "unproven",
+          "declared_lag_ms": null,
+          "evidence": "parquet oi/binance/um/<symbol>/*.parquet：只有 ts（5m 桶起点），fetched_at 全为空 ⇒ 无发布时点证据",
+          "note": "桶结束时间不得当作已证明的发布时间",
+          "rows": 513165,
+          "proven": false,
+          "event_time_min": 1638316800000,
+          "event_time_max": 1792323000000,
+          "available_at_rows": 0,
+          "available_at_min": null,
+          "available_at_max": null
+        }
+      },
+      "bridge": "event_trend_v0_1.pit_bridge",
+      "oi_bucket_ms": 300000,
+      "oi_declared_lag_ms": null,
+      "oi_available_at_rows": 513165,
+      "oi_available_at_assumed": true,
+      "oi_reads": 2,
+      "oi_assumed_reads": 0,
+      "oi_refused_reads": 0,
+      "candles_checked": 19710,
+      "candle_violations": 0,
+      "decision_clock_rule": "decision_time = bar_open + bar_period；close_time = bar_open + bar_period - 1ms；available_at <= decision_time 才可读",
+      "decision_time_first_ms": 1673830800000,
+      "decision_time_last_ms": 1705363200000,
+      "qualification_failures": [
+        "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+      ]
+    }
+  },
+  "chain_current_oi": {
+    "candidates": [
+      {
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1704571200000_1705140000000",
+        "snapshot_time_ms": 1705140000000,
+        "initial_stop_price": 0.10152014068418644,
+        "max_entry_price": 0.11368929657906783,
+        "min_entry_price": 0.11079
+      }
+    ],
+    "trades": [
+      {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1704571200000_1705140000000",
+        "entry_time": 1705140900000,
+        "exit_time": 1705362300000,
+        "entry_price": 0.11288,
+        "exit_price": 0.10863,
+        "qty": 869.0,
+        "initial_stop": NaN,
+        "gross_pnl": -3.693249999999991,
+        "entry_fee": 0.049046360000000004,
+        "exit_fee": 0.04719973500000001,
+        "fees": 0.096246095,
+        "funding_fee": 0.069159550097,
+        "slippage_loss": 0.06951999999999717,
+        "net_pnl": -3.858655645096991,
+        "exit_reason": "force_close_eod"
+      }
+    ],
+    "summary": {
+      "trade_count": 1,
+      "net_pnl": -3.858655645096991,
+      "fee_total": 0.096246095,
+      "funding_total": 0.069159550097,
+      "slippage_total": 0.06951999999999717,
+      "final_equity": 1996.1413443549031,
+      "spec_status": "spec_applied"
+    },
+    "oi_audit": {
+      "pit_guard_version": "pit_guard_v1.0.0",
+      "symbol": "SOLUSDT",
+      "mode": "declared_assumption",
+      "qualified": false,
+      "unproven_sources": [
+        "oi_5m"
+      ],
+      "assumptions": [
+        {
+          "source": "oi_5m",
+          "status": "unproven",
+          "mode": "declared_assumption",
+          "note": "桶结束时间不得当作已证明的发布时间"
+        }
+      ],
+      "refusal_count": 2,
+      "refusal_reason_counts": {
+        "assumed_bucket_end_as_available": 2
+      },
+      "sources": {
+        "oi_5m": {
+          "name": "oi_5m",
+          "event_col": "ts",
+          "close_col": null,
+          "bucket_ms": 300000,
+          "status": "unproven",
+          "declared_lag_ms": null,
+          "evidence": "parquet oi/binance/um/<symbol>/*.parquet：只有 ts（5m 桶起点），fetched_at 全为空 ⇒ 无发布时点证据",
+          "note": "桶结束时间不得当作已证明的发布时间",
+          "rows": 513165,
+          "proven": false,
+          "event_time_min": 1638316800000,
+          "event_time_max": 1792323000000,
+          "available_at_rows": 0,
+          "available_at_min": null,
+          "available_at_max": null
+        }
+      },
+      "bridge": "event_trend_v0_1.pit_bridge",
+      "oi_bucket_ms": 300000,
+      "oi_declared_lag_ms": null,
+      "oi_available_at_rows": 513165,
+      "oi_available_at_assumed": true,
+      "oi_reads": 2,
+      "oi_assumed_reads": 2,
+      "oi_refused_reads": 0,
+      "candles_checked": 19710,
+      "candle_violations": 0,
+      "decision_clock_rule": "decision_time = bar_open + bar_period；close_time = bar_open + bar_period - 1ms；available_at <= decision_time 才可读",
+      "decision_time_first_ms": 1673830800000,
+      "decision_time_last_ms": 1705363200000,
+      "qualification_failures": [
+        "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻",
+        "oi_read_under_assumption:2次按桶结束假设取用"
+      ]
+    }
+  },
+  "dropped_candidates": [
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TRXUSDT_1685289600000_1685743200000",
+      "signal_bar_open_ms": 1685739600000,
+      "decision_time_ms": 1685743200000,
+      "new_rule": {
+        "growth": 0.010700041438632235,
+        "oi_curr": 488134964.0,
+        "oi_past": 482967195.0,
+        "curr_event_ms": 1685742900000,
+        "curr_available_ms": 1685743200000,
+        "status": "ok"
+      },
+      "old_rule": {
+        "growth": 0.054354046288492164,
+        "oi_curr": 508971340.0,
+        "oi_past": 482732856.0,
+        "curr_event_ms": 1685743200000,
+        "curr_available_ms": 1685743200000,
+        "status": "ok"
+      }
+    }
+  ]
+}

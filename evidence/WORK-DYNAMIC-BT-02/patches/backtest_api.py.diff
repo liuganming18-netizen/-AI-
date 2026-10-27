@@ -1,0 +1,333 @@
+--- a/框架/backend/backtest_api.py
++++ b/框架/backend/backtest_api.py
+@@ -1193,6 +1193,13 @@
+         read_ws = max(read_ws, focus_ms - half * 900000)
+         read_we = min(read_we, focus_ms + half * 900000)
+         focused = True
++    # 同样裁到「本 run 实际消费的数据区间」：留白段可能已经落在冻结数据之后
++    _dr_a, _dr_b = _run_data_range(run_id)
++    clipped = False
++    if isinstance(_dr_a, int) and isinstance(_dr_b, int):
++        _nw, _ne = max(int(read_ws), _dr_a), min(int(read_we), _dr_b - 1)
++        clipped = (_nw != int(read_ws) or _ne != int(read_we))
++        read_ws, read_we = _nw, _ne
+ 
+     try:
+         rows, truncated, n = _market_candles_window(symbol, int(read_ws), int(read_we), ex, mk, tf)
+@@ -1209,6 +1216,7 @@
+     chart["candles"] = [dict(r) for r in rows]
+     chart["candles_truncated"] = truncated
+     chart["candles_focused_ms"] = int(focus_ms) if focused else None
++    chart["candles_clipped_to_run_data"] = bool(clipped)
+     chart["candles_source"] = (
+         f"读时从市场库读取 {ex}/{mk}/{symbol}/{tf}（读取范围 {read_ws}~{read_we}，UTC 毫秒；"
+         f"{'按笔聚焦于 ' + str(focus_ms) + ' 前后各半' if focused else '本 run 窗口 ∪ 全部标记点'} "
+@@ -1233,6 +1241,131 @@
+     取不到就抛异常（`lru_cache` 不缓存异常）⇒ 上层如实报「缺 K 线」。
+     """
+     return _generate_fallback_chart(run_id, S.read_run(run_id))
++
++
++# ══════════════ K 线补齐后的元数据收口（WORK-DYNAMIC-BT-02）══════════════
++
++_CHART_TF_ALLOWED = ("4h", "1h", "15m")
++
++
++def cm_utc(ms: Optional[int]) -> str:
++    """UTC 毫秒 → `YYYY-MM-DD HH:MMZ`（仅用于文案，不参与任何计算）。"""
++    if not isinstance(ms, int):
++        return "n/a"
++    return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%MZ")
++
++
++@lru_cache(maxsize=64)
++def _run_data_range(run_id: str) -> Tuple[Optional[int], Optional[int]]:
++    """本 run **实际消费的数据区间**（左闭右开，UTC 毫秒），取不到返回 (None, None)。
++
++    为什么必须裁剪：实时市场库比冻结的 feather 新。按「末笔成交 + 2 天留白」取数时，
++    末尾那一段会取到**回测当时还不存在**的行情 —— 实测 BEAMX（末笔 2025-01-01）在
++    1h 图上多出 24 根、4h 多 6 根、15m 多 96 根，全是 2025-01-01 的实时数据。
++    复盘图里出现回测数据之外的价格，等于让人看着未来价格评价当时的决策。
++    """
++    try:
++        d = json.loads((S.read_run_dir(run_id) / "inputs.json").read_text(encoding="utf-8"))
++        tr = ((d.get("data_summary") or {}).get("time_range_1h") or {})
++        a, b = tr.get("start_ms"), tr.get("end_ms")
++        if isinstance(a, int) and isinstance(b, int) and b > a:
++            return a, b
++    except Exception:                                          # noqa: BLE001
++        pass
++    return None, None
++
++
++def _finalize_chart_meta(chart: dict, doc: dict, *, req_sym: str, req_tf: str) -> dict:
++    """把「candles 到底有没有」与「元数据怎么说」对齐（只改返回载荷，不落盘）。
++
++    为什么必须有这一步：补 K 线有三条分支（replay 包 / parquet / 市场库），它们只写
++    `candles`；而 `chart.json` 里上一轮留下的 `chart_partial` / `what_works` /
++    `chart_blocked_reason` 仍写着「candles 为空（结构性限制）」⇒ 同一份响应自相矛盾
++    （实测：1334 根真实 K 线，配「K 线为空」的说明）。审核与前端都无法据此判断真假。
++
++    同时纠正一处语义污染：补 K 线的分支把 `exec_timeframe` 改成了**当前显示周期**，
++    而它本义是**策略执行周期**（本单为 15m）。这里恢复执行周期语义，另给
++    `display_timeframe` 表示本次实际返回的周期。
++
++    纪律：只改内存副本；不写回 run 目录；不猜数据；有就写有、没有就写清原因。
++    """
++    chart = dict(chart)
++    spec = doc.get("spec") or {}
++    exec_tf = str(spec.get("exec_timeframe") or "15m")
++    sig_tf = str(spec.get("signal_timeframe") or "1h")
++    # 补 K 线的分支会把 `exec_timeframe` 改写成「本次实际返回的周期」。必须在恢复
++    # 执行周期语义**之前**把它取出来，否则下面 display_timeframe 只能拿到 15m
++    # ⇒ 实测请求 1h/4h 时 display_timeframe 全报 15m（图是 1h、标签是 15m）。
++    shown_tf = str(chart.get("exec_timeframe") or "").strip().lower()
++    chart["exec_timeframe"] = exec_tf          # 恢复真实执行周期语义（补 K 线的分支会改写它）
++    chart["signal_timeframe"] = sig_tf
++    bars = chart.get("candles") or []
++    n = len(bars)
++    short = (req_sym or "").replace("USDT", "").upper()
++    syms = chart.get("symbols") or []
++    in_run = bool(short) and short in [str(x).replace("USDT", "").upper() for x in syms]
++    if req_sym:
++        chart["requested_symbol"] = short
++        chart["symbol_in_run"] = in_run
++
++    if n:
++        first_t, last_t = int(bars[0]["t"]), int(bars[-1]["t"])
++        shown = chart.get("candles_window_shown") or {"start_ms": first_t, "end_ms": last_t}
++        chart["candles_window_shown"] = shown
++        chart["candles_bars"] = n
++        chart["candles_truncated"] = bool(chart.get("candles_truncated") or False)
++        if not chart.get("candles_source"):
++            chart["candles_source"] = (
++                f"读时按本 run 自己的标的与窗口取真实 K 线（{chart.get('symbol')}/{req_tf}），"
++                f"未写回 run 目录")
++        chart["display_timeframe"] = shown_tf if shown_tf in _CHART_TF_ALLOWED else req_tf
++        # 与 run 窗口的关系必须显式：组合 run 的 window 是「首笔入场~末笔出场」，
++        # 而单标的 K 线只覆盖该标的自己的成交区间 ⇒ 两者本来就不该相等。
++        win = chart.get("window") or {}
++        ws, we = win.get("start_ms"), win.get("end_ms")
++        matches = bool(isinstance(ws, int) and isinstance(we, int)
++                       and abs(first_t - ws) <= 3_600_000 and abs(last_t - we) <= 3_600_000)
++        chart["candles_window_matches_run_window"] = matches
++        chart["chart_partial"] = False
++        chart["chart_blocked_reason"] = None
++        note = ""
++        if req_sym and not in_run:
++            note = (f"注意：{short} 不在本 run 的成交标的内（本 run 只成交过 "
++                    f"{len(syms)} 个标的）⇒ 图上没有该 run 的成交/信号标记，"
++                    f"K 线仅是该标的的真实行情。")
++        elif not matches:
++            note = ("图轴请以 candles_window_shown 为准：单标的 K 线只覆盖该标的在本 run 的"
++                    "成交区间，与 run 级 window（首笔入场~末笔出场）不相等属正常。")
++        if chart.get("candles_scope") == "trade_windows_union":
++            note = (f"⚠ K 线是「各笔成交回看窗口的并集」，含 {chart.get('candles_gaps')} 处断档，"
++                    f"不是连续行情，不可用于形态/趋势判断（连续行情取不到才会退回这种）。"
++                    + (" " + note if note else ""))
++        chart["what_works"] = (
++            f"K 线可用：{n} 根 {req_tf}（{chart.get('symbol')}，"
++            f"{datetime.fromtimestamp(first_t / 1000, tz=timezone.utc).strftime('%Y-%m-%d %H:%M')}Z"
++            f" ~ {datetime.fromtimestamp(last_t / 1000, tz=timezone.utc).strftime('%Y-%m-%d %H:%M')}Z"
++            f"{'，已截断' if chart['candles_truncated'] else ''}）；"
++            f"同标的的逐笔/信号/止损轨迹/切档事件与账户权益曲线同响应返回。"
++            f"执行周期 {exec_tf}、信号周期 {sig_tf}；本次显示 {chart['display_timeframe']}。"
++            + (" " + note if note else ""))
++    else:
++        chart["chart_partial"] = True
++        chart["candles_bars"] = 0
++        chart["display_timeframe"] = None
++        # 原因必须指向**本次请求**，不能留上一轮「组合契约装不下」的旧文案：
++        # 现在契约已经能按 symbol 出图，再说「装不下」就是错的。
++        if req_sym and short not in [str(x).replace("USDT", "").upper() for x in syms] and syms:
++            chart["chart_blocked_reason"] = (
++                f"请求的标的 {short} 不在本 run 的成交标的内（本 run 成交过 {len(syms)} 个标的），"
++                f"且市场库也无该标的 {req_tf} K 线 ⇒ 本次无图。可选标的见 symbols。")
++        else:
++            chart["chart_blocked_reason"] = (
++                f"本次请求（symbol={req_sym or '未指定'}，timeframe={req_tf}）"
++                f"未取到 K 线；不伪造、不用别的 run 的图顶替。")
++        chart["what_works"] = (
++            "K 线为空（原因见 chart_blocked_reason / candles_note）；"
++            "账户权益曲线、逐笔、信号仍可用。")
++    return chart
+ 
+ 
+ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
+@@ -1269,6 +1402,20 @@
+ 
+     # 多币组合标的识别与动态 K 线切换支持（支持 WORK-DYNAMIC-BT-01 与多币组合复盘）
+     req_tf = str((params.get("timeframe") or ["1h"])[0] if isinstance(params.get("timeframe"), list) else (params.get("timeframe") or "1h")).strip().lower()
++    # 周期白名单：非法值**拒绝**而不是静默回退成 1h —— 否则响应会一边给 1h 的 K 线、
++    # 一边把 display 标成用户要的周期，等于用错的图冒充对的图。
++    if req_tf not in _CHART_TF_ALLOWED:
++        return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
++                         missing_reason=(f"timeframe 只支持 {'/'.join(_CHART_TF_ALLOWED)}，"
++                                         f"收到 {req_tf!r} ⇒ 拒绝（不静默回退、不拿别的周期冒充）")), 400
++    # 按笔聚焦（可选）：成交可能分散在几年里，聚焦到某一笔才看得清四个点
++    focus_ms = params.get("focus_ms")
++    if isinstance(focus_ms, list):
++        focus_ms = focus_ms[0] if focus_ms else None
++    try:
++        focus_ms = int(focus_ms) if focus_ms not in (None, "") else None
++    except (TypeError, ValueError):
++        focus_ms = None
+     is_portfolio = chart and (str(chart.get("symbol", "")).startswith("PORTFOLIO") or "PORTFOLIO" in str((doc.get("spec") or {}).get("symbols", [])))
+ 
+     if chart and (is_portfolio or req_sym):
+@@ -1308,18 +1455,99 @@
+                             matched_rp_trades = [t for t in rp_trades if t.get("symbol", "").upper() == sym_clean or t.get("symbol", "").upper() == active_sym]
+                             if matched_rp_trades:
+                                 all_bars = []
++                                # 只取**请求的那个周期**。原来写成 `tfs.get(req_tf) or tfs.get("1h")`，
++                                # 一旦某笔缺 4h 就会把 1h 的 K 线混进来，再被标成 4h 返回 ——
++                                # 用错周期的图冒充对的图。宁可少画也不混周期，缺的记进 candles_skipped_tf。
++                                skipped_tf = []
+                                 for mt in matched_rp_trades:
+-                                    tfs_dict = mt.get("timeframes", {})
+-                                    bars = tfs_dict.get(req_tf) or tfs_dict.get("1h") or []
++                                    tfs_dict = mt.get("timeframes") or {}
++                                    bars = tfs_dict.get(req_tf) or []
++                                    if not bars:
++                                        skipped_tf.append(mt.get("trade_id"))
++                                        continue
+                                     all_bars.extend(bars)
+ 
+                                 by_t = {c["t"]: c for c in all_bars if "t" in c}
+-                                sorted_bars = [by_t[k] for k in sorted(by_t)]
+-                                if sorted_bars:
+-                                    chart["candles"] = sorted_bars
++                                rp_bars = [by_t[k] for k in sorted(by_t)]
++
++                                # ── 主图 K 线：优先「连续行情」，replay 只作兜底 ──
++                                # replay 包里的 K 线是「每笔成交各自回看窗口」的并集，成交跨年份时
++                                # 会留下成万个空档（实测 AVAX 1h：3 笔成交跨 2021-12/2023-05/2023-09，
++                                # 空档 12,261 根 ≈ 1.4 年）。把它当主图就是断轴图 ⇒ 按该标的自己的
++                                # 成交区间，从市场库取连续 K 线；取不到才退回并集，并显式标出断档数。
++                                _spec = doc.get("spec") or {}
++                                _ex = str(_spec.get("exchange") or "binance")
++                                _mk = str(_spec.get("market") or "um")
++                                _times: List[int] = []
++                                for mt in matched_rp_trades:
++                                    for _k in ("entry", "exit"):
++                                        _v = (mt.get(_k) or {}).get("t")
++                                        if isinstance(_v, int):
++                                            _times.append(int(_v))
++                                _pad = FT_REPLAY_CANDLE_PAD_MS
++                                _read_ws = (min(_times) - _pad) if _times else None
++                                _read_we = (max(_times) + _pad) if _times else None
++                                if _times and focus_ms:
++                                    _half = FT_REPLAY_CANDLE_CAP // 2 * 900000
++                                    _read_ws = max(_read_ws, focus_ms - _half)
++                                    _read_we = min(_read_we, focus_ms + _half)
++                                # 裁到「本 run 实际消费的数据区间」：实时库比冻结数据新，
++                                # 不裁就会把回测数据之外的行情画进复盘图（BEAMX 实测多 24 根）。
++                                _dr_a, _dr_b = _run_data_range(run_id)
++                                _clipped = False
++                                if (_read_ws is not None and _read_we is not None
++                                        and isinstance(_dr_a, int) and isinstance(_dr_b, int)):
++                                    _nw, _ne = max(int(_read_ws), _dr_a), min(int(_read_we), _dr_b - 1)
++                                    if _nw != int(_read_ws) or _ne != int(_read_we):
++                                        _clipped = True
++                                    _read_ws, _read_we = _nw, _ne
++                                cont: tuple = ()
++                                cont_trunc = False
++                                cont_err = None
++                                if _read_ws is not None:
++                                    try:
++                                        cont, cont_trunc, _ = _market_candles_window(
++                                            sym_full, int(_read_ws), int(_read_we), _ex, _mk, req_tf)
++                                    except Exception as exc:          # noqa: BLE001
++                                        cont_err = f"{type(exc).__name__}: {exc}"
++
++                                if cont:
++                                    chart["candles"] = [dict(r) for r in cont]
++                                    chart["candles_scope"] = "market_continuous"
++                                    chart["candles_truncated"] = bool(cont_trunc)
++                                    chart["candles_clipped_to_run_data"] = bool(_clipped)
++                                    chart["candles_source"] = (
++                                        f"读时从市场库读取 {_ex}/{_mk}/{sym_full}/{req_tf} 连续行情"
++                                        f"（{cm_utc(_read_ws)} ~ {cm_utc(_read_we)}，UTC"
++                                        f"{'，已裁到本 run 实际消费的数据区间' if _clipped else ''}）；"
++                                        f"replay 包只提供该标的逐笔成交/信号/止损轨迹/切档事件；"
++                                        f"未写回 run 目录")
++                                    chart["candles_window_shown"] = {
++                                        "start_ms": int(cont[0]["t"]), "end_ms": int(cont[-1]["t"])}
++                                    if focus_ms:
++                                        chart["candles_focused_ms"] = int(focus_ms)
++                                elif rp_bars:
++                                    _step = {"4h": 14_400_000, "1h": 3_600_000, "15m": 900_000}[req_tf]
++                                    _ts = [int(c["t"]) for c in rp_bars]
++                                    _gaps = sum(1 for i in range(len(_ts) - 1)
++                                                if _ts[i + 1] - _ts[i] > _step * 1.5)
++                                    chart["candles"] = rp_bars
++                                    chart["candles_scope"] = "trade_windows_union"
++                                    chart["candles_gaps"] = _gaps
++                                    chart["candles_truncated"] = False
++                                    chart["candles_source"] = (
++                                        f"市场库取不到 {sym_full}/{req_tf} 连续行情"
++                                        f"（{cont_err or '无数据'}）⇒ 退回 replay 包的"
++                                        f"「各笔成交回看窗口并集」：{len(rp_bars)} 根，"
++                                        f"含 {_gaps} 处断档，**不是连续行情**，不可当主图做形态判断")
++                                    chart["candles_window_shown"] = {
++                                        "start_ms": _ts[0], "end_ms": _ts[-1]}
++
++                                if chart.get("candles"):
+                                     chart["symbol"] = sym_full
+                                     chart["exec_timeframe"] = req_tf
+                                     chart["missing_reason"] = None
++                                    chart["candles_skipped_tf"] = skipped_tf
+ 
+                                     # 提取该标的交易与信号
+                                     chart_trades = []
+@@ -1362,8 +1590,11 @@
+                 # 若非 DYN01 或 replay 未加载，从 parquet / 市场库提取
+                 if not replay_loaded:
+                     pq_files = sorted(glob.glob(f"{PROJECT_ROOT}/数据/市场数据/parquet/candles/binance/um/{sym_full}/{req_tf}/*.parquet"))
++                    # 不再「缺该周期就拿 15m 顶」：那会把 15m 的 K 线标成 1h/4h 返回。
+                     if not pq_files:
+-                        pq_files = sorted(glob.glob(f"{PROJECT_ROOT}/数据/市场数据/parquet/candles/binance/um/{sym_full}/15m/*.parquet"))
++                        chart["candles_source"] = (
++                            f"parquet 无 {sym_full}/{req_tf}（也不拿 15m 冒充 {req_tf}）"
++                            f"⇒ 本标的本次无图")
+                     if pq_files:
+                         import pandas as pd
+                         dfs = [pd.read_parquet(f) for f in pq_files]
+@@ -1373,8 +1604,12 @@
+                             if c in df_raw.columns:
+                                 df_raw[c] = pd.to_numeric(df_raw[c], errors="coerce")
+                         df_raw["open_time"] = pd.to_numeric(df_raw["open_time"], errors="coerce")
+-                        ws = (chart.get("window") or {}).get("start_ms") or 1638316800000
+-                        we = (chart.get("window") or {}).get("end_ms") or 1735689600000
++                        ws = (chart.get("window") or {}).get("start_ms")
++                        we = (chart.get("window") or {}).get("end_ms")
++                        if not (isinstance(ws, int) and isinstance(we, int)):
++                            # 原来这里 `or 1638316800000 / or 1735689600000` 会悄悄用
++                            # 2022-01-01~2025-01-01 兜底 ⇒ 图与 run 窗口无关也算「有图」。
++                            raise ValueError("本 run 无 window（start_ms/end_ms）⇒ 不猜区间，本次不出图")
+                         df_win = df_raw.loc[(df_raw["open_time"] >= ws) & (df_raw["open_time"] <= we)]
+                         chart["candles"] = [
+                             {"t": int(r.open_time), "o": float(r.open), "h": float(r.high),
+@@ -1391,8 +1626,11 @@
+                              "confirm_time": t.get("confirm_time_ms"), "p0": t.get("initial_stop")}
+                             for t in sym_trades if t.get("signal_time_ms")
+                         ]
+-        except Exception as exc:
+-            pass
++        except Exception as exc:                           # noqa: BLE001
++            # 不吞异常：多币 K 线切换失败时要把原因留在载荷里，否则前端只看到「图没变」，
++            # 无法区分「该标的本来没数据」与「后端取数出错」。
++            chart = dict(chart) if chart else {}
++            chart["candles_error"] = f"{type(exc).__name__}: {exc}"
+ 
+     # FT-REPLAY-01：研究期 run 的 chart.json 故意不落 K 线 ⇒ 读时按本 run 自己的
+     # 标的与窗口从市场库取（只补 candles，不动 signals/confirms/trades，不写回目录）。
+@@ -1423,6 +1661,8 @@
+     except Exception as exc:                               # noqa: BLE001
+         chart["oi"] = []
+         chart["oi_meta"] = {"error": f"{type(exc).__name__}: {exc}"}
++    # 元数据收口：K 线有了就别说「K 线为空」（WORK-DYNAMIC-BT-02）
++    chart = _finalize_chart_meta(chart, doc, req_sym=req_sym, req_tf=req_tf)
+     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                      chart=chart), 200
+ 

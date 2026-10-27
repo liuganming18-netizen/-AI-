@@ -1,0 +1,72 @@
+{
+ "approval_ref": null,
+ "approved": null,
+ "conflict_resolution": {
+  "participation_cap": null,
+  "risk_config": null,
+  "slippage_source": null
+ },
+ "kind": null,
+ "schema_version": null,
+ "schemes": {
+  "4a": {
+   "confirm": null,
+   "enabled": null
+  },
+  "4b": {
+   "confirm": null,
+   "enabled": null
+  },
+  "4c": {
+   "confirm": null,
+   "enabled": null,
+   "pullback": {
+    "deadline_hours": null,
+    "zone_atr": null
+   }
+  }
+ },
+ "shared": {
+  "entry_delay_minutes": null,
+  "entry_price_deviation_cap": null,
+  "intrabar_break_cancel": {
+   "buffer_atr": null,
+   "mode": null
+  },
+  "local_resistance": {
+   "mode": null,
+   "n": null,
+   "timeframe": null
+  },
+  "local_resistance_confirm": {
+   "buffer_atr": null,
+   "mode": null
+  },
+  "observe_deadline_hours": null,
+  "oi_role": null,
+  "repeat_candidate_limit": {
+   "cooldown_hours": null,
+   "per_event": null
+  },
+  "sell_pressure": {
+   "baseline": null,
+   "buy_ratio_min": null,
+   "n": null,
+   "require": null
+  },
+  "sweep_max_overshoot_atr": null,
+  "sweep_min_recovery_atr": null,
+  "sweep_recovery_scope": {
+   "max_bars": null,
+   "mode": null
+  }
+ },
+ "_meta": {
+  "用途": "批准方逐格填写的空白表单；**填写不等于批准**，还须把 approved 改为 true 并给出 approval_ref",
+  "字段数": 36,
+  "格式版本": "accum-early-04/v1",
+  "代码版本": "accum_early_04b_v1",
+  "纪律": "任何一格为 null 或缺失 ⇒ 开仓阻塞；白名单外的取值 ⇒ 视为不支持，同样阻塞",
+  "本单未填任何值": true
+ }
+}

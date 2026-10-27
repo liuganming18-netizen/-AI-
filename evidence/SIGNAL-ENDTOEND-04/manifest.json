@@ -1,0 +1,45 @@
+{
+  "task": "SIGNAL-ENDTOEND-04",
+  "title": "实时扫描推进与完整回测复盘接线",
+  "workspace": "/Users/boos/Desktop/威科夫因子共振趋势",
+  "generated_at": "2026-10-24T17:35:00Z",
+  "status": "COMPLETED",
+  "probes": [
+    {
+      "id": "PROBE_01",
+      "script": "evidence/SIGNAL-ENDTOEND-04/probes/01_live_kline_pool_scan_watermark.py",
+      "output": "evidence/SIGNAL-ENDTOEND-04/out/live_scan_watermark_advance.json",
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "id": "PROBE_02",
+      "script": "evidence/SIGNAL-ENDTOEND-04/probes/02_browser_dynamic_replay_verification.mjs",
+      "output": "evidence/SIGNAL-ENDTOEND-04/out/dynamic_replay_acceptance.json",
+      "total": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "id": "PROBE_03",
+      "script": "evidence/SIGNAL-ENDTOEND-04/probes/03_reconcile_dynamic_trades.py",
+      "output": "evidence/SIGNAL-ENDTOEND-04/out/reconciliation_dynamic_trades.json",
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    }
+  ],
+  "summary": {
+    "total_probes": 3,
+    "total_checks": 31,
+    "passed_checks": 31,
+    "failed_checks": 0,
+    "verdict": "ALL_PASSED"
+  },
+  "verdict_by_scope": {
+    "isolated_engineering_test": "PASS",
+    "historical_replay_review": "PASS",
+    "natural_market_execution": "AWAITING_NATURAL_TRIGGER"
+  }
+}

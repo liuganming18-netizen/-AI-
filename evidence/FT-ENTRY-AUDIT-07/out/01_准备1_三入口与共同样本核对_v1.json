@@ -1,0 +1,69 @@
+{
+  "C0基线_代码坐标": {
+    "文件": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/strategies/WyckoffParamExplorationBase.py",
+    "确认条件(C0)": "is_retest = (L<=low<=L+zone*A) & (low>sweep_low_s) & (close>=L+retest_recovery_atr*A) & (close>=open) & (volume<=vol_mult*sweep_volume_vs)",
+    "收阳确认项行号(1-based)": "216（close_p >= open_p，单根 1h 收阳）",
+    "P0": "265-266 行 initial_stop=sweep_low_s-0.1A；initial_risk_r=close_p-initial_stop",
+    "入场带": "293-294 行 max_entry=close+0.5A；min_entry=L-0.2A",
+    "执行最早": "268 行 close_time_ms+15min",
+    "OI过滤": "255-262 行 enable_oi_filter 且 oi_growth>=0",
+    "仓位/预算": "707-746 行 equity*0.005、单仓0.30*equity、liq_cap=0.001*prev_qv",
+    "止损/退出": "748-807 行 2R 触发后 4h L10 跟踪、240h timeout、stoploss=-0.99 占位",
+    "工具类配置": "max_open_trades=3、dry_run_wallet=2000、futures/cross、timeframe=15m"
+  },
+  "C0基线_C路线段跨版本一致": {
+    "02_vs_03_C路线段一致": true,
+    "02_vs_04_C路线段一致": true,
+    "C路线段行范围(1-based)": "208-310（回踩参数化+is_retest+C组提前触发）",
+    "02基类sha256": "e07420f715698a339184121d48c72f738f2ba1548ad8c7131d391fa2b26f67d3",
+    "03基类sha256": "684855bc904760bc6fc2b1a3181c9c869d061158c8ba705e07325696d8d4c43b",
+    "04基类sha256": "b231180d91033e75bdcb812ad90ef8a07b1694e3384e474bcb2ceaebb6ad7704"
+  },
+  "共同样本_独立复算": {
+    "名义成交总记录": 3081,
+    "enter_tag唯一候选": 821,
+    "物理候选键唯一(symbol,event,box)": 613,
+    "FT06口径_盈利候选": 168,
+    "FT06口径_亏损候选": 653,
+    "每候选覆盖网格数分布": {
+      "1": 60,
+      "2": 92,
+      "3": 103,
+      "4": 52,
+      "5": 19,
+      "6": 125,
+      "7": 22,
+      "8": 25,
+      "9": 115
+    },
+    "每网格名义笔数": {
+      "Wyckoff_C_Vs04_Z02": 184,
+      "Wyckoff_C_Vs04_Z04": 270,
+      "Wyckoff_C_Vs04_Z06": 319,
+      "Wyckoff_C_Vs06_Z02": 285,
+      "Wyckoff_C_Vs06_Z04": 374,
+      "Wyckoff_C_Vs06_Z06": 411,
+      "Wyckoff_C_Vs08_Z02": 338,
+      "Wyckoff_C_Vs08_Z04": 435,
+      "Wyckoff_C_Vs08_Z06": 465
+    },
+    "同网格内同候选重复成交_候选数": 77,
+    "同网格内同候选重复成交_笔数": 163,
+    "同网格内同候选重复成交_max笔每候选": 3,
+    "覆盖标的数": 62
+  },
+  "与FT-ENTRY-06对拍": {
+    "ft06_01文件存在": true,
+    "ft06_唯一候选行数": 821,
+    "ft06_is_win_true": 168,
+    "ft06_is_win_false": 653,
+    "ft06_strategy_count_max": 9
+  },
+  "核对清单": {
+    "共12项": "其中 T0 基线项已在代码层确立；T1~T12 等待反重力三入口交付后逐项 diff"
+  },
+  "判断": {
+    "准备1_可完成部分": "C0（现行确认条件=单根 1h 收阳+缩量+回踩带）已从 02 基类原文锁定，03/04 基类 C 路线段逐字节一致（未受 A 路线改动影响）；共同样本=FT-ENTRY-02 C 路线 9 组同网格同数据的事件池；「只改确认条件」核对清单已固化为 12 项可执行 diff。",
+    "准备1_等待部分": "反重力三种入场方式（C0/C1/C2 的具体确认条件代码与逐笔）尚未交付：FT-ENTRY-06 只给出假设 1（二次收盘确认与重心上移）的文字描述，无实现、无逐笔。T1~T12 全部标记「等待」，不用旧统计代替。"
+  }
+}

@@ -1,0 +1,79 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_RUNEUSDT_1784810700",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RUNEUSDT_1784810700",
+   "fill_id": "paper_fill:23",
+   "order_id": 23,
+   "trade_id": "trd_paper_pos_12",
+   "trade_link": "trades.order_id",
+   "symbol": "RUNEUSDT",
+   "strategy_key": null,
+   "action": "open",
+   "fill_price": 0.4198,
+   "quantity": 1135.0,
+   "fee": 0.23823650000000002,
+   "liquidity": null,
+   "sequence": 23,
+   "event_time": 1784074500000,
+   "fill_time_ms": 1784074500000,
+   "detail": {
+    "position_id": 12,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_RUNEUSDT_1782921599999_1784073600000",
+    "raw_price": 0.4195,
+    "notional": 476.473,
+    "slippage_cost": 0.3405000000000255,
+    "bar_open_time": 1784074500000,
+    "bar_close_time": 1784075399999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_RUNEUSDT_1784810700",
+   "fill_id": "paper_fill:24",
+   "order_id": 24,
+   "trade_id": "trd_paper_pos_12",
+   "trade_link": "trades.order_id",
+   "symbol": "RUNEUSDT",
+   "strategy_key": null,
+   "action": "close",
+   "fill_price": 0.4268,
+   "quantity": 1135.0,
+   "fee": 0.242209,
+   "liquidity": null,
+   "sequence": 24,
+   "event_time": 1784811599999,
+   "fill_time_ms": 1784811599999,
+   "detail": {
+    "position_id": 12,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_RUNEUSDT_1782921599999_1784073600000",
+    "raw_price": 0.42710000000000004,
+    "notional": 484.418,
+    "slippage_cost": 0.3405000000000255,
+    "bar_open_time": 1784810700000,
+    "bar_close_time": 1784811599999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  }
+ ],
+ "total": 2,
+ "live_order_enabled": false,
+ "link_notes": [
+  "trade#1 开仓订单冲突：trades.jsonl=23 vs positions.POSITION_OPENED=23"
+ ],
+ "note": "逐次成交明细（同一 run_id 账本 fills.jsonl 事件）；trade_id 由关联 order_id 反查，支持部分成交展开"
+}

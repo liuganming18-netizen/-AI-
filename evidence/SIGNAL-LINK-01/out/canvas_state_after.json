@@ -1,0 +1,154 @@
+{
+  "verdict": {
+    "state": "wait",
+    "title": "全链无故障；有 1 段在等待条件",
+    "sub": "5. 信号引擎 —— 等待不等于通过。"
+  },
+  "chips": [
+    {
+      "no_name": "1. 交易所来源",
+      "state": "pass",
+      "label": "已验证可用"
+    },
+    {
+      "no_name": "2. 实时采集 ／ 历史归档",
+      "state": "pass",
+      "label": "已验证可用"
+    },
+    {
+      "no_name": "3. 热库 ／ 冷库",
+      "state": "pass",
+      "label": "已验证可用"
+    },
+    {
+      "no_name": "4. 数据质量与已闭合水位",
+      "state": "pass",
+      "label": "已验证可用"
+    },
+    {
+      "no_name": "5. 信号引擎",
+      "state": "wait",
+      "label": "等待条件"
+    },
+    {
+      "no_name": "6. 模拟账本",
+      "state": "pass",
+      "label": "已验证可用"
+    },
+    {
+      "no_name": "7. 工作台 ／ 回测对账",
+      "state": "pass",
+      "label": "已验证可用"
+    }
+  ],
+  "nodes": [
+    {
+      "key": "source",
+      "name": "1. 交易所来源",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "分母、排除规则与快照时点可核验；快照年龄 20.4 小时",
+      "facts": "实际来源 交易所官方 exchangeInfo / instruments 快照 symbol_classification 最后成功时间 10-23 09:00:16Z 数据年龄 20.4 小时 覆盖数 币安 526 + 欧易 286 = 812 个加密永续 目录快照另计：814 个（含股票/商品/外汇/指数）",
+      "blocker": ""
+    },
+    {
+      "key": "collect",
+      "name": "2. 实时采集 ／ 历史归档",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "采集心跳正常（14 秒前），15 路 WS 流在跑；已见 528/528 标的。",
+      "facts": "实际来源 交易所原生 WS（币安 kline_<tf>／欧易 candle<bar>） 历史归档：官方静态资源直连下载，不经 REST 网关 最后成功时间 心跳 10-24 05:26:01Z 最新 WS 消息 10-24 05:26:12Z 数据年龄 心跳 14 秒前 最旧一路消息 3 秒前 覆盖数 已见 528 / 计划 528 标的 15 路 (交易所,周期)；归档任务 done 8 组",
+      "blocker": ""
+    },
+    {
+      "key": "store",
+      "name": "3. 热库 ／ 冷库",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "热库 4,385 个组合、115,402,517 根；冷库 三层实检通过：12,498 分片全部存在、108,208,916 行与声明一致、哈希抽样 624 个无异常。",
+      "facts": "热库状态 4,385 个 (标的,周期) · 115,402,517 根；最新闭合 10-24 05:24:59Z market_v2.sqlite3 · as_of 2026-10-24T05:26:15Z 冷库状态 索引可读 · 12,498 candles 分片 / 声明 108,208,916 根 逐个 stat：存在 12,498 · 缺失 0 catalog 2026-10-24T03:34:43Z · 对账水位 2026-10-12T00:00:00Z 数据年龄 76 秒（热库最新闭合 bar） 冷库是索引时间，不等于数据新鲜度 覆盖口径 热库 coverage_cache ≠ 冷库目录声明 冷库只 stat 了存在性，未校验内容与行数，不能据此判全库覆盖",
+      "blocker": "◻ 冷库已验：存在性全量、行数全量、哈希抽样 5%。**未验**的部分只有两件：哈希不是全量逐字节（只抽 624 个 / 读 258 MB），以及 catalog 声明范围本身不等于全市场覆盖。"
+    },
+    {
+      "key": "quality",
+      "name": "4. 数据质量与已闭合水位",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "15m／1h／4h 三处水位对齐：上游写入 → 热库最后闭合 → 引擎实际读取；最大滞后 0 秒。欧易 8h 记“不适用”。",
+      "facts": "实际来源 热库 coverage_cache（每标的每周期） 对照：WS 闭合入库 + 引擎读取 最后成功时间 15m 10-24 05:14:59Z 1h 10-24 04:59:59Z 4h 10-24 03:59:59Z 数据年龄 15m 滞后 0 秒 1h 滞后 0 秒 4h 滞后 0 秒 覆盖／缺口 15m 551 标的 · 缺 2,887 根 1h 551 标的 · 缺 174 根 4h 551 标的 · 缺 49 根 8 周期合计缺口 3,585 根（含官方白名单历史缺口，画布不做抵扣）",
+      "blocker": ""
+    },
+    {
+      "key": "engine",
+      "name": "5. 信号引擎",
+      "state": "wait",
+      "pill": "等待条件",
+      "headline": "扫描正常但未触发：526 标的全量在扫、周期新鲜、水位不滞后；自启动以来候选 0 条。 预热回放 1,160 小时漏斗：箱体 3,278 → 扫低 669 → 回踩 399 → 候选 4（平均约 12.1 天/个） ⇒ 当前 0 条是供给稀缺，不是链路故障；链路已由隔离端到端探针验通。 状态分布 BOX 358 / IDLE 124 / RETEST 28 / SWEEP 16",
+      "facts": "实际来源 unified_runtime 状态文件（隔离/生产同接口） 信号：live_signal + 四臂账本 ATTACH 最后成功时间 上次扫描 10-24 05:26:12Z 启动 2026-10-24 05:24:46.144Z 数据年龄 4 秒（距上次周期） 引擎读到的 15m：10-24 05:14:59Z 覆盖／信号 universe 526/526 · 累计生成 0 当前可执行 0 条 · 历史回放候选 4（不补开） 信号漏斗 预热 1,160h · 箱体 3,278 → 扫低 669 → 回踩 399 → 候选 4 自启动以来候选 0 · 最近候选 — · 平均 12.1 天/个",
+      "blocker": "⏳ 扫描正常但未触发：526 标的全量在扫、周期新鲜、水位不滞后；自启动以来候选 0 条。 预热回放 1,160 小时漏斗：箱体 3,278 → 扫低 669 → 回踩 399 → 候选 4（平均约 12.1 天/个） ⇒ 当前 0 条是供给稀缺，不是链路故障；链路已由隔离端到端探针验通。"
+    },
+    {
+      "key": "ledger",
+      "name": "6. 模拟账本",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "四臂现金合计 20000.00 USDT；已平 0 笔、已实现 0.00；挂单 0 笔。",
+      "facts": "实际来源 四臂纸面账本（3a/3b/3c/3d）+ 总闸文件 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json 最后成功时间 本次读取成功 10-24 05:26:16Z 总闸状态变更 2026-10-23 11:05:32.432Z · 水线 2026-10-23T09:47:24Z 数据年龄 18.3 小时（距总闸变更） 接口无“最后写入时点”字段（C-05） 覆盖／笔数 现金 20000.00 · 已平 0 笔 · 已实现 0.00 挂单 0 · 持仓 0 · 闸门 开启",
+      "blocker": ""
+    },
+    {
+      "key": "workbench",
+      "name": "7. 工作台 ／ 回测对账",
+      "state": "pass",
+      "pill": "已验证可用",
+      "headline": "已验证固定历史样本机制：UI→worker run bt_20261023T162149Z_59f3c8fa 对隔离 paper 17/17；这不代表当前自然行情成交或策略有效性。",
+      "facts": "实际来源 工作台列表口径 active_scope + 回测库 runs 与工作台同一组 /api/v1 接口 最后成功时间 2026-10-24T05:26:15Z 回测 本次读取成功 10-24 05:26:15Z 数据年龄 1 秒 覆盖数 展示池 549 行 · 回测 run 2,269 条 最新 run run_WX_EVENT_TREND_V0_1_BTCUSDT_17 逐笔对账 历史样本机制通过 17/17 生成 2026-10-24T05:25:59.498344+00:00 · bt_20261023T162149Z_59f3c8fa 复算说明：SIGNAL-LINK-01（2026-10-24）：unified_runtime.py 有两处改动，均为纯新增/纯防护，不改成交、止损、仓位、路由判定与时钟口径：① 新增 signal_engine.funnel 漏斗计数（since_start / history / candidates_since_start / last_candidate_utc / bootstrap_window_hours / watermark_clamped），只读统计；② 修 bootstrap 的全局水位取值——原取全库最大值，改为「本次预热到的那批 bar 的最大 open_time」，仅当库最大值 > upto_ms 时才生效（生产实测 watermark_clamped=false，即语义不变），避免库内未来时间戳坏 bar 或预热到过去某刻时引擎永久空转且无报错。另新增 pool_scope.py + logs/_pool_scope.py 恢复被丢失的池口径模块，标的集合与行情库逐币相同（526=526）。故 source_hashes 中 unified_runtime.py 与本次 run 产出时不同；对账的成交/费用/止损/权益字段不受影响。UI 仅改 public/system-flow.html 第5段文案与漏斗展示，未动 src 组件。",
+      "blocker": "◻ 证据范围仅为同一历史样本机制闭环；当前自然行情成交与策略有效性仍未验证。"
+    }
+  ],
+  "build_id": "signallink01a-20261024",
+  "meta": "读取时刻 2026-10-24 13:26:16（本地） 同源 http://127.0.0.1:3000/api/v1 已验证 6 · 等待 1 · 故障 0 · 未验证 0 构建 signallink01a-20261024",
+  "net": [
+    {
+      "url": "/api/v1/data/import-plan",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/data/pool-scope",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/paper/status",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/data/cold-archive-status",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/signals?scope=current",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/pool/status",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/data/status",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/system-flow/paper-reconciliation",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/backtests?limit=1",
+      "status": 200
+    },
+    {
+      "url": "/api/v1/paper/accounts",
+      "status": 200
+    }
+  ],
+  "captured_at_utc": "2026-10-24T05:26:21.045Z"
+}

@@ -1,0 +1,110 @@
+{
+ "verdict": {
+  "gate_reader_total": 14,
+  "in_entry_path": 6,
+  "in_maintenance_path": 0,
+  "in_other_path": 8,
+  "maintenance_functions_read_gate": [],
+  "conclusion": "维护类函数（止损推进/平仓/退出检查）**没有任何一处**读取总闸 ⇒ 暂停只可能拦住新开仓，不会停掉已有持仓的盯市与退出"
+ },
+ "readers": [
+  {
+   "line": 859,
+   "kind": "call",
+   "name": "new_entry_gate",
+   "func": "open_position",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 1855,
+   "kind": "call",
+   "name": "new_entry_gate",
+   "func": "switches",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 150,
+   "kind": "const",
+   "name": "GATE_FILE",
+   "func": "new_entry_gate",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 159,
+   "kind": "const",
+   "name": "GATE_REASON",
+   "func": "new_entry_gate",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 868,
+   "kind": "const",
+   "name": "GATE_REASON",
+   "func": "open_position",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 864,
+   "kind": "const",
+   "name": "GATE_REASON",
+   "func": "open_position",
+   "file": "paper_engine.py"
+  },
+  {
+   "line": 883,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "runtime_execution_identity",
+   "file": "live_api.py"
+  },
+  {
+   "line": 1187,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "paper_toggle_gate",
+   "file": "live_api.py"
+  },
+  {
+   "line": 1219,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "paper_toggle_gate",
+   "file": "live_api.py"
+  },
+  {
+   "line": 708,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "_paper_accounts_legacy",
+   "file": "live_api.py"
+  },
+  {
+   "line": 635,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "route_pending_orders",
+   "file": "unified_runtime.py"
+  },
+  {
+   "line": 972,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "get_full_status",
+   "file": "unified_runtime.py"
+  },
+  {
+   "line": 988,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "_gate_allow",
+   "file": "unified_runtime.py"
+  },
+  {
+   "line": 294,
+   "kind": "attr",
+   "name": "PE.new_entry_gate",
+   "func": "advance_paper",
+   "file": "live_worker.py"
+  }
+ ]
+}

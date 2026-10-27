@@ -1,0 +1,115 @@
+{
+  "mode": "research_backtest",
+  "contract_version": "bt_api_v1",
+  "strategy_id": "WX_EVENT_TREND_V0_1",
+  "run_id": "bt_20261023T162149Z_59f3c8fa",
+  "status": "succeeded",
+  "quality": {
+    "status": "ok",
+    "age_seconds": null,
+    "note": null
+  },
+  "missing_reason": null,
+  "items": [
+    {
+      "direction": 1,
+      "entry_fee": 0.24967851999999996,
+      "entry_price": 0.06692,
+      "entry_time": 1790954100000,
+      "exit_fee": 0.2600507,
+      "exit_order_id": "ord_eec8efe1cbd2e0b57493fbae",
+      "exit_price": 0.0697,
+      "exit_reason": "intrabar_stop",
+      "exit_time": 1791004500000,
+      "fees": 0.50972922,
+      "funding_fee": 0.501640634457144,
+      "funding_gaps": [],
+      "gross_pnl": 20.744360000000036,
+      "mae": 0.02764494919306621,
+      "mfe": 0.4299163179916319,
+      "net_pnl": 19.732990145542892,
+      "order_id": "ord_af1ce46b242122be4dff48a9",
+      "price_audit": {
+        "entry": {
+          "is_buy": true,
+          "post_round_price": "0.06692",
+          "post_slip_price": "0.06691344",
+          "price_step": "0.00001",
+          "raw_price": "0.06688",
+          "round_delta": "0.00000656",
+          "slip_delta": "0.00003344"
+        },
+        "exit": {
+          "is_buy": false,
+          "post_round_price": "0.0697",
+          "post_slip_price": "0.06970513",
+          "price_step": "0.00001",
+          "raw_price": "0.06974",
+          "reason": "intrabar_stop",
+          "round_delta": "-0.00000513",
+          "slip_delta": "-0.00003487"
+        }
+      },
+      "qty": 7462.0,
+      "rounding_loss": 0.0872307799999609,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "signal_type": 1,
+      "slippage_loss": 0.5969599999999757,
+      "slippage_loss_pure": 0.5097292200000147,
+      "stop_trace": [
+        {
+          "t": 1790954100000,
+          "stop": 0.06357,
+          "reason": "init",
+          "ts": 1790954100000
+        },
+        {
+          "t": 1790985600000,
+          "stop": 0.06974,
+          "reason": "trail",
+          "ts": 1790985600000
+        }
+      ],
+      "symbol": "VELVETUSDT",
+      "run_id": "bt_20261023T162149Z_59f3c8fa",
+      "entry_time_ms": null,
+      "exit_time_ms": null,
+      "initial_stop": 0.06357,
+      "order_time_ms": null,
+      "order_time": "未记录",
+      "trade_id": null,
+      "trade_id_source": "unresolved",
+      "entry_order_id": "ord_af1ce46b242122be4dff48a9",
+      "entry_order_found": true,
+      "exit_order_found": true,
+      "linked_order_count": 2,
+      "stop_trace_json": "[{\"t\": 1790954100000, \"stop\": 0.06357, \"reason\": \"init\"}, {\"t\": 1790985600000, \"stop\": 0.06974, \"reason\": \"trail\"}]",
+      "stop_trace_points": 2,
+      "holding_hours": null,
+      "funding_events": null,
+      "funding_events_linked": false,
+      "initial_stop_source": "trades.jsonl.stop_trace[0]",
+      "signal_time_ms": 1790953200000,
+      "signal_time_source": "chart.signals[].t（按 signal_id 命中）",
+      "order_time_source": null,
+      "confirm_time_source": null,
+      "P0_source": null,
+      "planned_risk_source": null,
+      "stake_amount_source": null,
+      "event_id": null,
+      "mode": null
+    }
+  ],
+  "total": 1,
+  "live_order_enabled": false,
+  "trade_id_source": "ledger:positions.jsonl POSITION_CLOSED.payload.trade_id",
+  "unresolved_trade_ids": 1,
+  "missing_initial_stop": 0,
+  "missing_signal_time": 0,
+  "candidate_matrix": null,
+  "candidate_matrix_note": "同一候选在各参数组/模式下的结果（成交/拒单/未成交）；来源 _candidate_matrix.json，由落盘 trades/rejected/not_filled 汇总，不进任何账本",
+  "link_notes": [
+    "1 笔交易的 trade_id 在账本里无法唯一确定 ⇒ 如实留空（不按行号猜配）"
+  ],
+  "note": "trade_id / 关联订单 / 资金费归属全部取自本 run 账本的真实标识；stop_trace 已统一为 `t`（毫秒），无后续止损调整时即为单点；initial_stop 取 stop_trace 首点；signal_time_ms 优先来自 chart.signals"
+}

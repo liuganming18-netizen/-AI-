@@ -1,0 +1,49 @@
+--- 框架/backend/live_store.py（本单改前）
++++ 框架/backend/live_store.py（本单改后）
+@@ -70,8 +70,13 @@
+ MARKET_DB = Path(os.environ.get(
+     "MARKET_DB", str(PROJECT_ROOT / "数据" / "市场数据" / "db" / "market_v2.sqlite3")))
+ 
+ ARMS = ("3a", "3b", "3c", "3d")
++#: **研究臂**（ACCUM-EARLY-04-B）：只在显式隔离的账本目录里存在。
++#: 为什么不直接扩 `ARMS`：`ARMS` 被生产汇总、迁移清单、页面、`paper_conns()` 共用，
++#: 扩它会把这些研究账户算进生产视图。这里只放开「路径解析」，并且**强制**要求
++#: `PAPER_LEDGER_DIR` 显式给出（默认目录 = 生产 ⇒ 研究臂一律拒绝建/读）。
++RESEARCH_ARMS = ("4a", "4b", "4c")
+ INIT_EQUITY = 5000.0
+ 
+ 
+ class LedgerUnavailable(RuntimeError):
+@@ -507,9 +512,20 @@
+ )
+ 
+ 
+ def ledger_path(arm: str) -> Path:
+-    """某臂账本**权威**路径（不做任何相对推导）。"""
++    """某臂账本**权威**路径（不做任何相对推导）。
++
++    ACCUM-EARLY-04-B 追加：研究臂（`RESEARCH_ARMS`）只允许在**显式**的
++    `PAPER_LEDGER_DIR` 下解析；未显式指定 ⇒ 直接拒绝，绝不让研究账户落进生产目录。
++    生产四臂的行为逐字未变；未知臂仍然报错。
++    """
++    if arm in RESEARCH_ARMS:
++        if not os.environ.get("PAPER_LEDGER_DIR"):
++            raise ValueError(
++                "研究臂 %r 必须显式设置 PAPER_LEDGER_DIR（拒绝落在生产账本目录 %s）"
++                % (arm, get_ledger_dir()))
++        return get_ledger_dir() / f"paper_{arm}.sqlite3"
+     if arm not in ARMS:
+         raise ValueError("未知臂：%r" % (arm,))
+     return get_ledger_dir() / f"paper_{arm}.sqlite3"
+ 
+@@ -704,9 +720,9 @@
+     path = ledger_path(arm)
+     allow_create = (create is True) or (create is None and (LEDGER_ALLOW_INIT or os.environ.get("PAPER_LEDGER_ALLOW_INIT", "0") == "1"))
+     if not path.exists():
+         if not allow_create:
+-            _mig = f"M00{ARMS.index(arm) + 2}"
++            _mig = (f"M00{ARMS.index(arm) + 2}" if arm in ARMS else "研究臂无迁移清单")
+             raise LedgerUnavailable(
+                 f"纸面账本缺失：{path} —— 拒绝自动创建（不得用空库冒充原账户）。"
+                 f"请按迁移清单 {_mig} 受控迁入，或显式设置 "
+                 f"PAPER_LEDGER_DIR / PAPER_LEDGER_ALLOW_INIT=1（仅隔离建档）。")

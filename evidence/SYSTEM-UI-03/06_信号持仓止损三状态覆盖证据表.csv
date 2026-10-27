@@ -1,0 +1,10 @@
+功能模块,覆盖状态,界面目标组件与呈现特征,测试触发方式与注入条件,截图文件,截图SHA256(前16位),判定
+实时信号,正常态,渲染3张信号卡片，展示BTC/ETH/SOL及Spring/做多标签,隔离库注入3条当前有效入场信号,state_signal_normal.png,8d0951525d49fe00,通过
+实时信号,空态,渲染带边框虚线卡片'暂无实时信号',点击页面'清理信号'按钮清空库内信号,state_signal_empty.png,e924c09ab86b7681,通过
+实时信号,失败态,渲染红色告警框'实时信号接口读取异常'，不冒充空态,代理层对/api/v1/signals注入HTTP 500,state_signal_failed.png,9172aa384a59c8eb,通过
+模拟持仓,正常态,展示'1 仓在持'，展示BTCUSDT持仓卡片及浮盈,沙盒纸面账本3a构建1条open持仓,state_position_normal.png,d7ccc274a0f9d1cc,通过
+模拟持仓,空态,展示'0 仓在持'，展示'当前无模拟持仓'占位提示,将沙盒账本持仓状态置为closed,state_position_empty.png,6ef337dc037380d7,通过
+模拟持仓,失败态,展示红色告警框'持仓接口读取异常：纸面账本读取失败...',代理层对/api/v1/paper/accounts注入HTTP 500,state_position_failed.png,e41754a27e6202c5,通过
+止损轨迹,正常态,展开展示'FT-LOW4H 止损上移轨迹'，含4h触发上移90500→93500,沙盒库包含2条真实止损历史并点击展开,state_stop_trail_normal.png,0936f38dfb06d250,通过
+止损轨迹,空态,展开展示'初始止损生效中，暂无上移记录'空态文案,清空沙盒库止损记录并点击展开,state_stop_trail_empty.png,0b3ea9da2a2f11a5,通过
+止损轨迹,失败态,展开展示'⚠ Injected backend internal error'，不白屏,代理层对/api/v1/paper/stops注入HTTP 500,state_stop_trail_failed.png,c7fc689e9f3e9fd6,通过

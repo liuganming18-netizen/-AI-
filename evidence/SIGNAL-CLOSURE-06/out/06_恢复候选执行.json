@@ -1,0 +1,435 @@
+{
+ "generated_at_utc": "2026-10-25T05:58:13Z",
+ "isolation": {
+  "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/market/market.sqlite3",
+  "MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/archive_empty",
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/paper",
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/live/live.sqlite3",
+  "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/gate.json",
+  "EVENT_TREND_BATCH_ROOT": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/batches",
+  "RUNS_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06/out/00_iso_06/runs"
+ },
+ "symbols": [
+  "AIGENSYNUSDT",
+  "IRYSUSDT",
+  "YGGUSDT"
+ ],
+ "state_replay_hours": 2880,
+ "known_candidates": [
+  {
+   "symbol": "IRYSUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1784073599999_1785128400000",
+   "snapshot_ms": 1785128400000,
+   "available_ms": 1785128400000,
+   "exec_earliest_ms": 1785129300000,
+   "volume_ratio": 27.446103532980857,
+   "breakout_close": 0.01457
+  },
+  {
+   "symbol": "AIGENSYNUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+   "snapshot_ms": 1788764400000,
+   "available_ms": 1788764400000,
+   "exec_earliest_ms": 1788765300000,
+   "volume_ratio": 24.270007761969424,
+   "breakout_close": 0.02111
+  },
+  {
+   "symbol": "YGGUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+   "snapshot_ms": 1789790400000,
+   "available_ms": 1789790400000,
+   "exec_earliest_ms": 1789791300000,
+   "volume_ratio": 3.0406113271158035,
+   "breakout_close": 0.02522
+  },
+  {
+   "symbol": "IRYSUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+   "snapshot_ms": 1789862400000,
+   "available_ms": 1789862400000,
+   "exec_earliest_ms": 1789863300000,
+   "volume_ratio": 2.067509334100848,
+   "breakout_close": 0.01562
+  },
+  {
+   "symbol": "AIGENSYNUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+   "snapshot_ms": 1789963200000,
+   "available_ms": 1789963200000,
+   "exec_earliest_ms": 1789964100000,
+   "volume_ratio": 4.512360662362889,
+   "breakout_close": 0.02075
+  },
+  {
+   "symbol": "YGGUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+   "snapshot_ms": 1790942400000,
+   "available_ms": 1790942400000,
+   "exec_earliest_ms": 1790943300000,
+   "volume_ratio": 7.9503796598267735,
+   "breakout_close": 0.0289
+  }
+ ],
+ "main_case": {
+  "symbol": "YGGUSDT",
+  "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+  "snapshot_ms": 1790942400000,
+  "available_ms": 1790942400000,
+  "exec_earliest_ms": 1790943300000,
+  "volume_ratio": 7.9503796598267735,
+  "breakout_close": 0.0289
+ },
+ "scenarios": {
+  "S1_过期历史候选_截止现在": {
+   "scenario": "S1_过期历史候选_截止现在",
+   "note": "预热回放里的候选全部早于 成交时效 ⇒ 应 recovered=0，且账本 0 行",
+   "upto_utc": "2026-10-25T04:59:59Z",
+   "sim_now_utc": "2026-10-25T04:59:59Z",
+   "bootstrap_recovered": 0,
+   "bootstrap_discarded": 6,
+   "recovered_detail": [],
+   "route": {
+    "recovered": 0,
+    "persisted": 0,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "step": null,
+   "ledger": {
+    "live_signal": 0,
+    "live_signal_recovered": 0,
+    "paper_order": 0,
+    "paper_pending": 0,
+    "paper_position": 0,
+    "paper_processed": 0,
+    "paper_blocked": 0,
+    "paper_realized": 0,
+    "order_status": [],
+    "position_rows": [],
+    "pending_rows": []
+   },
+   "ledger_signal_uids": []
+  },
+  "S2_停机候选仍在时效内": {
+   "scenario": "S2_停机候选仍在时效内",
+   "note": "候选 exec_earliest=+15m，重启在 +20m ⇒ 应 recovered>=1 并落库；成交 bar 尚未收盘 ⇒ 应登记为挂单",
+   "upto_utc": "2026-10-02T12:20:00Z",
+   "sim_now_utc": "2026-10-02T12:20:00Z",
+   "bootstrap_recovered": 1,
+   "bootstrap_discarded": 5,
+   "recovered_detail": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+     "symbol": "YGGUSDT",
+     "snapshot_utc": "2026-10-02T12:00:00Z",
+     "available_at_utc": "2026-10-02T12:00:00Z",
+     "execution_earliest_utc": "2026-10-02T12:15:00Z",
+     "age_ms_at_bootstrap": 1200000,
+     "max_fill_lag_ms": 3600000
+    }
+   ],
+   "route": {
+    "recovered": 1,
+    "persisted": 1,
+    "registered": 0,
+    "rejected": 1,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "step": null,
+   "ledger": {
+    "live_signal": 1,
+    "live_signal_recovered": 1,
+    "paper_order": 1,
+    "paper_pending": 0,
+    "paper_position": 0,
+    "paper_processed": 1,
+    "paper_blocked": 1,
+    "paper_realized": 0,
+    "order_status": [
+     {
+      "order_id": 1,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "fill_price": null,
+      "ts": 1792907891310
+     }
+    ],
+    "position_rows": [],
+    "pending_rows": []
+   },
+   "ledger_signal_uids": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000"
+   ]
+  },
+  "S3_同一候选重复重启": {
+   "scenario": "S3_同一候选重复重启",
+   "note": "与 S2 完全相同的重启时刻再跑一次 ⇒ 信号/挂单/持仓行数不得增加",
+   "upto_utc": "2026-10-02T12:20:00Z",
+   "sim_now_utc": "2026-10-02T12:20:00Z",
+   "bootstrap_recovered": 1,
+   "bootstrap_discarded": 5,
+   "recovered_detail": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+     "symbol": "YGGUSDT",
+     "snapshot_utc": "2026-10-02T12:00:00Z",
+     "available_at_utc": "2026-10-02T12:00:00Z",
+     "execution_earliest_utc": "2026-10-02T12:15:00Z",
+     "age_ms_at_bootstrap": 1200000,
+     "max_fill_lag_ms": 3600000
+    }
+   ],
+   "route": {
+    "recovered": 1,
+    "persisted": 1,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "step": null,
+   "ledger": {
+    "live_signal": 1,
+    "live_signal_recovered": 1,
+    "paper_order": 1,
+    "paper_pending": 0,
+    "paper_position": 0,
+    "paper_processed": 1,
+    "paper_blocked": 1,
+    "paper_realized": 0,
+    "order_status": [
+     {
+      "order_id": 1,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "fill_price": null,
+      "ts": 1792907891310
+     }
+    ],
+    "position_rows": [],
+    "pending_rows": []
+   },
+   "ledger_signal_uids": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000"
+   ]
+  },
+  "S4_超过时效不补": {
+   "scenario": "S4_超过时效不补",
+   "note": "重启时刻已超过 exec_earliest+MAX_FILL_LAG ⇒ 应 recovered=0，账本不新增",
+   "upto_utc": "2026-10-02T14:15:00Z",
+   "sim_now_utc": "2026-10-02T14:15:00Z",
+   "bootstrap_recovered": 0,
+   "bootstrap_discarded": 6,
+   "recovered_detail": [],
+   "route": {
+    "recovered": 0,
+    "persisted": 0,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "step": null,
+   "ledger": {
+    "live_signal": 1,
+    "live_signal_recovered": 1,
+    "paper_order": 1,
+    "paper_pending": 0,
+    "paper_position": 0,
+    "paper_processed": 1,
+    "paper_blocked": 1,
+    "paper_realized": 0,
+    "order_status": [
+     {
+      "order_id": 1,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "fill_price": null,
+      "ts": 1792907891310
+     }
+    ],
+    "position_rows": [],
+    "pending_rows": []
+   },
+   "ledger_signal_uids": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000"
+   ]
+  },
+  "S5_恢复后新候选": {
+   "scenario": "S5_恢复后新候选",
+   "note": "重启后逐 1h 推进 6 小时，新候选应走 origin=live 正常落库",
+   "upto_utc": "2026-10-02T12:20:00Z",
+   "sim_now_utc": "2026-10-02T12:20:00Z",
+   "bootstrap_recovered": 1,
+   "bootstrap_discarded": 5,
+   "recovered_detail": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+     "symbol": "YGGUSDT",
+     "snapshot_utc": "2026-10-02T12:00:00Z",
+     "available_at_utc": "2026-10-02T12:00:00Z",
+     "execution_earliest_utc": "2026-10-02T12:15:00Z",
+     "age_ms_at_bootstrap": 1200000,
+     "max_fill_lag_ms": 3600000
+    }
+   ],
+   "route": {
+    "recovered": 1,
+    "persisted": 1,
+    "registered": 0,
+    "rejected": 0,
+    "waiting_gate": 0,
+    "skipped": 0
+   },
+   "step": {
+    "now_ms": 1790965200000,
+    "new_signals": 0,
+    "routed": 0,
+    "waiting_gate": 0,
+    "matched": 0,
+    "trailing_updates": 0,
+    "exits": 0,
+    "errors": []
+   },
+   "ledger": {
+    "live_signal": 1,
+    "live_signal_recovered": 1,
+    "paper_order": 1,
+    "paper_pending": 0,
+    "paper_position": 0,
+    "paper_processed": 1,
+    "paper_blocked": 1,
+    "paper_realized": 0,
+    "order_status": [
+     {
+      "order_id": 1,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "fill_price": null,
+      "ts": 1792907891310
+     }
+    ],
+    "position_rows": [],
+    "pending_rows": []
+   },
+   "ledger_signal_uids": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000"
+   ]
+  },
+  "S2b_成交链路": {
+   "symbol": "AIGENSYNUSDT",
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+   "snapshot_utc": "2026-09-21T04:00:00Z",
+   "epoch_used_utc": "2026-09-20T04:00:00Z",
+   "steps": [
+    {
+     "label": "恢复候选按 FILL_POLICY 成交（请求锚=候选+20m，尝试=+50m）",
+     "now_utc": "2026-09-21T04:50:00Z",
+     "ok": true,
+     "reason": "filled",
+     "status": null,
+     "earliest_fill_utc": "2026-09-21T04:35:00Z"
+    }
+   ],
+   "advance_pending": {
+    "pending_total": 0,
+    "filled": 0,
+    "rejected": 0,
+    "still_pending": 0
+   },
+   "ledger": {
+    "live_signal": 1,
+    "live_signal_recovered": 1,
+    "paper_order": 2,
+    "paper_pending": 0,
+    "paper_position": 1,
+    "paper_processed": 2,
+    "paper_blocked": 1,
+    "paper_realized": 0,
+    "order_status": [
+     {
+      "order_id": 1,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "side": "buy",
+      "qty": null,
+      "price": null,
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "fill_price": null,
+      "ts": 1792907891310
+     },
+     {
+      "order_id": 2,
+      "event_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "side": "buy",
+      "qty": 9557.0,
+      "price": 0.02075,
+      "status": "filled",
+      "reject_reason": null,
+      "fill_price": 0.02075,
+      "ts": 1789966200000
+     }
+    ],
+    "position_rows": [
+     {
+      "position_id": 1,
+      "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "status": "open",
+      "entry_price": 0.02075,
+      "entry_ts": 1789965900000,
+      "stop_price": 0.019710000000000002,
+      "qty": 9557.0
+     }
+    ],
+    "pending_rows": []
+   },
+   "filled": true,
+   "n_positions": 1
+  }
+ },
+ "checks": {
+  "S1_过期候选零恢复": true,
+  "S1_账本零写入": true,
+  "S2_恢复出候选": true,
+  "S2_候选含主案例": true,
+  "S2_信号落库": true,
+  "S2_订单已登记": true,
+  "S3_信号不重复": true,
+  "S3_订单不重复": true,
+  "S4_超时效零恢复": true,
+  "S4_账本不新增": true,
+  "S5_推进无异常": true,
+  "S2b_成交链路打通": true,
+  "S2_被epoch闸门拦下": true
+ },
+ "verdict": "PASS",
+ "judgement": "判据：S1/S4 必须 0 恢复、账本 0 新增（过期不补）；S2 必须恢复出主案例并落库登记订单；S3 必须与 S2 行数完全相同（不重复发信号/下单）；S5 推进无异常。任一条不成立即 FAIL。",
+ "recovery_gate": "bootstrap 只恢复 `execution_earliest_ms + MAX_FILL_LAG_MS(3600s) >= upto` 的候选；能否真成交仍由 paper_engine.FILL_POLICY 决定。"
+}

@@ -1,0 +1,27 @@
+{
+  "timeframe_30m_backend_support": {
+    "allowed_tfs": [
+      "4h",
+      "1h",
+      "15m"
+    ],
+    "status_code": 400,
+    "missing_reason": "timeframe 只支持 4h/1h/15m，收到 '30m' ⇒ 拒绝（不静默回退、不拿别的周期冒充）",
+    "is_rejected_400": true
+  },
+  "default_chart_timeframe_mismatch": {
+    "status_code": 200,
+    "exec_timeframe": "15m",
+    "display_timeframe": "1h",
+    "candle_count": 184,
+    "first_candle_step_ms": 3600000,
+    "step_is_1h": true,
+    "description": "后端返回 candles 为 1h (3600000ms)，但 exec_timeframe 标为 15m，导致前端以为蜡烛是 15m 并做错误聚合"
+  },
+  "same_hour_events_collision": {
+    "total_orders": 42,
+    "collision_hours_count": 0,
+    "sample_collision": {},
+    "risk": "前端原实现用 Map<number, string> 按小时键存储，同小时多个事件直接覆盖导致反查只能查到最后一条"
+  }
+}

@@ -1,0 +1,394 @@
+{
+  "version": "WX-GATE-v2.0",
+  "order": "GATE-CLOSE-02",
+  "status": "待Codex审核",
+  "fix_round": "第 2 轮",
+  "inputs": {
+    "exchangeInfo_snapshot": {
+      "path": "evidence/PRECISION-04/当前响应_exchangeInfo.json",
+      "sha256": "918bc3087252d4fee05e9cf8f49039b9c182e3a304a1fef4e63180d18b2fa338",
+      "serverTime": "2026-10-16 08:01:14",
+      "symbols": 927
+    },
+    "runs_manifest_v2": {
+      "path": "evidence/BACKTEST-LOSS-02/all_runs_manifest_v2.csv",
+      "sha256": "899858268ff5d8fffd30ef1f7db826aa66ef7de8c42f724e1c3e108eaf961c34",
+      "rows": 576
+    },
+    "precision04_report": {
+      "path": "evidence/PRECISION-04/PRECISION-04_历史合约规格证据盘点_2026-10-17.md",
+      "sha256": "c86e9d912670993c6ba384acc97ba9619a304b6015b4b8acc44e95ddea5bbee5"
+    }
+  },
+  "scope": {
+    "observed_all_symbols": 528,
+    "included_crypto_perpetual": 526,
+    "excluded": [
+      "ALLUSDT",
+      "BTCDOMUSDT"
+    ],
+    "excluded_rule": "underlyingType != COIN（含 INDEX/crypto_index）或 contractType != PERPETUAL",
+    "underlyingType_dist": {
+      "COIN": 526,
+      "INDEX": 2
+    },
+    "contractType_dist": {
+      "PERPETUAL": 528
+    },
+    "excluded_data_range": {
+      "ALLUSDT": [
+        "2026-09-09 20:00:00",
+        "2026-10-18 08:00:00"
+      ],
+      "BTCDOMUSDT": [
+        "2026-09-09 20:00:00",
+        "2026-10-18 08:00:00"
+      ]
+    }
+  },
+  "time_axis": {
+    "observed_end_1h": "2026-10-17 18:00:00",
+    "data_end_1h": "2026-10-18 11:00:00",
+    "data_end_15m": "2026-10-18 12:00:00",
+    "data_end_4h": "2026-10-18 08:00:00",
+    "gap_hours_between_observed_and_data_end": 18.0
+  },
+  "segments": {
+    "total": 9,
+    "observed": 5,
+    "data_bad": 4,
+    "unknown_only": 0,
+    "usable": 0
+  },
+  "historical_spec": {
+    "runs": 576,
+    "verified": 0,
+    "unverified_historical": 572,
+    "contradicted": 4,
+    "formal_pass_allowed_true": 0,
+    "releasable_subset": "无",
+    "judgement": "未满足（正式历史验证）；可作带假设探索分析"
+  },
+  "file_count": 12,
+  "files": {
+    "00_修正报告.md": {
+      "bytes": 15312,
+      "sha256": "94f664c024f5a1c32d190ed6464e98f4c69f8a982e895827a553f36e659f7fbd"
+    },
+    "07_回执_2026-10-20.md": {
+      "bytes": 6296,
+      "sha256": "3af6feb75a30c07acfea271e9ad969c0b452924c1500e60301333ab22165d3b0"
+    },
+    "logs/00_verify.json": {
+      "bytes": 6338,
+      "sha256": "8ed047d8447b0ce77541e60cc1a5ddbadaa97f4c75dada4c7a7136a39deb82f6"
+    },
+    "out/01_官方分类与范围清单.csv": {
+      "bytes": 55844,
+      "sha256": "86fcc2490bacb108f044d1384db0698cb8949e41bf608b9f76fcef1890e0991e"
+    },
+    "out/02_纳入清单.csv": {
+      "bytes": 51920,
+      "sha256": "27dd08cc7e79cd06f74f4c8c98902649e7dcff7098689961b0ab3a0ba6c26179"
+    },
+    "out/03_排除清单.csv": {
+      "bytes": 301,
+      "sha256": "27cf5083a872ea8386c331d66d14e13e703919a65b9dc6e4f5f63a5889cbc450"
+    },
+    "out/04_资格明细.csv": {
+      "bytes": 1872,
+      "sha256": "ee4e4b06c852665bb25f69c78efbfe2e256042955486972c5b666eb4623ad4e5"
+    },
+    "out/05_统一准入表.csv": {
+      "bytes": 4554,
+      "sha256": "f1d6785bd789b0ef85e3f7230f8ec2b6e906812b5f08f70dbb262906f80abe6b"
+    },
+    "out/06_必须解决清单.csv": {
+      "bytes": 1481,
+      "sha256": "02bbd534fc665c3538ab624fdd2159e2d1a2af011c94589f9895dd891b450358"
+    },
+    "out/07_历史规格准入判定.csv": {
+      "bytes": 2018,
+      "sha256": "34d9ed50d94a4e16be0b69164260af4276ba255dcd9b6a18408dd701be961653"
+    },
+    "queries/00_verify_and_build.py": {
+      "bytes": 28708,
+      "sha256": "e1bc81ecd3154cec2d42863ec362286765bac884d5b2874e66c74f97c59acc48"
+    },
+    "queries/01_selfcheck_and_manifest.py": {
+      "bytes": 8789,
+      "sha256": "4ca2913d12a32e5c22727056f7608ff000e672b739528411e5d9eac630cccd95"
+    }
+  },
+  "watched_snapshot": {
+    "evidence/GATE-CLOSE-01/00_统一准入表与资格明细.md": "55afc65baad021e40eaad3750f9a5c81da31a491c60f2c6a60adbf9b3fc64723",
+    "evidence/GATE-CLOSE-01/out/01_统一阻塞清单.csv": "cf401f6aaa4368bdfd8b1d4efc0868206fa0f0adbf200ec8764fc4438f019357",
+    "evidence/GATE-CLOSE-01/out/02_测试集资格明细.csv": "604fe96e6450236abfc46302a55f871c7988e5cbdf4bf230762047708e55263c",
+    "evidence/OOS-READY-01/00_报告.md": "f7f43886f103c2f66661ac229e0a36e85b3bdf6741a4593a047923fdb2959e5f",
+    "evidence/OOS-READY-01/out/02_验证数据资格表.csv": "6df99968a698781fa0097f946efc437255ddfaf30ef6e7c52cf77ee90ade37a8",
+    "evidence/NEXT-STAGE-GATE-01/00_报告.md": "75c6d71fef549b893a7a1e922bc3ff9db52e705a3e374e1637e1930f60bacb21",
+    "evidence/VALIDATION-READINESS-01/00_报告.md": "4d635d03f62b15a74349627577cceca658352ec9695dc5a4309743004a8cb3c4",
+    "evidence/VALIDATION-CONTRACT-01/下一阶段验证实验契约草案.md": "d303912b5403d8260f10dde0e9e300f505a80265af3c04202a8598828a35e3b8",
+    "evidence/PRECISION-04/当前响应_exchangeInfo.json": "918bc3087252d4fee05e9cf8f49039b9c182e3a304a1fef4e63180d18b2fa338",
+    "策略/WyckoffMaster/event_trend_v0_1/runner.py": "b20bf07e9d529443acbc3230181402212f9ef882961ba1efb78f71f7f239b7da"
+  },
+  "checks": [
+    {
+      "item": "交付物存在 00_修正报告.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 07_回执_2026-10-20.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/01_官方分类与范围清单.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/02_纳入清单.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/03_排除清单.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/04_资格明细.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/05_统一准入表.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/06_必须解决清单.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "交付物存在 out/07_历史规格准入判定.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "官方分类清单 528 行",
+      "status": "PASS",
+      "detail": "528"
+    },
+    {
+      "item": "纳入清单 526 行",
+      "status": "PASS",
+      "detail": "526"
+    },
+    {
+      "item": "排除清单 2 行",
+      "status": "PASS",
+      "detail": "2"
+    },
+    {
+      "item": "资格明细 9 段",
+      "status": "PASS",
+      "detail": "9"
+    },
+    {
+      "item": "统一准入表 22 项",
+      "status": "PASS",
+      "detail": "22"
+    },
+    {
+      "item": "必须解决清单 5 项",
+      "status": "PASS",
+      "detail": "5"
+    },
+    {
+      "item": "历史规格判定 5 行",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "纳入 + 排除 = 528",
+      "status": "PASS",
+      "detail": "528"
+    },
+    {
+      "item": "排除项 = ALLUSDT / BTCDOMUSDT",
+      "status": "PASS",
+      "detail": "['ALLUSDT', 'BTCDOMUSDT']"
+    },
+    {
+      "item": "排除项全部 underlyingType=INDEX",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "纳入项全部 underlyingType=COIN",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "纳入项全部 contractType=PERPETUAL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "无「不在快照」的标的",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "已观察 5 / 数据不合格 4 / 仅资格无法证明 0",
+      "status": "PASS",
+      "detail": "{'数据不合格': 4, '已证明被观察': 5}"
+    },
+    {
+      "item": "S6a 时长 90.0 小时（不写成 4 天）",
+      "status": "PASS",
+      "detail": "90.0"
+    },
+    {
+      "item": "S6b 时长 18.0 小时（不写成 1 天）",
+      "status": "PASS",
+      "detail": "18.0"
+    },
+    {
+      "item": "S6a 止于 2026-10-17 18:00:00",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "S2 的 OI 覆盖 = 1 币（BTC）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "DQ-04 判定为「未满足」（已升级）",
+      "status": "PASS",
+      "detail": "未满足（本次升级）"
+    },
+    {
+      "item": "DQ-04 不再标「可限制保留」",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "DQ-01/DQ-02 共用 FIX-01",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "EX-02/EX-03 共用 FIX-05",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "每项都有证据",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "每项都有影响环节",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "修复任务编号 FIX-01~FIX-05",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "历史规格判定含「撤回」",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "历史规格正式验证 = 未满足",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "明确无可放行子集",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "写明「公告没变更≠没变更」",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告含版本标识 WX-GATE-v2.0",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告标注待 Codex 审核",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告标注循环第 2 轮",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告声明不假定 528 减 2",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告写明已观察末端 2026-10-17 18:00:00",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告写明数据末端 15m 2026-10-18 12:00:00",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "S6a 按小时表达（90.0 h）且否定「4 个自然日」",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "S6b 按小时表达（18.0 h）且否定「1 天」",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告写明原报告保留未改",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告未宣布正式准入通过",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "报告未重算收益",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "输入指纹与实算一致",
+      "status": "PASS",
+      "detail": "['exchangeInfo_snapshot', 'runs_manifest_v2', 'precision04_report']"
+    },
+    {
+      "item": "本次执行期间未改动原产物与对方文件",
+      "status": "PASS",
+      "detail": "[]"
+    }
+  ],
+  "pass": 51,
+  "fail": 0
+}

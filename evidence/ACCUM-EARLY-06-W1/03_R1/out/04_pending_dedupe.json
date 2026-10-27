@@ -1,0 +1,183 @@
+{
+  "schema": "accum-early-06-w1-r1/pending-dedupe/v1",
+  "checked_at_utc": "2026-10-27T01:18:29Z",
+  "input": {
+    "pending_table_sha256": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+    "correction_table_sha256": "61507515b96b0188b78cfaf00f2aeaa613eeebc587015f4d5ef106e929f6b338",
+    "old_pending_sha256": "ad368dd4c1124533152c87bee285f1e96ea954dae0daa0264956e2ec450bc51f",
+    "old_rule_map_sha256": "e34f90cc62ecb82760c5a69dcdeddd273fed25e514fa0ff505564739b6845aa6",
+    "required_total": 49,
+    "credential_fields": [
+      "approval_ref",
+      "approved",
+      "kind",
+      "schema_version"
+    ]
+  },
+  "md_field_count_check": [
+    {
+      "id": "P-01",
+      "md": 7,
+      "json": 7,
+      "ok": true
+    },
+    {
+      "id": "P-02",
+      "md": 5,
+      "json": 5,
+      "ok": true
+    },
+    {
+      "id": "P-03",
+      "md": 6,
+      "json": 6,
+      "ok": true
+    },
+    {
+      "id": "P-04",
+      "md": 10,
+      "json": 10,
+      "ok": true
+    },
+    {
+      "id": "P-05",
+      "md": 8,
+      "json": 8,
+      "ok": true
+    },
+    {
+      "id": "P-06",
+      "md": 1,
+      "json": 1,
+      "ok": true
+    },
+    {
+      "id": "P-07",
+      "md": 1,
+      "json": 1,
+      "ok": true
+    },
+    {
+      "id": "P-08",
+      "md": 1,
+      "json": 1,
+      "ok": true
+    },
+    {
+      "id": "P-09",
+      "md": 2,
+      "json": 2,
+      "ok": true
+    },
+    {
+      "id": "P-10",
+      "md": 3,
+      "json": 3,
+      "ok": true
+    },
+    {
+      "id": "P-11",
+      "md": 0,
+      "json": 0,
+      "ok": true
+    },
+    {
+      "id": "P-12",
+      "md": 1,
+      "json": 1,
+      "ok": true
+    }
+  ],
+  "counts": {
+    "items": 21,
+    "by_class": {
+      "P": 12,
+      "E": 6,
+      "G": 3
+    },
+    "p_fields": 45,
+    "p_fields_plus_credentials": 49,
+    "questions_covered": 12,
+    "conflicts_folded": 8
+  },
+  "field_owner": {
+    "shared.sweep_reference.mode": "P-01",
+    "shared.sweep_reference.n": "P-01",
+    "shared.sweep_reference.must_be_above_box_low": "P-01",
+    "shared.sweep_recovery_scope.mode": "P-01",
+    "shared.sweep_recovery_scope.max_bars": "P-01",
+    "shared.sweep_max_overshoot_atr": "P-01",
+    "shared.sweep_min_recovery_atr": "P-01",
+    "shared.local_resistance.mode": "P-02",
+    "shared.local_resistance.lookback_bars": "P-02",
+    "shared.local_resistance.swing_k": "P-02",
+    "shared.local_resistance.timeframe": "P-02",
+    "shared.resistance_qualify.min_gap_atr": "P-02",
+    "shared.sell_pressure.require": "P-03",
+    "shared.sell_pressure.baseline": "P-03",
+    "shared.sell_pressure.n": "P-03",
+    "shared.sell_pressure.buy_ratio_mult": "P-03",
+    "shared.sell_pressure.require_upper_half": "P-03",
+    "shared.sell_pressure.sell_pressure_mult": "P-03",
+    "shared.local_resistance_confirm.mode": "P-04",
+    "shared.local_resistance_confirm.buffer_atr": "P-04",
+    "shared.confirm.require_bull_close": "P-04",
+    "shared.armed_fail.bars": "P-04",
+    "shared.armed_fail.buffer_atr": "P-04",
+    "shared.invalidate.close_below_l_bars": "P-04",
+    "shared.invalidate.l_overshoot_atr": "P-04",
+    "shared.intrabar_break_cancel.mode": "P-04",
+    "shared.intrabar_break_cancel.buffer_atr": "P-04",
+    "shared.observe_deadline_hours": "P-04",
+    "schemes.4a.enabled": "P-05",
+    "schemes.4a.confirm": "P-05",
+    "schemes.4b.enabled": "P-05",
+    "schemes.4b.confirm": "P-05",
+    "schemes.4c.enabled": "P-05",
+    "schemes.4c.confirm": "P-05",
+    "schemes.4c.pullback.zone_atr": "P-05",
+    "schemes.4c.pullback.deadline_hours": "P-05",
+    "conflict_resolution.risk_config": "P-06",
+    "conflict_resolution.slippage_source": "P-07",
+    "conflict_resolution.participation_cap": "P-08",
+    "shared.repeat_candidate_limit.per_event": "P-09",
+    "shared.repeat_candidate_limit.cooldown_hours": "P-09",
+    "exit.gap_model": "P-10",
+    "shared.entry_gate.max_gap_up_atr": "P-10",
+    "shared.entry_gate.entry_price_deviation_cap": "P-10",
+    "shared.oi_role": "P-12"
+  },
+  "questions": {
+    "Q1": "P-01",
+    "Q2": "P-02",
+    "Q3": "P-03",
+    "Q4": "P-04",
+    "Q5": "P-05",
+    "Q6": "P-06",
+    "Q7": "P-07",
+    "Q8": "P-08",
+    "Q9": "P-09",
+    "Q10": "P-10",
+    "Q11": "P-11",
+    "Q12": "P-12"
+  },
+  "conflicts": {
+    "C-01": "E-01",
+    "C-02": "E-02",
+    "C-03": "E-03",
+    "C-04": "G-01",
+    "C-05": "G-02",
+    "C-06": "G-03",
+    "C-07": "P-07",
+    "C-08": "P-06/P-07/P-08"
+  },
+  "references": {
+    "total": 14,
+    "pass": 14,
+    "fail": 0
+  },
+  "bad_references": [],
+  "problems": [],
+  "verdict": "pass",
+  "statement": "31 条规则项 + 8 项冲突 + 12 问 → 21 项待决（12 参数 / 6 证据 / 3 工程）；45 个行为字段每个只归属一个参数项，加 4 个凭证字段合计 49。"
+}

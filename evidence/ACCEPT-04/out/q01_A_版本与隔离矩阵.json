@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-10-23T16:09:13+0800",
+  "root": "/Users/boos/Desktop/威科夫因子共振趋势",
+  "sections": {
+    "version": {
+      "evidence_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-ISOLATION-04",
+      "delivery_mtime": "2026-10-23 14:58:08",
+      "run_id_claimed": "RUN_ISO04_20261023_1792738494",
+      "items": [
+        {
+          "file": "框架/backend/service_manager.py",
+          "claimed": "ddd02d32f34623927904768cb0506fd24938e629eeba9a2b45f46051bc13d02d",
+          "actual": "ddd02d32f34623927904768cb0506fd24938e629eeba9a2b45f46051bc13d02d",
+          "match": true,
+          "mtime": "2026-10-23 14:52:44",
+          "size": 50405
+        },
+        {
+          "file": "框架/backend/live_api.py",
+          "claimed": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+          "actual": "c3012f11a9ae3c425a81e86b8e5a8c6ac97955c51db073d62e8195b15866db26",
+          "match": true,
+          "mtime": "2026-10-23 14:26:28",
+          "size": 108614
+        },
+        {
+          "file": "框架/backend/live_store.py",
+          "claimed": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+          "actual": "38df51165ecdf97656cf73b27e88fb34521ffde2e9be092dbaab44d0222cd3ea",
+          "match": true,
+          "mtime": "2026-10-23 14:26:08",
+          "size": 42566
+        },
+        {
+          "file": "框架/backend/unified_runtime.py",
+          "claimed": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+          "actual": "8e60301de295f924cc40d85d8583fc2729c9db6bed6650710682804e736c1bce",
+          "match": true,
+          "mtime": "2026-10-23 14:27:03",
+          "size": 38271
+        },
+        {
+          "file": "框架/backend/api/routes.py",
+          "claimed": "832d16b43afa0b81b373c593d53548d499d1cf981af848df09c65f217dfbce09",
+          "actual": "832d16b43afa0b81b373c593d53548d499d1cf981af848df09c65f217dfbce09",
+          "match": true,
+          "mtime": "2026-10-23 14:27:25",
+          "size": 16496
+        },
+        {
+          "file": "框架/backend/tests/test_system_isolation_04.py",
+          "claimed": "89bd92ef62096859d672233ff40387c34cf009acc0371bb60fc7e7c6b7219eef",
+          "actual": "89bd92ef62096859d672233ff40387c34cf009acc0371bb60fc7e7c6b7219eef",
+          "match": true,
+          "mtime": "2026-10-23 14:53:48",
+          "size": 16272
+        }
+      ],
+      "all_match": true,
+      "post_delivery_edits": []
+    },
+    "isolation_matrix": {
+      "tmp_dir": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/accept04_iso_6nv23mcm",
+      "cases": [
+        {
+          "case": "S1_隔离模式缺 jobs_db",
+          "result": "RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录",
+          "rejected": true
+        },
+        {
+          "case": "S2_隔离模式 jobs_db=生产任务队列",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：jobs_db -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S3_隔离模式 market_db=生产热库",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：market_db -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S4_隔离模式 paper_ledger=生产账本",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：paper_ledger_dir -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/paper' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/paper'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S5_隔离模式 jobs_db=符号链接→生产",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：jobs_db -> '/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/accept04_iso_6nv23mcm/alias_jobs.sqlite3' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S6_隔离模式 jobs_db=相对路径绕行",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：jobs_db -> '数据/任务队列/jobs.sqlite3' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S7_隔离模式 7 项齐全_未传 market_archive",
+          "result": "OK",
+          "market_archive_after": null,
+          "jobs_db_after": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/accept04_iso_6nv23mcm/jobs/jobs.sqlite3"
+        },
+        {
+          "case": "S8_隔离模式 market_archive=生产 parquet",
+          "result": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：market_archive -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+          "rejected": true
+        },
+        {
+          "case": "S9_非隔离模式缺 jobs_db",
+          "result": "OK",
+          "market_archive_after": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+          "jobs_db_after": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"
+        }
+      ],
+      "S7_market_archive_is_none": true
+    },
+    "cold_layer": {
+      "isolated_required_items": [
+        "market_db",
+        "live_db",
+        "paper_ledger_dir",
+        "paper_lock_dir",
+        "jobs_db",
+        "pid_dir",
+        "log_dir"
+      ],
+      "market_archive_in_required": false,
+      "child_env_has_market_archive": false,
+      "child_resolved_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "production_parquet_exists": true,
+      "production_parquet_is_same": true,
+      "production_parquet_files": 42482
+    }
+  }
+}

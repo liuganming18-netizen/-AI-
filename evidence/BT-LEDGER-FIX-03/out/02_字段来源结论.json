@@ -1,0 +1,77 @@
+{
+  "raw_export_inventory": {
+    "n_zips": 45,
+    "n_trades": 3395,
+    "n_orders": 6790,
+    "trade_field_count": 29,
+    "trade_fields": [
+      "amount",
+      "close_date",
+      "close_rate",
+      "close_timestamp",
+      "enter_tag",
+      "exit_reason",
+      "fee_close",
+      "fee_open",
+      "funding_fees",
+      "initial_stop_loss_abs",
+      "initial_stop_loss_ratio",
+      "is_open",
+      "is_short",
+      "leverage",
+      "max_rate",
+      "max_stake_amount",
+      "min_rate",
+      "open_date",
+      "open_rate",
+      "open_timestamp",
+      "orders",
+      "pair",
+      "profit_abs",
+      "profit_ratio",
+      "stake_amount",
+      "stop_loss_abs",
+      "stop_loss_ratio",
+      "trade_duration",
+      "weekday"
+    ],
+    "order_field_count": 7,
+    "order_fields": [
+      "amount",
+      "cost",
+      "ft_is_entry",
+      "ft_order_side",
+      "ft_order_tag",
+      "order_filled_timestamp",
+      "safe_price"
+    ],
+    "order_field_sets_distinct": 1,
+    "trade_field_sets_distinct": 1
+  },
+  "engine_model": {
+    "freqtrade_version": "2026.9",
+    "order_table_columns": 26,
+    "order_to_json_minified_keys": 7,
+    "order_to_json_full_keys": 21,
+    "bt_data_columns_whitelist": 28,
+    "truncation_layer_1": "optimize/backtesting.py:1810 trade_list_to_dataframe(bt_trades) 默认 minified=True",
+    "truncation_layer_2": "data/btanalysis/bt_fileutils.py:535 columns=BT_DATA_COLUMNS（28 列白名单）"
+  },
+  "classification_counts": {
+    "derived_from_construction": 19,
+    "raw_export": 11,
+    "derived_from_raw": 5,
+    "unrecoverable_rerun": 4,
+    "nonexistent_backtest": 3,
+    "internal_key": 3,
+    "derived_unverified": 2,
+    "engine_computed": 1,
+    "raw_position": 1
+  },
+  "verdict": {
+    "order_id": "unrecoverable_requires_rerun",
+    "fill_id": "nonexistent_in_backtest",
+    "status_filled_remaining": "derived_from_construction（可由源码证明，非原始导出值）",
+    "trade_id": "derived_unverified（引擎有 trade.id，导出被裁；当前秩排序含未观测前提）"
+  }
+}

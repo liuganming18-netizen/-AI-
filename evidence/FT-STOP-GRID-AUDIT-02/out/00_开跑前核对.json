@@ -1,0 +1,207 @@
+{
+  "工单": "FT-STOP-GRID-AUDIT-02 开跑前核对",
+  "核对对象": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-STOP-GRID-02",
+  "问题数": 0,
+  "问题": [],
+  "明细": {
+    "A_文件": {
+      "策略文件数": 36,
+      "基类存在": true,
+      "生成脚本SHA256": "4f543ea5bfae54de209541d783f4507c7339406109e4c44a70631a09f3614955",
+      "基类SHA256": "8636d656e61e507e00048999591b1cc69570e1bac76acab4eed1c3c28bd5c95c",
+      "运行脚本SHA256": "cc97728434b19f54473c3c0f0ac3c5b17409ea46bb559ba72b74aeb2860c4191",
+      "逐文件参数异常": [],
+      "四档×9组齐全": true,
+      "四档止损比例": {
+        "Stop05": [
+          0.05
+        ],
+        "Stop10": [
+          0.1
+        ],
+        "Stop15": [
+          0.15
+        ],
+        "Stop20": [
+          0.2
+        ]
+      }
+    },
+    "B_相对上一轮": {
+      "函数数(01/02)": [
+        13,
+        13
+      ],
+      "仅01有": [],
+      "仅02有": [],
+      "内容不同的函数": [
+        "WyckoffStopGrid02Base.custom_stoploss"
+      ],
+      "只改了预期函数": true,
+      "custom_stake_amount 与上一轮一致": true,
+      "confirm_trade_entry 与上一轮一致": true,
+      "populate_indicators 与上一轮一致": true,
+      "populate_entry_trend 与上一轮一致": true,
+      "custom_exit 与上一轮一致": true
+    },
+    "C_跟踪算法": {
+      "当前实现棘轮段长度": 1321,
+      "与 FT-STOP-20-01 棘轮段 AST 一致（仅初始止损变量名不同）": true,
+      "与 FT-ENTRY-09 棘轮段 AST 一致（仅初始止损来源不同）": true,
+      "与 FT-STOP-20-01 触发/退出段逐字节一致": true,
+      "当前 1R 定义行": [
+        "initial_stop = actual_entry * (1.0 - pct)",
+        "actual_r = actual_entry * pct",
+        "trigger_2r = actual_entry + 2.0 * actual_r  # 2R 启动价格，1R 永久冻结"
+      ],
+      "原版(20%) 1R 定义行": [
+        "stop20_initial = actual_entry * 0.80",
+        "actual_r = actual_entry * 0.20",
+        "trigger_2r = actual_entry + 2.0 * actual_r  # = actual_entry * 1.40"
+      ],
+      "原版(结构) 1R 定义行": [
+        "p0 = float(cand.initial_stop_price)",
+        "actual_r = actual_entry - p0",
+        "trigger_2r = actual_entry + 2.0 * actual_r"
+      ]
+    },
+    "D_公式": {
+      "源码断言": {
+        "初始止损 = 成交价×(1−档位比例)": true,
+        "1R = 成交价×档位比例（入场时冻结）": true,
+        "2R 触发价 = 成交价+2×1R": true,
+        "2R 判定用已收盘 4h 的 close": true,
+        "2R 判定为 >= 触发价": true,
+        "跟踪值取已收盘 4h 的 l10 末值": true,
+        "棘轮条件为严格上移": true,
+        "价格已破止损时不再上报新止损": true
+      },
+      "4h 指标构造": {
+        "l10 = low.rolling(10).min()（右侧窗口，无居中）": true,
+        "close_ms = open_ms + 4h": true,
+        "只保留 close_ms/close/low/l10 四列": true
+      },
+      "rolling 是否出现 center=True": false
+    },
+    "E_止损只上移": {
+      "对 current_stop 的赋值语句": [
+        "state[\"current_stop\"] = latest_l10"
+      ],
+      "赋值仅一处且紧跟严格上移判断": true,
+      "初始化值为初始止损": true,
+      "引擎 adjust_stop_loss 只上移": true,
+      "返回 0.0 的引擎语义": true
+    },
+    "F_取消超时": {
+      "禁用标识符命中": [],
+      "代码中出现 240 小时/持仓时长相关字面量": [],
+      "注释里仍保留的说明（不算问题）": [
+        "# FT-EXIT-01: 取消 240 小时超时及一切主动退出，仅凭初始止损离场"
+      ],
+      "custom_exit 语句类型": [
+        "Return"
+      ],
+      "custom_exit 唯一语句是 return None": true,
+      "类属性 use_custom_stoploss / trailing_stop": {
+        "use_custom_stoploss": true,
+        "trailing_stop": null
+      }
+    },
+    "G_无未来数据": {
+      "4h 过滤条件": true,
+      "条件为 close_ms <= 决策时刻": true,
+      "回测传入 current_time = 本根 15m 开盘时间": true,
+      "回测传入 low/high = 本根 15m 最低/最高": true,
+      "custom_stoploss 的 current_rate = 本根最高价（多头）": true,
+      "上一根止损已破时不再调用 custom_stoploss": true,
+      "4h close_ms 对齐说明": "close_ms = open_ms + 4h；15m 决策时刻为 15m 整数倍；close_ms<=current_ms 等价于'该 4h 已收完'"
+    },
+    "H_数据与配置": {
+      "data 路径": {
+        "FT-STOP-GRID-01": {
+          "存在": true,
+          "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+          "链接指向": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-07/user_data/data"
+        },
+        "FT-STOP-GRID-02": {
+          "存在": true,
+          "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+          "链接指向": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-07/user_data/data"
+        },
+        "FT-EXIT-01": {
+          "存在": true,
+          "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+          "链接指向": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-07/user_data/data"
+        },
+        "FT-ENTRY-02": {
+          "存在": true,
+          "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+          "链接指向": "(实体目录)"
+        },
+        "FT-ENTRY-07": {
+          "存在": true,
+          "realpath": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+          "链接指向": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data"
+        }
+      },
+      "全部指向同一份数据": true,
+      "与上一轮配置差异": {
+        "datadir": [
+          "evidence/FT-STOP-GRID-01/user_data/data/binance",
+          "evidence/FT-STOP-GRID-02/user_data/data/binance"
+        ],
+        "user_data_dir": [
+          "evidence/FT-STOP-GRID-01/user_data",
+          "evidence/FT-STOP-GRID-02/user_data"
+        ]
+      },
+      "冻结参数": {
+        "max_open_trades": 3,
+        "dry_run_wallet": 2000,
+        "timeframe": "15m",
+        "fee": 0.0005,
+        "trading_mode": "futures",
+        "margin_mode": "cross",
+        "stake_amount": "unlimited",
+        "tradable_balance_ratio": 0.99
+      },
+      "timerange": [
+        "20211201-20241231"
+      ],
+      "cache/export": [
+        "none",
+        "trades"
+      ],
+      "并发数": [
+        "2"
+      ],
+      "数据文件分类": {
+        "15m-futures": 74,
+        "1h-funding_rate": 74,
+        "1h-futures": 74,
+        "1h-mark": 74,
+        "4h-futures": 74,
+        "5m-open_interest": 74,
+        "8h-funding_rate": 74
+      },
+      "数据文件总数": 518
+    },
+    "I_其余条件": {
+      "pair_eligibility_rules SHA 相同": true,
+      "pair_eligibility_rules SHA": {
+        "01": "0f42258a43f4527ccbb3616f22f5288b521898327d8b718dc0a59c5a04bd85c7",
+        "02": "0f42258a43f4527ccbb3616f22f5288b521898327d8b718dc0a59c5a04bd85c7"
+      },
+      "风控四件套": {
+        "risk_budget = equity × 0.005": true,
+        "raw_stake = risk_budget / pct": true,
+        "最小下单额硬性拒单": true,
+        "单笔名义上限 30%": true,
+        "流动性上限 prev_qv×0.001": true
+      },
+      "下单额用的风险距离": "r_dist = current_rate * pct（下单时价格）",
+      "止损用的 1R": "actual_r = actual_entry * pct（实际成交价）",
+      "两处口径差异的影响": "成交价 ≠ 下单时价格时，实际风险 ≠ 恰好 0.5%，需在交付后逐笔核"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+﻿类别,run_id,标的,event_id,源账本状态,系统接口状态,源里是否被记成成交,真实性判定,系统可见性判定,证据
+拒单,run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT,1000XECUSDT,ev_FT_ENTRY_02_binance_XECUSDT_1694419200000,REJECTED / outside_retest_zone,items=0；missing_reason=账本缺失（rejected 表不可读）,否,通过：源账本有明确拒单原因，且未出现在成交表里,通过：页面候选对照块可见（矩阵 rejected 3388 条）；但专用 /rejected 接口 0 条（文件名不匹配）,rejected.jsonl 非空 run 数=561；本 run 拒单 2 条
+确认失败/未成交,run_FT_ENTRY_09_C1_Vs04_Z04_1000SHIBUSDT,1000SHIBUSDT,ev_FT_ENTRY_02_binance_SHIBUSDT_1715472000000,CONFIRMED_NOT_FILLED / 确认通过但该组该币无对应成交记录（资金/仓位/撮合未成交）,无「未成交」接口；/rejected 返回 items=0、missing_reason=账本缺失（rejected 表不可读）,否,通过：源账本明确标 CONFIRMED_NOT_FILLED，且未出现在成交表里,通过：页面候选对照块可见（矩阵 not_filled 22 条）；无专用入口,not_filled.jsonl 非空 run 数=22；本 run 1 条
+缺K线,run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT,NOTEXISTUSDT（构造）,—,本批 59 币种 15m 全部有数据 ⇒ 本批不存在真实缺 K 线记录,candles=0；missing_reason=None,—,本批无真实缺 K 线记录（不可判）,未通过：缺数据时静默返回 0 根，没有 missing_reason,缺 15m 目录的币种 0 个、15m 空目录 0 个

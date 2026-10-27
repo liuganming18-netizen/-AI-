@@ -1,0 +1,881 @@
+{
+ "task": "ACCUM-EARLY-06-06",
+ "probe": "02_缺口段与分区行为",
+ "generated_at_utc": "2026-10-26T18:26:19Z",
+ "口径": {
+  "hot_missing": "U − H（U = 热库∪冷档的结算时刻），即「只读热库会漏掉的结算事件」",
+  "cold_missing": "U − C，即「只有热库有的结算事件」",
+  "不做的事": "不按 8h 推算期望条数、不补 0、不插值"
+ },
+ "缺口段_重算": {
+  "gap_lo_ms": 1788393600000,
+  "gap_lo_utc": "2026-09-03T00:00:00Z",
+  "gap_hi_ms": 1789736400000,
+  "gap_hi_utc": "2026-09-18T13:00:00Z",
+  "span_hours": 373.0,
+  "稠密段含义": "该时段内每个小时都有 ≥24 个标的缺事件",
+  "全跨度_lo_utc": "2026-09-03T00:00:00Z",
+  "全跨度_hi_utc": "2026-09-18T20:00:00Z",
+  "全跨度_hours": 380.0,
+  "全跨度含义": "第一条到最后一条「热库缺失」的实际时刻；两端只有少数标的缺，所以比稠密段宽，但**不是** 8h 推算出来的",
+  "method": "逐标的算 hot_missing → 切连续段 → 逐小时统计覆盖标的数 → 取连续 ≥24 个标的的小时 → 最长连续段",
+  "threshold_symbols": 24,
+  "runs_top3": [
+   {
+    "lo_utc": "2026-09-03T00:00:00Z",
+    "hi_utc": "2026-09-18T13:00:00Z",
+    "hours": 373
+   }
+  ]
+ },
+ "与06-05对照": {
+  "claim_lo_utc": "2026-09-02T20:00:00Z",
+  "claim_hi_utc": "2026-09-18T16:00:00Z",
+  "claim_span_hours": 380.0,
+  "本单_lo_utc": "2026-09-03T00:00:00Z",
+  "本单_hi_utc": "2026-09-18T13:00:00Z",
+  "起止完全一致_缺失端点口径": false,
+  "起止完全一致_在库端点口径": true,
+  "起差小时": 4.0,
+  "止差小时": -3.0,
+  "差异原因": "端点归属不同：06-05 的段端点是「缺口两侧最近的在库时刻」（本单实测 2026-09-02T20:00:00Z → 2026-09-18T16:00:00Z），本单的段端点是「缺失时刻本身」（2026-09-03T00:00:00Z → 2026-09-18T20:00:00Z）。两者恰好差一个 4h 步长，跨度都是 380h ⇒ 描述的是同一个缺口，不构成互相否证，但**端点不能混用**：拿本单的缺失时刻当「最后一条在库数据」会算错。",
+  "本单_两侧最近在库时刻_起": "2026-09-02T20:00:00Z",
+  "本单_两侧最近在库时刻_止": "2026-09-18T16:00:00Z",
+  "跨度是否相同": true,
+  "claim_lo是否落在全跨度内": false,
+  "claim_hi是否落在全跨度内": true
+ },
+ "汇总": {
+  "symbols": 48,
+  "events": 31811,
+  "hot_missing": 3755,
+  "cold_missing": 3138,
+  "symbols_with_hot_missing": 39,
+  "grid_unreliable_symbols": 2,
+  "step_hours_mode_distribution": {
+   "8.0": 9,
+   "4.0": 39
+  }
+ },
+ "分区": {
+  "pre": {
+   "lo_utc": "2026-09-01T00:00:00Z",
+   "lo_ms": 1788220800000,
+   "hi_utc": "2026-09-03T00:00:00Z",
+   "hi_ms": 1788393600000,
+   "span_hours": 48.0,
+   "events": 606,
+   "both": 567,
+   "hot_only": 0,
+   "cold_only": 39,
+   "pending_conflict": 0,
+   "pending_missing": 0,
+   "resolved_single_side": 0,
+   "with_mark": 606
+  },
+  "gap": {
+   "lo_utc": "2026-09-03T00:00:00Z",
+   "lo_ms": 1788393600000,
+   "hi_utc": "2026-09-18T13:00:00Z",
+   "hi_ms": 1789736400000,
+   "span_hours": 373.0,
+   "events": 4176,
+   "both": 423,
+   "hot_only": 0,
+   "cold_only": 3753,
+   "pending_conflict": 0,
+   "pending_missing": 0,
+   "resolved_single_side": 0,
+   "with_mark": 4176
+  },
+  "post": {
+   "lo_utc": "2026-09-18T13:00:00Z",
+   "lo_ms": 1789736400000,
+   "hi_utc": "2026-09-20T13:00:00Z",
+   "hi_ms": 1789909200000,
+   "span_hours": 48.0,
+   "events": 522,
+   "both": 520,
+   "hot_only": 0,
+   "cold_only": 2,
+   "pending_conflict": 0,
+   "pending_missing": 0,
+   "resolved_single_side": 0,
+   "with_mark": 522
+  },
+  "tail": {
+   "lo_utc": "2026-10-14T12:00:00Z",
+   "lo_ms": 1791979200001,
+   "hi_utc": "2026-10-26T09:00:00Z",
+   "hi_ms": 1793005200000,
+   "span_hours": 285.0,
+   "events": 3134,
+   "both": 0,
+   "hot_only": 3134,
+   "cold_only": 0,
+   "pending_conflict": 0,
+   "pending_missing": 0,
+   "resolved_single_side": 0,
+   "with_mark": 3134
+  },
+  "ovl": {
+   "lo_utc": "2020-01-01T00:00:00Z",
+   "lo_ms": 1577836800000,
+   "hi_utc": "2026-10-14T12:00:00Z",
+   "hi_ms": 1791979200000,
+   "span_hours": 59484.0,
+   "events": 28677,
+   "both": 24918,
+   "hot_only": 4,
+   "cold_only": 3755,
+   "pending_conflict": 0,
+   "pending_missing": 0,
+   "resolved_single_side": 0,
+   "with_mark": 28677
+  }
+ },
+ "checks": [
+  {
+   "检查": "R1 缺口段内「热库缺的事件」全部由冷档补上（cold_only == 该区热库缺失数）",
+   "通过": true,
+   "证据": {
+    "gap_区": {
+     "cold_only": 3753,
+     "hot_only": 0,
+     "both": 423,
+     "events": 4176
+    }
+   }
+  },
+  {
+   "检查": "R2 缺口前两侧都有数据（both 占多数），说明缺口不是「冷档只覆盖缺口段」",
+   "通过": true,
+   "证据": {
+    "pre": {
+     "events": 606,
+     "both": 567,
+     "hot_only": 0,
+     "cold_only": 39
+    }
+   }
+  },
+  {
+   "检查": "R3 缺口后冷档仍在覆盖（both 占多数），且缺口段确有界",
+   "通过": true,
+   "证据": {
+    "post": {
+     "events": 522,
+     "both": 520,
+     "hot_only": 0,
+     "cold_only": 2
+    }
+   }
+  },
+  {
+   "检查": "R4 冷档尾段（cold_hi 之后）必须 hot_only == events、cold_only == 0",
+   "通过": true,
+   "证据": {
+    "tail": {
+     "events": 3134,
+     "both": 0,
+     "hot_only": 3134,
+     "cold_only": 0
+    },
+    "cold_hi_utc": "2026-10-14T12:00:00Z"
+   }
+  },
+  {
+   "检查": "R5 重叠区：键唯一、无 pending_conflict（同键不重复计事件）",
+   "通过": true,
+   "证据": {
+    "ovl": {
+     "events": 28677,
+     "both": 24918,
+     "pending_conflict": 0,
+     "pending_missing": 0
+    }
+   }
+  },
+  {
+   "检查": "R6 重叠区每一条 both 事件的 rate/mark 两侧一致（可直接取值）",
+   "通过": true,
+   "证据": {
+    "both": 24918,
+    "两侧取值一致": 24918,
+    "不一致": 0
+   }
+  },
+  {
+   "检查": "R7 全量复核：冷档覆盖末端之后没有任何 cold_only 事件（没有跨边界伪造覆盖）",
+   "通过": true,
+   "证据": {
+    "cold_only_after_cold_hi": 0
+   }
+  },
+  {
+   "检查": "R8 缺口段之外的热库缺失如实计数（不因为「主要缺口在段内」就忽略段外）",
+   "通过": true,
+   "证据": {
+    "hot_missing_total": 3755,
+    "in_gap": 3753,
+    "outside_gap": 2,
+    "outside_gap_utc_lo": "2026-09-18T16:00:00Z",
+    "outside_gap_utc_hi": "2026-09-18T20:00:00Z"
+   }
+  },
+  {
+   "检查": "R9 原生结算间隔不是单一 8h（众数分布照实记录）",
+   "通过": true,
+   "证据": {
+    "step_hours_mode_distribution": {
+     "8.0": 9,
+     "4.0": 39
+    },
+    "median_step_hours": 4.0,
+    "grid_unreliable_symbols": 2
+   }
+  },
+  {
+   "检查": "R10 独立佐证：可靠标的上「按周期推算的期望缺口」== 「实测冷档补齐数」",
+   "通过": true,
+   "证据": {
+    "期望推算合计": 3480,
+    "实测合计": 3480,
+    "逐标的不一致的标的": [],
+    "含义": "两者相等 ⇒ 这些标的的冷档在推断网格上没有洞；若不等，说明「周期假设」与「实测」不符，不能拿推算值当结论"
+   }
+  }
+ ],
+ "summary": {
+  "total": 10,
+  "pass": 10,
+  "verdict": "通过"
+ },
+ "per_symbol": [
+  {
+   "symbol": "1000PEPEUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "AGTUSDT",
+   "events": 725,
+   "hot_times": 631,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 69,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "AIGENSYNUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "ASTERUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "AXSUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "BABYUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "BBUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "BLURUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "BNBUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "CARVUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "CHZUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "COLLECTUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "COOKIEUSDT",
+   "events": 727,
+   "hot_times": 631,
+   "cold_times": 656,
+   "hot_missing": 96,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T20:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "CROSSUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "DOTUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "DUSKUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "ETHWUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "EVAAUSDT",
+   "events": 725,
+   "hot_times": 631,
+   "cold_times": 654,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "GOATUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "HYPERUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "IRYSUSDT",
+   "events": 772,
+   "hot_times": 678,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 116,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 0.9222,
+   "grid_reliable": false
+  },
+  {
+   "symbol": "JELLYJELLYUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "KATUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "KMNOUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "KOMAUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "METISUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "METUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 654,
+   "hot_missing": 94,
+   "cold_missing": 73,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "NEARUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "NILUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PEOPLEUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PIXELUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PLUMEUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PORTALUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PROVEUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "PYTHUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "SAFEUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "SANDUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "SKRUSDT",
+   "events": 868,
+   "hot_times": 687,
+   "cold_times": 797,
+   "hot_missing": 181,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 0.7832,
+   "grid_reliable": false
+  },
+  {
+   "symbol": "SUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "TNSRUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "UAIUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "VELVETUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "WALUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "WUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "XLMUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "YGGUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "ZECUSDT",
+   "events": 364,
+   "hot_times": 364,
+   "cold_times": 328,
+   "hot_missing": 0,
+   "cold_missing": 36,
+   "hot_missing_lo_utc": null,
+   "hot_missing_hi_utc": null,
+   "step_hours_mode": 8.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  },
+  {
+   "symbol": "ZKUSDT",
+   "events": 727,
+   "hot_times": 633,
+   "cold_times": 656,
+   "hot_missing": 94,
+   "cold_missing": 71,
+   "hot_missing_lo_utc": "2026-09-03T00:00:00Z",
+   "hot_missing_hi_utc": "2026-09-18T12:00:00Z",
+   "step_hours_mode": 4.0,
+   "step_mode_frac": 1.0,
+   "grid_reliable": true
+  }
+ ],
+ "elapsed_sec": 0.8
+}

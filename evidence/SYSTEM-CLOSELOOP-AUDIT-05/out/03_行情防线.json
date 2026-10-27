@@ -1,0 +1,185 @@
+{
+ "生成时刻": "2026-10-23T00:48:38+0800",
+ "隔离实例": "127.0.0.1:8799",
+ "实例就绪": true,
+ "夹具持仓": {
+  "position_id": 4,
+  "entry": 100.0,
+  "stop": 85.0
+ },
+ "基准4h": {
+  "open_time": 1792671300000,
+  "close_time": 1792685699999,
+  "open": "106.00",
+  "high": "108.00",
+  "low": "106.00",
+  "close": "107.00"
+ },
+ "price_step": 0.1,
+ "理论候选": {
+  "d=0.05": 100.69999999999999,
+  "d=0.001": 105.894,
+  "说明": "候选价会按 price_step 向下取整保护"
+ },
+ "用例": [
+  {
+   "用例": "A 基线（库里4h + trail_d=0.05）",
+   "期望": "止损应按 97*(1-0.05)≈92.1 上移（允许取整差）",
+   "HTTP": 200,
+   "ok": true,
+   "reason": null,
+   "candidate_stop": 100.7,
+   "stop_updated": true,
+   "止损_注入前": 85.0,
+   "止损_注入后": 100.7,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 1,
+   "判定": "通过"
+  },
+  {
+   "用例": "B 假K线（库中不存在，结构合法，low=200）",
+   "期望": "止损不得被改动",
+   "HTTP": 400,
+   "ok": null,
+   "reason": null,
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "C 未来K线（close_time>now，结构合法）",
+   "期望": "止损不得被改动",
+   "HTTP": 400,
+   "ok": null,
+   "reason": null,
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "D 错误标的（ETHUSDT 的K线推 BTCUSDT 持仓）",
+   "期望": "止损不得被改动",
+   "HTTP": 400,
+   "ok": null,
+   "reason": null,
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "E 结构非法（high<low）",
+   "期望": "止损不得被改动",
+   "HTTP": 400,
+   "ok": null,
+   "reason": null,
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "F 外部参数覆盖（trail_d=0.001，配置应为 0.05）",
+   "期望": "止损不得因调用方改参数而变（应仍≈92.1）",
+   "HTTP": 400,
+   "ok": null,
+   "reason": null,
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "G 缺 trail_d（应显式失败）",
+   "期望": "ok=false 且 reason=missing_parameter_trail_d",
+   "HTTP": 400,
+   "ok": false,
+   "reason": "missing_parameter_trail_d",
+   "candidate_stop": null,
+   "stop_updated": null,
+   "止损_注入前": 85.0,
+   "止损_注入后": 85.0,
+   "持仓状态_注入后": "open",
+   "轨迹条数": 0,
+   "判定": "通过"
+  },
+  {
+   "用例": "H 整臂推进 + 假K线",
+   "期望": "止损不得被改动",
+   "HTTP": 400,
+   "止损_注入后": 85.0,
+   "判定": "通过",
+   "响应摘要": "{\"mode\": \"read_only\", \"account_id\": null, \"run_id\": null, \"strategy_version\": null, \"rule_version\": null, \"param_hash\": null, \"data_version\": null, \"as_of\": null, \"quality\": {\"status\": \"rejected\"}, \"source_url\": null, \"evidence_level\": null, \"missing_reason\": \"外部K线未在行情库中登记（拒绝假K线注入）\", \"time\": {\"event"
+  }
+ ],
+ "统计": {
+  "总": 8,
+  "通过": 8,
+  "不通过": 0
+ },
+ "止损轨迹路由": {
+  "HTTP": 200,
+  "total": 1,
+  "quality": {
+   "status": "ok",
+   "age_seconds": null,
+   "note": "持仓 4 止损变更历史"
+  },
+  "首条": {
+   "id": 8,
+   "account_id": "paper43_3a",
+   "position_id": 4,
+   "old_stop": null,
+   "new_stop": 85.0,
+   "reason": "initial_stop",
+   "ref_bar_open_ms": 1792644519057,
+   "available_at": 1792644519057,
+   "decision_at": 1792644519057,
+   "effective_at": 1792644519057,
+   "created_at": 1792687719057
+  }
+ },
+ "止损轨迹路由_不存在持仓": {
+  "HTTP": 404,
+  "quality": {
+   "status": "not_found",
+   "note": "position_not_found"
+  },
+  "missing_reason": "持仓 999999 不存在 (404 Not Found)"
+ },
+ "守护状态接口": {
+  "HTTP": 200,
+  "item": {
+   "arm": "3a",
+   "pid": 50320,
+   "status": "stopped_uncleanly",
+   "running": false,
+   "started_at": 1792687694123,
+   "last_cycle_ms": 1792687710656,
+   "cycle_count": 17,
+   "pending_matched_count": 1,
+   "trailing_checked_count": 0,
+   "stops_updated_count": 1,
+   "exits_triggered_count": 0,
+   "last_error": null,
+   "health": "dead"
+  }
+ }
+}

@@ -1,0 +1,67 @@
+{
+  "mode": "paper",
+  "account_id": null,
+  "run_id": null,
+  "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+  "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+  "param_hash": null,
+  "data_version": null,
+  "as_of": null,
+  "quality": {
+    "status": "not_connected",
+    "age_seconds": null,
+    "note": "Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：不返回旧 3a–3d 订单/挂单（旧账本原件保留，可恢复只读归档）。写入口恒拒，不回退旧 exec_bridge。",
+    "new_core": "WX_EVENT_TREND_V0_1",
+    "new_core_wired": false,
+    "retired_strategy_keys": [
+      "3a",
+      "3b",
+      "3c",
+      "3d",
+      "A",
+      "B",
+      "wx_oi_resonance_v1",
+      "WX_OI_RESONANCE_V1"
+    ],
+    "paper_live": {
+      "new_core": "WX_EVENT_TREND_V0_1",
+      "paper": {
+        "connected": true,
+        "status": "ok",
+        "reason": "Paper 模拟实盘已接通新共享核心（WX_EVENT_TREND_V0_1 / 共享 TradingCore 执行核心）"
+      },
+      "live": {
+        "connected": false,
+        "status": "not_connected",
+        "reason": "Live 尚未配置真实交易所交易密钥，保持只读安全熔断"
+      },
+      "note": "Paper 模拟实盘已就绪；支持实时信号开平仓与开始/暂停控制。"
+    }
+  },
+  "source_url": null,
+  "evidence_level": null,
+  "missing_reason": "Paper 尚未接新共享核心 ⇒ NOT_CONNECTED：不返回旧 3a–3d 订单/挂单（旧账本原件保留，可恢复只读归档）。写入口恒拒，不回退旧 exec_bridge。",
+  "time": {
+    "event_time": null,
+    "available_at": null,
+    "received_at": null,
+    "fetched_at": null
+  },
+  "items": [],
+  "has_more": false,
+  "next_cursor": null,
+  "total": 0,
+  "param_hash_basis": null,
+  "params_source": "fallback_frozen_v2_2_conservative",
+  "rule_view_available": false,
+  "rule_view_spec_version": null,
+  "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+  "exec_core_crosscheck": {
+    "available": false,
+    "ok": null,
+    "mismatch_n": 0,
+    "mismatches": []
+  },
+  "daily_list_version": null,
+  "pool_rule_identity": null
+}

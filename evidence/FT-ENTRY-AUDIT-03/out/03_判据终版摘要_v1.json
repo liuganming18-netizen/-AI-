@@ -1,0 +1,39 @@
+{
+  "note": "C6 由 09 脚本从 04_时间块与多重比较_v1.csv 回填：03 运行时尚无 Bootstrap 结果，原表 C6 为 null。判据定义未改动。C7 在净收益<=0 的组上按 strict 口径记 False（占比分母为负时无意义），朴素口径并列保留在 C7_naive 列。",
+  "n_groups": 9,
+  "n_pass_all_7": 0,
+  "n_pass_all_7_naive_C7": 0,
+  "c7_sign_trap": [
+    {
+      "code": "A07",
+      "net": -31.7719,
+      "top_coin_share_pct": -420.82,
+      "naive": true,
+      "strict": false
+    }
+  ],
+  "best_group": {
+    "code": "A03",
+    "strategy": "Wyckoff_A_L06_V12",
+    "delta": 0.6,
+    "k_vol": 1.2,
+    "pass_count": 6,
+    "failed": [
+      "C6_block_ci_lower_gt0"
+    ],
+    "boot_ci_lo": -58.0377,
+    "boot_ci_hi": 270.5425,
+    "maxt_fwer_p": 0.4478
+  },
+  "fail_count_per_criterion": {
+    "C1_expectancy_gt_baseline": 4,
+    "C2_drop_top3_positive": 8,
+    "C3_drop_top_coin_positive": 6,
+    "C4_years_2of3_positive": 0,
+    "C5_neighbors_same_sign": 2,
+    "C6_block_ci_lower_gt0": 9,
+    "C7_top_coin_share_lt50": 6
+  },
+  "c6_consistency_with_04": true,
+  "conclusion": "0/9 通过全部 7 条判据"
+}

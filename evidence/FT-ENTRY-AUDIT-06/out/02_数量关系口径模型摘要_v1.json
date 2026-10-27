@@ -1,0 +1,55 @@
+{
+  "四层定义": {
+    "n_eval_events": "审计日志总行数（含防重试拦截的重评估）",
+    "n_candidates": "去重 candidate_id 数（真实被评估候选）",
+    "n_orders_pass": "放行入仓的候选（=订单请求被允许，去重后）",
+    "n_reject_geH": "约束核心拒单（fill_price >= frozen_H，去重后）",
+    "n_fills_04": "freqtrade 实际成交笔数（<= n_orders_pass）"
+  },
+  "合计": {
+    "n_eval_events": 380,
+    "n_retry": 146,
+    "n_real_rows_raw": 234,
+    "n_dup_rows": 6,
+    "n_candidates": 228,
+    "n_distinct_decisions": 228,
+    "n_orders_pass": 118,
+    "n_reject_geH": 68,
+    "n_reject_bounds": 42,
+    "n_requests_rejected_total": 110,
+    "n_fills_04": 118,
+    "n_pass_not_filled": 0,
+    "n_fills_03": 170,
+    "code": "TOTAL_A",
+    "E1": true,
+    "E2": true,
+    "E4": true,
+    "E3": true
+  },
+  "恒等式E1全部成立_eval=realraw+retry": true,
+  "恒等式E2全部成立_realraw可被类型拆分": true,
+  "恒等式E4全部成立_去重决策数=候选数": true,
+  "恒等式E3全部成立_fills<=pass": true,
+  "审计日志重复行说明": "审计日志对同候选同时刻存在重复记录行（仅 A01：BONK/USDT 两个候选各被记录 4 次，完全相同的执行时刻/fill/H，共 6 行重复）。这是记录层重复、非多次真实决策，故数量口径一律按 (candidate_id, planned_execution_time_ms) 去重；该重复不影响 AUDIT-05 的 Q1 与逐笔指标（那里已去重并对齐 freqtrade 成交）。",
+  "审计日志重复行_合计": 6,
+  "口径澄清_189": {
+    "来源": "FT-ENTRY-AUDIT-04/out/01_A入场价与箱顶H逐笔_v1.csv",
+    "文件总行数": 189,
+    "其中A路线行数": 170,
+    "其中Baseline行数": 19,
+    "A路线at_or_above_H=True行数": 49,
+    "全表at_or_above_H=True行数": 68,
+    "性质": "混合候选目录（预约束、含 >=H 成交、覆盖随格不一致），非 04 成交、非可核验拒单基准。A 路线 170 行恰等于 FT-ENTRY-03 A 路线成交数(170)。",
+    "数字撞车警告": "全表 at_or_above_H=True = 68，构成为 A 路线 49 + Baseline 19（Baseline 天然 >=H）；该数值与「FT-ENTRY-04 去重后 fill>=H 拒单候选数 68」数值相同但口径完全不同，跨报告引用 68 必须注明口径。",
+    "旧成交侧缺口": "AUDIT-04 目录显示 03 旧成交 fill>=H 为 49 笔；本审核按 (策略,候选) 独立匹配得到 47 笔（差 2），差来自 AUDIT-04 H 表覆盖缺陷。本审核拒单归因以独立重建的 03 逐笔为准，不采用 49。"
+  },
+  "口径澄清_118": {
+    "来源": "FT-ENTRY-04 A 路线实际成交合计",
+    "行数": 118
+  },
+  "口径澄清_71": {
+    "来源": "FT-ENTRY-04 A 路线被约束拒单（fill>=H，去重后）合计",
+    "行数": 68
+  },
+  "关键结论": "189(AUDIT-04混合目录总行=170A+19Baseline) / 118(04成交) / 71(未去重拒单请求) / 68(去重拒单候选) / 228(04候选去重) / 118(放行去重) 六个口径互不可替；拒单归因必须以去重后的候选/拒单为准，把旧成交(170)与被拒候选逐一对应，不得用 189 当分母、不得用未去重的审计原始行当分子、不得把两个 68 混为一谈。"
+}

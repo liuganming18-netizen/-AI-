@@ -1,0 +1,479 @@
+{
+ "probe": "08_隔离与重启恢复",
+ "generated_at_utc": "2026-10-26T10:00:15Z",
+ "A_重启恢复": {
+  "strength": "behavior_real_process_restart",
+  "tmp_db": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/accum_restart_snwrx9em/observe_restart.sqlite3",
+  "子进程1_建档": {
+   "ok": true,
+   "role": "write",
+   "data": {
+    "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+    "created": true
+   }
+  },
+  "子进程2_重启只读核验": {
+   "ok": true,
+   "role": "readonly",
+   "data": {
+    "event": {
+     "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+     "scheme": "4a",
+     "symbol": "RESTARTTESTUSDT",
+     "venue": "binance",
+     "strategy_version": "ACCUM-RESEARCH-v0",
+     "param_version": "pending",
+     "box_version_id": "bx_restart_1",
+     "old_low": 1.11,
+     "sweep_low": 1.09,
+     "vwap_anchor_ms": 1790000000000,
+     "vwap_anchor_source": "cold_15m_vwap",
+     "structure_seen_ms": 1790000000000,
+     "confirmed_ms": 1790000600000,
+     "expires_at_ms": 1791209600000,
+     "state": "RETEST",
+     "closed_reason": null,
+     "data_quality": "ok",
+     "evidence_json": "{\"tag\": \"restart_probe\"}",
+     "counter_evidence_json": "{}",
+     "missing_evidence_json": "{}",
+     "created_ms": 1793008815184,
+     "updated_ms": 1790001800000
+    },
+    "candidates": [
+     {
+      "candidate_id": "cd_ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000_s1",
+      "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+      "scheme": "4a",
+      "seq_in_event": 1,
+      "created_ms": 1790000600000,
+      "cancelled_ms": null,
+      "cancel_reason": null,
+      "local_support_price": 1.12,
+      "entry_price_ref": 1.13,
+      "state": "WAIT_ENTRY",
+      "note": null
+     },
+     {
+      "candidate_id": "cd_ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000_s2",
+      "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+      "scheme": "4a",
+      "seq_in_event": 2,
+      "created_ms": 1790000660000,
+      "cancelled_ms": null,
+      "cancel_reason": null,
+      "local_support_price": 1.1300000000000001,
+      "entry_price_ref": 1.14,
+      "state": "WAIT_ENTRY",
+      "note": null
+     },
+     {
+      "candidate_id": "cd_ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000_s3",
+      "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+      "scheme": "4a",
+      "seq_in_event": 3,
+      "created_ms": 1790000720000,
+      "cancelled_ms": null,
+      "cancel_reason": null,
+      "local_support_price": 1.1400000000000001,
+      "entry_price_ref": 1.15,
+      "state": "WAIT_ENTRY",
+      "note": null
+     }
+    ],
+    "transition_count": 6,
+    "transition_states": [
+     "BOX",
+     "WAIT_ENTRY",
+     "WAIT_ENTRY",
+     "WAIT_ENTRY",
+     "SWEEP",
+     "RETEST"
+    ],
+    "event_level_states": [
+     "BOX",
+     "SWEEP",
+     "RETEST"
+    ],
+    "candidate_level_states": [
+     "WAIT_ENTRY",
+     "WAIT_ENTRY",
+     "WAIT_ENTRY"
+    ],
+    "gap_count": 1
+   }
+  },
+  "子进程3_重启追加": {
+   "ok": true,
+   "role": "append",
+   "data": {
+    "event_id": "ev_4a_binance_RESTARTTESTUSDT_bx_restart_1_1790000000000",
+    "dup_created": false,
+    "dup_expires_at_ms": 1791209600000,
+    "new_seq": 4,
+    "frozen_blocked": true,
+    "frozen_reason": "frozen_anchor:old_low"
+   }
+  },
+  "assertions": {
+   "事件跨进程仍在": true,
+   "冻结列跨进程逐位一致": true,
+   "候选序号跨进程续接为1_2_3": true,
+   "候选内容跨进程未丢": true,
+   "状态迁移链跨进程完整": true,
+   "候选级迁移未混入事件状态链": true,
+   "数据缺口跨进程保留": true,
+   "重启后重复建档不新建": true,
+   "重启后期限未被重置为新值": true,
+   "重启后追加候选序号为4": true,
+   "重启后冻结列仍不可改": true
+  },
+  "frozen_reason": "frozen_anchor:old_low",
+  "verdict": "pass"
+ },
+ "B_生产隔离": {
+  "strength": "fingerprint_before_after_research_write",
+  "研究写入": {
+   "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/observe_isolation_probe.sqlite3",
+   "event_id": "ev_4b_binance_ISOLATIONPROBEUSDT_bx_iso_1_1790100000000",
+   "assert_isolated": {
+    "research_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/research/ACCUM-EARLY-01/observe_isolation_probe.sqlite3",
+    "production_dbs_checked": [
+     "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+     "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3"
+    ],
+    "isolated": true
+   },
+   "under_research_root": true
+  },
+  "before": {
+   "live_signals": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "exists": true,
+    "sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "size": 45056,
+    "mtime_utc": "2026-10-25T06:45:20Z",
+    "tables": {
+     "live_account_snapshot": 0,
+     "live_run": 3,
+     "live_signal": 0
+    }
+   },
+   "ledgers": {
+    "paper_3a.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+     "exists": true,
+     "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a",
+     "size": 163840,
+     "mtime_utc": "2026-10-25T15:01:27Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 12,
+      "paper_command": 0,
+      "paper_correction": 1,
+      "paper_equity": 6,
+      "paper_fill": 6,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 13,
+      "paper_pending": 3,
+      "paper_position": 3,
+      "paper_processed": 3,
+      "paper_prompt": 0,
+      "paper_realized": 3,
+      "paper_request_anchor": 7,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 8
+     }
+    },
+    "paper_3b.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+     "exists": true,
+     "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    },
+    "paper_3c.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+     "exists": true,
+     "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    },
+    "paper_3d.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+     "exists": true,
+     "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    }
+   }
+  },
+  "after": {
+   "live_signals": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "exists": true,
+    "sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "size": 45056,
+    "mtime_utc": "2026-10-25T06:45:20Z",
+    "tables": {
+     "live_account_snapshot": 0,
+     "live_run": 3,
+     "live_signal": 0
+    }
+   },
+   "ledgers": {
+    "paper_3a.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+     "exists": true,
+     "sha256": "f70dfe75fca2e3dc0b9674722baf7f0fe352dcd5e190a7b63508262045e3a99a",
+     "size": 163840,
+     "mtime_utc": "2026-10-25T15:01:27Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 12,
+      "paper_command": 0,
+      "paper_correction": 1,
+      "paper_equity": 6,
+      "paper_fill": 6,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 13,
+      "paper_pending": 3,
+      "paper_position": 3,
+      "paper_processed": 3,
+      "paper_prompt": 0,
+      "paper_realized": 3,
+      "paper_request_anchor": 7,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 8
+     }
+    },
+    "paper_3b.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+     "exists": true,
+     "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    },
+    "paper_3c.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+     "exists": true,
+     "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    },
+    "paper_3d.sqlite3": {
+     "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+     "exists": true,
+     "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+     "size": 163840,
+     "mtime_utc": "2026-10-23T03:13:44Z",
+     "tables": {
+      "paper_account": 0,
+      "paper_blocked": 0,
+      "paper_command": 0,
+      "paper_correction": 0,
+      "paper_equity": 0,
+      "paper_fill": 0,
+      "paper_funding": 0,
+      "paper_funding_correction": 0,
+      "paper_funding_gap": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_position": 0,
+      "paper_processed": 0,
+      "paper_prompt": 0,
+      "paper_realized": 0,
+      "paper_request_anchor": 0,
+      "paper_state": 1,
+      "paper_stop_history": 0,
+      "sqlite_sequence": 0
+     }
+    }
+   }
+  },
+  "研究标记_写前": {
+   "counts": {
+    "4a": 0,
+    "4b": 0,
+    "4c": 0,
+    "ACCUM": 0,
+    "ev_4": 0,
+    "cd_ev_": 0
+   },
+   "hits": [],
+   "verdict": "clean"
+  },
+  "研究标记_写后": {
+   "counts": {
+    "4a": 0,
+    "4b": 0,
+    "4c": 0,
+    "ACCUM": 0,
+    "ev_4": 0,
+    "cd_ev_": 0
+   },
+   "hits": [],
+   "verdict": "clean"
+  },
+  "assertions": {
+   "研究库在research根下": true,
+   "assert_isolated通过": true,
+   "研究写入后生产库无研究标记": true,
+   "研究标记数写前后一致": true
+  },
+  "sha_changed_during_window": [],
+  "sha_note": "生产纸账本与信号库由后台进程持续写入 ⇒ sha 变化属正常，不构成隔离判据；隔离判据只用「研究标记查询」与「研究库路径」。",
+  "verdict": "pass"
+ },
+ "C_路径常量": {
+  "strength": "static_ast_assertion",
+  "rule": "违规 = sqlite3.connect 指向生产库且未带 mode=ro；仅把生产库路径当对照常量比较不算违规",
+  "modules": {
+   "observe_store.py": {
+    "exists": true,
+    "bytes": 17561,
+    "writable_production_connects": [],
+    "readonly_production_connects": []
+   },
+   "accum_research.py": {
+    "exists": true,
+    "bytes": 11655,
+    "writable_production_connects": [],
+    "readonly_production_connects": []
+   },
+   "research_15m.py": {
+    "exists": true,
+    "bytes": 13989,
+    "writable_production_connects": [],
+    "readonly_production_connects": []
+   },
+   "oi_feed.py": {
+    "exists": true,
+    "bytes": 6997,
+    "writable_production_connects": [],
+    "readonly_production_connects": []
+   }
+  },
+  "assertions": {
+   "研究模块无以可写方式连生产库": true
+  },
+  "verdict": "pass"
+ },
+ "errors": [],
+ "summary": {
+  "A": "pass",
+  "B": "pass",
+  "C": "pass"
+ }
+}

@@ -1,0 +1,2461 @@
+{
+ "generated_at": "2026-10-18T06:21:33Z",
+ "api": "http://127.0.0.1:8787",
+ "samples": [
+  {
+   "tag": "S1",
+   "at": "2026-10-18T06:13:48Z",
+   "as_of": {
+    "binance:BTCUSDT": "2026-10-18T06:13:48Z",
+    "binance:ETHUSDT": "2026-10-18T06:13:49Z",
+    "binance:1000CATUSDT": "2026-10-18T06:13:49Z",
+    "okx:OKB-USDT-SWAP": "2026-10-18T06:13:49Z"
+   },
+   "degraded": []
+  },
+  {
+   "tag": "S2",
+   "at": "2026-10-18T06:14:59Z",
+   "as_of": {
+    "binance:BTCUSDT": "2026-10-18T06:14:59Z",
+    "binance:ETHUSDT": "2026-10-18T06:15:00Z",
+    "binance:1000CATUSDT": "2026-10-18T06:15:00Z",
+    "okx:OKB-USDT-SWAP": "2026-10-18T06:15:00Z"
+   },
+   "degraded": []
+  },
+  {
+   "tag": "S3",
+   "at": "2026-10-18T06:16:10Z",
+   "as_of": {
+    "binance:BTCUSDT": "2026-10-18T06:16:11Z",
+    "binance:ETHUSDT": "2026-10-18T06:16:11Z",
+    "binance:1000CATUSDT": "2026-10-18T06:16:12Z",
+    "okx:OKB-USDT-SWAP": "2026-10-18T06:16:12Z"
+   },
+   "degraded": []
+  },
+  {
+   "tag": "S4",
+   "at": "2026-10-18T06:21:32Z",
+   "as_of": {
+    "binance:BTCUSDT": "2026-10-18T06:21:32Z",
+    "binance:ETHUSDT": "2026-10-18T06:21:33Z",
+    "binance:1000CATUSDT": "2026-10-18T06:21:33Z",
+    "okx:OKB-USDT-SWAP": "2026-10-18T06:21:33Z"
+   },
+   "degraded": []
+  }
+ ],
+ "degraded_events": [],
+ "source_compare": [
+  {
+   "case": "binance:BTCUSDT",
+   "label": "主流标的",
+   "period": "1h",
+   "counts": {
+    "fields_total": 17,
+    "available": 17,
+    "missing": 0,
+    "stale": 0,
+    "derived": 3
+   },
+   "as_of": "2026-10-18T06:21:32Z",
+   "sample": "S4",
+   "checks": [
+    [
+     "volume",
+     "383.909",
+     383.909,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "quote_volume",
+     "31368341.79800",
+     31368341.798,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_volume",
+     "182.644",
+     182.644,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_quote_volume",
+     "14923882.06280",
+     14923882.0628,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "trade_count",
+     15272,
+     15272.0,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_sell_volume",
+     201.265,
+     201.265,
+     true,
+     "派生重算：volume - taker_buy_volume"
+    ],
+    [
+     "taker_buy_sell_ratio",
+     0.9074801878120886,
+     0.9074801878120886,
+     true,
+     "派生重算：买入 ÷ 卖出"
+    ],
+    [
+     "taker_buy_share",
+     47.57481590689461,
+     47.57481590689461,
+     true,
+     "派生重算：买入 ÷ 总量 × 100"
+    ],
+    [
+     "top_position_ls_ratio",
+     "1.7841",
+     1.7841,
+     true,
+     "快照 JSON long_short.top_position_long_short_ratio"
+    ],
+    [
+     "top_account_ls_ratio",
+     "1.7732",
+     1.7732,
+     true,
+     "快照 JSON long_short.top_account_long_short_ratio"
+    ],
+    [
+     "global_account_ls_ratio",
+     "1.6983",
+     1.6983,
+     true,
+     "快照 JSON long_short.global_account_long_short_ratio"
+    ],
+    [
+     "oi_qty",
+     93024.848,
+     93024.848,
+     true,
+     "快照 JSON open_interest.amount"
+    ],
+    [
+     "oi_notional_usd",
+     7601078935.0496,
+     7601078935.0496,
+     true,
+     "快照 JSON open_interest.usd"
+    ],
+    [
+     "funding_rate_current",
+     0.007292,
+     0.007292,
+     true,
+     "realtime_quotes.funding_rate × 100（当前/预测）"
+    ],
+    [
+     "funding_next_time",
+     1792310400000,
+     1792310400000,
+     true,
+     "realtime_quotes.next_funding_time"
+    ],
+    [
+     "funding_rate_settled",
+     0.006412,
+     0.006412,
+     true,
+     "funding_history.funding_rate × 100（已结算）"
+    ]
+   ],
+   "struct_bad": [],
+   "identity": {
+    "exchange": "binance",
+    "market_id": "BTCUSDT",
+    "is_crypto": true,
+    "instrument_category": "COIN",
+    "category_field": "underlyingType",
+    "in_active_range": 1,
+    "excluded_reason": null,
+    "base_asset": "BTC",
+    "contract_type": "PERPETUAL",
+    "status": "TRADING",
+    "source": "symbol_classification（官方分类快照）"
+   },
+   "snapshot_state": {
+    "available": true,
+    "refreshed_at": "2026-10-18T06:17:39Z",
+    "status": "ok",
+    "note": "快照 2026-10-18T06:17:39Z 写入（232s 前，阈值 900s）；持仓量多空比数据时点 2026-10-18T06:00:00Z；总持仓名义额数据时点 2026-10-18T06:15:00Z"
+   }
+  },
+  {
+   "case": "binance:ETHUSDT",
+   "label": "主流标的",
+   "period": "1h",
+   "counts": {
+    "fields_total": 17,
+    "available": 17,
+    "missing": 0,
+    "stale": 0,
+    "derived": 3
+   },
+   "as_of": "2026-10-18T06:21:33Z",
+   "sample": "S4",
+   "checks": [
+    [
+     "volume",
+     "14766.003",
+     14766.003,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "quote_volume",
+     "35604736.43882",
+     35604736.43882,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_volume",
+     "7697.036",
+     7697.036,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_quote_volume",
+     "18560857.63831",
+     18560857.63831,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "trade_count",
+     20822,
+     20822.0,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_sell_volume",
+     7068.967000000001,
+     7068.967000000001,
+     true,
+     "派生重算：volume - taker_buy_volume"
+    ],
+    [
+     "taker_buy_sell_ratio",
+     1.088848766729283,
+     1.088848766729283,
+     true,
+     "派生重算：买入 ÷ 卖出"
+    ],
+    [
+     "taker_buy_share",
+     52.12674005280914,
+     52.12674005280914,
+     true,
+     "派生重算：买入 ÷ 总量 × 100"
+    ],
+    [
+     "top_position_ls_ratio",
+     "1.6296",
+     1.6296,
+     true,
+     "快照 JSON long_short.top_position_long_short_ratio"
+    ],
+    [
+     "top_account_ls_ratio",
+     "2.3333",
+     2.3333,
+     true,
+     "快照 JSON long_short.top_account_long_short_ratio"
+    ],
+    [
+     "global_account_ls_ratio",
+     "2.9920",
+     2.992,
+     true,
+     "快照 JSON long_short.global_account_long_short_ratio"
+    ],
+    [
+     "oi_qty",
+     2266582.507,
+     2266582.507,
+     true,
+     "快照 JSON open_interest.amount"
+    ],
+    [
+     "oi_notional_usd",
+     5464753090.20207,
+     5464753090.20207,
+     true,
+     "快照 JSON open_interest.usd"
+    ],
+    [
+     "funding_rate_current",
+     0.0043040000000000005,
+     0.0043040000000000005,
+     true,
+     "realtime_quotes.funding_rate × 100（当前/预测）"
+    ],
+    [
+     "funding_next_time",
+     1792310400000,
+     1792310400000,
+     true,
+     "realtime_quotes.next_funding_time"
+    ],
+    [
+     "funding_rate_settled",
+     0.00477,
+     0.00477,
+     true,
+     "funding_history.funding_rate × 100（已结算）"
+    ]
+   ],
+   "struct_bad": [],
+   "identity": {
+    "exchange": "binance",
+    "market_id": "ETHUSDT",
+    "is_crypto": true,
+    "instrument_category": "COIN",
+    "category_field": "underlyingType",
+    "in_active_range": 1,
+    "excluded_reason": null,
+    "base_asset": "ETH",
+    "contract_type": "PERPETUAL",
+    "status": "TRADING",
+    "source": "symbol_classification（官方分类快照）"
+   },
+   "snapshot_state": {
+    "available": true,
+    "refreshed_at": "2026-10-18T06:17:37Z",
+    "status": "ok",
+    "note": "快照 2026-10-18T06:17:37Z 写入（236s 前，阈值 900s）；持仓量多空比数据时点 2026-10-18T06:00:00Z；总持仓名义额数据时点 2026-10-18T06:15:00Z"
+   }
+  },
+  {
+   "case": "binance:1000CATUSDT",
+   "label": "历史有指标的小币（固定观测）",
+   "period": "1h",
+   "counts": {
+    "fields_total": 17,
+    "available": 17,
+    "missing": 0,
+    "stale": 0,
+    "derived": 3
+   },
+   "as_of": "2026-10-18T06:21:33Z",
+   "sample": "S4",
+   "checks": [
+    [
+     "volume",
+     "1958055",
+     1958055.0,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "quote_volume",
+     "3502.7825600",
+     3502.78256,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_volume",
+     "1193292",
+     1193292.0,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_buy_quote_volume",
+     "2135.1391730",
+     2135.139173,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "trade_count",
+     118,
+     118.0,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "taker_sell_volume",
+     764763.0,
+     764763.0,
+     true,
+     "派生重算：volume - taker_buy_volume"
+    ],
+    [
+     "taker_buy_sell_ratio",
+     1.5603422236692936,
+     1.5603422236692936,
+     true,
+     "派生重算：买入 ÷ 卖出"
+    ],
+    [
+     "taker_buy_share",
+     60.9427212208033,
+     60.9427212208033,
+     true,
+     "派生重算：买入 ÷ 总量 × 100"
+    ],
+    [
+     "top_position_ls_ratio",
+     "2.9159",
+     2.9159,
+     true,
+     "快照 JSON long_short.top_position_long_short_ratio"
+    ],
+    [
+     "top_account_ls_ratio",
+     "4.1975",
+     4.1975,
+     true,
+     "快照 JSON long_short.top_account_long_short_ratio"
+    ],
+    [
+     "global_account_ls_ratio",
+     "3.5725",
+     3.5725,
+     true,
+     "快照 JSON long_short.global_account_long_short_ratio"
+    ],
+    [
+     "oi_qty",
+     638029288.0,
+     638029288.0,
+     true,
+     "快照 JSON open_interest.amount"
+    ],
+    [
+     "oi_notional_usd",
+     1140796.366944,
+     1140796.366944,
+     true,
+     "快照 JSON open_interest.usd"
+    ],
+    [
+     "funding_rate_current",
+     0.005,
+     0.005,
+     true,
+     "realtime_quotes.funding_rate × 100（当前/预测）"
+    ],
+    [
+     "funding_next_time",
+     1792310400000,
+     1792310400000,
+     true,
+     "realtime_quotes.next_funding_time"
+    ],
+    [
+     "funding_rate_settled",
+     0.005,
+     0.005,
+     true,
+     "funding_history.funding_rate × 100（已结算）"
+    ]
+   ],
+   "struct_bad": [],
+   "identity": {
+    "exchange": "binance",
+    "market_id": "1000CATUSDT",
+    "is_crypto": true,
+    "instrument_category": "COIN",
+    "category_field": "underlyingType",
+    "in_active_range": 1,
+    "excluded_reason": null,
+    "base_asset": "1000CAT",
+    "contract_type": "PERPETUAL",
+    "status": "TRADING",
+    "source": "symbol_classification（官方分类快照）"
+   },
+   "snapshot_state": {
+    "available": true,
+    "refreshed_at": "2026-10-18T06:20:38Z",
+    "status": "ok",
+    "note": "快照 2026-10-18T06:20:38Z 写入（54s 前，阈值 900s）；持仓量多空比数据时点 2026-10-18T06:00:00Z；总持仓名义额数据时点 2026-10-18T06:15:00Z"
+   }
+  },
+  {
+   "case": "okx:OKB-USDT-SWAP",
+   "label": "欧易补充位",
+   "period": "1h",
+   "counts": {
+    "fields_total": 17,
+    "available": 8,
+    "missing": 9,
+    "stale": 2,
+    "derived": 3
+   },
+   "as_of": "2026-10-18T06:21:33Z",
+   "sample": "S4",
+   "checks": [
+    [
+     "volume",
+     "1702.29",
+     1702.29,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "quote_volume",
+     "194855.25610000",
+     194855.2561,
+     true,
+     "realtime_klines（同一写入版本）"
+    ],
+    [
+     "top_position_ls_ratio",
+     "快照未取/不支持",
+     "null",
+     true,
+     "快照块不可用 ⇒ 接口必须 null 并给原因（无记录）"
+    ],
+    [
+     "top_account_ls_ratio",
+     "快照未取/不支持",
+     "null",
+     true,
+     "快照块不可用 ⇒ 接口必须 null 并给原因（无记录）"
+    ],
+    [
+     "global_account_ls_ratio",
+     "快照未取/不支持",
+     "null",
+     true,
+     "快照块不可用 ⇒ 接口必须 null 并给原因（无记录）"
+    ],
+    [
+     "oi_qty",
+     230181.25,
+     230181.25,
+     true,
+     "oi_history.oi_ccy（基础币口径）"
+    ],
+    [
+     "oi_notional_usd",
+     26305113.25,
+     26305113.25,
+     true,
+     "oi_history.open_interest_value"
+    ],
+    [
+     "funding_rate_current",
+     -0.0052893954726000005,
+     -0.0052893954726000005,
+     true,
+     "realtime_quotes.funding_rate × 100（当前/预测）"
+    ],
+    [
+     "funding_next_time",
+     1792324800000,
+     1792324800000,
+     true,
+     "realtime_quotes.next_funding_time"
+    ],
+    [
+     "funding_rate_settled",
+     -0.00613205445348,
+     -0.00613205445348,
+     true,
+     "funding_history.funding_rate × 100（已结算）"
+    ]
+   ],
+   "struct_bad": [],
+   "identity": {
+    "exchange": "okx",
+    "market_id": "OKB-USDT-SWAP",
+    "is_crypto": true,
+    "instrument_category": "1",
+    "category_field": "instCategory",
+    "in_active_range": 1,
+    "excluded_reason": null,
+    "base_asset": "OKB",
+    "contract_type": "SWAP",
+    "status": "live",
+    "source": "symbol_classification（官方分类快照）"
+   },
+   "snapshot_state": {
+    "available": false,
+    "refreshed_at": null,
+    "status": null,
+    "note": "本机快照未覆盖该标的（采集器只按有界集合周期刷新），接口只读快照、不触发交易所请求"
+   }
+  }
+ ],
+ "time_advance": [
+  {
+   "case": "binance:BTCUSDT",
+   "fields": [
+    {
+     "key": "taker_buy_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:39Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:41Z",
+      "2026-10-18T06:21:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      145.642,
+      146.196,
+      146.486,
+      182.644
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:39Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:41Z",
+      "2026-10-18T06:21:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      11902155.5017,
+      11947434.1826,
+      11971130.2325,
+      14923882.0628
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:39Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:41Z",
+      "2026-10-18T06:21:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      240.92,
+      255.873,
+      261.943,
+      383.909
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:39Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:41Z",
+      "2026-10-18T06:21:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      19688684.9353,
+      20910825.7794,
+      21406836.5384,
+      31368341.798
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "trade_count",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:39Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:41Z",
+      "2026-10-18T06:21:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      10298.0,
+      11112.0,
+      11354.0,
+      15272.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_sell_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      95.27799999999999,
+      109.67699999999999,
+      115.457,
+      201.265
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_sell_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      1.5286005163836354,
+      1.3329686260565115,
+      1.2687494045402183,
+      0.9074801878120886
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_share",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      60.45243234268637,
+      57.136157390580486,
+      55.92285344521518,
+      47.57481590689461
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_position_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:09:15Z",
+      "2026-10-18T06:09:15Z",
+      "2026-10-18T06:09:15Z",
+      "2026-10-18T06:17:39Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      1.7841,
+      1.7841,
+      1.7841,
+      1.7841
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:01:05Z",
+      "2026-10-18T06:01:05Z",
+      "2026-10-18T06:01:05Z",
+      "2026-10-18T06:01:05Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      1.7732,
+      1.7732,
+      1.7732,
+      1.7732
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "global_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:01:06Z",
+      "2026-10-18T06:01:06Z",
+      "2026-10-18T06:01:06Z",
+      "2026-10-18T06:01:06Z"
+     ],
+     "event_times": [
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z"
+     ],
+     "values": [
+      1.6983,
+      1.6983,
+      1.6983,
+      1.6983
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "oi_qty",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:17:38Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      93029.35,
+      93029.35,
+      93029.35,
+      93024.848
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "oi_notional_usd",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:09:14Z",
+      "2026-10-18T06:17:38Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      7602916658.1,
+      7602916658.1,
+      7602916658.1,
+      7601078935.0496
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_current",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:13:46Z",
+      "2026-10-18T06:14:58Z",
+      "2026-10-18T06:16:08Z",
+      "2026-10-18T06:21:30Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:16:36Z"
+     ],
+     "values": [
+      0.007305,
+      0.007305,
+      0.007305,
+      0.007292
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_next_time",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:46Z",
+      "2026-10-18T06:14:58Z",
+      "2026-10-18T06:16:08Z",
+      "2026-10-18T06:21:30Z"
+     ],
+     "event_times": [
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z"
+     ],
+     "values": [
+      1792310400000,
+      1792310400000,
+      1792310400000,
+      1792310400000
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_settled",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z"
+     ],
+     "event_times": [
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z"
+     ],
+     "values": [
+      0.006412,
+      0.006412,
+      0.006412,
+      0.006412
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    },
+    {
+     "key": "funding_settled_time",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z"
+     ],
+     "event_times": [
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z"
+     ],
+     "values": [
+      1792281600000,
+      1792281600000,
+      1792281600000,
+      1792281600000
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    }
+   ]
+  },
+  {
+   "case": "binance:ETHUSDT",
+   "fields": [
+    {
+     "key": "taker_buy_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      6078.362,
+      6144.255,
+      6188.286,
+      7697.036
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      14659457.12987,
+      14818389.08777,
+      14924548.23633,
+      18560857.63831
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      9789.202,
+      10206.271,
+      10374.855,
+      14766.003
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      23609474.97656,
+      24615433.48937,
+      25021894.25571,
+      35604736.43882
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "trade_count",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      14475.0,
+      15290.0,
+      15668.0,
+      20822.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_sell_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      3710.8399999999992,
+      4062.0160000000005,
+      4186.5689999999995,
+      7068.967000000001
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_sell_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      1.6380016384430482,
+      1.5126122102916382,
+      1.4781282716228972,
+      1.088848766729283
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_share",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:13:38Z",
+      "2026-10-18T06:14:39Z",
+      "2026-10-18T06:15:40Z",
+      "2026-10-18T06:21:13Z"
+     ],
+     "values": [
+      62.09251785794184,
+      60.20078244052113,
+      59.64696374069807,
+      52.12674005280914
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_position_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:09:12Z",
+      "2026-10-18T06:09:12Z",
+      "2026-10-18T06:09:12Z",
+      "2026-10-18T06:17:37Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      1.6296,
+      1.6296,
+      1.6296,
+      1.6296
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z",
+      "2026-10-18T06:00:59Z"
+     ],
+     "event_times": [
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z"
+     ],
+     "values": [
+      2.3333,
+      2.3333,
+      2.3333,
+      2.3333
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "global_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z"
+     ],
+     "event_times": [
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z",
+      "2026-10-18T05:00:00Z"
+     ],
+     "values": [
+      2.992,
+      2.992,
+      2.992,
+      2.992
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "oi_qty",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:17:36Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      2267079.768,
+      2267079.768,
+      2267079.768,
+      2266582.507
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "oi_notional_usd",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:09:11Z",
+      "2026-10-18T06:17:36Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:05:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      5467657000.882697,
+      5467657000.882697,
+      5467657000.882697,
+      5464753090.20207
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_current",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:13:48Z",
+      "2026-10-18T06:14:58Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:31Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:16:36Z"
+     ],
+     "values": [
+      0.004235,
+      0.004235,
+      0.004235,
+      0.0043040000000000005
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_next_time",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:48Z",
+      "2026-10-18T06:14:58Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:31Z"
+     ],
+     "event_times": [
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z"
+     ],
+     "values": [
+      1792310400000,
+      1792310400000,
+      1792310400000,
+      1792310400000
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_settled",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z"
+     ],
+     "event_times": [
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z"
+     ],
+     "values": [
+      0.00477,
+      0.00477,
+      0.00477,
+      0.00477
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    },
+    {
+     "key": "funding_settled_time",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z",
+      "2026-10-18T06:01:00Z"
+     ],
+     "event_times": [
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z",
+      "2026-10-18T00:00:00Z"
+     ],
+     "values": [
+      1792281600000,
+      1792281600000,
+      1792281600000,
+      1792281600000
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    }
+   ]
+  },
+  {
+   "case": "binance:1000CATUSDT",
+   "fields": [
+    {
+     "key": "taker_buy_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 3,
+     "fetched_ats": [
+      "2026-10-18T06:12:45Z",
+      "2026-10-18T06:14:53Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:21Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      678890.0,
+      678890.0,
+      870806.0,
+      1193292.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 3,
+     "fetched_ats": [
+      "2026-10-18T06:12:45Z",
+      "2026-10-18T06:14:53Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:21Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      1215.58256,
+      1215.58256,
+      1558.70366,
+      2135.139173
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:12:45Z",
+      "2026-10-18T06:14:53Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:21Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      793645.0,
+      960486.0,
+      1489474.0,
+      1958055.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:12:45Z",
+      "2026-10-18T06:14:53Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:21Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      1421.024638,
+      1719.58155,
+      2665.359938,
+      3502.78256
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "trade_count",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:12:45Z",
+      "2026-10-18T06:14:53Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:21Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      66.0,
+      74.0,
+      88.0,
+      118.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_sell_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      114755.0,
+      281596.0,
+      618668.0,
+      764763.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_sell_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      5.915994945753997,
+      2.4108652111535673,
+      1.4075497682117064,
+      1.5603422236692936
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_share",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      85.54076444758046,
+      70.68192560849404,
+      58.4639946719446,
+      60.9427212208033
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_position_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:12:22Z",
+      "2026-10-18T06:12:22Z",
+      "2026-10-18T06:12:22Z",
+      "2026-10-18T06:20:38Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      2.9159,
+      2.9159,
+      2.9159,
+      2.9159
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "top_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:12:24Z",
+      "2026-10-18T06:12:24Z",
+      "2026-10-18T06:12:24Z",
+      "2026-10-18T06:12:24Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      4.1975,
+      4.1975,
+      4.1975,
+      4.1975
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "global_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:12:25Z",
+      "2026-10-18T06:12:25Z",
+      "2026-10-18T06:12:25Z",
+      "2026-10-18T06:12:25Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      3.5725,
+      3.5725,
+      3.5725,
+      3.5725
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（轮转类，约 40 分钟一轮）"
+    },
+    {
+     "key": "oi_qty",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:20:35Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      638109521.0,
+      638109521.0,
+      638109521.0,
+      638029288.0
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "oi_notional_usd",
+     "n_samples": 4,
+     "fetched_at_changes": 2,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:12:21Z",
+      "2026-10-18T06:20:35Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:10:00Z",
+      "2026-10-18T06:15:00Z"
+     ],
+     "values": [
+      1142216.04259,
+      1142216.04259,
+      1142216.04259,
+      1140796.366944
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_current",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 2,
+     "value_changes": 2,
+     "fetched_ats": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:22Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:11:15Z",
+      "2026-10-18T06:16:36Z"
+     ],
+     "values": [
+      0.004838,
+      0.004838,
+      0.004838,
+      0.005
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_next_time",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:12:44Z",
+      "2026-10-18T06:14:52Z",
+      "2026-10-18T06:15:51Z",
+      "2026-10-18T06:21:22Z"
+     ],
+     "event_times": [
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z",
+      "2026-10-18T08:00:00Z"
+     ],
+     "values": [
+      1792310400000,
+      1792310400000,
+      1792310400000,
+      1792310400000
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_settled",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z"
+     ],
+     "values": [
+      0.005,
+      0.005,
+      0.005,
+      0.005
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    },
+    {
+     "key": "funding_settled_time",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z",
+      "2026-10-18T06:06:14Z"
+     ],
+     "event_times": [
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z"
+     ],
+     "values": [
+      1792296000005,
+      1792296000005,
+      1792296000005,
+      1792296000005
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    }
+   ]
+  },
+  {
+   "case": "okx:OKB-USDT-SWAP",
+   "fields": [
+    {
+     "key": "taker_buy_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:35Z",
+      "2026-10-18T06:14:36Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:07Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_buy_quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:35Z",
+      "2026-10-18T06:14:36Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:07Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:35Z",
+      "2026-10-18T06:14:36Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:07Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      1036.1,
+      1042.75,
+      1230.21,
+      1702.29
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "quote_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:35Z",
+      "2026-10-18T06:14:36Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:07Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      118648.9013,
+      119410.9068,
+      140867.4662,
+      194855.2561
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "trade_count",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:35Z",
+      "2026-10-18T06:14:36Z",
+      "2026-10-18T06:16:09Z",
+      "2026-10-18T06:21:07Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "taker_sell_volume",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "taker_buy_sell_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "taker_buy_share",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z",
+      "2026-10-18T06:00:00Z"
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "top_position_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "top_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "global_account_ls_ratio",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "event_times": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "values": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "moving": false,
+     "verdict": "全空（缺失/上游不支持，不适用推进判据）"
+    },
+    {
+     "key": "oi_qty",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z"
+     ],
+     "values": [
+      230181.25,
+      230181.25,
+      230181.25,
+      230181.25
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（OI 全池轮询，10~20 分钟一次）"
+    },
+    {
+     "key": "oi_notional_usd",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z",
+      "2026-10-18T06:00:58Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z",
+      "2026-10-18T06:00:57Z"
+     ],
+     "values": [
+      26305113.25,
+      26305113.25,
+      26305113.25,
+      26305113.25
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（OI 全池轮询，10~20 分钟一次）"
+    },
+    {
+     "key": "funding_rate_current",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 4,
+     "value_changes": 4,
+     "fetched_ats": [
+      "2026-10-18T06:13:48Z",
+      "2026-10-18T06:14:59Z",
+      "2026-10-18T06:16:11Z",
+      "2026-10-18T06:21:32Z"
+     ],
+     "event_times": [
+      "2026-10-18T06:13:11Z",
+      "2026-10-18T06:14:06Z",
+      "2026-10-18T06:16:08Z",
+      "2026-10-18T06:21:15Z"
+     ],
+     "values": [
+      -0.00451439564143,
+      -0.00451653298813,
+      -0.004783515717569999,
+      -0.0052893954726000005
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_next_time",
+     "n_samples": 4,
+     "fetched_at_changes": 4,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:48Z",
+      "2026-10-18T06:14:59Z",
+      "2026-10-18T06:16:11Z",
+      "2026-10-18T06:21:32Z"
+     ],
+     "event_times": [
+      "2026-10-18T12:00:00Z",
+      "2026-10-18T12:00:00Z",
+      "2026-10-18T12:00:00Z",
+      "2026-10-18T12:00:00Z"
+     ],
+     "values": [
+      1792324800000,
+      1792324800000,
+      1792324800000,
+      1792324800000
+     ],
+     "moving": true,
+     "verdict": "在推进"
+    },
+    {
+     "key": "funding_rate_settled",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z"
+     ],
+     "event_times": [
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z"
+     ],
+     "values": [
+      -0.00613205445348,
+      -0.00613205445348,
+      -0.00613205445348,
+      -0.00613205445348
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    },
+    {
+     "key": "funding_settled_time",
+     "n_samples": 4,
+     "fetched_at_changes": 1,
+     "event_time_changes": 1,
+     "value_changes": 1,
+     "fetched_ats": [
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z",
+      "2026-10-18T06:13:31Z"
+     ],
+     "event_times": [
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z",
+      "2026-10-18T04:00:00Z"
+     ],
+     "values": [
+      1792296000000,
+      1792296000000,
+      1792296000000,
+      1792296000000
+     ],
+     "moving": false,
+     "verdict": "窗口内不变（结算类，8 小时一次）"
+    }
+   ]
+  }
+ ]
+}

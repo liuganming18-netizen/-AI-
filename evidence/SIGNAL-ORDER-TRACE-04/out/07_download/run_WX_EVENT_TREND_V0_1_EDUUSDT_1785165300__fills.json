@@ -1,0 +1,79 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_EDUUSDT_1785165300",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EDUUSDT_1785165300",
+   "fill_id": "paper_fill:37",
+   "order_id": 37,
+   "trade_id": "trd_paper_pos_19",
+   "trade_link": "trades.order_id",
+   "symbol": "EDUUSDT",
+   "strategy_key": null,
+   "action": "open",
+   "fill_price": 0.03352,
+   "quantity": 14069.0,
+   "fee": 0.23579644000000002,
+   "liquidity": null,
+   "sequence": 37,
+   "event_time": 1784974500000,
+   "fill_time_ms": 1784974500000,
+   "detail": {
+    "position_id": 19,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_EDUUSDT_1784059199999_1784973600000",
+    "raw_price": 0.0335,
+    "notional": 471.59288000000004,
+    "slippage_cost": 0.28137999999998853,
+    "bar_open_time": 1784974500000,
+    "bar_close_time": 1784975399999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_EDUUSDT_1785165300",
+   "fill_id": "paper_fill:38",
+   "order_id": 38,
+   "trade_id": "trd_paper_pos_19",
+   "trade_link": "trades.order_id",
+   "symbol": "EDUUSDT",
+   "strategy_key": null,
+   "action": "close",
+   "fill_price": 0.03203,
+   "quantity": 14069.0,
+   "fee": 0.22531503500000002,
+   "liquidity": null,
+   "sequence": 38,
+   "event_time": 1785166199999,
+   "fill_time_ms": 1785166199999,
+   "detail": {
+    "position_id": 19,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_EDUUSDT_1784059199999_1784973600000",
+    "raw_price": 0.03205,
+    "notional": 450.63007000000005,
+    "slippage_cost": 0.28137999999998853,
+    "bar_open_time": 1785165300000,
+    "bar_close_time": 1785166199999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  }
+ ],
+ "total": 2,
+ "live_order_enabled": false,
+ "link_notes": [
+  "trade#1 开仓订单冲突：trades.jsonl=37 vs positions.POSITION_OPENED=37"
+ ],
+ "note": "逐次成交明细（同一 run_id 账本 fills.jsonl 事件）；trade_id 由关联 order_id 反查，支持部分成交展开"
+}

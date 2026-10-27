@@ -1,0 +1,46 @@
+{
+  "orders": 42,
+  "trades": 21,
+  "runs": 1,
+  "order_trade_link": {
+    "checked": 21,
+    "ok": 21,
+    "rule": "每笔 2 单，且 == nr_of_successful_entries + nr_of_successful_exits"
+  },
+  "funding_per_order_sum_eq_trade_total": {
+    "checked": 21,
+    "ok": 21,
+    "tol": 1e-12,
+    "rule": "Σ(逐单 funding_fee) == trade.funding_fees"
+  },
+  "cost_formula_max_abs_dev": 0.0,
+  "pnl_rebuild_max_abs_dev": 4.965388100686141e-09,
+  "pnl_tolerance": 1e-08,
+  "pnl_ok": 21,
+  "causality_ok": 21,
+  "kline_link": {
+    "checked": 21,
+    "replay_found": 21,
+    "entry_ts_match": 21,
+    "exit_ts_match": 21,
+    "entry_price_match": 21,
+    "exit_price_match": 21,
+    "trace_rows_total": 452,
+    "trade_id_match_engine": 21
+  },
+  "order_id": {
+    "count": 42,
+    "unique": 42,
+    "gapless_1_to_N": true,
+    "monotonic_with_fill_ts": true,
+    "note": "order_id 是建单时自增的计数器；回测建单即成交 ⇒ 与成交时刻同序"
+  },
+  "fee_cross_check": {
+    "route_a_order_cost_minus_notional_maxdev": 2.491062911502695e-14,
+    "route_b_trade_fee_open_cost_available": 21,
+    "entry_fee_two_routes_agree": 21,
+    "exit_fee_cost_available_in_trade_layer": 0,
+    "note": "出场手续费在交易层**没有**字段（fee_close_cost 恒 None，回测不写该列），只能用 order.cost − amount×price 推导"
+  },
+  "verdict": "PASS"
+}

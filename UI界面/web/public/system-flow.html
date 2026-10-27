@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据链路画布 · 数据停在哪里</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#111827; --panel:#0f172a; --line:#334155; --line2:#475569;
+    --fg:#e2e8f0; --muted:#94a3b8; --dim:#64748b;
+    --pass:#34d399; --fail:#fb7185; --unv:#a3a3a3; --gone:#f59e0b; --warn:#fbbf24;
+    --na:#64748b;
+    --c1:#60a5fa; --c2:#c084fc; --c3:#34d399; --c4:#fb923c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+       -webkit-font-smoothing:antialiased;padding:16px}
+  .wrap{max-width:1560px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+        border-radius:16px;padding:20px}
+  h1{font-size:18px;margin:0;letter-spacing:.2px}
+  h3{font-size:13px;margin:0}
+  .sub{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.7}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .head{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-start;
+        padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;font-size:11.5px;align-items:center}
+  .legend .item{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;
+                border:1px solid var(--line);background:#0b1220}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .d-pass{background:var(--pass)} .d-fail{background:var(--fail)}
+  .d-unv{background:var(--unv)} .d-gone{background:var(--gone)} .d-wait{background:var(--warn)}
+  .d-na{background:var(--na)}
+
+  .btn{cursor:pointer;border:1px solid var(--line2);background:#16233a;color:var(--fg);
+       border-radius:8px;padding:6px 12px;font-size:12px}
+  .btn:hover{border-color:var(--pass);color:var(--pass)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.tiny{padding:3px 8px;font-size:11px;border-radius:6px}
+  a.lnk{color:#7dd3fc;text-decoration:none;font-size:12px}
+  a.lnk:hover{text-decoration:underline}
+
+  /* ── 全局判定条 ─────────────────────────────────────────── */
+  #verdict{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--line2);
+           background:#080f1c;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  #verdict[data-state="pass"]{border-color:rgba(52,211,153,.45)}
+  #verdict[data-state="fail"]{border-color:rgba(251,113,133,.55)}
+  #verdict[data-state="wait"]{border-color:rgba(251,191,36,.5)}
+  #verdict[data-state="unv"]{border-color:rgba(163,163,163,.45)}
+  #verdict .big{font-size:14px;font-weight:700}
+  #verdict .meta{font-size:11.5px;color:var(--muted);margin-left:auto;text-align:right;line-height:1.6}
+
+  /* ── 流水线 ─────────────────────────────────────────────── */
+  .flow{display:flex;align-items:stretch;gap:0;margin-top:14px;overflow-x:auto;padding-bottom:4px}
+  .flow .chip{flex:1 1 0;min-width:132px;display:flex;flex-direction:column;gap:4px;
+              padding:9px 10px;border-radius:10px;border:1px solid var(--line);
+              background:var(--panel);cursor:pointer;text-align:left;color:var(--fg)}
+  .flow .chip:hover{border-color:var(--line2)}
+  .flow .chip .cn{font-size:11.5px;font-weight:600;line-height:1.35}
+  .flow .chip .cs{font-size:10.5px;font-weight:700}
+  .flow .chip[data-state="pass"]{border-color:rgba(52,211,153,.45);box-shadow:inset 0 -3px 0 var(--pass)}
+  .flow .chip[data-state="fail"]{border-color:rgba(251,113,133,.55);box-shadow:inset 0 -3px 0 var(--fail)}
+  .flow .chip[data-state="wait"]{border-color:rgba(251,191,36,.5);box-shadow:inset 0 -3px 0 var(--warn)}
+  .flow .chip[data-state="unv"]{border-color:rgba(163,163,163,.4);box-shadow:inset 0 -3px 0 var(--unv)}
+  .flow .chip[data-state="na"]{border-color:rgba(100,116,139,.5);box-shadow:inset 0 -3px 0 var(--na)}
+  .flow .chip[data-break="1"]{outline:2px solid var(--fail);outline-offset:1px}
+  .flow .chip .bk{font-size:9.5px;color:var(--fail);font-weight:700}
+  .flow .arrow{display:flex;align-items:center;padding:0 5px;color:var(--dim);font-size:13px}
+
+  /* ── 三池分母 ───────────────────────────────────────────── */
+  #pools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+  @media (max-width:900px){#pools{grid-template-columns:1fr}}
+  .pool{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .pool .pt{font-size:11.5px;color:var(--muted)}
+  .pool .pn{font-size:22px;font-weight:700;margin:2px 0 2px;letter-spacing:.5px}
+  .pool .pd{font-size:10.5px;color:var(--dim);line-height:1.55}
+  .pool .pm{font-size:10px;color:var(--dim);margin-top:4px}
+  .pool[data-warn="1"]{border-color:rgba(251,113,133,.5)}
+
+  /* ── 节点卡 ─────────────────────────────────────────────── */
+  #chain{margin-top:14px;display:flex;flex-direction:column;gap:0}
+  .chain-node{display:flex;gap:0;border:1px solid var(--line);border-radius:12px;
+              background:var(--panel);overflow:hidden}
+  .chain-node[data-state="pass"]{border-left:4px solid var(--pass)}
+  .chain-node[data-state="fail"]{border-left:4px solid var(--fail)}
+  .chain-node[data-state="wait"]{border-left:4px solid var(--warn)}
+  .chain-node[data-state="unv"]{border-left:4px solid var(--unv)}
+  .chain-node[data-state="na"]{border-left:4px solid var(--na)}
+  .chain-node .rail{width:44px;flex:0 0 44px;display:flex;align-items:flex-start;justify-content:center;
+                    padding-top:12px;background:#0b1220;border-right:1px solid var(--line)}
+  .chain-node .rail .no{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;font-size:12px;font-weight:700;background:#1e293b;color:#cbd5e1}
+  .chain-node .body{flex:1 1 auto;padding:11px 13px 10px;min-width:0}
+  .nhead{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .nhead .nm{font-size:13.5px;font-weight:700}
+  .nhead .sub2{font-size:10.5px;color:var(--dim)}
+  .headline{font-size:12px;line-height:1.65;margin:5px 0 0;color:var(--fg)}
+  .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:9px}
+  @media (max-width:1100px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .fact{border:1px solid #1f2b3d;border-radius:8px;padding:6px 8px;background:#0b1220;min-width:0}
+  .fact .k{display:block;font-size:10px;color:var(--dim);margin-bottom:2px}
+  .fact .v{font-size:11.5px;line-height:1.5;word-break:break-word}
+  .fact[data-bad="1"]{border-color:rgba(251,113,133,.5)}
+  .fact[data-bad="1"] .v{color:var(--fail)}
+  .blocker{margin-top:8px;font-size:11.5px;line-height:1.6;color:var(--warn);
+           border-left:2px solid var(--warn);padding-left:8px;display:none}
+  .blocker[data-kind="fail"]{color:var(--fail);border-left-color:var(--fail)}
+  .blocker[data-kind="unv"]{color:var(--unv);border-left-color:var(--unv)}
+  .nfoot{margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .nfoot .fl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .tech{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px;font-size:11px;
+        color:var(--muted);line-height:1.7}
+  .tech[hidden]{display:none}
+  .tech .chk{display:flex;gap:7px;align-items:flex-start;padding:2px 0}
+  .tech .chk i{flex:0 0 auto;font-style:normal;font-weight:700}
+  .tech .chk[data-ok="1"] i{color:var(--pass)}
+  .tech .chk[data-ok="0"] i{color:var(--fail)}
+  .tech .chk[data-ok="na"] i{color:var(--na)}
+  .tech .chk span{flex:1 1 auto;min-width:0;word-break:break-word}
+  .tech pre{margin:6px 0 0;padding:8px;background:#0b1220;border:1px solid #1f2b3d;border-radius:8px;
+            font-size:10.5px;line-height:1.55;color:#cbd5e1;overflow:auto;max-height:280px}
+  .connector{height:16px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px}
+
+  /* ── pill ───────────────────────────────────────────────── */
+  .pill{font-size:10.5px;padding:2px 7px;border-radius:999px;border:1px solid transparent;
+        white-space:nowrap;font-weight:700}
+  .p-pass{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.35);color:var(--pass)}
+  .p-fail{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35);color:var(--fail)}
+  .p-unv{background:rgba(163,163,163,.12);border-color:rgba(163,163,163,.35);color:var(--unv)}
+  .p-wait{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4);color:var(--warn)}
+  .p-gone{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:var(--gone)}
+  .p-na{background:rgba(100,116,139,.15);border-color:rgba(100,116,139,.4);color:var(--na)}
+
+  /* ── 明细区（原 20 卡） ─────────────────────────────────── */
+  #cards-fold{margin-top:18px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  #cards-fold>summary{cursor:pointer;padding:12px 14px;font-size:13px;font-weight:600;list-style:none}
+  #cards-fold>summary::-webkit-details-marker{display:none}
+  #cards-fold>summary:before{content:"▸ ";color:var(--dim)}
+  #cards-fold[open]>summary:before{content:"▾ "}
+  #cards-fold .inner{padding:0 14px 14px}
+  .counters{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin:8px 0 10px}
+  .cnt{padding:4px 10px;border-radius:8px;border:1px solid var(--line);background:#0b1220}
+  .cnt b{font-size:14px;margin-left:4px}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:10px}
+  @media (max-width:1180px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:720px){.grid{grid-template-columns:1fr}}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .colhead{display:flex;justify-content:space-between;align-items:center;gap:8px;
+           padding:8px 10px;border-radius:10px;font-size:11.5px;font-weight:700}
+  .colhead .tag{font-size:10.5px;padding:2px 6px;border-radius:5px;font-weight:600;opacity:.9}
+  .node{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+        cursor:pointer;transition:border-color .15s}
+  .node:hover{border-color:var(--line2)}
+  .node[data-state="pass"]{border-left:3px solid var(--pass)}
+  .node[data-state="fail"]{border-left:3px solid var(--fail)}
+  .node[data-state="unv"]{border-left:3px solid var(--unv)}
+  .node[data-state="gone"]{border-left:3px solid var(--gone)}
+  .node .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .node .name{font-size:12.5px;font-weight:600}
+  .node .path{font-size:10.5px;color:var(--muted);margin-top:5px;word-break:break-all}
+  .node .ev{font-size:11px;margin-top:6px;line-height:1.5;color:var(--muted)}
+  .node .ev b{color:var(--fg);font-weight:600}
+  .node .warn{font-size:10.5px;margin-top:5px;line-height:1.5;color:var(--warn)}
+  .node .foot{margin-top:7px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+  #detail-panel{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;
+                background:var(--panel)}
+  #detail-panel .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  #detail-badge{font-size:11px;padding:3px 9px;border-radius:6px;background:#1e293b;color:#cbd5e1;
+                font-family:ui-monospace,Menlo,monospace}
+  #detail-content{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.75;white-space:pre-wrap}
+  .foot-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+             font-size:11px;color:var(--dim);line-height:1.85}
+  .kbd{font-family:ui-monospace,Menlo,monospace;background:#0b1220;border:1px solid #1f2b3d;
+       border-radius:4px;padding:0 4px;font-size:10.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <h1>数据链路画布 · 数据停在哪里、为什么停</h1>
+      <p class="sub">
+        七段链路：交易所来源 → 实时采集／历史归档 → 热库／冷库 → 数据质量与已闭合水位 → 信号引擎 → 模拟账本 → 工作台／回测对账。<br>
+        每段的颜色只由<b>本次实测的业务字段</b>决定：HTTP 200、文件存在、进程存活<b>都不单独判绿</b>；
+        读不到数据时立刻清除“当前正常”结论，只保留最后成功时间并标为已过期。
+      </p>
+    </div>
+    <div class="legend">
+      <span class="item"><span class="dot d-pass"></span>已验证可用</span>
+      <span class="item"><span class="dot d-wait"></span>等待条件</span>
+      <span class="item"><span class="dot d-fail"></span>故障</span>
+      <span class="item"><span class="dot d-unv"></span>未验证</span>
+      <span class="item"><span class="dot d-na"></span>不适用</span>
+    </div>
+  </div>
+
+  <section id="verdict" data-state="unv">
+    <div>
+      <div class="big" id="verdict-title">正在读取数据链路…</div>
+      <div class="sub" id="verdict-sub" style="margin-top:3px">同源接口 /api/v1 · 等待首轮探测</div>
+    </div>
+    <div class="meta" id="verdict-meta"></div>
+    <button class="btn" id="btn-refresh" type="button">重新探测</button>
+  </section>
+
+  <div class="flow" id="flow"></div>
+
+  <div id="pools"></div>
+
+  <div id="chain"></div>
+
+  <details id="cards-fold">
+    <summary>接口明细（原 20 张卡片 · 展开后才发起重接口探测；默认不加载 /markets、/data/coverage 这类大响应）</summary>
+    <div class="inner">
+      <div class="counters" id="counters"><span class="cnt">展开后开始探测</span></div>
+      <div class="grid" id="grid"></div>
+      <div id="detail-panel">
+        <div class="row">
+          <h3 id="detail-title">点击任意卡片，查看该卡片的判定口径与本次实测证据</h3>
+          <span id="detail-badge">未选择</span>
+        </div>
+        <div id="detail-content">本区只呈现「接口存在 / 字段齐备 / 数值自洽」这三类可机械复核的事实；
+不声称覆盖全部端点，也不把接口可达当成页面通过或交易闭环通过。</div>
+      </div>
+    </div>
+  </details>
+
+  <div class="foot-note">
+    <b>判定纪律</b>：只有「已验证可用 / 等待条件 / 故障 / 未验证」四态，外加子项级「不适用」；未验证不计入通过。
+    HTTP 200 只作为“接口可达”的前置条件，不作为业务结论。<br>
+    <b>同源</b>：本画布与交易工作台读取同一组 <span class="kbd">/api/v1</span> 接口（相对路径、同 origin），不另设数据通道、不读本地文件、不直连交易所。<br>
+    <b>三池分母不混用</b>：下载池（全部合约目录）／展示池（工作台列表）／策略监控池（信号引擎 universe）分别标注来源与排除规则，数字不同是口径不同，不是缺失。<br>
+    <b>版本</b>：构建标识 <span class="kbd" id="build-id">—</span>；页面文件 SHA-256 与四态截图、响应、时刻一起绑定在 <span class="kbd">evidence/DATA-CANVAS-01/</span>。
+  </div>
+</div>
+
+<script>
+/* ============================================================
+ * 0. 常量与工具
+ * ============================================================ */
+var BUILD_ID = 'signallink01a-20261024';
+document.getElementById('build-id').textContent = BUILD_ID;
+
+var ST = {pass:'已验证可用', wait:'等待条件', fail:'故障', unv:'未验证', na:'不适用'};
+var PILL = {pass:'p-pass', wait:'p-wait', fail:'p-fail', unv:'p-unv', na:'p-na'};
+var COLOR = {pass:'var(--pass)', wait:'var(--warn)', fail:'var(--fail)', unv:'var(--unv)', na:'var(--na)'};
+
+/* 阈值：集中在这里，展开区会原样显示，便于机械复核 */
+var TH = {
+  hb_stale_ms: 120000,        // 采集心跳失效阈值（与 adapter.RT_HEARTBEAT_STALE_MS 一致）
+  msg_stale_ms: 120000,       // 最近一条 WS 消息失效阈值
+  cycle_stale_ms: 600000,     // 信号引擎周期停滞阈值
+  tf_ms: {'5m':300000,'15m':900000,'30m':1800000,'1h':3600000,'4h':14400000,'8h':28800000,'12h':43200000,'1d':86400000},
+  strategy_tfs: ['15m','1h','4h'],   // 策略实际消费的周期（下游读取水位只对这三个有意义）
+  lag_fail_bars: 2            // 超过 2 个周期没闭合 ⇒ 判故障
+};
+
+function num(v){ if(v===null||v===undefined) return '—';
+  if(typeof v==='number'&&isFinite(v)) return v.toLocaleString('zh-CN'); return String(v); }
+function fx(v,d){ if(v===null||v===undefined||!isFinite(v)) return '—';
+  return Number(v).toFixed(d===undefined?2:d); }
+function arr(v){ return Array.isArray(v)?v:[]; }
+function obj(v){ return (v&&typeof v==='object'&&!Array.isArray(v))?v:{}; }
+function has(o,k){ return o && Object.prototype.hasOwnProperty.call(o,k); }
+
+function iso(ms){
+  if(!ms||!isFinite(ms)) return '—';
+  var d=new Date(Number(ms));
+  return d.toISOString().replace('T',' ').replace('.000Z','Z').replace('Z','Z');
+}
+function isoShort(ms){
+  if(!ms||!isFinite(ms)) return '—';
+  var d=new Date(Number(ms));
+  var p=function(n){return (n<10?'0':'')+n;};
+  return p(d.getUTCMonth()+1)+'-'+p(d.getUTCDate())+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+':'+p(d.getUTCSeconds())+'Z';
+}
+function dur(ms){
+  if(ms===null||ms===undefined||!isFinite(ms)) return '—';
+  var s=Math.max(0,Math.round(ms/1000));
+  if(s<90) return s+' 秒';
+  if(s<5400) return Math.round(s/60)+' 分钟';
+  if(s<172800) return (s/3600).toFixed(1)+' 小时';
+  return (s/86400).toFixed(1)+' 天';
+}
+function ageOf(ms){ if(!ms||!isFinite(ms)) return null; return Math.max(0, Date.now()-Number(ms)); }
+function parseUtc(t){
+  if(!t) return null;
+  var s=String(t);
+  if(!/Z$|[+-]\d\d:?\d\d$/.test(s)) s=s.replace(' ','T')+'Z';
+  var v=Date.parse(s.replace(' ','T'));
+  return isFinite(v)?v:null;
+}
+function esc(s){ return String(s===null||s===undefined?'—':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function pct(a,b){ if(!b) return '—'; return (100*a/b).toFixed(1)+'%'; }
+
+/* ============================================================
+ * 1. 取数：同源 /api/v1，缓存同一路径
+ * ============================================================ */
+var CACHE = new Map();
+function getJSON(path){
+  if (CACHE.has(path)) return CACHE.get(path);
+  var t0=Date.now();
+  var p = (function(){
+    var opt = {cache:'no-store'};
+    try { if (typeof AbortSignal!=='undefined' && AbortSignal.timeout) opt.signal=AbortSignal.timeout(30000); } catch(e){}
+    return fetch(path, opt).then(function(r){
+      return r.text().then(function(t){
+        var body=null; try{ body=JSON.parse(t); }catch(e){ body=null; }
+        return {http:r.status, body:body, bytes:t.length, ms:Date.now()-t0,
+                raw:(body===null?t.slice(0,240):null), at:Date.now()};
+      });
+    }).catch(function(e){
+      return {http:'ERR', body:null, bytes:0, ms:Date.now()-t0, at:Date.now(),
+              error:String((e&&e.message)||e)};
+    });
+  })();
+  CACHE.set(path,p); return p;
+}
+
+var RES = {};
+function R(p){ return RES[p] || null; }
+function bad(x){
+  if(!x) return {state:'unv', ev:'未探测'};
+  if(x.http==='ERR') return {state:'fail', ev:'请求未完成：'+(x.error||'未知错误')};
+  if(x.http===404) return {state:'fail', ev:'HTTP 404 · 端点不存在'};
+  if(x.http===500) return {state:'fail', ev:'HTTP 500 · 服务端异常'};
+  if(x.http!==200) return {state:'fail', ev:'HTTP '+x.http};
+  if(!x.body || typeof x.body!=='object') return {state:'fail', ev:'HTTP 200 但响应不是 JSON：'+String(x.raw||'').slice(0,120)};
+  return null;
+}
+
+/* ============================================================
+ * 2. 最后成功时间（读不到就只保留它，并明确过期）
+ * ============================================================ */
+var LS_KEY='dc01_lastok_v1';
+var LASTOK={};
+try{ LASTOK=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; }catch(e){ LASTOK={}; }
+function saveLastOk(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(LASTOK)); }catch(e){}
+}
+function markOk(key, note, at){
+  LASTOK[key]={ts: at||Date.now(), note: note||''};
+  saveLastOk();
+}
+function lastOkText(key){
+  var r=LASTOK[key];
+  if(!r) return null;
+  var a=Date.now()-r.ts;
+  return {ts:r.ts, text: isoShort(r.ts)+'（'+dur(a)+'前）', expired: a>90000};
+}
+
+/* ============================================================
+ * 3. 数据抽取（全部来自同一批响应）
+ * ============================================================ */
+function scopeBody(){ return obj(R('/api/v1/data/pool-scope')&&R('/api/v1/data/pool-scope').body); }
+function poolBody(){ return obj(R('/api/v1/pool/status')&&R('/api/v1/pool/status').body); }
+function dataBody(){ return obj(R('/api/v1/data/status')&&R('/api/v1/data/status').body); }
+function planBody(){ return obj(R('/api/v1/data/import-plan')&&R('/api/v1/data/import-plan').body); }
+function paperBody(){ return obj(R('/api/v1/paper/status')&&R('/api/v1/paper/status').body); }
+function accBody(){ return obj(R('/api/v1/paper/accounts')&&R('/api/v1/paper/accounts').body); }
+function sigBody(){ return obj(R('/api/v1/signals?scope=current')&&R('/api/v1/signals?scope=current').body); }
+function btBody(){ return obj(R('/api/v1/backtests?limit=1')&&R('/api/v1/backtests?limit=1').body); }
+
+/* coverage 单元格按周期聚合：只统计已闭合水位与缺口 */
+function coverageByTf(){
+  var cells = arr(dataBody().coverage);
+  var out = {};
+  cells.forEach(function(c){
+    var tf=c.timeframe; if(!tf) return;
+    var o=out[tf]||(out[tf]={n:0, rows:0, missing:0, last:null, ex:{}});
+    o.n++;
+    o.rows += (c.rows||0);
+    if(typeof c.missing_within_observed_range==='number') o.missing += c.missing_within_observed_range;
+    var lc = c.last_close;
+    if(lc && (!o.last || lc>o.last)) o.last=lc;
+    var ex=c.exchange||'?'; o.ex[ex]=(o.ex[ex]||0)+1;
+  });
+  return {cells:cells.length, byTf:out};
+}
+
+function streamRows(){ return arr(planBody().realtime_klines); }
+function streamOf(ex,tf){
+  var rows=streamRows();
+  for(var i=0;i<rows.length;i++){ if(rows[i].exchange===ex && rows[i].timeframe===tf) return rows[i]; }
+  return null;
+}
+function collector(){ return obj(planBody().collector); }
+function paperItem(){ return obj(paperBody().item); }
+function engine(){ return obj(paperItem().signal_engine); }
+function runtime(){ return obj(paperItem().runtime_identity); }
+function marketData(){ return obj(paperItem().market_data); }
+function orderProc(){ return obj(paperItem().order_processing); }
+function execDaemon(){ return obj(paperItem().execution_daemon); }
+
+/* 期望的“最后一根已闭合 bar 的 close_time” */
+function expectedClose(tf){
+  var d=TH.tf_ms[tf]; if(!d) return null;
+  return Math.floor(Date.now()/d)*d - 1;
+}
+/* 上游写入 → 闭合 close_time */
+function streamClosedCloseMs(row){
+  if(!row || !row.last_closed_open_time) return null;
+  var t=parseUtc(row.last_closed_open_time); if(!t) return null;
+  var d=TH.tf_ms[row.timeframe]||0;
+  return t + d - 1;
+}
+function engineReadMs(tf){
+  var md=marketData();
+  var k='latest_'+tf+'_close_time';
+  return has(md,k) ? md[k] : null;
+}
+
+/* ============================================================
+ * 4. 节点定义
+ * ============================================================ */
+function C(t, ok, v){ return {t:t, ok:ok, v:v===undefined?'':v}; }
+
+var NODES = [
+/* ── 1 交易所来源 ─────────────────────────────────────────── */
+{
+  key:'source', no:1, name:'交易所来源', tag:'symbol_pool / symbol_classification',
+  paths:['/api/v1/data/pool-scope','/api/v1/pool/status'],
+  jump:'/?nav=datacenter',
+  run:function(){
+    var x=R('/api/v1/data/pool-scope'), b=bad(x);
+    var checks=[], ev=[], facts=[];
+    var sc=scopeBody(), bsc=obj(sc.binance), osc=obj(sc.okx);
+    var pool=poolBody();
+    var B=bsc.total, O=osc.total, C0=sc.combined_total;
+
+    if(b){ return {state:b.state, headline:b.ev,
+      facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('source')||{}).text||'无记录'},
+             {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+      blocker:'接口 /api/v1/data/pool-scope 读取失败 ⇒ 交易所来源无法判定，已清除“当前正常”。',
+      blockerKind:b.state, checks:[C('GET /api/v1/data/pool-scope 返回 200 且为 JSON',false,b.ev)],
+      evidence:[{path:'/api/v1/data/pool-scope',http:x?x.http:'—',ms:x?x.ms:null}], lastOk:false}; }
+
+    checks.push(C('GET /api/v1/data/pool-scope 返回 200 且为 JSON', true, 'HTTP 200 · '+x.bytes+' B · '+x.ms+' ms'));
+    checks.push(C('币安加密永续分母 > 0', B>0, 'total='+num(B)+'（分类字段 '+esc(bsc.classification_field)+'='+esc((bsc.classification_values||[]).join(','))+'）'));
+    checks.push(C('欧易加密永续分母 > 0', O>0, 'total='+num(O)));
+    checks.push(C('排除规则可读（excluded 字典非空）',
+      Object.keys(obj(bsc.excluded)).length>0 && Object.keys(obj(osc.excluded)).length>0,
+      '币安排除 '+Object.keys(obj(bsc.excluded)).length+' 类 · 欧易排除 '+Object.keys(obj(osc.excluded)).length+' 类'));
+    checks.push(C('来源可追溯（source 字段非空）', !!bsc.source && !!osc.source, esc(bsc.source)));
+    /* 关键：接口不返回快照时点 ⇒ 新鲜度不可验证，不能判绿 */
+    var sourceTs = sc.snapshot_utc || sc.updated_at || bsc.snapshot_utc;
+    var hasTs = Number.isFinite(Number(sourceTs)) && Number(sourceTs)>0;
+    var sourceFresh = hasTs && ageOf(Number(sourceTs)) <= 24*3600*1000;
+    checks.push(C('快照时点可得（用于算数据年龄）', hasTs?'1':'0',
+      hasTs?'接口已提供':'接口未提供 snapshot_utc / updated_at ⇒ 契约缺口 C-01'));
+
+    facts.push({k:'实际来源', v:'交易所官方 exchangeInfo / instruments 快照<br><span style="color:var(--dim)">symbol_classification</span>'});
+    var lok=lastOkText('source');
+    facts.push({k:'最后成功时间', v: hasTs?isoShort(Number(sourceTs)):('未提供（C-01）'+(lok?'<br><span style="color:var(--dim)">上次读取成功 '+lok.text+'</span>':''))});
+    facts.push({k:'数据年龄', v:hasTs?dur(ageOf(Number(sourceTs))):'未提供（C-01）'});
+    facts.push({k:'覆盖数', v:'币安 <b>'+num(B)+'</b> + 欧易 <b>'+num(O)+'</b> = <b>'+num(C0)+'</b> 个加密永续<br><span style="color:var(--dim)">目录快照另计：'+num(pool.pool_all_total)+' 个（含股票/商品/外汇/指数）</span>'});
+
+    ev.push({path:'/api/v1/data/pool-scope', http:x.http, ms:x.ms, bytes:x.bytes,
+             binance_total:B, okx_total:O, combined:C0,
+             binance_excluded:bsc.excluded, okx_excluded:osc.excluded});
+    ev.push({path:'/api/v1/pool/status', http:(R('/api/v1/pool/status')||{}).http,
+             pool_all_total:pool.pool_all_total, active_total:obj(pool.active_scope).active_total});
+
+    return {
+      state:sourceFresh?'pass':(hasTs?'wait':'unv'),
+      headline:sourceFresh?('分母、排除规则与快照时点可核验；快照年龄 '+dur(ageOf(Number(sourceTs)))):'分母与排除规则已核验（<b>'+num(B)+'</b> + <b>'+num(O)+'</b> = <b>'+num(C0)+'</b>），但接口不返回快照时点 ⇒ <b>新鲜度未验证</b>，不判绿。',
+      facts:facts,
+      blocker:sourceFresh?null:(hasTs?'分类快照超过 24 小时，等待更新。':'契约缺口 C-01：/api/v1/data/pool-scope 未返回 snapshot_utc / updated_at，无法给出“最后成功时间/数据年龄”。按纪律，缺这两项不能判“已验证可用”。'),
+      blockerKind:sourceFresh?null:(hasTs?'wait':'unv'),
+      checks:checks, evidence:ev, lastOk:true
+    };
+  }
+},
+
+/* ── 2 实时采集 / 历史归档 ───────────────────────────────── */
+{
+  key:'collect', no:2, name:'实时采集 ／ 历史归档', tag:'kline_stream_state · collector_state · download_runs',
+  paths:['/api/v1/data/import-plan','/api/v1/pool/status'],
+  jump:'/?nav=datacenter',
+  run:function(){
+    var x=R('/api/v1/data/import-plan'), b=bad(x);
+    if(b){ return {state:b.state, headline:b.ev,
+      facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('collect')||{}).text||'无记录'},
+             {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+      blocker:'接口 /api/v1/data/import-plan 读取失败 ⇒ 采集链路无法判定，已清除“当前正常”。',
+      blockerKind:b.state, checks:[C('GET /api/v1/data/import-plan 返回 200 且为 JSON',false,b.ev)],
+      evidence:[{path:'/api/v1/data/import-plan',http:x?x.http:'—'}], lastOk:false}; }
+
+    var rows=streamRows(), col=collector(), checks=[], ev=[];
+    var hbAge = col.heartbeat_age_seconds!==undefined && col.heartbeat_age_seconds!==null
+        ? col.heartbeat_age_seconds*1000 : null;
+    var alive = !!col.alive;
+    var msgAges = rows.map(function(r){ return r.last_msg_age_seconds; }).filter(function(v){ return typeof v==='number'; });
+    var maxMsgAge = msgAges.length?Math.max.apply(null,msgAges)*1000:null;
+    var planned = 0, seen = 0;
+    rows.forEach(function(r){ planned=Math.max(planned, r.symbols_planned||0); seen=Math.max(seen, r.symbols_seen||0); });
+    var badTf = rows.filter(function(r){ return r.status && r.status!=='ok'; });
+    var nativeAbsent = rows.filter(function(r){ return r.status==='native_absent'; });
+
+    checks.push(C('GET /api/v1/data/import-plan 返回 200 且为 JSON', true, 'HTTP 200 · '+x.bytes+' B · '+x.ms+' ms'));
+    checks.push(C('采集进程有心跳记录', !!col.heartbeat_at, col.heartbeat_at?('heartbeat_at='+col.heartbeat_at):'collector_state 无 realtime 行'));
+    checks.push(C('心跳新鲜（≤ '+Math.round(TH.hb_stale_ms/1000)+' 秒）', hbAge!==null && hbAge<=TH.hb_stale_ms,
+      hbAge===null?'无心跳时间':('心跳 '+dur(hbAge)+'前')));
+    checks.push(C('最近 WS 消息新鲜（≤ '+Math.round(TH.msg_stale_ms/1000)+' 秒）', maxMsgAge!==null && maxMsgAge<=TH.msg_stale_ms,
+      maxMsgAge===null?'无 last_msg_at':('最旧一路 '+dur(maxMsgAge)+'前')));
+    checks.push(C('全部周期状态为 ok（native_absent 记“不适用”，不记故障）', badTf.length===0,
+      badTf.length? badTf.map(function(r){return r.exchange+' '+r.timeframe+'='+r.status;}).join('、')
+                  : (nativeAbsent.length? nativeAbsent.length+' 路 native_absent（欧易 8h，不适用）' : (rows.length+' 路全 ok'))));
+    var histTasks = arr(poolBody().download_tasks);
+    var histDone = histTasks.filter(function(t){return t.status==='done';}).length;
+    checks.push(C('历史归档有已完成任务记录（≠ 已补齐全池）', histDone>0, histDone+' / '+histTasks.length+' 个 (周期,状态) 分组为 done'));
+
+    var lastMsg = null;
+    rows.forEach(function(r){ var t=parseUtc(r.last_msg_at); if(t && (!lastMsg || t>lastMsg)) lastMsg=t; });
+    var hbTs = parseUtc(col.heartbeat_at);
+    var st='pass';
+    if(!alive || (hbAge!==null && hbAge>TH.hb_stale_ms)) st='fail';
+    else if(maxMsgAge!==null && maxMsgAge>TH.msg_stale_ms) st='fail';
+    else if(!rows.length) st='unv';
+    else if(badTf.filter(function(r){return r.status!=='native_absent';}).length) st='fail';
+
+    var facts=[
+      {k:'实际来源', v:'交易所原生 WS（币安 <span class="mono">kline_&lt;tf&gt;</span>／欧易 <span class="mono">candle&lt;bar&gt;</span>）<br><span style="color:var(--dim)">历史归档：官方静态资源直连下载，不经 REST 网关</span>'},
+      {k:'最后成功时间', v:(hbTs?('心跳 '+isoShort(hbTs)):'—')+(lastMsg?('<br><span style="color:var(--dim)">最新 WS 消息 '+isoShort(lastMsg)+'</span>'):''), bad:(st==='fail'&&!alive)},
+      {k:'数据年龄', v:(hbAge!==null?('心跳 '+dur(hbAge)+'前'):'—')+(maxMsgAge!==null?('<br><span style="color:var(--dim)">最旧一路消息 '+dur(maxMsgAge)+'前</span>'):''), bad:(hbAge!==null&&hbAge>TH.hb_stale_ms)},
+      {k:'覆盖数', v:'已见 <b>'+num(seen)+'</b> / 计划 <b>'+num(planned)+'</b> 标的<br><span style="color:var(--dim)">'+rows.length+' 路 (交易所,周期)；归档任务 done '+histDone+' 组</span>'}
+    ];
+
+    var blocker=null, kind=null;
+    if(!alive){ blocker='采集进程心跳失效或进程已停（recorded_status='+esc(col.recorded_status)+'，心跳 '+(hbAge!==null?dur(hbAge)+'前':'无')+'）⇒ 断点在第 2 段。'; kind='fail'; }
+    else if(maxMsgAge!==null && maxMsgAge>TH.msg_stale_ms){ blocker='心跳在但行情消息停更（最旧一路 '+dur(maxMsgAge)+'前）⇒ 采集活着、数据不动。'; kind='fail'; }
+    else if(badTf.length){ blocker='部分周期状态异常：'+badTf.map(function(r){return r.exchange+' '+r.timeframe+'='+r.status;}).join('、'); kind='fail'; }
+    else if(histDone===0){ blocker='归档任务无 done 记录 ⇒ 冷层补齐状态未验证（不判绿）。'; kind='unv'; }
+
+    ev.push({path:'/api/v1/data/import-plan', http:x.http, ms:x.ms,
+             collector:col, realtime_klines:rows.map(function(r){return {
+               exchange:r.exchange,timeframe:r.timeframe,symbols_planned:r.symbols_planned,
+               symbols_seen:r.symbols_seen,last_msg_at:r.last_msg_at,last_msg_age_seconds:r.last_msg_age_seconds,
+               last_closed_open_time:r.last_closed_open_time,closed_written:r.closed_written,status:r.status,detail:r.detail};})});
+    ev.push({path:'/api/v1/pool/status → download_tasks', http:(R('/api/v1/pool/status')||{}).http, tasks:histTasks});
+
+    return {
+      state:st,
+      headline: alive
+        ? ('采集心跳正常（'+dur(hbAge)+'前），'+rows.length+' 路 WS 流在跑；已见 <b>'+num(seen)+'</b>/<b>'+num(planned)+'</b> 标的。')
+        : ('采集进程未运行或心跳过期（'+esc(col.recorded_status)+'）⇒ 数据从这一段的输出开始停。'),
+      facts:facts, blocker:blocker, blockerKind:kind, checks:checks, evidence:ev, lastOk:true
+    };
+  }
+},
+
+/* ── 3 热库 / 冷库 ───────────────────────────────────────── */
+{
+  key:'store', no:3, name:'热库 ／ 冷库', tag:'market_v2.sqlite3 · coverage_cache · parquet',
+  paths:['/api/v1/data/status','/api/v1/pool/status','/api/v1/data/cold-archive-status'],
+  jump:'/?nav=datacenter',
+  run:function(){
+    var x=R('/api/v1/data/status'), cold=R('/api/v1/data/cold-archive-status'), b=bad(x);
+    if(b){ return {state:b.state, headline:b.ev,
+      facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('store')||{}).text||'无记录'},
+             {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+      blocker:'接口 /api/v1/data/status 读取失败 ⇒ 热库状态无法判定，已清除“当前正常”。',
+      blockerKind:b.state, checks:[C('GET /api/v1/data/status 返回 200 且为 JSON',false,b.ev)],
+      evidence:[{path:'/api/v1/data/status',http:x?x.http:'—'}], lastOk:false}; }
+
+    var cov=coverageByTf(), pool=poolBody(), checks=[], ev=[];
+    var combos=cov.cells, rows=0;
+    Object.keys(cov.byTf).forEach(function(tf){ rows+=cov.byTf[tf].rows; });
+    var poolCombos=pool.covered_combos, poolCandles=pool.candles;
+
+    checks.push(C('GET /api/v1/data/status 返回 200 且为 JSON', true, 'HTTP 200 · '+x.bytes+' B · '+x.ms+' ms'));
+    checks.push(C('热库覆盖单元格非空', combos>0, combos+' 个 (标的,周期) 组合'));
+    checks.push(C('两处覆盖口径一致（/data/status 与 /pool/status 同源）',
+      typeof poolCombos==='number' && poolCombos===combos, 'data/status '+combos+' vs pool/status '+num(poolCombos)));
+    checks.push(C('K 线行数 > 0', rows>0 || poolCandles>0, '按覆盖单元格累计 '+num(rows)+' 根 · pool/status '+num(poolCandles)+' 根'));
+    var ca=obj(cold&&cold.body);
+    var se=obj(ca.shard_existence);
+    checks.push(C('冷库 catalog/state 元数据可读（不代表逐分片完整性）',
+      cold&&cold.http===200&&ca.status==='indexed',
+      ca.status==='indexed' ? ('目录声明 '+num(ca.candle_shard_count)+' candles 分片 / '+num(ca.declared_candle_rows)+' 根；水位 '+esc(ca.reconcile_watermark_iso||'—')) : '冷库元数据缺失或不可读'));
+    /* 下面三条对应后端的三层实检：存在性全量 / 行数全量 / 哈希抽样。
+       每条都按**后端返回的真实计数**判定，不是看到 status=indexed 就放行。 */
+    var seRows=obj(se.rows), seHash=obj(se.hash_sample);
+    checks.push(C('冷库声明分片逐个存在性核对（全量 os.stat）',
+      se.declared>0 && se.missing===0,
+      se.declared ? ('声明 '+num(se.declared)+' · 存在 '+num(se.present)+' · 缺失 '+num(se.missing)+
+                     (se.missing?('（'+esc((se.missing_symbols||[]).join('、'))+'）'):'')+
+                     ' · '+num(se.elapsed_breakdown_ms?se.elapsed_breakdown_ms.stat:se.elapsed_ms)+'ms')
+                  : '接口未提供分片存在性'));
+    checks.push(C('冷库分片行数与声明一致（全量读 Parquet footer）',
+      seRows.checked>0 && seRows.mismatch===0 && seRows.read_errors===0,
+      seRows.checked ? ('核对 '+num(seRows.match)+'/'+num(seRows.checked)+' · 不一致 '+num(seRows.mismatch)+
+                        ' · 读取失败 '+num(seRows.read_errors)+' · 实际合计 '+num(seRows.actual_sum)+' 行'+
+                        ' · '+num(se.elapsed_breakdown_ms?se.elapsed_breakdown_ms.rows:0)+'ms')
+                     : '接口未提供行数核对'));
+    checks.push(C('冷库分片内容哈希抽样一致（非全量，见说明）',
+      seHash.checked>0 && seHash.mismatch===0,
+      seHash.checked ? ('抽样 '+fx((seHash.ratio||0)*100,0)+'% · '+num(seHash.match)+'/'+num(seHash.checked)+
+                        ' 一致 · 读 '+num(Math.round((seHash.bytes_read||0)/1e6))+' MB'+
+                        ' · '+num(se.elapsed_breakdown_ms?se.elapsed_breakdown_ms.hash_sample:0)+'ms')
+                     : '接口未提供哈希抽样'));
+    /* 三层全过才认为冷库这一段「验过了」。任何一层没数据/有不一致 ⇒ 仍是未验证/故障。 */
+    var coldOk = !!(cold && cold.http===200 && ca.status==='indexed' &&
+                    se.declared>0 && se.missing===0 &&
+                    seRows.checked>0 && seRows.mismatch===0 && seRows.read_errors===0 &&
+                    seHash.checked>0 && seHash.mismatch===0);
+
+    var st='pass';
+    if(!combos) st='fail';
+    else if(typeof poolCombos==='number' && poolCombos!==combos) st='fail';
+
+    var newest=null;
+    Object.keys(cov.byTf).forEach(function(tf){ var l=cov.byTf[tf].last; if(l&&(!newest||l>newest)) newest=l; });
+    var facts=[
+      {k:'热库状态', v:'<b>'+num(combos)+'</b> 个 (标的,周期) · '+num(rows)+' 根；最新闭合 '+(newest?isoShort(newest):'—')+'<br><span style="color:var(--dim)">'+esc(String(dataBody().database||'—').split('/').pop())+' · as_of '+esc(dataBody().as_of||'—')+'</span>'},
+      {k:'冷库状态', v:ca.status==='indexed' ? ('<b>索引可读</b> · '+num(ca.candle_shard_count)+' candles 分片 / 声明 '+num(ca.declared_candle_rows)+' 根<br>')+
+          (se.declared?('逐个 stat：存在 <b>'+num(se.present)+'</b> · 缺失 <b'+(se.missing?' style="color:var(--fail)"':'')+'>'+num(se.missing)+'</b>'+
+            (se.missing?('（'+esc((se.missing_symbols||[]).join('、'))+'）'):'')+'<br>'):'')+
+          '<span style="color:var(--dim)">catalog '+esc(ca.catalog_mtime_utc||'—')+' · 对账水位 '+esc(ca.reconcile_watermark_iso||'—')+
+          (se.missing?(' · 缺失分片属已排除标的，属历史遗留声明'):'')+'</span>'
+          : '<b>未验证</b> · '+esc(ca.reason||'接口未提供'), bad:false},
+      {k:'数据年龄', v:(newest?dur(ageOf(newest))+'（热库最新闭合 bar）':'—')+'<br><span style="color:var(--dim)">冷库是索引时间，不等于数据新鲜度</span>'},
+      {k:'覆盖口径', v:'热库 coverage_cache ≠ 冷库目录声明<br><span style="color:var(--dim)">冷库只 stat 了存在性，未校验内容与行数，不能据此判全库覆盖</span>', bad:false}
+    ];
+
+    ev.push({path:'/api/v1/data/status', http:x.http, ms:x.ms, bytes:x.bytes,
+             database:dataBody().database, coverage_cells:combos,
+             by_timeframe:cov.byTf, source_files:dataBody().source_files});
+    ev.push({path:'/api/v1/data/cold-archive-status', http:cold&&cold.http, metadata:ca});
+    ev.push({path:'/api/v1/pool/status', http:(R('/api/v1/pool/status')||{}).http,
+             covered_combos:poolCombos, candles:poolCandles,
+             pool_total:pool.pool_total, pool_all_total:pool.pool_all_total,
+             pool_with_candles:pool.pool_with_candles, pool_without_candles:pool.pool_without_candles});
+
+    return {
+      state:(st==='fail'?'fail':(coldOk?'pass':'unv')),
+      headline:'热库 <b>'+num(combos)+'</b> 个组合、'+num(rows)+' 根；冷库 '+
+        (coldOk
+          ? ('<b>三层实检通过</b>：'+num(se.declared)+' 分片全部存在、'+num(seRows.actual_sum)+' 行与声明一致、哈希抽样 '+num(seHash.checked)+' 个无异常')
+          : (ca.status==='indexed'?('索引可读（'+num(ca.candle_shard_count)+' 分片）但实检未全过'):'未验证'))+'。',
+      facts:facts,
+      blocker:(st==='fail'?'两处覆盖口径不一致 ⇒ 同源断裂，不能判绿。':
+        (coldOk
+           ? ('冷库已验：存在性全量、行数全量、哈希抽样 '+fx((seHash.ratio||0)*100,0)+'%。**未验**的部分只有两件：'+
+              '哈希不是全量逐字节（只抽 '+num(seHash.checked)+' 个 / 读 '+num(Math.round((seHash.bytes_read||0)/1e6))+' MB），'+
+              '以及 catalog 声明范围本身不等于全市场覆盖。')
+          : (se.declared>0
+            ? ('实检未全过：声明 '+num(se.declared)+' · 存在 '+num(se.present)+' · 缺失 '+num(se.missing)+
+               (se.missing?('（'+esc((se.missing_symbols||[]).join('、'))+'）'):'')+
+               ' · 行数不一致 '+num(seRows.mismatch)+' · 哈希不一致 '+num(seHash.mismatch)+' ⇒ 不判绿。')
+            : '冷库仅验证 catalog/state 元数据可读；分片存在性/内容与全库覆盖仍未验证。'))),
+      blockerKind:(st==='fail'?'fail':(coldOk?'unv':'unv')),
+      checks:checks, evidence:ev, lastOk:true
+    };
+  }
+},
+
+/* ── 4 数据质量与已闭合水位 ──────────────────────────────── */
+{
+  key:'quality', no:4, name:'数据质量与已闭合水位', tag:'coverage_cache.last_close · kline_stream_state · paper/status.market_data',
+  paths:['/api/v1/data/status','/api/v1/data/import-plan','/api/v1/paper/status'],
+  jump:'/?nav=workbench',
+  run:function(){
+    var xs=R('/api/v1/data/status'), xp=R('/api/v1/paper/status');
+    var b1=bad(xs), b2=bad(xp), checks=[], ev=[];
+    if(b1||b2){
+      var msg=(b1?('data/status: '+b1.ev):'')+(b1&&b2?'；':'')+(b2?('paper/status: '+b2.ev):'');
+      return {state:'fail', headline:'水位读取失败：'+msg,
+        facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('quality')||{}).text||'无记录'},
+               {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+        blocker:'读不到上游写入水位或下游读取水位 ⇒ 无法判断“已闭合到哪里”，已清除“当前正常”。',
+        blockerKind:'fail',
+        checks:[C('GET /api/v1/data/status 可读',!b1,b1?b1.ev:'200'),C('GET /api/v1/paper/status 可读',!b2,b2?b2.ev:'200')],
+        evidence:[{path:'/api/v1/data/status',http:xs?xs.http:'—'},{path:'/api/v1/paper/status',http:xp?xp.http:'—'}], lastOk:false};
+    }
+
+    var cov=coverageByTf().byTf, rows=[];
+    TH.strategy_tfs.forEach(function(tf){
+      var c=cov[tf]||{last:null,missing:0,n:0};
+      var s=streamOf('binance',tf);
+      var up=streamClosedCloseMs(s);
+      var db=c.last;
+      var eng=engineReadMs(tf);
+      var exp=expectedClose(tf);
+      var lag=exp? (exp-db) : null;   // 用热库水位算滞后
+      rows.push({tf:tf, up:up, db:db, eng:eng, exp:exp, lag:lag, missing:c.missing||0, n:c.n||0});
+    });
+
+    var worst=null;
+    rows.forEach(function(r){
+      if(r.lag===null) return;
+      if(!worst || r.lag>worst.lag) worst=r;
+    });
+
+    checks.push(C('GET /api/v1/data/status 返回 200 且为 JSON', true, 'HTTP 200 · '+xs.bytes+' B'));
+    checks.push(C('GET /api/v1/paper/status 返回 200 且为 JSON', true, 'HTTP 200 · '+xp.bytes+' B'));
+    checks.push(C('上游写入水位可得（kline_stream_state.last_closed_open_time）',
+      rows.every(function(r){return r.up!==null;}),
+      rows.map(function(r){return r.tf+'='+(r.up?isoShort(r.up):'无');}).join(' · ')));
+    checks.push(C('热库最后闭合可得（coverage_cache.last_close）',
+      rows.every(function(r){return r.db!==null;}),
+      rows.map(function(r){return r.tf+'='+(r.db?isoShort(r.db):'无');}).join(' · ')));
+    checks.push(C('下游读取水位可得（paper/status.market_data）',
+      rows.every(function(r){return r.eng!==null;}),
+      rows.map(function(r){return r.tf+'='+(r.eng?isoShort(r.eng):'无');}).join(' · ')));
+    checks.push(C('下游读取 == 热库最后闭合（不是只看上游写入成功）',
+      rows.every(function(r){ return r.eng===null||r.db===null||Math.abs(r.eng-r.db)<1000; }),
+      rows.map(function(r){ return r.tf+' 差 '+(r.eng!==null&&r.db!==null?Math.round((r.eng-r.db)/1000)+'s':'—'); }).join(' · ')));
+    checks.push(C('滞后 ≤ '+TH.lag_fail_bars+' 个周期',
+      rows.every(function(r){ return r.lag===null||r.lag<=TH.lag_fail_bars*TH.tf_ms[r.tf]; }),
+      rows.map(function(r){ return r.tf+' 滞后 '+(r.lag===null?'—':dur(r.lag)); }).join(' · ')));
+    /* OKX 8h：不适用 */
+    var okx8 = streamOf('okx','8h');
+    var nativeSkip = obj(obj(planBody().plan).native_skip);
+    checks.push(C('欧易 8h 记为“不适用”（不是故障，也不是已补齐）',
+      (okx8===null || okx8.status==='native_absent' || (arr(nativeSkip.okx).indexOf('8h')>=0)),
+      okx8? ('无该路 → 按 native_skip 记不适用；官方无 candle8H 频道（code 60018）')
+          : '无该路 → 不适用'));
+
+    var state='pass';
+    if(rows.some(function(r){return r.db===null;})) state='fail';
+    else if(rows.some(function(r){return r.lag!==null && r.lag>TH.lag_fail_bars*TH.tf_ms[r.tf];})) state='fail';
+    else if(rows.some(function(r){return r.eng===null || Math.abs(r.eng-r.db)>=1000;})) state='fail';
+
+    var totalMissing=0, nTf=0;
+    Object.keys(cov).forEach(function(tf){ totalMissing+=(cov[tf].missing||0); nTf++; });
+
+    var facts=[
+      {k:'实际来源', v:'热库 coverage_cache（每标的每周期）<br><span style="color:var(--dim)">对照：WS 闭合入库 + 引擎读取</span>'},
+      {k:'最后成功时间', v:rows.map(function(r){return r.tf+' '+(r.db?isoShort(r.db):'—');}).join('<br>')},
+      {k:'数据年龄', v:rows.map(function(r){return r.tf+' 滞后 '+(r.lag===null?'—':dur(r.lag));}).join('<br>'), bad:state==='fail'},
+      {k:'覆盖／缺口', v:rows.map(function(r){return r.tf+' '+num(r.n)+' 标的 · 缺 '+num(r.missing)+' 根';}).join('<br>')+'<br><span style="color:var(--dim)">8 周期合计缺口 '+num(totalMissing)+' 根（含官方白名单历史缺口，画布不做抵扣）</span>'}
+    ];
+
+    var blocker=null, kind=null;
+    if(state==='fail'){
+      var badRow=rows.filter(function(r){ return (r.db===null)||(r.lag!==null&&r.lag>TH.lag_fail_bars*TH.tf_ms[r.tf])||(r.eng!==null&&r.db!==null&&Math.abs(r.eng-r.db)>=1000); })[0];
+      if(badRow && badRow.db===null) blocker='热库没有 '+badRow.tf+' 的已闭合 bar ⇒ 数据停在“热库”这一段。';
+      else if(badRow && badRow.lag!==null && badRow.lag>TH.lag_fail_bars*TH.tf_ms[badRow.tf]) blocker=badRow.tf+' 滞后 '+dur(badRow.lag)+'（> '+TH.lag_fail_bars+' 个周期）⇒ 已闭合水位停更。';
+      else if(badRow) blocker=badRow.tf+' 下游读取（'+(badRow.eng?isoShort(badRow.eng):'无')+'）与热库最后闭合（'+(badRow.db?isoShort(badRow.db):'无')+'）不一致 ⇒ 引擎读到的不是最新数据。';
+      kind='fail';
+    }
+
+    ev.push({path:'/api/v1/data/status → coverage', http:xs.http, ms:xs.ms,
+             by_timeframe:coverageByTf().byTf});
+    ev.push({path:'/api/v1/data/import-plan → realtime_klines', http:(R('/api/v1/data/import-plan')||{}).http,
+             rows:streamRows().map(function(r){return {exchange:r.exchange,timeframe:r.timeframe,
+               last_closed_open_time:r.last_closed_open_time,last_msg_at:r.last_msg_at,status:r.status};})});
+    ev.push({path:'/api/v1/paper/status → market_data', http:xp.http, market_data:marketData()});
+    ev.push({watermark_table:rows.map(function(r){return {
+      timeframe:r.tf, upstream_write:r.up?iso(r.up):null, hot_db_last_close:r.db?iso(r.db):null,
+      downstream_read:r.eng?iso(r.eng):null, expected_last_close:r.exp?iso(r.exp):null,
+      lag_seconds:r.lag!==null?Math.round(r.lag/1000):null, missing_bars:r.missing};})});
+
+    return {
+      state:state,
+      headline:'15m／1h／4h 三处水位对齐：上游写入 → 热库最后闭合 → 引擎实际读取；最大滞后 <b>'+esc(worst?dur(worst.lag):'—')+'</b>。欧易 8h 记“不适用”。',
+      facts:facts, blocker:blocker, blockerKind:kind, checks:checks, evidence:ev, lastOk:true
+    };
+  }
+},
+
+/* ── 5 信号引擎 ─────────────────────────────────────────── */
+{
+  key:'engine', no:5, name:'信号引擎', tag:'paper/status.signal_engine · signals?scope=current',
+  paths:['/api/v1/paper/status','/api/v1/signals?scope=current'],
+  jump:'/?nav=workbench',
+  run:function(){
+    var x=R('/api/v1/paper/status'), b=bad(x);
+    var xsig=R('/api/v1/signals?scope=current');
+    if(b){
+      var lok=lastOkText('engine');
+      return {state:'fail', headline:'信号引擎状态接口读取失败：'+b.ev,
+        facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:lok?lok.text:'无记录',bad:true},
+               {k:'数据年龄',v:lok?('已过期 '+dur(Date.now()-lok.ts)):'—',bad:true},{k:'覆盖数',v:'—'}],
+        blocker:'读不到 signal_engine 状态 ⇒ 无法区分“扫描正常但未触发”与“扫描没跑”，已清除“当前正常”。',
+        blockerKind:'fail',
+        checks:[C('GET /api/v1/paper/status 可读',false,b.ev)],
+        evidence:[{path:'/api/v1/paper/status',http:x?x.http:'—'}], lastOk:false};
+    }
+
+    var ri=runtime(), se=engine(), sig=sigBody(), checks=[];
+    var sigTotal = typeof sig.total==='number'? sig.total : null;
+    var sigItems = arr(sig.items);
+    var cycleAge = se.last_cycle_ms? ageOf(se.last_cycle_ms) : null;
+    /* 进程已运行多久：用来区分「刚启动还没跑第一轮」与「跑过但停了」 */
+    var uptime = ri.started_at? ageOf(ri.started_at) : null;
+    var uni=se.universe, uniDecl=se.universe_declared;
+    var md=marketData();
+    var read15 = has(md,'latest_15m_close_time')? md.latest_15m_close_time : null;
+    var lag15 = read15? (expectedClose('15m')-read15) : null;
+    var sc=obj(se.state_counter);
+
+    /* ── 信号漏斗（SIGNAL-LINK-01）──────────────────────────────────────────
+       `signals_generated_total=0` 一个数字分不出「链路断」与「没机会」。
+       后端把状态机各关迁移按「预热回放期」与「自启动以来」分开计数，
+       这里如实显示：卡在第几关、历史上走到过候选几次、最近一次候选多久前。
+       禁止把「漏斗为 0」说成「链路故障」，也禁止把「历史上出过 4 个」说成「现在有信号」。*/
+    var fn = obj(se.funnel);
+    var fh = obj(fn.history), fs = obj(fn.since_start);
+    var fnTxt = '箱体 '+num(fh.BOX)+' → 扫低 '+num(fh.SWEEP)+
+                ' → 回踩 '+num(fh.RETEST)+' → 候选 '+num(fh.CANDIDATE);
+    var fnHours = (typeof fn.bootstrap_window_hours==='number')? fn.bootstrap_window_hours : null;
+    var fnDaysPerSignal = (fh.CANDIDATE>0 && fnHours>0)? (fnHours/24)/fh.CANDIDATE : null;
+    var fnAvail = (fn && typeof fh.BOX==='number');
+
+    checks.push(C('GET /api/v1/paper/status 返回 200 且为 JSON', true, 'HTTP 200 · '+x.bytes+' B'));
+    checks.push(C('运行时进程在跑（runtime_identity.status=running）', ri.status==='running',
+      'status='+esc(ri.status)+' · pid='+num(ri.pid)+
+      (typeof ri.record_age_ms==='number'?(' · 状态记录写于 '+dur(ri.record_age_ms)+'前'):'')+
+      (ri.record_pid_alive===false?' · 该 pid 已退出':'')));
+    checks.push(C('信号引擎已注册且 active', se.status==='active', 'signal_engine.status='+esc(se.status)));
+    checks.push(C('扫描周期新鲜（≤ '+Math.round(TH.cycle_stale_ms/1000)+' 秒）',
+      cycleAge!==null && cycleAge<=TH.cycle_stale_ms,
+      cycleAge===null
+        ? ('无 last_cycle_ms（进程已运行 '+(uptime!==null?dur(uptime):'—')+'，'+
+           ((uptime!==null&&uptime<=TH.cycle_stale_ms)?'仍在首轮扫描等待窗口内':'已超过等待窗口')+'）')
+        : ('上次周期 '+dur(cycleAge)+'前')));
+    checks.push(C('监控池齐备（universe = universe_declared）',
+      typeof uni==='number' && uni===uniDecl, 'universe '+num(uni)+' / 声明 '+num(uniDecl)));
+    checks.push(C('下游读取的 15m 水位不滞后（≤ '+TH.lag_fail_bars+' 个周期）',
+      lag15===null?false:(lag15<=TH.lag_fail_bars*TH.tf_ms['15m']),
+      read15? ('读取到 '+isoShort(read15)+'，滞后 '+dur(lag15)) : 'market_data 无 latest_15m_close_time'));
+    checks.push(C('GET /api/v1/signals?scope=current 返回 total 字段', sigTotal!==null,
+      sigTotal!==null? ('total='+sigTotal) : 'total 字段缺失'));
+
+    /* ── 0 信号的四种区分（工单第 2 条）── */
+    var verdict, state;
+    if(sigTotal===null){ state='fail'; verdict='接口失败：/api/v1/signals 未返回 total，无法判断有无信号。'; }
+    else if(ri.status==='stale_record'){
+      /* 状态文件属于**已退出的进程**。重启后新实例要先 import 重模块（实测约 20 秒）
+         才写第一份状态，这段窗口里读到的是上一实例的临终记录。
+         记录新 ⇒ 正在交接，判未验证；记录老 ⇒ 确实没人接手，才判故障。 */
+      var recAge=(typeof ri.record_age_ms==='number')?ri.record_age_ms:null;
+      if(recAge!==null && recAge<=TH.cycle_stale_ms){
+        state='unv';
+        verdict='运行时状态记录属于上一个实例（pid '+num(ri.pid)+' 已退出，记录写于 '+dur(recAge)+'前），当前实例尚未写出自己的状态 ⇒ 无法判断扫描是否在跑（等待交接，不当作故障）。';
+      } else {
+        state='fail';
+        verdict='运行时已退出且无人接手：pid '+num(ri.pid)+' 已死，最后一条状态写于 '+(recAge!==null?dur(recAge)+'前':'—')+'，此后没有新实例写出状态。';
+      }
+    }
+    else if(ri.status!=='running'){ state='fail'; verdict='扫描未运行：运行时 status='+esc(ri.status)+'（pid '+num(ri.pid)+'），0 信号不代表“没有机会”。'; }
+    else if(se.status!=='active' && se.status!=='unknown'){ state='fail'; verdict='扫描未运行：signal_engine.status='+esc(se.status)+'。'; }
+    else if(se.status==='unknown'){ state='unv'; verdict='扫描未运行且未注册：signal_engine.status=unknown ⇒ 无法区分“未触发”与“没在扫”。'; }
+    else if(cycleAge===null){
+      /* 「从未跑过」≠「跑过但停了」。
+         进程刚重启时 last_cycle_ms 必然缺失，若一律判故障，每次重启后
+         30 秒内画布都会假红一次 —— 那是把「等待」说成「故障」。
+         所以按运行时长分档：仍在停滞阈值内 ⇒ 等待；超过阈值仍无周期 ⇒ 才判故障。 */
+      if(uptime!==null && uptime<=TH.cycle_stale_ms){
+        state='wait';
+        verdict='引擎刚启动 '+dur(uptime)+'，还没跑完第一轮扫描（进程 running、引擎 active、池就绪 '+num(uni)+'/'+num(uniDecl)+'）——这是等待，不是故障。';
+      } else {
+        state='fail';
+        verdict='扫描未运行：进程已运行 '+(uptime!==null?dur(uptime):'—')+' 却从未产生过扫描周期（last_cycle_ms 缺失）。';
+      }
+    }
+    else if(cycleAge>TH.cycle_stale_ms){ state='fail'; verdict='扫描未运行（停滞）：上次周期在 '+dur(cycleAge)+'前，超过阈值 '+dur(TH.cycle_stale_ms)+'。'; }
+    else if(typeof uni==='number' && typeof uniDecl==='number' && uni<uniDecl){ state='fail'; verdict='数据不足：监控池只就绪 '+num(uni)+'/'+num(uniDecl)+' 标的，缺 '+num(uniDecl-uni)+' 个。'; }
+    else if(lag15===null || lag15>TH.lag_fail_bars*TH.tf_ms['15m']){ state='fail'; verdict='数据不足：引擎读到的 15m 水位滞后 '+dur(lag15)+'，不是“没机会”而是“没数据”。'; }
+    else if(sigTotal>0){ state='pass'; verdict='有信号：'+sigTotal+' 条可执行信号。'; }
+    else {
+      state='wait';
+      verdict='扫描正常但未触发：'+num(uni)+' 标的全量在扫、周期新鲜、水位不滞后；'+
+        '自启动以来候选 <b>'+num(fn.candidates_since_start)+'</b> 条。'+
+        (fnAvail
+          ? ('<br><span style="color:var(--dim)">预热回放 '+num(fnHours)+' 小时漏斗：'+fnTxt+
+             (fnDaysPerSignal!==null? ('（平均约 '+fnDaysPerSignal.toFixed(1)+' 天/个）') : '')+
+             ' ⇒ 当前 0 条是<b>供给稀缺</b>，不是链路故障；链路已由隔离端到端探针验通。</span>')
+          : '<br><span style="color:var(--dim)">后端未提供漏斗字段（旧版本）⇒ 无法区分「没机会」与「链路断」，此处按未验证看待。</span>');
+    }
+
+    var discarded = obj(se.bootstrap).history_candidates_discarded;
+    var facts=[
+      {k:'实际来源', v:'unified_runtime 状态文件（隔离/生产同接口）<br><span style="color:var(--dim)">信号：live_signal + 四臂账本 ATTACH</span>'},
+      {k:'最后成功时间', v:(se.last_cycle_ms?('上次扫描 '+isoShort(se.last_cycle_ms)):'—')+'<br><span style="color:var(--dim)">启动 '+esc(ri.started_at?iso(ri.started_at):'—')+'</span>'},
+      {k:'数据年龄', v:(cycleAge!==null?dur(cycleAge)+'（距上次周期）':'—')+'<br><span style="color:var(--dim)">引擎读到的 15m：'+(read15?isoShort(read15):'—')+'</span>', bad:(cycleAge!==null&&cycleAge>TH.cycle_stale_ms)},
+      {k:'覆盖／信号', v:'universe <b>'+num(uni)+'</b>/'+num(uniDecl)+' · 累计生成 <b>'+num(se.signals_generated_total)+'</b><br><span style="color:var(--dim)">当前可执行 '+num(sigTotal)+' 条 · 历史回放候选 '+num(discarded)+'（不补开）</span>'},
+      {k:'信号漏斗', v:(fnAvail
+          ? ('预热 '+num(fnHours)+'h · '+fnTxt+
+             '<br><span style="color:var(--dim)">自启动以来候选 '+num(fn.candidates_since_start)+
+             ' · 最近候选 '+(fn.last_candidate_ms? isoShort(fn.last_candidate_ms) : '—')+
+             (fnDaysPerSignal!==null? (' · 平均 '+fnDaysPerSignal.toFixed(1)+' 天/个') : '')+'</span>')
+          : '—（后端未提供 funnel 字段）')}
+    ];
+
+    var ev=[{path:'/api/v1/paper/status → signal_engine', http:x.http, runtime_identity:ri,
+             signal_engine:se, market_data:md},
+            {path:'/api/v1/signals?scope=current', http:(xsig||{}).http, total:sigTotal,
+             items_count:sigItems.length, as_of:(xsig&&xsig.body)?xsig.body.as_of:null,
+             quality:(xsig&&xsig.body)?xsig.body.quality:null}];
+
+    return {
+      state:state,
+      headline: verdict + (Object.keys(sc).length? ('<br><span style="color:var(--dim)">状态分布 '+Object.keys(sc).map(function(k){return k+' '+num(sc[k]);}).join(' / ')+'</span>'):''),
+      facts:facts,
+      blocker:(state==='pass'?null:verdict),
+      blockerKind:(state==='pass'?null:state),
+      checks:checks, evidence:ev, lastOk:true
+    };
+  }
+},
+
+/* ── 6 模拟账本 ─────────────────────────────────────────── */
+{
+  key:'ledger', no:6, name:'模拟账本', tag:'paper/accounts · paper_new_entry_gate',
+  paths:['/api/v1/paper/accounts','/api/v1/paper/status'],
+  jump:'/?nav=workbench',
+  run:function(){
+    var x=R('/api/v1/paper/accounts'), b=bad(x);
+    if(b){ return {state:'fail', headline:'模拟账本读取失败：'+b.ev,
+      facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('ledger')||{}).text||'无记录',bad:true},
+             {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+      blocker:'账本接口读不到 ⇒ 权益/挂单/成交全部不可信，已清除“当前正常”。',
+      blockerKind:'fail', checks:[C('GET /api/v1/paper/accounts 可读',false,b.ev)],
+      evidence:[{path:'/api/v1/paper/accounts',http:x?x.http:'—'}], lastOk:false}; }
+
+    var ac=accBody(), arms=arr(ac.items), q=obj(ac.quality), op=orderProc(), checks=[];
+    var gate=obj(op.new_entry_gate);
+    var gateB=obj(q.new_entry_gate);
+    var pend=0, closed=0, realized=0, cash=0;
+    arms.forEach(function(a){ pend+=arr(a.pending).length; closed+=(a.n_closed||0); realized+=(a.realized_pnl_total||0); cash+=(a.cash||0); });
+
+    checks.push(C('GET /api/v1/paper/accounts 返回 200 且为 JSON', true, 'HTTP 200 · '+x.bytes+' B · '+x.ms+' ms'));
+    checks.push(C('账本 quality.status=ok', q.status==='ok', 'quality.status='+esc(q.status)));
+    checks.push(C('四臂齐备', arms.length>=4, arms.map(function(a){return a.arm;}).join(' / ')||'0 臂'));
+    checks.push(C('挂单口径自洽（Σ臂 pending = quality.n_pending_orders）',
+      typeof q.n_pending_orders==='number' && q.n_pending_orders===pend,
+      'Σ '+pend+' vs quality '+num(q.n_pending_orders)));
+    checks.push(C('总闸可读（账本侧 new_entry_gate）', has(gateB,'allow_new_entries'),
+      has(gateB,'allow_new_entries')? ('allow='+gateB.allow_new_entries+' · reason='+esc(gateB.reason)) : '账本侧未提供'));
+
+    var gateOpen = has(gateB,'allow_new_entries')? !!gateB.allow_new_entries : null;
+    var state='pass', blocker=null, kind=null;
+    if(q.status!=='ok'){ state='fail'; blocker='账本 quality.status='+esc(q.status)+' ⇒ 账本不可信。'; kind='fail'; }
+    else if(gateOpen===false){ state='wait'; blocker='新开仓总闸已暂停（reason='+esc(gateB.reason||'—')+'）⇒ 这一段不是故障，是等待条件：暂停期间不会产生新成交。'; kind='wait'; }
+
+    var facts=[
+      {k:'实际来源', v:'四臂纸面账本（3a/3b/3c/3d）+ 总闸文件<br><span style="color:var(--dim)">'+esc(gateB.gate_file||'—')+'</span>'},
+      {k:'最后成功时间', v:(ac.as_of? esc(ac.as_of) : ('本次读取成功 '+isoShort(x.at)))+
+        '<br><span style="color:var(--dim)">总闸状态变更 '+esc(gateB.since_ms?iso(gateB.since_ms):'—')+' · 水线 '+esc(q.live_start_utc||'—')+'</span>'},
+      {k:'数据年龄', v:(gateB.since_ms? (dur(ageOf(gateB.since_ms))+'（距总闸变更）') : '—')+
+        '<br><span style="color:var(--dim)">接口无“最后写入时点”字段（C-05）</span>'},
+      {k:'覆盖／笔数', v:'现金 <b>'+fx(cash,2)+'</b> · 已平 <b>'+num(closed)+'</b> 笔 · 已实现 '+fx(realized,2)+'<br><span style="color:var(--dim)">挂单 '+num(pend)+' · 持仓 '+num(execDaemon().open_positions)+' · 闸门 '+(gateOpen===null?'未知':(gateOpen?'开启':'暂停'))+'</span>', bad:(gateOpen===false)}
+    ];
+
+    return {
+      state:state,
+      headline:'四臂现金合计 <b>'+fx(cash,2)+'</b> USDT；已平 <b>'+num(closed)+'</b> 笔、已实现 '+fx(realized,2)+'；挂单 <b>'+num(pend)+'</b> 笔。'+
+        (gateOpen===false?'<br><span style="color:var(--warn)">总闸暂停：新开仓不会发生（等待条件，不是故障）。</span>':''),
+      facts:facts, blocker:blocker, blockerKind:kind, checks:checks,
+      evidence:[{path:'/api/v1/paper/accounts', http:x.http, ms:x.ms, quality:q,
+                 arms:arms.map(function(a){return {arm:a.arm,cash:a.cash,equity:a.equity,n_closed:a.n_closed,
+                   realized_pnl_total:a.realized_pnl_total,pending:arr(a.pending).length};})},
+                {path:'/api/v1/paper/status → order_processing', http:(R('/api/v1/paper/status')||{}).http, order_processing:op}],
+      lastOk:true
+    };
+  }
+},
+
+/* ── 7 工作台 / 回测对账 ─────────────────────────────────── */
+{
+  key:'workbench', no:7, name:'工作台 ／ 回测对账', tag:'pool/status.active_scope · backtests',
+  paths:['/api/v1/pool/status','/api/v1/backtests?limit=1','/api/v1/system-flow/paper-reconciliation'],
+  jump:'/?nav=backtest',
+  run:function(){
+    var xp=R('/api/v1/pool/status'), xb=R('/api/v1/backtests?limit=1'), xr=R('/api/v1/system-flow/paper-reconciliation');
+    var b1=bad(xp), b2=bad(xb), checks=[], ev=[];
+    if(b1||b2){
+      return {state:'fail', headline:'下游读取失败：'+((b1?('pool/status '+b1.ev):'')+(b1&&b2?'；':'')+(b2?('backtests '+b2.ev):'')),
+        facts:[{k:'实际来源',v:'未取到'},{k:'最后成功',v:(lastOkText('workbench')||{}).text||'无记录',bad:true},
+               {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+        blocker:'工作台/回测接口读不到 ⇒ 页面能打开也不代表数据在流，已清除“当前正常”。',
+        blockerKind:'fail',
+        checks:[C('GET /api/v1/pool/status 可读',!b1,b1?b1.ev:'200'),C('GET /api/v1/backtests 可读',!b2,b2?b2.ev:'200')],
+        evidence:[{path:'/api/v1/pool/status',http:xp?xp.http:'—'},{path:'/api/v1/backtests',http:xb?xb.http:'—'}], lastOk:false};
+    }
+
+    var pool=poolBody(), scope=obj(pool.active_scope), bt=btBody(), items=arr(bt.items);
+    var reconciliation=obj(xr&&xr.body), reconciliationOk=xr&&xr.http===200&&reconciliation.status==='verified_historical_sample';
+    var active=scope.active_total, coins=scope.binance_coins, supp=scope.okx_supplement;
+    var total=bt.total, first=obj(items[0]);
+    var engineUni=engine().universe;
+
+    checks.push(C('GET /api/v1/pool/status 返回 200 且为 JSON', true, 'HTTP 200 · '+xp.bytes+' B'));
+    checks.push(C('展示池行数 > 0', typeof active==='number' && active>0, 'active_total='+num(active)));
+    checks.push(C('展示池 = 币安 COIN + 欧易仅补（口径自洽）',
+      typeof coins==='number' && typeof supp==='number' && coins+supp===active,
+      num(coins)+' + '+num(supp)+' = '+num(active)));
+    checks.push(C('GET /api/v1/backtests 返回 200 且 total>0', true, 'total='+num(total)+' · 返回 '+items.length+' 条'));
+    checks.push(C('最新 run 带 run_id（能与详情绑定）', !!first.run_id, esc(first.run_id||'无')));
+
+    var facts=[
+      {k:'实际来源', v:'工作台列表口径 <span class="mono">active_scope</span> + 回测库 runs<br><span style="color:var(--dim)">与工作台同一组 /api/v1 接口</span>'},
+      {k:'最后成功时间', v:(pool.as_of?esc(pool.as_of):('本次读取成功 '+isoShort(xp.at)))+
+        '<br><span style="color:var(--dim)">回测 '+(bt.as_of?esc(bt.as_of):('本次读取成功 '+isoShort(xb.at)))+'</span>'},
+      {k:'数据年龄', v:(pool.as_of?dur(ageOf(parseUtc(pool.as_of))):'—')},
+      {k:'覆盖数', v:'展示池 <b>'+num(active)+'</b> 行 · 回测 run <b>'+num(total)+'</b> 条<br><span style="color:var(--dim)">最新 run '+esc(String(first.run_id||'—').slice(0,34))+'</span>'}
+    ];
+
+    checks.push(C('历史样本 UI→worker 与隔离 paper 同规则逐笔对账证据', reconciliationOk,
+      reconciliationOk ? (num(reconciliation.passed)+'/'+num(reconciliation.total)+' · '+esc(reconciliation.run_id||'')) : (reconciliation.reason||'证据缺失、陈旧或版本/结构不匹配')));
+    var reconcState=reconciliationOk?'pass':'unv';
+    facts.push({k:'逐笔对账',v:reconciliationOk?'<b>历史样本机制通过 '+num(reconciliation.passed)+'/'+num(reconciliation.total)+'</b><br><span style="color:var(--dim)">生成 '+esc(reconciliation.generated_at_utc||'—')+' · '+esc(reconciliation.run_id||'')+'</span>'+
+        /* 复算说明：源文件在 run 产出后被改过、于是重算过一次时，必须显式说出来。
+           不显示它，等于用「哈希全 match」把漂移盖住。 */
+        (reconciliation.reverify_note?'<br><span style="color:var(--dim)">复算说明：'+esc(reconciliation.reverify_note)+'</span>':'')
+        :'<b>未验证</b><br><span style="color:var(--dim)">'+esc(reconciliation.reason||'证据不可用')+'</span>'});
+    return {
+      state:reconcState,
+      headline:reconciliationOk?'已验证固定历史样本机制：UI→worker run <b>'+esc(reconciliation.run_id)+'</b> 对隔离 paper '+num(reconciliation.passed)+'/'+num(reconciliation.total)+'；这不代表当前自然行情成交或策略有效性。':'工作台列表可读；历史样本逐笔对账证据未验证，且列表 run 数不构成对账。',
+      facts:facts, blocker:reconciliationOk?'证据范围仅为同一历史样本机制闭环；当前自然行情成交与策略有效性仍未验证。':(reconciliation.reason||'逐笔对账证据缺失或失效。'), blockerKind:reconciliationOk?'unv':'unv', checks:checks,
+      evidence:[{path:'/api/v1/system-flow/paper-reconciliation',http:xr&&xr.http,evidence:reconciliation},
+                {path:'/api/v1/pool/status', http:xp.http, active_scope:scope,
+                 pool_total:pool.pool_total, pool_all_total:pool.pool_all_total},
+                {path:'/api/v1/backtests?limit=1', http:xb.http, total:total,
+                 returned:bt.returned, truncated:bt.truncated, first_run:first},
+                {cross_check:{engine_universe:engineUni, display_pool:active,
+                  note:'策略监控池（引擎 universe）与展示池（工作台列表）是两个分母，不互相顶替'}}],
+      lastOk:true
+    };
+  }
+}
+];
+
+/* ============================================================
+ * 5. 渲染
+ * ============================================================ */
+var OUT = {};
+
+function buildChain(){
+  var host=document.getElementById('chain');
+  var html='';
+  NODES.forEach(function(n,i){
+    if(i) html+='<div class="connector">▼</div>';
+    html+='<article class="chain-node" data-node="'+n.key+'" data-state="unv" id="node-'+n.key+'">'+
+      '<div class="rail"><span class="no">'+n.no+'</span></div>'+
+      '<div class="body">'+
+        '<div class="nhead"><span class="nm">'+n.no+'. '+n.name+'</span>'+
+          '<span class="pill p-unv" data-pill>未验证</span>'+
+          '<span class="sub2 mono">'+n.tag+'</span></div>'+
+        '<p class="headline" data-headline>等待探测…</p>'+
+        '<div class="facts" data-facts></div>'+
+        '<div class="blocker" data-blocker></div>'+
+        '<div class="nfoot"><div class="fl">'+
+          (n.jump?('<a class="lnk" target="_top" href="'+n.jump+'" data-jump>打开对应视图 →</a>'):'')+
+          '<span class="sub2" data-code style="font-size:10px;color:var(--dim)"></span>'+
+        '</div><button class="btn tiny" data-toggle>技术详情 ▾</button></div>'+
+        '<div class="tech" data-tech hidden></div>'+
+      '</div></article>';
+  });
+  host.innerHTML=html;
+  NODES.forEach(function(n){
+    var el=document.getElementById('node-'+n.key);
+    el.querySelector('[data-toggle]').addEventListener('click',function(ev){
+      var t=el.querySelector('[data-tech]'), btn=ev.currentTarget;
+      t.hidden=!t.hidden;
+      btn.textContent = t.hidden? '技术详情 ▾' : '技术详情 ▴';
+    });
+  });
+}
+
+function renderFlow(){
+  var host=document.getElementById('flow');
+  var order=['fail','wait','unv'];
+  var firstBreak=null;
+  for(var i=0;i<order.length && !firstBreak;i++){
+    for(var j=0;j<NODES.length;j++){
+      var o=OUT[NODES[j].key]||{state:'unv'};
+      if(o.state===order[i]){ firstBreak=NODES[j].key; break; }
+    }
+  }
+  var html='';
+  NODES.forEach(function(n,i){
+    var o=OUT[n.key]||{state:'unv'};
+    if(i) html+='<span class="arrow">→</span>';
+    html+='<button class="chip" data-state="'+o.state+'" data-chip="'+n.key+'"'+
+      (firstBreak===n.key?' data-break="1"':'')+'>'+
+      '<span class="cn">'+n.no+'. '+n.name+'</span>'+
+      '<span class="cs" style="color:'+(COLOR[o.state]||'var(--unv)')+'">'+ST[o.state]+'</span>'+
+      (firstBreak===n.key?'<span class="bk">断点</span>':'')+'</button>';
+  });
+  host.innerHTML=html;
+  NODES.forEach(function(n){
+    var c=host.querySelector('[data-chip="'+n.key+'"]');
+    if(c) c.addEventListener('click',function(){
+      var el=document.getElementById('node-'+n.key);
+      if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+  });
+}
+
+function renderPools(){
+  var pool=poolBody(), scope=obj(pool.active_scope), se=engine();
+  var download=pool.pool_all_total, display=scope.active_total, strategy=se.universe;
+  var bExcl=obj(obj(scopeBody().binance).excluded), oExcl=obj(obj(scopeBody().okx).excluded);
+  var bExclTxt=Object.keys(bExcl).map(function(k){return k+' '+bExcl[k];}).join('、')||'—';
+  var oExclTxt=Object.keys(oExcl).map(function(k){return k+' '+oExcl[k];}).join('、')||'—';
+  var html=
+   '<div class="pool" data-warn="0">'+
+     '<div class="pt">下载池（合约目录全量）</div>'+
+     '<div class="pn">'+num(download)+'</div>'+
+     '<div class="pd">来源 <span class="mono">symbol_pool</span>（exchangeInfo 快照全量）<br>排除规则：<b>无排除</b> —— 股票 / 商品 / 外汇 / 指数合约都在里面</div>'+
+     '<div class="pm">字段 <span class="mono">/api/v1/pool/status → pool_all_total</span></div>'+
+   '</div>'+
+   '<div class="pool" data-warn="0">'+
+     '<div class="pt">展示池（工作台列表口径）</div>'+
+     '<div class="pn">'+num(display)+'</div>'+
+     '<div class="pd">来源 <span class="mono">active_scope</span> = 币安 COIN <b>'+num(scope.binance_coins)+'</b> + 欧易仅补 <b>'+num(scope.okx_supplement)+'</b><br>排除：币安非 COIN（'+esc(bExclTxt)+'）、欧易重复 '+num(scope.okx_duplicated_excluded)+' 个、欧易非加密（'+esc(oExclTxt)+'）；指数另列 '+num(scope.binance_index)+' 个</div>'+
+     '<div class="pm">字段 <span class="mono">/api/v1/pool/status → active_scope.active_total</span></div>'+
+   '</div>'+
+   '<div class="pool" data-warn="0">'+
+     '<div class="pt">策略监控池（信号引擎 universe）</div>'+
+     '<div class="pn">'+num(strategy)+'</div>'+
+     '<div class="pd">来源 <span class="mono">signal_engine.universe</span>（运行时实际在扫的标的）<br>排除：欧易补充的 '+num(scope.okx_supplement)+' 个<b>未纳入策略</b>；指数不纳入</div>'+
+     '<div class="pm">字段 <span class="mono">/api/v1/paper/status → signal_engine.universe</span>（声明 '+num(se.universe_declared)+'）</div>'+
+   '</div>';
+  document.getElementById('pools').innerHTML=html;
+}
+
+function renderNode(n, o){
+  var el=document.getElementById('node-'+n.key);
+  if(!el) return;
+  el.dataset.state=o.state||'unv';
+  var pill=el.querySelector('[data-pill]');
+  pill.className='pill '+(PILL[o.state]||'p-unv');
+  pill.textContent=ST[o.state]||'未验证';
+  el.querySelector('[data-headline]').innerHTML=o.headline||'—';
+
+  var fh='';
+  arr(o.facts).forEach(function(f){
+    fh+='<div class="fact" data-bad="'+(f.bad?'1':'0')+'"><span class="k">'+esc(f.k)+'</span>'+
+        '<span class="v">'+(f.v||'—')+'</span></div>';
+  });
+  el.querySelector('[data-facts]').innerHTML=fh;
+
+  var bl=el.querySelector('[data-blocker]');
+  if(o.blocker){ bl.style.display='block'; bl.dataset.kind=o.blockerKind||'unv';
+    var icon = o.blockerKind==='wait' ? '⏳ ' : (o.blockerKind==='unv' ? '◻ ' : '⛔ ');
+    bl.innerHTML=icon+o.blocker; }
+  else { bl.style.display='none'; bl.innerHTML=''; }
+
+  var chk='';
+  arr(o.checks).forEach(function(c){
+    var ok = c.ok===true?'1':(c.ok==='na'?'na':'0');
+    var mark = c.ok===true?'✓':(c.ok==='na'?'—':'✗');
+    chk+='<div class="chk" data-ok="'+ok+'"><i>'+mark+'</i><span>'+esc(c.t)+(c.v?('　<span style="color:var(--dim)">'+esc(c.v)+'</span>'):'')+'</span></div>';
+  });
+  var links='';
+  arr(n.paths).forEach(function(p){
+    links+='<a class="lnk" style="margin-right:12px" href="'+p+'" target="_blank" rel="noopener">'+p+' ↗</a>';
+  });
+  var tech=el.querySelector('[data-tech]');
+  tech.innerHTML=(links?('<div style="margin-bottom:6px">原始响应（同源，可点开核对）：'+links+'</div>'):'')+
+    '<div style="margin-bottom:5px;color:var(--fg)">判定依据（逐条）</div>'+chk+
+    '<div style="margin-top:7px;color:var(--fg)">阈值</div>'+
+    '<div>心跳失效 '+TH.hb_stale_ms/1000+'s · WS 消息失效 '+TH.msg_stale_ms/1000+'s · 周期停滞 '+TH.cycle_stale_ms/1000+'s · 滞后上限 '+TH.lag_fail_bars+' 个周期</div>'+
+    '<div style="margin-top:7px;color:var(--fg)">本次原始字段</div><pre>'+esc(JSON.stringify(arr(o.evidence),null,1))+'</pre>';
+}
+
+function renderVerdict(){
+  var counts={pass:0,wait:0,fail:0,unv:0,na:0};
+  var fails=[], waits=[], unvs=[];
+  NODES.forEach(function(n){
+    var o=OUT[n.key]||{state:'unv'};
+    counts[o.state]=(counts[o.state]||0)+1;
+    if(o.state==='fail') fails.push(n);
+    if(o.state==='wait') waits.push(n);
+    if(o.state==='unv') unvs.push(n);
+  });
+  var fetchFail = NODES.filter(function(n){ var o=OUT[n.key]||{}; return o.fetchFailed; }).map(function(n){return n.no+'. '+n.name;});
+
+  var el=document.getElementById('verdict'), title=document.getElementById('verdict-title'),
+      sub=document.getElementById('verdict-sub'), meta=document.getElementById('verdict-meta');
+  var st='pass', t='', s='';
+
+  if(fetchFail.length){
+    st='fail';
+    t='读取失败 ⇒ 不宣称“当前正常”';
+    s='接口层失败：'+fetchFail.join('、')+'。相关段的“当前正常”结论已清除，只保留最后成功时间并标为已过期。';
+  } else if(fails.length){
+    st='fail';
+    t='断点：第 '+fails[0].no+' 段「'+fails[0].name+'」'+(fails.length>1?(' 等 '+fails.length+' 段'):'');
+    s=fails.map(function(n){ return n.no+'. '+n.name; }).join('、')+' 故障；下游各段状态不可信。';
+  } else if(waits.length){
+    st='wait';
+    t='全链无故障；有 '+waits.length+' 段在等待条件';
+    s=waits.map(function(n){ return n.no+'. '+n.name; }).join('、')+' —— 等待不等于通过。';
+  } else if(unvs.length){
+    st='unv';
+    t='全链无故障；有 '+unvs.length+' 段未验证';
+    s=unvs.map(function(n){ return n.no+'. '+n.name; }).join('、')+' —— 未验证不计入通过。';
+  } else {
+    st='pass';
+    t='全链 7 段已验证可用';
+    s='每段都按“下游实际读到的水位”判定，不是只看上游写入成功。';
+  }
+  el.dataset.state=st;
+  title.textContent=t;
+  title.style.color=COLOR[st];
+  sub.textContent=s;
+
+  var now=new Date();
+  var p=function(n){return (n<10?'0':'')+n;};
+  meta.innerHTML='读取时刻 <b class="mono">'+now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+' '+
+    p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds())+'</b>（本地）<br>'+
+    '同源 <span class="mono">'+location.origin+'/api/v1</span><br>'+
+    '已验证 '+counts.pass+' · 等待 '+counts.wait+' · 故障 '+counts.fail+' · 未验证 '+counts.unv+'<br>'+
+    '构建 <span class="mono">'+BUILD_ID+'</span>';
+}
+
+/* ============================================================
+ * 6. 主流程
+ * ============================================================ */
+var CHAIN_PATHS=[
+  '/api/v1/data/pool-scope','/api/v1/pool/status','/api/v1/data/status',
+  '/api/v1/data/import-plan','/api/v1/paper/status','/api/v1/paper/accounts',
+  '/api/v1/signals?scope=current','/api/v1/backtests?limit=1',
+  /* 第 3 段与第 7 段各依赖一条接口；此前漏在此表，导致 R() 恒为 null、
+     两段永远停在「未验证」。补进预取表才能让判定读到真实响应。 */
+  '/api/v1/data/cold-archive-status','/api/v1/system-flow/paper-reconciliation'
+];
+var BUSY=false;
+
+function syncRes(){
+  RES={};
+  return Promise.all(CHAIN_PATHS.map(function(p){ return getJSON(p); })).then(function(list){
+    CHAIN_PATHS.forEach(function(p,i){ RES[p]=list[i]; });
+  });
+}
+
+async function refreshChain(){
+  if(BUSY) return;
+  BUSY=true;
+  var btn=document.getElementById('btn-refresh');
+  if(btn){ btn.disabled=true; btn.textContent='探测中…'; }
+  try{
+    CACHE.clear();
+    await syncRes();
+    NODES.forEach(function(n){
+      var out;
+      try{ out=n.run(); }
+      catch(e){ out={state:'unv', headline:'判定函数异常：'+((e&&e.message)||e),
+        facts:[{k:'实际来源',v:'—'},{k:'最后成功',v:(lastOkText(n.key)||{}).text||'无记录'},
+               {k:'数据年龄',v:'—'},{k:'覆盖数',v:'—'}],
+        blocker:'判定函数抛错 ⇒ 该段记未验证。', blockerKind:'unv',
+        checks:[C('判定函数可执行',false,String((e&&e.message)||e))], evidence:[], lastOk:false}; }
+
+      /* 接口层失败 ⇒ 清除“当前正常”，只留最后成功 */
+      var primary = (n.key==='source')?R('/api/v1/data/pool-scope')
+                  : (n.key==='collect')?R('/api/v1/data/import-plan')
+                  : (n.key==='store')?R('/api/v1/data/status')
+                  : (n.key==='quality')?(R('/api/v1/data/status')||R('/api/v1/paper/status'))
+                  : (n.key==='engine')?R('/api/v1/paper/status')
+                  : (n.key==='ledger')?R('/api/v1/paper/accounts')
+                  : R('/api/v1/pool/status');
+      var pb = primary? bad(primary) : {state:'fail',ev:'未探测'};
+      if(pb){
+        out.state='fail'; out.fetchFailed=true;
+        var lok=lastOkText(n.key);
+        out.headline='接口读取失败：'+pb.ev+'<br><span style="color:var(--fail)">当前正常结论已清除</span>'+
+          (lok?('；最后成功 '+lok.text):'；无历史成功记录');
+        out.blocker='读不到本段数据 ⇒ 不能沿用上一次的“正常”。'+
+          (lok?('最后成功时间 '+lok.text+'（本次读取失败 ⇒ 当前状态未知，不按上次的“正常”显示）。'):'无历史成功记录。');
+        out.blockerKind='fail';
+        out.facts=arr(out.facts).map(function(f){
+          if(f.k==='最后成功时间'||f.k==='最后成功') return {k:'最后成功时间', v:lok?lok.text:'无记录', bad:true};
+          if(f.k==='数据年龄') return {k:'数据年龄', v:lok?('已过期 '+dur(Date.now()-lok.ts)):'—', bad:true};
+          return f;
+        });
+      } else if(out.lastOk){
+        markOk(n.key, (out.headline||'').replace(/<[^>]+>/g,'').slice(0,90));
+      }
+      var mss=arr(n.paths).map(function(p){ var xx=R(p); return xx&&typeof xx.ms==='number'? xx.ms : null; })
+        .filter(function(v){ return v!==null; });
+      out.code = mss.length? ('读取 '+Math.max.apply(null,mss)+' ms') : '';
+      OUT[n.key]=out;
+      renderNode(n,out);
+    });
+    renderFlow();
+    renderPools();
+    renderVerdict();
+    document.getElementById('verdict-sub').dataset.at=String(Date.now());
+  } catch(e){
+    document.getElementById('verdict-title').textContent='探测流程异常：'+((e&&e.message)||e);
+    document.getElementById('verdict').dataset.state='fail';
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='重新探测'; }
+    BUSY=false;
+  }
+}
+
+/* ── 20 卡明细：只在展开时探测（避免首屏拉 /markets、/data/coverage 大响应） ── */
+var CARDS_LOADED=false;
+function loadCardsIfNeeded(){
+  var fold=document.getElementById('cards-fold');
+  if(fold && fold.open && !CARDS_LOADED){ CARDS_LOADED=true; buildGrid(); refreshAll(); }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  buildChain();
+  refreshChain();
+  var fold=document.getElementById('cards-fold');
+  if(fold) fold.addEventListener('toggle',loadCardsIfNeeded);
+  var btn=document.getElementById('btn-refresh');
+  if(btn) btn.addEventListener('click',function(){ refreshChain(); loadCardsIfNeeded(); });
+  setInterval(function(){ if(!BUSY) refreshChain(); }, 30000);
+});
+</script>
+
+<script>
+/* ============================================================
+ * 7. 原「20 张接口卡片」明细（仅在展开时运行；判定逻辑保持原样）
+ * ============================================================ */
+var PASS='pass', FAIL='fail', UNV='unv', GONE='gone';
+var STATE_TXT = {pass:'实测通过', fail:'实测失败', unv:'未验证', gone:'端点不存在'};
+var STATE_CLS = {pass:'p-pass', fail:'p-fail', unv:'p-unv', gone:'p-gone'};
+
+function httpBad(x){
+  if (!x) return {state:UNV, ev:'未探测'};
+  if (x.http === 'ERR') return {state:UNV, ev:'请求未完成：' + (x.error || '未知错误')};
+  if (x.http === 404) return {state:GONE, ev:'HTTP 404 · 端点不存在'};
+  if (x.http === 500) return {state:GONE, ev:'HTTP 500 · 服务端异常（契约缺陷）'};
+  if (x.http !== 200) return {state:FAIL, ev:'HTTP ' + x.http};
+  if (!x.body || typeof x.body !== 'object') return {state:FAIL, ev:'HTTP 200 但响应不是 JSON：' + String(x.raw || '').slice(0,120)};
+  return null;
+}
+function ageSec(ms){ if(!ms||!isFinite(ms)) return null; return Math.max(0, Math.round((Date.now()-ms)/1000)); }
+
+var COLUMNS = [
+  {name:'1. 数据中心（冷热数据流）', tag:'DataCenterView', color:'var(--c1)'},
+  {name:'2. 交易工作台（行情与图表）', tag:'Workbench', color:'var(--c2)'},
+  {name:'3. 信号与执行（风控闸门）', tag:'Signals / Paper', color:'var(--c3)'},
+  {name:'4. 策略管理与回测复盘', tag:'Strategy / Backtest', color:'var(--c4)'}
+];
+
+var CARDS = [
+{ col:0, key:'data_status', name:'冷热数据状态红绿灯', path:'GET /api/v1/data/status', link:'/?nav=datacenter',
+  paths:['/api/v1/data/status'],
+  rule:'200 且 coverage 非空、metrics_summary.kline.total_rows > 0 才算通过；只有 200 没有 metrics_summary 判失败。',
+  judge:function(R){
+    var x=R('/api/v1/data/status'), bad=httpBad(x); if(bad) return bad;
+    var ms=obj(x.body.metrics_summary);
+    if(!ms.kline) return {state:FAIL, ev:'HTTP 200，但 metrics_summary.kline 缺失 —— 不能算通过'};
+    var k=obj(ms.kline), o=obj(ms.oi), f=obj(ms.funding);
+    if(!(k.total_rows>0)) return {state:FAIL, ev:'metrics_summary.kline.total_rows = '+num(k.total_rows)};
+    return {state:PASS, ev:'K线 <b>'+num(k.total_rows)+'</b> 行 / '+num(k.combos)+' 组合 · OI <b>'+num(o.total_rows)+'</b> 条 · 资金费 <b>'+num(f.total_events)+'</b> 次结算'};
+  }},
+{ col:0, key:'data_coverage', name:'全周期覆盖度矩阵', path:'GET /api/v1/data/coverage?agg=1', link:'/?nav=datacenter',
+  /* 这张卡只需要「有多少组合 + 覆盖率」，不需要 4385×3 条逐单元格明细。
+     完整响应约 7.68 MB，agg=1 只返计数与分布（几 KB）。 */
+  paths:['/api/v1/data/coverage?agg=1'],
+  rule:'必须能读到组合数（cells_count，或旧口径的 cells 数组）与 coverage_ratio 才算通过；覆盖率字段为空时判未验证。',
+  judge:function(R){
+    var x=R('/api/v1/data/coverage?agg=1'), bad=httpBad(x); if(bad) return bad;
+    var cells=arr(x.body.cells);
+    var n=(typeof x.body.cells_count==='number')?x.body.cells_count:cells.length;
+    var ratio=x.body.coverage_ratio;
+    if(!n) return {state:FAIL, ev:'cells 为空'};
+    if(ratio===null||ratio===undefined) return {state:UNV, ev:'已入库组合 <b>'+num(n)+'</b> 个，但 coverage_ratio = null（'+(obj(x.body.quality).note||'全市场宇宙未知，不下结论')+'）⇒ 覆盖率本身未验证'};
+    return {state:PASS, ev:'已入库 '+num(n)+' 组合 · 覆盖率 <b>'+fx(ratio*100,2)+'%</b>'};
+  }},
+{ col:0, key:'data_feeds', name:'采集源红绿灯（8 周期）', path:'GET /api/v1/data/feeds', link:'/?nav=datacenter',
+  paths:['/api/v1/data/feeds'],
+  rule:'任一路 feed 的 status != normal 即判失败，并逐条列出异常 id。',
+  judge:function(R){
+    var x=R('/api/v1/data/feeds'), bad=httpBad(x); if(bad) return bad;
+    var fs=arr(x.body.feeds);
+    if(!fs.length) return {state:FAIL, ev:'feeds 为空'};
+    var ab=fs.filter(function(f){ return f.status!=='normal'; });
+    if(ab.length) return {state:FAIL, ev:'<b>'+fs.length+'</b> 路采集中 <b>'+ab.length+'</b> 路异常：'+ab.map(function(f){return f.id+'('+(f.status_label||f.status)+')';}).join('、')};
+    return {state:PASS, ev:fs.length+' 路采集全部 normal'};
+  }},
+{ col:0, key:'data_whitelist', name:'下架核销与白名单', path:'GET /api/v1/data/whitelist', link:'/?nav=datacenter',
+  paths:['/api/v1/data/whitelist'],
+  rule:'delisted_symbols 与 native_skip_symbols 都必须是数组才算通过（数量为 0 也算齐备）。',
+  judge:function(R){
+    var x=R('/api/v1/data/whitelist'), bad=httpBad(x); if(bad) return bad;
+    var d=x.body.delisted_symbols, n=x.body.native_skip_symbols;
+    if(!Array.isArray(d)||!Array.isArray(n)) return {state:FAIL, ev:'delisted_symbols / native_skip_symbols 字段缺失或类型不对'};
+    return {state:PASS, ev:'下架核销 <b>'+d.length+'</b> 个 · 非原生跳过 <b>'+n.length+'</b> 个'};
+  }},
+{ col:1, key:'wb_table', name:'代币主表 / 监控池', path:'GET /api/v1/markets', link:'/?nav=workbench',
+  paths:['/api/v1/markets'],
+  rule:'active_scope.binance_coins > 0 且 items 非空才算通过；响应体积一并记下（本接口忽略 limit 参数）。',
+  judge:function(R){
+    var x=R('/api/v1/markets'), bad=httpBad(x); if(bad) return bad;
+    var as=obj(x.body.active_scope), its=arr(x.body.items);
+    if(!as.binance_coins) return {state:FAIL, ev:'active_scope.binance_coins 缺失'};
+    if(!its.length) return {state:FAIL, ev:'items 为空'};
+    return {state:PASS, ev:'活动池 <b>'+num(as.active_total)+'</b>（币安 <b>'+num(as.binance_coins)+'</b> + 欧易补 '+num(as.okx_supplement)+'）· 返回 '+num(its.length)+' 行 · '+Math.round(x.bytes/1024)+' KB',
+      warn:'契约提示：传 limit=3 仍返回全部 '+num(its.length)+' 行，limit 参数未生效（GAP-03）'};
+  }},
+{ col:1, key:'wb_candles', name:'K 线与量能图表画布', path:'GET /api/v1/markets/binance/BTCUSDT/candles?interval=4h&limit=3', link:'/?nav=workbench',
+  paths:['/api/v1/markets/binance/BTCUSDT/candles?interval=4h&limit=3','/api/v1/markets/BINANCE/BTCUSDT/candles?interval=4h&limit=3'],
+  rule:'bars 非空才算通过。同时用大写交易所再探一次，验证大小写写错时的行为。',
+  judge:function(R){
+    var p='/api/v1/markets/binance/BTCUSDT/candles?interval=4h&limit=3';
+    var x=R(p), bad=httpBad(x); if(bad) return bad;
+    var bars=arr(x.body.bars);
+    var up=R('/api/v1/markets/BINANCE/BTCUSDT/candles?interval=4h&limit=3');
+    var warn=null;
+    if(up && up.http===200 && !arr(obj(up.body).bars).length){
+      warn='实测：大写 BINANCE 同样返回 HTTP 200，但 quality=missing、missing_reason=「无已入库K线」—— 拼错大小写不会被报错（GAP-02）';
+    }
+    if(!bars.length) return {state:FAIL, ev:'bars = 0 · missing_reason = '+(x.body.missing_reason||'—'), warn:warn};
+    return {state:PASS, ev:'4h 返回 <b>'+bars.length+'</b> 根 · is_native='+x.body.is_native+' · quality='+(obj(x.body.quality).status||'—'), warn:warn};
+  }},
+{ col:1, key:'wb_oi', name:'OI 持仓量副图', path:'GET /api/v1/markets/binance/BTCUSDT/oi?interval=5m&limit=3', link:'/?nav=workbench',
+  paths:['/api/v1/markets/binance/BTCUSDT/oi?interval=5m&limit=3'],
+  rule:'items 非空且 quality.status = ok 才算通过。',
+  judge:function(R){
+    var x=R('/api/v1/markets/binance/BTCUSDT/oi?interval=5m&limit=3'), bad=httpBad(x); if(bad) return bad;
+    var items=arr(x.body.items), q=obj(x.body.quality).status;
+    if(!items.length) return {state:FAIL, ev:'items = 0 · quality='+q+' · missing_reason='+(x.body.missing_reason||'—')};
+    if(q!=='ok') return {state:FAIL, ev:'items '+items.length+' 条但 quality='+q};
+    return {state:PASS, ev:'<b>'+items.length+'</b> 条 OI 快照 · quality=ok'};
+  }},
+{ col:1, key:'wb_okx8h', name:'OKX 补充标的 8h 周期', path:'GET /api/v1/markets/okx/AEON-USDT-SWAP/candles?interval=8h&limit=3', link:'/?nav=workbench',
+  paths:['/api/v1/markets/okx/AEON-USDT-SWAP/candles?interval=8h&limit=3'],
+  rule:'欧易无 8h 原生周期：无数据记“不适用”，不判故障，也不冒充已补齐。',
+  judge:function(R){
+    var x=R('/api/v1/markets/okx/AEON-USDT-SWAP/candles?interval=8h&limit=3'), bad=httpBad(x); if(bad) return bad;
+    var bars=arr(x.body.bars), q=obj(x.body.quality).status;
+    if(!bars.length) return {state:UNV, ev:'bars = 0 · quality='+q+' ⇒ 欧易官方无 8h 频道（native_skip），记<b>不适用</b>，不判故障、不冒充已补齐'};
+    return {state:PASS, ev:'8h 返回 <b>'+bars.length+'</b> 根 · is_native=<b>'+x.body.is_native+'</b> · quality='+q};
+  }},
+{ col:2, key:'run_arm', name:'运行臂', path:'GET /api/v1/paper/status → item.runtime_identity', link:'/?nav=workbench',
+  paths:['/api/v1/paper/status'],
+  rule:'能读到 arm 只说明「配置里有这个臂」；进程 status=not_started 时判未验证。',
+  judge:function(R){
+    var x=R('/api/v1/paper/status'), bad=httpBad(x); if(bad) return bad;
+    var ri=obj(obj(x.body.item).runtime_identity);
+    if(!ri.arm) return {state:FAIL, ev:'item.runtime_identity.arm 缺失'};
+    if(ri.status==='not_started'||ri.status==='unknown') return {state:UNV, ev:'arm=<b>'+ri.arm+'</b>，但进程 status='+ri.status+' ⇒ 只是配置默认值，没有被证明在运行'};
+    return {state:PASS, ev:'arm=<b>'+ri.arm+'</b> · 池 '+(ri.symbol||'—')+' · PID '+num(ri.pid)+' · 周期 '+num(ri.cycle_count)+' · 健康 '+(ri.overall_health||'—')};
+  }},
+{ col:2, key:'scan_state', name:'扫描状态（监控池）', path:'GET /api/v1/paper/status → item.signal_engine', link:'/?nav=workbench',
+  paths:['/api/v1/paper/status'],
+  rule:'signal_engine.status 必须是 active，且 universe 与声明值一致、上次周期不超过 600 秒，才算通过。',
+  judge:function(R){
+    var x=R('/api/v1/paper/status'), bad=httpBad(x); if(bad) return bad;
+    var se=obj(obj(x.body.item).signal_engine);
+    if(!se.status||se.status==='unknown') return {state:UNV, ev:'signal_engine.status = unknown ⇒ 运行时未注册（HTTP 200 不代表在扫描）'};
+    if(se.status!=='active') return {state:FAIL, ev:'signal_engine.status = '+se.status};
+    var sc=obj(se.state_counter);
+    var scTxt=Object.keys(sc).map(function(k){return k+' '+num(sc[k]);}).join(' / ')||'—';
+    var age=ageSec(se.last_cycle_ms);
+    if(age!==null&&age>600) return {state:FAIL, ev:'上次周期在 <b>'+age+'</b> 秒前（> 600s）⇒ 扫描已停滞'};
+    return {state:PASS, ev:'universe <b>'+num(se.universe)+'</b>/'+num(se.universe_declared)+' · 状态分布 '+scTxt+' · 上次周期 '+(age===null?'—':age+'s 前')};
+  }},
+{ col:2, key:'sig_stream', name:'威科夫共振信号流', path:'GET /api/v1/signals?scope=current', link:'/?nav=workbench',
+  paths:['/api/v1/signals?scope=current'],
+  rule:'每条信号必须带 origin / arm / role / executable_state 才算齐备；0 条信号记未验证。',
+  judge:function(R){
+    var x=R('/api/v1/signals?scope=current'), bad=httpBad(x); if(bad) return bad;
+    var items=arr(x.body.items), total=x.body.total;
+    if(typeof total!=='number') return {state:FAIL, ev:'total 字段缺失'};
+    if(!items.length) return {state:UNV, ev:'当前可执行信号 <b>0</b> 条（0 条 ≠ 失败，也 ≠ 通过；断因见主画布第 5 段）'};
+    var miss=items.filter(function(i){ return !i.origin||!i.arm||!i.role||!i.executable_state; });
+    if(miss.length) return {state:FAIL, ev:miss.length+'/'+items.length+' 条缺 origin/arm/role/executable_state'};
+    var a=items[0];
+    return {state:PASS, ev:'<b>'+total+'</b> 条 · 例：'+a.symbol+' '+a.direction+' · origin='+a.origin+' · arm='+a.arm+' · state='+a.executable_state};
+  }},
+{ col:2, key:'gate', name:'新开仓总闸（开始／暂停）', path:'GET /api/v1/paper/status + /api/v1/paper/accounts', link:'/?nav=workbench',
+  paths:['/api/v1/paper/status','/api/v1/paper/accounts'],
+  rule:'进程侧 order_processing.new_entry_gate 与账本侧 quality.new_entry_gate 必须都存在且取值一致。',
+  judge:function(R){
+    var st=R('/api/v1/paper/status'), ac=R('/api/v1/paper/accounts');
+    var bad=httpBad(ac); if(bad) return bad;
+    var b=obj(obj(ac.body.quality).new_entry_gate);
+    if(!('allow_new_entries' in b)) return {state:FAIL, ev:'账本侧 quality.new_entry_gate 缺失'};
+    var a=obj(obj(obj(st.body).item).order_processing).new_entry_gate;
+    if(!a||!('allow_new_entries' in obj(a))) return {state:UNV, ev:'账本侧 allow_new_entries=<b>'+b.allow_new_entries+'</b>；进程侧无 new_entry_gate ⇒ 无法交叉核对'};
+    if(obj(a).allow_new_entries!==b.allow_new_entries) return {state:FAIL, ev:'两处总闸打架：进程侧 '+obj(a).allow_new_entries+' vs 账本侧 '+b.allow_new_entries};
+    return {state:PASS, ev:'<b>'+(b.allow_new_entries?'已开启':'已暂停')+'</b> · reason='+(b.reason||'—')+' · 双来源一致'};
+  }},
+{ col:2, key:'pending', name:'待成交挂单', path:'GET /api/v1/paper/accounts → items[].pending', link:'/?nav=workbench',
+  paths:['/api/v1/paper/accounts','/api/v1/paper/status'],
+  rule:'四臂 pending 合计必须等于 quality.n_pending_orders；0 笔挂单记未验证。',
+  judge:function(R){
+    var ac=R('/api/v1/paper/accounts'), st=R('/api/v1/paper/status');
+    var bad=httpBad(ac); if(bad) return bad;
+    var q=obj(ac.body.quality), arms=arr(ac.body.items);
+    var nQ=q.n_pending_orders;
+    if(typeof nQ!=='number') return {state:FAIL, ev:'quality.n_pending_orders 缺失'};
+    var sum=arms.reduce(function(s,i){ return s+arr(i.pending).length; },0);
+    if(sum!==nQ) return {state:FAIL, ev:'四臂 pending 合计 '+sum+' ≠ quality.n_pending_orders '+nQ};
+    var proc=obj(obj(obj(st.body).item).order_processing).current_pending_in_db;
+    if(nQ===0) return {state:UNV, ev:'挂单 <b>0</b> 笔（账本 0，四臂 0，进程侧 '+(proc===undefined||proc===null?'未注册':proc)+'）⇒ 无样本'};
+    return {state:PASS, ev:'<b>'+nQ+'</b> 笔 · 进程侧 '+(proc===undefined?'未注册':proc)};
+  }},
+{ col:2, key:'positions', name:'持仓', path:'GET /api/v1/paper/positions + /api/v1/paper/status', link:'/?nav=workbench',
+  paths:['/api/v1/paper/positions','/api/v1/paper/status'],
+  rule:'进程侧 execution_daemon.open_positions 必须等于 /paper/positions 返回条数；0 条记未验证。',
+  judge:function(R){
+    var pos=R('/api/v1/paper/positions'), st=R('/api/v1/paper/status');
+    var bad=httpBad(pos); if(bad) return bad;
+    var items=arr(pos.body.items);
+    var proc=obj(obj(obj(st.body).item).execution_daemon).open_positions;
+    if(typeof proc==='number'&&proc!==items.length) return {state:FAIL, ev:'进程侧 open_positions='+proc+' ≠ 返回 '+items.length+' 条'};
+    if(!items.length) return {state:UNV, ev:'持仓 <b>0</b> 条（进程侧 '+(typeof proc==='number'?proc:'未注册')+'）⇒ 无样本'};
+    return {state:PASS, ev:'<b>'+items.length+'</b> 条'};
+  }},
+{ col:2, key:'stops', name:'动态止损轨迹', path:'GET /api/v1/paper/stops/{pos_id}?arm=…', link:'/?nav=workbench',
+  paths:['/api/v1/paper/stops/notanint?arm=3a','/api/v1/paper/positions'],
+  rule:'先用非法 pos_id 验错误契约（必须 400/404，返 500 判契约缺陷）；再用真实持仓验止损阶梯。',
+  judge:function(R){
+    var bad=R('/api/v1/paper/stops/notanint?arm=3a');
+    if(bad&&bad.http===500) return {state:GONE, ev:'非法 pos_id 返回 <b>HTTP 500</b>（应为 400/404）—— 契约缺陷 GAP-01'};
+    if(bad&&bad.http===200) return {state:FAIL, ev:'非法 pos_id 竟然返回 HTTP 200'};
+    var pos=R('/api/v1/paper/positions');
+    var items=arr(obj(pos.body).items);
+    if(!items.length) return {state:UNV, ev:'无持仓 ⇒ 无法验证真实止损轨迹（错误入参已正确返回 HTTP '+((bad&&bad.http)||'—')+'）'};
+    return {state:PASS, ev:'错误入参返回 HTTP '+((bad&&bad.http)||'—')+'；有 '+items.length+' 条持仓可查轨迹'};
+  }},
+{ col:2, key:'exits', name:'退出与账本', path:'GET /api/v1/paper/accounts → n_closed / realized_pnl_total', link:'/?nav=workbench',
+  paths:['/api/v1/paper/accounts','/api/v1/paper/status'],
+  rule:'进程内 exits_triggered_total 不得大于账本已平仓笔数；0 笔平仓记未验证。',
+  judge:function(R){
+    var ac=R('/api/v1/paper/accounts'), st=R('/api/v1/paper/status');
+    var bad=httpBad(ac); if(bad) return bad;
+    var arms=arr(ac.body.items);
+    var nClosed=arms.reduce(function(s,i){return s+(i.n_closed||0);},0);
+    var realized=arms.reduce(function(s,i){return s+(i.realized_pnl_total||0);},0);
+    var procEx=obj(obj(obj(st.body).item).execution_daemon).exits_triggered_total;
+    if(typeof procEx==='number'&&procEx>nClosed) return {state:FAIL, ev:'进程内退出 '+procEx+' 笔 > 账本已平仓 '+nClosed+' 笔'};
+    if(!nClosed) return {state:UNV, ev:'账本已平仓 <b>0</b> 笔 ⇒ 无样本'};
+    return {state:PASS, ev:'账本已平仓 <b>'+nClosed+'</b> 笔 · 已实现 <b>'+fx(realized,2)+'</b> USDT'};
+  }},
+{ col:2, key:'live_account', name:'实盘真实账户（只读）', path:'GET /api/v1/accounts', link:'/?nav=workbench',
+  paths:['/api/v1/accounts'],
+  rule:'未配凭证时必须返回空 items + quality=not_connected + 说明文案，才算「如实空态」。',
+  judge:function(R){
+    var x=R('/api/v1/accounts'), bad=httpBad(x); if(bad) return bad;
+    var q=obj(x.body.quality), items=arr(x.body.items);
+    if(q.status==='not_connected'&&items.length===0) return {state:PASS, ev:'如实空态：quality='+q.status+' · 0 条账户'};
+    if(!items.length) return {state:UNV, ev:'0 条账户，quality='+(q.status||'—')};
+    return {state:PASS, ev:items.length+' 个账户 · quality='+(q.status||'—')};
+  }},
+{ col:3, key:'strategy_view', name:'策略规则（只读）', path:'GET /api/v1/strategies', link:'/?nav=strategy',
+  paths:['/api/v1/strategies'],
+  rule:'current 非空且能读到 live_order_enabled 才算通过；quality.note 与 current 是否同一策略要显式标出。',
+  judge:function(R){
+    var x=R('/api/v1/strategies'), bad=httpBad(x); if(bad) return bad;
+    var cur=arr(x.body.current);
+    if(!cur.length) return {state:FAIL, ev:'current 为空（无可运行策略）'};
+    var s=obj(cur[0]), gate=obj(s.formal_run_gate);
+    return {state:PASS, ev:'current <b>'+cur.length+'</b> 个：'+(s.strategy_id||s.name||'—')+' · runnable='+s.runnable+' · live_order_enabled='+s.live_order_enabled+' · formal_run_allowed='+gate.formal_run_allowed};
+  }},
+{ col:3, key:'backtest_list', name:'回测任务列表', path:'GET /api/v1/backtests', link:'/?nav=backtest',
+  paths:['/api/v1/backtests'],
+  rule:'每条 run 都必须带 run_id 才算通过（缺 run_id 就无法与详情绑定）。',
+  judge:function(R){
+    var x=R('/api/v1/backtests'), bad=httpBad(x); if(bad) return bad;
+    var its=arr(x.body.items);
+    if(!its.length) return {state:FAIL, ev:'items 为空'};
+    var noRid=its.filter(function(i){ return !i.run_id; });
+    if(noRid.length) return {state:FAIL, ev:noRid.length+'/'+its.length+' 条缺 run_id'};
+    return {state:PASS, ev:'<b>'+its.length+'</b> 条 · 全部带 run_id · 例 '+its[0].run_id};
+  }},
+{ col:3, key:'backtest_run', name:'回测详情 ↔ 对账表 同 run_id', path:'GET /api/v1/backtests/{rid} / /metrics / /quality', link:'/?nav=backtest',
+  paths:['/api/v1/backtests'],
+  rule:'取列表第一条真实 run，分别取详情、metrics、quality，三处顶层 run_id 必须全部等于所选 run_id。',
+  dynamic:function(R){
+    var its=arr(obj(R('/api/v1/backtests').body).items);
+    if(!its.length||!its[0].run_id) return [];
+    var rid=its[0].run_id;
+    return ['/api/v1/backtests/'+rid,'/api/v1/backtests/'+rid+'/metrics','/api/v1/backtests/'+rid+'/quality'];
+  },
+  judge:function(R){
+    var its=arr(obj(R('/api/v1/backtests').body).items);
+    if(!its.length||!its[0].run_id) return {state:UNV, ev:'列表里没有 run，无法验证绑定'};
+    var rid=its[0].run_id;
+    var paths=['/api/v1/backtests/'+rid,'/api/v1/backtests/'+rid+'/metrics','/api/v1/backtests/'+rid+'/quality'];
+    var miss=[], mism=[];
+    paths.forEach(function(p){
+      var x=R(p), b=httpBad(x);
+      if(b){ miss.push(p.split('/').pop()+':'+b.ev); return; }
+      var id=x.body.run_id;
+      if(id&&id!==rid) mism.push(id);
+      if(!id) miss.push(p.split('/').pop()+':无 run_id');
+    });
+    if(mism.length) return {state:FAIL, ev:'run_id 不一致：所选 '+rid+' vs 返回 '+mism.join(',')};
+    if(miss.length) return {state:FAIL, ev:'缺字段：'+miss.join(' · ')};
+    return {state:PASS, ev:'3 个 run 级端点顶层 run_id 全部 = <b>'+rid+'</b>'};
+  }}
+];
+
+function makeR(){ return function(path){ return RES[path]||null; }; }
+
+function cardHTML(c){
+  return '<div class="node" data-state="wait" data-key="'+c.key+'">'+
+    '<div class="top"><span class="name">'+c.name+'</span><span class="pill p-wait" data-pill>探测中</span></div>'+
+    '<div class="path mono">'+c.path+'</div>'+
+    '<div class="ev" data-ev>等待探测…</div>'+
+    '<div class="warn" data-warn style="display:none"></div>'+
+    '<div class="foot"><a class="lnk" href="'+c.link+'" data-link>打开视图 →</a>'+
+    '<span class="mono" style="font-size:10px;color:var(--dim)" data-code></span></div></div>';
+}
+
+function buildGrid(){
+  var g=document.getElementById('grid'); if(!g) return;
+  var html='';
+  COLUMNS.forEach(function(col,idx){
+    html+='<div class="col">';
+    html+='<div class="colhead" style="background:'+col.color+'18;border:1px solid '+col.color+'40;color:'+col.color+'">'+
+          '<span>'+col.name+'</span><span class="tag" style="background:'+col.color+'30">'+col.tag+'</span></div>';
+    CARDS.forEach(function(c){ if(c.col===idx) html+=cardHTML(c); });
+    html+='</div>';
+  });
+  g.innerHTML=html;
+  CARDS.forEach(function(c){
+    var el=g.querySelector('[data-key="'+c.key+'"]');
+    if(el) el.addEventListener('click',function(ev){
+      if(ev.target&&ev.target.tagName==='A') return;
+      showDetail(c.key);
+    });
+  });
+}
+
+var LAST={};
+function paint(c,out){
+  var el=document.querySelector('[data-key="'+c.key+'"]'); if(!el) return;
+  var st=out.state||UNV;
+  el.dataset.state=st;
+  var pill=el.querySelector('[data-pill]');
+  pill.className='pill '+(STATE_CLS[st]||'p-unv');
+  pill.textContent=STATE_TXT[st]||'未验证';
+  el.querySelector('[data-ev]').innerHTML=out.ev||'—';
+  var w=el.querySelector('[data-warn]');
+  if(out.warn){ w.style.display='block'; w.innerHTML='⚠ '+out.warn; } else { w.style.display='none'; w.innerHTML=''; }
+  el.querySelector('[data-code]').textContent=out.code||'';
+  LAST[c.key]=out;
+}
+
+function showDetail(key){
+  var c=null; CARDS.forEach(function(x){ if(x.key===key) c=x; });
+  if(!c) return;
+  var o=LAST[key]||{};
+  document.getElementById('detail-title').innerText=c.name;
+  var badge=document.getElementById('detail-badge');
+  badge.innerText=(STATE_TXT[o.state]||'未验证')+' · '+(o.code||'HTTP —');
+  document.getElementById('detail-content').innerText=
+    '端点：'+c.path+'\n视图入口：'+c.link+'\n判定口径：'+c.rule+
+    '\n本次实测证据：'+String(o.ev||'—').replace(/<[^>]+>/g,'')+
+    (o.warn?('\n附注：'+o.warn):'')+'\n接口层：'+(o.code||'HTTP —')+'（仅表示可达性，不作为业务结论）';
+}
+
+async function refreshAll(){
+  var COMMON=['/api/v1/health'];
+  var statics=COMMON.slice();
+  CARDS.forEach(function(c){ (c.paths||[]).forEach(function(p){ if(statics.indexOf(p)<0) statics.push(p); }); });
+  await Promise.all(statics.map(getJSON));
+  var list=await Promise.all(statics.map(function(p){return getJSON(p);}));
+  statics.forEach(function(p,i){ RES[p]=list[i]; });
+
+  var dyn=[];
+  CARDS.forEach(function(c){
+    if(!c.dynamic) return;
+    var more=[]; try{ more=c.dynamic(makeR())||[]; }catch(e){ more=[]; }
+    more.forEach(function(p){ if(dyn.indexOf(p)<0) dyn.push(p); });
+  });
+  if(dyn.length){
+    var l2=await Promise.all(dyn.map(getJSON));
+    dyn.forEach(function(p,i){ RES[p]=l2[i]; });
+  }
+  CARDS.forEach(function(c){
+    var R2=makeR(), out;
+    try{ out=c.judge(R2); }catch(e){ out={state:UNV, ev:'判定函数异常：'+((e&&e.message)||e)}; }
+    out.code='HTTP '+(c.paths||[]).map(function(p){ var x=R2(p); return x?x.http:'?'; }).join('/');
+    paint(c,out);
+  });
+  var cnt={pass:0,fail:0,unv:0,gone:0};
+  CARDS.forEach(function(c){ var o=LAST[c.key]; if(o&&cnt[o.state]!==undefined) cnt[o.state]++; });
+  document.getElementById('counters').innerHTML=
+    '<span class="cnt" style="border-color:rgba(52,211,153,.4)">实测通过<b style="color:var(--pass)">'+cnt.pass+'</b></span>'+
+    '<span class="cnt" style="border-color:rgba(251,113,133,.4)">实测失败<b style="color:var(--fail)">'+cnt.fail+'</b></span>'+
+    '<span class="cnt" style="border-color:rgba(163,163,163,.4)">未验证<b style="color:var(--unv)">'+cnt.unv+'</b></span>'+
+    '<span class="cnt" style="border-color:rgba(245,158,11,.4)">契约缺陷<b style="color:var(--gone)">'+cnt.gone+'</b></span>'+
+    '<span class="cnt">共 <b>'+CARDS.length+'</b> 张卡片</span>';
+}
+</script>
+</body>
+</html>

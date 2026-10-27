@@ -1,0 +1,663 @@
+{
+ "generated_at": "2026-10-26T12:49:46Z",
+ "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+ "processes": {
+  "collector": [
+   {
+    "pid": 42278,
+    "created_utc": "2026-10-23T09:00:16Z",
+    "uptime_hours": 75.82,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+    "env_relevant": {
+     "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+     "MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+     "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper"
+    }
+   }
+  ],
+  "backend": [
+   {
+    "pid": 91940,
+    "created_utc": "2026-10-26T11:09:13Z",
+    "uptime_hours": 1.68,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py"
+   }
+  ],
+  "workers": [
+   {
+    "pid": 88794,
+    "created_utc": "2026-10-24T07:28:10Z",
+    "uptime_hours": 53.36,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_test_04_ipqsy2ry/jobs/"
+   },
+   {
+    "pid": 91943,
+    "created_utc": "2026-10-26T11:09:14Z",
+    "uptime_hours": 1.68,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787"
+   },
+   {
+    "pid": 91947,
+    "created_utc": "2026-10-26T11:09:16Z",
+    "uptime_hours": 1.67,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0"
+   }
+  ],
+  "observation": [
+   {
+    "pid": 2720,
+    "created_utc": "2026-10-26T12:48:50Z",
+    "uptime_hours": 0.02,
+    "cmdline": "/Users/boos/Desktop/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/vendor/zsh-macos/bin/zsh -f -c export NODE_OPTIONS='--require=\"/Users/boos/Desktop/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/v"
+   },
+   {
+    "pid": 2721,
+    "created_utc": "2026-10-26T12:48:51Z",
+    "uptime_hours": 0.02,
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python evidence/ACCUM-EARLY-03-A/scripts/01_观察_持续更新.py --minutes 19 --interval 30"
+   }
+  ],
+  "listener_8787_pids": [
+   "91940"
+  ]
+ },
+ "scheduling": {
+  "launch_agents": [
+   "com.google.GoogleUpdater.wake.plist",
+   "com.google.keystone.agent.plist",
+   "com.google.keystone.xpcservice.plist"
+  ],
+  "ops_schedule": [
+   "README.md",
+   "com.crypto.ops.gitpatrol.plist",
+   "com.crypto.ops.hotsnapshot.plist",
+   "com.crypto.ops.parquetmanifest.plist",
+   "com.crypto.ops.rawverify.plist",
+   "install_launchd.sh",
+   "run_git_patrol.sh",
+   "run_hot_snapshot.sh",
+   "run_parquet.sh",
+   "run_raw_verify.sh",
+   "uninstall_launchd.sh"
+  ],
+  "plist_in_project": [
+   "框架/backend/导出任务.plist",
+   "框架/ops/schedule/com.crypto.ops.hotsnapshot.plist",
+   "框架/ops/schedule/com.crypto.ops.parquetmanifest.plist",
+   "框架/ops/schedule/com.crypto.ops.gitpatrol.plist",
+   "框架/ops/schedule/com.crypto.ops.rawverify.plist"
+  ],
+  "ops_schedule_dir": "/Users/boos/Desktop/威科夫因子共振趋势/框架/ops/schedule",
+  "loaded_launchd_for_project": []
+ },
+ "writer_audit": {
+  "scanned_files": 153,
+  "metrics_parquet_writer": {
+   "label": "指标 parquet 写入（metrics 目录 / parquet 写盘调用）",
+   "hits": [
+    {
+     "file": "框架/backend/metrics_feed.py",
+     "line": 6,
+     "pattern": "metrics[/\\\\]binance[/\\\\]um",
+     "text": "`数据/市场数据/parquet/metrics/binance/um/<SYMBOL>/<YEAR>.parquet`，列："
+    },
+    {
+     "file": "框架/backend/metrics_feed.py",
+     "line": 63,
+     "pattern": "metrics_path\\(",
+     "text": "def metrics_path(symbol: str, year: int, root=None) -> Path:"
+    },
+    {
+     "file": "框架/backend/metrics_feed.py",
+     "line": 84,
+     "pattern": "metrics_path\\(",
+     "text": "p = metrics_path(symbol, _year_of(as_of_ms), root=root)"
+    },
+    {
+     "file": "框架/backend/metrics_feed.py",
+     "line": 87,
+     "pattern": "metrics_path\\(",
+     "text": "p2 = metrics_path(symbol, _year_of(as_of_ms) - 1, root=root)"
+    },
+    {
+     "file": "工具_热转冷导出.py",
+     "line": 228,
+     "pattern": "write_table\\(",
+     "text": "pq.write_table(tbl, tmp, compression=\"zstd\")"
+    }
+   ],
+   "count": 5
+  },
+  "symbol_pool_writer": {
+   "label": "合约池快照写入（symbol_pool 写语句）",
+   "hits": [],
+   "count": 0
+  },
+  "download_task_writer": {
+   "label": "归档下载任务写入（download_tasks 写语句）",
+   "hits": [],
+   "count": 0
+  },
+  "exporter_metrics": {
+   "label": "热转冷导出器导出的数据集（函数名清单）",
+   "hits": [
+    {
+     "file": "框架/backend/unified_runtime.py",
+     "line": 445,
+     "pattern": "def export_\\w+",
+     "text": "def export_state(self) -> dict:"
+    },
+    {
+     "file": "框架/backend/unified_runtime.py",
+     "line": 2078,
+     "pattern": "def export_\\w+",
+     "text": "def export_state(self) -> dict:"
+    },
+    {
+     "file": "工具_热转冷导出.py",
+     "line": 233,
+     "pattern": "def export_\\w+",
+     "text": "def export_candles(st: dict, conn: sqlite3.Connection, dry: bool,"
+    },
+    {
+     "file": "工具_热转冷导出.py",
+     "line": 302,
+     "pattern": "def export_\\w+",
+     "text": "def export_oi(st: dict, conn: sqlite3.Connection, dry: bool, force: bool = False) -> dict:"
+    }
+   ],
+   "count": 4
+  },
+  "exporter_functions": [
+   "log",
+   "free_gib",
+   "acquire_lock",
+   "load_state",
+   "save_state",
+   "_parquet_max",
+   "rebuild_state",
+   "merge_write",
+   "export_candles",
+   "export_oi",
+   "run_once",
+   "_run_once_locked",
+   "main"
+  ],
+  "exporter_mentions_metrics": 0,
+  "export_state_keys": [
+   "candles",
+   "created_at",
+   "last_run",
+   "oi",
+   "updated_at"
+  ]
+ },
+ "request_stats": {
+  "log_path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/logs/realtime.log",
+  "lines_scanned": 2500,
+  "snapshot_rounds": [
+   {
+    "log_ts": "2026-10-26T11:53:03Z",
+    "targets": 63,
+    "ok": 63,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 162,
+    "cached": 0,
+    "deferred": 1,
+    "elapsed_s": 121.24
+   },
+   {
+    "log_ts": "2026-10-26T12:00:40Z",
+    "targets": 63,
+    "ok": 63,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 162,
+    "cached": 0,
+    "deferred": 85,
+    "elapsed_s": 156.49
+   },
+   {
+    "log_ts": "2026-10-26T12:07:52Z",
+    "targets": 63,
+    "ok": 63,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 162,
+    "cached": 0,
+    "deferred": 0,
+    "elapsed_s": 132.11
+   },
+   {
+    "log_ts": "2026-10-26T12:15:10Z",
+    "targets": 63,
+    "ok": 63,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 162,
+    "cached": 0,
+    "deferred": 7,
+    "elapsed_s": 138.53
+   },
+   {
+    "log_ts": "2026-10-26T12:22:46Z",
+    "targets": 63,
+    "ok": 63,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 162,
+    "cached": 0,
+    "deferred": 53,
+    "elapsed_s": 155.78
+   },
+   {
+    "log_ts": "2026-10-26T12:30:28Z",
+    "targets": 62,
+    "ok": 62,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 159,
+    "cached": 0,
+    "deferred": 1,
+    "elapsed_s": 162.27
+   },
+   {
+    "log_ts": "2026-10-26T12:38:11Z",
+    "targets": 62,
+    "ok": 62,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 12,
+    "rotation_total": 12,
+    "upstream": 160,
+    "cached": 0,
+    "deferred": 38,
+    "elapsed_s": 162.76
+   },
+   {
+    "log_ts": "2026-10-26T12:47:10Z",
+    "targets": 62,
+    "ok": 62,
+    "skipped": 0,
+    "failed": 0,
+    "rotation_done": 8,
+    "rotation_total": 12,
+    "upstream": 144,
+    "cached": 0,
+    "deferred": 2,
+    "elapsed_s": 239.0
+   }
+  ],
+  "snapshot_round_count": 95,
+  "snapshot_failed_total": 0,
+  "snapshot_ok_total": 5982,
+  "oi_rounds": [
+   {
+    "log_ts": "2026-10-26T11:47:09Z",
+    "ok": 520,
+    "failed": 8
+   },
+   {
+    "log_ts": "2026-10-26T12:04:57Z",
+    "ok": 527,
+    "failed": 1
+   },
+   {
+    "log_ts": "2026-10-26T12:23:20Z",
+    "ok": 526,
+    "failed": 2
+   },
+   {
+    "log_ts": "2026-10-26T12:42:59Z",
+    "ok": 527,
+    "failed": 1
+   }
+  ],
+  "failure_lines": []
+ },
+ "latest_rows": {
+  "snapshot_index": {
+   "file": "_index.json",
+   "mtime_utc": "2026-10-26T12:47:10Z",
+   "round_no": 610,
+   "ok": 62,
+   "failed": 0,
+   "head_n": 62,
+   "interval_s": 300,
+   "elapsed_s": 239.0,
+   "ratio_extra_n": 12,
+   "ratio_extra_done": 8,
+   "ratio_extra_targets": [
+    "1000CATUSDT",
+    "ACHUSDT",
+    "AVAXUSDT",
+    "DOGEUSDT",
+    "DOTUSDT",
+    "LINKUSDT",
+    "LTCUSDT",
+    "NEARUSDT",
+    "SUIUSDT",
+    "TRXUSDT",
+    "XRPUSDT",
+    "ZECUSDT"
+   ]
+  },
+  "snapshot_btcusdt": {
+   "mtime_utc": "2026-10-26T12:43:13Z",
+   "snapshot_refreshed_at": "2026-10-26T12:43:13Z",
+   "as_of": "2026-10-26T12:43:11Z",
+   "long_short": {
+    "global_account_long_short_ratio": {
+     "value": "2.2196",
+     "event_time": "2026-10-26T12:00:00Z",
+     "fetched_at": "2026-10-26T12:35:32Z",
+     "carried_over": true,
+     "carried_from": "2026-10-26T12:35:33Z"
+    },
+    "taker_buy_sell_ratio": {
+     "value": "1.1157",
+     "event_time": "2026-10-26T11:00:00Z",
+     "fetched_at": "2026-10-26T12:35:33Z",
+     "carried_over": true,
+     "carried_from": "2026-10-26T12:35:33Z"
+    },
+    "top_account_long_short_ratio": {
+     "value": "2.3389",
+     "event_time": "2026-10-26T12:00:00Z",
+     "fetched_at": "2026-10-26T12:35:31Z",
+     "carried_over": true,
+     "carried_from": "2026-10-26T12:35:33Z"
+    },
+    "top_position_long_short_ratio": {
+     "value": "1.6933",
+     "event_time": "2026-10-26T12:00:00Z",
+     "fetched_at": "2026-10-26T12:43:13Z",
+     "carried_over": null,
+     "carried_from": null
+    }
+   },
+   "open_interest": {
+    "amount": 94110.997,
+    "amount_event_time": "2026-10-26T12:40:00Z",
+    "available": true,
+    "fetched_at": "2026-10-26T12:43:12Z",
+    "note": "**全市场总量**，无多空拆分、无身份；不是「聪明钱持仓额」；快照精简口径：总量与名义额取自同一行（5m 边界采样）",
+    "origin": "公共REST",
+    "source": "币安 /futures/data/openInterestHist（同一行给总量与名义额）",
+    "usd": 7558547445.041492,
+    "usd_event_time": "2026-10-26T12:40:00Z"
+   }
+  },
+  "metrics_parquet": {
+   "BTCUSDT": {
+    "rows": 82656,
+    "last_ts_utc": "2026-10-14T23:55:00Z"
+   },
+   "ETHUSDT": {
+    "rows": 82656,
+    "last_ts_utc": "2026-10-14T23:55:00Z"
+   }
+  },
+  "symbol_pool": {
+   "count": 528,
+   "min_snapshot_utc": "2026-10-05T01:55:12Z",
+   "max_snapshot_utc": "2026-10-05T04:53:28Z",
+   "max_updated_at": "2026-10-09T18:15:42Z"
+  },
+  "download_runs_tail": [
+   {
+    "id": 30,
+    "kind": "batch",
+    "status": "running",
+    "started_utc": "2026-10-12T15:38:08Z",
+    "finished_utc": null
+   },
+   {
+    "id": 29,
+    "kind": "batch",
+    "status": "interrupted",
+    "started_utc": "2026-10-12T15:28:18Z",
+    "finished_utc": "2026-10-12T15:38:08Z"
+   },
+   {
+    "id": 28,
+    "kind": "batch",
+    "status": "done",
+    "started_utc": "2026-10-10T14:30:43Z",
+    "finished_utc": "2026-10-10T14:37:39Z"
+   }
+  ],
+  "download_task_timeframes": [
+   "12h",
+   "15m",
+   "1d",
+   "1h",
+   "30m",
+   "4h",
+   "5m",
+   "8h"
+  ]
+ },
+ "read_path": {
+  "api_metrics": {
+   "url": "/api/v1/markets/binance/BTCUSDT/metrics?period=1h",
+   "counts": {
+    "fields_total": 17,
+    "available": 17,
+    "missing": 0,
+    "stale": 0,
+    "derived": 3
+   },
+   "quality_status": "ok",
+   "snapshot_state": {
+    "available": true,
+    "refreshed_at": "2026-10-26T12:43:13Z",
+    "status": "ok",
+    "note": "快照 2026-10-26T12:43:13Z 写入（371s 前，阈值 900s）；持仓量多空比数据时点 2026-10-26T12:00:00Z；总持仓名义额数据时点 2026-10-26T12:40:00Z"
+   },
+   "time": {
+    "event_time": "2026-10-26T12:49:13Z",
+    "available_at": null,
+    "received_at": "2026-10-26T12:49:13Z",
+    "fetched_at": "2026-10-26T12:43:13Z",
+    "note": "event_time=该值对应的业务时刻；available_at=外部最早可获知时刻（K 线=收盘时刻，费率=结算时刻）；received_at=本机实时层收到时刻；fetched_at=上游返回时刻"
+   },
+   "sources": {
+    "archive": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "snapshot": "2026-10-26T12:43:13Z",
+    "live_klines": "realtime_klines（统一采集进程原生 WS）",
+    "funding_current": "realtime_quotes ← binance.premium_index",
+    "funding_settled": "funding_history(rate_type=settled)"
+   },
+   "evidence_history_bar": {
+    "available": false,
+    "reason": "归档内无已收盘 K 线"
+   },
+   "evidence_metrics_history": {
+    "available": true,
+    "rows": 643046,
+    "first": "2020-09-01T00:00:00Z",
+    "last": "2026-10-14T23:55:00Z",
+    "granularity": "5m",
+    "files": 7,
+    "nonnull": {
+     "sum_open_interest": 643046,
+     "sum_open_interest_value": 643046,
+     "retail_account_ls_ratio": 637249,
+     "count_long_short_ratio": 637249,
+     "top_position_ls_ratio": 550854,
+     "sum_toptrader_long_short_ratio": 550854,
+     "count_toptrader_long_short_ratio": 550820,
+     "sum_taker_long_short_vol_ratio": 605774
+    },
+    "duplicate_columns": {
+     "retail_account_ls_ratio == count_long_short_ratio": true,
+     "top_position_ls_ratio == sum_toptrader_long_short_ratio": true,
+     "note": "归档内两对列**数值完全相同**（0 行不等）⇒ 是同一指标的两个列名，统计口径时不得重复计数；`count_toptrader_long_short_ratio` 才是独立的大户账户多空比"
+    },
+    "reason": null
+   }
+  },
+  "api_metrics_fields": [
+   {
+    "key": "taker_buy_volume",
+    "value": 1502.525,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "taker_buy_quote_volume",
+    "value": 120794279.6113,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "volume",
+    "value": 2651.105,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "quote_volume",
+    "value": 213098543.3972,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "trade_count",
+    "value": 84629.0,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "taker_sell_volume",
+    "value": 1148.58,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "taker_buy_sell_ratio",
+    "value": 1.3081587699594284,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "taker_buy_share",
+    "value": 56.67542402130433,
+    "event_time": "2026-10-26T12:49:13Z",
+    "source": "binance.fstream（本机实时层）",
+    "layer": "realtime_forming",
+    "missing_reason": null
+   },
+   {
+    "key": "top_position_ls_ratio",
+    "value": 1.6933,
+    "event_time": "2026-10-26T12:00:00Z",
+    "source": "币安 /futures/data/topLongShortPositionRatio（period=1h）",
+    "layer": "snapshot",
+    "missing_reason": null
+   },
+   {
+    "key": "top_account_ls_ratio",
+    "value": 2.3389,
+    "event_time": "2026-10-26T12:00:00Z",
+    "source": "币安 /futures/data/topLongShortAccountRatio（period=1h）",
+    "layer": "snapshot",
+    "missing_reason": null
+   },
+   {
+    "key": "global_account_ls_ratio",
+    "value": 2.2196,
+    "event_time": "2026-10-26T12:00:00Z",
+    "source": "币安 /futures/data/globalLongShortAccountRatio（period=1h）",
+    "layer": "snapshot",
+    "missing_reason": null
+   },
+   {
+    "key": "oi_qty",
+    "value": 94110.997,
+    "event_time": "2026-10-26T12:40:00Z",
+    "source": "币安 /futures/data/openInterestHist（同一行给总量与名义额）",
+    "layer": "snapshot",
+    "missing_reason": null
+   },
+   {
+    "key": "oi_notional_usd",
+    "value": 7558547445.041492,
+    "event_time": "2026-10-26T12:40:00Z",
+    "source": "币安 /futures/data/openInterestHist（同一行给总量与名义额）",
+    "layer": "snapshot",
+    "missing_reason": null
+   },
+   {
+    "key": "funding_rate_current",
+    "value": 0.007765,
+    "event_time": "2026-10-26T12:44:52Z",
+    "source": "binance.fapi /fapi/v1/premiumIndex（lastFundingRate + nextFundingTime）",
+    "layer": "realtime_quote",
+    "missing_reason": null
+   },
+   {
+    "key": "funding_next_time",
+    "value": 1793030400000,
+    "event_time": "2026-10-26T16:00:00Z",
+    "source": "binance.fapi /fapi/v1/premiumIndex（lastFundingRate + nextFundingTime）",
+    "layer": "realtime_quote",
+    "missing_reason": null
+   },
+   {
+    "key": "funding_rate_settled",
+    "value": 0.007945,
+    "event_time": "2026-10-26T08:00:00Z",
+    "source": "binance.fapi /fapi/v1/fundingRate（rate_type=settled）",
+    "layer": "funding_history",
+    "missing_reason": null
+   },
+   {
+    "key": "funding_settled_time",
+    "value": 1793001600000,
+    "event_time": "2026-10-26T08:00:00Z",
+    "source": "binance.fapi /fapi/v1/fundingRate（rate_type=settled）",
+    "layer": "funding_history",
+    "missing_reason": null
+   }
+  ],
+  "direct_snapshot_read": {
+   "available": true,
+   "freshness": {
+    "status": "ok",
+    "age_seconds": 396.2,
+    "note": "快照 2026-10-26T12:43:13Z 写入（396s 前，阈值 900s）；持仓量多空比数据时点 2026-10-26T12:00:00Z；总持仓名义额数据时点 2026-10-26T12:40:00Z"
+   },
+   "snapshot_refreshed_at": "2026-10-26T12:43:13Z"
+  }
+ }
+}

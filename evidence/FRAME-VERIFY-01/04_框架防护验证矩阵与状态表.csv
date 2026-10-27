@@ -1,0 +1,13 @@
+反例编号,反例名称,防护领域,目标入口,实现方自测状态,独立验证状态,当前结论,依赖回执版本,绕过路径描述,预期受控行为
+PIT-CE-01,未来未收盘K线注入,PIT,FLOW-OI-01/generate_flow_oi_01.py,实现方曾声称PIT对齐,独立验证测出漏洞,漏洞已证实(DEFECT_EXPOSED),FRAME-PIT-01,open_time <= ts 直接读取当根未收盘1h蜡烛,强制使用 close_time < ts 仅读已收盘蜡烛
+PIT-CE-02,延迟发布时延未满消费,PIT,trading_core/pit.py,已自测单元测试PASS,独立验证证实未接入生成入口,工具存在/入口穿透(BYPASS_EXPOSED),FRAME-PIT-01,生成脚本直接按 create_time <= ts 读取5m指标,available_at > ts 必须物理抛错或标记不可用
+PIT-CE-03,资金费事件时间冒充发布时间,PIT,backtest_runner.py,无自测,独立验证测出时延盲区,待测(PENDING_RECEIPT),FRAME-PIT-01,按结算事件时间毫秒等同于可消费时刻,无发布凭证时拒绝即时消费
+PIT-CE-04,延后5分钟伪证明穿透,PIT,FLOW-DATA-01/scripts,无自测,独立验证已排查,待测(PENDING_RECEIPT),FRAME-PIT-01,将固定5m间隔直接假定为通用PIT证明,必须提供确定性发布时延依据
+PIT-CE-05,缺失available_at字段乐观假定,PIT,trading_core/pit.py,已自测无延迟声明逻辑,独立验证证实Fail-closed已生效,部分受控(PARTIAL_CONTROLLED),FRAME-PIT-01,仅针对OI有效其他流数据缺失门禁,未声明时一律决策不可用
+PIT-CE-06,修改未来数据扰动过去特征,PIT,backtest_runner.py,无自测,独立验证隔离测试通过,待测(PENDING_RECEIPT),FRAME-PIT-01,若使用全局均值归一化将导致历史漂移,未来数据变动时历史特征哈希严格不变
+FIT-CE-01,未冻结直接查看Holdout留出集,FIT,event_trend_v0_1/runner.py,无自测,独立验证证实守卫完全缺失,漏洞已证实(DEFECT_EXPOSED),FRAME-FIT-01,活跃策略runner无任何Holdout拦截逻辑,未冻结参数时物理拒绝返回留出数据
+FIT-CE-02,查看Holdout后改参沿用原资格,FIT,全框架(回测runner与登记簿),无自测,独立验证证实机制真空,待测(PENDING_RECEIPT),FRAME-FIT-01,无试验生命周期状态机可自由手工改参,修改参数后自动标记为污染试验并作废
+FIT-CE-03,重命名已观察样本伪装新样本,FIT,全框架,无自测,独立验证证实仅认字符串ID,待测(PENDING_RECEIPT),FRAME-FIT-01,修改candidate_id即可冒充全新样本,必须基于底层物理指纹做全局去重
+FIT-CE-04,遗漏/隐瞒失败试验(抽奖隐瞒),FIT,backtest_store.py,无自测,独立验证证实无原子自增审计,待测(PENDING_RECEIPT),FRAME-FIT-01,可只向报告提交盈利run隐瞒亏损run,试验自增序列号原子入库缺号报警
+FIT-CE-05,重复候选样本注入排查,FIT,event_trend_v0_1/engine_adapter.py,无自测,独立验证证实部分入口缺乏去重,待测(PENDING_RECEIPT),FRAME-FIT-01,输入列表重复拼接导致盈亏双计,发现重复记录抛出DuplicateCandidateError
+FIT-CE-06,事后走弱标签泄露冒充事前因子,FIT,FLOW-OI-01/回测规则,曾误将走弱下降当因子有效,独立验证证实因变量混淆,待测(PENDING_RECEIPT),FRAME-FIT-01,将fwd_ret_1h <= 0作为过滤条件冒充事前特征,自变量与事后标签物理隔离严禁反向输入

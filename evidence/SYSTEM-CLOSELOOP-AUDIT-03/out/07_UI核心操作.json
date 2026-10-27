@@ -1,0 +1,950 @@
+{
+ "生成时刻": "2026-10-22T22:28:56+08:00",
+ "开始时刻": "2026-10-22T22:28:22+08:00",
+ "拓扑": {
+  "浏览器": "127.0.0.1:3001",
+  "前端代理": "127.0.0.1:8799",
+  "隔离根目录": "/tmp/wx_audit05",
+  "生产": "127.0.0.1:8787（全程未参与写操作）"
+ },
+ "明细": {
+  "生产基线": {
+   "账本": {
+    "paper_3a.sqlite3": {
+     "sha256": "272cf9c3a1e78d16fb47fa2810bc1729dfa881c6e350bd082250a24cf169a48e",
+     "字节": 163840,
+     "mtime_ms": 1792676888970
+    },
+    "paper_3b.sqlite3": {
+     "sha256": "c38b2cad7630ef6fe13166caf20cbb80507b7f3de2ac5d5ebcf2872cd684e27e",
+     "字节": 163840,
+     "mtime_ms": 1792676893979
+    },
+    "paper_3c.sqlite3": {
+     "sha256": "5edfa35e9ad259ea443fb56a2187d19f0fc249cbb11823416bbd74b613e19dcb",
+     "字节": 163840,
+     "mtime_ms": 1792676893984
+    },
+    "paper_3d.sqlite3": {
+     "sha256": "23446394d4a6cdbc37892685ac7b392cb885db660481200bb3ee92ebdad3a965",
+     "字节": 163840,
+     "mtime_ms": 1792676893988
+    }
+   },
+   "闸门": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+   "信号库": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+   "8787_pid": 27607
+  },
+  "隔离后端health": {
+   "status": 200,
+   "body": {
+    "mode": null,
+    "account_id": null,
+    "run_id": null,
+    "strategy_version": null,
+    "rule_version": null,
+    "param_hash": null,
+    "data_version": null,
+    "as_of": "2026-10-22T14:28:25Z",
+    "quality": null,
+    "source_url": null,
+    "evidence_level": null,
+    "missing_reason": null,
+    "time": {
+     "event_time": null,
+     "available_at": null,
+     "received_at": null,
+     "fetched_at": null
+    },
+    "items": [
+     {
+      "name": "统一行情数据库",
+      "status": "ok",
+      "last_event_time": "2026-10-22T14:59:59Z",
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "/tmp/wx_audit05/market.sqlite3；已入库 2 个（标的,周期）组合，共 26 根真实K线"
+     },
+     {
+      "name": "公共 REST 网关（目录/端点）",
+      "status": "missing",
+      "last_event_time": null,
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "成功公共 REST 请求计数**暂不可得**（无界全表 COUNT 已移出请求路径，重统计未就绪）：币安 USD-M exchangeInfo 合约目录、币安现货目录；经统一网关（限频 + 缓存 + 并发租约）。前端读取不触发外部采集。"
+     },
+     {
+      "name": "官方归档下载（独立下载器）",
+      "status": "ok",
+      "last_event_time": "2026-10-22T14:59:59Z",
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "由 `历史下载/batch_download.py` 直连 data.binance.vision / S3 列举端点下载，**不经 REST 网关、不计入 api_calls**；每包核验官方 CHECKSUM。来源归档 暂不可得 个"
+     },
+     {
+      "name": "实时行情采集（价格/OI/费率）",
+      "status": "not_connected",
+      "last_event_time": "1970-01-01T00:00:00Z",
+      "last_received_at": "1970-01-01T00:00:00Z",
+      "age_seconds": null,
+      "detail": "realtime_quotes 无数据：实时采集未运行或尚未写入"
+     },
+     {
+      "name": "账户/交易",
+      "status": "not_connected",
+      "last_event_time": null,
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "未配置账户，不读取凭据"
+     }
+    ]
+   }
+  },
+  "浏览器": {
+   "base": "http://127.0.0.1:3001/",
+   "generated_at": "2026-10-22T14:28:26.646Z",
+   "steps": {
+    "baseline": {
+     "state": {
+      "connected": "1",
+      "positionRows": 1,
+      "rowTexts": [
+       "BTC平仓开仓价格:$100.1000实时标记:$100.2000持仓金额:166.8 U未实现盈亏:+$0.17 (+0.10%)账本止损价:$85.1000止损轨迹止损基数(ATR@入场):$5.0000止损状态:现价在止损内信号身份(signal_uid):audit07_ui开仓时间:2026-10-22 22:45:00"
+      ],
+      "pending": null,
+      "gateBtn": {
+       "text": "运行中",
+       "pressed": "true"
+      },
+      "openLong": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开多仓"
+      },
+      "openShort": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开空仓"
+      },
+      "closeBtns": 1,
+      "trailLinks": [
+       "止损轨迹"
+      ],
+      "notice": null,
+      "bodyTail": "巨鲸占比: 45.1% 多 0.034887 空 0.024299 暂无金额 未覆盖 — 展开K线 AGL AGLDUSDT $— — — — 持仓额: 43.40万 USD 巨鲸占比: 89.4% 持仓额: 18.25万 USD 巨鲸占比: 70.8% 多 0.18265 空 0.195172 暂无金额 未覆盖 — 展开K线 AGT AGTUSDT $— — — — 持仓额: 1069.70万 USD 巨鲸占比: 87.1% 持仓额: 550.76万 USD 巨鲸占比: 86.1% 多 0.032494 空 0.045609 暂无金额 未覆盖 — 展开K线 AIA AIAUSDT $— — — — 持仓额: 29.17万 USD 巨鲸占比: 89.6% 持仓额: 314.93万 USD 巨鲸占比: 96.6% 多 0.068042 空 0.064026 暂无金额 未覆盖 — 展开K线 AIG AIGENSYNUSDT $— — — — 持仓额: 8.50万 USD 巨鲸占比: 62.3% 持仓额: 30.07万 USD 巨鲸占比: 63.3% 多 0.020045 空 0.021037 暂无金额 未覆盖 — 展开K线 代币仅简称：确认倍率映射后去前缀（如 1000000BOB→BOB），0G、1INCH等固有数字保留；方向绿多红空、K线涨绿跌红。 第2列：流动市值（万/亿）；第3列：日总成交额（USDT 计价） 模拟实盘持仓 共 1 仓 运行中 总资金: $5,000.17 占用资金: $166.77 手续费: $0.00 资金费: $0.00 参数来源: fallback_frozen_v2_2_conservative 盈亏多少: +$0.17/$0.00 最大回撤: 0.00% 开仓/平仓数: 1 开 / 0 平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (1) 账本口径 · 点击定位 K 线 BTC 平仓 开仓价格: $100.1000 实时标记: $100.2000 持仓金额: 166.8 U 未实现盈亏: +$0.17 (+0.10%) 账本止损价: $85.1000 止损轨迹 止损基数(ATR@入场): $5.0000 止损状态: 现价在止损内 信号身份(signal_uid): audit07_ui 开仓时间: 2026-10-22 22:45:00 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照（live worker 未运行或未配置凭据） 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+     },
+     "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-03/shots/07_1_baseline.png",
+     "sha": "be642f3e75f8ef6e7296165d8c3ec3dbac65e836eb976118e7174d6363d09185",
+     "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+     ]
+    },
+    "stopTrail": {
+     "click": {
+      "ok": true,
+      "index": 0,
+      "candidates": 1
+     },
+     "requests": [
+      {
+       "url": "/api/v1/paper/stops/1?arm=3a",
+       "status": 404,
+       "method": "GET"
+      }
+     ],
+     "trailBoxText": "FT-LOW4H 止损上移轨迹初始止损生效中，暂无上移记录",
+     "state": {
+      "connected": "1",
+      "positionRows": 1,
+      "rowTexts": [
+       "BTC平仓开仓价格:$100.1000实时标记:$100.2000持仓金额:166.8 U未实现盈亏:+$0.17 (+0.10%)账本止损价:$85.1000收起轨迹FT-LOW4H 止损上移轨迹初始止损生效中，暂无上移记录止损基数(ATR@入场):$5.0000止损状态:现价在止损内信号身份(signal_uid):audit07_ui开仓时间:2026-10-22 22:45:00"
+      ],
+      "pending": null,
+      "gateBtn": {
+       "text": "运行中",
+       "pressed": "true"
+      },
+      "openLong": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开多仓"
+      },
+      "openShort": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开空仓"
+      },
+      "closeBtns": 1,
+      "trailLinks": [
+       "收起轨迹"
+      ],
+      "notice": null,
+      "bodyTail": "99 暂无金额 未覆盖 — 展开K线 AGL AGLDUSDT $— — — — 持仓额: 43.40万 USD 巨鲸占比: 89.4% 持仓额: 18.25万 USD 巨鲸占比: 70.8% 多 0.18265 空 0.195172 暂无金额 未覆盖 — 展开K线 AGT AGTUSDT $— — — — 持仓额: 1069.70万 USD 巨鲸占比: 87.1% 持仓额: 550.76万 USD 巨鲸占比: 86.1% 多 0.032494 空 0.045609 暂无金额 未覆盖 — 展开K线 AIA AIAUSDT $— — — — 持仓额: 29.17万 USD 巨鲸占比: 89.6% 持仓额: 314.93万 USD 巨鲸占比: 96.6% 多 0.068042 空 0.064026 暂无金额 未覆盖 — 展开K线 AIG AIGENSYNUSDT $— — — — 持仓额: 8.50万 USD 巨鲸占比: 62.3% 持仓额: 30.07万 USD 巨鲸占比: 63.3% 多 0.020045 空 0.021037 暂无金额 未覆盖 — 展开K线 代币仅简称：确认倍率映射后去前缀（如 1000000BOB→BOB），0G、1INCH等固有数字保留；方向绿多红空、K线涨绿跌红。 第2列：流动市值（万/亿）；第3列：日总成交额（USDT 计价） 模拟实盘持仓 共 1 仓 运行中 总资金: $5,000.17 占用资金: $166.77 手续费: $0.00 资金费: $0.00 参数来源: fallback_frozen_v2_2_conservative 盈亏多少: +$0.17/$0.00 最大回撤: 0.00% 开仓/平仓数: 1 开 / 0 平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (1) 账本口径 · 点击定位 K 线 BTC 平仓 开仓价格: $100.1000 实时标记: $100.2000 持仓金额: 166.8 U 未实现盈亏: +$0.17 (+0.10%) 账本止损价: $85.1000 收起轨迹 FT-LOW4H 止损上移轨迹 初始止损生效中，暂无上移记录 止损基数(ATR@入场): $5.0000 止损状态: 现价在止损内 信号身份(signal_uid): audit07_ui 开仓时间: 2026-10-22 22:45:00 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照（live worker 未运行或未配置凭据） 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+     },
+     "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-03/shots/07_2_stoptrail.png",
+     "sha": "f8dc94be2e45387f60723c6fa7e5128a8a41a05679edf006289f244f884fa284",
+     "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+     ]
+    },
+    "close": {
+     "click": {
+      "ok": true,
+      "index": 0,
+      "candidates": 1
+     },
+     "requests": [
+      {
+       "url": "/api/v1/paper/orders",
+       "status": 200,
+       "method": "POST"
+      },
+      {
+       "url": "/api/v1/paper/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/signals?scope=current&limit=500",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/health",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/paper/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/accounts",
+       "status": 200,
+       "method": "GET"
+      }
+     ],
+     "state": {
+      "connected": "1",
+      "positionRows": 0,
+      "rowTexts": [],
+      "pending": null,
+      "gateBtn": {
+       "text": "运行中",
+       "pressed": "true"
+      },
+      "openLong": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开多仓"
+      },
+      "openShort": {
+       "found": true,
+       "disabled": false,
+       "title": "按当前选中信号在服务端账本开空仓"
+      },
+      "closeBtns": 0,
+      "trailLinks": [],
+      "notice": "已按服务端账本平仓（position 1）",
+      "bodyTail": "1658.21万 USD 巨鲸占比: 96.4% 持仓额: 1542.66万 USD 巨鲸占比: 88.6% 多 0.748258 空 0.664706 暂无金额 未覆盖 — 展开K线 AEV AEVOUSDT $— — — — 持仓额: 47.32万 USD 巨鲸占比: 90.5% 持仓额: 28.21万 USD 巨鲸占比: 45.1% 多 0.034887 空 0.024299 暂无金额 未覆盖 — 展开K线 AGL AGLDUSDT $— — — — 持仓额: 43.40万 USD 巨鲸占比: 89.4% 持仓额: 18.25万 USD 巨鲸占比: 70.8% 多 0.18265 空 0.195172 暂无金额 未覆盖 — 展开K线 AGT AGTUSDT $— — — — 持仓额: 1069.70万 USD 巨鲸占比: 87.1% 持仓额: 550.76万 USD 巨鲸占比: 86.1% 多 0.032494 空 0.045609 暂无金额 未覆盖 — 展开K线 AIA AIAUSDT $— — — — 持仓额: 29.17万 USD 巨鲸占比: 89.6% 持仓额: 314.93万 USD 巨鲸占比: 96.6% 多 0.068042 空 0.064026 暂无金额 未覆盖 — 展开K线 AIG AIGENSYNUSDT $— — — — 持仓额: 8.50万 USD 巨鲸占比: 62.3% 持仓额: 30.07万 USD 巨鲸占比: 63.3% 多 0.020045 空 0.021037 暂无金额 未覆盖 — 展开K线 代币仅简称：确认倍率映射后去前缀（如 1000000BOB→BOB），0G、1INCH等固有数字保留；方向绿多红空、K线涨绿跌红。 第2列：流动市值（万/亿）；第3列：日总成交额（USDT 计价） 模拟实盘持仓 共 0 仓 运行中 总资金: $4,999.92 占用资金: $0.00 手续费: $0.17 资金费: $0.00 参数来源: fallback_frozen_v2_2_conservative 盈亏多少: $0.00/-$0.08 最大回撤: 0.01% 开仓/平仓数: 0 开 / 1 平 按选中信号开多 按选中信号开空 已按服务端账本平仓（position 1） 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 当前无模拟持仓 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照（live worker 未运行或未配置凭据） 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+     },
+     "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-03/shots/07_3_afterclose.png",
+     "sha": "55a4017ce1eb642ef1e56168affc6e3c23ed5ebded0b06275d61fd003033495b",
+     "consoleErrors": []
+    },
+    "gate": {
+     "clickedLabel": "运行中",
+     "click": {
+      "ok": true,
+      "index": 0,
+      "candidates": 2
+     },
+     "requests": [
+      {
+       "url": "/api/v1/paper/toggle_gate",
+       "status": 200,
+       "method": "POST"
+      },
+      {
+       "url": "/api/v1/paper/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/accounts",
+       "status": 200,
+       "method": "GET"
+      }
+     ],
+     "state": {
+      "connected": "1",
+      "positionRows": 0,
+      "rowTexts": [],
+      "pending": null,
+      "gateBtn": {
+       "text": "已暂停",
+       "pressed": "false"
+      },
+      "openLong": {
+       "found": true,
+       "disabled": true,
+       "title": "实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓"
+      },
+      "openShort": {
+       "found": true,
+       "disabled": true,
+       "title": "实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓"
+      },
+      "closeBtns": 0,
+      "trailLinks": [],
+      "notice": "实盘模拟已暂停（已阻断新开仓，已有持仓继续盯市）",
+      "bodyTail": "8.21万 USD 巨鲸占比: 96.4% 持仓额: 1542.66万 USD 巨鲸占比: 88.6% 多 0.748258 空 0.664706 暂无金额 未覆盖 — 展开K线 AEV AEVOUSDT $— — — — 持仓额: 47.32万 USD 巨鲸占比: 90.5% 持仓额: 28.21万 USD 巨鲸占比: 45.1% 多 0.034887 空 0.024299 暂无金额 未覆盖 — 展开K线 AGL AGLDUSDT $— — — — 持仓额: 43.40万 USD 巨鲸占比: 89.4% 持仓额: 18.25万 USD 巨鲸占比: 70.8% 多 0.18265 空 0.195172 暂无金额 未覆盖 — 展开K线 AGT AGTUSDT $— — — — 持仓额: 1069.70万 USD 巨鲸占比: 87.1% 持仓额: 550.76万 USD 巨鲸占比: 86.1% 多 0.032494 空 0.045609 暂无金额 未覆盖 — 展开K线 AIA AIAUSDT $— — — — 持仓额: 29.17万 USD 巨鲸占比: 89.6% 持仓额: 314.93万 USD 巨鲸占比: 96.6% 多 0.068042 空 0.064026 暂无金额 未覆盖 — 展开K线 AIG AIGENSYNUSDT $— — — — 持仓额: 8.50万 USD 巨鲸占比: 62.3% 持仓额: 30.07万 USD 巨鲸占比: 63.3% 多 0.020045 空 0.021037 暂无金额 未覆盖 — 展开K线 代币仅简称：确认倍率映射后去前缀（如 1000000BOB→BOB），0G、1INCH等固有数字保留；方向绿多红空、K线涨绿跌红。 第2列：流动市值（万/亿）；第3列：日总成交额（USDT 计价） 模拟实盘持仓 共 0 仓 已暂停 总资金: $4,999.92 占用资金: $0.00 手续费: $0.17 资金费: $0.00 参数来源: fallback_frozen_v2_2_conservative 盈亏多少: $0.00/-$0.08 最大回撤: 0.01% 开仓/平仓数: 0 开 / 1 平 按选中信号开多 按选中信号开空 实盘模拟已暂停（已阻断新开仓，已有持仓继续盯市） 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 当前无模拟持仓 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照（live worker 未运行或未配置凭据） 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+     },
+     "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-03/shots/07_4_gate.png",
+     "sha": "1a3fb8a47bc3f6e2d6977d398d14e13b3157df4006c25c3489c72af0bc5546cc",
+     "consoleErrors": []
+    },
+    "openLong": {
+     "before": {
+      "disabled": true,
+      "title": "实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓"
+     },
+     "click": {
+      "ok": false,
+      "candidates": 1
+     },
+     "requests": [
+      {
+       "url": "/api/v1/markets",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/signals?scope=current&limit=500",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/health",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/0GUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000000BOBUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000CATUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000CHEEMSUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000000MOGUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000BONKUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000FLOKIUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000SATSUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000RATSUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000PEPEUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000LUNCUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/paper/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/2ZUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1MBABYDOGEUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/4USDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000SHIBUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1000XECUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/1INCHUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/ACUUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/ACEUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/ACTUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/ACHUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/AAVEUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets/binance/ADAUSDT/candles?timeframe=1h&limit=24",
+       "status": 500,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/markets",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/signals?scope=current&limit=500",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/health",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/paper/accounts",
+       "status": 200,
+       "method": "GET"
+      },
+      {
+       "url": "/api/v1/accounts",
+       "status": 200,
+       "method": "GET"
+      }
+     ],
+     "state": {
+      "connected": "1",
+      "positionRows": 0,
+      "rowTexts": [],
+      "pending": null,
+      "gateBtn": {
+       "text": "已暂停",
+       "pressed": "false"
+      },
+      "openLong": {
+       "found": true,
+       "disabled": true,
+       "title": "实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓"
+      },
+      "openShort": {
+       "found": true,
+       "disabled": true,
+       "title": "实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓"
+      },
+      "closeBtns": 0,
+      "trailLinks": [],
+      "notice": "实盘模拟已暂停（已阻断新开仓，已有持仓继续盯市）",
+      "bodyTail": "8.21万 USD 巨鲸占比: 96.4% 持仓额: 1542.66万 USD 巨鲸占比: 88.6% 多 0.748258 空 0.664706 暂无金额 未覆盖 — 展开K线 AEV AEVOUSDT $— — — — 持仓额: 47.32万 USD 巨鲸占比: 90.5% 持仓额: 28.21万 USD 巨鲸占比: 45.1% 多 0.034887 空 0.024299 暂无金额 未覆盖 — 展开K线 AGL AGLDUSDT $— — — — 持仓额: 43.40万 USD 巨鲸占比: 89.4% 持仓额: 18.25万 USD 巨鲸占比: 70.8% 多 0.18265 空 0.195172 暂无金额 未覆盖 — 展开K线 AGT AGTUSDT $— — — — 持仓额: 1069.70万 USD 巨鲸占比: 87.1% 持仓额: 550.76万 USD 巨鲸占比: 86.1% 多 0.032494 空 0.045609 暂无金额 未覆盖 — 展开K线 AIA AIAUSDT $— — — — 持仓额: 29.17万 USD 巨鲸占比: 89.6% 持仓额: 314.93万 USD 巨鲸占比: 96.6% 多 0.068042 空 0.064026 暂无金额 未覆盖 — 展开K线 AIG AIGENSYNUSDT $— — — — 持仓额: 8.50万 USD 巨鲸占比: 62.3% 持仓额: 30.07万 USD 巨鲸占比: 63.3% 多 0.020045 空 0.021037 暂无金额 未覆盖 — 展开K线 代币仅简称：确认倍率映射后去前缀（如 1000000BOB→BOB），0G、1INCH等固有数字保留；方向绿多红空、K线涨绿跌红。 第2列：流动市值（万/亿）；第3列：日总成交额（USDT 计价） 模拟实盘持仓 共 0 仓 已暂停 总资金: $4,999.92 占用资金: $0.00 手续费: $0.17 资金费: $0.00 参数来源: fallback_frozen_v2_2_conservative 盈亏多少: $0.00/-$0.08 最大回撤: 0.01% 开仓/平仓数: 0 开 / 1 平 按选中信号开多 按选中信号开空 实盘模拟已暂停（已阻断新开仓，已有持仓继续盯市） 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 当前无模拟持仓 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照（live worker 未运行或未配置凭据） 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+     },
+     "shot": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-03/shots/07_5_openlong.png",
+     "sha": "348435a491e4f5965406bc32a00ad8141d62b0bef3f91731e458af9565a264bf",
+     "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+     ]
+    }
+   },
+   "dupShots": [],
+   "failedReq": [
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000BONKUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1MBABYDOGEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000000MOGUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000FLOKIUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000000BOBUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/0GUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000CATUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/4USDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000SHIBUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000CHEEMSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/2ZUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000RATSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000XECUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000LUNCUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1INCHUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000PEPEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/1000SATSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/ACEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AAVEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AIOUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/ACHUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/ACTUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/ACUUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AGLDUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/ADAUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AEROUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AIXBTUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AIAUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AKEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/CATUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AINUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AGTUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/BONKUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AIGENSYNUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/MOGUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/BOBUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AIOTUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/AEVOUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/FLOKIUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/BABYDOGEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/PEPEUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/SATSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/RATSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/XECUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/bobusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/satsusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/mogusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/flokiusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/CHEEMSUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/SHIBUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://bin.bnbstatic.com/static/assets/logos/LUNCUSDT.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/babydogeusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/catusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/bonkusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/xecusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/4usdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/pepeusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/1inchusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/0gusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/ratsusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/2zusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/luncusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/cheemsusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/shibusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aceusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aaveusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/acuusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/agldusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/achusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/actusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aerousdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/adausdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aiausdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aevousdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/agtusdt@2x.png :: net::ERR_BLOCKED_BY_ORB",
+    "GET https://assets.coincap.io/assets/icons/aigensynusdt@2x.png :: net::ERR_BLOCKED_BY_ORB"
+   ]
+  },
+  "D_账本收尾": {
+   "position": {
+    "position_id": 1,
+    "account_id": "paper43_3a",
+    "symbol": "BTCUSDT",
+    "qty": 1.666,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792680300000,
+    "exit_ts": 1792681199999,
+    "exit_reason": "manual_ui",
+    "status": "closed",
+    "exit_price": 100.1499,
+    "entry_fee": 0.08338330000000001,
+    "exit_fee": 0.0834248667,
+    "funding_paid": 0.0,
+    "signal_uid": "audit07_ui",
+    "arm": "3a",
+    "stop_price": 85.10000000000001,
+    "atr_at_entry": 5.0,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "event_time": 1792679400000,
+    "available_at": 1792679400000,
+    "requested_at": 1792679400000,
+    "earliest_fill_ms": 1792680300000,
+    "market_source": "binance.um.candles_15m.is_closed.open",
+    "origin": "replay",
+    "first_request_ms": 1792679400000,
+    "epoch_ms": 1791939600000,
+    "voided": 0,
+    "void_reason": null
+   },
+   "state": {
+    "account_id": "paper43_3a",
+    "cash": 4999.9163252333,
+    "realized_pnl": -0.08367476670001028,
+    "fees_paid": 0.1668081667,
+    "funding_paid": 0.0,
+    "updated_at": 1792679318836
+   },
+   "n_order": 2,
+   "n_fill": 2,
+   "n_realized": 1
+  },
+  "D_闸门": {
+   "status": 200,
+   "accounts里的键": [
+    "mode",
+    "account_id",
+    "run_id",
+    "strategy_version",
+    "rule_version",
+    "param_hash",
+    "data_version",
+    "as_of",
+    "quality",
+    "source_url",
+    "evidence_level",
+    "missing_reason"
+   ],
+   "new_entry_gate(接口)": {},
+   "闸门文件": {
+    "allow_new_entries": false,
+    "reason": "user_ui_paused",
+    "set_by": "user_ui_control",
+    "since_ms": 1792679322943,
+    "scope": "server_side_new_entry_only",
+    "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+   }
+  },
+  "生产复测": {
+   "账本": {
+    "paper_3a.sqlite3": {
+     "sha256": "272cf9c3a1e78d16fb47fa2810bc1729dfa881c6e350bd082250a24cf169a48e",
+     "字节": 163840,
+     "mtime_ms": 1792676888970
+    },
+    "paper_3b.sqlite3": {
+     "sha256": "c38b2cad7630ef6fe13166caf20cbb80507b7f3de2ac5d5ebcf2872cd684e27e",
+     "字节": 163840,
+     "mtime_ms": 1792676893979
+    },
+    "paper_3c.sqlite3": {
+     "sha256": "5edfa35e9ad259ea443fb56a2187d19f0fc249cbb11823416bbd74b613e19dcb",
+     "字节": 163840,
+     "mtime_ms": 1792676893984
+    },
+    "paper_3d.sqlite3": {
+     "sha256": "23446394d4a6cdbc37892685ac7b392cb885db660481200bb3ee92ebdad3a965",
+     "字节": 163840,
+     "mtime_ms": 1792676893988
+    }
+   },
+   "闸门": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+   "信号库": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+   "8787_pid": 27607
+  }
+ },
+ "断言": [
+  {
+   "编号": "A1",
+   "检查项": "隔离账本里有 1 笔 open 持仓供 UI 操作",
+   "预期": "open",
+   "实际": "open",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "B1",
+   "检查项": "隔离后端 8799 已监听",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "B2",
+   "检查项": "第二套前端 3001 已监听（代理指向 8799，不是 8787）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C1",
+   "检查项": "浏览器脚本跑通（含 5 个核心操作步骤）",
+   "预期": "rc=0",
+   "实际": "rc=0",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C2",
+   "检查项": "工作台模拟实盘面板连上隔离账本",
+   "预期": "connected=1 且 1 个持仓行",
+   "实际": "connected=1 持仓行=1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C3",
+   "检查项": "面板显示账本止损价（不是前端推导）",
+   "预期": "行文本含'账本止损价'",
+   "实际": "BTC平仓开仓价格:$100.1000实时标记:$100.2000持仓金额:166.8 U未实现盈亏:+$0.17 (+0.10%)账本止损价:$85.1000止损轨迹止损基数(ATR@入场):$5.0000止损状态:现价在止损内信号身份(signal_uid):audit07_ui开仓时间:2026-10-22 22",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C4",
+   "检查项": "点「止损轨迹」真的发出 /paper/stops/{id} 请求",
+   "预期": "有 1 条 stops 请求",
+   "实际": "[{'url': '/api/v1/paper/stops/1?arm=3a', 'status': 404, 'method': 'GET'}]",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C5",
+   "检查项": "止损轨迹端点返回 200（UI 能取到轨迹）",
+   "预期": "200",
+   "实际": "1 条 404",
+   "判定": "不通过",
+   "备注": "默认路由表漏挂 ⇒ UI 拿不到轨迹（03 的 C5b 已从接口侧证明）"
+  },
+  {
+   "编号": "C6",
+   "检查项": "404 时 UI 的降级文案不得伪装成'暂无记录'",
+   "预期": "显示错误/不可用",
+   "实际": "FT-LOW4H 止损上移轨迹初始止损生效中，暂无上移记录",
+   "判定": "不通过",
+   "备注": "若显示'初始止损生效中，暂无上移记录'，用户无法区分'真没有'与'接口挂了'"
+  },
+  {
+   "编号": "C7",
+   "检查项": "点「平仓」发出 POST /paper/orders",
+   "预期": "有 POST 且 200",
+   "实际": "[{'url': '/api/v1/paper/orders', 'status': 200, 'method': 'POST'}, {'url': '/api/v1/paper/accounts', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/accounts', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/markets', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/signals?scope=current&limit=500', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/health', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/paper/accounts', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/accounts', 'status': 200, 'method': 'GET'}]",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C8",
+   "检查项": "平仓后 UI 持仓行归零",
+   "预期": "0",
+   "实际": "0",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C9",
+   "检查项": "点闸门按钮发出 POST /paper/toggle_gate",
+   "预期": "有 POST 且 200",
+   "实际": "[{'url': '/api/v1/paper/toggle_gate', 'status': 200, 'method': 'POST'}, {'url': '/api/v1/paper/accounts', 'status': 200, 'method': 'GET'}, {'url': '/api/v1/accounts', 'status': 200, 'method': 'GET'}]",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C10",
+   "检查项": "闸门按钮文案随服务端状态翻转",
+   "预期": "与点击前不同",
+   "实际": "运行中 → 已暂停",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C11",
+   "检查项": "「按选中信号开多」在无选中信号时禁用并给出原因",
+   "预期": "disabled=true 且有 title",
+   "实际": "disabled=True title=实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C12",
+   "检查项": "5 个步骤截图哈希两两不同（不是同一张图冒充）",
+   "预期": "0 组重复",
+   "实际": "[]",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D1",
+   "检查项": "UI 平仓后账本持仓转为 closed",
+   "预期": "closed",
+   "实际": "closed",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D2",
+   "检查项": "平仓落库：订单数 ≥2（开+平）、成交数 ≥2、已实现 1 行",
+   "预期": "≥2/≥2/1",
+   "实际": "2/2/1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D3",
+   "检查项": "账户现金 = 初始权益 + 已实现（手续费不重复扣）",
+   "预期": "4999.916325",
+   "实际": "4999.916325",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D4",
+   "检查项": "UI 点闸门后隔离闸门文件真的被写成 allow_new_entries=False",
+   "预期": "False",
+   "实际": "False",
+   "判定": "通过",
+   "备注": "UI 的 POST /paper/toggle_gate 落到服务端闸门文件（不是只改前端状态）"
+  },
+  {
+   "编号": "E1",
+   "检查项": "生产账本 4 个库 SHA 前后一致",
+   "预期": "全一致",
+   "实际": "{'paper_3a.sqlite3': True, 'paper_3b.sqlite3': True, 'paper_3c.sqlite3': True, 'paper_3d.sqlite3': True}",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E2",
+   "检查项": "生产闸门 SHA 前后一致",
+   "预期": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+   "实际": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E3",
+   "检查项": "生产信号库 SHA 前后一致",
+   "预期": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+   "实际": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E4",
+   "检查项": "生产 8787 实例 PID 未变（没被重启）",
+   "预期": "27607",
+   "实际": "27607",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "F1",
+   "检查项": "隔离 8799 / 3001 已关闭，生产 8787 仍在",
+   "预期": "8799=False 3001=False 8787=True",
+   "实际": "8799=False 3001=False 8787=True",
+   "判定": "通过",
+   "备注": ""
+  }
+ ],
+ "汇总": {
+  "总数": 24,
+  "通过": 22,
+  "不通过": 2,
+  "未验证": 0
+ }
+}

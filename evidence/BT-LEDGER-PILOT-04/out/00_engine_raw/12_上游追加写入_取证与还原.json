@@ -1,0 +1,42 @@
+{
+  "checked_at_utc": "2026-10-24T12:52:57Z",
+  "incident": "策略基类硬编码写入 evidence/WORK-DYNAMIC-BT-01/out（append 模式）",
+  "root_cause_ref": "WyckoffLow4hGridBase.py:708-712 / 755 / 916-919",
+  "data_loss": false,
+  "why_no_loss": "两个文件都是追加写；新文件前 old_bytes 字节的 sha256 与快照完全一致",
+  "records": [
+    {
+      "file": "out/audit_confirmation_Wyckoff_C1_S05_D05_Vs04_Z02.csv",
+      "snapshot_bytes": 39867,
+      "snapshot_sha256": "788355f23963066eef6d8de9d8c0d901b766b96bbb8a7e34a612a30448aeea2b",
+      "current_bytes_before": 79542,
+      "current_sha256_before": "06c7b468214972f1c372ae7e2e25b3e18ce533357044422cddd70f76eae73681",
+      "prefix_equals_snapshot": true,
+      "appended_bytes": 39675,
+      "appended_sha256": "076eb154f06769582ff53d1142be403727b33a3c9f3ad4299cb50b029b5030f4",
+      "appended_lines": 173,
+      "appended_saved_to": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/BT-LEDGER-PILOT-04/out/00_engine_raw/strategy_audit_append/audit_confirmation_Wyckoff_C1_S05_D05_Vs04_Z02.appended_39675B.csv",
+      "restored_bytes": 39867,
+      "restored_sha256": "788355f23963066eef6d8de9d8c0d901b766b96bbb8a7e34a612a30448aeea2b",
+      "restored_equals_snapshot": true,
+      "status": "restored"
+    },
+    {
+      "file": "out/audit_orders_Wyckoff_C1_S05_D05_Vs04_Z02.csv",
+      "snapshot_bytes": 7050,
+      "snapshot_sha256": "6f29fabf599685322434c6bd6b79c733d4836e38f9c1c15d90442283017170d4",
+      "current_bytes_before": 13905,
+      "current_sha256_before": "b227b73c42f3669dbf19c7d93241b631c85b0917282cda394135f495cab84e20",
+      "prefix_equals_snapshot": true,
+      "appended_bytes": 6855,
+      "appended_sha256": "cf1881f74e5baccdece153ee11248358469620a2c6a014c1b4067759e2bef9a1",
+      "appended_lines": 21,
+      "appended_saved_to": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/BT-LEDGER-PILOT-04/out/00_engine_raw/strategy_audit_append/audit_orders_Wyckoff_C1_S05_D05_Vs04_Z02.appended_6855B.csv",
+      "restored_bytes": 7050,
+      "restored_sha256": "6f29fabf599685322434c6bd6b79c733d4836e38f9c1c15d90442283017170d4",
+      "restored_equals_snapshot": true,
+      "status": "restored"
+    }
+  ],
+  "verdict": "PASS"
+}

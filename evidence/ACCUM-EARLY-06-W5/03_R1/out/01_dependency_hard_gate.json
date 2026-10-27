@@ -1,0 +1,72 @@
+{
+  "timestamp_utc": "2026-10-27T01:07:14Z",
+  "real_environment_audit": {
+    "timestamp_utc": "2026-10-27T01:07:14Z",
+    "dependencies": {
+      "w2_entry_code": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+        "exists": true,
+        "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+        "expected_sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+        "handoff_exists": true,
+        "status": "PASSED"
+      },
+      "w3_funding_source": {
+        "adapter_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-06/adapter/funding_events_adapter.py",
+        "adapter_exists": true,
+        "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-06/out/funding_events_母集48_manifest.json",
+        "manifest_exists": true,
+        "jsonl_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-06/out/funding_events_母集48.jsonl",
+        "jsonl_exists": true,
+        "symbols_covered": 48,
+        "total_events": 31811,
+        "status": "PASSED"
+      },
+      "w4_r1_recalculation": {
+        "dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W4/03_R1",
+        "readme_exists": true,
+        "out_artifacts_count": 1,
+        "status": "PASSED"
+      }
+    },
+    "missing_dependencies": [],
+    "is_all_ready": true,
+    "gate_verdict": "READY_FOR_E2E_AUDIT"
+  },
+  "gate_unit_test_suite": [
+    {
+      "test_name": "负例 A: 关键上游交付缺失硬阻断",
+      "scenario": "W4-R1 尚未交付成果，传入空产物目录",
+      "expected_gate_verdict": "NOT_READY_BLOCKED",
+      "actual_gate_verdict": "NOT_READY_BLOCKED",
+      "blocked_correctly": true,
+      "pass": true
+    },
+    {
+      "test_name": "负例 B: 上游版本替换与哈希漂移拦截",
+      "scenario": "accum_early_entry.py 哈希发生变化",
+      "expected_status": "FAILED",
+      "actual_status": "FAILED",
+      "pass": true
+    },
+    {
+      "test_name": "负例 C: 数据范围不满足母集 48 拦截",
+      "scenario": "资金费仅覆盖 2 标的而非母集 48",
+      "expected_scope_ok": false,
+      "actual_scope_ok": false,
+      "pass": true
+    },
+    {
+      "test_name": "正向对照: 完整依赖齐全且范围覆盖放行",
+      "scenario": "W2 代码哈希一致、06-06 母集48齐全、W4-R1 成果就位",
+      "expected_gate_verdict": "READY_FOR_E2E_AUDIT",
+      "actual_gate_verdict": "READY_FOR_E2E_AUDIT",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "all_unit_tests_passed": true,
+    "real_gate_verdict": "READY_FOR_E2E_AUDIT",
+    "real_blocking_reason": "依赖已全部就位"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "title": "ACCUM-EARLY-03-C 隔离边界用例与状态机真实执行断言报告",
+  "executed_at_utc": "2026-10-26T12:35:50.129870+00:00",
+  "all_passed": true,
+  "cases": [
+    {
+      "case_name": "PARTIAL_FILL_THEN_COMPLETE",
+      "passed": true,
+      "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+      "total_quantity": 10000.0,
+      "final_status": "FILLED",
+      "events": [
+        {
+          "fill_id": "evt_fill_part_01",
+          "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+          "quantity": 4000.0,
+          "cum_quantity": 4000.0,
+          "remaining_quantity": 6000.0,
+          "status": "PARTIALLY_FILLED",
+          "fill_price": 0.0669
+        },
+        {
+          "fill_id": "evt_fill_full_02",
+          "order_id": "ord_a8c5fefee2b5ca3748da4df0",
+          "quantity": 6000.0,
+          "cum_quantity": 10000.0,
+          "remaining_quantity": 0.0,
+          "status": "FILLED",
+          "fill_price": 0.06695
+        }
+      ]
+    },
+    {
+      "case_name": "PARTIAL_FILL_THEN_CANCEL",
+      "passed": true,
+      "order_id": "ord_401a28963b850b10bf15b5bb",
+      "total_quantity": 10000.0,
+      "filled_quantity": 4000.0,
+      "canceled_remaining_quantity": 6000.0,
+      "final_status": "CANCELED"
+    },
+    {
+      "case_name": "ILLEGAL_TRANSITION_INTERCEPTION",
+      "passed": true,
+      "from_status": "FILLED",
+      "target_status": "PENDING",
+      "error_caught": "illegal_order_transition:FILLED->PENDING"
+    },
+    {
+      "case_name": "NATURAL_ZERO_FILL_RUN",
+      "passed": true,
+      "run_id": "bt_20261024T020045Z_25b81923",
+      "orders_count": 0,
+      "trades_count": 0,
+      "has_chart_json": true,
+      "explanation": "自然历史区间无满足突破条件的候选信号，策略不伪造交易，产生合规的 0 笔订单与 0 笔成交"
+    }
+  ]
+}

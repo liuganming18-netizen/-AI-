@@ -1,0 +1,152 @@
+{
+  "runtime_identity": {
+    "arm": "3a",
+    "symbol": "all(526)",
+    "pid": 49219,
+    "status": "running",
+    "started_at": 1792934737372,
+    "cycle_count": 0,
+    "overall_health": "healthy"
+  },
+  "market_data": {
+    "status": "connected",
+    "symbol": "all(526)",
+    "latest_15m_close_time": 1792934099999,
+    "latest_1h_close_time": 1792933199999,
+    "latest_4h_close_time": 1792929599999
+  },
+  "signal_engine": {
+    "status": "active",
+    "universe": 0,
+    "universe_declared": 526,
+    "watermark_1h": null,
+    "watermark_4h": null,
+    "bootstrap": {},
+    "skipped_reasons": {},
+    "scan_errors": {},
+    "scan_errors_total": 0,
+    "state_counter": {},
+    "per_symbol_state": {},
+    "idle_breakdown": {
+      "counts": {},
+      "idle_total": 0,
+      "sample": {},
+      "note": "只读诊断：不改状态、不参与决策；判据取自 EventTrendConfig 同一批字段。IDLE_READY_BOX=条件全满足，等下一根 4h 收盘即可建档；IDLE_DEAD_BARS=4h 全零导致 ATR=0（数据坏死，不是策略没机会）。宽度/ER 用的是决策时的连续递推 ATR（`eng.last_atr`），不是最近 42 根重算值。"
+    },
+    "active_box": false,
+    "active_state": "IDLE",
+    "signals_generated_total": 0,
+    "funnel": {
+      "since_start": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 0,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "history": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 0,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "candidates_since_start": 0,
+      "last_candidate_ms": null,
+      "last_candidate_utc": null,
+      "history_candidates_discarded": null,
+      "bootstrap_window_hours": null,
+      "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+    },
+    "atr_caliber": {
+      "caliber": "4h Wilder ATR(14)，连续递推 + ≥atr_warmup_bars 预热（冻结规则第 17 行）",
+      "period": 14,
+      "warmup_bars": 200,
+      "box_bars_4h": 42,
+      "box_gate_mode": "atr_warmup",
+      "n_engines": 0,
+      "n_warmed": 0,
+      "n_not_warmed": 0,
+      "atr_bars_seen_min": null,
+      "atr_bars_seen_max": null,
+      "n_box_gate_open": 0,
+      "box_gate_bars_min": null,
+      "box_gate_bars_max": null,
+      "gate_metric": "atr_bars_seen",
+      "last_atr_valid": 0,
+      "last_atr_invalid": 0,
+      "last_box_skipped_warmup_ms": null,
+      "last_box_skipped_warmup_utc": null,
+      "note": "修复前实时路径每根只取最近 42 根重算 ⇒ Wilder 递推每根被重置、且没有 200 根预热。`atr_bars_seen` 含 180 天预热；SIGNAL-ZERO-CAUSE-05 起建档闸门改用 `atr_bars_seen`（规范第 17 行只要求 ATR 预热一次，第 32 行建档条件不含「窗口内再等 200 根」，回测 runner.py:349-363 也是够 42 根即建档）。`box_gate_bars` 仅作旧口径诊断量保留。"
+    },
+    "watermark_check": {
+      "convention": "open_time（区间起点）；close 口径另列 `*_close`，不混用",
+      "global_1h": null,
+      "processed_1h_max": null,
+      "processed_1h_min": null,
+      "db_1h_max": 1792929600000,
+      "aligned_1h": false,
+      "lag_1h_bars": null,
+      "global_4h": null,
+      "processed_4h_max_open": null,
+      "processed_4h_max_close": null,
+      "db_4h_max_open": 1792915200000,
+      "aligned_4h": false,
+      "lag_4h_bars": null,
+      "per_symbol": {
+        "n": 0,
+        "lag_1h_histogram": {},
+        "lag_1h_max": null,
+        "n_lag_1h_gt1": 0,
+        "lagging": [],
+        "note": "`lag_1h>1` 的标的逐条列出（最多 30 条）。`lag_1h_histogram` 是全部标的的分布，用于区分「个别落后」与「全池落后」。"
+      },
+      "n_engines_with_1h": 0,
+      "n_engines_with_4h": 0,
+      "n_engines": 0,
+      "note": "`lag_1h_bars` = 库内最新已闭合 1h 与「实际处理过的最大 1h open」之差，正常 ≤1；>1 即漏处理（本单**不**把允许值放宽到 4）。`per_symbol` 给逐币分布与落后清单，防止 1 个标的落后被全池 max 掩盖。"
+    },
+    "data_quality": {
+      "rule": "连续 ≥3 根 1h 为「volume==0 且 O=H=L=C」的交易所占位行 ⇒ 该标的**禁止决策**（不建档、不推进状态机）；只跳过决策，不删行、不改价",
+      "blocked_n": 0,
+      "blocked": {},
+      "note": "已结算合约（SETTLING）在交易所侧仍持续返回占位 K 线，属官方行为；删除或填价都属伪造，故只做「阻断决策」。"
+    },
+    "last_cycle_ms": null
+  },
+  "order_processing": {
+    "status": "ready",
+    "orders_routed_total": 0,
+    "orders_rejected_total": 0,
+    "orders_waiting_gate": 0,
+    "new_entry_gate": {
+      "allow_new_entries": true,
+      "gate_reason": "new_entry_allowed",
+      "reason": "user_ui_resumed",
+      "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+      "gate_scope": "server_side_new_entry_only",
+      "exits_fees_funding_health_unaffected": true,
+      "set_by": "user_ui_control",
+      "since_ms": 1792753532432
+    },
+    "current_pending_in_db": 0
+  },
+  "execution_daemon": {
+    "status": "running",
+    "open_positions": 0,
+    "pending_matched_total": 0,
+    "trailing_updates_total": 0,
+    "exits_triggered_total": 0,
+    "last_error": null
+  }
+}

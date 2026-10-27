@@ -37,6 +37,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import bisect
+import math
+
 from ledger_links import load_ledger_facts
 
 __all__ = [
@@ -44,6 +47,7 @@ __all__ = [
     "MDD_BASIS",
     "PF_BASIS",
     "AWLR_BASIS",
+    "SHARPE_BASIS",
     "compute_metrics",
     "compute_benchmark",
     "compute_monthly_returns",
@@ -55,6 +59,9 @@ MDD_BASIS = ("equity_curve.total_equity 逐点峰值回撤（含未实现浮盈�
 PF_BASIS = "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）"
 AWLR_BASIS = "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）"
 WR_BASIS = "盈利笔数 / 已平仓笔数（含平盘）"
+SHARPE_BASIS = "完整等间隔 UTC 逐日净值收益（保留平盘日），年化 sqrt(365)"
+
+DAY_MS = 86_400_000
 
 
 def _f(v: Any) -> Optional[float]:
@@ -95,6 +102,54 @@ def _max_drawdown_pct(equity: List[float]) -> Tuple[Optional[float], Optional[di
                   "points": len(equity)}
 
 
+def _daily_net_value(eq_rows: List[dict]) -> List[float]:
+    """UTC 逐日净值：每个日界取「严格早于该日界」的最后一根 bar 的 total_equity。
+
+    口径与跑批侧 `backtest_runner._daily_equity` 完全一致（保留平盘日），
+    否则同一个 run 在「跑批写入的 summary」和「读接口现算」里会给出两个夏普。
+    """
+    pts: List[Tuple[int, float]] = []
+    for e in eq_rows:
+        ts = _f(e.get("timestamp"))
+        v = _f(e.get("total_equity", e.get("equity")))
+        if ts is None or v is None:
+            continue
+        pts.append((int(ts), float(v)))
+    if len(pts) < 2:
+        return []
+    pts.sort(key=lambda x: x[0])
+    ts_list = [p[0] for p in pts]
+    vals = [p[1] for p in pts]
+    out: List[float] = []
+    d = (ts_list[0] // DAY_MS) * DAY_MS + DAY_MS   # 首个 UTC 日界
+    end = ts_list[-1]
+    while d <= end:
+        pos = bisect.bisect_left(ts_list, d) - 1   # 严格早于日界
+        if pos >= 0:
+            out.append(vals[pos])
+        d += DAY_MS
+    return out
+
+
+def _sharpe_sqrt365(eq_rows: List[dict]) -> Tuple[Optional[float], Optional[int], str]:
+    """夏普比率：UTC 逐日净值收益，样本标准差（ddof=1），年化 sqrt(365)。
+
+    返回 (sharpe, 逐日点数, 说明)。无法计算时 sharpe=None 并说明原因 —— **不填 0**。
+    """
+    daily = _daily_net_value(eq_rows)
+    n = len(daily)
+    if n < 3:
+        return None, (n or None), f"逐日净值点不足 3 个（实测 {n}）⇒ 夏普无定义"
+    rets = [daily[i] / daily[i - 1] - 1.0 for i in range(1, n) if daily[i - 1] > 0]
+    if len(rets) < 2:
+        return None, n, f"有效日收益样本不足 2 个（实测 {len(rets)}）⇒ 夏普无定义"
+    mean = sum(rets) / len(rets)
+    var = sum((x - mean) ** 2 for x in rets) / (len(rets) - 1)   # ddof=1
+    if var <= 0:
+        return None, n, "日收益零波动（标准差为 0）⇒ 夏普无定义"
+    return mean / math.sqrt(var) * math.sqrt(365.0), n, SHARPE_BASIS
+
+
 def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[dict, List[str]]:
     """按真实账本计算指标。返回 (metrics, notes)。
 
@@ -121,8 +176,20 @@ def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[d
 
     gross = [_f(r.get("gross_pnl")) for r in rows]
     gross = [x for x in gross if x is not None]
-    fee_side = [(_f(r.get("entry_fee")) or 0.0) + (_f(r.get("exit_fee")) or 0.0) for r in rows]
-    fund_side = [(_f(r.get("funding_fee")) or 0.0) for r in rows]
+    # 费用口径（BT-UI-02）：**「缺费用」不能算成「0 费用」**。
+    # 旧写法 `(_f(entry_fee) or 0.0) + (_f(exit_fee) or 0.0)` 会把「没记录」变成「真的 0」，
+    # 页面于是显示「手续费 $0.00」，看起来像「这笔交易零成本」——那是编出来的结论。
+    # 现在：只要还有一笔记了费用就照常求和；**一笔都没记** ⇒ 合计返回 None（页面显示「—」）。
+    fee_pairs = [(_f(r.get("entry_fee")), _f(r.get("exit_fee"))) for r in rows]
+    fee_known = any(a is not None or b is not None for a, b in fee_pairs)
+    fee_side = [((a or 0.0) + (b or 0.0)) for a, b in fee_pairs]
+    fund_side = [(_f(r.get("funding_fee"))) for r in rows]
+    fund_known = any(x is not None for x in fund_side)
+    fund_side = [(x or 0.0) for x in fund_side]
+    if rows and not fee_known:
+        notes.append("该 run 全部成交都没有手续费记录 ⇒ 手续费合计返回缺失值（不填 0）")
+    if rows and not fund_known:
+        notes.append("该 run 全部成交都没有资金费记录 ⇒ 资金费合计返回缺失值（不填 0）")
 
     sum_win = sum(wins)
     sum_loss_abs = abs(sum(losses))
@@ -149,6 +216,10 @@ def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[d
     if mdd is None:
         notes.append(f"权益曲线不足 2 点（实测 {len(eq_vals)} 点）⇒ 最大回撤返回缺失值，页面显示「未计算」")
 
+    sharpe, daily_n, sharpe_note = _sharpe_sqrt365(eq_rows)
+    if sharpe is None:
+        notes.append(sharpe_note)
+
     metrics: Dict[str, Any] = {
         "initial_equity": initial_equity,
         "final_equity": final_equity,
@@ -156,10 +227,10 @@ def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[d
         "net_return_pct": (((final_equity - initial_equity) / initial_equity * 100.0)
                            if (initial_equity and final_equity is not None) else None),
         "gross_pnl": (sum(gross) if gross else None),
-        "total_entry_fee": (sum(_f(r.get("entry_fee")) or 0.0 for r in rows) if rows else None),
-        "total_exit_fee": (sum(_f(r.get("exit_fee")) or 0.0 for r in rows) if rows else None),
-        "total_fees": (sum(fee_side) if rows else None),
-        "total_funding_fee": (sum(fund_side) if rows else None),
+        "total_entry_fee": (sum((a or 0.0) for a, _ in fee_pairs) if (rows and fee_known) else None),
+        "total_exit_fee": (sum((b or 0.0) for _, b in fee_pairs) if (rows and fee_known) else None),
+        "total_fees": (sum(fee_side) if (rows and fee_known) else None),
+        "total_funding_fee": (sum(fund_side) if (rows and fund_known) else None),
         "trades_count": n,
         "wins": len(wins),
         "losses": len(losses),
@@ -177,6 +248,9 @@ def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[d
         "max_drawdown_pct": mdd,
         "max_drawdown_basis": MDD_BASIS,
         "max_drawdown_detail": mdd_detail,
+        "sharpe_annualized_sqrt365": sharpe,
+        "sharpe_basis": sharpe_note,
+        "daily_points": daily_n,
         "equity_points": len(eq_vals),
         "open_positions_remaining": None,
         "note": ("指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；"

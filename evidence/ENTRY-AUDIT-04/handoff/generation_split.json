@@ -1,0 +1,69 @@
+{
+  "audit": "ENTRY-AUDIT-04",
+  "handoff_version": "ENTRY-AUDIT-04.handoff.v1",
+  "merge_policy": {
+    "rule": "两代际禁止拼接成同一运行",
+    "reason": "连续回放是单标的 5 年一次跑完、状态机路径依赖（箱体只能被突破一次、24h 冷却）；窗口回放是每组各跑 365 天、起始权益独立、与前序交易无关。两者净盈亏方向相反，合并算胜率/期望会抹平分裂",
+    "allowed": "可以并列报告两代际各自指标；主样本只能是连续回放",
+    "forbidden": "不得把 163 + 42 相加当 205 笔同一样本算胜率/期望/夏普"
+  },
+  "generation_cand_ev": {
+    "label": "连续回放（cand_ev_*）",
+    "source": "连续回放：单标的 2021-12-01~2026-10-18 全区间一次跑完，状态机路径依赖",
+    "rows": 185,
+    "filled": 163,
+    "unfilled": 22,
+    "symbols": 133,
+    "runs": 133,
+    "window_start_min": "2021-12-01",
+    "window_end_max": "2026-10-18",
+    "sum_gross_pnl": 159.62366,
+    "sum_fees": 10.308546,
+    "sum_funding_fee": 5.209154,
+    "sum_net_pnl": 144.10596,
+    "win_count": 71,
+    "loss_count": 92,
+    "win_rate": 0.435583,
+    "funding_gaps_total": 8
+  },
+  "generation_old_cand": {
+    "label": "365 天窗口回放（old_cand_*）",
+    "source": "窗口回放：每个「组×标的」各跑 365 天，与前序交易无关（起始权益独立）",
+    "rows": 42,
+    "filled": 42,
+    "unfilled": 0,
+    "symbols": 35,
+    "runs": 42,
+    "window_start_min": "2021-12-16",
+    "window_end_max": "2026-08-07",
+    "sum_gross_pnl": -37.988312,
+    "sum_fees": 2.817325,
+    "sum_funding_fee": 1.768352,
+    "sum_net_pnl": -42.573989,
+    "win_count": 13,
+    "loss_count": 29,
+    "win_rate": 0.309524,
+    "funding_gaps_total": 3
+  },
+  "combined_reference_only": {
+    "note": "以下合计数仅供对账，不得作为策略指标",
+    "rows": 227,
+    "filled": 205,
+    "sum_gross_pnl": 121.635348,
+    "sum_fees": 13.125871,
+    "sum_funding_fee": 6.977506,
+    "sum_net_pnl": 101.531971
+  },
+  "unique_signal_space": {
+    "rows": 227,
+    "unique_signal_key": 226,
+    "duplicate_signals": 1,
+    "duplicate_detail": [
+      {
+        "signal_key": "COTIUSDT_1640228400000",
+        "candidate_ids": "cand_ev_WX_EVENT_TREND_V0_1_binance_COTIUSDT_1639900800000_1640228400000 | old_cand_COTIUSDT_1640229300000",
+        "generation_combo": "cand_ev+old_cand"
+      }
+    ]
+  }
+}

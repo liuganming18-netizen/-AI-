@@ -1,0 +1,147 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_ZKUSDT_1787375699",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_ZKUSDT_1787375699",
+   "trade_id": "trd_paper_pos_30",
+   "trade_id_source": "paper_realized.position_id（显式投影，非引擎 trade_id）",
+   "paper_position_id": 30,
+   "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+   "cross_run_key": "2d637283269010b570071fea3073b4513cba06f8925568020fb030ef07a702d4",
+   "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+   "symbol": "ZKUSDT",
+   "direction": "long",
+   "entry_time": 1787202900000,
+   "exit_time": 1787375699999,
+   "entry_price": 0.008372,
+   "exit_price": 0.008905,
+   "qty": 42559.0,
+   "holding_hours": 48.0,
+   "entry_bar_open_time": 1787202900000,
+   "exit_bar_open_time": 1787374800000,
+   "exit_path": "15m_check_position_exit_on_bar",
+   "gross_pnl": 22.68394700000002,
+   "entry_fee": 0.178151974,
+   "exit_fee": 0.18949394749999998,
+   "fees": 0.3676459215,
+   "funding_fee": 0.229709521283,
+   "funding_fee_recomputed": 0.2297095213,
+   "net_pnl": 22.086591557217023,
+   "exit_reason": "trailing_stop_loss",
+   "closed_by": "15m_stop",
+   "order_id": 59,
+   "exit_order_id": "60",
+   "initial_stop": 0.007953,
+   "initial_stop_source": "trades.jsonl.stop_trace[0]",
+   "stop_trace": [
+    {
+     "t": 1787202900000,
+     "stop": 0.007953,
+     "reason": "initial_stop",
+     "ts": 1787202900000
+    },
+    {
+     "t": 1787227200000,
+     "stop": 0.007956999999999999,
+     "reason": "ft_low4h_trail",
+     "ts": 1787227200000
+    },
+    {
+     "t": 1787241600000,
+     "stop": 0.008140999999999999,
+     "reason": "ft_low4h_trail",
+     "ts": 1787241600000
+    },
+    {
+     "t": 1787256000000,
+     "stop": 0.008231,
+     "reason": "ft_low4h_trail",
+     "ts": 1787256000000
+    },
+    {
+     "t": 1787270400000,
+     "stop": 0.008295,
+     "reason": "ft_low4h_trail",
+     "ts": 1787270400000
+    },
+    {
+     "t": 1787284800000,
+     "stop": 0.008313,
+     "reason": "ft_low4h_trail",
+     "ts": 1787284800000
+    },
+    {
+     "t": 1787299200000,
+     "stop": 0.008501,
+     "reason": "ft_low4h_trail",
+     "ts": 1787299200000
+    },
+    {
+     "t": 1787313600000,
+     "stop": 0.008779,
+     "reason": "ft_low4h_trail",
+     "ts": 1787313600000
+    },
+    {
+     "t": 1787356800000,
+     "stop": 0.00891,
+     "reason": "ft_low4h_trail",
+     "ts": 1787356800000
+    }
+   ],
+   "signal_time_ms": 1787202000000,
+   "available_at_ms": 1787202000000,
+   "execution_earliest_ms": 1787202900000,
+   "order_time_ms": 1787202900000,
+   "order_time_basis": "paper_order.ts（隔离回放推进时钟，非真实挂钟）",
+   "origin": "isolated_replay",
+   "exchange_order_id": null,
+   "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报",
+   "gap_cases": [],
+   "n_advance_4h": 492,
+   "n_bar15": 192,
+   "entry_time_ms": 1787202900000,
+   "exit_time_ms": 1787375699999,
+   "order_time": null,
+   "entry_order_id": "59",
+   "entry_order_found": true,
+   "exit_order_found": true,
+   "linked_order_count": 2,
+   "stop_trace_json": "[{\"t\": 1787202900000, \"stop\": 0.007953, \"reason\": \"initial_stop\"}, {\"t\": 1787227200000, \"stop\": 0.007956999999999999, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787241600000, \"stop\": 0.008140999999999999, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787256000000, \"stop\": 0.008231, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787270400000, \"stop\": 0.008295, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787284800000, \"stop\": 0.008313, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787299200000, \"stop\": 0.008501, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787313600000, \"stop\": 0.008779, \"reason\": \"ft_low4h_trail\"}, {\"t\": 1787356800000, \"stop\": 0.00891, \"reason\": \"ft_low4h_trail\"}]",
+   "stop_trace_points": 9,
+   "funding_events": 12,
+   "funding_events_linked": true,
+   "signal_time_source": "trades.jsonl.signal_time_ms",
+   "order_time_source": "trades.jsonl.order_time_ms",
+   "confirm_time_source": null,
+   "P0_source": null,
+   "planned_risk_source": null,
+   "stake_amount_source": null,
+   "event_id": null,
+   "mode": null,
+   "trade_id_nature": "imported_reconstructed"
+  }
+ ],
+ "total": 1,
+ "live_order_enabled": false,
+ "trade_id_source": "ledger:positions.jsonl POSITION_CLOSED.payload.trade_id",
+ "unresolved_trade_ids": 0,
+ "missing_initial_stop": 0,
+ "missing_signal_time": 0,
+ "candidate_matrix": null,
+ "candidate_matrix_note": "同一候选在各参数组/模式下的结果（成交/拒单/未成交）；来源 _candidate_matrix.json，由落盘 trades/rejected/not_filled 汇总，不进任何账本",
+ "link_notes": [
+  "trade#1 开仓订单冲突：trades.jsonl=59 vs positions.POSITION_OPENED=59"
+ ],
+ "note": "trade_id / 关联订单 / 资金费归属全部取自本 run 账本的真实标识；stop_trace 已统一为 `t`（毫秒），无后续止损调整时即为单点；initial_stop 取 stop_trace 首点；signal_time_ms 优先来自 chart.signals"
+}

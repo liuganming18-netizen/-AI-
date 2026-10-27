@@ -1,0 +1,494 @@
+{
+ "work_order": "SIGNAL-CLOSURE-06-R1",
+ "generated_utc": "2026-10-25T09:23:45Z",
+ "root": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-CLOSURE-06-R1",
+ "n_files": 80,
+ "note": "版本只认 SHA-256；本文件不登记自身。",
+ "annotations": {
+  "out/20c/20_运行观察_样本.jsonl": "20 号崩溃后重启采样留下的残留（4 行、同一根水位），进程随后被终止。保留不删（审计不删证据），但**不作任何结论依据**，报告与 22 / 27 号都不引用。",
+  "out/03b/": "用**当前磁盘上的** 03 脚本、同一截止时刻（2026-10-25T04:59:59Z）复跑的产物；上一级 `out/03_重启一致性_D2880_anchor2880.json` 是改版前脚本产物，两者须成对引用。",
+  "out/*_iso/ 与 out/*_iso_live/": "隔离环境（独立 LIVE_DB、独立账本目录、独立行情库），不是生产库副本。"
+ },
+ "files": [
+  {
+   "path": "code/04b_parity_recheck.py",
+   "bytes": 2845,
+   "mtime_utc": "2026-10-25T06:13:33Z",
+   "sha256": "b9bfa2369eae9474515a4f66792b05787e2d54f850cb331bb6abac4b37610540"
+  },
+  {
+   "path": "code/10_anchor_semantics.py",
+   "bytes": 11050,
+   "mtime_utc": "2026-10-25T06:16:23Z",
+   "sha256": "c87b02cff72358bdcf913e3fa06c64fd8efa3a72256e984028a2c455ba0d8410"
+  },
+  {
+   "path": "code/11_full_pool_anchor_restart.py",
+   "bytes": 5712,
+   "mtime_utc": "2026-10-25T06:07:20Z",
+   "sha256": "6fa16ab7be703c4d28e8b28e7c25ad3c8817e19b54c212fea206762cfad82140"
+  },
+  {
+   "path": "code/12_divergence_explain.py",
+   "bytes": 12985,
+   "mtime_utc": "2026-10-25T06:19:29Z",
+   "sha256": "bfb8ffb37e11a6e4df6d46337ffe1a78526edc87e4888f6b6e5505697575cd73"
+  },
+  {
+   "path": "code/13_recover_cases_r1.py",
+   "bytes": 17872,
+   "mtime_utc": "2026-10-25T07:15:46Z",
+   "sha256": "1a8ed98fdd00ba6800178c5fa1e768ca1a375564d0c7491a01a6518db5596721"
+  },
+  {
+   "path": "code/14_prod_load_observe.py",
+   "bytes": 3046,
+   "mtime_utc": "2026-10-25T06:17:44Z",
+   "sha256": "c11dbe8a2f5372451ca06a6717fe8726c1c6ac18ed3dc64008ba95bbedb39640"
+  },
+  {
+   "path": "code/15_dual_session_diff.py",
+   "bytes": 17437,
+   "mtime_utc": "2026-10-25T06:55:19Z",
+   "sha256": "7bd4fc715dea6edb651010b01496526e529d763be83fbe1a83e94ed852867731"
+  },
+  {
+   "path": "code/16_step_gate_diagnosis.py",
+   "bytes": 10170,
+   "mtime_utc": "2026-10-25T06:33:47Z",
+   "sha256": "c09c134e74835958ad15c277316b69d4a859ff596dabbd26cbb7ca34342ad90e"
+  },
+  {
+   "path": "code/17_batch_vs_full.py",
+   "bytes": 7103,
+   "mtime_utc": "2026-10-25T06:33:34Z",
+   "sha256": "8f3ef07b4ef4c95259e91632c9edfd8b126c942ebc0c2d25a23eadae6c1cd2fb"
+  },
+  {
+   "path": "code/18_restart_effect.py",
+   "bytes": 10608,
+   "mtime_utc": "2026-10-25T06:50:14Z",
+   "sha256": "c3a700b950817d6ea01b9ad221a8a6203a392a737d26cdad24c601a967a7c702"
+  },
+  {
+   "path": "code/19_export_real_candidates.py",
+   "bytes": 6421,
+   "mtime_utc": "2026-10-25T06:50:45Z",
+   "sha256": "c183ca4836c3f89f84e550909640da63eb4d6d4198a655294397f4d1c1395722"
+  },
+  {
+   "path": "code/20_runtime_observation.py",
+   "bytes": 16255,
+   "mtime_utc": "2026-10-25T09:01:31Z",
+   "sha256": "483da8aeb202b81cb00bc60f78e071aa2f1ffbc45e955b7d26d0e50a304e2a40"
+  },
+  {
+   "path": "code/21_restart_count_matrix.py",
+   "bytes": 18774,
+   "mtime_utc": "2026-10-25T07:27:00Z",
+   "sha256": "a4e5c1baf9eb402b642663d8b3c2a0c08e97bf537e2d5831041e9753e8cb5506"
+  },
+  {
+   "path": "code/22_report_numbers.py",
+   "bytes": 27423,
+   "mtime_utc": "2026-10-25T09:16:13Z",
+   "sha256": "73b992a89374da5b2a67395cd763ebd2cbdeeeabad4402f53615cd5d5550a2b5"
+  },
+  {
+   "path": "code/23_rerun_03_current_version.py",
+   "bytes": 1936,
+   "mtime_utc": "2026-10-25T07:37:25Z",
+   "sha256": "752799422ea12e15b853ac7456a5ff5cd29beb9cfd44678eebb44e9f592b58d5"
+  },
+  {
+   "path": "code/24_manifest.py",
+   "bytes": 2914,
+   "mtime_utc": "2026-10-25T09:21:02Z",
+   "sha256": "24bbf7eb31aa9c9af4b20c74419815bb072c88cbaa5321aba217a76a36351e99"
+  },
+  {
+   "path": "code/25_reconstruct_event2.py",
+   "bytes": 5731,
+   "mtime_utc": "2026-10-25T09:01:53Z",
+   "sha256": "0461fabf2b2f14c917d998ab36f5126b68c01659cdb35504505c9ee6e3de272e"
+  },
+  {
+   "path": "code/26_observe_summary.py",
+   "bytes": 10101,
+   "mtime_utc": "2026-10-25T09:08:52Z",
+   "sha256": "b957c963b5c73f714847d12613ad59febbafb36928436dcc1f7c4001de4bfad9"
+  },
+  {
+   "path": "code/27_report_crosscheck.py",
+   "bytes": 8780,
+   "mtime_utc": "2026-10-25T09:16:40Z",
+   "sha256": "bf3eb28fbb43209bd198b4f03b28eb5ecf3b492eee8b6f5eb9da1a9d7ee04f3b"
+  },
+  {
+   "path": "code/28_process_identity.py",
+   "bytes": 3335,
+   "mtime_utc": "2026-10-25T09:11:38Z",
+   "sha256": "47d88e12bc29a027fed63c0880505c9e826690f2475bfd3f2cfd2aee3fe620df"
+  },
+  {
+   "path": "code/_prev_13_recover_cases.py",
+   "bytes": 18553,
+   "mtime_utc": "2026-10-25T06:17:30Z",
+   "sha256": "cf6d8c8b749eb73cad153355a06d10772afae95e4fea9b239c2ebdd257769cde"
+  },
+  {
+   "path": "out/03_逐币重启对照_D2880_anchor2880.csv",
+   "bytes": 84920,
+   "mtime_utc": "2026-10-25T06:22:29Z",
+   "sha256": "b1b00daf058f9f374d5101ca7c34b69c1a9ac02c918520363ccec3022a0a3ac4"
+  },
+  {
+   "path": "out/03_重启一致性_D2880_anchor2880.json",
+   "bytes": 2277,
+   "mtime_utc": "2026-10-25T06:22:29Z",
+   "sha256": "59f02292e24a2731ee760c9ea1974948b9c832abb440ad542183bd320a6bbb7c"
+  },
+  {
+   "path": "out/03b/03_逐币重启对照_D2880_anchor2880.csv",
+   "bytes": 84926,
+   "mtime_utc": "2026-10-25T08:01:21Z",
+   "sha256": "82b9f0641d5f836cd91b64a57c6f2d7714b9b88191c9730ac4c8d8a49e164189"
+  },
+  {
+   "path": "out/03b/03_重启一致性_D2880_anchor2880.json",
+   "bytes": 2378,
+   "mtime_utc": "2026-10-25T08:01:21Z",
+   "sha256": "0480ab38262844f395b3505521a3be2e5f75c572da46f726701991b29d0ab7d7"
+  },
+  {
+   "path": "out/10_iso_live/live.sqlite3",
+   "bytes": 45056,
+   "mtime_utc": "2026-10-25T06:16:32Z",
+   "sha256": "17f4a78ef547e5d2edae213628cc7c476a9b10f14a95e1ac1efabdcdcba717a3"
+  },
+  {
+   "path": "out/10_iso_live/live.sqlite3-shm",
+   "bytes": 32768,
+   "mtime_utc": "2026-10-25T06:16:32Z",
+   "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+  },
+  {
+   "path": "out/10_iso_live/live.sqlite3-wal",
+   "bytes": 0,
+   "mtime_utc": "2026-10-25T06:16:32Z",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "out/10_锚点覆盖逐币.csv",
+   "bytes": 39025,
+   "mtime_utc": "2026-10-25T06:16:40Z",
+   "sha256": "669ac016ba06616d6868473c7d1c5cf0dc663f2a878588c8c8cc4958c6c0b37f"
+  },
+  {
+   "path": "out/10_锚点语义与覆盖.json",
+   "bytes": 3219,
+   "mtime_utc": "2026-10-25T06:16:40Z",
+   "sha256": "ceced2d97bc9d0a28ef2f4f913824b88c06db063fb3beeedad6acbd0f11a1b8f"
+  },
+  {
+   "path": "out/11_iso_live/live.sqlite3",
+   "bytes": 45056,
+   "mtime_utc": "2026-10-25T06:07:29Z",
+   "sha256": "37d5426a2837f1bbb0e4a72766f71e748c8c92e748515afc1793b686f97e2391"
+  },
+  {
+   "path": "out/11_iso_live/live.sqlite3-shm",
+   "bytes": 32768,
+   "mtime_utc": "2026-10-25T06:07:29Z",
+   "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+  },
+  {
+   "path": "out/11_iso_live/live.sqlite3-wal",
+   "bytes": 0,
+   "mtime_utc": "2026-10-25T06:07:29Z",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "out/11_run.log",
+   "bytes": 936,
+   "mtime_utc": "2026-10-25T06:22:30Z",
+   "sha256": "1fb7b82e6a222148f14b6a0168a0e07296afa43c4e7cd9ecee69183d24610a23"
+  },
+  {
+   "path": "out/12_差异逐项解释.csv",
+   "bytes": 14936,
+   "mtime_utc": "2026-10-25T06:19:39Z",
+   "sha256": "7d1339473addc51fc8d24a2e93d1d5fa94535969a89c752a0e84c513582387f5"
+  },
+  {
+   "path": "out/12_差异逐项解释.json",
+   "bytes": 22664,
+   "mtime_utc": "2026-10-25T06:19:39Z",
+   "sha256": "013cf8c176c44f928ccb15489936989109428320a540a591474d79aac3ddf59d"
+  },
+  {
+   "path": "out/12_真实历史候选清单.json",
+   "bytes": 112,
+   "mtime_utc": "2026-10-25T06:19:39Z",
+   "sha256": "03d29bb724e167d3ba717c4815f4baae77fafc48e974f5e4a14e75adbc4f29a9"
+  },
+  {
+   "path": "out/13_iso/market/market.sqlite3",
+   "bytes": 5541888,
+   "mtime_utc": "2026-10-25T07:15:59Z",
+   "sha256": "a978966dc2f9653da0bdbbf5323d05ae56bc4420ef671567651b79e357d450cd"
+  },
+  {
+   "path": "out/13_候选恢复四路径.json",
+   "bytes": 5165,
+   "mtime_utc": "2026-10-25T07:16:00Z",
+   "sha256": "345e5dafb14bbb06510bfaff9191c071a6f7039536a70d3699c83c1222efbc8b"
+  },
+  {
+   "path": "out/13_逐案记录.csv",
+   "bytes": 996,
+   "mtime_utc": "2026-10-25T07:16:00Z",
+   "sha256": "300c305e68452fc4c5cec9aa767051232aa6cbbc76b85559b4d1d3ed3dda8dfa"
+  },
+  {
+   "path": "out/15_probe/03_逐币重启对照_D2880_anchor2880.csv",
+   "bytes": 741,
+   "mtime_utc": "2026-10-25T06:27:00Z",
+   "sha256": "4f34cc746c57faad4e739acebf79fe8fdf2e6d5ae69b7589ffe02842dc1916bc"
+  },
+  {
+   "path": "out/15_probe/03_重启一致性_D2880_anchor2880.json",
+   "bytes": 1647,
+   "mtime_utc": "2026-10-25T06:27:00Z",
+   "sha256": "8b1304d4fb608f67863d602ffca11f109bbb4108f3d124898eed1608106099c9"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_anchor2880_d1160_anchor2880.csv",
+   "bytes": 435493,
+   "mtime_utc": "2026-10-25T07:07:50Z",
+   "sha256": "86a4f7286d22428332940e834fa34e97f08d3a2fdb59696ab273c5ce6db1ce7d"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_anchor2880_d1160_anchor2880.json",
+   "bytes": 937667,
+   "mtime_utc": "2026-10-25T07:07:50Z",
+   "sha256": "459a11d251a92378d500ba4884ace6332c4c93611cd6781833e7bded2a8d2037"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_as06_d1160_noanchor.csv",
+   "bytes": 446226,
+   "mtime_utc": "2026-10-25T07:10:58Z",
+   "sha256": "c83510bfb7b89ab8891bb03353ae1a8ecc245f2c8fcc5dcc0497fcd18294ba33"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_as06_d1160_noanchor.json",
+   "bytes": 949248,
+   "mtime_utc": "2026-10-25T07:10:58Z",
+   "sha256": "0ff8ac4f311bd53661efc22612124844fae489e107442ae651697b88f96943aa"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_d1160_noanchor.csv",
+   "bytes": 449382,
+   "mtime_utc": "2026-10-25T07:09:18Z",
+   "sha256": "b4429a2f09922b43aed43ca8e72841509b56fc0f7157ed9e61f008277b81aacd"
+  },
+  {
+   "path": "out/15_双会话对账_D1160_R6h_d1160_noanchor.json",
+   "bytes": 952416,
+   "mtime_utc": "2026-10-25T07:09:18Z",
+   "sha256": "42d7e8f92775c6fec68e7bdb58bd4f553fa20978e9dd1ddfe725abdb5bc78555"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R12h_anchor2880.csv",
+   "bytes": 435493,
+   "mtime_utc": "2026-10-25T07:37:05Z",
+   "sha256": "86a4f7286d22428332940e834fa34e97f08d3a2fdb59696ab273c5ce6db1ce7d"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R12h_anchor2880.json",
+   "bytes": 937740,
+   "mtime_utc": "2026-10-25T07:37:05Z",
+   "sha256": "5e1aacfd72951d9d55521b576afd6cac5daf2017c5748a9469c7375f155bba7f"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R1h_anchor2880.csv",
+   "bytes": 435493,
+   "mtime_utc": "2026-10-25T07:32:11Z",
+   "sha256": "86a4f7286d22428332940e834fa34e97f08d3a2fdb59696ab273c5ce6db1ce7d"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R1h_anchor2880.json",
+   "bytes": 937739,
+   "mtime_utc": "2026-10-25T07:32:11Z",
+   "sha256": "40a528164285677692d4a4b7648a1f97f4e30efe303afc5107994dee3713ecca"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_anchor2880_candlog6.csv",
+   "bytes": 6979,
+   "mtime_utc": "2026-10-25T06:24:56Z",
+   "sha256": "666d1b5a135c061d5a86add555848bf9b395a95bcf867b52f7eaed0529d28c8f"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_anchor2880_candlog6.json",
+   "bytes": 13175,
+   "mtime_utc": "2026-10-25T06:24:56Z",
+   "sha256": "c3ae9ac2817dbb8131dce37c475457627a4b02043478c14de4d8a8a67873737e"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_anchor2880_fullpool.csv",
+   "bytes": 435493,
+   "mtime_utc": "2026-10-25T07:02:23Z",
+   "sha256": "86a4f7286d22428332940e834fa34e97f08d3a2fdb59696ab273c5ce6db1ce7d"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_anchor2880_fullpool.json",
+   "bytes": 937667,
+   "mtime_utc": "2026-10-25T07:02:23Z",
+   "sha256": "e4b355e0fcc006f27b046c2929b206b102147202b8e1813f280556d04682dfc9"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_x2_anchor2880.csv",
+   "bytes": 435493,
+   "mtime_utc": "2026-10-25T07:43:19Z",
+   "sha256": "86a4f7286d22428332940e834fa34e97f08d3a2fdb59696ab273c5ce6db1ce7d"
+  },
+  {
+   "path": "out/15_双会话对账_D2880_R6h_x2_anchor2880.json",
+   "bytes": 937765,
+   "mtime_utc": "2026-10-25T07:43:19Z",
+   "sha256": "c6befd721af6b07ad98517b41f8fb336c02ad003152abca36e78cecaad689850"
+  },
+  {
+   "path": "out/16_推进闸门诊断.json",
+   "bytes": 3897,
+   "mtime_utc": "2026-10-25T06:33:06Z",
+   "sha256": "8f762df8cfbb21d5ae09be8a6263cd62d120bbf0d62f2a0ce49983dc61f889b2"
+  },
+  {
+   "path": "out/16_逐步轨迹_full526.csv",
+   "bytes": 12690,
+   "mtime_utc": "2026-10-25T06:33:00Z",
+   "sha256": "dc3f234c5e81e9ee1be17d6ecdea6e1b7996e5bf1793a5000b0137be7331486a"
+  },
+  {
+   "path": "out/16_逐步轨迹_subset6.csv",
+   "bytes": 12690,
+   "mtime_utc": "2026-10-25T06:33:06Z",
+   "sha256": "dc3f234c5e81e9ee1be17d6ecdea6e1b7996e5bf1793a5000b0137be7331486a"
+  },
+  {
+   "path": "out/17_分批对比.json",
+   "bytes": 3854,
+   "mtime_utc": "2026-10-25T06:44:55Z",
+   "sha256": "1c0a78b62a6c86fac0d8cfe8cf345eede2e1667b32ee071b3fcbb5e960c40647"
+  },
+  {
+   "path": "out/18_逐币重启效应_D2880_R6h_anchor2880.csv",
+   "bytes": 81247,
+   "mtime_utc": "2026-10-25T06:54:52Z",
+   "sha256": "929931de00cec4eb25613aa8034b97a85ede8f7c039a254baaf7116d7c425528"
+  },
+  {
+   "path": "out/18_逐币重启效应_D2880_R6h_anchor2880_对照_未补step.csv",
+   "bytes": 81309,
+   "mtime_utc": "2026-10-25T06:49:57Z",
+   "sha256": "1079500979a627f79f515d232e2ffd5e58007d0310d60b46c05d322e7d505bbe"
+  },
+  {
+   "path": "out/18_重启动作效应_D2880_R6h_anchor2880.json",
+   "bytes": 260945,
+   "mtime_utc": "2026-10-25T06:54:52Z",
+   "sha256": "493aa9645e3ca33082a94cba1a38b0c1d7f8e6093f65ae158a846e00e615d0c5"
+  },
+  {
+   "path": "out/18_重启动作效应_D2880_R6h_anchor2880_对照_未补step.json",
+   "bytes": 262055,
+   "mtime_utc": "2026-10-25T06:49:57Z",
+   "sha256": "6a7e80eb7145b79a17b0a4e7a0bcb7f6ad25f37600422746aac249288227b924"
+  },
+  {
+   "path": "out/19_候选时刻分布.csv",
+   "bytes": 12060,
+   "mtime_utc": "2026-10-25T06:57:38Z",
+   "sha256": "0a269dc838736928a2d919fc0a163549ebcb3e38d7765833713b760e7f36a5d7"
+  },
+  {
+   "path": "out/19_真实历史候选清单.json",
+   "bytes": 27868,
+   "mtime_utc": "2026-10-25T06:57:38Z",
+   "sha256": "269b252a7acd1dd31996cd201fd8a2e40d265b924805e64753b3ac67e503f888"
+  },
+  {
+   "path": "out/20_运行观察_样本.jsonl",
+   "bytes": 315552,
+   "mtime_utc": "2026-10-25T09:00:22Z",
+   "sha256": "1aed6287c27b244b54bc9f623188709158b1258e97156ccfbfe8afc996c3ae4a"
+  },
+  {
+   "path": "out/20_运行观察_汇总.json",
+   "bytes": 5363,
+   "mtime_utc": "2026-10-25T09:22:33Z",
+   "sha256": "a75faa096809c63e94d30a84148d4e8739c35cd1d4ac98e71773b31b24fdd9d6"
+  },
+  {
+   "path": "out/20_运行观察_逐币事件.json",
+   "bytes": 4995,
+   "mtime_utc": "2026-10-25T08:01:21Z",
+   "sha256": "23f701064e31ed62cc662dde9e05ace18526456fc2982e9e823cb30c0eced85c"
+  },
+  {
+   "path": "out/20b_生产状态_08点那根之后.json",
+   "bytes": 35394,
+   "mtime_utc": "2026-10-25T09:01:14Z",
+   "sha256": "2fe85c14d0152a87f9eb4229f33a0b71f42f61403206065e82a55b913e5f9c80"
+  },
+  {
+   "path": "out/20c/20_运行观察_样本.jsonl",
+   "bytes": 16760,
+   "mtime_utc": "2026-10-25T09:03:32Z",
+   "sha256": "360505e0fd7bbc5c1a13f2db6647934ffed95a2b5430af93852b0153b86bbf0c"
+  },
+  {
+   "path": "out/22_报告数字.csv",
+   "bytes": 29533,
+   "mtime_utc": "2026-10-25T09:22:33Z",
+   "sha256": "fa39e2996e2b48ebffb15c042f52fd55757d9c94d31b072d5fd0001d77b0f622"
+  },
+  {
+   "path": "out/22_报告数字.json",
+   "bytes": 48244,
+   "mtime_utc": "2026-10-25T09:22:33Z",
+   "sha256": "15e9eef12ce44e5f2b34537c41215f97a081001a85334ffd6ca1769752233b96"
+  },
+  {
+   "path": "out/25_第二根小时线逐币重建.csv",
+   "bytes": 409,
+   "mtime_utc": "2026-10-25T09:03:33Z",
+   "sha256": "89744a356963fc6f82814c4339a2fd7ff5a5938162e037c0df138f3afb95bbe3"
+  },
+  {
+   "path": "out/25_第二根小时线逐币重建.json",
+   "bytes": 2437,
+   "mtime_utc": "2026-10-25T09:03:33Z",
+   "sha256": "c4e1798775f670132a915e8fbbf4d34d9b86feb7c85a3520efe1f5aba0ac6ff9"
+  },
+  {
+   "path": "out/27_报告交叉核对.json",
+   "bytes": 274,
+   "mtime_utc": "2026-10-25T09:23:37Z",
+   "sha256": "84c0f2a3b6899dfd1b7ca7fdeee60ae16aacf8e0fb39bae26b40590bf374936f"
+  },
+  {
+   "path": "out/28_进程身份快照.json",
+   "bytes": 1629,
+   "mtime_utc": "2026-10-25T09:11:46Z",
+   "sha256": "c0a2dd2feedfbf1cb196c1573292f03df94352b3ff6f2649038810209ecba083"
+  },
+  {
+   "path": "SIGNAL-CLOSURE-06-R1_最终报告.md",
+   "bytes": 37633,
+   "mtime_utc": "2026-10-25T09:23:15Z",
+   "sha256": "2832dbf5ca56c8ab33b9a6db1048f32ac6da0cd01d917409d5b025cad269276b"
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+  "核对时刻_utc": "2026-10-24T09:12:15Z",
+  "strategies": 45,
+  "orders_rows": 6790,
+  "trades_rows": 3395,
+  "orders_per_trade_distribution": {
+    "2": 3395
+  },
+  "来源判定": {
+    "engine_raw": "trade.orders 的 7 个字段（amount/safe_price/ft_order_side/order_filled_timestamp/ft_is_entry/ft_order_tag/cost）逐字来自 zip 内 backtest-result-*.json，未经任何重算",
+    "derived": "trade_id（导出无此字段，按 (open_timestamp, 白名单序) 还原）；fee_amount_derived（= cost − amount×price，引擎未单独导出每笔订单手续费）；gross_notional（= amount×price，纯乘法）",
+    "missing_export_trimmed": "order_id / status / filled / remaining / order_type / price / order_timestamp / order_filled_date / ft_fee_base / funding_fee —— 引擎在内存里**有**（backtesting.py 里 order_id = str(自增计数器)），但导出走 Trade.to_json(minified=True) 被裁掉",
+    "missing_env_absent": "fill_id —— 回测环境不存在交易所成交回报，不是字段被裁，而是该概念不存在"
+  },
+  "公式级校验": {
+    "cost_公式_cost=amount*price*(1+fee)_最大绝对偏差": 4.957145804951324e-14,
+    "cost公式校验通过行数": 6790,
+    "cost公式校验总行数": 6790,
+    "数量=交易数量_通过": 6790,
+    "价格=开/平仓价_通过": 6790,
+    "时间=开/平仓时刻_通过": 6790,
+    "标签=enter_tag/exit_reason_通过": 6790,
+    "逐笔盈亏用orders+funding重建_最大绝对偏差": 5.000050151693358e-09,
+    "逐笔盈亏用orders+funding重建_最大相对偏差": 4.985736601348378e-09,
+    "逐笔盈亏重建_1e-8内通过笔数": 3395,
+    "逐笔盈亏重建_总笔数": 3395,
+    "手续费_orders反推_vs_trade字段_最大绝对偏差": 6.783462680459706e-14,
+    "容差依据": "重建残差的**唯一来源是引擎自己在算完盈亏后取整**：`freqtrade/persistence/trade_model.py:1198  profit_abs = round(profit_abs, 8)`。因此上界 = 0.5×10⁻⁸ = 5e-9，判定门槛取 1e-8（=2 倍上界，留 float 表示余量）。这不是「我们算得差」，也不是可以放宽的余量：实测最大残差 5.0000502e-9 正好贴住 8 位取整边界。旁证：同一份导出里 funding_fees 有 18 位小数（未取整），profit_abs 最多 8 位。"
+  },
+  "与BT01订单层比对": {
+    "BT01行数": 6790,
+    "本单从原始JSON重建行数": 6790,
+    "仅本单有(原始JSON多出)": 0,
+    "仅BT01有(疑似多写/伪造)": 0,
+    "共同行": 6790,
+    "fill_price_maxdiff": 0.0,
+    "fill_amount_maxdiff": 0.0,
+    "fill_cost_maxdiff": 5.684341886080802e-14,
+    "fill_ts_mismatch": 0,
+    "tag_mismatch": 0
+  },
+  "结论": "PASS：订单层逐行来自引擎原始订单对象，未发现增行/改值/伪造；缺 order_id/status/fill_id，已按缺失类型分别标注"
+}

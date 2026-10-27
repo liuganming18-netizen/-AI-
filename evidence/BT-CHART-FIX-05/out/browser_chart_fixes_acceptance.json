@@ -1,0 +1,75 @@
+{
+  "task": "BT-CHART-FIX-05",
+  "total_checks": 7,
+  "passed_checks": 7,
+  "all_pass": true,
+  "checks": [
+    {
+      "id": "FIX01_TIME_SYNC_CONSISTENCY",
+      "name": "多图时间口径严格一致，明确显示K线开闭时间与资金采样时间，绝不伪装同步",
+      "pass": true,
+      "detail": {
+        "kline_reading": "时刻 2021-12-13 15:00 UTC (闭 2021-12-13 16:00) 开 437.78 高 437.79 低 427.66 收 429.57 量（base） 26.145K 持仓量 —（5m 归档最近一条） 该根无真实信号记录",
+        "fund_reading": "时刻 12-13 15:00 UTC（无精确采样，最近采样 12-14 00:00） 策略净值 $1,996.25 (-0.19%)",
+        "kline_target_time": "2021-12-13 15:00",
+        "fund_target_time": "12-13 15:00",
+        "sample_honestly_noted": true
+      }
+    },
+    {
+      "id": "FIX02_TIMEFRAME_30M_SWITCH",
+      "name": "30m 周期成功切换，展示真实 30m 颗粒度，无残留上一周期数据",
+      "pass": true,
+      "detail": {
+        "active_class": "ds-tfgroup__item is-on"
+      }
+    },
+    {
+      "id": "FIX02_TIMEFRAME_15M_SWITCH",
+      "name": "15m 周期成功切换，展示真实 15m 执行颗粒度",
+      "pass": true,
+      "detail": {
+        "active_class": "ds-tfgroup__item is-on"
+      }
+    },
+    {
+      "id": "FIX02_TIMEFRAME_1H_DEFAULT",
+      "name": "恢复 1h 默认主图周期",
+      "pass": true,
+      "detail": {
+        "is1hActive": "ds-tfgroup__item is-on"
+      }
+    },
+    {
+      "id": "FIX03_ORDER_EXACT_FOCUS",
+      "name": "点击订单精确联动切换到对应标的COMP并定位到柱与精确分级时刻",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0003_0",
+        "active_symbol": "",
+        "chart_head": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 2883 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 上下文 ±7 天 · 前168",
+        "focus_badge": "🎯 定位事件 2022-01-18 12:15 UTC (1h归桶 2022-01-18 12:00)"
+      }
+    },
+    {
+      "id": "FIX04_PERSISTENT_REOPEN_RESTORE",
+      "name": "关闭后重开依然恢复正确的回测组与标的记录 (COMP)",
+      "pass": true,
+      "detail": {
+        "target_run": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+        "restored_run": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+        "restored_symbol": "COMP",
+        "page2_head": "K 线 · 成交量 · 持仓量（OI） COMPUSDT · 2883 根（1h 原始） · 开平仓 2 笔 · 委托 42 条 上下文 ±7 天 · 前168"
+      }
+    },
+    {
+      "id": "FIX05_CROSS_GROUP_SWITCH",
+      "name": "快速切组（D05 -> D20）完全隔离，无旧状态残留",
+      "pass": true,
+      "detail": {
+        "url": "http://127.0.0.1:3000/?nav=backtest&run=run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D20_Vs04_Z02&trade=trd_Wyckoff_C1_S05_D20_Vs04_Z02_0001",
+        "head": "K 线 · 成交量 · 持仓量（OI） BCHUSDT · 980 根（1h 原始） · 开平仓 1 笔 · 委托 42"
+      }
+    }
+  ]
+}

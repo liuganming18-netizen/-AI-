@@ -1,0 +1,114 @@
+{
+  "stats_at_utc": "2026-10-26T03:40:56Z",
+  "population": "全量（每项为整表/整目录聚合，无抽样）",
+  "fields": [
+    {
+      "dataset": "冷档 candles",
+      "field": "available_at",
+      "rows": 114466846,
+      "filled": 0,
+      "fill_pct": 0.0,
+      "semantic": "K 线可得时间（交易所发布时刻或本地入库时刻，需另证）",
+      "source": "SELECT COUNT(*) AS n,\n       SUM(CASE WHEN available_at IS NOT NULL THEN 1 ELSE 0 END) AS filled\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/candles/*/*/*/*/*.parquet', union_by_name = true)"
+    },
+    {
+      "dataset": "冷档 oi",
+      "field": "fetched_at",
+      "rows": 128566270,
+      "filled": 0,
+      "fill_pct": 0.0,
+      "semantic": "采集时刻",
+      "source": "SELECT COUNT(*) AS n,\n       SUM(CASE WHEN fetched_at IS NOT NULL THEN 1 ELSE 0 END) AS filled\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/oi/*/*/*/*.parquet', union_by_name = true)"
+    },
+    {
+      "dataset": "冷档 funding",
+      "field": "fetched_at（列不存在）",
+      "rows": 2189855,
+      "filled": 0,
+      "fill_pct": 0.0,
+      "semantic": "冷档 funding 只有 5 列（funding_time/funding_rate/mark_price/rate_type/source），**没有 fetched_at、也没有 exchange/market/symbol** ⇒ 冷档资金费无法自证采集时刻",
+      "source": "DESCRIBE read_parquet(funding)"
+    },
+    {
+      "dataset": "冷档 metrics",
+      "field": "（无采集/发布时刻列）",
+      "rows": 127973455,
+      "filled": 0,
+      "fill_pct": 0.0,
+      "semantic": "只有 ts（5m 槽位），没有 fetched_at / published_at ⇒ 无法判断何时可得",
+      "source": "DESCRIBE read_parquet(metrics)"
+    },
+    {
+      "dataset": "热库 candle_versions",
+      "field": "available_at",
+      "rows": 9137679,
+      "filled": 4586423,
+      "fill_pct": 50.19,
+      "semantic": "K 线可得时间（实测=入库时刻）",
+      "source": "SELECT COUNT(*), SUM(available_at IS NOT NULL) FROM candle_versions"
+    },
+    {
+      "dataset": "热库 oi_history",
+      "field": "fetched_at",
+      "rows": 7136972,
+      "filled": 3206165,
+      "fill_pct": 44.92,
+      "semantic": "OI 采集时刻",
+      "source": "SELECT COUNT(*), SUM(fetched_at IS NOT NULL) FROM oi_history"
+    },
+    {
+      "dataset": "热库 funding_history",
+      "field": "fetched_at",
+      "rows": 2123808,
+      "filled": 2123808,
+      "fill_pct": 100.0,
+      "semantic": "资金费采集时刻",
+      "source": "SELECT COUNT(*), SUM(fetched_at IS NOT NULL) FROM funding_history"
+    },
+    {
+      "dataset": "热库 realtime_quotes",
+      "field": "fetched_at",
+      "rows": 814,
+      "filled": 814,
+      "fill_pct": 100.0,
+      "semantic": "行情快照采集时刻",
+      "source": "SELECT COUNT(*), SUM(fetched_at IS NOT NULL) FROM realtime_quotes"
+    },
+    {
+      "dataset": "热库 oi_history（池内 526）",
+      "field": "fetched_at",
+      "rows": 6898066,
+      "filled": 2967259,
+      "fill_pct": 43.02,
+      "semantic": "OI 采集时刻（池内口径）",
+      "source": "SELECT COUNT(*), SUM(fetched_at IS NOT NULL) FROM oi_history WHERE symbol IN (526 币)"
+    }
+  ],
+  "funding_columns": [
+    "funding_time",
+    "funding_rate",
+    "mark_price",
+    "rate_type",
+    "source"
+  ],
+  "metrics_columns": [
+    "symbol",
+    "ts",
+    "sum_open_interest",
+    "sum_open_interest_value",
+    "retail_account_ls_ratio",
+    "top_position_ls_ratio",
+    "count_long_short_ratio",
+    "sum_toptrader_long_short_ratio",
+    "count_toptrader_long_short_ratio",
+    "sum_taker_long_short_vol_ratio"
+  ],
+  "metrics_has_publish_or_fetch_col": false,
+  "available_minus_close_ms": {
+    "min": 12,
+    "max": 6547637840,
+    "avg": 36335152.7,
+    "n": 4586423,
+    "verdict": "available_at 与 close_time 的差最小为毫秒级、最大可达数十天 ⇒ 它是**本地入库时刻**，不是交易所发布时刻；不能当 PIT 发布时点用"
+  }
+}

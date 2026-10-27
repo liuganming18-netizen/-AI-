@@ -1,0 +1,35 @@
+[
+  {
+    "case": "reversed_window",
+    "http": 400,
+    "pass": true,
+    "reason": "运行规格校验失败",
+    "errors": [
+      "window_end(1788220800000) 必须晚于 window_start(1788739200000)",
+      "窗口跨度不足 1 天（-518400s）"
+    ]
+  },
+  {
+    "case": "unsupported_timeframe",
+    "http": 400,
+    "pass": true,
+    "reason": "仅验证 1h 信号与 15m 执行，禁止静默改周期",
+    "errors": null
+  },
+  {
+    "case": "multiple_symbols",
+    "http": 400,
+    "pass": true,
+    "reason": "运行规格校验失败",
+    "errors": [
+      "当前基线仅支持单标的，禁止静默丢弃其它标的"
+    ]
+  },
+  {
+    "case": "unapproved_override",
+    "http": 400,
+    "pass": true,
+    "reason": "收尾基线使用已批准 FT-LOW4H 配置，暂不接受参数覆盖",
+    "errors": null
+  }
+]

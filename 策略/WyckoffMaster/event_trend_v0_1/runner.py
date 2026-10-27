@@ -47,6 +47,7 @@ CODE_FILES = [
     "策略/WyckoffMaster/event_trend_v0_1/contracts.py",
     "策略/WyckoffMaster/event_trend_v0_1/features.py",
     "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+    "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py",
     "策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py",
     "策略/WyckoffMaster/event_trend_v0_1/runner.py",
     "策略/WyckoffMaster/trading_core/contracts.py",
@@ -58,6 +59,7 @@ CODE_FILES = [
     "策略/WyckoffMaster/trading_core/position.py",
     "策略/WyckoffMaster/trading_core/funding.py",
     "策略/WyckoffMaster/trading_core/pit.py",
+    "策略/WyckoffMaster/trading_core/pit_guard.py",
     "策略/WyckoffMaster/trading_core/ledger.py",
     "策略/WyckoffMaster/trading_core/engine.py",
 ]
@@ -107,11 +109,18 @@ def _jsonl_text(rows: List[dict]) -> str:
 class EventTrendRunner:
     """真实多标的事件趋势回测与对账执行器。"""
 
-    def __init__(self, base_dir: str = "/Users/boos/Desktop/威科夫因子共振趋势"):
+    def __init__(self, base_dir: str = "/Users/boos/Desktop/威科夫因子共振趋势",
+                 pit_mode: str = "declared_assumption",
+                 oi_declared_lag_ms: Optional[int] = None):
         self.base_dir = base_dir
         self.parquet_base = os.path.join(base_dir, "数据/市场数据/parquet")
         self.runs_base = os.path.join(base_dir, "回测日志/event_trend_v0_1/runs")
         os.makedirs(self.runs_base, exist_ok=True)
+        # ── PIT 口径（FRAME-PIT-01）──
+        # strict：OI 无发布时点证据 ⇒ 拒用（OI_UNAVAILABLE，不出候选）
+        # declared_assumption：照用「桶结束」当可得时刻，但整次运行判不合格
+        self.pit_mode = pit_mode
+        self.oi_declared_lag_ms = oi_declared_lag_ms
 
     # ══════════════════════ 指纹 ══════════════════════
 
@@ -193,9 +202,15 @@ class EventTrendRunner:
         self,
         symbol: str,
         start_date: Optional[str] = "2024-01-01",
-        end_date: Optional[str] = "2024-06-30"
+        end_date: Optional[str] = "2024-06-30",
+        allow_auto_window: bool = False
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, np.ndarray, np.ndarray, List[dict]]:
-        """加载指定标的在此区间内的 4h(含预热), 1h, 15m, OI 5m 与 Funding 数据。"""
+        """加载指定标的在此区间内的 4h(含预热), 1h, 15m, OI 5m 与 Funding 数据。
+
+        allow_auto_window=False 时**禁止**「窗口内数据不足就改用该币上线后 180 天」的自适应，
+        严格按传入区间跑。批量回测务必传 False：否则短窗口会被静默替换成完全不同的时间段，
+        跑出来的交易日期跟标称窗口对不上。
+        """
         # 1. 4h K 线
         f_4h = sorted(glob.glob(f"{self.parquet_base}/candles/binance/um/{symbol}/4h/*.parquet"))
         if not f_4h:
@@ -232,7 +247,7 @@ class EventTrendRunner:
 
         # 4. OI 5m 真实序列
         f_oi = sorted(glob.glob(f"{self.parquet_base}/oi/binance/um/{symbol}/*.parquet"))
-        df_oi_raw = pd.concat([pd.read_parquet(f, columns=["ts", "open_interest"]) for f in f_oi], ignore_index=True)
+        df_oi_raw = (pd.concat([pd.read_parquet(f, columns=["ts", "open_interest"]) for f in f_oi], ignore_index=True) if f_oi else pd.DataFrame(columns=["ts", "open_interest"]))
         df_oi_raw = df_oi_raw.sort_values("ts").drop_duplicates("ts").reset_index(drop=True)
         oi_ts = df_oi_raw["ts"].to_numpy(np.int64)
         oi_vals = df_oi_raw["open_interest"].to_numpy(np.float64)
@@ -260,7 +275,7 @@ class EventTrendRunner:
         df_15m = df_15m_raw[(df_15m_raw["open_time"] >= start_ms) & (df_15m_raw["close_time"] <= end_ms)].copy()
 
         # 自适应对齐：若该标的在固定区间未上线或数据不足，自适应采用其真实可得的最长 180 天窗口
-        if (len(df_15m) < 2000 or len(df_1h) < 500) and len(df_15m_raw) >= 2000:
+        if allow_auto_window and (len(df_15m) < 2000 or len(df_1h) < 500) and len(df_15m_raw) >= 2000:
             earliest_15m = int(df_15m_raw["open_time"].iloc[0])
             latest_15m = int(df_15m_raw["close_time"].iloc[-1])
             # 留出 4h 预热所需的 50 根 4h (约 8 天)
@@ -268,6 +283,11 @@ class EventTrendRunner:
             auto_end = min(latest_15m, auto_start + 180 * 24 * 3600 * 1000)
             if auto_end - auto_start >= 30 * 24 * 3600 * 1000:
                 start_ms, end_ms = auto_start, auto_end
+                print("  [自适应窗口] %s 区间内数据不足，改用 %s ~ %s（该币上线后 180 天）"
+                      % (symbol,
+                         pd.to_datetime(auto_start, unit="ms").strftime("%Y-%m-%d"),
+                         pd.to_datetime(auto_end, unit="ms").strftime("%Y-%m-%d")),
+                      file=sys.stderr, flush=True)
                 df_1h = df_1h_raw[(df_1h_raw["open_time"] >= start_ms) & (df_1h_raw["close_time"] <= end_ms)].copy()
                 df_15m = df_15m_raw[(df_15m_raw["open_time"] >= start_ms) & (df_15m_raw["close_time"] <= end_ms)].copy()
 
@@ -291,11 +311,22 @@ class EventTrendRunner:
         oi_vals: np.ndarray,
         enable_oi_filter: bool = True,
         chunk_size: Optional[int] = None,
-        inject_duplicates: bool = False
+        inject_duplicates: bool = False,
+        pit_mode: Optional[str] = None
     ) -> EventStateMachine:
-        """运行确定性事件状态机。支持流式逐条、分块批量或注入重复。"""
-        sm = EventStateMachine(config=EventTrendConfig(), enable_oi_filter=enable_oi_filter)
+        """运行确定性事件状态机。支持流式逐条、分块批量或注入重复。
+
+        PIT 受控读取（FRAME-PIT-01）：
+        · 每根 1h bar 用于决策前，校验 `close_time + 1ms <= decision_time`（未收盘即抛错）；
+        · OI 只取「决策时刻已可得」的观测，可得时刻未证时按 `pit_mode` 拒用或判不合格。
+        """
+        sm = EventStateMachine(
+            config=EventTrendConfig(), enable_oi_filter=enable_oi_filter,
+            pit_mode=(pit_mode or self.pit_mode),
+            oi_declared_lag_ms=self.oi_declared_lag_ms,
+        )
         sm.symbol = symbol
+        sm.pit.register_oi(oi_ts, oi_vals)
 
         records = df_1h.to_dict("records")
         if inject_duplicates and len(records) > 50:
@@ -312,11 +343,17 @@ class EventTrendRunner:
                 t_open = int(r["timestamp"])
                 t_close = t_open + 3600 * 1000
 
+                # 硬闸：这根 1h K 线必须已收盘才能进决策
+                sm.pit.assert_candles_closed(int(r["close_time"]), t_close, label="1h")
+
                 if t_close % (4 * 3600 * 1000) == 0:
                     sub_4h = df_4h[df_4h["close_time"] <= t_close]
                     if len(sub_4h) >= 42:
                         last_42 = sub_4h.tail(42)
                         atr_val = float(sub_4h["atr"].iloc[-1])
+                        # 4h 箱体同样要求已收盘
+                        sm.pit.assert_candles_closed(
+                            int(sub_4h["close_time"].iloc[-1]), t_close, label="4h")
                         sm.check_and_form_box(
                             bar_4h_close_ms=t_close,
                             history_42_highs=last_42["high"].to_numpy(np.float64),
@@ -452,7 +489,8 @@ class EventTrendRunner:
     def _build_run_files(
         self, *, run_id: str, symbol: str, variant: str, sm_inst: EventStateMachine,
         res_inst: Dict[str, Any], funnel: Dict[str, Any], run_timestamp: int,
-        data_summary: Dict[str, Any], fingerprints: Dict[str, Any]
+        data_summary: Dict[str, Any], fingerprints: Dict[str, Any],
+        pit_audit: Optional[Dict[str, Any]] = None
     ) -> Dict[str, str]:
         """装配一个 Run 的**全部**产物文件（内存中），交给原子提交写盘。"""
         engine_result = res_inst["engine_result"]
@@ -467,6 +505,20 @@ class EventTrendRunner:
         rejects = [e for e in ledger_events if e.get("event_type") == "SIGNAL_REJECTED"]
         funding_evs = [e for e in ledger_events if e.get("event_type") == "FUNDING_FEE"]
 
+        # ── PIT 资格（FRAME-PIT-01）──
+        # 正式资格 = 规格可证 AND 可得时点可证。两项必须同时成立，缺一即 False。
+        if pit_audit is None:
+            if sm_inst is not None and getattr(sm_inst, "pit", None) is not None:
+                pit_audit = sm_inst.pit.audit()
+                pit_audit["audit_sha256"] = sm_inst.pit.audit_sha256()
+            else:
+                # 无状态机可查（纯产物装配场景）⇒ 不得默认「合格」
+                pit_audit = {"qualified": False,
+                             "qualification_failures": ["pit_audit_unavailable:无状态机可查"],
+                             "pit_guard_version": None}
+        pit_qualified = bool(pit_audit.get("qualified", False))
+        spec_allowed = bool((res_inst.get("summary") or {}).get("formal_pass_allowed", False))
+
         inputs_meta = {
             "run_id": run_id,
             "symbol": symbol,
@@ -478,6 +530,9 @@ class EventTrendRunner:
             # 成交精度：规格来源/适用性（缺失即 formal_pass_allowed=False）
             "instrument_spec": res_inst.get("instrument_spec"),
             "spec_status": res_inst.get("spec_status"),
+            # PIT：数据可得时点审计 + 决策时钟口径
+            "pit_audit": pit_audit,
+            "pit_guard_version": pit_audit.get("pit_guard_version"),
         }
         summary_meta = {
             "run_id": run_id, "symbol": symbol, "variant": variant,
@@ -488,14 +543,30 @@ class EventTrendRunner:
             "precision": res_inst.get("precision", {}),
             "instrument_spec": res_inst.get("instrument_spec"),
             "spec_status": res_inst.get("spec_status"),
-            "formal_pass_allowed": bool(
-                (res_inst.get("summary") or {}).get("formal_pass_allowed", False)),
+            # 正式资格：规格 + PIT 双闸
+            "formal_pass_allowed": bool(spec_allowed and pit_qualified),
+            "formal_pass_allowed_components": {
+                "instrument_spec": spec_allowed,
+                "pit": pit_qualified,
+            },
+            "formal_pass_block_reasons": (
+                ([] if spec_allowed else ["instrument_spec_unproven"])
+                + list(pit_audit.get("qualification_failures", []))),
+            "pit_audit_sha256": pit_audit.get("audit_sha256"),
+            "pit_qualified": pit_qualified,
         }
+        ev_list = [ev.to_dict() for ev in getattr(sm_inst, "completed_events", [])]
+        act_ev = getattr(sm_inst, "active_event", None)
+        if act_ev is not None:
+            act_dict = act_ev.to_dict()
+            if not act_dict.get("termination_reason"):
+                act_dict["termination_reason"] = "active_truncated_at_backtest_end"
+            ev_list.append(act_dict)
+
         files: Dict[str, str] = {
             "inputs.json": json.dumps(inputs_meta, indent=2, ensure_ascii=False, sort_keys=True),
             "summary.json": json.dumps(summary_meta, indent=2, ensure_ascii=False, sort_keys=True),
-            "events.jsonl": _jsonl_text([ev.to_dict() for ev in
-                                         getattr(sm_inst, "completed_events", [])]),
+            "events.jsonl": _jsonl_text(ev_list),
             "candidates.jsonl": _jsonl_text([c.to_dict() for c in
                                              getattr(sm_inst, "candidates", [])]),
             "transitions.jsonl": _jsonl_text([t.to_dict() for t in
@@ -543,29 +614,44 @@ class EventTrendRunner:
         # 只认交易所 exchangeInfo 原始证据；窗口内的真实价格仅用于**证伪**。
         # 规格缺失/无法证明适用于该窗口 ⇒ formal_pass_allowed=False（不得当正式回测通过）。
         spec = self._resolve_spec(symbol, df_15m, cfg)
-        # A: 完整版 (开 OI)
-        sm_a = self.run_state_machine_simulation(symbol, df_4h, df_1h, oi_ts, oi_vals, enable_oi_filter=True)
-        # B: 关 OI 门槛
-        sm_b = self.run_state_machine_simulation(symbol, df_4h, df_1h, oi_ts, oi_vals, enable_oi_filter=False)
+        if cfg.rule == "FT-LOW4H":
+            # 与模拟盘使用同一流式信号入口；B 变体不要求 OI。
+            import unified_runtime as U
+            engine = U.RealSignalEngine(symbol=symbol, enable_oi_filter=cfg.enable_oi_filter)
+            engine.history_floor_ms = 0
+            watcher = U._MemWatcher(df_4h.to_dict("records"), df_1h.to_dict("records"))
+            for bar in df_4h.to_dict("records"):
+                engine.process_market(int(bar["close_time"]), watcher)
+            sm_a = sm_b = engine.sm
+            res_a = res_b = res_c = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_b.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="B", initial_equity=initial_equity,
+                config=cfg, instrument_spec=spec)
+        else:
+            # A: 完整版 (开 OI)
+            sm_a = self.run_state_machine_simulation(symbol, df_4h, df_1h, oi_ts, oi_vals, enable_oi_filter=True)
+            # B: 关 OI 门槛
+            sm_b = self.run_state_machine_simulation(symbol, df_4h, df_1h, oi_ts, oi_vals, enable_oi_filter=False)
 
-        res_a = run_event_trend_backtest(
-            symbol=symbol, df_1h=df_1h, df_15m=df_15m,
-            candidates=sm_a.candidates, funding_events=funding_events,
-            df_4h=df_4h, variant="A", initial_equity=initial_equity, config=cfg,
-            instrument_spec=spec
-        )
-        res_b = run_event_trend_backtest(
-            symbol=symbol, df_1h=df_1h, df_15m=df_15m,
-            candidates=sm_b.candidates, funding_events=funding_events,
-            df_4h=df_4h, variant="B", initial_equity=initial_equity, config=cfg,
-            instrument_spec=spec
-        )
-        res_c = run_event_trend_backtest(
-            symbol=symbol, df_1h=df_1h, df_15m=df_15m,
-            candidates=sm_a.candidates, funding_events=funding_events,
-            df_4h=df_4h, variant="C", initial_equity=initial_equity, config=cfg,
-            instrument_spec=spec
-        )
+            res_a = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_a.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="A", initial_equity=initial_equity, config=cfg,
+                instrument_spec=spec
+            )
+            res_b = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_b.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="B", initial_equity=initial_equity, config=cfg,
+                instrument_spec=spec
+            )
+            res_c = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_a.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="C", initial_equity=initial_equity, config=cfg,
+                instrument_spec=spec
+            )
 
         funnel_a = {
             "boxes": len(sm_a.completed_events) + (1 if sm_a.active_event else 0),
@@ -637,14 +723,19 @@ class EventTrendRunner:
         main_run_id = f"run_WX_EVENT_TREND_V0_1_{symbol}_{run_timestamp}"
         main_run_dir = os.path.join(self.runs_base, main_run_id)
         main_files = self._build_run_files(
-            run_id=main_run_id, symbol=symbol, variant="A", sm_inst=sm_a,
+            run_id=main_run_id, symbol=symbol, variant=("B" if cfg.rule == "FT-LOW4H" else "A"), sm_inst=sm_a,
             res_inst=res_a, funnel=funnel_a, run_timestamp=run_timestamp,
             data_summary=data_summary, fingerprints=fingerprints)
         main_summary = json.loads(main_files["summary.json"])
-        main_summary["summary_variant_a"] = res_a["summary"]
-        main_summary["summary_variant_b"] = res_b["summary"]
-        main_summary["summary_variant_c"] = res_c["summary"]
-        main_summary["funnel_variant_b"] = funnel_b
+        main_summary["execution_rule"] = cfg.rule
+        if cfg.rule == "FT-LOW4H":
+            main_summary["oi_filter_enabled"] = bool(cfg.enable_oi_filter)
+            main_summary["ablation_run"] = False
+        else:
+            main_summary["summary_variant_a"] = res_a["summary"]
+            main_summary["summary_variant_b"] = res_b["summary"]
+            main_summary["summary_variant_c"] = res_c["summary"]
+            main_summary["funnel_variant_b"] = funnel_b
         main_files["summary.json"] = json.dumps(main_summary, indent=2,
                                                 ensure_ascii=False, sort_keys=True)
         main_manifest = self._commit_run_dir(main_run_dir, main_files)
@@ -657,6 +748,11 @@ class EventTrendRunner:
             "funnel_b": funnel_b,
             "fingerprints": fingerprints,
             "manifests": {"main": main_manifest, **manifests},
+            # PIT 资格（FRAME-PIT-01）：本次运行的可得时点审计
+            "pit_qualified": bool(sm_a.pit.qualified),
+            "pit_failures": sm_a.pit.qualification_failures(),
+            "pit_audit_sha256": sm_a.pit.audit_sha256(),
+            "pit_mode": sm_a.pit.mode.value,
             "res_a": res_a,
             "res_b": res_b,
             "res_c": res_c

@@ -1,0 +1,174 @@
+{
+ "probe": "01_数据链路核查",
+ "generated_at_utc": "2026-10-26T09:59:51Z",
+ "stats_at_utc": "2026-10-26T09:59:51Z",
+ "items": {
+  "价格量额笔数_主动买卖": {
+   "载体": "candle_versions / candles 视图",
+   "字段存在": {
+    "open": true,
+    "high": true,
+    "low": true,
+    "close": true,
+    "volume": true,
+    "quote_volume": true,
+    "trade_count": true,
+    "taker_buy_volume": true,
+    "taker_buy_quote_volume": true
+   },
+   "已入库": true,
+   "可读取": true,
+   "进决策": {
+    "价格量": true,
+    "成交笔数": false,
+    "主动买卖": false
+   },
+   "样本": {
+    "symbol": "BTCUSDT",
+    "open_utc": "2026-10-26T09:30:00Z",
+    "close_utc": "2026-10-26T09:44:59Z",
+    "volume": "732.151",
+    "quote_volume": "58926925.30400",
+    "trade_count": 23463,
+    "taker_buy_volume": "398.625",
+    "taker_buy_quote_volume": "32083354.50670"
+   },
+   "主动卖出": {
+    "formula": "volume - taker_buy_volume",
+    "derived": true,
+    "note": "推导量，不是交易所原始字段"
+   },
+   "抽样空值": {
+    "symbols": 20,
+    "rows": 85260,
+    "null_taker_buy": 0
+   },
+   "缺失": "欧易无该字段（candle_field_notes 3225 条全为 okx）；策略只跑币安 UM，故不影响"
+  },
+  "持仓量": {
+   "载体": "oi_history",
+   "字段": [
+    "exchange",
+    "market",
+    "symbol",
+    "period",
+    "ts",
+    "open_interest",
+    "open_interest_value",
+    "oi_ccy",
+    "oi_usd",
+    "source",
+    "fetched_at"
+   ],
+   "已入库": true,
+   "可读取": true,
+   "进决策": false,
+   "进决策依据": "unified_runtime.py 喂给状态机的是空数组（见 03 脚本逐行证据）",
+   "样本": {
+    "symbol": "BTCUSDT",
+    "found": true,
+    "ts": 1793008200000,
+    "ts_utc": "2026-10-26T09:50:00Z",
+    "bucket_close_utc": "2026-10-26T09:55:00Z",
+    "open_interest": 93694.726,
+    "open_interest_value_usdt": 7544121317.5406,
+    "oi_ccy": 93694.726,
+    "oi_usd": 7544121317.5406,
+    "unit_quantity": "币本位数量（base asset）",
+    "unit_notional": "USDT（名义价值）",
+    "source": "binance.fapi.openInterestHist",
+    "fetched_at": 1793008600628,
+    "fetched_at_utc": "2026-10-26T09:56:40Z",
+    "fetch_lag_sec": 400.628,
+    "available_at_proven": true
+   },
+   "覆盖": {
+    "有 5m 历史的标的": 528,
+    "一小时内更新": 522
+   },
+   "单位": {
+    "open_interest": "币本位数量",
+    "open_interest_value": "USDT 名义价值"
+   },
+   "缺失": "零持仓观测需剔除；fetched_at 有空值 ⇒ 只能声明计算不超前"
+  },
+  "大户多空比": {
+   "载体": "冷档 metrics parquet",
+   "已入库": true,
+   "可读取": true,
+   "进决策": false,
+   "仅展示": false,
+   "样本": {
+    "symbol": "BTCUSDT",
+    "rows": 643046,
+    "max_ts_utc": "2026-10-14T23:55:00Z"
+   },
+   "停更": {
+    "rule": "max(ts) 与当前时刻之差",
+    "stale_days": 11.42
+   },
+   "缺失": "无采集/发布时刻列 ⇒ 无可用时间证据；停更期内的值不得当实时证据"
+  },
+  "均价与标记价": {
+   "逐根均价": {
+    "formula": "quote_volume / volume",
+    "derived": true,
+    "status": "可推导"
+   },
+   "标记价格": {
+    "载体": "realtime_quotes.mark_price（最新）／funding_history.mark_price（仅结算时点）",
+    "已入库": true,
+    "可读取": true,
+    "进决策": false
+   },
+   "样本": {
+    "mark_price": "80508.60000000",
+    "funding_rate": "0.00008563",
+    "event_utc": "2026-10-05T04:44:19Z",
+    "fetched_at_utc": "2026-10-05T04:44:20Z"
+   },
+   "缺失": "没有「阶段成交均价」专表；只能用逐根均价推导，口径须写明"
+  },
+  "资金费": {
+   "载体": "funding_history",
+   "已入库": true,
+   "可读取": true,
+   "进决策": true,
+   "用途": "持仓期资金费结算（accrue_funding）",
+   "样本": {
+    "rows": 2123808,
+    "symbols": 814,
+    "first_utc": "2022-01-01T00:00:00Z",
+    "last_utc": "2026-10-26T02:00:00Z",
+    "rate_types": 1,
+    "fetched_at_null": 0
+   },
+   "缺失": "冷档 funding 冷读 0 行（路径口径错），历史回放取不到冷档资金费"
+  },
+  "聪明钱": {
+   "载体": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/聪明钱/raw",
+   "已入库": true,
+   "可读取": true,
+   "进决策": false,
+   "仅展示": true,
+   "样本": {
+    "files": 9,
+    "newest_utc": "2026-10-08T01:42:16Z",
+    "oldest_utc": "2026-10-07T19:21:10Z",
+    "fresh_within_1h": 0
+   },
+   "缺失": "按 symbol 覆盖写，只有当前值、无历史序列 ⇒ 不能回放进历史事件"
+  },
+  "逐笔与盘口": {
+   "已入库": false,
+   "可读取": false,
+   "进决策": false,
+   "现有替代": {
+    "realtime_klines": "未闭合 K 线流（不是逐笔）",
+    "realtime_quotes": "最新报价（不是盘口深度）"
+   },
+   "缺失": "没有逐笔成交明细、没有盘口深度 ⇒ 如实登记为不可得，不造数"
+  }
+ },
+ "errors": []
+}

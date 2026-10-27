@@ -1,0 +1,108 @@
+{
+ "probe": "SIGNAL-UI-LINK-07/35_recovered_origin",
+ "generated_real_utc": "2026-10-25T10:15:44Z",
+ "isolation": {
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/live_signals.sqlite3",
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/paper",
+  "PAPER_LOCK_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/locks"
+ },
+ "clock": {
+  "started_at_utc": "2026-10-02T14:00:00Z",
+  "bootstrap_upto_ms": 1790955000000,
+  "bootstrap_upto_utc": "2026-10-02T15:30:00Z",
+  "iso_paper_epoch_utc": "2026-10-01T16:00:00Z",
+  "state_anchor_utc": "2026-06-27T06:45:15Z",
+  "recovery_gate": "execution_earliest_ms + MAX_FILL_LAG_MS(3600s) >= upto_ms；是否真能成交仍由 paper_engine.FILL_POLICY 决定"
+ },
+ "bootstrap": {
+  "ready": 525,
+  "skipped": 1,
+  "discarded": 43,
+  "recovered": 1,
+  "recovered_detail": [
+   {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+    "symbol": "VELVETUSDT",
+    "snapshot_utc": "2026-10-02T15:00:00Z",
+    "available_at_utc": "2026-10-02T15:00:00Z",
+    "execution_earliest_utc": "2026-10-02T15:15:00Z",
+    "age_ms_at_bootstrap": 1800000,
+    "max_fill_lag_ms": 3600000
+   }
+  ],
+  "elapsed_sec": 47.6
+ },
+ "route_recovered": {
+  "recovered": 1,
+  "persisted": 1,
+  "registered": 1,
+  "rejected": 0,
+  "waiting_gate": 0,
+  "skipped": 0
+ },
+ "db_rows": [
+  {
+   "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+   "symbol": "VELVETUSDT",
+   "origin": "recovered",
+   "executable_state": "enterable",
+   "confirmed_at": 1790953200000,
+   "available_at": 1790953200000
+  }
+ ],
+ "api_scope_current": {
+  "total": 1,
+  "signal_ids": [
+   "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+  ],
+  "quality": {
+   "status": "ok",
+   "age_seconds": null,
+   "scope": "current",
+   "live_start_ms": 1790870400000,
+   "paper_epoch_ms": 1790870400000,
+   "effective_floor_ms": 1790870400000,
+   "paper_ledger_attached_arms": [
+    "3a"
+   ],
+   "n_arm_rows": 1,
+   "n_cards": 1,
+   "excluded_n": 0,
+   "excluded_breakdown": {
+    "db_rows_total": 1,
+    "kept": 1,
+    "excluded": 0,
+    "by_reason": {
+     "not_current_origin": 0,
+     "not_enterable": 0,
+     "missing_time": 0,
+     "before_effective_floor": 0,
+     "not_arm_entry_role": 0,
+     "test_synthetic": 0
+    },
+    "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+   },
+   "note": "当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 1 张卡（原始 1 条臂行）；已从本区移出 0 条（仍保留在库/审计通道）"
+  }
+ },
+ "api_scope_all": {
+  "total": 1,
+  "signal_ids": [
+   "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+  ]
+ },
+ "verdict": {
+  "persisted": 1,
+  "persisted_origin": [
+   "recovered"
+  ],
+  "visible_in_current": [
+   "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+  ],
+  "visible_in_all": [
+   "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+  ],
+  "current_excludes_persisted": false
+ },
+ "elapsed_sec": 58.2
+}

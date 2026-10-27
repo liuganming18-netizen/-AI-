@@ -1,0 +1,111 @@
+--- accum_early_entry.py@d96ad60e（修前）
++++ accum_early_entry.py@3c570edc（修后）
+@@ -892,7 +892,10 @@
+     detail = {"buy_ratio": ratio, "baseline_buy_ratio": base_ratio,
+               "mult": mult, "threshold": thr, "baseline": base_mode, "n": n,
+               "sell_amount": sell_amt, "baseline_sell_amount": base_sell,
+-              "sell_mult": sp_mult, "require_upper_half": require_upper}
++              "sell_mult": sp_mult, "require_upper_half": require_upper,
++              # 06-03：把「判的是哪一根」写进证据（调用方不再靠推断）
++              "bar_open_ms": int(cur["open_time"]),
++              "bar_close_ms": int(cur["close_time"])}
+     return ok, detail, conds
+ 
+ 
+@@ -913,6 +916,11 @@
+         self.state = "BOX"
+         self.sweep_low: Optional[float] = None
+         self.sweep_ms: Optional[int] = None
++        # 06-03：承接判定在**扫低发生根**求值一次，之后只读结果（不再按确认根重算）
++        self.sweep_i: Optional[int] = None
++        self.sweep_bar_ms: Optional[int] = None
++        self.sweep_baseline_window: Optional[dict] = None
++        self.sweep_absorption = None
+         self.resistance: Optional[float] = None
+         self.confirm_ms: Optional[int] = None
+         self.substage: Optional[str] = None
+@@ -986,13 +994,44 @@
+                                                "扫低参照所需历史不足", {"detail": detail}))
+                 return acts
+             if ok:
++                # ── 06-03 时序修正 ──────────────────────────────────────────
++                # 承接（主动买占比 / 卖压）必须判在**扫低发生根**：
++                #   依据 evidence/ACCUM-EARLY-04-A/README.md:53（承接/卖压的可得时点
++                #   = 扫低根 1h 收盘）与 02_规则接口.md:134（基准 = 扫低根**之前**
++                #   20 根 1h 的中位数）。
++                # 修前 `_absorption(bars_1h, i, ...)` 写在 `_confirm_actions` 里，
++                # `i` 是**确认突破根** ⇒ 读错 bar、基准窗口整体右移（06-W2/01 修前轨迹
++                # 实测：三类用例的承接判定下标全部 = 确认根）。
++                # 扫低发生根 = scope 窗口内最低价那一根；`single_bar` 下就是本根。
++                # `multi_bar` 未批准、原文也未规定「扫低根」取哪一根 ⇒ 只按最低价取，
++                # 并在 payload 里标 `multi_bar_scope_unverified=True`，不当作已验证。
++                scope_bars = int(detail.get("max_bars") or 1)
++                lo_i = max(0, i - scope_bars + 1)
++                i_sweep = min(range(lo_i, i + 1),
++                              key=lambda j: (float(bars_1h[j]["low"]), -j))
++                ab = _absorption(bars_1h, i_sweep, self.cfg)
++                self.sweep_i = i_sweep
++                self.sweep_bar_ms = int(bars_1h[i_sweep]["close_time"])
++                self.sweep_absorption = ab
++                n_base = int(self.cfg["doc"]["shared"]["sell_pressure"].get("n") or 0)
++                self.sweep_baseline_window = (
++                    {"from_ms": int(bars_1h[i_sweep - n_base]["open_time"]),
++                     "to_ms": int(bars_1h[i_sweep - 1]["close_time"]),
++                     "n": n_base} if (n_base > 0 and i_sweep - n_base >= 0) else None)
+                 self.sweep_low = detail["lowest_low"]
+                 self.sweep_ms = close_ms
+                 self.sweep_conditions = conds
+                 self.state = "SWEEP"
+                 self.substage = "await_confirm"
+                 acts.append(self._transition("SWEEP", bar, "扫低收回成立", {
+-                    "conditions": conds, "detail": detail}))
++                    "conditions": conds, "detail": detail,
++                    "sweep_bar_i": i_sweep,
++                    "sweep_scope_mode": detail.get("scope"),
++                    "multi_bar_scope_unverified": bool(scope_bars > 1),
++                    "absorption_bar_close_ms": self.sweep_bar_ms,
++                    "absorption_baseline_window": self.sweep_baseline_window,
++                    "absorption": {"ok": ab[0], "detail": ab[1],
++                                   "conditions": ab[2]}}))
+             else:
+                 self._last_conditions = conds
+             return acts
+@@ -1070,7 +1109,19 @@
+             _cond("confirm_above_resistance", used,
+                   f"{doc['mode']} > {level:.10g}", "pass" if hit else "fail"),
+         ]
+-        sp_ok, sp_detail, sp_conds = _absorption(bars_1h, i, self.cfg)
++        # 承接：只读**扫低根**求值的那一份结果（06-03）。
++        # 绝不在这里用确认根重算——那正是修前的缺陷（突破根偷换了承接判断）。
++        if self.sweep_absorption is None:
++            return [self._close_action(
++                "DATA_INSUFFICIENT", bar,
++                "承接未在扫低根求值（内部状态缺失）⇒ 拒绝用确认根替代",
++                {"conditions": conds, "sweep_bar_i": self.sweep_i})]
++        sp_ok, sp_detail, sp_conds = self.sweep_absorption
++        sp_detail = {**sp_detail,
++                     "judged_at": "sweep_bar",
++                     "judged_bar_i": self.sweep_i,
++                     "judged_bar_close_ms": self.sweep_bar_ms,
++                     "baseline_window": self.sweep_baseline_window}
+         conds.extend(sp_conds)
+         if not ok_q:
+             # 没有空间不是失败 ⇒ NO_RESISTANCE（共享词表里落到 INVALIDATED + 前缀）
+@@ -1092,9 +1143,14 @@
+             return []
+         self.resistance = res
+         if sp_ok is None:
+-            return [self._close_action("DATA_INSUFFICIENT", bar,
+-                                       "承接证据缺字段（quote_volume / taker_buy_quote_volume）",
+-                                       {"conditions": conds, "detail": sp_detail})]
++            # 06-03：原因写到「扫低根 + 缺什么」，不再只写一句笼统的缺字段
++            return [self._close_action(
++                "DATA_INSUFFICIENT", bar,
++                ("承接在扫低根（%s）无法判定：%s"
++                 % (_iso(self.sweep_bar_ms), sp_detail.get("reason"))),
++                {"conditions": conds, "detail": sp_detail,
++                 "sweep_bar_i": self.sweep_i,
++                 "sweep_bar_close_ms": self.sweep_bar_ms})]
+         if sp_ok is False:
+             self._last_conditions = conds
+             return []                                    # 收上但承接不达标 ⇒ 不确认，继续观察

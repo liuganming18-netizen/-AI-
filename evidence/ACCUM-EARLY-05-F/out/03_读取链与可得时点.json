@@ -1,0 +1,675 @@
+{
+  "generated_at_utc": "2026-10-26T16:10:43Z",
+  "field_requirements": [
+    {
+      "timeframe": "4h",
+      "field": "open/high/low/close",
+      "用途": "42 根箱体 H/L、Wilder ATR(14)、宽度 2~8A、ER",
+      "代码": [
+        {
+          "line": 545,
+          "text": "highs = [b[\"high\"] for b in bars_4h]"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "4h",
+      "field": "volume",
+      "用途": "箱体候选量能基准（冻结规则 V20）",
+      "代码": [
+        {
+          "line": 950,
+          "text": "o, h, lo_, c, v = b[\"open\"], b[\"high\"], b[\"low\"], b[\"close\"], b[\"volume\"]"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "4h",
+      "field": "low",
+      "用途": "跟踪止损：入场后新收盘 4h 的最低价 ×95%",
+      "代码": [
+        {
+          "line": 1186,
+          "text": "cand = float(h4[h4_ptr][\"low\"]) * (1.0 - float(p[\"trailing_low_pct\"]))"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "1h",
+      "field": "high/low",
+      "用途": "局部压制位（左右各 3 根摆动高点）、局部支撑（前 24 根最低）",
+      "代码": [
+        {
+          "line": 672,
+          "text": "h = bars_1h[j][\"high\"]"
+        },
+        {
+          "line": 710,
+          "text": "return {\"R\": float(bars_1h[j][\"high\"]), \"method\": method,"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "1h",
+      "field": "close/open",
+      "用途": "确认收上压制位、失效判定、收阳/收阴",
+      "代码": [
+        {
+          "line": 984,
+          "text": "prev_close = bars_1h[i - 1][\"close\"]"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "1h",
+      "field": "quote_volume + taker_buy_quote_volume",
+      "用途": "承接：主动买占比 = 主动买额/成交额；卖压 = 成交额 − 主动买额（推导量）",
+      "代码": [
+        {
+          "line": 759,
+          "text": "qv, tbv = bar.get(\"quote_volume\"), bar.get(\"taker_buy_quote_volume\")"
+        }
+      ],
+      "实际读取": true,
+      "必需": true,
+      "风险": "冷档这两列有值，但该根 bar 的 available_at 为空"
+    },
+    {
+      "timeframe": "1h",
+      "field": "volume",
+      "用途": "原策略破位量能 1.5×V20（前 20 根中位数）",
+      "代码": [
+        {
+          "line": 987,
+          "text": "vols = [x[\"volume\"] for x in bars_1h[max(0, i - 20):i]"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "15m",
+      "field": "open",
+      "用途": "成交价：确认后第一根 15m 开盘 ×(1+滑点)",
+      "代码": [
+        {
+          "line": 1170,
+          "text": "entry_px = float(entry_bar[\"open\"]) * (1.0 + slip)"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "15m",
+      "field": "low/open/close",
+      "用途": "止损判定：低点触及即止损；跳空按开盘价成交",
+      "代码": [
+        {
+          "line": 1194,
+          "text": "if float(b[\"open\"]) < stop:"
+        }
+      ],
+      "实际读取": true,
+      "必需": true
+    },
+    {
+      "timeframe": "15m",
+      "field": "quote_volume",
+      "用途": "参与率上限（占上一根 15m 成交额的比例），决定缩量/拒单",
+      "代码": [
+        {
+          "line": null,
+          "text": "paper_engine.py::_apply_order_rounding（生产侧）"
+        }
+      ],
+      "实际读取": "仅生产/04-C 口径",
+      "必需": "取决于是否启用参与率上限"
+    },
+    {
+      "timeframe": "—",
+      "field": "funding_rate",
+      "用途": "持仓成本（按交易所结算周期，实测 4 小时一次）",
+      "代码": [
+        {
+          "line": null,
+          "text": "replay_calc.settle_funding_events → trading_core.funding.settle_funding"
+        }
+      ],
+      "实际读取": "04-A 未读；04-C/04-D 读",
+      "必需": "正式回测必需，04-A 口径不含"
+    },
+    {
+      "timeframe": "—",
+      "field": "合约规格（价格步进/数量步进/最小数量/最小金额）",
+      "用途": "下单取整与拒单（min_orderable_qty）",
+      "代码": [
+        {
+          "line": null,
+          "text": "paper_engine.contract_limits → 07_526币保守执行近似规格.csv"
+        }
+      ],
+      "实际读取": "04-A 不读（R 倍数口径绕开数量）；04-C/D 读",
+      "必需": "净额口径必需"
+    },
+    {
+      "timeframe": "—",
+      "field": "持仓量 OI",
+      "用途": "04-A 明示不参与（历史可得时点不可证）；冻结配置里有 OI 过滤开关",
+      "代码": [
+        {
+          "line": null,
+          "text": "04-A discipline: 基线不含 OI 门槛"
+        }
+      ],
+      "实际读取": false,
+      "必需": false,
+      "结论": "按规则用途说明即可，不因缺证明而加门槛"
+    }
+  ],
+  "trade_bar_layers": {
+    "hot_first_bar": {
+      "15m": {
+        "ms": 1789171200000,
+        "utc": "2026-09-12T00:00:00Z"
+      },
+      "1h": {
+        "ms": 1788746400000,
+        "utc": "2026-09-07T02:00:00Z"
+      },
+      "4h": {
+        "ms": 1788984000000,
+        "utc": "2026-09-09T20:00:00Z"
+      }
+    },
+    "by_window": {
+      "research_final": {
+        "fills": 7801,
+        "entry_only_from_cold": 7801,
+        "entry_could_be_hot": 0,
+        "cold_share_pct": 100.0,
+        "rule": "热库 15m 首根之前没有任何热层数据 ⇒ 这些成交的 bar 只可能来自冷档",
+        "cold_bar_exists_check": {
+          "sampled": 400,
+          "found": 400,
+          "missing": 0,
+          "missing_examples": [],
+          "scope": "抽样上限 400 笔；只证明这些成交 bar 在冷档存在，不推广"
+        }
+      },
+      "holdout_final": {
+        "fills": 1523,
+        "entry_only_from_cold": 1120,
+        "entry_could_be_hot": 403,
+        "cold_share_pct": 73.54,
+        "rule": "热库 15m 首根之前没有任何热层数据 ⇒ 这些成交的 bar 只可能来自冷档",
+        "cold_bar_exists_check": {
+          "sampled": 400,
+          "found": 400,
+          "missing": 0,
+          "missing_examples": [],
+          "scope": "抽样上限 400 笔；只证明这些成交 bar 在冷档存在，不推广"
+        }
+      }
+    }
+  },
+  "non_bar_inputs": {
+    "funding": {
+      "hot_rows": 2125240,
+      "fetched_at_null": 0,
+      "fetched_at_null_pct": 0.0,
+      "first_utc": "2022-01-01T00:00:00Z",
+      "last_utc": "2026-10-26T11:00:00Z",
+      "symbols": 814,
+      "fetched_at_min_utc": "2026-10-05T04:45:16Z",
+      "fetched_at_max_utc": "2026-10-26T11:15:25Z",
+      "rate_type": [
+        {
+          "rate_type": "settled",
+          "n": 2125240
+        }
+      ],
+      "fetch_lag": {
+        "le_1h": 7,
+        "le_24h": 4436,
+        "gt_24h": 2120804,
+        "fetched_before_event": 0,
+        "gt_24h_pct": 99.79,
+        "含义": "fetched_at 有值 ≠ 当时可得。差值 > 24h 的是事后批量回填，对历史回放只能算 late/unknown，不能算 proven"
+      },
+      "cold_files": 526,
+      "cold_columns": [
+        "funding_time",
+        "funding_rate",
+        "mark_price",
+        "rate_type",
+        "source"
+      ],
+      "available_at_in_cold": false,
+      "结论": "资金费是「结算后才知道」的量：funding_time 本身是结算时刻；热库 fetched_at 100% 有值但绝大多数是事后批量回填 ⇒ 能对齐结算时刻，不能声明「结算当时本机就拿到了」"
+    },
+    "contract_spec": {
+      "path": "数据/研究输入/外部迁移_2026-10-16/本次离线决策_2026-10-12/07_526币保守执行近似规格.csv",
+      "exists": true,
+      "rows": 526,
+      "official_material_dates": [
+        "2026-10-11T12:48:51Z"
+      ],
+      "history_change_proved_values": [
+        "False"
+      ],
+      "purposes": [
+        "近似回测，不是精确实盘还原"
+      ],
+      "assumption_window_text": [
+        "仅拟用于最终证明的研究时段，尚不能确定"
+      ],
+      "结论": "规格是 2026-10-11 的单时点快照，文件自己写明「历史变化已证明=False」「仅拟用于最终证明的研究时段，尚不能确定」⇒ 对 2025 年的回放属于用今天的规格，误差方向不可判"
+    },
+    "open_interest": {
+      "hot_rows": 7248164,
+      "fetched_at_null": 3930807,
+      "first_utc": "2026-09-12T00:00:00Z",
+      "last_utc": "2026-10-26T16:05:00Z",
+      "symbols": 814,
+      "used_by_04A_rules": false,
+      "用途说明": "冻结配置有 OI 过滤开关，但 04-A 的三组规则与基线价格链都不读 OI；本单不因 OI 可得时点缺失而给策略加门槛"
+    }
+  },
+  "funding_coverage_gap": {
+    "window": {
+      "from_utc": "2026-08-20T00:00:00Z",
+      "to_utc": "2026-10-01T00:00:00Z"
+    },
+    "hot_symbols": 812,
+    "cold_symbols": 525,
+    "hot_rows": 101945,
+    "cold_rows": 120309,
+    "symbols_cold_more_than_hot": 420,
+    "cold_surplus_rows": 40718,
+    "worst_10": [
+      {
+        "symbol": "LSKUSDT",
+        "hot": 158,
+        "cold": 464
+      },
+      {
+        "symbol": "ONGUSDT",
+        "hot": 363,
+        "cold": 668
+      },
+      {
+        "symbol": "ONEUSDT",
+        "hot": 86,
+        "cold": 352
+      },
+      {
+        "symbol": "TUSDT",
+        "hot": 167,
+        "cold": 413
+      },
+      {
+        "symbol": "ARKUSDT",
+        "hot": 84,
+        "cold": 304
+      },
+      {
+        "symbol": "SKRUSDT",
+        "hot": 212,
+        "cold": 393
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "hot": 116,
+        "cold": 292
+      },
+      {
+        "symbol": "MTLUSDT",
+        "hot": 116,
+        "cold": 289
+      },
+      {
+        "symbol": "GUSDT",
+        "hot": 158,
+        "cold": 328
+      },
+      {
+        "symbol": "SOPHUSDT",
+        "hot": 158,
+        "cold": 304
+      }
+    ],
+    "hot_gap_segments": [
+      {
+        "from_utc": "2026-09-02T20:00:00Z",
+        "to_utc": "2026-09-18T16:00:00Z",
+        "symbols": 407,
+        "max_hours": 380.0
+      },
+      {
+        "from_utc": "2026-09-02T23:00:00Z",
+        "to_utc": "2026-09-18T16:00:00Z",
+        "symbols": 2,
+        "max_hours": 377.0
+      },
+      {
+        "from_utc": "2026-09-02T16:00:00Z",
+        "to_utc": "2026-09-29T04:00:00Z",
+        "symbols": 1,
+        "max_hours": 636.0
+      },
+      {
+        "from_utc": "2026-09-02T20:00:00Z",
+        "to_utc": "2026-09-23T15:00:00Z",
+        "symbols": 1,
+        "max_hours": 499.0
+      },
+      {
+        "from_utc": "2026-09-02T20:00:00Z",
+        "to_utc": "2026-09-23T05:00:00Z",
+        "symbols": 1,
+        "max_hours": 489.0
+      }
+    ],
+    "conclusion": "冷档记录数多于热库 ⇒ 热库缺、冷档有；凡只读热库的资金费核算都会在这段里少算"
+  },
+  "reader_crosscheck": {
+    "scope": "抽样 20 个标的 × 2 周期；范围 = 04-A 的实际读取范围（4h 前推 400 天 / 1h 前推 30 天 / 都后推 40 天）",
+    "rows": [
+      {
+        "symbol": "0GUSDT",
+        "tf": "4h",
+        "04A": 1959,
+        "本单冷档": 1959,
+        "一致": true
+      },
+      {
+        "symbol": "1000000BOBUSDT",
+        "tf": "4h",
+        "04A": 2584,
+        "本单冷档": 2584,
+        "一致": true
+      },
+      {
+        "symbol": "1000000MOGUSDT",
+        "tf": "4h",
+        "04A": 3843,
+        "本单冷档": 3843,
+        "一致": true
+      },
+      {
+        "symbol": "1000BONKUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1000CATUSDT",
+        "tf": "4h",
+        "04A": 3945,
+        "本单冷档": 3945,
+        "一致": true
+      },
+      {
+        "symbol": "1000CHEEMSUSDT",
+        "tf": "4h",
+        "04A": 3736,
+        "本单冷档": 3736,
+        "一致": true
+      },
+      {
+        "symbol": "1000FLOKIUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1000LUNCUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1000PEPEUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1000RATSUSDT",
+        "tf": "4h",
+        "04A": 5811,
+        "本单冷档": 5811,
+        "一致": true
+      },
+      {
+        "symbol": "1000SATSUSDT",
+        "tf": "4h",
+        "04A": 5829,
+        "本单冷档": 5829,
+        "一致": true
+      },
+      {
+        "symbol": "1000SHIBUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1000XECUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1INCHUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "1MBABYDOGEUSDT",
+        "tf": "4h",
+        "04A": 4156,
+        "本单冷档": 4156,
+        "一致": true
+      },
+      {
+        "symbol": "2ZUSDT",
+        "tf": "4h",
+        "04A": 1869,
+        "本单冷档": 1869,
+        "一致": true
+      },
+      {
+        "symbol": "4USDT",
+        "tf": "4h",
+        "04A": 1834,
+        "本单冷档": 1834,
+        "一致": true
+      },
+      {
+        "symbol": "AAVEUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "ACEUSDT",
+        "tf": "4h",
+        "04A": 5794,
+        "本单冷档": 5794,
+        "一致": true
+      },
+      {
+        "symbol": "ACHUSDT",
+        "tf": "4h",
+        "04A": 5916,
+        "本单冷档": 5916,
+        "一致": true
+      },
+      {
+        "symbol": "0GUSDT",
+        "tf": "1h",
+        "04A": 7833,
+        "本单冷档": 7833,
+        "一致": true
+      },
+      {
+        "symbol": "1000000BOBUSDT",
+        "tf": "1h",
+        "04A": 10336,
+        "本单冷档": 10336,
+        "一致": true
+      },
+      {
+        "symbol": "1000000MOGUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000BONKUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000CATUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000CHEEMSUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000FLOKIUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000LUNCUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000PEPEUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000RATSUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000SATSUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000SHIBUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1000XECUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1INCHUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "1MBABYDOGEUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "2ZUSDT",
+        "tf": "1h",
+        "04A": 7476,
+        "本单冷档": 7476,
+        "一致": true
+      },
+      {
+        "symbol": "4USDT",
+        "tf": "1h",
+        "04A": 7333,
+        "本单冷档": 7333,
+        "一致": true
+      },
+      {
+        "symbol": "AAVEUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "ACEUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      },
+      {
+        "symbol": "ACHUSDT",
+        "tf": "1h",
+        "04A": 14784,
+        "本单冷档": 14784,
+        "一致": true
+      }
+    ],
+    "matched": 40,
+    "mismatched": 0,
+    "mismatch_examples": [],
+    "note": "一致 ⇒ 04-A 读的确实是冷档（该窗口热库为 0 行），且读取范围含预热；不一致 ⇒ 先查范围口径，不要直接判缺陷"
+  }
+}

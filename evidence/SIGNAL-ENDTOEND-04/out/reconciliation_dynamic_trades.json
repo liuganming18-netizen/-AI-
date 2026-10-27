@@ -1,0 +1,149 @@
+{
+  "timestamp": "2026-10-24T17:35:00Z",
+  "total_checks": 9,
+  "passed_checks": 9,
+  "failed_checks": 0,
+  "verdict": "ALL_PASSED",
+  "reconciled_runs": [
+    {
+      "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_DYN_Vs04_Z02",
+      "label": "C组 动态止损核心实验",
+      "trades_total": 21,
+      "reconciled_trades": 21,
+      "mismatches": 0,
+      "pnl_identity_rate": 1.0
+    },
+    {
+      "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D05_Vs04_Z02",
+      "label": "对照组 固定5%止损基线",
+      "trades_total": 21,
+      "reconciled_trades": 21,
+      "mismatches": 0,
+      "pnl_identity_rate": 1.0
+    },
+    {
+      "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_D20_Vs04_Z02",
+      "label": "对照组 固定20%止损基线",
+      "trades_total": 21,
+      "reconciled_trades": 21,
+      "mismatches": 0,
+      "pnl_identity_rate": 1.0
+    },
+    {
+      "run_id": "run_FT_LOW4H_DYN01_Wyckoff_C1_S05_DYN999_Vs04_Z02",
+      "label": "动态止损高上限探索",
+      "trades_total": 21,
+      "reconciled_trades": 21,
+      "mismatches": 0,
+      "pnl_identity_rate": 1.0
+    }
+  ],
+  "checks": [
+    {
+      "id": "REC_run_FT_LOW4H_DY_COUNT",
+      "name": "C组 动态止损核心实验 三方账本交易笔数严格一致（API=21, Ledger=21, Replay=21）",
+      "pass": true,
+      "detail": {
+        "api_count": 21,
+        "ledger_count": 21,
+        "replay_count": 21
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_IDENTITY",
+      "name": "C组 动态止损核心实验 逐笔交易要素与损益恒等式 100% 对齐（21/21 笔恒等）",
+      "pass": true,
+      "detail": {
+        "trades_checked": 21,
+        "symbols_aligned": 21,
+        "times_aligned": 21,
+        "prices_aligned": 21,
+        "pnl_identity_passed": 21,
+        "mismatch_count": 0,
+        "sample_mismatch": null
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_COUNT",
+      "name": "对照组 固定5%止损基线 三方账本交易笔数严格一致（API=21, Ledger=21, Replay=21）",
+      "pass": true,
+      "detail": {
+        "api_count": 21,
+        "ledger_count": 21,
+        "replay_count": 21
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_IDENTITY",
+      "name": "对照组 固定5%止损基线 逐笔交易要素与损益恒等式 100% 对齐（21/21 笔恒等）",
+      "pass": true,
+      "detail": {
+        "trades_checked": 21,
+        "symbols_aligned": 21,
+        "times_aligned": 21,
+        "prices_aligned": 21,
+        "pnl_identity_passed": 21,
+        "mismatch_count": 0,
+        "sample_mismatch": null
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_COUNT",
+      "name": "对照组 固定20%止损基线 三方账本交易笔数严格一致（API=21, Ledger=21, Replay=21）",
+      "pass": true,
+      "detail": {
+        "api_count": 21,
+        "ledger_count": 21,
+        "replay_count": 21
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_IDENTITY",
+      "name": "对照组 固定20%止损基线 逐笔交易要素与损益恒等式 100% 对齐（21/21 笔恒等）",
+      "pass": true,
+      "detail": {
+        "trades_checked": 21,
+        "symbols_aligned": 21,
+        "times_aligned": 21,
+        "prices_aligned": 21,
+        "pnl_identity_passed": 21,
+        "mismatch_count": 0,
+        "sample_mismatch": null
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_COUNT",
+      "name": "动态止损高上限探索 三方账本交易笔数严格一致（API=21, Ledger=21, Replay=21）",
+      "pass": true,
+      "detail": {
+        "api_count": 21,
+        "ledger_count": 21,
+        "replay_count": 21
+      }
+    },
+    {
+      "id": "REC_run_FT_LOW4H_DY_IDENTITY",
+      "name": "动态止损高上限探索 逐笔交易要素与损益恒等式 100% 对齐（21/21 笔恒等）",
+      "pass": true,
+      "detail": {
+        "trades_checked": 21,
+        "symbols_aligned": 21,
+        "times_aligned": 21,
+        "prices_aligned": 21,
+        "pnl_identity_passed": 21,
+        "mismatch_count": 0,
+        "sample_mismatch": null
+      }
+    },
+    {
+      "id": "REC_MISSING_SEMANTIC_PRESERVED",
+      "name": "账本缺失语义如实保留（下单时点未记录即标明'未记录'，不伪造成交时刻冒充）",
+      "pass": true,
+      "detail": {
+        "order_time": "未记录",
+        "order_time_ms": null,
+        "initial_stop_source": null
+      }
+    }
+  ]
+}

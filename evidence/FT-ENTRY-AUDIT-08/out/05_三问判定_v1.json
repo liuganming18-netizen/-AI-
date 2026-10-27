@@ -1,0 +1,179 @@
+{
+  "Q1_C1是否提高胜率及净期望且稳定": {
+    "answer": "净期望方向性提高、胜率只在'少交易'意义上提高；稳定性跨网格/跨年/跨币方向一致，但多重比较后不显著。判：支持继续验证（不等于已证明有效）。",
+    "net_expectancy": {
+      "aggregate_u": {
+        "C0": -4243.2554,
+        "C1": 239.3019,
+        "diff": 4482.5573
+      },
+      "event_level_mean_u": {
+        "C0": -0.758,
+        "C1": 0.0427,
+        "diff": 0.8007,
+        "ci95": [
+          0.1204,
+          1.4096
+        ],
+        "raw_p": 0.0326
+      },
+      "grids_positive": 9,
+      "grids_total": 9,
+      "holm_lt_005": 0,
+      "maxt_fwer_p": 0.189
+    },
+    "win_rate": {
+      "trade_level_pct": {
+        "C0": 18.7277,
+        "C1": 22.7815,
+        "diff_pp": 4.0538
+      },
+      "event_level_conditional_pct": {
+        "C0": 19.5087,
+        "C1": 21.9298
+      },
+      "matched_same_events_diff_pp": -2.1458,
+      "matched_p": 0.1474,
+      "interpretation": "成交口径胜率提高来自 C1 过滤掉 394 个 C0 事件（多为亏损），不是同批交易变好；219 个共同成交事件上胜率差为负且不显著。"
+    },
+    "quick_stop": {
+      "trade_level_pct": {
+        "C0": 47.2574,
+        "C1": 40.2649,
+        "diff_pp": -6.9925
+      },
+      "matched_same_events_diff_pp": 2.2628,
+      "matched_p": 0.0364,
+      "interpretation": "快速止损率下降同样来自不交易；共同成交事件上 C1 反而高 2.26pp（p=0.036）。"
+    },
+    "decomposition_grid_mean_u": {
+      "avoided_c0_losses": 727.8601,
+      "delay_effect": -215.8502,
+      "new_slot_entries": -13.948,
+      "total": 498.0619,
+      "share_from_avoidance_pct": 81.6
+    },
+    "stability": {
+      "cross_coin_drop_top1_p": 0.0508,
+      "cross_coin_drop_top3_p": 0.1136,
+      "cross_coin_leave_one_out_range_u": [
+        0.7302,
+        0.913
+      ],
+      "cross_time_diff_by_year_u": {
+        "2021": -0.6874,
+        "2022": 1.1929,
+        "2023": 0.4631,
+        "2024": 0.8009
+      },
+      "extreme_profit_drop_top5_mean_diff_u": 1.1707,
+      "block_positive_share_range_pct": [
+        55.26,
+        76.32
+      ]
+    },
+    "grade": "支持继续验证"
+  },
+  "Q2_C2相对C1是否有增益": {
+    "answer": "无增益，点估计与分解一致为负；C2 额外过滤掉的是 C1 的净盈利交易。判：不支持。",
+    "aggregate_u": {
+      "C1": 239.3019,
+      "C2": -146.9014,
+      "C2_minus_C1": -386.2033
+    },
+    "event_level": {
+      "diff_u": -0.069,
+      "ci95": [
+        -0.521,
+        0.2067
+      ],
+      "raw_p": 0.9188
+    },
+    "grids_positive": 9,
+    "grids_total": 9,
+    "win_matched_diff_pp": 0.0,
+    "win_p": 1.0,
+    "qs_matched_diff_pp": 0.2538,
+    "qs_p": 1.0,
+    "decomposition_grid_mean_u": {
+      "avoided_c1_pnl": -56.2658,
+      "delay_effect": 13.3543,
+      "filled_only_in_c2": 0.0,
+      "total": -42.9115
+    },
+    "grid_sign": {
+      "positive_grids": 3,
+      "negative_grids": 6
+    },
+    "grade": "不支持"
+  },
+  "Q3_是否值得进入下一项实验与证据缺口": {
+    "answer": "C1 值得进入下一项'独立样本/留出期 + 执行成本'验证；C2 不建议。当前不能宣称策略有效：多重比较不显著、样本仅 613 个物理事件、胜率/快速止损改善是同批交易之外的选择效应。",
+    "min_entry_change": {
+      "affected_candidates": 0,
+      "affected_trades": 0,
+      "confirmation_candidates": {
+        "C1": 778,
+        "C2": 619
+      },
+      "fill_below_old_min": 0,
+      "judgement": "下限改动在信号生成层可测影响为 0：全部确认候选的旧/新下限触发根相同，且无成交价低于旧下限",
+      "note": "AUDIT-07 的 T6 只检查 audit_orders（信号生成后）；本轮补查 populate_entry_trend 的 open>=min_entry（信号生成前）。结论相同但理由不同：全部 1397 个确认候选在旧/新下限下都在同一根 15m 触发。"
+    },
+    "sample_validity": {
+      "universe": 74,
+      "qualified_from_start": 26,
+      "qualified_late": 44,
+      "unqualified_whole_period": 4,
+      "trades_before_200bar_start": 115,
+      "trades_before_42bar_box": 0,
+      "affected_by_mode": [
+        {
+          "mode": "C",
+          "affected_trades": 88,
+          "affected_net_u": -380.7654,
+          "mode_trades": 3081,
+          "mode_net_u": -4243.2554,
+          "affected_share_of_mode_trades_pct": 2.856,
+          "note": "算术标注；删除后不是重新回测，也不是账户结果"
+        },
+        {
+          "mode": "C1",
+          "affected_trades": 15,
+          "affected_net_u": -82.8454,
+          "mode_trades": 755,
+          "mode_net_u": 239.3019,
+          "affected_share_of_mode_trades_pct": 1.987,
+          "note": "算术标注；删除后不是重新回测，也不是账户结果"
+        },
+        {
+          "mode": "C2",
+          "affected_trades": 12,
+          "affected_net_u": -54.4668,
+          "mode_trades": 602,
+          "mode_net_u": -146.9014,
+          "affected_share_of_mode_trades_pct": 1.993,
+          "note": "算术标注；删除后不是重新回测，也不是账户结果"
+        }
+      ],
+      "note": "4 个全程不合格币 0 成交；115 笔发生在 200 根 4h 资格起点之前，但均晚于策略实际箱体需求（42 根 4h），未删除、未清洗重算。"
+    },
+    "evidence_gaps": [
+      "多重比较后不显著：18 个主族对照 maxT p=0.189，Holm 无 <0.05；剔除贡献前 3 币后 p=0.114。",
+      "样本内、已看样本：2021-12~2024-12；2025+ 留出期未打开，无独立验证。",
+      "物理事件仅 613 个（C1 228 / C2 197），跨参数重复不能增加独立样本；块级检验功效有限。",
+      "胜率/快速止损的改善是过滤/选择效应；共同成交事件上并无改善（胜率 -2.15pp，快速止损 +2.26pp）。",
+      "执行模型只含手续费/资金费，未含滑点与冲击成本；延迟入场的 -215.85U（网格均值）可能被低估。",
+      "3 槽位组合/仓位竞争效应只用 ITT=0 近似，未做账户级复利与资金占用模拟。",
+      "115 笔交易早于 200 根 4h 资格起点（但晚于 42 根箱体），绝对收益口径需注明。"
+    ],
+    "next_experiment": "预注册的独立留出期 + 含滑点的执行模型 + 事件级（非网格加总）样本量/功效计算；C1 作为唯一候选，C2 不作为候选。",
+    "grade": "支持继续验证（仅 C1）"
+  },
+  "boundary": {
+    "inputs_locked": "166/166 与 AUDIT-07 指纹一致",
+    "no_rerun": "未调用 freqtrade、未重跑回测、未改策略/参数",
+    "holdout": "未打开 2025+ 留出期",
+    "account_result": "所有净额为网格/事件算术量，不是单一账户复利结果；未删除交易生成清洗后账户"
+  }
+}

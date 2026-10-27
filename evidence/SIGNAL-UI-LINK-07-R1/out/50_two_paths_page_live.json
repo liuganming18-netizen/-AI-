@@ -1,0 +1,300 @@
+{
+  "probe": "50_two_paths_page[live]",
+  "mode": "live",
+  "generated_real_utc": "2026-10-25T11:45:04.590Z",
+  "isolation": {
+    "api_port": 8799,
+    "frontend": "http://127.0.0.1:3000（生产同一份页面代码；仅网络层换数据源）",
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/iso_live/live_signals.sqlite3",
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/iso_live/paper",
+    "PAPER_LOCK_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/iso_live/locks",
+    "iso_paper_epoch_ms": 1790870400000,
+    "iso_paper_epoch_utc": "2026-10-01T16:00:00Z",
+    "prod_paper_epoch_ms": 1791939600000,
+    "note": "生产 8787 进程 / 生产实时库 / 生产启用时点常量 / 门禁文件全程未改"
+  },
+  "expected": {
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+    "symbol": "VELVETUSDT",
+    "direction": "long",
+    "confirmed_at": 1790953200000,
+    "executable_state": "enterable"
+  },
+  "steps": [
+    {
+      "name": "隔离后端就绪",
+      "ok": true,
+      "detail": "端口 8799，1.7s",
+      "soft": false
+    },
+    {
+      "name": "接口返回 1 条",
+      "ok": true,
+      "detail": "total=1 n=1",
+      "soft": false
+    },
+    {
+      "name": "接口 quality.status = ok",
+      "ok": true,
+      "detail": "status=ok note长度=172",
+      "soft": false
+    },
+    {
+      "name": "接口 missing_reason 为空（正常态不写故障字段）",
+      "ok": true,
+      "detail": "missing_reason=null",
+      "soft": false
+    },
+    {
+      "name": "接口生效下限 = 模拟启用时点",
+      "ok": true,
+      "detail": "1790870400000（期望 1790870400000）",
+      "soft": false
+    },
+    {
+      "name": "接口四项字段与期望一致",
+      "ok": true,
+      "detail": "id=cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000 symbol=VELVETUSDT dir=long confirmed=2026-10-02T15:00:00Z(1790953200000) exec=enterable",
+      "soft": false
+    },
+    {
+      "name": "接口 origin 与路径一致",
+      "ok": true,
+      "detail": "origin=live",
+      "soft": false
+    },
+    {
+      "name": "接口重复请求 5 次结果稳定（不重复）",
+      "ok": true,
+      "detail": "distinct=1",
+      "soft": false
+    },
+    {
+      "name": "生产口径未变（启用时点仍是 2026-10-14）",
+      "ok": true,
+      "detail": "prod paper_epoch_ms=1791939600000 total=0",
+      "soft": false
+    },
+    {
+      "name": "页面状态 = ok（不是 loading / fault）",
+      "ok": true,
+      "detail": "data-signals-state=ok",
+      "soft": false
+    },
+    {
+      "name": "页面上 1 张卡",
+      "ok": true,
+      "detail": "1 张",
+      "soft": false
+    },
+    {
+      "name": "卡片 ID == 接口 ID == 期望候选 ID",
+      "ok": true,
+      "detail": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "soft": false
+    },
+    {
+      "name": "卡片四项字段与接口一致（币种/方向/确认时间/可执行状态）",
+      "ok": true,
+      "detail": "页面 {VELVETUSDT, long, 2026-10-02T15:00:00Z, enterable} vs 接口 {VELVETUSDT, long, 2026-10-02T15:00:00Z, enterable}",
+      "soft": false
+    },
+    {
+      "name": "卡片四项字段与期望一致",
+      "ok": true,
+      "detail": "VELVETUSDT/long/1790953200000/enterable，页面确认时间=1790953200000",
+      "soft": false
+    },
+    {
+      "name": "卡片上「做多」标签可见",
+      "ok": true,
+      "detail": "VELVELVETUSDT做多ID: cand_ev_WX_EVENT_TREND_V0_1_binance_VELVE",
+      "soft": false
+    },
+    {
+      "name": "未落回空态（没有 signal-empty）",
+      "ok": true,
+      "detail": "无空态块",
+      "soft": false
+    },
+    {
+      "name": "未显示错误框（没有 signal-error）",
+      "ok": true,
+      "detail": "无错误框",
+      "soft": false
+    },
+    {
+      "name": "页面确实走隔离出口",
+      "ok": true,
+      "detail": "http://127.0.0.1:8799/api/v1/signals?scope=current&limit=500",
+      "soft": false
+    },
+    {
+      "name": "截图已保存",
+      "ok": true,
+      "detail": "out/50_page_live.png",
+      "soft": false
+    },
+    {
+      "name": "刷新后仍是 1 张卡、同一 ID、字段不变（不丢不重）",
+      "ok": true,
+      "detail": "1 张，uid=cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "soft": false
+    },
+    {
+      "name": "轮询期间确实重新请求了接口",
+      "ok": true,
+      "detail": "新增 7 次请求",
+      "soft": false
+    },
+    {
+      "name": "两轮轮询后仍是 1 张卡、同一 ID、字段不变（不丢不重）",
+      "ok": true,
+      "detail": "1 张，uid=cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "soft": false
+    },
+    {
+      "name": "页面无 JS 报错",
+      "ok": true,
+      "detail": "无",
+      "soft": false
+    },
+    {
+      "name": "库里 1 行、同一候选 ID",
+      "ok": true,
+      "detail": "1 行",
+      "soft": false
+    },
+    {
+      "name": "库四项字段与页面一致",
+      "ok": true,
+      "detail": "库 {VELVETUSDT, long, 1790953200000, enterable} = 1790953200000（页面 1790953200000）",
+      "soft": false
+    },
+    {
+      "name": "库 origin 与路径一致",
+      "ok": true,
+      "detail": "origin=live",
+      "soft": false
+    },
+    {
+      "name": "三方（库 / 接口 / 页面）按同一 ID 对齐",
+      "ok": true,
+      "detail": "三处同一 ID",
+      "soft": false
+    },
+    {
+      "name": "生产实时库未被写入",
+      "ok": true,
+      "detail": "91e0979b9458… → 91e0979b9458…",
+      "soft": false
+    },
+    {
+      "name": "启用时点常量所在文件未被改写",
+      "ok": true,
+      "detail": "live_store.py sha 1e1218ea1bdf… 一致",
+      "soft": false
+    },
+    {
+      "name": "隔离库未被本探针改写（只读打开）",
+      "ok": true,
+      "detail": "sha 一致",
+      "soft": false
+    }
+  ],
+  "ok": true,
+  "fingerprint_before": {
+    "prod_live_db_sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "live_store_py_sha256": "1e1218ea1bdf18d5f138f6056de13f710402a2a5385478d2ae8b89fbd3b68da4",
+    "iso_live_db_sha256": "cd3cb287db39ce6a915de2c4ed284c7e7c486782f6cf7deb89b1b188af0fb995"
+  },
+  "iso_api": {
+    "total": 1,
+    "as_of": "2026-10-02T15:00:00Z",
+    "missing_reason": null,
+    "quality_status": "ok",
+    "quality_note_len": 172,
+    "effective_floor_ms": 1790870400000,
+    "item": {
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "direction": "long",
+      "confirmed_at": "2026-10-02T15:00:00Z",
+      "executable_state": "enterable",
+      "origin": "live"
+    }
+  },
+  "repeat_api": {
+    "n": 5,
+    "distinct": [
+      "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+    ]
+  },
+  "prod_api": {
+    "total": 0,
+    "paper_epoch_ms": 1791939600000,
+    "quality_status": "ok",
+    "missing_reason": null
+  },
+  "page_cards_initial": [
+    {
+      "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "direction": "long",
+      "confirmed_at": "2026-10-02T15:00:00Z",
+      "exec": "enterable",
+      "origin": "live",
+      "filled": "0",
+      "text": "VELVELVETUSDT做多ID: cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000复制10-02 23:00 (1h)breakout理由：—（无结构化理由，缺失即未知）① 结构发现breakout② 信号确认已确认 · 2026-10-02 15:00:00③ 计划下单已登记挂单 1 笔（未成"
+    }
+  ],
+  "panel_state_initial": "ok",
+  "page_cards_after_reload": [
+    {
+      "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "direction": "long",
+      "confirmed_at": "2026-10-02T15:00:00Z",
+      "exec": "enterable",
+      "origin": "live",
+      "filled": "0",
+      "text": "VELVELVETUSDT做多ID: cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000复制10-02 23:00 (1h)breakout理由：—（无结构化理由，缺失即未知）① 结构发现breakout② 信号确认已确认 · 2026-10-02 15:00:00③ 计划下单已登记挂单 1 笔（未成"
+    }
+  ],
+  "page_cards_after_poll": [
+    {
+      "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVET",
+      "direction": "long",
+      "confirmed_at": "2026-10-02T15:00:00Z",
+      "exec": "enterable",
+      "origin": "live",
+      "filled": "0",
+      "text": "VELVET做多ID: cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000复制10-02 23:00 (1h)breakout理由：—（无结构化理由，缺失即未知）① 结构发现breakout② 信号确认已确认 · 2026-10-02 15:00:00③ 计划下单已登记挂单 1 笔（未成交） #1④ "
+    }
+  ],
+  "poll_requests": 7,
+  "db": {
+    "n": 1,
+    "rows": [
+      {
+        "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "symbol": "VELVETUSDT",
+        "direction": "long",
+        "origin": "live",
+        "display_state": "displayable",
+        "executable_state": "enterable",
+        "executable_reason": null,
+        "confirmed_at": 1790953200000,
+        "available_at": 1790953200000,
+        "event_time": 1790953200000
+      }
+    ]
+  },
+  "fingerprint_after": {
+    "prod_live_db_sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "live_store_py_sha256": "1e1218ea1bdf18d5f138f6056de13f710402a2a5385478d2ae8b89fbd3b68da4",
+    "iso_live_db_sha256": "cd3cb287db39ce6a915de2c4ed284c7e7c486782f6cf7deb89b1b188af0fb995"
+  },
+  "api_log_tail": "[iso-launcher] PAPER_EPOCH_MS 1791939600000 -> 1790870400000（仅本进程内存）\n[iso-launcher] LIVE_DB=/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/iso_live/live_signals.sqlite3\n[iso-launcher] PAPER_LEDGER_DIR=/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/iso_live/paper\n[adapter] 127.0.0.1,::1:8799 db=/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3\n"
+}

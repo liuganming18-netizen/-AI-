@@ -1,0 +1,165 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-01｜持仓量（OI）真实序列读取器（只读，研究用）。
+
+只做一件事：把**已入库**的 5 分钟持仓量序列，按「决策时刻可见」的规则取出来，
+连同单位、来源、可得时间一起交给调用方。不下载、不写库、不补零。
+
+口径（三条，必须显式）
+----------------------
+1. **可见性**：`oi_history.ts` 是 5 分钟桶的**起点**，桶收盘 = `ts + 5min`。
+   只有 `ts + 5min <= 决策时刻` 的观测才允许进决策（项目既有 PIT 规则）。
+2. **单位**：`open_interest` 与 `oi_ccy` 是**币本位数量**（例如 BTC 的 93888.98 表示
+   93888.98 BTC）；`open_interest_value` 与 `oi_usd` 是**名义价值（USDT）**。
+   两者不可混用，也不可把数量当金额。返回里带 `unit` 字段写明用了哪一列。
+3. **缺失**：查不到就返回空数组 + `reason`，**绝不返回全零数组**冒充有数据。
+   `fetched_at` 为空表示「不知道何时抓到」，此时 `available_at_proven=False`。
+
+对外接口
+--------
+    load_oi(symbol, decision_ms, lookback_ms=6h, period="5m")
+        -> (timestamps, values, meta)
+    latest_oi(symbol)
+        -> dict   # 最新一条真实观测（给报告做样本用）
+"""
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+from typing import Optional, Tuple
+
+import numpy as np
+
+BUCKET_MS = 300_000          # 5 分钟桶
+EXCHANGE, MARKET = "binance", "um"
+OI_VALUE_COLUMN = "open_interest"      # 与状态机 `oi_min_growth_pct` 同一口径：数量增长
+OI_UNIT = "币本位数量（base asset）"
+
+
+def _iso(ms: Optional[int]) -> Optional[str]:
+    if ms is None:
+        return None
+    import datetime as dt
+    return dt.datetime.fromtimestamp(int(ms) / 1000, dt.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+
+
+def default_hot_db() -> Path:
+    return Path(__file__).resolve().parents[2] / "数据" / "市场数据" / "db" / "market_v2.sqlite3"
+
+
+def load_oi(symbol: str, decision_ms: int, lookback_ms: int = 6 * 3600 * 1000,
+            period: str = "5m", hot_db=None) -> Tuple[np.ndarray, np.ndarray, dict]:
+    """取「决策时刻可见」的 OI 观测序列。"""
+    db = str(hot_db or default_hot_db())
+    lo = int(decision_ms) - int(lookback_ms) - 2 * BUCKET_MS
+    hi = int(decision_ms) - BUCKET_MS          # ts + 5min <= decision
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        rows = con.execute(
+            """SELECT ts, open_interest, open_interest_value, oi_usd, source, fetched_at
+               FROM oi_history
+               WHERE exchange=? AND market=? AND symbol=? AND period=?
+                 AND ts >= ? AND ts <= ?
+                 AND open_interest IS NOT NULL
+               ORDER BY ts""",
+            (EXCHANGE, MARKET, symbol, period, lo, hi)
+        ).fetchall()
+    finally:
+        con.close()
+
+    ts, vals, zero_obs, no_fetch = [], [], 0, 0
+    for r in rows:
+        try:
+            v = float(r[1])
+        except (TypeError, ValueError):
+            continue
+        if v <= 0:
+            zero_obs += 1          # 零持仓观测：如实计数，不当作有效增长基准
+            continue
+        ts.append(int(r[0]))
+        vals.append(v)
+        if r[5] is None:
+            no_fetch += 1
+
+    meta = {
+        "symbol": symbol,
+        "period": period,
+        "decision_ms": int(decision_ms),
+        "decision_utc": _iso(int(decision_ms)),
+        "lookback_ms": int(lookback_ms),
+        "window_utc": {"from": _iso(lo), "to": _iso(hi)},
+        "rows_returned": len(ts),
+        "rows_raw": len(rows),
+        "zero_oi_rows_skipped": zero_obs,
+        "fetched_at_missing": no_fetch,
+        "available_at_rule": "ts + 5min <= decision_ms",
+        "available_at_proven": (no_fetch == 0),
+        "column": OI_VALUE_COLUMN,
+        "unit": OI_UNIT,
+        "source": (rows[0][4] if rows else None),
+        "first_utc": _iso(ts[0]) if ts else None,
+        "last_utc": _iso(ts[-1]) if ts else None,
+        "reason": (None if ts else ("no_rows_in_window" if rows == [] else "all_rows_invalid")),
+        "note": "空结果不是零值；调用方不得用 0 填充",
+    }
+    return (np.array(ts, dtype=np.int64), np.array(vals, dtype=np.float64), meta)
+
+
+def latest_oi(symbol: str, hot_db=None) -> dict:
+    """最新一条真实观测（给报告做非空样本）。"""
+    db = str(hot_db or default_hot_db())
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        r = con.execute(
+            """SELECT ts, open_interest, open_interest_value, oi_ccy, oi_usd,
+                      source, fetched_at, period
+               FROM oi_history
+               WHERE exchange=? AND market=? AND symbol=? AND period='5m'
+               ORDER BY ts DESC LIMIT 1""",
+            (EXCHANGE, MARKET, symbol)
+        ).fetchone()
+    finally:
+        con.close()
+    if not r:
+        return {"symbol": symbol, "found": False, "reason": "no_rows"}
+    return {
+        "symbol": symbol, "found": True,
+        "ts": int(r[0]), "ts_utc": _iso(int(r[0])),
+        "bucket_close_utc": _iso(int(r[0]) + BUCKET_MS),
+        "open_interest": float(r[1]),
+        "open_interest_value_usdt": float(r[2]) if r[2] is not None else None,
+        "oi_ccy": float(r[3]) if r[3] is not None else None,
+        "oi_usd": float(r[4]) if r[4] is not None else None,
+        "unit_quantity": OI_UNIT,
+        "unit_notional": "USDT（名义价值）",
+        "source": r[5],
+        "fetched_at": int(r[6]) if r[6] is not None else None,
+        "fetched_at_utc": _iso(int(r[6])) if r[6] is not None else None,
+        "fetch_lag_sec": (round((int(r[6]) - int(r[0])) / 1000.0, 3)
+                          if r[6] is not None else None),
+        "available_at_proven": r[6] is not None,
+    }
+
+
+def oi_growth(ts: np.ndarray, vals: np.ndarray, decision_ms: int,
+              lookback_ms: int) -> dict:
+    """按「最近观测 vs 回看窗内最早观测」算增长率（与状态机同口径：数量增长）。"""
+    if len(ts) == 0:
+        return {"status": "oi_empty", "growth": None, "oi_curr": None, "oi_past": None}
+    i_curr = int(np.searchsorted(ts, int(decision_ms) - BUCKET_MS, side="right")) - 1
+    if i_curr < 0:
+        return {"status": "oi_no_current", "growth": None, "oi_curr": None, "oi_past": None}
+    target = int(ts[i_curr]) - int(lookback_ms)
+    i_past = int(np.searchsorted(ts, target, side="left"))
+    if i_past >= len(ts) or i_past == i_curr:
+        return {"status": "oi_no_past", "growth": None,
+                "oi_curr": float(vals[i_curr]), "oi_past": None}
+    past = float(vals[i_past])
+    curr = float(vals[i_curr])
+    return {
+        "status": "ok",
+        "growth": (curr - past) / past if past else None,
+        "oi_curr": curr, "oi_past": past,
+        "curr_utc": _iso(int(ts[i_curr])), "past_utc": _iso(int(ts[i_past])),
+        "gap_sec": round((int(ts[i_curr]) - int(ts[i_past])) / 1000.0, 1),
+    }

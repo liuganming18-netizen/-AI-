@@ -1,0 +1,182 @@
+{
+  "scope": {
+    "runs": 45,
+    "trades": 3395,
+    "orders": 6790
+  },
+  "all_45_runs_pass": 45,
+  "runs_failed": [],
+  "checks": {
+    "C01_orders_per_trade_eq_2": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C02_leg_pairing": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C03_entry_fill_ts_eq_open_ts": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C04_exit_fill_ts_eq_close_ts": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C05_entry_price_eq_open_rate": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C06_exit_price_eq_close_rate": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C07_qty_legs_eq_trade_amount": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 6790,
+      "rows_total": 6790,
+      "maxdev": 0.0
+    },
+    "C08_cost_formula": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 6790,
+      "rows_total": 6790,
+      "maxdev": 0.0
+    },
+    "C09_fee_formula": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 6790,
+      "rows_total": 6790,
+      "maxdev": 4.957145804951324e-14
+    },
+    "C10_pnl_rebuild": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 5.000050151693358e-09
+    },
+    "C13_tag_mapping": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 6790,
+      "rows_total": 6790,
+      "maxdev": 0.0
+    },
+    "C14_causality": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 3395,
+      "rows_total": 3395,
+      "maxdev": 0.0
+    },
+    "C16_zero_fill_orders": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_pass": 45,
+      "rows_total": 45,
+      "maxdev": 0.0
+    },
+    "C15_key_unique": {
+      "runs_pass": 45,
+      "runs_total": 45,
+      "rows_total": 6790,
+      "maxdev": 0.0,
+      "note": "internal_order_key 全库唯一性；重复条数=0"
+    }
+  },
+  "cross_check": {
+    "vs_BT01_14": {
+      "rows_old": 6790,
+      "rows_new": 6790,
+      "row_count_equal": 1,
+      "join_left_only": 0,
+      "join_right_only": 0,
+      "price_maxdiff": 0.0,
+      "qty_maxdiff": 0.0,
+      "cost_maxdiff": 5.684341886080802e-14,
+      "ts_mismatch": 0,
+      "tag_mismatch": 0,
+      "side_mismatch": 0
+    },
+    "vs_BT02_02": {
+      "rows_old": 6790,
+      "rows_new": 6790,
+      "row_count_equal": 1,
+      "join_left_only": 0,
+      "join_right_only": 0,
+      "price_maxdiff": 0.0,
+      "cost_maxdiff": 5.684341886080802e-14,
+      "fee_maxdiff": 9.71445146547012e-17,
+      "old_status_field_empty": 1,
+      "old_order_id_field_empty": 1
+    },
+    "vs_platform_orders_jsonl": {
+      "runs": 45,
+      "orders_platform": 6790,
+      "orders_raw": 6790,
+      "count_mismatch_runs": 0,
+      "synthetic_order_id_rows": 6790,
+      "synthetic_order_id_share": 1.0,
+      "field_value_check": {
+        "price_mismatch": 0,
+        "qty_mismatch": 0,
+        "cost_mismatch": 0,
+        "ts_mismatch": 0,
+        "tag_mismatch": 0,
+        "side_mismatch": 0,
+        "rows_compared": 6790
+      }
+    }
+  },
+  "not_reconcilable": [
+    {
+      "field": "order_id / engine_order_id",
+      "reason": "导出被裁剪（minified=True），事后不可恢复",
+      "rows_affected": 6790
+    },
+    {
+      "field": "status / filled / remaining / order_type / price / order_date",
+      "reason": "导出被裁剪；本单按引擎构造规则给出 derived 值，但**不是原始记录**",
+      "rows_affected": 6790
+    },
+    {
+      "field": "fill_id",
+      "reason": "回测无交易所回报，不存在该概念",
+      "rows_affected": 6790
+    },
+    {
+      "field": "funding_fee（逐单归属）",
+      "reason": "引擎按成交结转并清零，导出只剩总额",
+      "rows_affected": 6790
+    },
+    {
+      "field": "trade_id（引擎 trade.id）",
+      "reason": "导出被裁剪；当前为秩派生，同刻并列时含未观测前提",
+      "rows_affected": 6790
+    }
+  ],
+  "verdict": "PASS",
+  "verdict_scope": "仅覆盖「已导出字段」的可对账性；缺失字段不计入通过，单列于 not_reconcilable"
+}

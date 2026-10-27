@@ -1,0 +1,205 @@
+{
+ "ticket": "ENTRY-AUDIT-01",
+ "section": "02 独立复算",
+ "样本": 205,
+ "A_分类计数_各口径": [
+  {
+   "basis": "对方派生列(直接读)",
+   "early_weakness": 55,
+   "first_adverse": 90,
+   "denominator": 205,
+   "note": "非复算，仅读表核对"
+  },
+  {
+   "basis": "我方复算/atr_report(复刻回退链)",
+   "early_weakness": 55,
+   "first_adverse": 90,
+   "denominator": 205,
+   "note": "检验其算术是否可复现"
+  },
+  {
+   "basis": "我方复算/atr_snap(全池统一独立ATR)",
+   "early_weakness": 67,
+   "first_adverse": 101,
+   "denominator": 205,
+   "note": "统一基准下的对照"
+  },
+  {
+   "basis": "我方复算/atr_snap+窗口末根收益",
+   "early_weakness": 66,
+   "first_adverse": 101,
+   "denominator": 205,
+   "note": "收益口径改用第16根收盘"
+  },
+  {
+   "basis": "校正/42条按W÷5.90反推(163实测中位)",
+   "early_weakness": 67,
+   "first_adverse": 109,
+   "denominator": 205,
+   "note": "经验校准"
+  },
+  {
+   "basis": "校正/42条按W÷2.0反推(策略下限,最保守)",
+   "early_weakness": 67,
+   "first_adverse": 102,
+   "denominator": 205,
+   "note": "最小改动下界"
+  },
+  {
+   "basis": "复刻回退链+窗口末根收益",
+   "early_weakness": 55,
+   "first_adverse": 90,
+   "denominator": 205,
+   "note": "仅检验 4h 收益取第16还是第17根的影响"
+  }
+ ],
+ "B_分类分布_明细": {
+  "对方派生列": {
+   "CHOPPY_OR_OTHER": 103,
+   "EARLY_WEAKNESS": 55,
+   "SUSTAINED_TREND": 39,
+   "MFE_PULLBACK": 8
+  },
+  "我方复算_atr_report": {
+   "CHOPPY_OR_OTHER": 103,
+   "EARLY_WEAKNESS": 55,
+   "SUSTAINED_TREND": 39,
+   "MFE_PULLBACK": 8
+  },
+  "我方复算_atr_snap": {
+   "CHOPPY_OR_OTHER": 94,
+   "EARLY_WEAKNESS": 67,
+   "SUSTAINED_TREND": 36,
+   "MFE_PULLBACK": 8
+  }
+ },
+ "C_首次运动方向_明细": {
+  "对方派生列": {
+   "FIRST_ADVERSE": 90,
+   "FIRST_FAVORABLE": 68,
+   "NEITHER_REACHED_0.3ATR": 28,
+   "UNKNOWN_SAME_BAR": 19
+  },
+  "我方复算_atr_report": {
+   "FIRST_ADVERSE": 90,
+   "FIRST_FAVORABLE": 68,
+   "NEITHER_REACHED_0.3ATR": 28,
+   "UNKNOWN_SAME_BAR": 19
+  },
+  "我方复算_atr_snap": {
+   "FIRST_ADVERSE": 101,
+   "FIRST_FAVORABLE": 77,
+   "UNKNOWN_SAME_BAR": 27
+  }
+ },
+ "D_算术可复现性": {
+  "mae_r_4h 完全一致条数(差<1e-9)": 205,
+  "mae_r_4h 差>1e-6 条数": 0,
+  "mfe_r_4h 差>1e-6 条数": 0,
+  "首次运动方向不一致条数": 0,
+  "分类不一致条数": 0,
+  "改用独立ATR后分类变化条数": 16,
+  "改用独立ATR后首次方向变化条数": 52
+ },
+ "D2_换ATR后翻转的方向": [
+  {
+   "first_move_theirs": "FIRST_ADVERSE",
+   "first_move_mine_snap": "FIRST_FAVORABLE",
+   "n": 7
+  },
+  {
+   "first_move_theirs": "FIRST_ADVERSE",
+   "first_move_mine_snap": "UNKNOWN_SAME_BAR",
+   "n": 5
+  },
+  {
+   "first_move_theirs": "FIRST_FAVORABLE",
+   "first_move_mine_snap": "FIRST_ADVERSE",
+   "n": 6
+  },
+  {
+   "first_move_theirs": "FIRST_FAVORABLE",
+   "first_move_mine_snap": "UNKNOWN_SAME_BAR",
+   "n": 3
+  },
+  {
+   "first_move_theirs": "NEITHER_REACHED_0.3ATR",
+   "first_move_mine_snap": "FIRST_ADVERSE",
+   "n": 16
+  },
+  {
+   "first_move_theirs": "NEITHER_REACHED_0.3ATR",
+   "first_move_mine_snap": "FIRST_FAVORABLE",
+   "n": 9
+  },
+  {
+   "first_move_theirs": "NEITHER_REACHED_0.3ATR",
+   "first_move_mine_snap": "UNKNOWN_SAME_BAR",
+   "n": 3
+  },
+  {
+   "first_move_theirs": "UNKNOWN_SAME_BAR",
+   "first_move_mine_snap": "FIRST_ADVERSE",
+   "n": 1
+  },
+  {
+   "first_move_theirs": "UNKNOWN_SAME_BAR",
+   "first_move_mine_snap": "FIRST_FAVORABLE",
+   "n": 2
+  }
+ ],
+ "E_ATR基准": {
+  "box_atr_4h缺失条数": 42,
+  "回退到initial_risk_r条数": 42,
+  "回退到p_entry*0.03条数": 0,
+  "回退组 atr_report/atr_snap 中位倍数": 5.538239061278665,
+  "回退组 atr_report/atr_snap 最小": 3.2654253767679173,
+  "回退组 atr_report/atr_snap 最大": 10.810093573368745,
+  "箱体宽度÷ATR_163条_中位": 5.900597704985521,
+  "箱体宽度÷ATR_163条_落在2~8": 163,
+  "箱体宽度÷ATR_42条_唯一取值": [
+   1.0
+  ],
+  "箱体宽度÷ATR_42条_落在2~8": 0
+ },
+ "F_有真boxATR的163条子集": {
+  "对方EARLY_WEAKNESS": 52,
+  "我方复算EARLY_WEAKNESS": 52,
+  "对方FIRST_ADVERSE": 85,
+  "我方复算FIRST_ADVERSE": 85,
+  "分母": 163
+ },
+ "F2_回退ATR的42条子集": {
+  "EARLY_WEAKNESS_对方": 3,
+  "EARLY_WEAKNESS_独立ATR": 15,
+  "EARLY_WEAKNESS_校准ATR": 15,
+  "EARLY_WEAKNESS_最保守ATR": 15,
+  "FIRST_ADVERSE_对方": 5,
+  "FIRST_ADVERSE_独立ATR": 23,
+  "FIRST_ADVERSE_校准ATR": 24,
+  "FIRST_ADVERSE_最保守ATR": 17,
+  "分母": 42
+ },
+ "F3_163条在独立ATR时点下的敏感性": {
+  "EARLY_WEAKNESS_对方口径": 52,
+  "EARLY_WEAKNESS_入场时刻ATR": 52,
+  "FIRST_ADVERSE_对方口径": 85,
+  "FIRST_ADVERSE_入场时刻ATR": 78,
+  "分母": 163
+ },
+ "G_数据完整性": {
+  "入场bar不存在条数": 0,
+  "窗口不足16根条数": 0,
+  "窗口内有缺口条数": 0,
+  "异常价格bar条数": 0
+ },
+ "H_R单位一致性": {
+  "全周期mfe_r分母=初始止损距离": "已核验：mfe_r ≡ trade_mfe_pct ÷ (initial_risk_r/p_entry)，205/205 精确成立",
+  "4h窗口mae_r分母=4h ATR": "已核验：mae_r_4h ≡ (p_entry-窗口最低)/atr，205/205 精确成立",
+  "初始止损距离占价格_中位": 16.86,
+  "4h ATR占价格_中位(163条)": 2.6,
+  "两者倍数(止损距离÷ATR)": 6.61,
+  "含义": "同一个「R」在报告里有两套分母，量级相差约 6.5 倍；因此「mae_r_4h ≥ 0.5」与「mfe_r ≥ 1.0」不是同一把尺子，四类标签之间不可直接比较。",
+  "42条回退组的initial_risk_r占价格_中位": 16.81
+ }
+}

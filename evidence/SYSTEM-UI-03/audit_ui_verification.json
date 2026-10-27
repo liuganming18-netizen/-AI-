@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-10-23T07:38:10.859970+00:00",
+  "suite": "SYSTEM-UI-03",
+  "sandbox_env": {
+    "paper_dir": "/tmp/wx_ui_isolated_test_03/paper",
+    "locks_dir": "/tmp/wx_ui_isolated_test_03/locks",
+    "live_db": "/tmp/wx_ui_isolated_test_03/live.db",
+    "daemon_pid": 31691,
+    "backend_port": 8998,
+    "proxy_port": 5178
+  },
+  "views_tested": {
+    "view_01_top_status_bar": {
+      "status": "PASS",
+      "topbar_text": "BTC\n81,624\n-2.44%\nETH\n2,404\n-2.07%\n模拟盘权益\n—\n行情连接\nstale\n（21079 秒前）\n电报提醒\n未配置\n07:38:12\nUTC\n只读",
+      "api_endpoint": "/api/v1/markets",
+      "btc_price_api": 81623.5,
+      "eth_price_api": 2404.24
+    },
+    "view_02_signal_list_panel": "PASS",
+    "view_03_token_table": "PASS",
+    "view_04_inline_expanded_chart": "PASS",
+    "view_05_position_panel_and_daemon": "PASS",
+    "view_06_stop_trail": "PASS",
+    "view_07_gate_and_pending": "PASS",
+    "view_08_datacenter_overview": "PASS",
+    "view_09_datacenter_matrix": "PASS",
+    "view_10_datacenter_gaps": "PASS",
+    "view_11_strategy_list": "PASS",
+    "view_12_strategy_rules": "PASS",
+    "view_13_strategy_deps": "PASS",
+    "view_14_strategy_versions": "PASS",
+    "view_15_backtest_runs": "PASS",
+    "view_16_acceptance_review": "PASS"
+  },
+  "state_coverage": {
+    "signal_normal": {
+      "count": 3,
+      "symbols": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "SOLUSDT"
+      ],
+      "screenshot": "state_signal_normal.png"
+    },
+    "position_normal": {
+      "open_positions": 1,
+      "symbol": "BTCUSDT",
+      "daemon_pid": 31691,
+      "screenshot": "state_position_normal.png"
+    },
+    "stop_trail_normal": {
+      "position_id": 1,
+      "records_found": 2,
+      "screenshot": "state_stop_trail_normal.png"
+    },
+    "signal_empty": "state_signal_empty.png",
+    "signal_failed": "state_signal_failed.png",
+    "position_empty": "state_position_empty.png",
+    "position_failed": "state_position_failed.png",
+    "stop_trail_empty": "state_stop_trail_empty.png",
+    "stop_trail_failed": "state_stop_trail_failed.png"
+  },
+  "ticker_9cols_parity": [
+    {
+      "field": "1. 代币标的与价格",
+      "dom_value": "BLU\nBLUR\n$0.00878\n-3.09%",
+      "api_value": "BLURUSDT",
+      "match": true
+    },
+    {
+      "field": "2. 流动市值",
+      "dom_value": "$2559.42万",
+      "api_value": "—",
+      "match": true
+    },
+    {
+      "field": "3. 日总成交额",
+      "dom_value": "$517.46万",
+      "api_value": "None",
+      "match": true
+    },
+    {
+      "field": "4. 聪明钱多头",
+      "dom_value": "持仓额: 57.08万 USD\n巨鲸占比: 92.8%",
+      "api_value": "暂无数据",
+      "match": true
+    },
+    {
+      "field": "5. 聪明钱空头",
+      "dom_value": "持仓额: 21.12万 USD\n巨鲸占比: 97.7%",
+      "api_value": "暂无数据",
+      "match": true
+    },
+    {
+      "field": "6. 聪明钱均价",
+      "dom_value": "多 0.018482\n空 0.019369",
+      "api_value": "暂无数据",
+      "match": true
+    },
+    {
+      "field": "7. 总OI持仓",
+      "dom_value": "332.85万U\n陈旧",
+      "api_value": "None",
+      "match": true
+    },
+    {
+      "field": "8. 资金费率",
+      "dom_value": "-0.0370%",
+      "api_value": "-0.00036977",
+      "match": true
+    },
+    {
+      "field": "9. 近24h小时图",
+      "dom_value": "",
+      "api_value": "24h Sparkline (SVG)",
+      "match": true
+    }
+  ],
+  "backtest_run_parity": {
+    "displayed_run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+    "source_dir": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+    "summary_sha256": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc",
+    "manifest_present": false,
+    "initial_equity": 2000.0,
+    "net_pnl": -8.2432223,
+    "trade_count": 1,
+    "order_count": 2,
+    "win_rate": null,
+    "formal_pass_allowed": false
+  },
+  "datacenter_stats": {
+    "shown_symbols": "150",
+    "pool_total": "814",
+    "online_symbols": "549"
+  },
+  "strategy_catalog": {},
+  "failures": [],
+  "unverified_items": {
+    "pending_queue_fill": "未验证（当前模拟隔离环境无真实挂单排队数据，按纪律如实保留未验证，不编造假单通过）"
+  },
+  "acceptance_review": {
+    "gate_status": "4/6 PASS",
+    "formal_pass_allowed": false,
+    "m4_status": "候选研究 Run，未放行正式生产"
+  },
+  "production_isolation_verified": true
+}

@@ -1,0 +1,91 @@
+{
+  "batch_version": "FT-POOL-01-B01-v1.1.0",
+  "generated_at_utc": "2026-10-20T09:29:18.381470+00:00",
+  "official_classification_snapshot_utc": "2026-10-05T04:53:28Z",
+  "historical_candidate_universe": {
+    "filter": "underlying_type=COIN AND contract_type=PERPETUAL AND quote_asset=USDT; status不作排除条件",
+    "denominator": 656,
+    "status_counts": {
+      "TRADING": 526,
+      "SETTLING": 129,
+      "PENDING_TRADING": 1
+    },
+    "index_excluded_count": 3,
+    "index_excluded_symbols": [
+      "ALLUSDT",
+      "BTCDOMUSDT",
+      "DEFIUSDT"
+    ],
+    "classified_contracts": 920
+  },
+  "existing_coverage_crosscheck": {
+    "source_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/Work_数据够用性整理_2026-10-15/逐币逐周期可用范围.csv",
+    "1h_symbols_in_existing_list": 526,
+    "candidate_symbols_without_1h_summary": 130,
+    "timeframes": {
+      "1h": {
+        "symbols_with_summary_rows": 526,
+        "gap_free_symbols": 517,
+        "symbols_with_any_gap_or_offgrid": 9,
+        "summary_cutoff_utc": "2026-10-14T11:00:00+00:00"
+      },
+      "15m": {
+        "symbols_with_summary_rows": 526,
+        "gap_free_symbols": 482,
+        "symbols_with_any_gap_or_offgrid": 44,
+        "summary_cutoff_utc": "2026-10-14T12:00:00+00:00"
+      },
+      "4h": {
+        "symbols_with_summary_rows": 526,
+        "gap_free_symbols": 517,
+        "symbols_with_any_gap_or_offgrid": 9,
+        "summary_cutoff_utc": "2026-10-14T08:00:00+00:00"
+      }
+    }
+  },
+  "local_metrics_symbol_dirs": 526,
+  "batch": {
+    "batch_index": 1,
+    "batch_size": 50,
+    "first_symbol": "0GUSDT",
+    "last_symbol": "ALPINEUSDT",
+    "status_counts": {
+      "TRADING": 40,
+      "SETTLING": 10
+    },
+    "symbols_with_any_local_data": 40,
+    "symbols_with_base_1h_15m_candidate": 40,
+    "symbols_with_oi_candidate": 40,
+    "symbols_with_taker_candidate": 40,
+    "symbols_without_local_data": 10,
+    "input_shards_read": 665,
+    "log_records": 200
+  },
+  "limitations": [
+    "包含SETTLING和PENDING，不按当前status筛除历史。",
+    "官方快照不等于完整历史挂牌目录；无本机数据币仍留分母，标记无可核验区间。",
+    "K线available_at为空且OI发布时点缺证；候选区间不等于正式PIT。",
+    "扩展字段缺失不取消基础价量资格；缺失不填0。"
+  ],
+  "supersedes": "FT-POOL-01-B01-v1.0.0 for OI/funding/mark qualification wording only",
+  "historical_pool_confirmed_denominator": 682,
+  "oi_factor_qualified_symbols": 0,
+  "oi_raw_5m_symbols_with_nonnull": 40,
+  "oi_factor_note": "5m raw OI coverage is reported separately. Current strategy expects an open_interest field on 1h bars; no validated 5m-to-1h mapping with proven available_at was found in the checked input path. Do not treat B01 v1.0 provisional oi_numeric_candidate_intervals as qualified factor windows.",
+  "funding_mark_totals": {
+    "funding_event_rows": 170009,
+    "funding_rate_missing_rows": 0,
+    "funding_settlement_mark_missing_rows": 54,
+    "mark1h_rows": 918989,
+    "mark1h_valid_rows": 918989,
+    "mark1h_missing_grid_slots": 1392
+  },
+  "funding_file_presence_counts": {
+    "read_ok": 40,
+    "missing": 10
+  },
+  "mark1h_file_presence_counts": {
+    "read_ok": 40,
+    "missing": 10
+  }
+}

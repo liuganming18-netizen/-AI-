@@ -1,0 +1,227 @@
+{
+  "work_order": "FT-ENTRY-AUDIT-02",
+  "generated_by": "queries/01_input_param_audit.py",
+  "universe": {
+    "count": 74,
+    "identical_to_FT_FACTOR_03_whitelist": true,
+    "diff_vs_FT_FACTOR_03": [],
+    "in_my_L1_241": 70,
+    "not_in_my_L1_241": [
+      "AEROUSDT",
+      "AIXBTUSDT",
+      "AVAUSDT",
+      "CGPTUSDT"
+    ],
+    "coverage_of_L1": 29.05
+  },
+  "warmup": {
+    "frozen_rule_4h_warmup_bars": 200,
+    "implementation_box_min_bars": 42,
+    "implementation_atr_period_4h": 14,
+    "pairs_with_lt_200_4h_bars_before_research_start": 48,
+    "such_pairs": [
+      "1000000MOGUSDT",
+      "1000BONKUSDT",
+      "1000CATUSDT",
+      "1000CHEEMSUSDT",
+      "1000FLOKIUSDT",
+      "1000LUNCUSDT",
+      "1000PEPEUSDT",
+      "1000RATSUSDT",
+      "1000SATSUSDT",
+      "1MBABYDOGEUSDT",
+      "ACEUSDT",
+      "ACHUSDT",
+      "ACTUSDT",
+      "AEROUSDT",
+      "AEVOUSDT",
+      "AGLDUSDT",
+      "AIXBTUSDT",
+      "AKTUSDT",
+      "ALTUSDT",
+      "APEUSDT",
+      "API3USDT",
+      "APTUSDT",
+      "ARBUSDT",
+      "ARKMUSDT",
+      "ARKUSDT",
+      "ASTRUSDT",
+      "AUCTIONUSDT",
+      "AVAUSDT",
+      "AXLUSDT",
+      "BANANAUSDT",
+      "BANUSDT",
+      "BBUSDT",
+      "BEAMXUSDT",
+      "BICOUSDT",
+      "BIGTIMEUSDT",
+      "BLURUSDT",
+      "BNTUSDT",
+      "BOMEUSDT",
+      "BRETTUSDT",
+      "BSVUSDT",
+      "CAKEUSDT",
+      "CATIUSDT",
+      "CETUSUSDT",
+      "CFXUSDT",
+      "CGPTUSDT",
+      "CHILLGUYUSDT",
+      "CKBUSDT",
+      "COWUSDT"
+    ],
+    "note": "策略实现只要求 len(sub_4h)>=42 且 ATR(14)，未按冻结规则做 200 根 4h 预热；上一轮 FT-FACTOR-AUDIT-01 的 L1 门槛是 200 根，两者口径不同。"
+  },
+  "archive": {
+    "base_class_archived_in_any_zip": false,
+    "base_class_sha256_on_disk": "7b27f555fde734d47ebb4183bda33fe8ea9c10a78dba3c972bb82d83bad3c557",
+    "base_class_bytes": 36449,
+    "conclusion": "归档包只含 5 行子类，36KB 的基类 WyckoffEntryTimingBase.py 未入包；单凭 zip 无法复现回测，必须同时锁定磁盘基类哈希。"
+  },
+  "leakage_evidence": {
+    "lookahead_analysis_artifact_found": false,
+    "files": [],
+    "conclusion": "FT-ENTRY-01 目录内没有 lookahead-analysis / recursive-analysis 产物。防泄漏只能靠代码审读，不能靠官方门槛结论。"
+  },
+  "source_scan": {
+    "contains_0_0003": false,
+    "contains_slippage_word": false,
+    "uses_PitMode": true,
+    "uses_register_oi": true,
+    "uses_read_oi": true,
+    "oi_filter_default": [
+      "True",
+      "True"
+    ],
+    "declared_pit_mode": []
+  },
+  "rule_deviation_high": [
+    "A 组突破兜底分支",
+    "快照字段完整性"
+  ],
+  "enter_tag_parse": [
+    {
+      "arm": "WyckoffBaseline",
+      "trades": 19,
+      "parsed": 19,
+      "unparsed": 0,
+      "unique_event_ids": 19,
+      "duplicate_event_trades": 0,
+      "symbols": 16
+    },
+    {
+      "arm": "WyckoffEntryA1_NearTop",
+      "trades": 20,
+      "parsed": 20,
+      "unparsed": 0,
+      "unique_event_ids": 20,
+      "duplicate_event_trades": 0,
+      "symbols": 14
+    },
+    {
+      "arm": "WyckoffEntryA2_AtBoxHigh",
+      "trades": 9,
+      "parsed": 9,
+      "unparsed": 0,
+      "unique_event_ids": 9,
+      "duplicate_event_trades": 0,
+      "symbols": 8
+    },
+    {
+      "arm": "WyckoffEntryC1_StopSweep",
+      "trades": 453,
+      "parsed": 453,
+      "unparsed": 0,
+      "unique_event_ids": 441,
+      "duplicate_event_trades": 12,
+      "symbols": 60
+    },
+    {
+      "arm": "WyckoffEntryC2_StopBar",
+      "trades": 524,
+      "parsed": 524,
+      "unparsed": 0,
+      "unique_event_ids": 456,
+      "duplicate_event_trades": 68,
+      "symbols": 61
+    }
+  ],
+  "arm_stats": {
+    "WyckoffBaseline": {
+      "trades": 19,
+      "first_open": "2021-12-23 03:45:00+00:00",
+      "last_close": "2024-11-20 05:15:00+00:00",
+      "symbols_traded": 16,
+      "unique_event_ids": 19,
+      "duplicate_event_trades": 0,
+      "unparsed_tags": []
+    },
+    "WyckoffEntryA1_NearTop": {
+      "trades": 20,
+      "first_open": "2022-05-31 05:45:00+00:00",
+      "last_close": "2024-12-01 14:15:00+00:00",
+      "symbols_traded": 14,
+      "unique_event_ids": 20,
+      "duplicate_event_trades": 0,
+      "unparsed_tags": []
+    },
+    "WyckoffEntryA2_AtBoxHigh": {
+      "trades": 9,
+      "first_open": "2022-09-03 18:15:00+00:00",
+      "last_close": "2024-09-21 02:15:00+00:00",
+      "symbols_traded": 8,
+      "unique_event_ids": 9,
+      "duplicate_event_trades": 0,
+      "unparsed_tags": []
+    },
+    "WyckoffEntryC1_StopSweep": {
+      "trades": 453,
+      "first_open": "2021-12-04 00:15:00+00:00",
+      "last_close": "2024-12-30 14:30:00+00:00",
+      "symbols_traded": 60,
+      "unique_event_ids": 441,
+      "duplicate_event_trades": 12,
+      "unparsed_tags": []
+    },
+    "WyckoffEntryC2_StopBar": {
+      "trades": 524,
+      "first_open": "2021-12-04 00:15:00+00:00",
+      "last_close": "2024-12-30 13:45:00+00:00",
+      "symbols_traded": 61,
+      "unique_event_ids": 456,
+      "duplicate_event_trades": 68,
+      "unparsed_tags": []
+    }
+  },
+  "time_coverage": {
+    "WyckoffBaseline": {
+      "first_open_utc": "2021-12-23 03:45:00+00:00",
+      "last_open_utc": "2024-11-10 05:15:00+00:00",
+      "last_close_utc": "2024-11-20 05:15:00+00:00",
+      "outside_research_window_opens": 0
+    },
+    "WyckoffEntryA1_NearTop": {
+      "first_open_utc": "2022-05-31 05:45:00+00:00",
+      "last_open_utc": "2024-11-21 14:15:00+00:00",
+      "last_close_utc": "2024-12-01 14:15:00+00:00",
+      "outside_research_window_opens": 0
+    },
+    "WyckoffEntryA2_AtBoxHigh": {
+      "first_open_utc": "2022-09-03 18:15:00+00:00",
+      "last_open_utc": "2024-09-11 02:15:00+00:00",
+      "last_close_utc": "2024-09-21 02:15:00+00:00",
+      "outside_research_window_opens": 0
+    },
+    "WyckoffEntryC1_StopSweep": {
+      "first_open_utc": "2021-12-04 00:15:00+00:00",
+      "last_open_utc": "2024-12-30 01:15:00+00:00",
+      "last_close_utc": "2024-12-30 14:30:00+00:00",
+      "outside_research_window_opens": 0
+    },
+    "WyckoffEntryC2_StopBar": {
+      "first_open_utc": "2021-12-04 00:15:00+00:00",
+      "last_open_utc": "2024-12-30 01:15:00+00:00",
+      "last_close_utc": "2024-12-30 13:45:00+00:00",
+      "outside_research_window_opens": 0
+    }
+  }
+}

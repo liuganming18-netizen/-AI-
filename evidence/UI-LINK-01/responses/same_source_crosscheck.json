@@ -1,0 +1,76 @@
+{
+ "at": "2026-10-23T11:49:09.504Z",
+ "base": "http://127.0.0.1:3100",
+ "page_errors": [],
+ "workbench": {
+  "token_count_text": "549",
+  "equity_text": "5,000.00",
+  "signal_rows": 1,
+  "pending_block": {
+   "state": "has_pending",
+   "n": "1"
+  },
+  "position_rows": 0,
+  "raw_signals_label": "1"
+ },
+ "canvas": {
+  "live": "读取时间：2026/10/23 19:49:08　后端：http://127.0.0.1:3100　mode=—　as_of=2026-10-23T11:49:06Z\n运行臂：3a · 池 — · 进程 not_started · PID — · 周期 — · 健康 idle\n监控池：未知（运行时未注册）　行情池 币安 526 + 欧易补 23 = 549\n扫描状态：未知（signal_engine.status=unknown，运行时未注册）\n新开仓总闸：已开启（reason=user_ui_resumed · set_by=user_ui_control）　账本侧交叉核对：进程侧未注册，无法交叉核对　总闸文件：/private/tmp/ui-link-01/live/paper_new_entry_gate.json\n挂单：进程侧 未注册 · 账本 n_pending_orders 1 · 四臂 pending 合计 1\n持仓：进程侧 open_positions 未注册 · /paper/positions 0 条\n止损：进程侧 trailing_updates_total 未注册 · 明细接口 /api/v1/paper/stops/{pos_id}（见第 3 列卡片）\n退出：进程侧 exits_triggered_total 未注册 · 账本已平仓 0 笔 · 已实现 0.00 USDT\n当前信号：1 条（scope=current）　最近错误：无",
+  "pool_line": [
+   "526",
+   "23",
+   "549"
+  ],
+  "signal_line": "1",
+  "pending_line": "1",
+  "positions_line": "0",
+  "cards": {
+   "wb_table": {
+    "state": "pass",
+    "ev": "活动池 549（币安 526 + 欧易补 23）· 返回 549 行 · 5287 KB"
+   },
+   "sig_stream": {
+    "state": "pass",
+    "ev": "1 条 · 例：BTCUSDT long · origin=live · arm=3a · role=enterable_arm_entry · state=enterable"
+   },
+   "pending": {
+    "state": "pass",
+    "ev": "1 笔 · 例：BTCUSDT · 方向=long · 来源臂=3a · origin=signal · 状态=pending · 进程侧 未注册"
+   },
+   "positions": {
+    "state": "unv",
+    "ev": "持仓 0 条（进程侧 未注册）⇒ 无样本，持仓面板无法验证"
+   }
+  }
+ },
+ "checks": [
+  {
+   "item": "监控池（币安 + 欧易补）",
+   "workbench": "549",
+   "canvas": "549",
+   "note": "工作台「共 N 个标的」 vs 画布「币安 N + 欧易补 M」",
+   "match": true
+  },
+  {
+   "item": "当前信号条数",
+   "workbench": "1",
+   "canvas": "1",
+   "note": "工作台信号区行数 vs 画布「当前信号 N 条」",
+   "match": true
+  },
+  {
+   "item": "待成交挂单笔数",
+   "workbench": "1",
+   "canvas": "1",
+   "note": "工作台待成交区块 data-n-pending vs 画布「四臂 pending 合计」",
+   "match": true
+  },
+  {
+   "item": "持仓条数",
+   "workbench": "0",
+   "canvas": "0",
+   "note": "工作台持仓行数 vs 画布「/paper/positions N 条」",
+   "match": true
+  }
+ ],
+ "all_match": true
+}

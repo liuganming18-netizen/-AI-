@@ -1,0 +1,70 @@
+{
+ "audit": "FRAME-FIT-01",
+ "registry_root": "临时目录（已删除，不留痕）",
+ "scenarios": [
+  {
+   "scenario": "只登记、不冻结、分组不配",
+   "formal_eligible": false,
+   "formal_blockers": [
+    "分组未配置/不自洽：未配置分组：train、valid、holdout；未配置隔离长度（isolation_hours）",
+    "配置未冻结",
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ],
+   "gate_ok": false,
+   "gate_blockers": [
+    "分组未配置/不自洽：未配置分组：train、valid、holdout；未配置隔离长度（isolation_hours）",
+    "配置未冻结",
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ]
+  },
+  {
+   "scenario": "已冻结、分组仍未配置",
+   "formal_eligible": false,
+   "formal_blockers": [
+    "分组未配置/不自洽：未配置分组：train、valid、holdout；未配置隔离长度（isolation_hours）",
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ],
+   "gate_ok": false,
+   "gate_blockers": [
+    "分组未配置/不自洽：未配置分组：train、valid、holdout；未配置隔离长度（isolation_hours）",
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ]
+  },
+  {
+   "scenario": "已冻结 + 分组已配（候选划分）",
+   "formal_eligible": false,
+   "formal_blockers": [
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ],
+   "gate_ok": false,
+   "gate_blockers": [
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ]
+  },
+  {
+   "scenario": "已冻结 + 分组已配，但请求窗口≠写死窗口",
+   "formal_eligible": false,
+   "formal_blockers": [
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ],
+   "gate_ok": false,
+   "gate_blockers": [
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）",
+    "请求窗口 2025-01-01 ~ 2025-06-30，但执行链写死为 2024-01-01 ~ 2024-06-30（框架/backend/backtest_runner.py::_run_event_trend 写死窗口）⇒ 实际样本范围与登记不符"
+   ]
+  },
+  {
+   "scenario": "研究模式（对照）",
+   "formal_eligible": false,
+   "formal_blockers": [
+    "登记模式为 'research'（研究运行不具正式资格）",
+    "分组未配置/不自洽：未配置分组：train、valid、holdout；未配置隔离长度（isolation_hours）",
+    "配置未冻结",
+    "尚无已登记运行（试验次数为 0，不能宣称有结果）"
+   ],
+   "gate_ok": true,
+   "gate_blockers": []
+  }
+ ],
+ "note": "每个场景都是真调 register/freeze/formal_eligible/guard_create 得到的，不是手写清单。"
+}

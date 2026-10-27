@@ -1,0 +1,184 @@
+{
+  "probe": "50_iso_page_e2e:recovered",
+  "generated_real_utc": "2026-10-25T10:40:01.935Z",
+  "isolation": {
+    "api_port": 8799,
+    "frontend": "http://127.0.0.1:3000（生产同一份页面代码；仅网络层换数据源）",
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/live_signals.sqlite3",
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/paper",
+    "PAPER_LOCK_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07/iso_recovered/locks",
+    "iso_dir": "iso_recovered",
+    "expect_origin": "recovered",
+    "iso_paper_epoch_ms": 1790870400000,
+    "iso_paper_epoch_utc": "2026-10-01T16:00:00Z",
+    "prod_paper_epoch_ms": 1791939600000,
+    "note": "生产 8787 进程 / 生产实时库 / 生产启用时点常量 / 门禁文件全程未改；隔离仅在本进程内存与浏览器网络层生效"
+  },
+  "expected_candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+  "steps": [
+    {
+      "name": "隔离后端就绪",
+      "ok": true,
+      "detail": "端口 8799，1.0s",
+      "soft": false
+    },
+    {
+      "name": "隔离接口返回该候选",
+      "ok": true,
+      "detail": "total=1，id=cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "soft": false
+    },
+    {
+      "name": "隔离下限自洽（模拟启用时点生效）",
+      "ok": true,
+      "detail": "effective_floor=1790870400000（期望 1790870400000）",
+      "soft": false
+    },
+    {
+      "name": "隔离未影响生产口径（生产仍是 2026-10-14）",
+      "ok": true,
+      "detail": "生产 8787 的 paper_epoch_ms 仍为 1791939600000",
+      "soft": false
+    },
+    {
+      "name": "页面上出现信号卡片",
+      "ok": true,
+      "detail": "1 张",
+      "soft": false
+    },
+    {
+      "name": "卡片 ID == 期望候选 ID",
+      "ok": true,
+      "detail": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "soft": false
+    },
+    {
+      "name": "卡片属性（来源 / 可执行 / 币种）",
+      "ok": true,
+      "detail": "origin=recovered exec=enterable symbol=VELVETUSDT",
+      "soft": false
+    },
+    {
+      "name": "未落回空态",
+      "ok": true,
+      "detail": "无空态块",
+      "soft": false
+    },
+    {
+      "name": "页面确实走的是隔离出口",
+      "ok": true,
+      "detail": "http://127.0.0.1:8799/api/v1/signals?scope=current&limit=500",
+      "soft": false
+    },
+    {
+      "name": "截图已保存",
+      "ok": true,
+      "detail": "out/09_iso_page_candidate_recovered.png",
+      "soft": false
+    },
+    {
+      "name": "刷新后不重复",
+      "ok": true,
+      "detail": "刷新后 1 张卡",
+      "soft": false
+    },
+    {
+      "name": "页面无 JS 报错",
+      "ok": true,
+      "detail": "无",
+      "soft": false
+    },
+    {
+      "name": "数据库只读核验",
+      "ok": true,
+      "detail": "1 行",
+      "soft": false
+    },
+    {
+      "name": "生产实时库未被写入",
+      "ok": true,
+      "detail": "91e0979b9458… → 91e0979b9458…",
+      "soft": false
+    },
+    {
+      "name": "启用时点常量所在文件未被改写",
+      "ok": true,
+      "detail": "live_store.py sha 1e1218ea1bdf… 一致",
+      "soft": false
+    },
+    {
+      "name": "隔离库也未被本探针改写（只读打开）",
+      "ok": true,
+      "detail": "sha 一致",
+      "soft": false
+    },
+    {
+      "name": "三方按候选 ID 对齐（页面 / 接口 / 库）",
+      "ok": true,
+      "detail": "页面 / 接口 / 库 三处同一 ID",
+      "soft": false
+    }
+  ],
+  "ok": true,
+  "fingerprint_before": {
+    "prod_live_db_sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "live_store_py_sha256": "1e1218ea1bdf18d5f138f6056de13f710402a2a5385478d2ae8b89fbd3b68da4",
+    "iso_live_db_sha256": "3660bc25b53203b3e66ba6eee0fa4911f68373c3b142a4a6283e9724d45bc13d"
+  },
+  "iso_api": {
+    "total": 1,
+    "as_of": "2026-10-02T15:00:00Z",
+    "ids": [
+      "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+    ],
+    "live_start_ms": 1790870400000,
+    "paper_epoch_ms": 1790870400000,
+    "effective_floor_ms": 1790870400000,
+    "excluded_breakdown": {
+      "db_rows_total": 1,
+      "kept": 1,
+      "excluded": 0,
+      "by_reason": {
+        "not_current_origin": 0,
+        "not_enterable": 0,
+        "missing_time": 0,
+        "before_effective_floor": 0,
+        "not_arm_entry_role": 0,
+        "test_synthetic": 0
+      },
+      "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+    }
+  },
+  "routed_requests": [
+    "http://127.0.0.1:8799/api/v1/signals?scope=current&limit=500",
+    "http://127.0.0.1:8799/api/v1/paper/accounts",
+    "http://127.0.0.1:8799/api/v1/signals?scope=current&limit=500",
+    "http://127.0.0.1:8799/api/v1/paper/accounts"
+  ],
+  "page_cards": [
+    {
+      "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "origin": "recovered",
+      "exec": "enterable",
+      "symbol": "VELVETUSDT",
+      "text": "VELVELVETUSDT做多ID: cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000复制10-02 23:00 (1h)breakout理由：—（无结构化理由，缺失即未知）① 结构发现breakout② 信号确认已确认"
+    }
+  ],
+  "db": {
+    "n": 1,
+    "rows": [
+      {
+        "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "origin": "recovered",
+        "executable_state": "enterable",
+        "symbol": "VELVETUSDT"
+      }
+    ]
+  },
+  "fingerprint_after": {
+    "prod_live_db_sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66",
+    "live_store_py_sha256": "1e1218ea1bdf18d5f138f6056de13f710402a2a5385478d2ae8b89fbd3b68da4",
+    "iso_live_db_sha256": "3660bc25b53203b3e66ba6eee0fa4911f68373c3b142a4a6283e9724d45bc13d"
+  },
+  "api_log_tail": ""
+}

@@ -1,0 +1,28 @@
+{
+  "problem_verification": {
+    "42_missing_records_confirmed": true,
+    "total_filled_trades": 205,
+    "true_box_atr_records": 163,
+    "fallback_records": 42,
+    "fallback_mechanism": "box_atr_4h missing in legacy trades -> fell back to initial_risk_r (stop loss distance, ~6.6x ATR)",
+    "impact_on_scale": "ATR denominator was inflated ~6.6x, suppressing MAE_R and causing 12 early weakness trades to be missed."
+  },
+  "classification_reconciliation": {
+    "early_weakness_old": 55,
+    "early_weakness_new": 67,
+    "early_weakness_net_diff": 12,
+    "first_adverse_old": 90,
+    "first_adverse_new": 101,
+    "first_adverse_net_diff": 11,
+    "unknown_same_bar_new": 27,
+    "neither_reached_new": 0,
+    "first_favorable_new": 77
+  },
+  "financial_fact_vs_causation": {
+    "first_adverse_pnl_sum": 70.51,
+    "non_first_adverse_pnl_sum": 31.02,
+    "early_weakness_pnl_sum": -38.7,
+    "non_early_weakness_pnl_sum": 140.24,
+    "causal_statement_retracted": "The claim that early adverse move or breakout distance directly caused final trading loss is REFUTED by data. First adverse trades yielded net +142.23 USDT."
+  }
+}

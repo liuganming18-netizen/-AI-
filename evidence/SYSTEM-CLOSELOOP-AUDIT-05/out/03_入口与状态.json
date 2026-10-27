@@ -1,0 +1,144 @@
+{
+ "生成时刻": "2026-10-23T00:50:31+08:00",
+ "隔离根": "/tmp/wx_audit05",
+ "隔离端口": 8799,
+ "adapter": {
+  "pid": 50622,
+  "health_http": 200,
+  "启动耗时秒": 1.0,
+  "日志": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-05/out/03_iso_adapter.log"
+ },
+ "adapter_子进程": [],
+ "adapter_是否派生执行守护": false,
+ "adapter_启动后的worker进程": [],
+ "状态接口_无守护时": {
+  "http": 200,
+  "body": {
+   "mode": null,
+   "account_id": null,
+   "run_id": null,
+   "strategy_version": null,
+   "rule_version": null,
+   "param_hash": null,
+   "data_version": null,
+   "as_of": "2026-10-22T16:50:32Z",
+   "quality": {
+    "status": "ok",
+    "note": "execution_daemon_status"
+   },
+   "source_url": null,
+   "evidence_level": null,
+   "missing_reason": null,
+   "time": {
+    "event_time": null,
+    "available_at": null,
+    "received_at": null,
+    "fetched_at": null
+   },
+   "item": {
+    "arm": "3a",
+    "status": "not_started",
+    "running": false,
+    "health": "idle",
+    "last_cycle_ms": null,
+    "cycle_count": 0
+   }
+  }
+ },
+ "旧回退路由_无守护时": {
+  "http": 404,
+  "body": "{\"错误\": \"接口不存在\"}"
+ },
+ "worker": {
+  "pid": 50624,
+  "仍在运行": true,
+  "退出码": null
+ },
+ "状态接口_守护运行中": {
+  "http": 200,
+  "body": {
+   "mode": null,
+   "account_id": null,
+   "run_id": null,
+   "strategy_version": null,
+   "rule_version": null,
+   "param_hash": null,
+   "data_version": null,
+   "as_of": "2026-10-22T16:50:40Z",
+   "quality": {
+    "status": "ok",
+    "note": "execution_daemon_status"
+   },
+   "source_url": null,
+   "evidence_level": null,
+   "missing_reason": null,
+   "time": {
+    "event_time": null,
+    "available_at": null,
+    "received_at": null,
+    "fetched_at": null
+   },
+   "item": {
+    "arm": "3a",
+    "pid": 50624,
+    "status": "running",
+    "running": true,
+    "started_at": 1792687832986,
+    "last_cycle_ms": 1792687840070,
+    "cycle_count": 8,
+    "pending_matched_count": 0,
+    "trailing_checked_count": 0,
+    "stops_updated_count": 0,
+    "exits_triggered_count": 0,
+    "last_error": null,
+    "health": "healthy"
+   }
+  }
+ },
+ "旧回退路由_守护运行中": {
+  "http": 404,
+  "body": "{\"错误\": \"接口不存在\"}"
+ },
+ "worker_进程列表": [
+  {
+   "pid": 50624,
+   "命令行": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/paper_execution_worker.py --arm 3a --interval 1"
+  }
+ ],
+ "worker_日志尾部": [
+  "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+ ],
+ "worker_日志行数": 1,
+ "单实例锁文件": {
+  "路径": "/tmp/wx_audit05/locks/paper_exec_3a.lock",
+  "存在": true,
+  "字节": 35,
+  "生产locks同名文件": {
+   "存在": true,
+   "mtime": "2026-10-23T00:38:14+08:00"
+  }
+ },
+ "接口自报": {
+  "arm": "3a",
+  "pid": 50624,
+  "status": "running",
+  "running": true,
+  "started_at": 1792687832986,
+  "last_cycle_ms": 1792687840070,
+  "cycle_count": 8,
+  "pending_matched_count": 0,
+  "trailing_checked_count": 0,
+  "stops_updated_count": 0,
+  "exits_triggered_count": 0,
+  "last_error": null,
+  "health": "healthy"
+ },
+ "判定": {
+  "①统一入口是否拉起守护": "不通过",
+  "②守护是否真实运行": "通过",
+  "③状态接口与进程一致": "通过",
+  "接口自报running": true,
+  "进程真实存活": true,
+  "说明": "接口自报 running 与 worker 进程存活一致 ⇒ 状态接口可跨进程反映守护状态（新版已落盘状态文件）"
+ }
+}

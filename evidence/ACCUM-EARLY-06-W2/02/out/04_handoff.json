@@ -1,0 +1,190 @@
+{
+ "generated_utc": "2026-10-26T18:14:03Z",
+ "D1_identity": {
+  "pre_fix": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/runs/pre_fix_accum_early_entry.py",
+   "exists": true,
+   "bytes": 113875,
+   "sha256": "d96ad60eca61f7e53e273414196100ac21b33650a19480beafb0eb60c4d41a52",
+   "hashed_bytes": 113875,
+   "mtime_utc": "2026-10-26T18:01:32Z",
+   "rel": "evidence/ACCUM-EARLY-06-W2/02/runs/pre_fix_accum_early_entry.py"
+  },
+  "post_fix": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+   "exists": true,
+   "bytes": 117711,
+   "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+   "hashed_bytes": 117711,
+   "mtime_utc": "2026-10-26T17:56:52Z",
+   "rel": "框架/backend/accum_early_entry.py"
+  },
+  "test_config": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/config/fixture_rules_05.json",
+   "exists": true,
+   "bytes": 2504,
+   "sha256": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+   "hashed_bytes": 2504,
+   "mtime_utc": "2026-10-26T18:01:32Z",
+   "rel": "evidence/ACCUM-EARLY-06-W2/02/config/fixture_rules_05.json"
+  },
+  "pre_fix_expected": "d96ad60eca61f7e53e273414196100ac21b33650a19480beafb0eb60c4d41a52",
+  "post_fix_expected": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+  "config_expected": "f322a940cea1e69d6ebe048f100b1e0b3b8234c1d42ef45a1f9b25bfd55152bd",
+  "all_match_expectation": true,
+  "third_party_reference": {
+   "version": "f7056980e0cef0cac7be31ee76fee19357ce33b7704b37add8dc4de83816c8c6",
+   "note": "05-E-R1 的 7 事件结论产生在这个版本上，与本单修前/修后**都不同**；本单没有该版本的文件，因此只作对照列，不重跑、不混作同输入对照。"
+  }
+ },
+ "D2_diff": {
+  "patch": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/out/04_code_diff.patch",
+  "patch_bytes": 6674,
+  "lines_added": 62,
+  "lines_removed": 6,
+  "hunks": 5,
+  "net_lines": 56
+ },
+ "D3_interface": {
+  "ast": {
+   "n_pre": 63,
+   "n_post": 63,
+   "added": [],
+   "removed": [],
+   "signature_changed": [],
+   "iface_before": {
+    "load_config": "(path)",
+    "open_store": "(path)",
+    "scan_symbol": "(symbol, cfg, feed, store, *, start_ms, end_ms, max_boxes, warmup_days, open_candidates, now_ms, schemes)",
+    "add_gap_once": "(store, event_id, field, reason, *, from_ms, to_ms)",
+    "record_candidate": "(store, cand, cfg)",
+    "try_open": "(scheme, symbol, cand, cfg, store, *, origin, now_ms)",
+    "drive_all_exits": "(feed, *, cfg, end_ms, schemes, legacy_4h_exit, store)"
+   },
+   "iface_after": {
+    "load_config": "(path)",
+    "open_store": "(path)",
+    "scan_symbol": "(symbol, cfg, feed, store, *, start_ms, end_ms, max_boxes, warmup_days, open_candidates, now_ms, schemes)",
+    "add_gap_once": "(store, event_id, field, reason, *, from_ms, to_ms)",
+    "record_candidate": "(store, cand, cfg)",
+    "try_open": "(scheme, symbol, cand, cfg, store, *, origin, now_ms)",
+    "drive_all_exits": "(feed, *, cfg, end_ms, schemes, legacy_4h_exit, store)"
+   },
+   "iface_unchanged": true
+  },
+  "payload_keys": {
+   "keys": [
+    {
+     "key": "sweep_bar_i",
+     "scope": "SchemeObserver.on_bar",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    },
+    {
+     "key": "sweep_scope_mode",
+     "scope": "SchemeObserver.on_bar",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    },
+    {
+     "key": "multi_bar_scope_unverified",
+     "scope": "SchemeObserver.on_bar",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    },
+    {
+     "key": "absorption_bar_close_ms",
+     "scope": "SchemeObserver.on_bar",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    },
+    {
+     "key": "absorption_baseline_window",
+     "scope": "SchemeObserver.on_bar",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    },
+    {
+     "key": "bar_open_ms",
+     "scope": "_absorption",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": true
+    },
+    {
+     "key": "bar_close_ms",
+     "scope": "_absorption",
+     "in_pre_scope": false,
+     "in_post_scope": true,
+     "is_new": true,
+     "in_pre_file_anywhere": false
+    }
+   ],
+   "all_new": true,
+   "note": "判据是「该键在**指定函数体**里修前不存在、修后存在」。只按全文件字面量判会误报：`bar_open_ms` 修前别处已有，但在 `_absorption` 的 detail 里没有。"
+  }
+ },
+ "D4_downstream": {
+  "window5_06_09_06_10": {
+   "must_know": [
+    "SWEEP 迁移 payload 新增 6 个键：sweep_bar_i / sweep_scope_mode / multi_bar_scope_unverified / absorption_bar_close_ms / absorption_baseline_window / absorption{ok,detail,conditions}",
+    "`_absorption` 的 detail 新增 bar_open_ms / bar_close_ms（承接判定用的 bar 时刻）",
+    "承接**只在扫低根求值一次**，确认根不再重算；`_confirm_actions` 缺 `self.sweep_absorption` 时直接 DATA_INSUFFICIENT（拒绝回退确认根）",
+    "DATA_INSUFFICIENT 的 reason 文案变成「承接在扫低根（<ISO时刻>）无法判定：<原因>」，断言 reason 全文的用例要改成匹配前缀"
+   ],
+   "reusable_evidence": [
+    "out/01_pre_run.json / 01_post_run.json（两版本全量轨迹）",
+    "out/02_event_compare.json（逐事件对比 + NOT_FOUND 归因 + 候选机制）",
+    "out/03_protection_regression.json（闸门/口径/去重/写域）",
+    "out/04_code_diff.patch（修前→修后 unified diff）",
+    "runs/pre_fix_accum_early_entry.py（修前代码副本，可独立 import）"
+   ],
+   "cautions": [
+    "原 7 事件在两版本上**逐字段一致**，拿它们当「修好了」的证据是无效的；差异只出现在原清单之外的箱体（见 02 的 B 段）。",
+    "05-E-R1 的结论产生在 f7056980 上，与本单两个版本都不同，不能混作同输入对照。"
+   ]
+  },
+  "window6_06_12": {
+   "must_know": [
+    "修后代码身份：3c570edc…（117711 字节）；修前：d96ad60e…（113875 字节）",
+    "测试配置身份：f322a940…（与 05-B fixture 逐字节相同，未改一个字节）",
+    "本单未改：paper_engine / observe_store / research_15m / live_store / replay_calc / 冻结包 / 采集器 / 前端 / 配置模板（mtime 全部早于本日 00:00Z）",
+    "本单未开仓：`open_candidates=False`，账本 0 笔 ⇒ 不得据此宣称自然成交或绩效"
+   ],
+   "handover_files": [
+    "out/04_handoff.json（本文件）",
+    "out/04_code_diff.patch",
+    "runs/pre_fix_accum_early_entry.py",
+    "config/fixture_rules_05.json"
+   ]
+  },
+  "do_not_claim": [
+   "不宣称自然成交",
+   "不宣称策略有效",
+   "不宣称开仓闸门已放行",
+   "不把 NOT_FOUND 写成 INVALIDATED"
+  ]
+ },
+ "summary": {
+  "identity_ok": true,
+  "lines_added": 62,
+  "lines_removed": 6,
+  "hunks": 5,
+  "ast_added": [],
+  "ast_removed": [],
+  "ast_sig_changed": [],
+  "iface_unchanged": true,
+  "payload_keys_all_new": true
+ }
+}

@@ -79,6 +79,18 @@ def main():
             )
             main_run_id = out["main_run_id"]
             run_dir = os.path.join(runner.runs_base, main_run_id)
+
+            # CODE-REVIEW-02：登记 run.json（历史批次只写产物不写 run.json
+            # ⇒ 「结果在、档案不在」；原子写、已存在则拒绝覆盖，登记失败不影响回测结果）
+            try:
+                from 工具_登记回测运行 import register_batch_run
+                register_batch_run(
+                    run_id=main_run_id, run_dir=run_dir, symbol=sym, status="succeeded",
+                    started_at=t0, finished_at=time.time(),
+                    cfg=cfg, summary=out["res_a"]["summary"],
+                )
+            except Exception as _reg_exc:  # noqa: BLE001
+                print(f"  [登记失败，不影响回测结果] {_reg_exc}")
             
             # 生成前端图表
             generate_chart_payload(sym, run_dir, df_1h, df_15m, 2000.0)

@@ -1,0 +1,1491 @@
+{
+ "生成时刻": "2026-10-23T13:52:26+08:00",
+ "用途": "C 任务独立验收：原操作清单完整 / UI数据与同响应源账本一致 / 示例数据未混成真实证据",
+ "边界": "不启动 HTTP 服务（service_manager 无法做数据路径隔离，实测会写生产行情库）；改用进程内直接调处理函数",
+ "文件SHA": {
+  "框架/backend/live_api.py": {
+   "sha256": "652948fc9742593f499ab6445b566c7d6b93fb0f5af51ab666c19ee7c47cd429",
+   "bytes": 107086,
+   "mtime": "2026-10-23 10:17:16"
+  },
+  "框架/backend/api/routes.py": {
+   "sha256": "24cf06505217c941d7e98581f0ecb234d421d28900b5aac1743106999efbaf58",
+   "bytes": 16398,
+   "mtime": "2026-10-23 11:03:19"
+  },
+  "框架/backend/service_manager.py": {
+   "sha256": "4fcf0ce0c5df1aac177678b3c20bbc6b9f565a6642daaef752772f38d17fc3bc",
+   "bytes": 40454,
+   "mtime": "2026-10-23 12:04:19"
+  },
+  "框架/backend/live_store.py": {
+   "sha256": "b19ea830aeb736e8e1247f0d059970764f34234f9526cabdf042bd764a9d1084",
+   "bytes": 42403,
+   "mtime": "2026-10-23 12:19:59"
+  },
+  "框架/backend/adapter.py": {
+   "sha256": "cf92bd7850df574ba2c518d48ab7d0cf49669263e51129e1660bb32c5c16a73f",
+   "bytes": 209457,
+   "mtime": "2026-10-22 23:11:00"
+  }
+ },
+ "C1_原操作清单": {
+  "检查": [],
+  "矩阵文件": {
+   "name": "01_全页面与16视图操作覆盖矩阵.csv",
+   "sha256": "5395d50c6aef0b8ff02db44f8a26e6f49093e98b532be124123b049d45b9d2bb",
+   "表头": [
+    "视图编号",
+    "模块名称",
+    "视图定义组件",
+    "核心操作与交互",
+    "状态与对账结果",
+    "证据截图"
+   ],
+   "行数": 16
+  },
+  "声称视图数": 16,
+  "非空操作项数": 16,
+  "行样例": [
+   {
+    "视图编号": "View 01",
+    "模块名称": "交易工作台",
+    "视图定义组件": "TopStatusBar.tsx",
+    "核心操作与交互": "顶栏BTC/ETH行情对账、UTC时钟、只读标识",
+    "状态与对账结果": "通过 (PASS)",
+    "证据截图": "view_01_top_status_bar.png"
+   },
+   {
+    "视图编号": "View 02",
+    "模块名称": "交易工作台",
+    "视图定义组件": "SignalListPanel.tsx",
+    "核心操作与交互": "实时信号流、按选中信号下单、隔离清空信号",
+    "状态与对账结果": "通过 (PASS)",
+    "证据截图": "view_02_signal_list_panel.png"
+   },
+   {
+    "视图编号": "View 03",
+    "模块名称": "交易工作台",
+    "视图定义组件": "TokenTable.tsx",
+    "核心操作与交互": "9组标准列（代币/市值/成交/聪明钱/OI/费率/趋势）",
+    "状态与对账结果": "通过 (PASS)",
+    "证据截图": "view_03_token_table.png"
+   },
+   {
+    "视图编号": "View 04",
+    "模块名称": "交易工作台",
+    "视图定义组件": "InlineExpandedChart.tsx",
+    "核心操作与交互": "点击行展开K线图与成交量指标",
+    "状态与对账结果": "通过 (PASS)",
+    "证据截图": "view_04_inline_expanded_chart.png"
+   }
+  ],
+  "截图总数": 16,
+  "唯一截图数": 10,
+  "重复组": [
+   {
+    "sha256": "499be34ec862",
+    "files": [
+     "view_02_signal_list_panel.png",
+     "view_03_token_table.png"
+    ],
+    "count": 2
+   },
+   {
+    "sha256": "ce8631d51e60",
+    "files": [
+     "view_08_datacenter_overview.png",
+     "view_09_datacenter_matrix.png",
+     "view_10_datacenter_gaps.png"
+    ],
+    "count": 3
+   },
+   {
+    "sha256": "f7d89f16cbcb",
+    "files": [
+     "view_11_strategy_list.png",
+     "view_12_strategy_rules.png",
+     "view_13_strategy_deps.png",
+     "view_14_strategy_versions.png"
+    ],
+    "count": 4
+   }
+  ],
+  "判定_截图支撑声称视图数": false,
+  "判定_合计": false
+ },
+ "C1_结论": "不通过",
+ "C2_UI与源账本一致": {
+  "正常环境": {
+   "LIVE_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live",
+   "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+   "结果": {
+    "paper_accounts": {
+     "ok": true,
+     "bytes": 25870,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "live_start_ms": null,
+      "live_start_utc": null,
+      "n_pre_watermark_display_only": 0,
+      "n_after_watermark": 0,
+      "n_pending_orders": 0,
+      "fill_policy": {
+       "defined_by": "work_2026-10-13",
+       "ratification_status": "pending_human_ratification",
+       "fill_price": "open_of_first_closed_15m_bar_at_or_after(order_request_ms + delay)",
+       "no_fill_before": "max(signal.event_time, signal.available_at, 真实请求时刻)",
+       "future_fill": "paper_pending_advanced_by_real_process_clock",
+       "on_missed_moment": "reject_missed_fill_moment_no_backfill",
+       "max_fill_lag_seconds": 3600,
+       "approved_delay_rule_kept": true,
+       "note": "本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。"
+      },
+      "new_entry_gate": {
+       "allow_new_entries": false,
+       "gate_reason": "new_entry_blocked_pending_closure_review",
+       "reason": "user_ui_paused",
+       "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+       "gate_scope": "server_side_new_entry_only",
+       "exits_fees_funding_health_unaffected": true,
+       "set_by": "user_ui_control",
+       "since_ms": 1792728738244
+      },
+      "legacy_ledger": {
+       "verification_status": "legacy_unverified",
+       "label": "旧版/未验收/规则违规",
+       "excluded_from_official_strategy_performance": true,
+       "audit": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+       "side_table": "框架/backend/live/paper_legacy_audit.sqlite3",
+       "generated_utc": "2026-10-15T08:18:51Z",
+       "generated_by": "work_账本保全与身份统一_2026-10-15",
+       "preserved": false,
+       "preservation_status": "LOST_ON_DISK__NOT_PRESERVED",
+       "headline": "原四臂纸面账本（177 条持仓 / 161 条未作废 / 25 笔未作废在持仓）**已不在磁盘**。原目录被第三方工具建议并执行的 `rm -rf \"/Users/boos/WorkBuddy AI\"` 整体移除，未进废纸篓、无本地快照、无 Time Machine。故「一致性保全到桌面工程」当前**不可执行**；本服务**不伪造、不重建、不用空库冒充**，一律 fail-closed。",
+       "original_ledger": {
+        "dir": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+        "exists_now": false,
+        "exists_now_checked_utc": "2026-10-15T08:15:00Z",
+        "migration_ids": {
+         "paper_3a.sqlite3": "M002",
+         "paper_3b.sqlite3": "M003",
+         "paper_3c.sqlite3": "M004",
+         "paper_3d.sqlite3": "M005"
+        },
+        "migration_source_tag": "旧实现",
+        "logical_bytes_at_inventory": {
+         "paper_3a.sqlite3": 225280,
+         "paper_3b.sqlite3": 180224,
+         "paper_3c.sqlite3": 225280,
+         "paper_3d.sqlite3": 225280
+        },
+        "note_on_logical_bytes": "迁移清单记录的原始逻辑字节（225280/180224/225280/225280）与桌面误建空库（各 151552）**不同** ⇒ 桌面那 4 份不是原账本，是新建的空库。"
+       },
+       "row_level_baseline": {
+        "source_file": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "at_utc": "2026-10-15T06:32:02.221384+00:00",
+        "scope": "read_only_legacy_ledger_baseline",
+        "what_it_proves": "原账本**存在时**的逐表行数与 content_sha256（可对照，但**不含行内容**，故无法据此重建账本）。",
+        "arms": {
+         "3a": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3a.sqlite3",
+          "rows": {
+           "paper_position": 50,
+           "paper_fill": 88,
+           "paper_funding": 25,
+           "paper_equity": 330,
+           "paper_realized": 38,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         },
+         "3b": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3b.sqlite3",
+          "rows": {
+           "paper_position": 35,
+           "paper_fill": 65,
+           "paper_funding": 26,
+           "paper_equity": 305,
+           "paper_realized": 30,
+           "paper_order": 1019,
+           "paper_state": 1
+          }
+         },
+         "3c": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3c.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 321,
+           "paper_realized": 34,
+           "paper_order": 1351,
+           "paper_state": 1
+          }
+         },
+         "3d": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3d.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 320,
+           "paper_realized": 34,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         }
+        },
+        "totals": {
+         "paper_position": 177,
+         "paper_fill": 313,
+         "paper_funding": 101,
+         "paper_equity": 1276,
+         "paper_realized": 136,
+         "paper_order": 5066,
+         "paper_state": 4
+        }
+       },
+       "independent_cross_check": {
+        "source_files": [
+         "evidence/Codex_闭环复审_2026-10-15/migration_ledger_path_audit.json",
+         "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+        ],
+        "open_nonvoid_by_arm": {
+         "3a": 7,
+         "3b": 4,
+         "3c": 7,
+         "3d": 7,
+         "total": 25
+        },
+        "nonvoid_positions": 161,
+        "short_source_as_long": 89,
+        "delay_below15m": 97,
+        "overlap_note": "89（错向）与 97（延迟<15m）两类违规**有重叠**，不得相加当「违规总数」。",
+        "pre_reload_account_state_at_utc": "2026-10-15T06:00:00Z 左右（14:00 本地）",
+        "pre_reload_per_arm": {
+         "3a": {
+          "account_id": "paper43_3a",
+          "initial_equity": 5000.0,
+          "equity": 4828.113375,
+          "cash": 4661.866216,
+          "positions": 7,
+          "realized_rows": 38,
+          "funding_rows": 25
+         },
+         "3b": {
+          "account_id": "paper43_3b",
+          "initial_equity": 5000.0,
+          "equity": 5005.49711,
+          "cash": 4789.531398,
+          "positions": 4,
+          "realized_rows": 30,
+          "funding_rows": 26
+         },
+         "3c": {
+          "account_id": "paper43_3c",
+          "initial_equity": 5000.0,
+          "equity": 4851.274302,
+          "cash": 4684.980214,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         },
+         "3d": {
+          "account_id": "paper43_3d",
+          "initial_equity": 5000.0,
+          "equity": 4850.691499,
+          "cash": 4684.394889,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         }
+        },
+        "cross_check_result": "pre_reload 独立采集的 realized(38/30/34/34)、funding(25/26/25/25)、在持仓(7/4/7/7=25) 与 Codex 逐表基线**逐项一致** ⇒ 基线可信；但这些只是**账户级/计数级**事实，不含逐行内容。"
+       },
+       "loss_forensics": {
+        "what_happened": "原账本所在目录 `/Users/boos/WorkBuddy AI` 被整体删除（`rm -rf`，不进废纸篓）。",
+        "root_cause_evidence": {
+         "tool": "antigravity (Gemini)",
+         "conversation_db": "/Users/boos/.gemini/antigravity/conversations/df5cfb74-53fc-4b5c-82d3-3a8971eca093.db",
+         "needle": "rm -rf \"/Users/boos/WorkBuddy AI\"",
+         "occurrences": 3,
+         "verbatim_context": "#### 方案 B：直接命令行彻底删除\\n如果您确信磁盘空间紧迫需要立刻腾出空间，请在终端只执行针对该无点号目录的删除命令：\\n```bash\\n# 只删除历史会话与旧工作区，绝不碰 ~/.workbuddy-ai 运行环境\\nrm -rf \"/Users/boos/WorkBuddy AI\"\\n```",
+         "why_it_was_wrong": "该建议把 `/Users/boos/WorkBuddy AI` 描述为「历史会话与旧工作区」，但其中 `2026-10-03-16-11-14/outputs/网站逆向研究/…/纸面模拟43/` 是**四臂纸面账本唯一副本**（迁移清单 M002–M005）。",
+         "inspection_readonly": true
+        },
+        "timeline": [
+         {
+          "utc": "2026-10-15T06:00:00Z",
+          "event": "pre_reload 采集四臂账户级快照（equity/realized/funding/在持仓）",
+          "source": "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+         },
+         {
+          "utc": "2026-10-15T06:24:00Z",
+          "event": "Codex 迁移路径审计：old path exists=true（50/35/46/46 持仓，7/4/7/7 未作废）",
+          "source": "migration_ledger_path_audit.json"
+         },
+         {
+          "utc": "2026-10-15T06:32:02Z",
+          "event": "Codex 逐表保全基线（行数 + content_sha256）",
+          "source": "legacy_ledger_preservation_baseline.json"
+         },
+         {
+          "utc": "2026-10-15T06:20:00Z",
+          "event": "桌面误建 4 份空库（14:20 本地）",
+          "source": "ls -l mtime"
+         },
+         {
+          "utc": "~2026-10-15T07:30Z",
+          "event": "`rm -rf \"/Users/boos/WorkBuddy AI\"` 执行；原账本目录消失",
+          "source": "/Users/boos/WorkBuddy AI 现仅剩两个空目录（15:36 本地创建）"
+         },
+         {
+          "utc": "2026-10-15T08:15:00Z",
+          "event": "本任务复核：原路径 No such file or directory",
+          "source": "本回执"
+         }
+        ],
+        "current_state_of_root_dir": {
+         "path": "/Users/boos/WorkBuddy AI",
+         "exists": true,
+         "children": [
+          "2026-10-15-15-36-06 (空)",
+          "2026-10-15-15-36-23 (空)"
+         ],
+         "note": "只剩两个空目录；`2026-10-03-16-11-14` 子树不存在。"
+        },
+        "recoverability": {
+         "trash": "`rm -rf` **不进废纸篓**；且 `~/.Trash` 在本沙箱不可读（Operation not permitted），无法代为确认。",
+         "apfs_local_snapshots": "`tmutil listlocalsnapshots /` 为空 ⇒ 无本地快照可回滚。",
+         "time_machine": "`tmutil destinationinfo` = No destinations configured ⇒ 无 TM 备份。",
+         "other_copies": "全盘 `find /Users/boos -maxdepth 6 -type f -name 'paper_*.sqlite3'` 仅命中 `框架/backend/live/paper_legacy_audit.sqlite3`（审计旁表）与桌面 4 份空库 ⇒ 无其他副本。",
+         "verdict": "按现有证据，原账本**不可自恢复**。"
+        },
+        "what_we_did_NOT_do": [
+         "未伪造原账本、未按行内容重建冒充",
+         "未删除或改动 4 份误建空库（保留为回归证据）",
+         "未合并账户、未重置资金",
+         "未把 pre_reload 的账户级快照当账本使用（它是 API 响应快照，不是账本）"
+        ],
+        "action_required_from_user": [
+         "如仍有备份（外置盘 / 云备份 / 旧机器），请提供 `paper_3{a,b,c,d}.sqlite3` 原件，本服务按 M002–M005 受控迁入 `数据/paper/` 并核对身份与行级 SHA",
+         "或授权：以现有可核事实（基线行数/SHA + 账户级快照）出具「部分保全」结论，并明确原账本**视为丢失**",
+         "若两者都不做，则本服务持续 fail-closed：纸面/复盘端点一律 unavailable，**不返回任何伪造或空账户数据**"
+        ]
+       },
+       "preserved_artifacts": {
+        "empty_ledgers_regression": {
+         "path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+         "files": {
+          "paper_3a.sqlite3": {
+           "inode": 39535694,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a7db3ac9762c1aaa654a42ea446375086397d254ae464712ef89a1ea1405296a",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3b.sqlite3": {
+           "inode": 39535699,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3c.sqlite3": {
+           "inode": 39535707,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3d.sqlite3": {
+           "inode": 39535708,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          }
+         },
+         "status": "保留（未被本服务读取、未被删除）",
+         "why_preserved": "作为「相对路径推导 + 自动建库」缺陷的**回归证据**；修复后服务不再读它。"
+        },
+        "audit_side_table": "框架/backend/live/paper_legacy_audit.sqlite3（legacy_position_audit 25 行 / legacy_signal_audit 2 行；追加式，保留事实）",
+        "audit_json": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+        "causal_audit_json": "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+        "row_level_baseline_json": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "pre_reload_snapshots": [
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_positions.json"
+        ]
+       },
+       "binding": {
+        "ledger_dir_env": "PAPER_LEDGER_DIR",
+        "ledger_dir_default": "<工程根>/数据/paper",
+        "manifest": "<工程根>/数据/paper/ledger_identity.json",
+        "allow_init_env": "PAPER_LEDGER_ALLOW_INIT",
+        "policy": "缺库 ⇒ LedgerUnavailable；身份不符 ⇒ LedgerIdentityMismatch；绝不自动建库、绝不换目录、绝不用空库冒充。",
+        "current_state": "数据/paper 不存在 ⇒ 纸面/复盘端点一律 unavailable（fail-closed）。"
+       }
+      },
+      "note": "服务端纸面账本（四臂各 5000U 初始）；成交模型见 model_version。成交时钟：**第一根 `open_time >= max(信号确认时刻,信号可用时刻,真实请求时刻)+15m` 的已闭合 15m bar 的 open**；尚未到点 ⇒ 登记挂单（`pending`），由真实进程时钟推进；错过成交时刻 ⇒ 拒单，**不用旧价回填**。资金费按 `funding_history` **真实结算事件逐笔记账**（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。**当前新开仓已被服务端总闸阻断**（见 `new_entry_gate`；退出/费用/资金费/健康采集不受影响）；既有持仓为**旧版/未验收**，已排除正式策略表现。"
+     }
+    },
+    "paper_identity_get": {
+     "ok": true,
+     "bytes": 7098,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "note": "执行身份权威映射链"
+     }
+    },
+    "paper_positions": {
+     "ok": true,
+     "bytes": 16825,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "ledger_source": {
+       "kind": "paper_ledger",
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+       "manifest_present": false,
+       "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+       "allow_init": false,
+       "all_present": true,
+       "any_present": true,
+       "arms": {
+        "3a": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+         "exists": true,
+         "sha256": "a3e18d8d9101d8407bd20c91bb2e13d87c5f4034957f086238d5a41c03340d5d",
+         "rows": {
+          "paper_position": 3,
+          "paper_fill": 6,
+          "paper_funding": 0,
+          "paper_equity": 6,
+          "paper_realized": 3,
+          "paper_order": 12,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3a",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3b": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+         "exists": true,
+         "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3b",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3c": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+         "exists": true,
+         "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3c",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3d": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+         "exists": true,
+         "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3d",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        }
+       }
+      },
+      "legacy_ledger": {
+       "verification_status": "legacy_unverified",
+       "label": "旧版/未验收/规则违规",
+       "excluded_from_official_strategy_performance": true,
+       "audit": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+       "side_table": "框架/backend/live/paper_legacy_audit.sqlite3",
+       "generated_utc": "2026-10-15T08:18:51Z",
+       "generated_by": "work_账本保全与身份统一_2026-10-15",
+       "preserved": false,
+       "preservation_status": "LOST_ON_DISK__NOT_PRESERVED",
+       "headline": "原四臂纸面账本（177 条持仓 / 161 条未作废 / 25 笔未作废在持仓）**已不在磁盘**。原目录被第三方工具建议并执行的 `rm -rf \"/Users/boos/WorkBuddy AI\"` 整体移除，未进废纸篓、无本地快照、无 Time Machine。故「一致性保全到桌面工程」当前**不可执行**；本服务**不伪造、不重建、不用空库冒充**，一律 fail-closed。",
+       "original_ledger": {
+        "dir": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+        "exists_now": false,
+        "exists_now_checked_utc": "2026-10-15T08:15:00Z",
+        "migration_ids": {
+         "paper_3a.sqlite3": "M002",
+         "paper_3b.sqlite3": "M003",
+         "paper_3c.sqlite3": "M004",
+         "paper_3d.sqlite3": "M005"
+        },
+        "migration_source_tag": "旧实现",
+        "logical_bytes_at_inventory": {
+         "paper_3a.sqlite3": 225280,
+         "paper_3b.sqlite3": 180224,
+         "paper_3c.sqlite3": 225280,
+         "paper_3d.sqlite3": 225280
+        },
+        "note_on_logical_bytes": "迁移清单记录的原始逻辑字节（225280/180224/225280/225280）与桌面误建空库（各 151552）**不同** ⇒ 桌面那 4 份不是原账本，是新建的空库。"
+       },
+       "row_level_baseline": {
+        "source_file": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "at_utc": "2026-10-15T06:32:02.221384+00:00",
+        "scope": "read_only_legacy_ledger_baseline",
+        "what_it_proves": "原账本**存在时**的逐表行数与 content_sha256（可对照，但**不含行内容**，故无法据此重建账本）。",
+        "arms": {
+         "3a": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3a.sqlite3",
+          "rows": {
+           "paper_position": 50,
+           "paper_fill": 88,
+           "paper_funding": 25,
+           "paper_equity": 330,
+           "paper_realized": 38,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         },
+         "3b": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3b.sqlite3",
+          "rows": {
+           "paper_position": 35,
+           "paper_fill": 65,
+           "paper_funding": 26,
+           "paper_equity": 305,
+           "paper_realized": 30,
+           "paper_order": 1019,
+           "paper_state": 1
+          }
+         },
+         "3c": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3c.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 321,
+           "paper_realized": 34,
+           "paper_order": 1351,
+           "paper_state": 1
+          }
+         },
+         "3d": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3d.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 320,
+           "paper_realized": 34,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         }
+        },
+        "totals": {
+         "paper_position": 177,
+         "paper_fill": 313,
+         "paper_funding": 101,
+         "paper_equity": 1276,
+         "paper_realized": 136,
+         "paper_order": 5066,
+         "paper_state": 4
+        }
+       },
+       "independent_cross_check": {
+        "source_files": [
+         "evidence/Codex_闭环复审_2026-10-15/migration_ledger_path_audit.json",
+         "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+        ],
+        "open_nonvoid_by_arm": {
+         "3a": 7,
+         "3b": 4,
+         "3c": 7,
+         "3d": 7,
+         "total": 25
+        },
+        "nonvoid_positions": 161,
+        "short_source_as_long": 89,
+        "delay_below15m": 97,
+        "overlap_note": "89（错向）与 97（延迟<15m）两类违规**有重叠**，不得相加当「违规总数」。",
+        "pre_reload_account_state_at_utc": "2026-10-15T06:00:00Z 左右（14:00 本地）",
+        "pre_reload_per_arm": {
+         "3a": {
+          "account_id": "paper43_3a",
+          "initial_equity": 5000.0,
+          "equity": 4828.113375,
+          "cash": 4661.866216,
+          "positions": 7,
+          "realized_rows": 38,
+          "funding_rows": 25
+         },
+         "3b": {
+          "account_id": "paper43_3b",
+          "initial_equity": 5000.0,
+          "equity": 5005.49711,
+          "cash": 4789.531398,
+          "positions": 4,
+          "realized_rows": 30,
+          "funding_rows": 26
+         },
+         "3c": {
+          "account_id": "paper43_3c",
+          "initial_equity": 5000.0,
+          "equity": 4851.274302,
+          "cash": 4684.980214,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         },
+         "3d": {
+          "account_id": "paper43_3d",
+          "initial_equity": 5000.0,
+          "equity": 4850.691499,
+          "cash": 4684.394889,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         }
+        },
+        "cross_check_result": "pre_reload 独立采集的 realized(38/30/34/34)、funding(25/26/25/25)、在持仓(7/4/7/7=25) 与 Codex 逐表基线**逐项一致** ⇒ 基线可信；但这些只是**账户级/计数级**事实，不含逐行内容。"
+       },
+       "loss_forensics": {
+        "what_happened": "原账本所在目录 `/Users/boos/WorkBuddy AI` 被整体删除（`rm -rf`，不进废纸篓）。",
+        "root_cause_evidence": {
+         "tool": "antigravity (Gemini)",
+         "conversation_db": "/Users/boos/.gemini/antigravity/conversations/df5cfb74-53fc-4b5c-82d3-3a8971eca093.db",
+         "needle": "rm -rf \"/Users/boos/WorkBuddy AI\"",
+         "occurrences": 3,
+         "verbatim_context": "#### 方案 B：直接命令行彻底删除\\n如果您确信磁盘空间紧迫需要立刻腾出空间，请在终端只执行针对该无点号目录的删除命令：\\n```bash\\n# 只删除历史会话与旧工作区，绝不碰 ~/.workbuddy-ai 运行环境\\nrm -rf \"/Users/boos/WorkBuddy AI\"\\n```",
+         "why_it_was_wrong": "该建议把 `/Users/boos/WorkBuddy AI` 描述为「历史会话与旧工作区」，但其中 `2026-10-03-16-11-14/outputs/网站逆向研究/…/纸面模拟43/` 是**四臂纸面账本唯一副本**（迁移清单 M002–M005）。",
+         "inspection_readonly": true
+        },
+        "timeline": [
+         {
+          "utc": "2026-10-15T06:00:00Z",
+          "event": "pre_reload 采集四臂账户级快照（equity/realized/funding/在持仓）",
+          "source": "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+         },
+         {
+          "utc": "2026-10-15T06:24:00Z",
+          "event": "Codex 迁移路径审计：old path exists=true（50/35/46/46 持仓，7/4/7/7 未作废）",
+          "source": "migration_ledger_path_audit.json"
+         },
+         {
+          "utc": "2026-10-15T06:32:02Z",
+          "event": "Codex 逐表保全基线（行数 + content_sha256）",
+          "source": "legacy_ledger_preservation_baseline.json"
+         },
+         {
+          "utc": "2026-10-15T06:20:00Z",
+          "event": "桌面误建 4 份空库（14:20 本地）",
+          "source": "ls -l mtime"
+         },
+         {
+          "utc": "~2026-10-15T07:30Z",
+          "event": "`rm -rf \"/Users/boos/WorkBuddy AI\"` 执行；原账本目录消失",
+          "source": "/Users/boos/WorkBuddy AI 现仅剩两个空目录（15:36 本地创建）"
+         },
+         {
+          "utc": "2026-10-15T08:15:00Z",
+          "event": "本任务复核：原路径 No such file or directory",
+          "source": "本回执"
+         }
+        ],
+        "current_state_of_root_dir": {
+         "path": "/Users/boos/WorkBuddy AI",
+         "exists": true,
+         "children": [
+          "2026-10-15-15-36-06 (空)",
+          "2026-10-15-15-36-23 (空)"
+         ],
+         "note": "只剩两个空目录；`2026-10-03-16-11-14` 子树不存在。"
+        },
+        "recoverability": {
+         "trash": "`rm -rf` **不进废纸篓**；且 `~/.Trash` 在本沙箱不可读（Operation not permitted），无法代为确认。",
+         "apfs_local_snapshots": "`tmutil listlocalsnapshots /` 为空 ⇒ 无本地快照可回滚。",
+         "time_machine": "`tmutil destinationinfo` = No destinations configured ⇒ 无 TM 备份。",
+         "other_copies": "全盘 `find /Users/boos -maxdepth 6 -type f -name 'paper_*.sqlite3'` 仅命中 `框架/backend/live/paper_legacy_audit.sqlite3`（审计旁表）与桌面 4 份空库 ⇒ 无其他副本。",
+         "verdict": "按现有证据，原账本**不可自恢复**。"
+        },
+        "what_we_did_NOT_do": [
+         "未伪造原账本、未按行内容重建冒充",
+         "未删除或改动 4 份误建空库（保留为回归证据）",
+         "未合并账户、未重置资金",
+         "未把 pre_reload 的账户级快照当账本使用（它是 API 响应快照，不是账本）"
+        ],
+        "action_required_from_user": [
+         "如仍有备份（外置盘 / 云备份 / 旧机器），请提供 `paper_3{a,b,c,d}.sqlite3` 原件，本服务按 M002–M005 受控迁入 `数据/paper/` 并核对身份与行级 SHA",
+         "或授权：以现有可核事实（基线行数/SHA + 账户级快照）出具「部分保全」结论，并明确原账本**视为丢失**",
+         "若两者都不做，则本服务持续 fail-closed：纸面/复盘端点一律 unavailable，**不返回任何伪造或空账户数据**"
+        ]
+       },
+       "preserved_artifacts": {
+        "empty_ledgers_regression": {
+         "path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+         "files": {
+          "paper_3a.sqlite3": {
+           "inode": 39535694,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a7db3ac9762c1aaa654a42ea446375086397d254ae464712ef89a1ea1405296a",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3b.sqlite3": {
+           "inode": 39535699,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3c.sqlite3": {
+           "inode": 39535707,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3d.sqlite3": {
+           "inode": 39535708,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          }
+         },
+         "status": "保留（未被本服务读取、未被删除）",
+         "why_preserved": "作为「相对路径推导 + 自动建库」缺陷的**回归证据**；修复后服务不再读它。"
+        },
+        "audit_side_table": "框架/backend/live/paper_legacy_audit.sqlite3（legacy_position_audit 25 行 / legacy_signal_audit 2 行；追加式，保留事实）",
+        "audit_json": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+        "causal_audit_json": "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+        "row_level_baseline_json": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "pre_reload_snapshots": [
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_positions.json"
+        ]
+       },
+       "binding": {
+        "ledger_dir_env": "PAPER_LEDGER_DIR",
+        "ledger_dir_default": "<工程根>/数据/paper",
+        "manifest": "<工程根>/数据/paper/ledger_identity.json",
+        "allow_init_env": "PAPER_LEDGER_ALLOW_INIT",
+        "policy": "缺库 ⇒ LedgerUnavailable；身份不符 ⇒ LedgerIdentityMismatch；绝不自动建库、绝不换目录、绝不用空库冒充。",
+        "current_state": "数据/paper 不存在 ⇒ 纸面/复盘端点一律 unavailable（fail-closed）。"
+       }
+      },
+      "note": "旧版/未验收持仓：原账本**未修改**，按追加审计标注（verification_status/label/violations），并排除正式策略表现。"
+     }
+    },
+    "paper_orders": {
+     "ok": true,
+     "bytes": 14915,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "note": "只读订单/挂单/成交查询；写入口为 POST /api/v1/paper/orders"
+     }
+    }
+   }
+  },
+  "源账本直读": {
+   "paper_state.cash": 4995.6545447261005,
+   "open_positions": 0,
+   "pending_orders": 0
+  },
+  "缺live库": {
+   "LIVE_DIR": "/tmp/wx_live_empty",
+   "LIVE_DB": "/tmp/wx_live_empty/live_signals.sqlite3",
+   "结果": {
+    "paper_accounts": {
+     "ok": false,
+     "exc": "OperationalError: unable to open database file"
+    },
+    "paper_identity_get": {
+     "ok": true,
+     "bytes": 7071,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "note": "执行身份权威映射链"
+     }
+    },
+    "paper_positions": {
+     "ok": true,
+     "bytes": 16825,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "ledger_source": {
+       "kind": "paper_ledger",
+       "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+       "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+       "manifest_present": false,
+       "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+       "allow_init": false,
+       "all_present": true,
+       "any_present": true,
+       "arms": {
+        "3a": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+         "exists": true,
+         "sha256": "a3e18d8d9101d8407bd20c91bb2e13d87c5f4034957f086238d5a41c03340d5d",
+         "rows": {
+          "paper_position": 3,
+          "paper_fill": 6,
+          "paper_funding": 0,
+          "paper_equity": 6,
+          "paper_realized": 3,
+          "paper_order": 12,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3a",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3b": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+         "exists": true,
+         "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3b",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3c": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+         "exists": true,
+         "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3c",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        },
+        "3d": {
+         "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+         "exists": true,
+         "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+         "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+         },
+         "open_nonvoid": 0,
+         "identity": {
+          "account_id": "paper43_3d",
+          "initial_equity": null,
+          "spec_version": null
+         },
+         "readable": true
+        }
+       }
+      },
+      "legacy_ledger": {
+       "verification_status": "legacy_unverified",
+       "label": "旧版/未验收/规则违规",
+       "excluded_from_official_strategy_performance": true,
+       "audit": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+       "side_table": "框架/backend/live/paper_legacy_audit.sqlite3",
+       "generated_utc": "2026-10-15T08:18:51Z",
+       "generated_by": "work_账本保全与身份统一_2026-10-15",
+       "preserved": false,
+       "preservation_status": "LOST_ON_DISK__NOT_PRESERVED",
+       "headline": "原四臂纸面账本（177 条持仓 / 161 条未作废 / 25 笔未作废在持仓）**已不在磁盘**。原目录被第三方工具建议并执行的 `rm -rf \"/Users/boos/WorkBuddy AI\"` 整体移除，未进废纸篓、无本地快照、无 Time Machine。故「一致性保全到桌面工程」当前**不可执行**；本服务**不伪造、不重建、不用空库冒充**，一律 fail-closed。",
+       "original_ledger": {
+        "dir": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+        "exists_now": false,
+        "exists_now_checked_utc": "2026-10-15T08:15:00Z",
+        "migration_ids": {
+         "paper_3a.sqlite3": "M002",
+         "paper_3b.sqlite3": "M003",
+         "paper_3c.sqlite3": "M004",
+         "paper_3d.sqlite3": "M005"
+        },
+        "migration_source_tag": "旧实现",
+        "logical_bytes_at_inventory": {
+         "paper_3a.sqlite3": 225280,
+         "paper_3b.sqlite3": 180224,
+         "paper_3c.sqlite3": 225280,
+         "paper_3d.sqlite3": 225280
+        },
+        "note_on_logical_bytes": "迁移清单记录的原始逻辑字节（225280/180224/225280/225280）与桌面误建空库（各 151552）**不同** ⇒ 桌面那 4 份不是原账本，是新建的空库。"
+       },
+       "row_level_baseline": {
+        "source_file": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "at_utc": "2026-10-15T06:32:02.221384+00:00",
+        "scope": "read_only_legacy_ledger_baseline",
+        "what_it_proves": "原账本**存在时**的逐表行数与 content_sha256（可对照，但**不含行内容**，故无法据此重建账本）。",
+        "arms": {
+         "3a": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3a.sqlite3",
+          "rows": {
+           "paper_position": 50,
+           "paper_fill": 88,
+           "paper_funding": 25,
+           "paper_equity": 330,
+           "paper_realized": 38,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         },
+         "3b": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3b.sqlite3",
+          "rows": {
+           "paper_position": 35,
+           "paper_fill": 65,
+           "paper_funding": 26,
+           "paper_equity": 305,
+           "paper_realized": 30,
+           "paper_order": 1019,
+           "paper_state": 1
+          }
+         },
+         "3c": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3c.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 321,
+           "paper_realized": 34,
+           "paper_order": 1351,
+           "paper_state": 1
+          }
+         },
+         "3d": {
+          "realpath": "/Users/boos/WorkBuddy AI/2026-10-03-16-11-14/outputs/网站逆向研究/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_3d.sqlite3",
+          "rows": {
+           "paper_position": 46,
+           "paper_fill": 80,
+           "paper_funding": 25,
+           "paper_equity": 320,
+           "paper_realized": 34,
+           "paper_order": 1348,
+           "paper_state": 1
+          }
+         }
+        },
+        "totals": {
+         "paper_position": 177,
+         "paper_fill": 313,
+         "paper_funding": 101,
+         "paper_equity": 1276,
+         "paper_realized": 136,
+         "paper_order": 5066,
+         "paper_state": 4
+        }
+       },
+       "independent_cross_check": {
+        "source_files": [
+         "evidence/Codex_闭环复审_2026-10-15/migration_ledger_path_audit.json",
+         "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+        ],
+        "open_nonvoid_by_arm": {
+         "3a": 7,
+         "3b": 4,
+         "3c": 7,
+         "3d": 7,
+         "total": 25
+        },
+        "nonvoid_positions": 161,
+        "short_source_as_long": 89,
+        "delay_below15m": 97,
+        "overlap_note": "89（错向）与 97（延迟<15m）两类违规**有重叠**，不得相加当「违规总数」。",
+        "pre_reload_account_state_at_utc": "2026-10-15T06:00:00Z 左右（14:00 本地）",
+        "pre_reload_per_arm": {
+         "3a": {
+          "account_id": "paper43_3a",
+          "initial_equity": 5000.0,
+          "equity": 4828.113375,
+          "cash": 4661.866216,
+          "positions": 7,
+          "realized_rows": 38,
+          "funding_rows": 25
+         },
+         "3b": {
+          "account_id": "paper43_3b",
+          "initial_equity": 5000.0,
+          "equity": 5005.49711,
+          "cash": 4789.531398,
+          "positions": 4,
+          "realized_rows": 30,
+          "funding_rows": 26
+         },
+         "3c": {
+          "account_id": "paper43_3c",
+          "initial_equity": 5000.0,
+          "equity": 4851.274302,
+          "cash": 4684.980214,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         },
+         "3d": {
+          "account_id": "paper43_3d",
+          "initial_equity": 5000.0,
+          "equity": 4850.691499,
+          "cash": 4684.394889,
+          "positions": 7,
+          "realized_rows": 34,
+          "funding_rows": 25
+         }
+        },
+        "cross_check_result": "pre_reload 独立采集的 realized(38/30/34/34)、funding(25/26/25/25)、在持仓(7/4/7/7=25) 与 Codex 逐表基线**逐项一致** ⇒ 基线可信；但这些只是**账户级/计数级**事实，不含逐行内容。"
+       },
+       "loss_forensics": {
+        "what_happened": "原账本所在目录 `/Users/boos/WorkBuddy AI` 被整体删除（`rm -rf`，不进废纸篓）。",
+        "root_cause_evidence": {
+         "tool": "antigravity (Gemini)",
+         "conversation_db": "/Users/boos/.gemini/antigravity/conversations/df5cfb74-53fc-4b5c-82d3-3a8971eca093.db",
+         "needle": "rm -rf \"/Users/boos/WorkBuddy AI\"",
+         "occurrences": 3,
+         "verbatim_context": "#### 方案 B：直接命令行彻底删除\\n如果您确信磁盘空间紧迫需要立刻腾出空间，请在终端只执行针对该无点号目录的删除命令：\\n```bash\\n# 只删除历史会话与旧工作区，绝不碰 ~/.workbuddy-ai 运行环境\\nrm -rf \"/Users/boos/WorkBuddy AI\"\\n```",
+         "why_it_was_wrong": "该建议把 `/Users/boos/WorkBuddy AI` 描述为「历史会话与旧工作区」，但其中 `2026-10-03-16-11-14/outputs/网站逆向研究/…/纸面模拟43/` 是**四臂纸面账本唯一副本**（迁移清单 M002–M005）。",
+         "inspection_readonly": true
+        },
+        "timeline": [
+         {
+          "utc": "2026-10-15T06:00:00Z",
+          "event": "pre_reload 采集四臂账户级快照（equity/realized/funding/在持仓）",
+          "source": "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json"
+         },
+         {
+          "utc": "2026-10-15T06:24:00Z",
+          "event": "Codex 迁移路径审计：old path exists=true（50/35/46/46 持仓，7/4/7/7 未作废）",
+          "source": "migration_ledger_path_audit.json"
+         },
+         {
+          "utc": "2026-10-15T06:32:02Z",
+          "event": "Codex 逐表保全基线（行数 + content_sha256）",
+          "source": "legacy_ledger_preservation_baseline.json"
+         },
+         {
+          "utc": "2026-10-15T06:20:00Z",
+          "event": "桌面误建 4 份空库（14:20 本地）",
+          "source": "ls -l mtime"
+         },
+         {
+          "utc": "~2026-10-15T07:30Z",
+          "event": "`rm -rf \"/Users/boos/WorkBuddy AI\"` 执行；原账本目录消失",
+          "source": "/Users/boos/WorkBuddy AI 现仅剩两个空目录（15:36 本地创建）"
+         },
+         {
+          "utc": "2026-10-15T08:15:00Z",
+          "event": "本任务复核：原路径 No such file or directory",
+          "source": "本回执"
+         }
+        ],
+        "current_state_of_root_dir": {
+         "path": "/Users/boos/WorkBuddy AI",
+         "exists": true,
+         "children": [
+          "2026-10-15-15-36-06 (空)",
+          "2026-10-15-15-36-23 (空)"
+         ],
+         "note": "只剩两个空目录；`2026-10-03-16-11-14` 子树不存在。"
+        },
+        "recoverability": {
+         "trash": "`rm -rf` **不进废纸篓**；且 `~/.Trash` 在本沙箱不可读（Operation not permitted），无法代为确认。",
+         "apfs_local_snapshots": "`tmutil listlocalsnapshots /` 为空 ⇒ 无本地快照可回滚。",
+         "time_machine": "`tmutil destinationinfo` = No destinations configured ⇒ 无 TM 备份。",
+         "other_copies": "全盘 `find /Users/boos -maxdepth 6 -type f -name 'paper_*.sqlite3'` 仅命中 `框架/backend/live/paper_legacy_audit.sqlite3`（审计旁表）与桌面 4 份空库 ⇒ 无其他副本。",
+         "verdict": "按现有证据，原账本**不可自恢复**。"
+        },
+        "what_we_did_NOT_do": [
+         "未伪造原账本、未按行内容重建冒充",
+         "未删除或改动 4 份误建空库（保留为回归证据）",
+         "未合并账户、未重置资金",
+         "未把 pre_reload 的账户级快照当账本使用（它是 API 响应快照，不是账本）"
+        ],
+        "action_required_from_user": [
+         "如仍有备份（外置盘 / 云备份 / 旧机器），请提供 `paper_3{a,b,c,d}.sqlite3` 原件，本服务按 M002–M005 受控迁入 `数据/paper/` 并核对身份与行级 SHA",
+         "或授权：以现有可核事实（基线行数/SHA + 账户级快照）出具「部分保全」结论，并明确原账本**视为丢失**",
+         "若两者都不做，则本服务持续 fail-closed：纸面/复盘端点一律 unavailable，**不返回任何伪造或空账户数据**"
+        ]
+       },
+       "preserved_artifacts": {
+        "empty_ledgers_regression": {
+         "path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43",
+         "files": {
+          "paper_3a.sqlite3": {
+           "inode": 39535694,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a7db3ac9762c1aaa654a42ea446375086397d254ae464712ef89a1ea1405296a",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3b.sqlite3": {
+           "inode": 39535699,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3c.sqlite3": {
+           "inode": 39535707,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          },
+          "paper_3d.sqlite3": {
+           "inode": 39535708,
+           "bytes": 151552,
+           "mtime_local": "2026-10-15 14:20",
+           "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+           "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+           }
+          }
+         },
+         "status": "保留（未被本服务读取、未被删除）",
+         "why_preserved": "作为「相对路径推导 + 自动建库」缺陷的**回归证据**；修复后服务不再读它。"
+        },
+        "audit_side_table": "框架/backend/live/paper_legacy_audit.sqlite3（legacy_position_audit 25 行 / legacy_signal_audit 2 行；追加式，保留事实）",
+        "audit_json": "evidence/Work_闭环整改_2026-10-15/old_ledger_violation_audit.json",
+        "causal_audit_json": "evidence/Codex_闭环复审_2026-10-15/ledger_causal_audit.json",
+        "row_level_baseline_json": "evidence/Codex_闭环复审_2026-10-15/legacy_ledger_preservation_baseline.json",
+        "pre_reload_snapshots": [
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_accounts.json",
+         "evidence/Work_闭环整改_2026-10-15/pre_reload/paper_positions.json"
+        ]
+       },
+       "binding": {
+        "ledger_dir_env": "PAPER_LEDGER_DIR",
+        "ledger_dir_default": "<工程根>/数据/paper",
+        "manifest": "<工程根>/数据/paper/ledger_identity.json",
+        "allow_init_env": "PAPER_LEDGER_ALLOW_INIT",
+        "policy": "缺库 ⇒ LedgerUnavailable；身份不符 ⇒ LedgerIdentityMismatch；绝不自动建库、绝不换目录、绝不用空库冒充。",
+        "current_state": "数据/paper 不存在 ⇒ 纸面/复盘端点一律 unavailable（fail-closed）。"
+       }
+      },
+      "note": "旧版/未验收持仓：原账本**未修改**，按追加审计标注（verification_status/label/violations），并排除正式策略表现。"
+     }
+    },
+    "paper_orders": {
+     "ok": true,
+     "bytes": 14915,
+     "非有限浮点": [],
+     "missing_reason": null,
+     "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "note": "只读订单/挂单/成交查询；写入口为 POST /api/v1/paper/orders"
+     }
+    }
+   }
+  },
+  "缺live库_是否降级": false,
+  "缺live库_paper_accounts抛错": "OperationalError: unable to open database file",
+  "判定_缺依赖不硬崩": false,
+  "service_manager_读环境变量MARKET_DB": false,
+  "service_manager_读环境变量PAPER_LEDGER_DIR": false,
+  "service_manager_覆盖shared_env": true,
+  "判定_可数据路径隔离": false,
+  "生产行情库mtime": "2026-10-23 13:47:27",
+  "生产账本mtime": {
+   "paper_3a.sqlite3": "2026-10-23 10:54:23",
+   "paper_3b.sqlite3": "2026-10-23 11:13:44",
+   "paper_3c.sqlite3": "2026-10-23 11:13:44",
+   "paper_3d.sqlite3": "2026-10-23 11:13:44"
+  },
+  "stop实测": {
+   "时刻": "2026-10-23 13:48",
+   "输出": "[!] 拒绝停止未知 worker 进程：pid=19809, cmd='' / [!] 拒绝停止非本项目 API 进程：pid=19806, cmd=''",
+   "现象": "自己刚启动的两个进程都停不掉，原因是取不到 cmdline（cmd=''）",
+   "处置": "改用 os.kill(SIGTERM) 手工停止，两进程均正常退出，18787 端口释放"
+  },
+  "判定_合计": false
+ },
+ "C2_结论": "不通过",
+ "C3_示例数据": {
+  "检查": [],
+  "测试前缀命中": {
+   "sig_ui_test_": [
+    "paper_3a.sqlite3:paper_position=1",
+    "paper_3a.sqlite3:paper_processed=1",
+    "paper_3a.sqlite3:paper_fill=2",
+    "paper_3a.sqlite3:paper_pending=1"
+   ],
+   "sig_closeloop_": [
+    "paper_3a.sqlite3:paper_position=2",
+    "paper_3a.sqlite3:paper_processed=2",
+    "paper_3a.sqlite3:paper_fill=4",
+    "paper_3a.sqlite3:paper_pending=1"
+   ],
+   "sig_test_": [
+    "paper_3a.sqlite3:paper_pending=1"
+   ]
+  },
+  "账本内含测试记录": true,
+  "各臂明细": {
+   "3a": {
+    "realized_全部": -4.3454552739000345,
+    "realized_voided0": 0,
+    "realized_voided1": -4.3454552739000345,
+    "void_reason取值": [
+     "synthetic_test_isolation"
+    ],
+    "paper_state.cash": 4995.6545447261005
+   },
+   "3b": {
+    "realized_全部": 0,
+    "realized_voided0": 0,
+    "realized_voided1": 0,
+    "void_reason取值": [],
+    "paper_state.cash": 5000.0
+   },
+   "3c": {
+    "realized_全部": 0,
+    "realized_voided0": 0,
+    "realized_voided1": 0,
+    "void_reason取值": [],
+    "paper_state.cash": 5000.0
+   },
+   "3d": {
+    "realized_全部": 0,
+    "realized_voided0": 0,
+    "realized_voided1": 0,
+    "void_reason取值": [],
+    "paper_state.cash": 5000.0
+   }
+  },
+  "API权益": [
+   {
+    "arm": "3a",
+    "cash": 5000.0,
+    "equity": 5000.0,
+    "initial_equity": 5000.0,
+    "positions": []
+   },
+   {
+    "arm": "3b",
+    "cash": 5000.0,
+    "equity": 5000.0,
+    "initial_equity": 5000.0,
+    "positions": []
+   },
+   {
+    "arm": "3c",
+    "cash": 5000.0,
+    "equity": 5000.0,
+    "initial_equity": 5000.0,
+    "positions": []
+   },
+   {
+    "arm": "3d",
+    "cash": 5000.0,
+    "equity": 5000.0,
+    "initial_equity": 5000.0,
+    "positions": []
+   }
+  ],
+  "判定_测试记录未计入": true,
+  "判定_API排除作废亏损": true,
+  "观察_两套cash口径": {
+   "3a": {
+    "paper_state.cash": 4995.6545447261005,
+    "realized_voided0": 0
+   },
+   "3b": {
+    "paper_state.cash": 5000.0,
+    "realized_voided0": 0
+   },
+   "3c": {
+    "paper_state.cash": 5000.0,
+    "realized_voided0": 0
+   },
+   "3d": {
+    "paper_state.cash": 5000.0,
+    "realized_voided0": 0
+   }
+  },
+  "判定_合计": true
+ },
+ "C3_结论": "通过",
+ "C任务总判定": {
+  "C1_原操作清单完整": "不通过",
+  "C2_UI数据与源账本一致": "不通过",
+  "C3_示例数据未混成真实证据": "通过",
+  "合计": "不通过",
+  "说明": "任一子项不通过即整体不通过；不得把局部通过升级为系统通过"
+ }
+}

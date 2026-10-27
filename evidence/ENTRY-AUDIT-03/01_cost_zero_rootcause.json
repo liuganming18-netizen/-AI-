@@ -1,0 +1,79 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "question": "163 条记录的手续费、资金费为何为 0：真实计算结果 / 字段读取错误 / 导出遗漏 / 未计费",
+  "verdict": "字段读取错误（键名不匹配）",
+  "evidence": {
+    "upstream_code": "evidence/FACTOR-ENTRY-01/stage2_candidate_feature_pipeline.py:255-256",
+    "upstream_reads": [
+      "matched_trade.get('total_fees', 0.0)",
+      "matched_trade.get('total_funding', 0.0)"
+    ],
+    "engine_trade_record_keys_observed_in_replay": [
+      "direction",
+      "entry_fee",
+      "entry_price",
+      "entry_time",
+      "exit_fee",
+      "exit_order_id",
+      "exit_price",
+      "exit_reason",
+      "exit_time",
+      "fees",
+      "funding_fee",
+      "funding_gaps",
+      "generation",
+      "gross_pnl",
+      "group",
+      "mae",
+      "mfe",
+      "net_pnl",
+      "order_id",
+      "price_audit",
+      "qty",
+      "rounding_loss",
+      "signal_id",
+      "signal_type",
+      "slippage_loss",
+      "slippage_loss_pure",
+      "stop_trace_n",
+      "symbol",
+      "task_id",
+      "window_end",
+      "window_start"
+    ],
+    "engine_has_total_fees_key": false,
+    "engine_has_total_funding_key": false,
+    "engine_writes_fees_at": "策略/WyckoffMaster/trading_core/engine.py:1038 → 'fees': pos.entry_fee + exit_fee",
+    "engine_writes_funding_at": "策略/WyckoffMaster/trading_core/engine.py:1038 → 'funding_fee': pos.cum_funding_fee",
+    "dict_get_default_is_zero": "键不存在时 .get(k, 0.0) 返回 0.0 ⇒ 163 条全部写成 0，且不报错"
+  },
+  "ruled_out": {
+    "真实计算结果为0": "不成立：同一批 163 条在共享内核重放里 fee_paid 非零的有 163/163 条，资金费非零 163/163 条",
+    "导出遗漏": "不成立：引擎 trade 记录里 'fees' / 'funding_fee' 两个键都存在（total_fees=False, total_funding=False），是取的名字不对，不是没导出",
+    "未计费": "不成立：引擎在 _close_position 里扣了 entry_fee + exit_fee，并逐笔累计 cum_funding_fee；重放实测费用合计 10.308546 USDT"
+  },
+  "counts": {
+    "rows": 163,
+    "table_fees_zero": 163,
+    "table_funding_zero": 163,
+    "replay_matched": 163,
+    "replay_fee_nonzero": 163,
+    "replay_funding_nonzero": 163,
+    "replay_funding_positive_cost": 122,
+    "replay_funding_negative_income": 41,
+    "replay_fee_sum": 10.308545635009995,
+    "replay_funding_sum": 5.209153919219929,
+    "table_fee_sum": 0.0,
+    "table_funding_sum": 0.0,
+    "genB_fees_nonzero": 42,
+    "genB_funding_nonzero": 42,
+    "genB_rows": 42
+  },
+  "sign_convention": {
+    "fees": "正号 = 支出（成本）",
+    "funding": "正号 = 支出（付资金费）；负号 = 收入（收资金费）",
+    "net": "net_pnl = gross_pnl − fees − funding",
+    "note": "两代际符号一致（42 条旧记录的 net = gross − fees − funding 恒等式成立），因此 163 条补上真实费用后可直接与 42 条比较，不需要换号。"
+  },
+  "impact": "任何「手续费拖累」「资金费拖累」「成本占利润比」的结论，在 163 条上原本把成本算成 0；本轮用共享内核重放取回真实值，未凭空补数。"
+}

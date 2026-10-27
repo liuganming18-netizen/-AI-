@@ -1,0 +1,39 @@
+{
+  "note": "C6 由 09 脚本从 04 回填（03 阶段该列为 null）；C7 在净收益<=0 的组上记 False。判据定义未改动。",
+  "n_groups": 9,
+  "n_effective_independent_cells": 8,
+  "redundant_pairs": [
+    {
+      "kept": "A07",
+      "redundant": "A08",
+      "trades": 14
+    }
+  ],
+  "n_pass_all_7": 0,
+  "n_pass_all_7_naive_C7": 0,
+  "best_group": {
+    "code": "A01",
+    "strategy": "Wyckoff_A_L06_V08",
+    "delta": 0.6,
+    "k_vol": 0.8,
+    "pass_count": 5,
+    "failed": [
+      "C2_drop_top3_positive",
+      "C6_block_ci_lower_gt0"
+    ],
+    "boot_ci_lo": -76.0926,
+    "boot_ci_hi": 244.4116,
+    "maxt_fwer_p": 0.5076
+  },
+  "fail_count_per_criterion": {
+    "C1_expectancy_gt_baseline": 4,
+    "C2_drop_top3_positive": 9,
+    "C3_drop_top_coin_positive": 6,
+    "C4_years_2of3_positive": 0,
+    "C5_neighbors_same_sign": 0,
+    "C6_block_ci_lower_gt0": 9,
+    "C7_top_coin_share_lt50": 6
+  },
+  "c6_consistency_with_04": true,
+  "conclusion": "0/9 通过全部 7 条判据"
+}

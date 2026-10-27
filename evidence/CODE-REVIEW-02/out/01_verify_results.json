@@ -1,0 +1,106 @@
+{
+  "checks": [
+    {
+      "name": "P0-1 created_at 不再等于读取时刻（样本 25）",
+      "ok": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "P0-2 risk_budget/fee_rate 不再硬编码 0.005/0.0005",
+      "ok": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "P0-5 registered=False 未登记标记",
+      "ok": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "P0-3 status 仅 succeeded/unknown（按证据推断）",
+      "ok": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "P0-5 window 取 inputs.json 真实窗口（非 null）",
+      "ok": true,
+      "detail": "null=0"
+    },
+    {
+      "name": "P0-1 created_at == inputs.json.timestamp_created 换算",
+      "ok": true,
+      "detail": "2026-10-16T18:12:23Z vs 2026-10-16T18:12:23Z"
+    },
+    {
+      "name": "R2 合成函数不再调用 utc_now_iso()（AST）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "R2 合成函数无硬编码 0.005/0.0005/3.0（AST 常量级）",
+      "ok": true,
+      "detail": "hard=[]"
+    },
+    {
+      "name": "R7 图表兜底无 `or 0` / `or 0.0` 填零（AST）",
+      "ok": true,
+      "detail": "n=0"
+    },
+    {
+      "name": "ERR-01 图表兜底坏行计数+日志（AST）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "R7 chart equity cash/unrealized 缺字段 null",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "P1-6 runner 运行级日志四类事件",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "R3 登记写入 run.json（store 唯一写入口）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "登记文档：真实窗口 + 真实配置(来自 cfg) + epoch 换算的 created_at",
+      "ok": true,
+      "detail": "win=1685404800000 fee=0.0005 created=2023-11-14T22:13:20Z"
+    },
+    {
+      "name": "R4 重复登记拒绝覆盖",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "登记只新增 run.json，不碰其它产物",
+      "ok": true,
+      "detail": "extra=[]"
+    },
+    {
+      "name": "P0-4 12 个批量脚本均调用 register_batch_run",
+      "ok": true,
+      "detail": "missing=[]"
+    },
+    {
+      "name": "P1-6 日志默认路径 logs/backtest_runs.log（干净子进程）",
+      "ok": true,
+      "detail": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/logs/backtest_runs.log"
+    },
+    {
+      "name": "P1-7 逐笔日志默认关、BT_TRADE_LOG 可开",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "测试隔离 BT_RUN_LOG 可覆盖",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "total": 20,
+  "failed": 0
+}

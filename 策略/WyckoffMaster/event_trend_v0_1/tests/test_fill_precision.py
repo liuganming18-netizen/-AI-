@@ -39,6 +39,12 @@ from WyckoffMaster.trading_core.fill import (
     FillRejected, SimulatedBarFillAdapter, price_breakdown,
     round_buy_price, round_qty_down, round_sell_price,
 )
+from WyckoffMaster.trading_core.rejects import (
+    EXECUTION_VALIDITY_REASONS, REJECT_CLASS_EXECUTION, REJECT_CLASS_STRATEGY,
+    REJECT_CLASS_UNREGISTERED, STAGE_ENTRY_FILL, STAGE_ENTRY_NOTIONAL,
+    STAGE_ENTRY_QTY, STAGE_EXIT_EOD, STAGE_EXIT_GAP, STAGE_EXIT_INTRABAR,
+    classify_reject, is_execution_validity, mark_if_execution_invalid,
+)
 from WyckoffMaster.event_trend_v0_1.tests.test_event_trend_closure import (
     HOUR_MS, MIN15_MS, _bars_15m, _candidate,
 )
@@ -197,7 +203,12 @@ def test_round_price_to_tick_matches_adapter():
 
 # ══════════════════════════ 5. 数量取整 / 最小量 / 最小名义额 ══════════════════════════
 
-def _entry_scenario(open_px: float, stop_px: float):
+def _entry_scenario(open_px: float, stop_px: float, *, min_entry_mult: float = 0.5,
+                    high=None, low=None, close=None):
+    """入场场景夹具。默认与既有用例逐位一致（flat bar / 入场闸门 0.5H~2H）。
+
+    可选参数只为 PRECISION-09 新增：改 bar 形状、改入场闸门（构造正常策略取消）。
+    """
     t0 = 1788652800000
     t_1h_open = t0 + 24 * HOUR_MS
     t_1h_close = t_1h_open + HOUR_MS
@@ -209,12 +220,18 @@ def _entry_scenario(open_px: float, stop_px: float):
                       breakout_close=open_px,
                       initial_stop_price=stop_px,
                       max_entry_price=open_px * 2.0,
-                      min_entry_price=open_px * 0.5)
+                      min_entry_price=open_px * min_entry_mult)
     df_1h = pd.DataFrame([{"timestamp": t_1h_open, "open": open_px,
                            "high": open_px, "low": open_px, "close": open_px,
                            "volume": 1e6}])
     df_15m = _bars_15m(t_exec - MIN15_MS, 21, open_px=open_px,
                        quote_volume=5_000_000.0)
+    if high is not None:
+        df_15m["high"] = high
+    if low is not None:
+        df_15m["low"] = low
+    if close is not None:
+        df_15m["close"] = close
     return cand, df_1h, df_15m
 
 
@@ -350,3 +367,166 @@ def test_slippage_and_rounding_are_split_and_reconcile():
     # 三段审计落在每笔成交上
     assert t["price_audit"]["entry"]["raw_price"]
     assert t["price_audit"]["exit"]["post_round_price"]
+
+
+# ══════════════════════ 9. 拒单分类：执行有效性 vs 策略取消（PRECISION-09）══════════════════════
+
+def _assert_no_fill_side_effects(res):
+    """「没成交」必须是干净的：无持仓、无费用、现金原封不动、账本恒等。"""
+    eng = res["engine_result"]
+    assert eng["trades_count"] == 0
+    assert eng["open_positions_remaining"] == []
+    assert eng["final_cash"] == pytest.approx(eng["initial_equity"], abs=1e-9)
+    assert res["summary"]["fee_total"] == pytest.approx(0.0, abs=1e-12)
+    assert eng["reconcile"]["cash_identity_ok"] is True
+    assert eng["reconcile"]["equity_identity_ok"] is True
+
+
+def test_entry_notional_reject_marks_run_invalid():
+    """入场因 minNotional 被拒 ⇒ 运行无效（PRECISION-08 复现的缺陷）。
+
+    修复前：`invalid_reasons == []` 且 `run_valid is True` —— 0 成交却被当成「跑完了」。
+    """
+    cand, df_1h, df_15m = _entry_scenario(100.0, 99.0)
+    spec = _spec(symbol="SOLUSDT", price_step="0.01", qty_step="0.01",
+                 min_qty="0.01", min_notional="1000000")
+    res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                   variant="A", instrument_spec=spec)
+    _assert_no_fill_side_effects(res)
+    assert "notional_below_min" in [r["reason"]
+                                    for r in res["engine_result"]["rejected_orders"]]
+    assert res["precision"]["invalid_reasons"] == [
+        "entry_notional_rejected:notional_below_min"]
+    assert res["precision"]["run_valid"] is False
+    # 正式放行保持不通过（今天所有规格都还是 unverified_historical，
+    # 该字段恒 False，因此这条只证明「没有被本次修复反向放开」）
+    assert res["summary"]["formal_pass_allowed"] is False
+
+
+def test_entry_qty_reject_marks_run_invalid():
+    """入场因 minQty 被拒 ⇒ 同样必须记入 invalid_reasons。"""
+    cand, df_1h, df_15m = _entry_scenario(100.0, 99.0)
+    spec = _spec(symbol="SOLUSDT", price_step="0.01", qty_step="0.01",
+                 min_qty="1000000", min_notional="5")
+    res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                   variant="A", instrument_spec=spec)
+    _assert_no_fill_side_effects(res)
+    assert res["precision"]["invalid_reasons"] == [
+        "entry_qty_rejected:qty_below_min_step"]
+    assert res["precision"]["run_valid"] is False
+
+
+def test_entry_price_reject_marks_run_invalid():
+    """入场原价非正（坏数据）⇒ 走 FillRejected 分支，同样必须判无效。"""
+    cand, df_1h, df_15m = _entry_scenario(0.0, 0.0)
+    res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                   variant="A", price_step="0.01")
+    _assert_no_fill_side_effects(res)
+    assert res["precision"]["invalid_reasons"] == [
+        "entry_fill_rejected:nonpositive_raw_price"]
+    assert res["precision"]["run_valid"] is False
+
+
+def test_strategy_cancel_does_not_invalidate_run():
+    """正常策略取消（开盘跌回箱体）⇒ 0 成交但**不得**判无效。
+
+    这是本次修复的边界：不能把「所有拒单」一律标成失败。
+    """
+    cand, df_1h, df_15m = _entry_scenario(100.0, 99.0, min_entry_mult=1.01)
+    res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                   variant="A", price_step="0.01")
+    _assert_no_fill_side_effects(res)
+    reasons = [r["reason"] for r in res["engine_result"]["rejected_orders"]]
+    assert any(r.startswith("canceled_fell_back_into_box") for r in reasons)
+    assert res["precision"]["invalid_reasons"] == []
+    assert res["precision"]["run_valid"] is True
+    assert res["precision"]["rejects_count"] == 0      # 策略取消不进精度拒绝表
+
+
+def test_every_precision_gate_reason_is_registered():
+    """精度闸门实际会发出的 reason 必须全部登记为「执行有效性错误」。
+
+    反向也查：表里不许有闸门根本不会发出的死条目（防止表与实际脱节）。
+    """
+    gate_reasons = {
+        "non_finite_or_invalid_price", "nonpositive_raw_price",
+        "non_finite_or_invalid_price_step", "invalid_price_step_nonpositive",
+        "nonpositive_or_nonfinite_entry_fill", "nonpositive_or_nonfinite_exit_fill",
+        "qty_below_min_step", "notional_below_min",
+    }
+    for r in gate_reasons:
+        assert is_execution_validity(r), r
+        assert classify_reject(r) == REJECT_CLASS_EXECUTION
+    assert gate_reasons == set(EXECUTION_VALIDITY_REASONS)
+
+
+def test_all_fill_rejected_literals_are_registered():
+    """`fill.py` 里每个 `FillRejected("...")` 字面量都必须在分类表内。
+
+    新增闸门却忘记登记 ⇒ 这里先红，而不是等到某天「0 成交但 run_valid=True」。
+    """
+    import inspect
+    import re
+    from WyckoffMaster.trading_core import fill as fill_mod
+    src = inspect.getsource(fill_mod)
+    found = set(re.findall(r'FillRejected\(\s*"([A-Za-z0-9_]+)"', src))
+    assert found, "正则没解析到任何 raise 点 ⇒ 测试自身失效"
+    assert found <= EXECUTION_VALIDITY_REASONS, found - EXECUTION_VALIDITY_REASONS
+
+
+def test_strategy_reasons_are_never_classified_as_execution_errors():
+    """策略/风控取消逐个抽查：分类必须是 strategy_cancel（含带括号实参的写法）。"""
+    for r in ("canceled_fell_back_into_box (open=100.0 < H=101.0)",
+              "canceled_gap_above_0.5a (open=105.0 > max=102.0)",
+              "candidate_identity_unresolved(signal_id=x)",
+              "invalid_signal_stop", "nonpositive_qty",
+              "notional_cap_exceeded_zero_qty",
+              "duplicate_symbol_active", "max_concurrent_trades_reached",
+              "portfolio_risk_cap_exceeded"):
+        assert classify_reject(r) == REJECT_CLASS_STRATEGY, r
+        assert is_execution_validity(r) is False
+
+
+def test_mark_helper_never_writes_strategy_or_unknown_reasons():
+    """`mark_if_execution_invalid` 是唯一写入口：策略取消/未登记一律不写、且幂等。"""
+    buf = []
+    assert mark_if_execution_invalid(buf, STAGE_ENTRY_FILL, "nonpositive_raw_price") is True
+    assert mark_if_execution_invalid(buf, STAGE_ENTRY_FILL, "nonpositive_raw_price") is True
+    assert buf == ["entry_fill_rejected:nonpositive_raw_price"]     # 幂等，不堆叠
+    assert mark_if_execution_invalid(buf, STAGE_ENTRY_FILL,
+                                     "canceled_fell_back_into_box (x)") is False
+    assert mark_if_execution_invalid(buf, STAGE_ENTRY_FILL, "some_new_reason") is False
+    assert classify_reject("some_new_reason") == REJECT_CLASS_UNREGISTERED
+    assert len(buf) == 1
+
+
+def test_every_precision_reject_carries_class_and_is_traceable():
+    """每条精度拒绝都必须带 class，且其 reason 能在 invalid_reasons 里找到。"""
+    cand, df_1h, df_15m = _entry_scenario(100.0, 99.0)
+    spec = _spec(symbol="SOLUSDT", price_step="0.01", qty_step="0.01",
+                 min_qty="0.01", min_notional="1000000")
+    res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                   variant="A", instrument_spec=spec)
+    rej = res["precision"]["rejects"]
+    assert rej, "应当至少有一条精度拒绝"
+    joined = " ".join(res["precision"]["invalid_reasons"])
+    for r in rej:
+        assert r["class"] == REJECT_CLASS_EXECUTION
+        assert r["reason"] in joined
+    assert res["precision"]["unclosed_positions"] == []   # 入场拒绝不产生未平仓
+
+
+def test_stage_prefixes_are_byte_identical_to_pre_fix_literals():
+    """三处出场前缀必须与修复前的硬编码字符串**逐字相同**。
+
+    PRECISION-09 只是把散落的字符串收进分类表，没有改口径。这条用例把
+    「收进表」这件事钉死：一旦有人改了前缀，既有 run 产物里的 invalid_reasons
+    就会静默变形。
+    """
+    assert STAGE_EXIT_GAP == "exit_gap_fill_rejected"
+    assert STAGE_EXIT_INTRABAR == "exit_intrabar_fill_rejected"
+    assert STAGE_EXIT_EOD == "exit_eod_fill_rejected"
+    # 入场三处是本轮新增（修复前根本不写），前缀按「阶段_动作_rejected」同构
+    assert STAGE_ENTRY_FILL == "entry_fill_rejected"
+    assert STAGE_ENTRY_QTY == "entry_qty_rejected"
+    assert STAGE_ENTRY_NOTIONAL == "entry_notional_rejected"

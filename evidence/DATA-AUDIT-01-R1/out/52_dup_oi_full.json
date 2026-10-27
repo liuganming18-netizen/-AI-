@@ -1,0 +1,81 @@
+{
+  "stats_at_utc": "2026-10-26T02:59:11Z",
+  "population": "全量（oi 冷档全目录 GROUP BY symbol）",
+  "query": "SELECT symbol, COUNT(*) AS n, COUNT(DISTINCT ts) AS n_uniq\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/oi/*/*/*/*.parquet', union_by_name = true)\nGROUP BY symbol",
+  "symbols": 528,
+  "rows_total": 128566270,
+  "dup_rows_total": 75255,
+  "symbols_with_dup": 1,
+  "top10": [
+    [
+      "BTCUSDT",
+      719256,
+      644001,
+      75255,
+      10.463
+    ],
+    [
+      "0GUSDT",
+      113945,
+      113945,
+      0,
+      0.0
+    ],
+    [
+      "1000PEPEUSDT",
+      363235,
+      363235,
+      0,
+      0.0
+    ],
+    [
+      "AEROUSDT",
+      196642,
+      196642,
+      0,
+      0.0
+    ],
+    [
+      "AIGENSYNUSDT",
+      49439,
+      49439,
+      0,
+      0.0
+    ],
+    [
+      "ARXUSDT",
+      33719,
+      33719,
+      0,
+      0.0
+    ],
+    [
+      "ASTRUSDT",
+      386437,
+      386437,
+      0,
+      0.0
+    ],
+    [
+      "ATOMUSDT",
+      513180,
+      513180,
+      0,
+      0.0
+    ],
+    [
+      "AUSDT",
+      146299,
+      146299,
+      0,
+      0.0
+    ],
+    [
+      "AVAAIUSDT",
+      183983,
+      183983,
+      0,
+      0.0
+    ]
+  ]
+}

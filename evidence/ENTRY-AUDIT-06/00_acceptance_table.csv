@@ -1,0 +1,27 @@
+﻿序号,目标版本,状态性质,检查项,判定,关键事实,依据文件
+1,FE07,历史版本,记录身份与匹配关系,PASS,227 行 / 226 唯一信号 / 成交 205 / 未成交 22；COTI 同快照两代际各记一行并列保留,ENTRY-AUDIT-05/00_verify_fe07.json（沿用，未重算）
+2,FE07,历史版本,四项金额（对 EA04 交接包）,PASS_WITH_NOTE,205 条成交逐笔最大绝对差 0.0e+00；注记：22 条未成交 FE07 写 0，交接包为 null（缺值当 0）,04_data_invariance.json / EA05 02_money_check.csv
+3,FE07,历史版本,净盈亏恒等式与费用符号,PASS,227/227 满足 net_pnl = gross_pnl − fee − funding，最大残差 2.842e−14,ENTRY-AUDIT-05/00_verify_fe07.json（沿用）
+4,FE07,历史版本,三套分类与独立基准,PASS,标准混合 / 纯 ATR-4h / 纯 ATR-全周期 各 227/227 一致,ENTRY-AUDIT-05/00_verify_fe07.json（沿用）
+5,FE07,历史版本,ATR、首触顺序、未知状态,PASS,7 字段 0 差异；box_atr_formation 42 条空位一致；UNKNOWN_SAME_BAR 27 条保留为未知,ENTRY-AUDIT-05/00_verify_fe07.json（沿用）
+6,FE07,历史版本,数据层多格式（CSV↔Parquet↔JSON）,PASS,70 列逐列一致，字符串空值表示差异不计为不一致,ENTRY-AUDIT-05/05_format_consistency.json（沿用）
+7,FE07,历史版本,来源绑定,PASS,输入 9 条哈希全与磁盘一致；读 ENTRY-AUDIT-03=True / 读 ENTRY-AUDIT-04=False（符合 FE07 自身工单）,07_source_binding.json
+8,FE07,历史版本,冻结清单 vs 磁盘,PASS,18/18 逐位一致，未登记缺口 0（hashes.json 自身不计）,01_file_hash_check.csv
+9,FE07,历史版本,文档层·报告哈希表,FAIL,0/9 与清单一致（即全部不符，字节数也不同）,06_doc_layer_check.csv
+10,FE07,历史版本,文档层·报告数字,FAIL,首触分布报告 111/91/3/2，数据实际 101/77/27/0；报告相加 229≠227，自称「与 FE06 100% 吻合」不成立,06_doc_layer_check.csv / EA05 05_format_consistency.json
+11,FE08,历史版本,来源绑定（EA04 交接包）,PASS,声明 ENTRY-AUDIT-04.handoff.v1；登记哈希 7/7 与磁盘一致；脚本实际打开交接包=True；旧费用键名=无,07_source_binding.json
+12,FE08,历史版本,与 FE07 的金额 / 分类 / ATR 逐列,PASS,共有 66 列，不一致列 0；FE08 增 6 列、减 4 列属已知结构变更,04_data_invariance.json
+13,FE08,历史版本,与 EA04 交接包的金额（独立核对）,PASS_WITH_NOTE,gross_pnl / fees→fee_paid / funding_fee→funding_cost / net_pnl 各 205 条逐笔 0 差；注记：22 条未成交 FE08 写 0、交接包 null,04_data_invariance.json
+14,FE08,历史版本,字段契约,PASS_WITH_NOTE,交接契约 32 字段：同名 8、改名可映射 2（fees→fee_paid、funding_fee→funding_cost）、未搬运 22；FE08 是特征底表，不承担全字段搬运,05_field_contract.csv
+15,FE08,历史版本,数据层多格式（CSV↔Parquet 双向）,PASS,往返比对无不一致列,ENTRY-AUDIT-05/01_fe08_recheck.json（沿用）
+16,FE08,历史版本,冻结清单 vs 磁盘,PASS,17/17 逐位一致，未登记缺口 0,01_file_hash_check.csv
+17,FE08,历史版本,清单无自哈希 / 无循环引用,PASS,hashes.json 不登记自身；报告未引用清单或自身哈希；无回指；代价是清单本身无外部锚点（只能由本审计登记）,02_cycle_check.json
+18,FE08,历史版本,文档层·报告金额与分类计数,PASS,121.635348 / 13.125871 / 6.977506 / 101.531971 与三套分类计数全部与数据一致,06_doc_layer_check.csv
+19,FE08,历史版本,文档层·报告哈希表,FAIL,0/10 与清单一致（即全部不符，字节数也不同）,06_doc_layer_check.csv
+20,FE09,当前有效,交付完整性（清单 + manifest 交付物）,PASS,清单 14 条全部与磁盘一致；manifest 交付物 13 项不符 0；未登记实质文件 0（仅 hashes.json 自身与缓存）,11_fe09_recheck.json
+21,FE09,当前有效,报告交付物逐项（大小/哈希）,PASS,12/12 报告=清单=磁盘；EA04 输入表 7/7 路径与大小哈希一致,11_fe09_recheck.json
+22,FE09,当前有效,与已验 FE08 基准逐位一致,PASS,CSV 5360aeb189e7… 与基准相同；Parquet 6e1b9369cca2… 与基准相同；相同 ⇒ 沿用 ENTRY-AUDIT-05 数据层检查，不重算,11_fe09_recheck.json
+23,FE09,当前有效,无自哈希 / 无循环引用,PASS,hashes.json 不登记自身；manifest 登记报告但不被报告引用；单向 DAG：数据/脚本/测试 → 报告.md → manifest,11_fe09_recheck.json
+24,FE09,当前有效,报告金额 / 分类 / 记录数,PASS,"金额 {'gross_pnl': 121.635348, 'fees': 13.125871, 'funding_fee': 6.977506, 'net_pnl': 101.531971}；计数 227/205/22；三套分类计数全部在报告中出现",11_fe09_recheck.json
+25,FE09,当前有效,EA04 输入绑定与字段契约,PASS,声明 ENTRY-AUDIT-04.handoff.v1；交接 7 项哈希全一致；脚本实际打开交接包=True；旧口径按键取值=无,11_fe09_recheck.json
+26,全局,全局,冻结后零改动（完整性）,PASS,FE07 18+FE08 17 项逐位未变；FE07↔FE08 不一致列 0；只证明「没被改动」，不等于整单通过,01_file_hash_check.csv / 04_data_invariance.json

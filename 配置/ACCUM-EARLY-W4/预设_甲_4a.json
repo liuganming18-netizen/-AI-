@@ -1,0 +1,129 @@
+{
+  "schema_version": "accum-early-05/v1",
+  "kind": "fixture",
+  "approved": false,
+  "approval_ref": "W4 待测预设（未经用户裁决）：只用于甲组入场阈值的链路与对照测试",
+  "account_base_id": "W4-UNIFIED-BASE-v1",
+  "account_base_spec": "配置/ACCUM-EARLY-W4/账户底座_统一_v1.json",
+  "preset": {
+    "group": "甲",
+    "scheme_key": "4a",
+    "confirm_mode": "close_above_resistance_first",
+    "entry_trigger": "1h 收盘首次收上局部压制位，下一根 15m 开盘成交（不等守位、不等回抽）",
+    "extra_thresholds": {
+      "hold_bars": 0,
+      "pullback_zone_atr": null,
+      "pullback_deadline_hours": null
+    },
+    "status": "unapproved_baseline",
+    "pending_refs": ["P-02 压制位定义", "P-04 确认方式与失效根数", "P-05 三组是否并行"]
+  },
+  "account_base": {
+    "initial_equity_USDT": 2000.0,
+    "risk_per_trade_equity_fraction": 0.005,
+    "max_positions": 3,
+    "single_name_notional_equity_cap": 0.30,
+    "gross_long_notional_equity_cap": 0.80,
+    "cash_or_free_margin_reserve_fraction": 0.20,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "entry_participation_previous_15m_quote_cap": 0.001,
+    "fee_each_side": 0.0005,
+    "slippage_each_side": 0.0005,
+    "leverage": 1.0,
+    "maximum_account_drawdown_fraction": 0.20,
+    "short_enabled": false,
+    "binding_note": "单名实际名义 = 权益×0.5%÷5% = 权益×10%；3 仓 ⇒ 总敞口 30%；其余上限均非绑定"
+  },
+  "conflict_resolution": {
+    "slippage_source": "effective_view",
+    "risk_config": "strategy_package",
+    "participation_cap": "strategy_package"
+  },
+  "exit": {
+    "gap_model": "stop_price"
+  },
+  "schemes": {
+    "4a": {
+      "confirm": "close_above_resistance_first",
+      "enabled": true
+    },
+    "4b": {
+      "confirm": "next_close_holds_above_resistance",
+      "enabled": false
+    },
+    "4c": {
+      "confirm": "pullback_to_resistance_then_close_up",
+      "enabled": false,
+      "pullback": {
+        "deadline_hours": 48,
+        "zone_atr": 0.25
+      }
+    }
+  },
+  "shared": {
+    "armed_fail": {
+      "bars": 2,
+      "buffer_atr": 0.1
+    },
+    "confirm": {
+      "require_bull_close": true
+    },
+    "entry_gate": {
+      "entry_price_deviation_cap": 0.015,
+      "max_gap_up_atr": 0.5
+    },
+    "intrabar_break_cancel": {
+      "buffer_atr": 0.1,
+      "mode": "close_only"
+    },
+    "invalidate": {
+      "close_below_l_bars": 2,
+      "l_overshoot_atr": 0.5
+    },
+    "local_resistance": {
+      "lookback_bars": 48,
+      "mode": "swing_high_k3_lookback48",
+      "swing_k": 3,
+      "timeframe": "1h"
+    },
+    "local_resistance_confirm": {
+      "buffer_atr": 0.0,
+      "mode": "1h_close"
+    },
+    "observe_deadline_hours": 336,
+    "oi_role": "evidence_only",
+    "repeat_candidate_limit": {
+      "cooldown_hours": 0,
+      "per_event": 1
+    },
+    "resistance_qualify": {
+      "min_gap_atr": 0.5
+    },
+    "sell_pressure": {
+      "baseline": "v20_median",
+      "buy_ratio_mult": 1.0,
+      "n": 20,
+      "require": true,
+      "require_upper_half": true,
+      "sell_pressure_mult": 0.8
+    },
+    "sweep_max_overshoot_atr": 0.5,
+    "sweep_min_recovery_atr": 0.1,
+    "sweep_recovery_scope": {
+      "max_bars": 1,
+      "mode": "single_bar"
+    },
+    "sweep_reference": {
+      "mode": "prior_n_low",
+      "must_be_above_box_low": true,
+      "n": 24
+    }
+  },
+  "_notes": {
+    "为什么三份预设 shared 完全相同": "甲/乙/丙 的差异只在入场触发链，账户与成本底座必须同一套，否则三组结果不可比。",
+    "为什么 armed_fail 在甲组也填 2": "该字段为共享必填项，只被乙组分支消费；甲/丙 填 2 不影响行为，保持三份文件字段一致便于逐项 diff。",
+    "为什么 cooldown_hours=0": "P-09 未裁决，本预设不代选 24h；0 表示冷却不生效，候选会更密。",
+    "为什么 gap_model=stop_price": "P-10 未裁决，沿用引擎现行行为，另两档只作敏感性。",
+    "为什么 kind=fixture": "三组阈值一项都未裁决 ⇒ 不得写成 approved；fixture 在 ACCUM05_FIXTURE_OK=1 下可跑隔离链路，生产开仓仍被 not_approved 阻塞。"
+  }
+}

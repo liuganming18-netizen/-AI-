@@ -1,0 +1,114 @@
+{
+ "as_of": "<易变>",
+ "available": true,
+ "base": "BTC",
+ "exchange": "binance",
+ "fields": [
+  "oi",
+  "ratio"
+ ],
+ "identity_source": "symbol_pool（真实 exchangeInfo 快照）",
+ "is_supplement": false,
+ "long_short": {
+  "carried_over_blocks": [
+   "top_account_long_short_ratio",
+   "global_account_long_short_ratio",
+   "taker_buy_sell_ratio"
+  ],
+  "carried_over_note": "本轮未取到的块沿用上一轮值，**按该块自己的 fetched_at 判新鲜度**；轮转窗口会逐轮补齐",
+  "global_account_long_short_ratio": {
+   "available": true,
+   "carried_from": "2026-10-18T12:15:06Z",
+   "carried_over": true,
+   "event_time": "2026-10-18T11:00:00Z",
+   "fetched_at": "<易变>",
+   "long_account": "0.6202",
+   "origin": "公共REST",
+   "period": "1h",
+   "short_account": "0.3798",
+   "value": "1.6330"
+  },
+  "note": "**快照精简口径**：仅取原版 UI 实际使用的「持仓量多空比」（topLongShortPositionRatio）；其余 3 块未取，见各块 reason。四者均为**聚合比率**，无身份/无金额/无均价，**不得**改名成「聪明钱金额/均价/身份」。",
+  "period": "1h",
+  "source": "币安 fapi /futures/data/*（官方公开，无需密钥）",
+  "taker_buy_sell_ratio": {
+   "available": true,
+   "buy_vol": "1013.8630",
+   "carried_from": "2026-10-18T12:15:06Z",
+   "carried_over": true,
+   "event_time": "2026-10-18T10:00:00Z",
+   "fetched_at": "<易变>",
+   "origin": "公共REST",
+   "period": "1h",
+   "sell_vol": "1023.7120",
+   "value": "0.9904"
+  },
+  "top_account_long_short_ratio": {
+   "available": true,
+   "carried_from": "2026-10-18T12:15:06Z",
+   "carried_over": true,
+   "event_time": "2026-10-18T11:00:00Z",
+   "fetched_at": "<易变>",
+   "long_account": "0.6317",
+   "origin": "公共REST",
+   "period": "1h",
+   "short_account": "0.3683",
+   "value": "1.7152"
+  },
+  "top_position_long_short_ratio": {
+   "available": true,
+   "event_time": "2026-10-18T12:00:00Z",
+   "fetched_at": "<易变>",
+   "long_account": "0.6415",
+   "origin": "公共REST",
+   "period": "1h",
+   "short_account": "0.3585",
+   "value": "1.7896"
+  }
+ },
+ "market_id": "BTCUSDT",
+ "missing_reason": null,
+ "open_interest": {
+  "amount": 94842.568,
+  "amount_event_time": "2026-10-18T12:15:00Z",
+  "available": true,
+  "fetched_at": "<易变>",
+  "note": "**全市场总量**，无多空拆分、无身份；不是「聪明钱持仓额」；快照精简口径：总量与名义额取自同一行（5m 边界采样）",
+  "origin": "公共REST",
+  "source": "币安 /futures/data/openInterestHist（同一行给总量与名义额）",
+  "usd": 7779414218.916,
+  "usd_event_time": "2026-10-18T12:15:00Z"
+ },
+ "quality": {
+  "age_seconds": "<易变>",
+  "note": "**快照已过期**：2026-10-18T12:22:45Z 写入（18033s 前，阈值 900s）；持仓量多空比数据时点 2026-10-18T12:00:00Z；总持仓名义额数据时点 2026-10-18T12:15:00Z；采集器未按周期刷新到该标的，数值仅供参照",
+  "status": "stale"
+ },
+ "smart_money": {
+  "available": false,
+  "reason": "币安公开 API 无「聪明钱金额/均价/身份」字段：`/futures/data/*` 只给**大户持仓量多空比**与**账户数多空比**（聚合比率，无身份、无金额、无均价）；`/fapi/v1/openInterest` 只给**全市场总量**（无多空拆分）；`/fapi/v1/positionRisk` 需签名（公开 404）。按用户口径：不得用人数比或 taker 量冒充聪明钱金额/均价/身份，故保持缺失。"
+ },
+ "snapshot": {
+  "index": {
+   "failed": 0,
+   "interval_s": 300,
+   "ok": 62,
+   "skipped": 0,
+   "targets": 62,
+   "updated_at": "<易变>"
+  },
+  "note": "本接口**只读本机快照**（既有采集工作器周期写入）；前端读取**不触发**交易所请求",
+  "period": "1h",
+  "refreshed_at": "2026-10-18T12:22:45Z",
+  "refreshed_at_ms": 1792326165438,
+  "written_by": "realtime_collector.public_extras_loop → public_market_read.refresh_snapshot"
+ },
+ "snapshot_exchange": "binance",
+ "snapshot_market_id": "BTCUSDT",
+ "snapshot_refreshed_at": "2026-10-18T12:22:45Z",
+ "snapshot_refreshed_at_ms": 1792326165438,
+ "source_urls": [
+  "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=5m",
+  "https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=BTCUSDT"
+ ]
+}

@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "title": "BREAKEVEN-ROBUST-03 固定仓位口径重算汇总",
+    "created_at_utc": "2026-10-19T15:44:10.129356+00:00",
+    "primary_input": "evidence/BREAKEVEN-02/out/paired_fixed.csv",
+    "dedup_rule": "按 (symbol, entry_time_utc) 分组，保留 int(group) 较小的回测窗口记录"
+  },
+  "event_201_fixed_margin": {
+    "n_events": 201,
+    "A_net_U": 105.43986419661563,
+    "B_1R_net_U": 52.42994648994814,
+    "C_2R_net_U": 108.48789280588656,
+    "B_1R_delta_U": -53.009917706667494,
+    "C_2R_delta_U": 3.048028609270927,
+    "1R_breakdown": {
+      "improved_count": 11,
+      "improved_sum_U": 85.32554662662227,
+      "max_improved_trade": {
+        "symbol": "MOVRUSDT",
+        "entry_time": "2024-02-18 13:15",
+        "delta_U": 10.536040789500934,
+        "A_net_U": -10.615350577753643,
+        "B_net_U": -0.0793097882527084
+      },
+      "worsened_count": 16,
+      "worsened_sum_U": -138.33546433328976,
+      "max_worsened_trade": {
+        "symbol": "PUMPBTCUSDT",
+        "entry_time": "2025-09-06 00:15",
+        "delta_U": -56.6506925953647,
+        "A_net_U": 56.65072113635928,
+        "B_net_U": 2.854099457705317e-05
+      },
+      "unchanged_count": 174,
+      "total_changed_count": 27
+    },
+    "2R_breakdown": {
+      "improved_count": 1,
+      "worsened_count": 0,
+      "unchanged_count": 200,
+      "unique_improved_trade": {
+        "symbol": "1000LUNCUSDT",
+        "entry_time": "2023-06-04 03:15",
+        "delta_U": 3.048028609270927,
+        "A_net_U": -3.071199835996928,
+        "C_net_U": -0.023171226726001096
+      },
+      "remaining_delta_without_unique_trade_U": 0.0
+    },
+    "sensitivity": {
+      "1R_without_max_positive_delta_U": -63.545958496168424,
+      "1R_without_max_negative_delta_U": 3.64077488869721,
+      "1R_leave_one_out_min_delta_U": -63.545958,
+      "1R_leave_one_out_max_delta_U": 3.640775,
+      "1R_reversed_count": 1
+    }
+  },
+  "candidate_206_fixed_margin_control": {
+    "n_candidates": 206,
+    "A_net_U": 55.30869412978385,
+    "B_1R_net_U": 12.212004813237957,
+    "C_2R_net_U": 58.356722739054774,
+    "B_1R_delta_U": -43.09668931654589,
+    "C_2R_delta_U": 3.048028609270927,
+    "improved_1R_count": 12,
+    "worsened_1R_count": 16,
+    "unchanged_1R_count": 178
+  },
+  "opusdt_discrepancy_reconciled": {
+    "symbol": "OPUSDT",
+    "entry_time_utc": "2024-01-12 14:15",
+    "old_B_net_U": -9.214741,
+    "fixed_B_net_U": -9.327115766582,
+    "difference_U": -0.11237651005185592,
+    "verified_in_detail": true
+  }
+}

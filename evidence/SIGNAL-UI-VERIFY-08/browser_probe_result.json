@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-10-25T10:00:47.042Z",
+  "panelExists": true,
+  "signalCountAttr": "0",
+  "signalScopeAttr": "current",
+  "signalCardsCount": 0,
+  "emptyStateExists": true,
+  "emptyStateText": "暂无实时信号",
+  "errorStateExists": false,
+  "errorStateText": "",
+  "hasHistoricalEntry": false,
+  "hasRejectedEntry": false,
+  "hasSearchInput": true,
+  "hasFilterSelect": true,
+  "networkLogs": [
+    {
+      "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+      "status": 200,
+      "response": "{\"mode\": null, \"account_id\": null, \"run_id\": null, \"strategy_version\": \"FT-LOW4H-EXP-V2.2\", \"rule_version\": \"FT-LOW4H\", \"param_hash\": \"82dec362c182\", \"data_version\": null, \"as_of\": \"1970-01-01T00:00:00Z\", \"quality\": {\"status\": \"ok\", \"age_seconds\": null, \"scope\": \"current\", \"live_start_ms\": 1792748844240, \"paper_epoch_ms\": 1791939600000, \"effective_floor_ms\": 1792748844240, \"paper_ledger_attached_arms\": [\"3a\", \"3b\", \"3c\", \"3d\"], \"n_arm_rows\": 0, \"n_cards\": 0, \"excluded_n\": 0, \"note\": \"当前交易信号区（scope=current）：origin=live + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 0 条（仍保留在库/审计通道）\"}, \"source_url\": null, \"evidence_level\": null, \"missing_reason\": null, \"time\": {\"event_time\": null, \"available_at\": null, \"received_at\": null, \"fetched_at\": null}, \"items\": [], \"has_more\": false, \"next_cursor\": null, \"total\": 0, \"limit\": 500, \"param_hash_basis\": \"frozen_view_sha256\", \"params_source\": \"frozen_view_10_研究参数生效视图_v2_2_user5000_shared\", "
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/accounts",
+      "status": 200,
+      "response": "{\"mode\": \"paper\", \"account_id\": null, \"run_id\": null, \"strategy_version\": \"FT-LOW4H-EXP-V2.2\", \"rule_version\": \"FT-LOW4H\", \"param_hash\": \"82dec362c182\", \"data_version\": null, \"as_of\": null, \"quality\": {\"status\": \"ok\", \"age_seconds\": null, \"live_start_ms\": 1792748844240, \"live_start_utc\": \"2026-10-23T09:47:24Z\", \"n_pre_watermark_display_only\": 0, \"n_after_watermark\": 0, \"n_pending_orders\": 0, \"fill_policy\": {\"defined_by\": \"work_2026-10-13\", \"ratification_status\": \"pending_human_ratification\", \"fill_price\": \"open_of_first_closed_15m_bar_at_or_after(order_request_ms + delay)\", \"no_fill_before\": \"max(signal.event_time, signal.available_at, 真实请求时刻)\", \"future_fill\": \"paper_pending_advanced_by_real_process_clock\", \"on_missed_moment\": \"reject_missed_fill_moment_no_backfill\", \"max_fill_lag_seconds\": 3600, \"approved_delay_rule_kept\": true, \"note\": \"本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。\"}, \"new_entry_gate\": {\"allow_new_entries\": true, \"gate_reaso"
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/v1/paper/execution_daemon/status?arm=3a",
+      "status": 200,
+      "response": "{\"mode\": null, \"account_id\": null, \"run_id\": null, \"strategy_version\": null, \"rule_version\": null, \"param_hash\": null, \"data_version\": null, \"as_of\": \"2026-10-25T10:00:46Z\", \"quality\": {\"status\": \"healthy\", \"note\": \"unified_runtime_status\"}, \"source_url\": null, \"evidence_level\": null, \"missing_reason\": null, \"time\": {\"event_time\": null, \"available_at\": null, \"received_at\": null, \"fetched_at\": null}, \"item\": {\"runtime_identity\": {\"arm\": \"3a\", \"symbol\": \"all(526)\", \"pid\": 7178, \"status\": \"running\", \"started_at\": 1792912648222, \"cycle_count\": 1544, \"overall_health\": \"healthy\", \"record_pid_alive\": true, \"record_written_ms\": 1792922439086, \"record_age_ms\": 7057}, \"market_data\": {\"status\": \"connected\", \"symbol\": \"all(526)\", \"latest_15m_close_time\": 1792922399999, \"latest_1h_close_time\": 1792922399999, \"latest_4h_close_time\": 1792915199999}, \"signal_engine\": {\"status\": \"active\", \"universe\": 526, \"universe_declared\": 526, \"watermark_1h\": 1792918800000, \"watermark_4h\": 1792900800000, \"bootstrap"
+    }
+  ],
+  "consoleLogs": [
+    {
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    }
+  ]
+}

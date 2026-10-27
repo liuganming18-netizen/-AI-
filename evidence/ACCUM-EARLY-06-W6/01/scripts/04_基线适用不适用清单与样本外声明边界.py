@@ -1,0 +1,163 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-06-W6-01 | 04 基线适用不适用清单与样本外声明边界
+
+核对重点：
+1. 明确基线适用清单（可用于机制管道、算术对齐、事件重放等）与不适用清单（严禁推广全池、严禁作有效性证明、严禁称组合回撤等）；
+2. 严肃树立样本外声明边界：不接受仅凭日期晚于某天就称新样本外；必须具备规则冻结与此前未查看/未用于选择的证据；
+3. 严格恪守工作纪律：此单不新开保留区间、不做参数选择。
+"""
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path("/Users/boos/Desktop/威科夫因子共振趋势")
+OUT_DIR = ROOT / "evidence" / "ACCUM-EARLY-06-W6" / "01" / "out"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+PATH_05C_INPUT = ROOT / "evidence" / "ACCUM-EARLY-05-C" / "out" / "01_输入快照与版本锁定.json"
+
+
+def main():
+    print("[04_基线适用不适用清单与样本外声明边界] 开始运行...")
+
+    # 读取 05-C 输入与版本依赖
+    with open(PATH_05C_INPUT, "r", encoding="utf-8") as f:
+        in_data = json.load(f)
+
+    # 基线适用清单
+    applicable_manifest = [
+        {
+            "id": "APPLY-01",
+            "name": "底层管道与算术复算一致性基准",
+            "scope": "已覆盖的 51 条历史候选及两套经济口径（共 102 笔试验）",
+            "statement": "在 12:15 严格生效、跟踪止损只上移不下移、无 2R 激活及 10 天强平约束下，101 笔真实成交在入场价、止损价、数量、名义额、手续费、退出价、净额 8 字段上达成逐位一致。可作为执行算术的基准测试集。",
+        },
+        {
+            "id": "APPLY-02",
+            "name": "给定历史起点的确定性事件重放基准",
+            "scope": "48 个驱动标的在 2026-06-27T08:00Z 至 2026-10-26T09:00Z 区间",
+            "statement": "在冻结状态机规则（单标的单活跃事件 + 24h 冷却）下，1178 个观察事件确定性可重放，可用于机制推演与状态机调用时序验证。",
+        },
+        {
+            "id": "APPLY-03",
+            "name": "单笔独立事件的盈亏分布特征参考",
+            "scope": "生效视图 5bps（51 笔已平）与策略包 3bps（50 笔已平）",
+            "statement": "可用于独立事件层面的单笔均值、中位数、极值与胜率分布参考（生效视图均值 -4.42U / 策略包均值 -1.78U），描述单笔独立特征。",
+        },
+        {
+            "id": "APPLY-04",
+            "name": "交易所合约物理约束与缩量拒单边界核对",
+            "scope": "CARVUSDT 在策略包 0.1% 参与率下的拦截",
+            "statement": "证明参与率缩量截断至 4.4436 USDT 低于币安 5.0 USDT 最小下单门槛时的物理拒单逻辑正确，可作为防御边界用例。",
+        }
+    ]
+
+    # 基线不适用清单
+    inapplicable_manifest = [
+        {
+            "id": "INAPPLY-01",
+            "name": "严禁推广至全池 526 标的及已交割合约",
+            "reason": "母集 48 标的完全从 51 条候选反向筛选，存在严重的选币偏倚（Selection Bias）与幸存者偏差（占全池仅 9.12%）；05-F 明确指出母集的 0 异常不能替全池 10 个晚上市标的及 178 个 SETTLING 标的做担保。",
+        },
+        {
+            "id": "INAPPLY-02",
+            "name": "严禁作为策略盈利能力或有效性的样本外证据",
+            "reason": "51 条候选 100% 落在「区间二：2026-07-01 ~ 2026-10-12」。该区间已在 04-A 阶段被完整计算、公开并用于规则调优，属于已泄露/已查看数据，严禁视作独立验证。",
+        },
+        {
+            "id": "INAPPLY-03",
+            "name": "严禁作为组合账户真实资金曲线或最大回撤依据",
+            "reason": "单事件独立回放缺少并发仓位上限与资金排队调度规则。历史持仓同时在仓峰值高达 9 笔，伪回撤随累加排列方式极差高达 478.38 USDT。组合账户表现定性为【未验证】。",
+        },
+        {
+            "id": "INAPPLY-04",
+            "name": "严禁跨口径合并求和或混搭未经批准的参数口径",
+            "reason": "两套口径属于独立研究设定，跨口径相加（-314.37 USDT）仅为对账校验码；05-A 推荐的混搭口径代码不存在且未获用户批准，不得擅自生成第三套结果。",
+        },
+        {
+            "id": "INAPPLY-05",
+            "name": "严禁在冷档填充率 0% 条件下声称成交“当时可得”",
+            "reason": "冷档 available_at 整列为空，无历史发布与抓取时间戳证明，相关成交判定只能定性为“探索性”。",
+        },
+        {
+            "id": "INAPPLY-06",
+            "name": "严禁在热库 15.8 天资金费缺口修复前声称资金费完整",
+            "reason": "热库在 2026-09-02 至 2026-09-18 存在 15.8 天缺口（G4），96 笔成交落在缺口段，必须等待窗口三冷热合并输入交付。",
+        },
+        {
+            "id": "INAPPLY-07",
+            "name": "严禁将可用组 63 笔净额直接作为原策略真实成绩",
+            "reason": "可用组剔除了 38 笔暂缓单（胜率 39.47%），可用组净额（-310.54 USDT）不能代表原策略全貌，更不能仅比较负数绝对额断言无美化。",
+        }
+    ]
+
+    # 样本外声明边界的刚性准则
+    out_of_sample_boundary = {
+        "core_principle": "严禁仅凭日历时间晚于某天就声称新样本外；必须具备规则冻结与此前未查看/未用于选择的双重前置证据。",
+        "mandatory_conditions": [
+            {
+                "condition": "条件一：代码与策略配置绝对冻结证据",
+                "proof_requirement": "必须具备在测试开始前已落盘的代码文件 SHA256 哈希、配置参数文件 SHA256 哈希以及不可篡改的提交记录，严禁在查看数据后回溯修改规则。",
+            },
+            {
+                "condition": "条件二：数据此前未查看/未用于选择（Unseen & Unused）证据",
+                "proof_requirement": "必须证明测试所用的行情切片与时间区间，在此前开发、探索、调试过程中从未被读取，从未参与任何网格搜索、超参数择优、阈值微调或特征筛选。已被查看过的数据自动失去样本外资格。",
+            }
+        ],
+        "pseudo_out_of_sample_prohibition": "单纯日历时间晚于 2026-06-27 或 2026-10-12 的切片，只要在 04-A 至 05-F 的研发过程中被读取、分析或调试过，在统计学上均已受数据窥探偏差（Data Snooping Bias）污染，一律不得声称为独立样本外。",
+        "task_discipline_compliance": {
+            "no_new_reserved_interval": True,
+            "no_parameter_selection": True,
+            "statement": "本单严格恪守工单要求：不新开保留区间，不做任何参数选择与择优，杜绝任何为迎合回测效果而人为划定区间的违规行为。"
+        }
+    }
+
+    # 版本依赖关系
+    version_dependencies = {
+        "core_files": {
+            "replay_calc_py": {
+                "path": "框架/backend/replay_calc.py",
+                "locked_sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+                "status": "已核对一致"
+            },
+            "state_machine_py": {
+                "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+                "locked_sha256": "4348f1201f8fca7689d04739eb3c306c52a0a2df83eb052d9aeaf957c5e26bbf",
+                "status": "已核对一致"
+            },
+            "config_py": {
+                "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+                "locked_sha256": "1850ae2ef044efc9ea9902677945d4750bb145b85a39cb68b1eb73bfd740cff6",
+                "status": "已核对一致"
+            }
+        },
+        "upstream_windows_dependencies": {
+            "window_1": "等待窗口一（06-01/06-02）整理用户裁决表，缺批准参数前严禁开仓",
+            "window_2": "等待窗口二（06-03/06-04）独占修复 accum_early_entry.py 承接时序",
+            "window_3": "等待窗口三（06-05/06-06）隔离补齐冷热资金费合并输入（修复 G4 缺口）",
+            "window_4": "等待窗口四（06-07/06-08）独立复核底层财务算式并接入完整资金费",
+            "window_5": "等待窗口五（06-09/06-10）非代码修改方独立端到端复验"
+        }
+    }
+
+    res = {
+        "task": "ACCUM-EARLY-06-W6-01",
+        "step": "04_基线适用不适用清单与样本外声明边界",
+        "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "applicable_manifest": applicable_manifest,
+        "inapplicable_manifest": inapplicable_manifest,
+        "out_of_sample_boundary": out_of_sample_boundary,
+        "version_dependencies": version_dependencies
+    }
+
+    out_file = OUT_DIR / "04_基线适用清单与边界声明.json"
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+
+    print(f"[04_基线适用不适用清单与样本外声明边界] 完成！产物保存至: {out_file}")
+
+
+if __name__ == "__main__":
+    main()

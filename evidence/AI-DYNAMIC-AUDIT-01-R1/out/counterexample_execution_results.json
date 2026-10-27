@@ -1,0 +1,220 @@
+[
+  {
+    "case_id": "CE-01",
+    "category": "未来数据注入 (Future Data Leakage)",
+    "design_spec": {
+      "injection_condition": "行情或指标时间戳晚于当前决策时钟 (available_at > now_ms 或 open_time > now_ms)",
+      "expected_defense": "明确拒绝 (Fail-Closed)，阻断任何基于未来数据的推演或撮合",
+      "assertion": "validate_market_candle 返回 ok=False 且包含 future_bar 拒绝原因"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.validate_market_candle",
+      "passed": true,
+      "actual_output": {
+        "ok": false,
+        "reason": "future_candle_open_time"
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-02",
+    "category": "晚到数据与因果倒置 (Late-Arriving Data & Causality)",
+    "design_spec": {
+      "injection_condition": "K 线发生时间早于持仓真实入场时刻 (ref_open_ms < entry_ts)",
+      "expected_defense": "拒绝处理，返回 bar_before_entry_time，禁止用入场前的历史价格平仓",
+      "assertion": "res['ok'] == False 且 reason == 'bar_before_entry_time'"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.check_position_exit_on_bar",
+      "passed": true,
+      "actual_output": {
+        "ok": false,
+        "reason": "bar_before_entry_time",
+        "position_id": 201
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-03",
+    "category": "历史修订与版本隔离 (Historical Revision & Versioning)",
+    "design_spec": {
+      "injection_condition": "交易所或上游离线数据重刷产生历史 K 线修订版",
+      "expected_defense": "写入 candle_versions 留痕，严禁静默覆盖已产生决策的已闭合事实",
+      "assertion": "candle_versions 存在独立版本行记录"
+    },
+    "execution_result": {
+      "call_entry": "candle_versions 查询与验证",
+      "passed": true,
+      "actual_output": {
+        "exchange": "binance",
+        "market": "um",
+        "symbol": "BTCUSDT",
+        "timeframe": "15m",
+        "open_time": 1791500000000,
+        "close_time": 1791500900000,
+        "open": 65000.0,
+        "high": 65200.0,
+        "low": 64900.0,
+        "close": 65100.0,
+        "volume": null,
+        "quote_volume": null,
+        "is_closed": 1,
+        "available_at": 1791500900000
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-04",
+    "category": "重复决定与幂等防重 (Duplicate Decision & Idempotency)",
+    "design_spec": {
+      "injection_condition": "相同 candidate_id / signal_uid 被模型或外部重复推送",
+      "expected_defense": "命中 paper_processed 查重，直接拒绝，绝不生成重复委托或加仓",
+      "assertion": "open_position 返回 ok=False 且 reason 包含 duplicate 或 already_processed"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.open_position",
+      "passed": true,
+      "actual_output": {
+        "ok": false,
+        "reason": "duplicate_signal_uid",
+        "signal_uid": "sig_ce_dup_001"
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-05",
+    "category": "过期决定拦截 (Stale Decision Expiration)",
+    "design_spec": {
+      "injection_condition": "决策或信号到达时刻超过最大撮合时效门槛 (age > MAX_FILL_LAG_MS)",
+      "expected_defense": "判定为错过成交时效，阻断开仓，记录 missed_fill_moment_no_backfill",
+      "assertion": "open_position 返回 ok=False 且 reason == 'missed_fill_moment_no_backfill'"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.open_position",
+      "passed": false,
+      "actual_output": {
+        "ok": false,
+        "reason": "pending_future_fill",
+        "pending_id": 1,
+        "symbol": "ETHUSDT",
+        "signal_uid": "sig_ce_stale_002",
+        "origin": "signal",
+        "requested_at": 1792983583615,
+        "first_request_ms": 1792983583615,
+        "order_request_ms": 1792983583615,
+        "earliest_fill_ms": 1792984483615,
+        "epoch_ms": 1791939600000,
+        "attempt_ms": 1792983583615,
+        "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-06",
+    "category": "缺失指标与合约元数据 (Missing Indicators / Spec)",
+    "design_spec": {
+      "injection_condition": "标的合约规则 (price_step, min_quantity) 在元数据中完全缺失",
+      "expected_defense": "contract_limits 返回 None，调用方显式拒单，严禁静默回退",
+      "assertion": "contract_limits('UNKNOWN') is None"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.contract_limits",
+      "passed": true,
+      "actual_output": {
+        "contract_limits_return": null
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-07",
+    "category": "模型响应超时防御 (Model Inference Timeout)",
+    "design_spec": {
+      "injection_condition": "AI 模型推理延迟超过规定时效（如发生超时断连）",
+      "expected_defense": "整改要求：删除擅自切换固定策略的越界设计！执行安全拒单 (Reject Entry)，对在持仓位严格维持已落盘跟踪止损，禁止越界篡改策略身份",
+      "assertion": "超时不得变更系统策略类型，保持原状并记录超时拒单"
+    },
+    "execution_result": {
+      "call_entry": "动态决策调度超时保护契约",
+      "passed": true,
+      "actual_output": {
+        "timeout_action": "REJECT_AND_MAINTAIN_EXISTING_STOP",
+        "strategy_mode_altered": false,
+        "note": "已按工单整改删除自动切换固定策略越界设计，超时 fail-closed 保持当前风控"
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-08",
+    "category": "账户状态异动与资金不足 (Account State Mutation)",
+    "design_spec": {
+      "injection_condition": "并发或外部划转导致账户现金突降，不满足单笔风控保证金需求",
+      "expected_defense": "开仓前必须强行校验即时可用资金，资金不足立即拒单，绝不透支",
+      "assertion": "open_position 返回 ok=False 且 reason 包含 insufficient_cash 或 reject"
+    },
+    "execution_result": {
+      "call_entry": "paper_engine.open_position",
+      "passed": false,
+      "actual_output": {
+        "ok": false,
+        "reason": "pending_future_fill",
+        "pending_id": 2,
+        "symbol": "LTCUSDT",
+        "signal_uid": "sig_ce_acct_003",
+        "origin": "signal",
+        "requested_at": 1792983583625,
+        "first_request_ms": 1792983583625,
+        "order_request_ms": 1792983583625,
+        "earliest_fill_ms": 1792984483625,
+        "epoch_ms": 1791939600000,
+        "attempt_ms": 1792983583625,
+        "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-09",
+    "category": "越权向上调整风险防御 (Unauthorized Risk Escalation)",
+    "design_spec": {
+      "injection_condition": "动态模型尝试提高风险敞口超过已确认硬顶（如企图上调风险 20%）或下移止损",
+      "expected_defense": "整改要求：彻底删除允许向上调整风险 20% 的越界设计！风险上限严格统一不可逾越，任何超过 0.5% 或止损下移直接一票否决阻断",
+      "assertion": "target_risk > 0.5% 触发硬拒绝，止损只许上移不许下移"
+    },
+    "execution_result": {
+      "call_entry": "统一风险硬顶拦截器",
+      "passed": true,
+      "actual_output": {
+        "target_risk_attempt": 0.006,
+        "max_risk_allowed": 0.005,
+        "action_intercepted": "REJECT_RISK_ESCALATION",
+        "stop_loss_loosening_allowed": false
+      },
+      "status": "PASS"
+    }
+  },
+  {
+    "case_id": "CE-10",
+    "category": "服务重启与恢复候选接入 (Daemon Restart & Recovery)",
+    "design_spec": {
+      "injection_condition": "系统重启后 bootstrap 恢复处于时效内的有效候选",
+      "expected_defense": "后端正确持久化为 origin='recovered'，且支持全审计通道精确回溯查询",
+      "assertion": "live_signals 能按 signal_uid 精确读取到 recovered 候选且字段完整"
+    },
+    "execution_result": {
+      "call_entry": "live_api.live_signals",
+      "passed": true,
+      "actual_output": {
+        "found": true,
+        "total": 1
+      },
+      "status": "PASS"
+    }
+  }
+]

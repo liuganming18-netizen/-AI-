@@ -1,0 +1,416 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-02",
+  "stage": "atr_caliber",
+  "generated_at_utc": "2026-10-24T14:22:10Z",
+  "isolated_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-HISTORY-FIX-02/out/180d_market.sqlite3",
+  "window": {
+    "4h_first_utc": "2026-04-27T16:00:00Z",
+    "4h_last_utc": "2026-10-24T08:00:00Z"
+  },
+  "pool_n": 526,
+  "A_spec_vs_impl": {
+    "spec_doc": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+    "spec_doc_sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+    "spec_atr_clause": "- ATR：4h Wilder ATR(14)，前 14 个 TR 的算术平均作为初值，随后递推；TR=max(high-low, abs(high-prev_close), abs(low-prev_close))。首根没有前收盘时 TR=high-low。至少预热 200 根完整 4h K 线。",
+    "spec_box_clause": "每个 4h 收盘检查最近 42 根 bar：同时满足 2 <= (H-L)/A <= 8、ER <= 0.30 时建档。数据必须连续，ATR 有效。建档时刻之前或与其同刻的 1h bar 不再用于触发新事件。",
+    "spec_requires": {
+      "atr_period_4h": 14,
+      "warmup_bars_min": 200,
+      "recursion": "前 14 个 TR 算术平均作初值，随后 Wilder 递推",
+      "tr": "max(high-low, |high-prev_close|, |low-prev_close|)；首根 TR=high-low"
+    },
+    "authoritative_impl": {
+      "file": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "sha256": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801",
+      "how": "df_4h_raw 全历史算一次连续 Wilder ATR(14)；逐根取 sub_4h['atr'].iloc[-1]",
+      "warmup": "全历史（≥200 根，满足规范）"
+    },
+    "live_before_fix": {
+      "file": "框架/backend/unified_runtime.py（修复前 :308-318）",
+      "how": "每根 4h 只取最近 box_bars_4h=42 根重新调用 compute_wilder_atr_series 取 [-1]",
+      "effective_warmup_bars": 42,
+      "recursion_reset_per_bar": true
+    },
+    "live_after_fix": {
+      "how": "RealSignalEngine.atr = _WilderATR(14)，按装载窗口逐根连续递推；atr_bars_seen < atr_warmup_bars(200) 时不建档",
+      "effective_warmup_bars": ">=200（规范值）",
+      "recursion_reset_per_bar": false
+    },
+    "verdict": "IMPLEMENTATION_DEVIATION",
+    "verdict_reason": "规范第 17 行明文写「至少预热 200 根完整 4h K 线」且给出唯一递推定义；回测实现符合规范；旧实时实现既不满足 200 根预热，也把 Wilder 递推每根重置 ⇒ 属**实现偏差**，不是规范冲突。按规范修复，未改任何参数。",
+    "params_changed": false
+  },
+  "B_incremental_equivalence": {
+    "what": "`_WilderATR.update()` 逐根 vs `compute_wilder_atr_series(全前缀)[-1]`",
+    "symbols": [
+      {
+        "symbol": "BTCUSDT",
+        "bars": 1079,
+        "checked": 1066,
+        "max_abs_diff": 0.0,
+        "first_mismatch": null,
+        "identical": true
+      },
+      {
+        "symbol": "ETHUSDT",
+        "bars": 1079,
+        "checked": 1066,
+        "max_abs_diff": 0.0,
+        "first_mismatch": null,
+        "identical": true
+      },
+      {
+        "symbol": "SOLUSDT",
+        "bars": 1079,
+        "checked": 1066,
+        "max_abs_diff": 0.0,
+        "first_mismatch": null,
+        "identical": true
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "bars": 1079,
+        "checked": 1066,
+        "max_abs_diff": 0.0,
+        "first_mismatch": null,
+        "identical": true
+      },
+      {
+        "symbol": "WALUSDT",
+        "bars": 1079,
+        "checked": 1066,
+        "max_abs_diff": 0.0,
+        "first_mismatch": null,
+        "identical": true
+      }
+    ],
+    "all_identical": true
+  },
+  "C_same_prefix_impact": {
+    "scope": "**固定 80 个标的**（全池排序前 80）× 各自全部 4h 时点（窗口 2026-04-27T16:00:00Z ~ 2026-10-24T08:00:00Z）；候选级影响见 D 段（**全池 526**）",
+    "bars_evaluated": 82617,
+    "atr_rel_diff_median": 0.009488330164065265,
+    "atr_rel_diff_p95": 0.04189205956582115,
+    "atr_rel_diff_max": 1.405260781472815,
+    "atr_rel_diff_gt_1pct": 39618,
+    "atr_rel_diff_gt_5pct": 2861,
+    "width_gate_flip": 1020,
+    "width_gate_flip_rate": 0.012346127310359853,
+    "box_form_both": 52176,
+    "box_form_old_only": 9668,
+    "box_form_new_only": 280,
+    "box_form_old_only_due_to_warmup_gate": 9175,
+    "note": "`box_form_old_only` 里有一部分是**旧实现没有执行 200 根预热**造成的（见 `box_form_old_only_due_to_warmup_gate`）；其余是 ATR 口径差造成的宽度闸翻转。"
+  },
+  "D_candidate_level": {
+    "same_data": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-HISTORY-FIX-02/out/180d_market.sqlite3",
+    "same_config": true,
+    "scope": "**全池 526 标的**，窗口 = 生产同款 1160h 预热窗口（2026-09-06T00:00:00Z ~ 2026-10-24T08:00:00Z）",
+    "window_floor_utc": "2026-09-06T00:00:00Z",
+    "window_end_utc": "2026-10-24T08:00:00Z",
+    "window_hours": 1160,
+    "only_difference": "ATR 提供者（旧：最近 42 根重算 + 无 200 根预热；新：连续递推 + ≥200 根预热）",
+    "before_fix": {
+      "stage": {
+        "BOX": 378,
+        "IDLE": 115,
+        "RETEST": 19,
+        "SWEEP": 14
+      },
+      "transitions": {
+        "BOX": 3692,
+        "EXPIRED": 1337,
+        "INVALIDATED": 1907,
+        "SWEEP": 866,
+        "RETEST": 514,
+        "CANDIDATE": 17,
+        "MISSED_WITHOUT_RETEST": 16,
+        "VOLUME_REJECTED": 4
+      },
+      "history_candidates_discarded": 17
+    },
+    "after_fix": {
+      "stage": {
+        "BOX": 381,
+        "IDLE": 113,
+        "RETEST": 18,
+        "SWEEP": 14
+      },
+      "transitions": {
+        "BOX": 1562,
+        "INVALIDATED": 952,
+        "SWEEP": 434,
+        "RETEST": 259,
+        "EXPIRED": 193,
+        "MISSED_WITHOUT_RETEST": 3,
+        "VOLUME_REJECTED": 1
+      },
+      "history_candidates_discarded": 0
+    },
+    "candidates_before": [
+      {
+        "symbol": "ADAUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ADAUSDT_1789574399999_1789743600000",
+        "available_at_utc": "2026-09-18T15:00:00Z",
+        "breakout_close": 0.2209,
+        "initial_stop_price": 0.19000014712701396,
+        "box_high_h": 0.2184,
+        "box_low_l": 0.1903,
+        "box_atr_a": 0.004998528729860278
+      },
+      {
+        "symbol": "AIGENSYNUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789531199999_1789963200000",
+        "available_at_utc": "2026-09-21T04:00:00Z",
+        "breakout_close": 0.02075,
+        "initial_stop_price": 0.018116344683124216,
+        "box_high_h": 0.0205,
+        "box_low_l": 0.01805,
+        "box_atr_a": 0.000536553168757836
+      },
+      {
+        "symbol": "AXSUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789257599999_1789696800000",
+        "available_at_utc": "2026-09-18T02:00:00Z",
+        "breakout_close": 1.0026,
+        "initial_stop_price": 0.8857061145390748,
+        "box_high_h": 0.9871,
+        "box_low_l": 0.8862,
+        "box_atr_a": 0.019938854609252574
+      },
+      {
+        "symbol": "BABYUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789257599999_1789693200000",
+        "available_at_utc": "2026-09-18T01:00:00Z",
+        "breakout_close": 0.01188,
+        "initial_stop_price": 0.010337999762377686,
+        "box_high_h": 0.01183,
+        "box_low_l": 0.01032,
+        "box_atr_a": 0.0003200023762231411
+      },
+      {
+        "symbol": "BBUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+        "available_at_utc": "2026-10-11T07:00:00Z",
+        "breakout_close": 0.010308,
+        "initial_stop_price": 0.00842492511170677,
+        "box_high_h": 0.0102,
+        "box_low_l": 0.008352,
+        "box_atr_a": 0.00033074888293230335
+      },
+      {
+        "symbol": "BNBUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+        "available_at_utc": "2026-10-05T03:00:00Z",
+        "breakout_close": 801.67,
+        "initial_stop_price": 754.0326428463947,
+        "box_high_h": 799.98,
+        "box_low_l": 753.72,
+        "box_atr_a": 9.573571536053523
+      },
+      {
+        "symbol": "CHZUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+        "available_at_utc": "2026-10-03T04:00:00Z",
+        "breakout_close": 0.01762,
+        "initial_stop_price": 0.015275089904680498,
+        "box_high_h": 0.01738,
+        "box_low_l": 0.01525,
+        "box_atr_a": 0.00044910095319502684
+      },
+      {
+        "symbol": "EVAAUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+        "available_at_utc": "2026-09-18T15:00:00Z",
+        "breakout_close": 0.6572,
+        "initial_stop_price": 0.4203503811801226,
+        "box_high_h": 0.5597,
+        "box_low_l": 0.4116,
+        "box_atr_a": 0.024496188198774433
+      },
+      {
+        "symbol": "JELLYJELLYUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789963199999_1790413200000",
+        "available_at_utc": "2026-09-26T09:00:00Z",
+        "breakout_close": 0.06644,
+        "initial_stop_price": 0.05327960737263854,
+        "box_high_h": 0.06293,
+        "box_low_l": 0.05321,
+        "box_atr_a": 0.0015039262736146028
+      },
+      {
+        "symbol": "METISUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+        "available_at_utc": "2026-10-11T20:00:00Z",
+        "breakout_close": 3.856,
+        "initial_stop_price": 3.101380762356003,
+        "box_high_h": 3.79,
+        "box_low_l": 3.108,
+        "box_atr_a": 0.10619237643997172
+      },
+      {
+        "symbol": "PIXELUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789257599999_1789988400000",
+        "available_at_utc": "2026-09-21T11:00:00Z",
+        "breakout_close": 0.005444,
+        "initial_stop_price": 0.0045214239044569565,
+        "box_high_h": 0.005396,
+        "box_low_l": 0.004501,
+        "box_atr_a": 0.00011576095543043459
+      },
+      {
+        "symbol": "PYTHUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791374399999_1791493200000",
+        "available_at_utc": "2026-10-08T21:00:00Z",
+        "breakout_close": 0.08379,
+        "initial_stop_price": 0.0708087779108571,
+        "box_high_h": 0.08177,
+        "box_low_l": 0.07029,
+        "box_atr_a": 0.002512220891429026
+      },
+      {
+        "symbol": "SUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+        "available_at_utc": "2026-10-06T06:00:00Z",
+        "breakout_close": 0.04433,
+        "initial_stop_price": 0.03703084400897854,
+        "box_high_h": 0.04385,
+        "box_low_l": 0.03677,
+        "box_atr_a": 0.0012915599102145514
+      },
+      {
+        "symbol": "SWARMSUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SWARMSUSDT_1789257599999_1789819200000",
+        "available_at_utc": "2026-09-19T12:00:00Z",
+        "breakout_close": 0.008107,
+        "initial_stop_price": 0.0066825207846976644,
+        "box_high_h": 0.007974,
+        "box_low_l": 0.006587,
+        "box_atr_a": 0.000244792153023356
+      },
+      {
+        "symbol": "VELVETUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "available_at_utc": "2026-10-02T15:00:00Z",
+        "breakout_close": 0.06737,
+        "initial_stop_price": 0.05427379742841447,
+        "box_high_h": 0.0666,
+        "box_low_l": 0.05388,
+        "box_atr_a": 0.0033620257158552837
+      },
+      {
+        "symbol": "YGGUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+        "available_at_utc": "2026-09-19T04:00:00Z",
+        "breakout_close": 0.02522,
+        "initial_stop_price": 0.02146090179477115,
+        "box_high_h": 0.02509,
+        "box_low_l": 0.02132,
+        "box_atr_a": 0.0005909820522885062
+      },
+      {
+        "symbol": "YGGUSDT",
+        "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+        "available_at_utc": "2026-10-02T12:00:00Z",
+        "breakout_close": 0.0289,
+        "initial_stop_price": 0.025418060293427677,
+        "box_high_h": 0.0287,
+        "box_low_l": 0.02541,
+        "box_atr_a": 0.0008193970657232241
+      }
+    ],
+    "candidates_after": [],
+    "n_before": 17,
+    "n_after": 0,
+    "only_before": [
+      [
+        "ADAUSDT",
+        "2026-09-18T15:00:00Z"
+      ],
+      [
+        "AIGENSYNUSDT",
+        "2026-09-21T04:00:00Z"
+      ],
+      [
+        "AXSUSDT",
+        "2026-09-18T02:00:00Z"
+      ],
+      [
+        "BABYUSDT",
+        "2026-09-18T01:00:00Z"
+      ],
+      [
+        "BBUSDT",
+        "2026-10-11T07:00:00Z"
+      ],
+      [
+        "BNBUSDT",
+        "2026-10-05T03:00:00Z"
+      ],
+      [
+        "CHZUSDT",
+        "2026-10-03T04:00:00Z"
+      ],
+      [
+        "EVAAUSDT",
+        "2026-09-18T15:00:00Z"
+      ],
+      [
+        "JELLYJELLYUSDT",
+        "2026-09-26T09:00:00Z"
+      ],
+      [
+        "METISUSDT",
+        "2026-10-11T20:00:00Z"
+      ],
+      [
+        "PIXELUSDT",
+        "2026-09-21T11:00:00Z"
+      ],
+      [
+        "PYTHUSDT",
+        "2026-10-08T21:00:00Z"
+      ],
+      [
+        "SUSDT",
+        "2026-10-06T06:00:00Z"
+      ],
+      [
+        "SWARMSUSDT",
+        "2026-09-19T12:00:00Z"
+      ],
+      [
+        "VELVETUSDT",
+        "2026-10-02T15:00:00Z"
+      ],
+      [
+        "YGGUSDT",
+        "2026-09-19T04:00:00Z"
+      ],
+      [
+        "YGGUSDT",
+        "2026-10-02T12:00:00Z"
+      ]
+    ],
+    "only_after": [],
+    "identical_set": false,
+    "stage_delta": {
+      "IDLE": [
+        115,
+        113
+      ],
+      "RETEST": [
+        19,
+        18
+      ],
+      "SWEEP": [
+        14,
+        14
+      ],
+      "BOX": [
+        378,
+        381
+      ]
+    }
+  }
+}

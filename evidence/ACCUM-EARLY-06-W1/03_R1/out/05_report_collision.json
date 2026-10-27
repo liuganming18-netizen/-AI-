@@ -1,0 +1,400 @@
+{
+  "schema": "accum-early-06-w1-r1/report-collision/v1",
+  "checked_at_utc": "2026-10-27T01:18:30Z",
+  "upstream_identity": [
+    {
+      "file": "01_approval_evidence.json",
+      "path": "input.correction_table_sha256",
+      "recorded": "61507515b96b0188b78cfaf00f2aeaa613eeebc587015f4d5ef106e929f6b338",
+      "actual": "61507515b96b0188b78cfaf00f2aeaa613eeebc587015f4d5ef106e929f6b338",
+      "ok": true
+    },
+    {
+      "file": "04_pending_dedupe.json",
+      "path": "input.pending_table_sha256",
+      "recorded": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+      "actual": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+      "ok": true
+    },
+    {
+      "file": "04_pending_dedupe.json",
+      "path": "input.correction_table_sha256",
+      "recorded": "61507515b96b0188b78cfaf00f2aeaa613eeebc587015f4d5ef106e929f6b338",
+      "actual": "61507515b96b0188b78cfaf00f2aeaa613eeebc587015f4d5ef106e929f6b338",
+      "ok": true
+    },
+    {
+      "file": "02_stop_decision.json",
+      "path": "input.pending_table_sha256",
+      "recorded": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+      "actual": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+      "ok": true
+    }
+  ],
+  "docs": {
+    "README.md": {
+      "sha256": "f4d782dbe01a53c4577213d9beeb829b26a8353abd72a1166a8e5e3ac24f85b0",
+      "lines": 259
+    },
+    "待决表_R1.md": {
+      "sha256": "5ac1b42981f7553f0c68c5cbee412c33b2dbff78295f1e3824533b5421321d27",
+      "lines": 117
+    }
+  },
+  "forward": {
+    "total": 23,
+    "pass": 23,
+    "rows": [
+      {
+        "label": "规则项行数",
+        "literal": "31 行",
+        "file": "01_approval_evidence.json",
+        "path": "counts.rows",
+        "expected": 31,
+        "actual": 31,
+        "value_ok": true,
+        "literal_in": [
+          "README.md",
+          "待决表_R1.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "E1 行数",
+        "literal": "E1 **7**",
+        "file": "01_approval_evidence.json",
+        "path": "counts.by_level.E1",
+        "expected": 7,
+        "actual": 7,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "E2 行数",
+        "literal": "E2 **1**",
+        "file": "01_approval_evidence.json",
+        "path": "counts.by_level.E2",
+        "expected": 1,
+        "actual": 1,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "E3 行数",
+        "literal": "E3 **23**",
+        "file": "01_approval_evidence.json",
+        "path": "counts.by_level.E3",
+        "expected": 23,
+        "actual": 23,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "标签改写行数",
+        "literal": "changed_label_rows=31",
+        "file": "01_approval_evidence.json",
+        "path": "counts.changed_label_rows",
+        "expected": 31,
+        "actual": 31,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "不在效行数",
+        "literal": "只有 3 行「行为不在效」",
+        "file": "01_approval_evidence.json",
+        "path": "counts.behavior_not_in_force",
+        "expected": 3,
+        "actual": 3,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "措辞校正条数",
+        "literal": "旧报告的三处措辞校正",
+        "file": "01_approval_evidence.json",
+        "path": "counts.wording_fixes",
+        "expected": 3,
+        "actual": 3,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "01 引用通过",
+        "literal": "**18/18**",
+        "file": "01_approval_evidence.json",
+        "path": "references.pass",
+        "expected": 18,
+        "actual": 18,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "止损项数",
+        "literal": "8 项",
+        "file": "02_stop_decision.json",
+        "path": "len(not_asked)",
+        "expected": 8,
+        "actual": 8,
+        "value_ok": true,
+        "literal_in": [
+          "README.md",
+          "待决表_R1.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "止损引用通过",
+        "literal": "**12/12**",
+        "file": "02_stop_decision.json",
+        "path": "references.pass",
+        "expected": 12,
+        "actual": 12,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "研究侧生效时刻",
+        "literal": "2026-10-10T12:00:00Z",
+        "file": "03_effective_time.json",
+        "path": "runtime.research_eff_utc",
+        "expected": "2026-10-10T12:00:00Z",
+        "actual": "2026-10-10T12:00:00Z",
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "退出 exit_ts",
+        "literal": "2026-10-10T12:02:59Z",
+        "file": "03_effective_time.json",
+        "path": "runtime.exit_case.position_row.exit_ts",
+        "expected": 1791633779999,
+        "actual": 1791633779999,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "与研究生效差",
+        "literal": "179,999 ms",
+        "file": "03_effective_time.json",
+        "path": "runtime.exit_case.delta_vs_research_ms",
+        "expected": 179999,
+        "actual": 179999,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "调用点数",
+        "literal": "3 处",
+        "file": "03_effective_time.json",
+        "path": "len(static.call_sites)",
+        "expected": 3,
+        "actual": 3,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "公式处数",
+        "literal": "3 处",
+        "file": "03_effective_time.json",
+        "path": "len(static.formulas)",
+        "expected": 3,
+        "actual": 3,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "待决项数",
+        "literal": "**21 项**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.items",
+        "expected": 21,
+        "actual": 21,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "P 类",
+        "literal": "P 参数待决 | **12**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.by_class.P",
+        "expected": 12,
+        "actual": 12,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "E 类",
+        "literal": "E 证据缺口 | **6**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.by_class.E",
+        "expected": 6,
+        "actual": 6,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "G 类",
+        "literal": "G 明确工程问题 | **3**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.by_class.G",
+        "expected": 3,
+        "actual": 3,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "P 字段",
+        "literal": "45",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.p_fields",
+        "expected": 45,
+        "actual": 45,
+        "value_ok": true,
+        "literal_in": [
+          "README.md",
+          "待决表_R1.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "字段合计",
+        "literal": "**49**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.p_fields_plus_credentials",
+        "expected": 49,
+        "actual": 49,
+        "value_ok": true,
+        "literal_in": [
+          "README.md",
+          "待决表_R1.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "冲突折叠",
+        "literal": "8 个冲突编号**全部折叠**",
+        "file": "04_pending_dedupe.json",
+        "path": "counts.conflicts_folded",
+        "expected": 8,
+        "actual": 8,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      },
+      {
+        "label": "04 引用通过",
+        "literal": "**14/14**",
+        "file": "04_pending_dedupe.json",
+        "path": "references.pass",
+        "expected": 14,
+        "actual": 14,
+        "value_ok": true,
+        "literal_in": [
+          "README.md"
+        ],
+        "literal_ok": true
+      }
+    ]
+  },
+  "reverse": {
+    "unregistered_total": 0,
+    "unregistered": [],
+    "numbers_scanned": {
+      "README.md": 332,
+      "待决表_R1.md": 245
+    },
+    "negative_control": {
+      "probe_numbers": [
+        "987654"
+      ],
+      "ok": true
+    },
+    "whitelist": {
+      "1": "序号/单位（第 1 条、1 个字节）",
+      "2": "「两轴」「两份」「2 项」等计数词",
+      "3": "「三类」「3 处」「3 分钟」",
+      "4": "「4 处」「4 个凭证字段」「4h」",
+      "5": "「5 项」「5bps」「5 行恒真」",
+      "6": "「6 项」「6/6」",
+      "7": "「7 行」「7 项」",
+      "8": "「8 项」「8 个冲突」",
+      "9": "「9 行」「9 个文件」",
+      "12": "「12 项」「12 问」",
+      "14": "旧产物 14 个（out/00 有 len，但正文按「14」写）",
+      "15": "「15m」「15 分钟」",
+      "18": "引用 18 条（out/01 references.total）",
+      "21": "待决 21 项（out/04 counts.items）",
+      "23": "E3 23 行（out/01 by_level.E3）",
+      "25": "决策文档第 25 行",
+      "26": "决策文档第 26 行",
+      "27": "决策文档第 27 行",
+      "28": "决策文档第 28 行",
+      "31": "31 条规则项（out/01 counts.rows）",
+      "45": "45 个行为字段（out/04 counts.p_fields）",
+      "49": "49 必填（out/04 counts.p_fields_plus_credentials）",
+      "67": "out/03 impact.hits_total",
+      "95": "止损 95%",
+      "179": "179,999 ms 的前半（带千分位，拆成两段）",
+      "999": "179,999 ms 的后半（带千分位，拆成两段）",
+      "2026": "年份",
+      "10": "月份/10 天",
+      "0": "0 命中 / 0 项 / 0.05 等"
+    }
+  },
+  "problems": [],
+  "verdict": "pass"
+}

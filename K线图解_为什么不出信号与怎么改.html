@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>威科夫K线图解：为什么526个币47天只出4单？怎么改？</title>
+<style>
+  body { margin: 0; background: #0b0f19; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 24px; }
+  h1 { font-size: 22px; margin: 0 0 8px 0; color: #f8fafc; }
+  .sub { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .card { background: #131b2e; border: 1px solid #1e293b; border-radius: 10px; padding: 14px 18px; }
+  .card h3 { margin: 0 0 6px 0; font-size: 15px; }
+  .card p { margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.55; }
+  .c-red { border-left: 4px solid #f43f5e; }
+  .c-green { border-left: 4px solid #10b981; }
+  .c-purple { border-left: 4px solid #a855f7; }
+  .chart-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; }
+  canvas { width: 100%; height: 540px; display: block; }
+</style>
+</head>
+<body>
+  <h1>📊 一张 K 线图看懂：为什么 526 个币 47 天只出 4 个信号？怎么改？</h1>
+  <div class="sub">
+    真实漏斗数据（47.12天 / 526币）：<b>3,278 个箱体</b> → <b>670 次扫低 (Spring)</b> → <b>400 次缩量回踩</b> → <b>仅 4 个信号（死掉 396 个！）</b>
+  </div>
+  <div class="cards">
+    <div class="card c-red">
+      <h3 style="color:#fb7185">❌ 病根：旧规则死亡线 Lr - 0.1A 太窄（杀死 360 单）</h3>
+      <p>价格在箱底完成「②缩量回踩」后，旧规则不让买，非要等价格从箱底 L 一路爬到箱顶 <b>H+0.1A</b> 才买。爬坡要走好几天，期间只要有一根1小时K线的下影线比回踩低点 Lr 低一丁点（0.1A），整单直接作废！400 次回踩里 <b>360 次（90%）</b> 死在这里。</p>
+    </div>
+    <div class="card c-green">
+      <h3 style="color:#34d399">✅ 解法一（推荐）：改用 C1 箱底确认买点（每天 1.5~2 单）</h3>
+      <p>回测早已证明赚钱的是 <b>C1 模式</b>：出现「②缩量回踩」后，只要<b>紧接着下一根 1 小时 K 线收阳企稳</b>（且不破弹簧底 S-0.1A），<b>直接在箱体底部买入</b>！不仅成本便宜一大截，且无需苦等爬穿箱体，攒 100 笔只需约 <b>50 天</b>（而非 3.2 年）。</p>
+    </div>
+    <div class="card c-purple">
+      <h3 style="color:#c084fc">🛡️ 解法二：买进后立刻开启 FT-LOW4H 阶梯止损</h3>
+      <p>买进后不等 2R（旧规则 88% 的单子涨不到 2R 就跌回来），而是<b>第一根 4 小时 K 线收盘就启用「4h最低价 × (1 - d)」阶梯上移</b>（图中黄色阶梯线），行情涨多少止损跟多少，锁死主升浪利润。</p>
+    </div>
+  </div>
+  <div class="chart-box">
+    <canvas id="kline" width="1400" height="560"></canvas>
+  </div>
+<script>
+const canvas = document.getElementById('kline');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H_px = canvas.height;
+
+// 构造标准威科夫箱体 -> 扫低(S) -> 缩量回踩(Lr) -> 下影线毛刺(触碰Lr-0.1A) -> C1箱底起飞 -> 突破箱顶(H+0.1A) 的K线序列
+// [open, high, low, close, label]
+const bars = [
+  [104.5, 106.8, 103.2, 106.0], [106.0, 107.9, 105.1, 107.2], [107.2, 107.6, 104.0, 104.5],
+  [104.5, 105.2, 101.5, 102.0], [102.0, 103.8, 100.4, 103.2], [103.2, 106.5, 102.8, 106.1],
+  [106.1, 107.8, 104.9, 105.4], [105.4, 106.0, 101.2, 101.8], [101.8, 104.2, 100.6, 103.9],
+  [103.9, 107.5, 103.5, 107.0], [107.0, 106.8, 103.0, 103.4], [103.4, 104.0, 100.3, 100.8],
+  // 12: 扫低 Spring (刺破箱底 L=100.0 到 S=98.2, 收回 100.6)
+  [100.8, 101.2, 98.2, 100.6, "SWEEP"],
+  [100.6, 102.4, 100.2, 101.9],
+  [101.9, 102.5, 100.8, 101.2],
+  // 15: 缩量回踩 Retest (低点 Lr=100.3 > L=100.0, 收阳 101.1)
+  [100.5, 101.4, 100.3, 101.1, "RETEST"],
+  // 16: C1 次根1h确认收阳 (低点 100.4 > Lr, 收阳 101.8 -> ★C1在这里直接买入!)
+  [101.1, 102.1, 100.4, 101.8, "C1_BUY"],
+  // 17: 爬坡途中正常1h洗盘下影线 (低点 99.95, 跌破 Lr-0.1A=100.1, 但远高于 S-0.1A=98.0 -> ❌旧规则在这根直接判死!)
+  [101.8, 102.2, 99.95, 101.6, "OLD_KILL"],
+  [101.6, 103.5, 101.4, 103.2],
+  [103.2, 105.0, 102.8, 104.6],
+  [104.6, 104.9, 103.1, 103.8],
+  [103.8, 106.4, 103.6, 106.0],
+  [106.0, 107.8, 105.5, 107.4],
+  // 23: 突破箱顶 H+0.1A = 108.2 (⏳旧规则如果没死，要苦等到这里才买!)
+  [107.4, 110.2, 107.1, 109.6, "OLD_BUY"],
+  [109.6, 112.5, 109.0, 112.0],
+  [112.0, 114.8, 111.2, 114.2],
+  [114.2, 115.0, 112.6, 113.5],
+  [113.5, 117.2, 113.2, 116.8],
+  [116.8, 119.5, 116.0, 119.0]
+];
+
+const minP = 96.0, maxP = 121.0;
+const padL = 70, padR = 240, padT = 35, padB = 45;
+const plotW = W - padL - padR, plotH = H_px - padT - padB;
+const yOf = p => padT + plotH * (1 - (p - minP) / (maxP - minP));
+const stepX = plotW / bars.length;
+const xOf = i => padL + (i + 0.5) * stepX;
+
+// 背景网格
+ctx.strokeStyle = '#1e293b';
+ctx.lineWidth = 1;
+for (let p = 98; p <= 120; p += 2) {
+  const y = yOf(p);
+  ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+  ctx.fillText(p.toFixed(1), 24, y + 4);
+}
+
+// 1. 画 4h 箱体区间 (L=100.0, H=108.0)
+const yH = yOf(108.0), yL = yOf(100.0);
+ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+ctx.fillRect(padL, yH, xOf(23) - padL, yL - yH);
+ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(padL, yH); ctx.lineTo(W - padR, yH); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(padL, yL); ctx.lineTo(W - padR, yL); ctx.stroke();
+ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 13px sans-serif';
+ctx.fillText('4h 箱体上沿 H = 108.0', W - padR + 10, yH + 4);
+ctx.fillText('4h 箱体下沿 L = 100.0', W - padR + 10, yL + 4);
+ctx.fillStyle = 'rgba(56, 189, 248, 0.45)'; ctx.font = 'bold 16px sans-serif';
+ctx.fillText('4h 横盘箱体区间 (需7天=42根4hK线，每天全池69.6次)', padL + 20, (yH + yL) / 2);
+
+// 2. 画旧规则突破线 H+0.1A = 108.2
+const yBO = yOf(108.4);
+ctx.strokeStyle = '#a855f7'; ctx.setLineDash([6, 4]); ctx.lineWidth = 1.8;
+ctx.beginPath(); ctx.moveTo(xOf(15), yBO); ctx.lineTo(W - padR, yBO); ctx.stroke();
+ctx.fillStyle = '#c084fc'; ctx.font = 'bold 12px sans-serif';
+ctx.fillText('旧规则触发线 H+0.1A (必须涨穿才买)', W - padR + 10, yBO - 6);
+
+// 3. 画旧规则死亡线 Lr-0.1A = 100.1
+const yKill = yOf(100.1);
+ctx.strokeStyle = '#f43f5e'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(xOf(14), yKill); ctx.lineTo(xOf(22), yKill); ctx.stroke();
+ctx.fillStyle = '#fb7185'; ctx.font = 'bold 12px sans-serif';
+ctx.fillText('旧规则死亡线 Lr-0.1A (90%回踩被碰死)', W - padR + 10, yKill + 16);
+
+// 4. 画 C1 弹簧底止损线 S-0.1A = 98.0
+const yS = yOf(98.0);
+ctx.strokeStyle = '#eab308'; ctx.setLineDash([8, 4]); ctx.lineWidth = 1.6;
+ctx.beginPath(); ctx.moveTo(xOf(11), yS); ctx.lineTo(W - padR, yS); ctx.stroke();
+ctx.fillStyle = '#facc15'; ctx.font = 'bold 12px sans-serif';
+ctx.fillText('C1 真实底部止损 S-0.1A (安全未破)', W - padR + 10, yS + 4);
+ctx.setLineDash([]);
+
+// 5. 画 FT-LOW4H 动态跟踪止损阶梯线
+const trailPts = [
+  [16, 98.0], [18, 98.5], [20, 100.2], [22, 102.5], [24, 105.8], [26, 109.2], [28, 112.5]
+];
+ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+ctx.beginPath();
+for (let k = 0; k < trailPts.length; k++) {
+  const [idx, px] = trailPts[k];
+  const x = xOf(idx), y = yOf(px);
+  if (k === 0) ctx.moveTo(x, y);
+  else {
+    const prevY = yOf(trailPts[k-1][1]);
+    ctx.lineTo(x, prevY);
+    ctx.lineTo(x, y);
+  }
+}
+ctx.stroke();
+ctx.fillStyle = '#facc15'; ctx.font = 'bold 13px sans-serif';
+ctx.fillText('📈 FT-LOW4H 动态4h低点跟踪止损线 (入场即启动)', xOf(21), yOf(102.5) + 22);
+
+// 6. 画 K 线
+bars.forEach((b, i) => {
+  const [o, h, l, c] = b;
+  const x = xOf(i);
+  const isUp = c >= o;
+  const col = isUp ? '#22c55e' : '#ef4444';
+  ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(x, yOf(h)); ctx.lineTo(x, yOf(l)); ctx.stroke();
+  const yTop = yOf(Math.max(o, c)), yBot = yOf(Math.min(o, c));
+  ctx.fillStyle = col;
+  ctx.fillRect(x - stepX * 0.3, yTop, stepX * 0.6, Math.max(3, yBot - yTop));
+});
+
+// 7. 画标注气泡
+function badge(i, price, text, bg, fg, dy) {
+  const x = xOf(i), y = yOf(price);
+  ctx.strokeStyle = bg; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + dy); ctx.stroke();
+  ctx.font = 'bold 12px sans-serif';
+  const w = ctx.measureText(text).width + 16;
+  const bx = Math.min(Math.max(10, x - w / 2), W - padR - w - 5);
+  const by = dy > 0 ? y + dy : y + dy - 26;
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.roundRect(bx, by, w, 26, 6); ctx.fill();
+  ctx.fillStyle = fg;
+  ctx.fillText(text, bx + 8, by + 17);
+}
+
+badge(12, 98.2, '① 扫低 Spring (低点 S)', '#854d0e', '#fef08a', 36);
+badge(15, 101.4, '② 缩量回踩 (47天走出400次!)', '#1e3a8a', '#93c5fd', -32);
+badge(16, 102.1, '★ 新方案 C1 买点 (次根1h收阳直接买! 每天1.5~2单)', '#065f46', '#6ee7b7', -65);
+badge(17, 99.95, '✖ 旧规则在此判死! (下影线碰 Lr-0.1A，360单冤死)', '#9f1239', '#fecdd3', 42);
+badge(23, 110.2, '⏳ 旧规则 Baseline 买点 (苦等爬穿箱体，400次只剩4次!)', '#581c87', '#e9d5ff', -38);
+</script>
+</body>
+</html>

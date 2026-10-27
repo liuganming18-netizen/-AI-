@@ -1,0 +1,305 @@
+{
+ "generated_utc": "2026-10-26T14:18:16Z",
+ "runs": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/02_gate",
+ "A_no_config": {
+  "config_present": false,
+  "missing_count": 36,
+  "missing_fields": [
+   "approval_ref",
+   "approved",
+   "conflict_resolution.participation_cap",
+   "conflict_resolution.risk_config",
+   "conflict_resolution.slippage_source",
+   "kind",
+   "schema_version",
+   "schemes.4a.confirm",
+   "schemes.4a.enabled",
+   "schemes.4b.confirm",
+   "schemes.4b.enabled",
+   "schemes.4c.confirm",
+   "schemes.4c.enabled",
+   "schemes.4c.pullback.deadline_hours",
+   "schemes.4c.pullback.zone_atr",
+   "shared.entry_delay_minutes",
+   "shared.entry_price_deviation_cap",
+   "shared.intrabar_break_cancel.buffer_atr",
+   "shared.intrabar_break_cancel.mode",
+   "shared.local_resistance.mode",
+   "shared.local_resistance.n",
+   "shared.local_resistance.timeframe",
+   "shared.local_resistance_confirm.buffer_atr",
+   "shared.local_resistance_confirm.mode",
+   "shared.observe_deadline_hours",
+   "shared.oi_role",
+   "shared.repeat_candidate_limit.cooldown_hours",
+   "shared.repeat_candidate_limit.per_event",
+   "shared.sell_pressure.baseline",
+   "shared.sell_pressure.buy_ratio_min",
+   "shared.sell_pressure.n",
+   "shared.sell_pressure.require",
+   "shared.sweep_max_overshoot_atr",
+   "shared.sweep_min_recovery_atr",
+   "shared.sweep_recovery_scope.max_bars",
+   "shared.sweep_recovery_scope.mode"
+  ],
+  "open_allowed": false,
+  "blocked_by": [
+   "config_file_missing"
+  ],
+  "events_created": 9,
+  "events_blocked_at_config": 9,
+  "candidates_generated": 0,
+  "candidate_rows_in_db": 0,
+  "sample_blocked_event": {
+   "event": {
+    "event_id": "ev_4a_binance_BTCUSDT_box_BTCUSDT_1785556799999_1785556799999",
+    "scheme": "4a",
+    "symbol": "BTCUSDT",
+    "state": "BOX",
+    "created_ms": 1785556799999
+   },
+   "transitions": [
+    {
+     "from": null,
+     "to": "BOX",
+     "at_utc": "2026-08-01T03:59:59Z",
+     "reason": "事件建档（初始锚点冻结）",
+     "conditions_count": 0
+    },
+    {
+     "from": "BOX",
+     "to": "BOX",
+     "at_utc": "2026-08-01T04:59:59Z",
+     "reason": "配置未批准（不是数据不足）",
+     "conditions_count": 36
+    }
+   ],
+   "condition_sample": [
+    {
+     "name": "approval_ref",
+     "value": null,
+     "requirement": "批准值",
+     "result": "not_evaluable",
+     "note": "配置缺该项"
+    },
+    {
+     "name": "approved",
+     "value": null,
+     "requirement": "批准值",
+     "result": "not_evaluable",
+     "note": "配置缺该项"
+    },
+    {
+     "name": "conflict_resolution.participation_cap",
+     "value": null,
+     "requirement": "批准值",
+     "result": "not_evaluable",
+     "note": "配置缺该项"
+    },
+    {
+     "name": "conflict_resolution.risk_config",
+     "value": null,
+     "requirement": "批准值",
+     "result": "not_evaluable",
+     "note": "配置缺该项"
+    }
+   ]
+  },
+  "paper_ledger_created": []
+ },
+ "B_one_field_missing": {
+  "missing": [
+   "shared.local_resistance.mode"
+  ],
+  "open_allowed": false,
+  "try_open": {
+   "ok": false,
+   "reason": "blocked_by_unapproved_config",
+   "blocked_by": [
+    "config_fields_missing"
+   ],
+   "missing": [
+    "shared.local_resistance.mode"
+   ],
+   "note": "配置未批准 ⇒ 阻塞开仓；观察/记录/隔离验证不受影响",
+   "called_paper_engine": false
+  },
+  "paper_ledger_created": []
+ },
+ "C_fixture_without_env": {
+  "ready": true,
+  "open_allowed": false,
+  "blocked_by": [
+   "not_approved",
+   "fixture_without_explicit_env"
+  ],
+  "try_open": {
+   "ok": false,
+   "reason": "blocked_by_unapproved_config",
+   "blocked_by": [
+    "not_approved",
+    "fixture_without_explicit_env"
+   ],
+   "missing": [],
+   "note": "配置未批准 ⇒ 阻塞开仓；观察/记录/隔离验证不受影响",
+   "called_paper_engine": false
+  },
+  "paper_ledger_created": []
+ },
+ "D_diagnose": {
+  "version": "accum_early_04b_v1",
+  "config": {
+   "schema_version": "accum-early-04/v1",
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json",
+   "present": true,
+   "parse_ok": true,
+   "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+   "kind": "fixture",
+   "approved": false,
+   "approval_ref": "NOT-APPROVED / fixture-for-wiring-selfcheck-only",
+   "missing": [],
+   "unsupported": [],
+   "fixture": true,
+   "ready": true,
+   "open_allowed": false,
+   "blocked_by": [
+    "not_approved",
+    "fixture_without_explicit_env"
+   ],
+   "doc_sha256_declared": null,
+   "open_scope": "blocked",
+   "reason": "未获批准配置 ⇒ 阻塞开仓；数据读取/观察/记录/隔离验证不受影响"
+  },
+  "mapping": {
+   "ok": true,
+   "errors": [],
+   "pending_count": 13,
+   "mapped_count": 13,
+   "required_fields": 36
+  },
+  "pending_snapshot": {
+   "count": 11,
+   "valid": true
+  },
+  "schemes": {
+   "4a": {
+    "label": "甲",
+    "direction": "回踩后突破局部压制，一小时收盘确认",
+    "strategy_id": "ACCUM-RESEARCH-v0::4a",
+    "approved": false,
+    "ready": false,
+    "pending_count": 13,
+    "can_open": {
+     "allowed": false,
+     "reason": "pending_params_present",
+     "pending": [
+      "local_resistance_definition",
+      "local_resistance_confirm",
+      "sweep_bars",
+      "sell_pressure_baseline",
+      "sell_pressure_threshold",
+      "observe_deadline_hours",
+      "pullback_deadline_hours",
+      "intrabar_break_cancel",
+      "entry_distance_limit",
+      "oi_necessity",
+      "repeat_candidate_limit",
+      "risk_budget_new_scheme",
+      "slippage_source"
+     ],
+     "note": "数据、记录、隔离验证不受影响；只阻塞开仓"
+    }
+   },
+   "4b": {
+    "label": "乙",
+    "direction": "突破后下一根一小时收盘仍守住同一局部压制位",
+    "strategy_id": "ACCUM-RESEARCH-v0::4b",
+    "approved": false,
+    "ready": false,
+    "pending_count": 13,
+    "can_open": {
+     "allowed": false,
+     "reason": "pending_params_present",
+     "pending": [
+      "local_resistance_definition",
+      "local_resistance_confirm",
+      "sweep_bars",
+      "sell_pressure_baseline",
+      "sell_pressure_threshold",
+      "observe_deadline_hours",
+      "pullback_deadline_hours",
+      "intrabar_break_cancel",
+      "entry_distance_limit",
+      "oi_necessity",
+      "repeat_candidate_limit",
+      "risk_budget_new_scheme",
+      "slippage_source"
+     ],
+     "note": "数据、记录、隔离验证不受影响；只阻塞开仓"
+    }
+   },
+   "4c": {
+    "label": "丙",
+    "direction": "突破后等待回抽，再由一小时收盘确认转强",
+    "strategy_id": "ACCUM-RESEARCH-v0::4c",
+    "approved": false,
+    "ready": false,
+    "pending_count": 13,
+    "can_open": {
+     "allowed": false,
+     "reason": "pending_params_present",
+     "pending": [
+      "local_resistance_definition",
+      "local_resistance_confirm",
+      "sweep_bars",
+      "sell_pressure_baseline",
+      "sell_pressure_threshold",
+      "observe_deadline_hours",
+      "pullback_deadline_hours",
+      "intrabar_break_cancel",
+      "entry_distance_limit",
+      "oi_necessity",
+      "repeat_candidate_limit",
+      "risk_budget_new_scheme",
+      "slippage_source"
+     ],
+     "note": "数据、记录、隔离验证不受影响；只阻塞开仓"
+    }
+   }
+  },
+  "isolation": {
+   "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/02_gate/paper",
+   "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+   "explicit_env": true,
+   "inside_production": false,
+   "isolated": true,
+   "account_ids": {
+    "4a": "paper43_4a",
+    "4b": "paper43_4b",
+    "4c": "paper43_4c"
+   }
+  },
+  "http_api": {
+   "research_arms_exposed": false,
+   "note": "HTTP 层只认 live_store.ARMS=('3a','3b','3c','3d')；4a/4b/4c 没有端点、前端也不展示 ⇒ 属跨界协调项，本单不改"
+  },
+  "data_probe": {
+   "symbol": "BTCUSDT",
+   "4h": 599,
+   "1h": 959,
+   "15m": 3839,
+   "paths": {
+    "hot": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "cold": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet"
+   }
+  }
+ },
+ "verdict": {
+  "开仓被阻塞": true,
+  "阻塞时未创建任何研究账本": true,
+  "阻塞时未调用 paper_engine": true,
+  "数据读取仍然完成": true,
+  "观察与记录仍然完成": true,
+  "隔离边界仍可核对": true
+ }
+}

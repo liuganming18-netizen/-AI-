@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+脚本 02: 三套样本独立性与断裂性核验
+所属工单: ACCUM-EARLY-06-W6-R2 (总交接与实际验收状态校正)
+职责:
+落实要求 5/6:
+清楚区分新策略原7事件、历史原策略候选和两套回放试验，不把不同样本拼成自然信号→成交闭环。
+不扩大样本、不调参数、不运行未批准正式对照、不用隔离工程通过证明策略有效。
+"""
+
+import json
+import os
+from datetime import datetime, timezone
+
+WORKSPACE_ROOT = "/Users/boos/Desktop/威科夫因子共振趋势"
+
+def main():
+    samples_audit = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "task": "ACCUM-EARLY-06-W6-R2",
+        "description": "三组独立样本集属性与解耦证明 (严禁拼成信号→成交闭环)",
+        "sample_groups": {
+            "group_A_new_strategy_7_benchmark": {
+                "name": "新策略原 7 事件基准测试集",
+                "purpose": "测试吸筹提前入场新策略 (accum_early_entry.py) 的时序修正与风控拦截行为",
+                "input_events_count": 7,
+                "input_source": "evidence/ACCUM-EARLY-05-E-R1/ 及 W5 复验测试输入",
+                "strategy_tested": "accum_early_entry.py (冻结哈希 3c570edc...)",
+                "signal_outcome": "零候选 (0 笔)",
+                "breakdown": {
+                    "invalidated_due_to_box_break": 6,
+                    "not_found_placeholder": 1
+                },
+                "simulated_orders_count": 0,
+                "fills_count": 0,
+                "closure_statement": "新策略在此 7 笔输入下全部破位失效或未建档，未生成任何候选、委托或成交。此为特定历史输入下的工程拦截行为，严禁外推为策略整体有效或无效。"
+            },
+            "group_B_legacy_observation_pool": {
+                "name": "历史原策略母集观察流",
+                "purpose": "原策略在统一固定母集下的历史观察与状态演进基准",
+                "input_events_count": 1178,
+                "symbols_count": 48,
+                "window": "2026-06-27T08:00Z -> 2026-10-26T09:00Z (2905小时)",
+                "strategy_tested": "旧版原策略状态机",
+                "signal_outcome": {
+                    "legacy_candidates": 46,
+                    "stopped_at_retest": 174
+                },
+                "relation_to_group_A": "完全独立。此为历史旧策略观察产物，绝非新策略原 7 事件的衍生结果。"
+            },
+            "group_C_replay_experiments_51": {
+                "name": "两套经济口径历史回放试验",
+                "purpose": "检验离线撮合算术 (replay_calc.py) 及资金费冷热合并对账 (06-06 适配器)",
+                "candidates_tested": 51,
+                "source": "历史固定抽取的 51 笔候选 (全部位于区间二)",
+                "mechanisms": {
+                    "caliber_A_effective_view_5bps": {
+                        "orders": 51,
+                        "fills": 51,
+                        "rejected": 0,
+                        "affected_by_cold_funding": 7,
+                        "net_diff_usdt": -0.6592
+                    },
+                    "caliber_B_strategy_package_3bps": {
+                        "orders": 51,
+                        "fills": 50,
+                        "rejected": 1,
+                        "rejected_symbol": "CARVUSDT (名义额 4.4436U < 5.0U)",
+                        "affected_by_cold_funding": 7,
+                        "net_diff_usdt": -0.0491
+                    }
+                },
+                "relation_to_group_A_and_B": "完全独立。此为历史固定候选池的撮合试验，不是新策略实盘产生，也不代表组合真实绩效。"
+            }
+        },
+        "disconnection_findings": [
+            {
+                "finding_id": "DISCONNECT-01",
+                "finding": "样本集输入与产出彼此断裂",
+                "proof": "新策略原 7 事件产出为 0 候选，根本未流入回放撮合；回放试验的 51 笔候选是既有历史静态数据，并非新策略运行时产生的候选。"
+            },
+            {
+                "finding_id": "DISCONNECT-02",
+                "finding": "严禁伪造‘信号→模拟订单→复盘’单一闭环故事",
+                "proof": "W6-R1 旧版中的三段式流程图容易误导读者以为新策略产生了 101 笔模拟成交并完成了资金费复盘；实测三者属于不同研究阶段的异构样本，闭环并不存在。"
+            },
+            {
+                "finding_id": "DISCONNECT-03",
+                "finding": "隔离工程通过 ≠ 策略有效",
+                "proof": "accum_early_entry.py 扫低根时序与闸门拦截在单元测试中通过，仅证明代码状态机逻辑按既定规则运作；由于新策略参数未获用户批准、原7事件未见自然信号、回放样本受选样约束，绝对不能作为策略有效的证明。"
+            }
+        ]
+    }
+
+    out_file = os.path.join(WORKSPACE_ROOT, "evidence/ACCUM-EARLY-06-W6/04_R2/out/02_sample_disconnection_audit.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(samples_audit, f, ensure_ascii=False, indent=2)
+    print(f"样本独立性与解耦核验已生成: {out_file}")
+
+if __name__ == "__main__":
+    main()

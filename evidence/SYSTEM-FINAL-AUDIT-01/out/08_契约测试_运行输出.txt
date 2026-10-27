@@ -1,0 +1,50 @@
+RC=1
+耗时=1.2s
+---- STDOUT ----
+======================================================================
+开始执行工单1 SYSTEM-CONTRACT-01 统一策略与参数契约综合验收
+======================================================================
+【通过】1. 三条执行路径元数据与边界隔离核对通过
+【通过】2. FT-LOW4H 配置身份建模、指纹计算与合规校验通过
+【通过】3. 缺配置、坏配置、错误指纹、参数覆盖与守护自检全部严格阻断
+【通过】4. 两组有效配置分别完成挂单持久化、重启恢复与配置隔离
+【通过】5. 订单全链路参数与配置来源追溯核验通过
+
+---- STDERR ----
+Traceback (most recent call last):
+  File "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CONTRACT-01/test_system_contract_01.py", line 482, in <module>
+    main()
+    ~~~~^^
+  File "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CONTRACT-01/test_system_contract_01.py", line 440, in main
+    adv_exit = PE.advance_position_trailing(ARM, pos_id_a, candle_4h=c4h_break, now_ms=T_4h_close + 2000)
+  File "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py", line 2313, in advance_position_trailing
+    exit_result = close_at_price(
+        arm, position_id, raw_price=cur_stop, now_ms=dec_ms,
+        reason="trailing_stop_loss", bar_open_time=ref_open_ms,
+        bar_close_time=ref_close_ms, exit_ts=eff_ms
+    )
+  File "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py", line 1558, in close_at_price
+    new_fund, n_new_fund, fund_detail, fund_gaps = _settle_funding(
+                                                   ~~~~~~~~~~~~~~~^
+        con, con_mkt, arm, position_id=position_id, symbol=pos["symbol"], qty=qty,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        entry_ts=int(pos["entry_ts"]), upto_ms=exit_ms, late=False)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py", line 1243, in _settle_funding
+    for f in _funding_truth(con_mkt, symbol, int(entry_ts), int(upto_ms)):
+             ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py", line 1221, in _funding_truth
+    return funding_events(con_mkt, symbol, lo_ms, hi_ms)
+  File "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py", line 385, in funding_events
+    return list(con.execute(
+                ~~~~~~~~~~~^
+        "SELECT funding_time,funding_rate,mark_price FROM funding_history "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "WHERE exchange='binance' AND market='um' AND symbol=? AND rate_type='settled' "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "AND funding_time>? AND funding_time<=? ORDER BY funding_time",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (symbol, int(after_ms), int(upto_ms))))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: funding_history
+

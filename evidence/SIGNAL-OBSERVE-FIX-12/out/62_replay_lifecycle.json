@@ -1,0 +1,108 @@
+{
+ "probe": "SIGNAL-OBSERVE-FIX-12/replay_lifecycle",
+ "isolated_dir": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/observe_life_xdezn1sq",
+ "window": {
+  "start_utc": "2026-10-20T17:49:23Z",
+  "end_utc": "2026-10-25T17:49:23Z",
+  "step_minutes": 60,
+  "steps": 121
+ },
+ "symbols": [
+  "0GUSDT",
+  "1000000BOBUSDT",
+  "1000000MOGUSDT",
+  "1000BONKUSDT",
+  "1000CHEEMSUSDT",
+  "1000FLOKIUSDT"
+ ],
+ "bootstrap": {
+  "universe": 6,
+  "ready": 6,
+  "skipped": 0,
+  "skipped_reasons": {
+   "__watermark_clamped__": "db_1h_max=1792944000000 > upto_ms=1792518563857 ⇒ 水位按预热值 1792512000000"
+  }
+ },
+ "entered_observe": {
+  "0GUSDT": {
+   "first_utc": "2026-10-20T17:49:23Z",
+   "state": "BOX",
+   "orders_at_entry": 0,
+   "positions_at_entry": 0
+  },
+  "1000000MOGUSDT": {
+   "first_utc": "2026-10-20T17:49:23Z",
+   "state": "BOX",
+   "orders_at_entry": 0,
+   "positions_at_entry": 0
+  },
+  "1000BONKUSDT": {
+   "first_utc": "2026-10-20T17:49:23Z",
+   "state": "BOX",
+   "orders_at_entry": 0,
+   "positions_at_entry": 0
+  },
+  "1000CHEEMSUSDT": {
+   "first_utc": "2026-10-20T17:49:23Z",
+   "state": "BOX",
+   "orders_at_entry": 0,
+   "positions_at_entry": 0
+  },
+  "1000FLOKIUSDT": {
+   "first_utc": "2026-10-20T17:49:23Z",
+   "state": "BOX",
+   "orders_at_entry": 0,
+   "positions_at_entry": 0
+  }
+ },
+ "left_observe": {
+  "0GUSDT": {
+   "left_utc": "2026-10-24T18:49:23Z",
+   "end_state": null,
+   "termination_reason": null,
+   "state_before_exit": "BOX",
+   "remaining_hours_at_exit": 168.0
+  }
+ },
+ "violations": [],
+ "obs_count_values": [
+  4,
+  5
+ ],
+ "final_ledger": {
+  "orders": {},
+  "positions": {}
+ },
+ "checks": [
+  {
+   "name": "① 回放里确实出现了观察事件",
+   "ok": true,
+   "detail": "5 个：['0GUSDT', '1000000MOGUSDT', '1000BONKUSDT', '1000CHEEMSUSDT', '1000FLOKIUSDT']"
+  },
+  {
+   "name": "② 观察期间账本无该标的订单/持仓",
+   "ok": true,
+   "detail": "违规 0 条"
+  },
+  {
+   "name": "③ 观察事件会退出观察集合",
+   "ok": true,
+   "detail": "1 个退出：{'0GUSDT': None}"
+  },
+  {
+   "name": "④ 退出原因是状态机终止态（失效/过期/候选/拒绝）",
+   "ok": false,
+   "detail": "终止态集合=['None']"
+  },
+  {
+   "name": "⑤ 观察数量随收盘推进变化（不是常量）",
+   "ok": true,
+   "detail": "取值集合=[4, 5]"
+  },
+  {
+   "name": "⑥ 回放全程无 step 异常",
+   "ok": true,
+   "detail": "121 步"
+  }
+ ]
+}

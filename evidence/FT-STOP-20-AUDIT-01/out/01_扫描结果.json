@@ -1,0 +1,489 @@
+{
+  "扫描": {
+    "内容扫描文件数": 176,
+    "内容命中数": 0,
+    "内容命中明细": [],
+    "名称命中数": 2,
+    "名称命中明细": [
+      {
+        "kind": "evidence_dir",
+        "path": "FT-STOP-20-01"
+      },
+      {
+        "kind": "evidence_dir",
+        "path": "FT-STOP-20-AUDIT-01"
+      }
+    ],
+    "回测批次run目录枚举数": 2269,
+    "扫描范围说明": "策略/ 与 框架/ 的 .py + 顶层 .py/.md 内容扫描；evidence 与回测批次仅名称匹配；未做全盘 grep"
+  },
+  "config_sha256": "29a42d98f7b7c5302b7adc0cef20b4ea832d76c41acdef2f2447ee234afc69ae",
+  "参数": [
+    {
+      "参数": "atr_warmup_bars",
+      "值": "200",
+      "config.py 行号": 27,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "initial_stop_buffer_atr",
+      "值": "0.1",
+      "config.py 行号": 63,
+      "机制归类": "止损"
+    },
+    {
+      "参数": "risk_budget_per_trade",
+      "值": "0.005",
+      "config.py 行号": 70,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "initial_equity",
+      "值": "2000.0",
+      "config.py 行号": 69,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "max_active_positions",
+      "值": "3",
+      "config.py 行号": 71,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "max_symbol_positions",
+      "值": "1",
+      "config.py 行号": 72,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "max_total_risk_budget",
+      "值": "0.015",
+      "config.py 行号": 73,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "max_notional_per_position",
+      "值": "0.30",
+      "config.py 行号": 74,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "max_total_notional",
+      "值": "0.90",
+      "config.py 行号": 75,
+      "机制归类": "仓位/风险"
+    },
+    {
+      "参数": "trailing_trigger_r",
+      "值": "2.0",
+      "config.py 行号": 78,
+      "机制归类": "退出"
+    },
+    {
+      "参数": "trailing_lookback_4h_bars",
+      "值": "10",
+      "config.py 行号": 79,
+      "机制归类": "退出"
+    },
+    {
+      "参数": "max_holding_days",
+      "值": "10",
+      "config.py 行号": 80,
+      "机制归类": "退出"
+    },
+    {
+      "参数": "taker_fee_bps",
+      "值": "5.0",
+      "config.py 行号": 86,
+      "机制归类": "费用"
+    },
+    {
+      "参数": "slippage_bps",
+      "值": "3.0",
+      "config.py 行号": 87,
+      "机制归类": "费用"
+    },
+    {
+      "参数": "stress_taker_fee_bps",
+      "值": "10.0",
+      "config.py 行号": 90,
+      "机制归类": "费用"
+    },
+    {
+      "参数": "stress_slippage_bps",
+      "值": "6.0",
+      "config.py 行号": 91,
+      "机制归类": "费用"
+    },
+    {
+      "参数": "entry_delay_15m_bars",
+      "值": "1",
+      "config.py 行号": 61,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "box_bars_4h",
+      "值": "42",
+      "config.py 行号": 25,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "atr_period_4h",
+      "值": "14",
+      "config.py 行号": 26,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "sweep_max_overshoot_atr",
+      "值": "0.5",
+      "config.py 行号": 34,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "breakout_buffer_atr",
+      "值": "0.1",
+      "config.py 行号": 48,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "oi_min_growth_pct",
+      "值": "0.02",
+      "config.py 行号": 54,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "cooling_hours",
+      "值": "24",
+      "config.py 行号": 58,
+      "机制归类": "信号/数据/其他"
+    },
+    {
+      "参数": "max_participation_of_prev_15m_quote",
+      "值": "0.001",
+      "config.py 行号": 83,
+      "机制归类": "信号/数据/其他"
+    }
+  ],
+  "基线账本": [
+    {
+      "组": "C1_Vs04_Z02",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs04_Z02.csv",
+      "字节": 18233,
+      "sha256": "8abccc5e60c2e474e98fac6f1ccba75d887aa6f4243c888d8d0e9b417af49f77"
+    },
+    {
+      "组": "C1_Vs04_Z02",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs04_Z02.csv",
+      "字节": 39867,
+      "sha256": "788355f23963066eef6d8de9d8c0d901b766b96bbb8a7e34a612a30448aeea2b"
+    },
+    {
+      "组": "C1_Vs04_Z02",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs04_Z02.csv",
+      "字节": 6882,
+      "sha256": "af0b1d4b8b791ba2777e45de1c54fc4f81d9183f631e1bbc19957e415704813f"
+    },
+    {
+      "组": "C1_Vs04_Z04",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs04_Z04.csv",
+      "字节": 53234,
+      "sha256": "b97454f56315cb3cf38c85d0959d82cb2c2cc5aa8276cb85c5464cb477dc9a8c"
+    },
+    {
+      "组": "C1_Vs04_Z04",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs04_Z04.csv",
+      "字节": 61981,
+      "sha256": "a2055dcb5e5d52ef1fcd3aecbb2db3766ae735b9f275f4aa4e95b169b7ff417b"
+    },
+    {
+      "组": "C1_Vs04_Z04",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs04_Z04.csv",
+      "字节": 20332,
+      "sha256": "ae5b60b62476301a7273091affd6c9f8fb60a7138dbf8d46e6c55183f0c3c05e"
+    },
+    {
+      "组": "C1_Vs04_Z06",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs04_Z06.csv",
+      "字节": 81408,
+      "sha256": "5674e76e731211df037d10d8f314e42a26cfcc711a50b307ccd033f5b61eefc8"
+    },
+    {
+      "组": "C1_Vs04_Z06",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs04_Z06.csv",
+      "字节": 73226,
+      "sha256": "9c9ceb7c2a5c407d6974de49f27e4145583728f6f777d71229cebd3105097801"
+    },
+    {
+      "组": "C1_Vs04_Z06",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs04_Z06.csv",
+      "字节": 30826,
+      "sha256": "5759831cf472b325bc2dec8d59da74e5a4388653d965355487a044f943d91325"
+    },
+    {
+      "组": "C1_Vs06_Z02",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs06_Z02.csv",
+      "字节": 25032,
+      "sha256": "df543270faff265ed2cea6b091b8dd1da255d9b1cfd2e7157a2d728c279532a8"
+    },
+    {
+      "组": "C1_Vs06_Z02",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs06_Z02.csv",
+      "字节": 62933,
+      "sha256": "f7f4f1b45ff13642f7a7b9420edf97baa72bc09ffa61cfba2a688f9fc31b5799"
+    },
+    {
+      "组": "C1_Vs06_Z02",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs06_Z02.csv",
+      "字节": 9428,
+      "sha256": "617e1c6fa9c1331374b37900f656b51eefa67bc9b5273131d3763115229db510"
+    },
+    {
+      "组": "C1_Vs06_Z04",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs06_Z04.csv",
+      "字节": 75459,
+      "sha256": "fd08b517771b513eb759a607d6e4961dfe105d98464ec2e49624847b090a93f7"
+    },
+    {
+      "组": "C1_Vs06_Z04",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs06_Z04.csv",
+      "字节": 86340,
+      "sha256": "1ae5a3fc468a69617aaf58c7d3e484312c8507e614dbc7d3583e35f7c596d338"
+    },
+    {
+      "组": "C1_Vs06_Z04",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs06_Z04.csv",
+      "字节": 29660,
+      "sha256": "1494094a1d35cc0069b7d55aacc9065d51713e157c20b0bc241bd46ba6d60cc6"
+    },
+    {
+      "组": "C1_Vs06_Z06",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs06_Z06.csv",
+      "字节": 113720,
+      "sha256": "3efa3a7e76ee10f3bc1ed683cdf3d36e83616f88e7cdf7837791e6c1d83a152e"
+    },
+    {
+      "组": "C1_Vs06_Z06",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs06_Z06.csv",
+      "字节": 95516,
+      "sha256": "86ed0c2b800afd4fb45c66f2686293bf49c9d285d988fc27718fcaa92fd59faa"
+    },
+    {
+      "组": "C1_Vs06_Z06",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs06_Z06.csv",
+      "字节": 44349,
+      "sha256": "e6544681de4aa17b60b669cef9a5731607b0ac1868d46538fd67ca5f65a4e077"
+    },
+    {
+      "组": "C1_Vs08_Z02",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs08_Z02.csv",
+      "字节": 33557,
+      "sha256": "ea4731d70d432d75cc5e62f4c70187eaf181ba1932ad098bf55049c5f980dca6"
+    },
+    {
+      "组": "C1_Vs08_Z02",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs08_Z02.csv",
+      "字节": 75545,
+      "sha256": "5eeb43f17b3974dab202bd0a99ab7021ae4ae2d1914f0205bb0a951ee7834ebf"
+    },
+    {
+      "组": "C1_Vs08_Z02",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs08_Z02.csv",
+      "字节": 12643,
+      "sha256": "d08206f3cbd9a4e44f2e106b9d8e614f4cd89fb852fe08731e5733aca37a626a"
+    },
+    {
+      "组": "C1_Vs08_Z04",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs08_Z04.csv",
+      "字节": 97595,
+      "sha256": "018b0304454b48ecfdad42110f3723e6966806c23044506101be36fe6799a96b"
+    },
+    {
+      "组": "C1_Vs08_Z04",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs08_Z04.csv",
+      "字节": 100432,
+      "sha256": "6971f57715b56b974ddb0815d3fcf3af09d9594faf26be9ad90f2d74ff78b70a"
+    },
+    {
+      "组": "C1_Vs08_Z04",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs08_Z04.csv",
+      "字节": 37950,
+      "sha256": "d6f031e0537f1b2f3a888df647032afded9fd33784fd87ffb364a88fc354f849"
+    },
+    {
+      "组": "C1_Vs08_Z06",
+      "类型": "trades",
+      "文件": "evidence/FT-ENTRY-09/out/trades_Wyckoff_C1_Vs08_Z06.csv",
+      "字节": 135899,
+      "sha256": "94f3a6945bf911fa4bc408ac2cd1a8b37d285ba599b0de44153674abe7a6d37f"
+    },
+    {
+      "组": "C1_Vs08_Z06",
+      "类型": "confirmation",
+      "文件": "evidence/FT-ENTRY-09/out/audit_confirmation_Wyckoff_C1_Vs08_Z06.csv",
+      "字节": 108560,
+      "sha256": "5de088fcdaab9a9ee941b8186de53dcade609c68ccbcac4e1cfd3af76f1915ef"
+    },
+    {
+      "组": "C1_Vs08_Z06",
+      "类型": "orders",
+      "文件": "evidence/FT-ENTRY-09/out/audit_orders_Wyckoff_C1_Vs08_Z06.csv",
+      "字节": 52347,
+      "sha256": "6cafaa1fe4894ca332a466ccde56a23caa7b883ffc9c0cccb2f98d486d9b4bd2"
+    }
+  ],
+  "组统计": [
+    {
+      "组": "C1_Vs04_Z02",
+      "笔数": 21,
+      "P0联接成功": 21,
+      "止损被上移笔数": 8,
+      "止损幅度_中位%": 2.4064,
+      "止损幅度_均值%": 2.2452,
+      "止损幅度_最小%": 1.1051,
+      "止损幅度_最大%": 3.9978,
+      "风险占权益_中位%": 0.493223,
+      "净额": -157.277493
+    },
+    {
+      "组": "C1_Vs04_Z04",
+      "笔数": 62,
+      "P0联接成功": 62,
+      "止损被上移笔数": 28,
+      "止损幅度_中位%": 2.4464,
+      "止损幅度_均值%": 2.4214,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 4.4972,
+      "风险占权益_中位%": 0.494592,
+      "净额": -201.843642
+    },
+    {
+      "组": "C1_Vs04_Z06",
+      "笔数": 95,
+      "P0联接成功": 95,
+      "止损被上移笔数": 44,
+      "止损幅度_中位%": 2.4064,
+      "止损幅度_均值%": 2.5593,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 7.2997,
+      "风险占权益_中位%": 0.494743,
+      "净额": -188.564443
+    },
+    {
+      "组": "C1_Vs06_Z02",
+      "笔数": 29,
+      "P0联接成功": 29,
+      "止损被上移笔数": 12,
+      "止损幅度_中位%": 1.9672,
+      "止损幅度_均值%": 2.1628,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 3.9978,
+      "风险占权益_中位%": 0.493139,
+      "净额": 55.936535
+    },
+    {
+      "组": "C1_Vs06_Z04",
+      "笔数": 88,
+      "P0联接成功": 88,
+      "止损被上移笔数": 41,
+      "止损幅度_中位%": 2.4464,
+      "止损幅度_均值%": 2.471,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 5.975,
+      "风险占权益_中位%": 0.494761,
+      "净额": 276.733154
+    },
+    {
+      "组": "C1_Vs06_Z06",
+      "笔数": 133,
+      "P0联接成功": 133,
+      "止损被上移笔数": 66,
+      "止损幅度_中位%": 2.5135,
+      "止损幅度_均值%": 2.656,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 7.8129,
+      "风险占权益_中位%": 0.494681,
+      "净额": 207.489548
+    },
+    {
+      "组": "C1_Vs08_Z02",
+      "笔数": 39,
+      "P0联接成功": 39,
+      "止损被上移笔数": 18,
+      "止损幅度_中位%": 2.1875,
+      "止损幅度_均值%": 2.3757,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 6.1932,
+      "风险占权益_中位%": 0.494452,
+      "净额": 92.548462
+    },
+    {
+      "组": "C1_Vs08_Z04",
+      "笔数": 114,
+      "P0联接成功": 114,
+      "止损被上移笔数": 56,
+      "止损幅度_中位%": 2.3946,
+      "止损幅度_均值%": 2.5608,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 9.4555,
+      "风险占权益_中位%": 0.494678,
+      "净额": 204.966379
+    },
+    {
+      "组": "C1_Vs08_Z06",
+      "笔数": 159,
+      "P0联接成功": 159,
+      "止损被上移笔数": 80,
+      "止损幅度_中位%": 2.4939,
+      "止损幅度_均值%": 2.674,
+      "止损幅度_最小%": 0.4593,
+      "止损幅度_最大%": 9.4555,
+      "风险占权益_中位%": 0.494755,
+      "净额": 37.083706
+    }
+  ],
+  "机制耦合": {
+    "现方案_实测止损幅度中位%": 2.4304,
+    "现方案_风险预算参数%": 0.5,
+    "现方案_实测风险占权益中位%": 0.494693,
+    "20方案_止损幅度%": 20.0,
+    "20方案_风险预算%": 0.5,
+    "20方案_推导名义占权益%": 2.5,
+    "现方案_推导名义占权益%(按实测止损中位)": 20.572745,
+    "仓位缩放倍数(现/20)": 8.2291,
+    "20方案_2R涨幅%": 40.0,
+    "现方案_2R涨幅%(按实测止损中位)": 4.8608,
+    "初始权益": 2000.0,
+    "20方案_单仓名义额(USDT)": 50.0,
+    "现方案_单仓名义额(USDT,按实测中位)": 411.4549,
+    "max_notional_per_position%": 30.0,
+    "20方案_是否触发单仓名义上限": false,
+    "20方案_3仓合计名义占权益%": 7.5,
+    "max_total_notional%": 90.0,
+    "20方案_3仓合计是否触发总名义上限": false,
+    "说明": "名义占权益% = 单笔风险预算% ÷ 止损幅度%；止损越宽，同样风险预算下仓位越小"
+  }
+}

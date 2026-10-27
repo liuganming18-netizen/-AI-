@@ -1,0 +1,343 @@
+{
+  "all_pass": true,
+  "checks": [
+    {
+      "检查": "A1 测试脚本未调用任何模拟撮合/止损/退出函数",
+      "结果": "PASS",
+      "明细": "扫描 9 个脚本，0 处命中"
+    },
+    {
+      "检查": "A2 测试脚本未直接写账本表",
+      "结果": "PASS",
+      "明细": "无 INSERT/UPDATE 语句"
+    },
+    {
+      "检查": "B1 gross_pnl 可由 (exit-entry)×qty 重算",
+      "结果": "PASS",
+      "明细": "20.7826400600 vs 20.78264006000008"
+    },
+    {
+      "检查": "B2 net_pnl = gross − 双边费 − 资金费",
+      "结果": "PASS",
+      "明细": "19.7712510655 vs 19.77125106551294"
+    },
+    {
+      "检查": "B3 funding_paid = paper_funding 明细合计",
+      "结果": "PASS",
+      "明细": "0.5016406345 vs 0.501640634457144"
+    },
+    {
+      "检查": "B4 fees_paid = 入场费 + 出场费",
+      "结果": "PASS",
+      "明细": "0.5097483600 vs 0.5097483600300001"
+    },
+    {
+      "检查": "B5 cash = 初始权益 + realized_pnl",
+      "结果": "PASS",
+      "明细": "5019.7712510655 vs 5019.771251065513"
+    },
+    {
+      "检查": "B6 入场费 = 名义额 × 5bps",
+      "结果": "PASS",
+      "明细": "0.2496785200 vs 0.24967852000000001"
+    },
+    {
+      "检查": "C1 信号确认 < 入场 < 止损上移生效 < 退出",
+      "结果": "PASS",
+      "明细": "信号确认@2026-10-02 15:00:00Z → 入场@2026-10-02 15:15:00Z → 止损上移生效@2026-10-03 00:00:00Z → 退出@2026-10-03 05:30:00Z"
+    },
+    {
+      "检查": "C2 止损单调不减且至少上移一次",
+      "结果": "PASS",
+      "明细": "[0.06357, 0.06974000000000001]"
+    },
+    {
+      "检查": "C3 退出原因=止损类且退出价≈生效止损×(1−滑点)",
+      "结果": "PASS",
+      "明细": "0.06970513000000002 vs 0.0697051300"
+    },
+    {
+      "检查": "D1 接管后无重复建仓/重复成交",
+      "结果": "PASS",
+      "明细": "position=1 fill=2 realized=1 order=2"
+    },
+    {
+      "检查": "E1 生产账本 / 生产 live 库在本轮开始后未被写",
+      "结果": "PASS",
+      "明细": "本轮开始 2026-10-23 14:27:51Z；被写对象=无"
+    },
+    {
+      "检查": "E2 本轮脚本对生产行情库只使用只读连接",
+      "结果": "PASS",
+      "明细": "全部 mode=ro / market_conn"
+    }
+  ],
+  "ledger": {
+    "position": {
+      "position_id": 1,
+      "account_id": "paper43_3a",
+      "symbol": "VELVETUSDT",
+      "qty": 7462.0,
+      "entry_price": 0.06692000000000001,
+      "entry_ts": 1790954100000,
+      "exit_ts": 1791005400000,
+      "exit_reason": "trailing_stop_loss",
+      "status": "closed",
+      "exit_price": 0.06970513000000002,
+      "entry_fee": 0.24967852000000001,
+      "exit_fee": 0.2600698400300001,
+      "funding_paid": 0.501640634457144,
+      "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "arm": "3a",
+      "stop_price": 0.06974000000000001,
+      "atr_at_entry": null,
+      "model_version": "FT-LOW4H-EXP-V2.2",
+      "stoploss_s": 0.05,
+      "trail_d": 0.05,
+      "config_fingerprint": "82dec362c182",
+      "initial_stop_price": 0.06357,
+      "planned_risk": 24.997700000000044,
+      "event_time": 1790953200000,
+      "available_at": 1790953200000,
+      "requested_at": 1790953200000,
+      "earliest_fill_ms": 1790954100000,
+      "market_source": "binance.um.candles_15m.is_closed.open",
+      "origin": "replay",
+      "first_request_ms": 1790953200000,
+      "epoch_ms": 1788739200000,
+      "voided": 0,
+      "void_reason": null
+    },
+    "fills": [
+      {
+        "fill_id": 1,
+        "account_id": "paper43_3a",
+        "order_id": 1,
+        "position_id": 1,
+        "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "symbol": "VELVETUSDT",
+        "action": "open",
+        "qty": 7462.0,
+        "raw_price": 0.06688,
+        "fill_price": 0.06692000000000001,
+        "notional": 499.35704000000004,
+        "fee": 0.24967852000000001,
+        "slippage_cost": 0.2984800000000914,
+        "bar_open_time": 1790954100000,
+        "bar_close_time": 1790954999999,
+        "fill_ts": 1790955000000,
+        "model_version": "FT-LOW4H-EXP-V2.2",
+        "stoploss_s": 0.05,
+        "trail_d": 0.05,
+        "config_fingerprint": "82dec362c182",
+        "initial_stop_price": 0.06357,
+        "planned_risk": 24.997700000000044,
+        "event_time": 1790953200000,
+        "available_at": 1790953200000,
+        "requested_at": 1790953200000,
+        "market_source": "binance.um.candles_15m.is_closed.open",
+        "first_request_ms": 1790953200000,
+        "epoch_ms": 1788739200000,
+        "voided": 0,
+        "void_reason": null
+      },
+      {
+        "fill_id": 2,
+        "account_id": "paper43_3a",
+        "order_id": 2,
+        "position_id": 1,
+        "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "symbol": "VELVETUSDT",
+        "action": "close",
+        "qty": 7462.0,
+        "raw_price": 0.06974000000000001,
+        "fill_price": 0.06970513000000002,
+        "notional": 520.1396800600002,
+        "fee": 0.2600698400300001,
+        "slippage_cost": 0.26019993999994334,
+        "bar_open_time": 1791004500000,
+        "bar_close_time": 1791005399999,
+        "fill_ts": 1791005400000,
+        "model_version": "FT-LOW4H-EXP-V2.2",
+        "stoploss_s": 0.05,
+        "trail_d": 0.05,
+        "config_fingerprint": "82dec362c182",
+        "initial_stop_price": 0.06357,
+        "planned_risk": 24.997700000000044,
+        "event_time": 1790953200000,
+        "available_at": 1790953200000,
+        "requested_at": 1791005400000,
+        "market_source": "binance.um.candles_15m.is_closed.open",
+        "first_request_ms": null,
+        "epoch_ms": null,
+        "voided": 0,
+        "void_reason": null
+      }
+    ],
+    "stops": [
+      {
+        "id": 1,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "old_stop": null,
+        "new_stop": 0.06357,
+        "reason": "initial_stop",
+        "ref_bar_open_ms": 1790954100000,
+        "available_at": 1790953200000,
+        "decision_at": 1790955000000,
+        "effective_at": 1790954100000,
+        "created_at": 1792765287181
+      },
+      {
+        "id": 2,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "old_stop": 0.06357,
+        "new_stop": 0.06974000000000001,
+        "reason": "ft_low4h_trail",
+        "ref_bar_open_ms": 1790971200000,
+        "available_at": 1790985599999,
+        "decision_at": 1790985600000,
+        "effective_at": 1790985600000,
+        "created_at": 1792765291723
+      }
+    ],
+    "funding": [
+      {
+        "id": 1,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "funding_time": 1790956800000,
+        "rate": 0.00026173,
+        "mark": 0.06727,
+        "amount": 0.1313802783202,
+        "source": "funding_history.settled",
+        "late_backfill": 0,
+        "recorded_at": 1792765306261
+      },
+      {
+        "id": 2,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "funding_time": 1790971200000,
+        "rate": 7.947e-05,
+        "mark": 0.07438455,
+        "amount": 0.04411042048658699,
+        "source": "funding_history.settled",
+        "late_backfill": 0,
+        "recorded_at": 1792765306261
+      },
+      {
+        "id": 3,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "funding_time": 1790985600001,
+        "rate": 0.00024485,
+        "mark": 0.09423,
+        "amount": 0.17216487206099998,
+        "source": "funding_history.settled",
+        "late_backfill": 0,
+        "recorded_at": 1792765306261
+      },
+      {
+        "id": 4,
+        "account_id": "paper43_3a",
+        "position_id": 1,
+        "funding_time": 1791000000001,
+        "rate": 0.00026255,
+        "mark": 0.07859797,
+        "amount": 0.153985063589357,
+        "source": "funding_history.settled",
+        "late_backfill": 0,
+        "recorded_at": 1792765306261
+      }
+    ],
+    "realized": {
+      "id": 1,
+      "account_id": "paper43_3a",
+      "position_id": 1,
+      "symbol": "VELVETUSDT",
+      "qty": 7462.0,
+      "entry_price": 0.06692000000000001,
+      "exit_price": 0.06970513000000002,
+      "gross_pnl": 20.78264006000008,
+      "entry_fee": 0.24967852000000001,
+      "exit_fee": 0.2600698400300001,
+      "funding_paid": 0.501640634457144,
+      "net_pnl": 19.77125106551294,
+      "entry_ts": 1790954100000,
+      "exit_ts": 1791005400000,
+      "exit_reason": "trailing_stop_loss",
+      "ts": 1791005400000,
+      "voided": 0,
+      "void_reason": null
+    },
+    "state": {
+      "account_id": "paper43_3a",
+      "cash": 5019.771251065513,
+      "realized_pnl": 19.77125106551294,
+      "fees_paid": 0.5097483600300001,
+      "funding_paid": 0.501640634457144,
+      "updated_at": 1792765306262
+    },
+    "account": {
+      "account_id": "paper43_3a",
+      "arm": "3a",
+      "initial_equity": 5000.0,
+      "cash": 5000.0,
+      "leverage": 1.0,
+      "dry_run": 1,
+      "created_at": 1792765270808
+    },
+    "signal": {
+      "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "source": "wyckoff_v0_1",
+      "origin": "replay",
+      "exchange": "binance",
+      "market": "um",
+      "symbol": "VELVETUSDT",
+      "timeframe": "1h",
+      "strategy_key": "wyckoff_v0_1",
+      "strategy_version": "v0.1.0",
+      "config_hash": null,
+      "data_version": null,
+      "structural_kind": "breakout",
+      "direction": "long",
+      "event_time": 1790953200000,
+      "confirmed_at": 1790953200000,
+      "available_at": 1790953200000,
+      "bar_open_time": 1790949600000,
+      "bar_close_time": 1790953200000,
+      "detection_low": 0.05427379742841447,
+      "detection_atr": 0.0033620257158552837,
+      "display_state": "displayable",
+      "executable_state": "enterable",
+      "executable_reason": null,
+      "admission": null,
+      "rank": null,
+      "daily_list_version": null,
+      "payload_json": "{\"candidate_id\": \"cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000\", \"event_id\": \"ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999\", \"strategy_version\": \"v0.1.0\", \"symbol\": \"VELVETUSDT\", \"venue\": \"binance\", \"snapshot_time_ms\": 1790953200000, \"available_at_ms\": 1790953200000, \"box_high_h\": 0.0666, \"box_low_l\": 0.05388, \"box_atr_a\": 0.0033620257158552837, \"box_er\": 0.06346635252540127, \"sweep_low_s\": 0.05311, \"retest_low_lr\": 0.05461, \"breakout_close\": 0.06737, \"breakout_volume\": 21960707.0, \"v20_median_volume\": 3535239.0, \"volume_ratio\": 6.211944086382844, \"oi_breakout\": null, \"oi_6h_ago\": null, \"oi_growth_6h\": null, \"initial_stop_price\": 0.05427379742841447, \"initial_risk_r\": 0.01309620257158553, \"max_entry_price\": 0.06905101285792764, \"min_entry_price\": 0.0666, \"execution_earliest_ms\": 1790954100000, \"pit_proven\": false, \"pit_assumption_note\": \"OI 不可用：oi_empty\", \"missing_fields\": [], \"snapshot_hash\": \"f71d5d0294c6d3e4b47034351c03c919caf08bc00a15d2a742a2484b5dcf8a92\", \"role\": \"enterable_arm_entry\", \"arm\": \"3a\"}",
+      "first_seen_at": 1790953200000,
+      "updated_at": 1790953200000
+    }
+  },
+  "isolation": {
+    "生产 paper 账本目录": {
+      "latest_mtime": 1792725224.7418907,
+      "latest_utc": "2026-10-23 03:13:44Z",
+      "touched_after_start": false
+    },
+    "生产 live 库": {
+      "latest_mtime": 1792748844.3437195,
+      "latest_utc": "2026-10-23 09:47:24Z",
+      "touched_after_start": false
+    },
+    "行情库（外部进程持续写入，非本轮）": {
+      "main_mtime_utc": "2026-10-23 14:31:10Z",
+      "wal_bytes": 581871752,
+      "note": "本轮全部脚本只读；写入方为其它长期运行进程（lsof 可见 55012 持 u 句柄）"
+    }
+  },
+  "round_started_ms": 1792765671862,
+  "round_started_utc": "2026-10-23 14:27:51Z"
+}

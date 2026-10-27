@@ -1,0 +1,99 @@
+{
+  "研究记录链": {
+    "事件总数": 10,
+    "含本批的事件数": 0,
+    "说明": "本批在系统里的登记是 run.json + batch_meta，不在实验哈希链里；链上只有 3 个 API 创建的实验与 1 条 observe 事件。"
+  },
+  "checks": [
+    {
+      "项": "时区：源账本时间文本 vs 毫秒",
+      "期望": "open_date/close_date 按 UTC 解析后与 open_timestamp/close_timestamp 完全一致",
+      "实际": "open 不一致 0 笔、close 不一致 0 笔（共 4325 笔）",
+      "通过": true
+    },
+    {
+      "项": "时间单位：毫秒而非秒",
+      "期望": "全部时间戳落在 1e12~2e12（13 位毫秒）",
+      "实际": "open_timestamp 全部在区间内 = True",
+      "通过": true
+    },
+    {
+      "项": "时长单位：holding_minutes",
+      "期望": "(出场−入场)/60000 == holding_minutes",
+      "实际": "不一致 0 / 4325 笔",
+      "通过": true
+    },
+    {
+      "项": "成交时间对齐 15 分钟",
+      "期望": "入场毫秒应为 15 分钟整数倍（exec 周期 15m）",
+      "实际": "不对齐 0 / 4325 笔",
+      "通过": true
+    },
+    {
+      "项": "接口时间字段口径",
+      "期望": "只给毫秒 + UTC 语义，不给本地时间冒充 UTC",
+      "实际": "entry_time_ms=1717146900000 → UTC 2024-05-31 09:15:00+00:00；接口无 CST 字段",
+      "通过": true
+    },
+    {
+      "项": "币级 trade_id 可复现",
+      "期望": "trade_id = ft_<策略>_<币种>_<入场毫秒>，可由源账本字段重建",
+      "实际": "可重建 4325 / 4325",
+      "通过": true
+    },
+    {
+      "项": "组级 trade_id 可追溯性",
+      "期望": "trade_id 应能定位到源账本某一行（不是组内序号）",
+      "实际": "组级 4325 个 ID 中，形如 trd_<策略>_<四位序号> 的 4325 个（序号不含币种/时间 ⇒ 无法回溯源行）",
+      "通过": false
+    },
+    {
+      "项": "源账本是否有原生 trade_id",
+      "期望": "上游 freqtrade 无引擎级 trade_id ⇒ 系统须标明是重建 ID",
+      "实际": "源账本列无 trade_id；接口标注 trade_id_source=trades.jsonl:trade_id、trade_id_nature=imported_reconstructed",
+      "通过": true
+    },
+    {
+      "项": "研究状态标记（run 级）",
+      "期望": "全部 run 标 research_period=true 且写明登记来源；不得写生产/模拟账本",
+      "实际": "1065 个 run：research_period=1065、registered_by=1065、带 ledger.sqlite3=0",
+      "通过": true
+    },
+    {
+      "项": "研究状态标记（批次级）",
+      "期望": "category=research_period_result、formal_pass_allowed=false",
+      "实际": "组级 category=research_period_result / formal_pass_allowed=False；币级无 category 字段（note 里写研究期）",
+      "通过": true
+    },
+    {
+      "项": "任务记录里有无本批",
+      "期望": "本批是「导入既有 CSV」而非重跑 ⇒ 任务队列不应有 4325 笔的跑批任务",
+      "实际": "任务队列 backtest 任务 61 个；payload 含 FT_ENTRY_09/REPLAY 的 0 个",
+      "通过": true
+    },
+    {
+      "项": "版本与参数一致性",
+      "期望": "run.json 的策略名/参数能对上源账本 27 组命名与参数组",
+      "实际": "run.json strategy_name=Wyckoff_C1_Vs04_Z02 params={'vs': 0.4, 'z': 0.2}；源版本指纹表 33 行",
+      "通过": true
+    },
+    {
+      "项": "交付文档里的证据链接可打开",
+      "期望": "文档引用的截图文件全部存在",
+      "实际": "引用 8 张，缺失 0 张 []",
+      "通过": true
+    }
+  ],
+  "时区与单位": {
+    "open不一致": 0,
+    "close不一致": 0,
+    "holding不一致": 0,
+    "未对齐15m": 0
+  },
+  "trade_id": {
+    "币级可重建": 4325,
+    "币级总数": 4325,
+    "组级序号ID": 4325,
+    "组级总数": 4325
+  }
+}

@@ -1,0 +1,1515 @@
+..........................................ss.............ss..........sss [ 15%]
+sssssssssss...s......ssss............................................... [ 31%]
+........................................................................ [ 47%]
+............................ssssssssssssssssssssssssssssssssssssssssssss [ 63%]
+sss................................................s..................s. [ 79%]
+................................................................FFFF..F. [ 95%]
+FF.F..FF..FFFFF....                                                      [100%]
+=================================== FAILURES ===================================
+______ TestSystemIsolation03.test_01_isolation_mode_rejects_missing_paths ______
+
+self = <test_system_isolation_03.TestSystemIsolation03 testMethod=test_01_isolation_mode_rejects_missing_paths>
+
+    def test_01_isolation_mode_rejects_missing_paths(self):
+        """测试 1：隔离模式下缺少必要路径或指向日常目录时直接拒绝启动，绝不退回日常目录。"""
+        # A. 缺少 market_db
+        with self.assertRaises(RuntimeError) as ctx:
+            cfg = SM.ServiceConfig(
+                port=self.port,
+                py=self.py,
+                is_isolated=True,
+                market_db=None,  # 故意缺失
+                live_db=str(self.live_db),
+                paper_ledger_dir=str(self.ledger_dir),
+                paper_lock_dir=str(self.lock_dir),
+                pid_dir=self.pid_dir,
+                log_dir=self.log_dir
+            )
+            SM.ServiceManager(cfg)
+        self.assertIn("隔离模式缺少必要路径配置", str(ctx.exception))
+>       self.assertIn("market_db", str(ctx.exception))
+E       AssertionError: 'market_db' not found in "隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录"
+
+tests/test_system_isolation_03.py:141: AssertionError
+___ TestSystemIsolation03.test_02_subprocesses_path_isolation_and_open_files ___
+
+self = <test_system_isolation_03.TestSystemIsolation03 testMethod=test_02_subprocesses_path_isolation_and_open_files>
+
+    def test_02_subprocesses_path_isolation_and_open_files(self):
+        """测试 2：隔离实例启动，各子进程环境变量全量贯穿，核验证实际打开的文件未访问日常数据。"""
+        cfg = SM.ServiceConfig(
+            port=self.port,
+            py=self.py,
+            is_isolated=True,
+            market_db=str(self.market_db),
+            live_db=str(self.live_db),
+            paper_ledger_dir=str(self.ledger_dir),
+            paper_lock_dir=str(self.lock_dir),
+            pid_dir=self.pid_dir,
+            log_dir=self.log_dir,
+            check_collector=False
+        )
+>       mgr = SM.ServiceManager(cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_system_isolation_03.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+service_manager.py:308: in __init__
+    self.cfg.resolve_paths()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ServiceConfig(port=54122, fe_port=3000, py='/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python', projec...ll', config_path=None, check_collector=False, stop_collector=False, inprocess_jobs=0, web_readonly=1, is_isolated=True)
+
+    def resolve_paths(self):
+        # 1. 优先读取环境变量填充缺失项
+        if not self.market_db and os.environ.get("MARKET_DB"):
+            self.market_db = os.environ["MARKET_DB"]
+        if not self.market_archive and os.environ.get("MARKET_ARCHIVE"):
+            self.market_archive = os.environ["MARKET_ARCHIVE"]
+        if not self.live_db and os.environ.get("LIVE_DB"):
+            self.live_db = os.environ["LIVE_DB"]
+        if not self.live_dir and os.environ.get("LIVE_DIR"):
+            self.live_dir = os.environ["LIVE_DIR"]
+        if not self.paper_ledger_dir and os.environ.get("PAPER_LEDGER_DIR"):
+            self.paper_ledger_dir = os.environ["PAPER_LEDGER_DIR"]
+        if not self.paper_lock_dir and os.environ.get("PAPER_LOCK_DIR"):
+            self.paper_lock_dir = os.environ["PAPER_LOCK_DIR"]
+        if not self.jobs_db and os.environ.get("JOBS_DB"):
+            self.jobs_db = os.environ["JOBS_DB"]
+        if not self.pid_dir and os.environ.get("SYS_PID_DIR"):
+            self.pid_dir = Path(os.environ["SYS_PID_DIR"])
+        if not self.log_dir and os.environ.get("SYS_LOG_DIR"):
+            self.log_dir = Path(os.environ["SYS_LOG_DIR"])
+    
+        # 2. 判定是否为隔离模式（显式声明或环境变量 ISOLATED_MODE=1）
+        if not self.is_isolated:
+            if os.environ.get("ISOLATED_MODE") == "1":
+                self.is_isolated = True
+    
+        # 3. 隔离模式下强校验：必须显式传入全部必要路径，严禁 fallback 到日常目录
+        if self.is_isolated:
+            missing = []
+            if not self.market_db:
+                missing.append("market_db")
+            if not self.market_archive:
+                missing.append("market_archive")
+            if not self.live_db:
+                missing.append("live_db")
+            if not self.paper_ledger_dir:
+                missing.append("paper_ledger_dir")
+            if not self.paper_lock_dir:
+                missing.append("paper_lock_dir")
+            if not self.jobs_db:
+                missing.append("jobs_db")
+            if not self.pid_dir:
+                missing.append("pid_dir")
+            if not self.log_dir:
+                missing.append("log_dir")
+            if missing:
+>               raise RuntimeError(f"隔离模式缺少必要路径配置：{missing}，拒绝启动，禁止退回日常目录")
+E               RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录
+
+service_manager.py:118: RuntimeError
+_ TestSystemIsolation03.test_03_stop_precision_and_idempotency_and_mismatch_rejection _
+
+self = <test_system_isolation_03.TestSystemIsolation03 testMethod=test_03_stop_precision_and_idempotency_and_mismatch_rejection>
+
+    def test_03_stop_precision_and_idempotency_and_mismatch_rejection(self):
+        """测试 3：精准停止本实例、重复停止幂等、身份不匹配拒绝报错，不误杀外部日常进程。"""
+        cfg = SM.ServiceConfig(
+            port=self.port,
+            py=self.py,
+            is_isolated=True,
+            market_db=str(self.market_db),
+            live_db=str(self.live_db),
+            paper_ledger_dir=str(self.ledger_dir),
+            paper_lock_dir=str(self.lock_dir),
+            pid_dir=self.pid_dir,
+            log_dir=self.log_dir,
+            check_collector=False
+        )
+>       mgr = SM.ServiceManager(cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_system_isolation_03.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+service_manager.py:308: in __init__
+    self.cfg.resolve_paths()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ServiceConfig(port=54124, fe_port=3000, py='/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python', projec...ll', config_path=None, check_collector=False, stop_collector=False, inprocess_jobs=0, web_readonly=1, is_isolated=True)
+
+    def resolve_paths(self):
+        # 1. 优先读取环境变量填充缺失项
+        if not self.market_db and os.environ.get("MARKET_DB"):
+            self.market_db = os.environ["MARKET_DB"]
+        if not self.market_archive and os.environ.get("MARKET_ARCHIVE"):
+            self.market_archive = os.environ["MARKET_ARCHIVE"]
+        if not self.live_db and os.environ.get("LIVE_DB"):
+            self.live_db = os.environ["LIVE_DB"]
+        if not self.live_dir and os.environ.get("LIVE_DIR"):
+            self.live_dir = os.environ["LIVE_DIR"]
+        if not self.paper_ledger_dir and os.environ.get("PAPER_LEDGER_DIR"):
+            self.paper_ledger_dir = os.environ["PAPER_LEDGER_DIR"]
+        if not self.paper_lock_dir and os.environ.get("PAPER_LOCK_DIR"):
+            self.paper_lock_dir = os.environ["PAPER_LOCK_DIR"]
+        if not self.jobs_db and os.environ.get("JOBS_DB"):
+            self.jobs_db = os.environ["JOBS_DB"]
+        if not self.pid_dir and os.environ.get("SYS_PID_DIR"):
+            self.pid_dir = Path(os.environ["SYS_PID_DIR"])
+        if not self.log_dir and os.environ.get("SYS_LOG_DIR"):
+            self.log_dir = Path(os.environ["SYS_LOG_DIR"])
+    
+        # 2. 判定是否为隔离模式（显式声明或环境变量 ISOLATED_MODE=1）
+        if not self.is_isolated:
+            if os.environ.get("ISOLATED_MODE") == "1":
+                self.is_isolated = True
+    
+        # 3. 隔离模式下强校验：必须显式传入全部必要路径，严禁 fallback 到日常目录
+        if self.is_isolated:
+            missing = []
+            if not self.market_db:
+                missing.append("market_db")
+            if not self.market_archive:
+                missing.append("market_archive")
+            if not self.live_db:
+                missing.append("live_db")
+            if not self.paper_ledger_dir:
+                missing.append("paper_ledger_dir")
+            if not self.paper_lock_dir:
+                missing.append("paper_lock_dir")
+            if not self.jobs_db:
+                missing.append("jobs_db")
+            if not self.pid_dir:
+                missing.append("pid_dir")
+            if not self.log_dir:
+                missing.append("log_dir")
+            if missing:
+>               raise RuntimeError(f"隔离模式缺少必要路径配置：{missing}，拒绝启动，禁止退回日常目录")
+E               RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录
+
+service_manager.py:118: RuntimeError
+______ TestSystemIsolation03.test_04_overall_health_accurate_distinction _______
+
+self = <test_system_isolation_03.TestSystemIsolation03 testMethod=test_04_overall_health_accurate_distinction>
+
+    def test_04_overall_health_accurate_distinction(self):
+        """测试 4：修复停止后仍显示 overall_health=healthy，准确区分运行、停止与异常。"""
+        cfg = SM.ServiceConfig(
+            port=self.port,
+            py=self.py,
+            is_isolated=True,
+            market_db=str(self.market_db),
+            live_db=str(self.live_db),
+            paper_ledger_dir=str(self.ledger_dir),
+            paper_lock_dir=str(self.lock_dir),
+            pid_dir=self.pid_dir,
+            log_dir=self.log_dir,
+            check_collector=False
+        )
+>       mgr = SM.ServiceManager(cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_system_isolation_03.py:285: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+service_manager.py:308: in __init__
+    self.cfg.resolve_paths()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ServiceConfig(port=54129, fe_port=3000, py='/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python', projec...ll', config_path=None, check_collector=False, stop_collector=False, inprocess_jobs=0, web_readonly=1, is_isolated=True)
+
+    def resolve_paths(self):
+        # 1. 优先读取环境变量填充缺失项
+        if not self.market_db and os.environ.get("MARKET_DB"):
+            self.market_db = os.environ["MARKET_DB"]
+        if not self.market_archive and os.environ.get("MARKET_ARCHIVE"):
+            self.market_archive = os.environ["MARKET_ARCHIVE"]
+        if not self.live_db and os.environ.get("LIVE_DB"):
+            self.live_db = os.environ["LIVE_DB"]
+        if not self.live_dir and os.environ.get("LIVE_DIR"):
+            self.live_dir = os.environ["LIVE_DIR"]
+        if not self.paper_ledger_dir and os.environ.get("PAPER_LEDGER_DIR"):
+            self.paper_ledger_dir = os.environ["PAPER_LEDGER_DIR"]
+        if not self.paper_lock_dir and os.environ.get("PAPER_LOCK_DIR"):
+            self.paper_lock_dir = os.environ["PAPER_LOCK_DIR"]
+        if not self.jobs_db and os.environ.get("JOBS_DB"):
+            self.jobs_db = os.environ["JOBS_DB"]
+        if not self.pid_dir and os.environ.get("SYS_PID_DIR"):
+            self.pid_dir = Path(os.environ["SYS_PID_DIR"])
+        if not self.log_dir and os.environ.get("SYS_LOG_DIR"):
+            self.log_dir = Path(os.environ["SYS_LOG_DIR"])
+    
+        # 2. 判定是否为隔离模式（显式声明或环境变量 ISOLATED_MODE=1）
+        if not self.is_isolated:
+            if os.environ.get("ISOLATED_MODE") == "1":
+                self.is_isolated = True
+    
+        # 3. 隔离模式下强校验：必须显式传入全部必要路径，严禁 fallback 到日常目录
+        if self.is_isolated:
+            missing = []
+            if not self.market_db:
+                missing.append("market_db")
+            if not self.market_archive:
+                missing.append("market_archive")
+            if not self.live_db:
+                missing.append("live_db")
+            if not self.paper_ledger_dir:
+                missing.append("paper_ledger_dir")
+            if not self.paper_lock_dir:
+                missing.append("paper_lock_dir")
+            if not self.jobs_db:
+                missing.append("jobs_db")
+            if not self.pid_dir:
+                missing.append("pid_dir")
+            if not self.log_dir:
+                missing.append("log_dir")
+            if missing:
+>               raise RuntimeError(f"隔离模式缺少必要路径配置：{missing}，拒绝启动，禁止退回日常目录")
+E               RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录
+
+service_manager.py:118: RuntimeError
+__________ TestSystemIsolation04.test_02_direct_daily_paths_rejected ___________
+
+self = <test_system_isolation_04.TestSystemIsolation04 testMethod=test_02_direct_daily_paths_rejected>
+
+    def test_02_direct_daily_paths_rejected(self):
+        """测试 2：隔离模式下任何路径直接指向日常数据/状态目录时均拒绝启动。"""
+        # A. jobs_db 指向日常任务队列
+        cfg_jobs = self._get_valid_config()
+        cfg_jobs.jobs_db = str(PROJECT_ROOT / "数据" / "任务队列" / "jobs.sqlite3")
+        with self.assertRaises(RuntimeError) as ctx:
+            SM.ServiceManager(cfg_jobs)
+        self.assertIn("隔离模式严禁使用日常数据/状态目录", str(ctx.exception))
+>       self.assertIn("jobs_db", str(ctx.exception))
+E       AssertionError: 'jobs_db' not found in "隔离模式严禁使用日常数据/状态目录：market_archive -> '0' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0'，指向日常后台根目录PID '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend'（已阻断任何别名或相对路径绕行）"
+
+tests/test_system_isolation_04.py:165: AssertionError
+_ TestSystemIsolation04.test_04_subprocesses_full_isolation_including_jobs_wal_shm_lock _
+
+self = <test_system_isolation_04.TestSystemIsolation04 testMethod=test_04_subprocesses_full_isolation_including_jobs_wal_shm_lock>
+
+    def test_04_subprocesses_full_isolation_including_jobs_wal_shm_lock(self):
+        """测试 4：核验证子进程实际打开的文件，覆盖任务队列库及 WAL、SHM、锁文件，证明 0 访问日常数据。"""
+        cfg = self._get_valid_config()
+>       mgr = SM.ServiceManager(cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_system_isolation_04.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+service_manager.py:308: in __init__
+    self.cfg.resolve_paths()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ServiceConfig(port=54140, fe_port=3000, py='/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python', projec...ll', config_path=None, check_collector=False, stop_collector=False, inprocess_jobs=0, web_readonly=1, is_isolated=True)
+
+    def resolve_paths(self):
+        # 1. 优先读取环境变量填充缺失项
+        if not self.market_db and os.environ.get("MARKET_DB"):
+            self.market_db = os.environ["MARKET_DB"]
+        if not self.market_archive and os.environ.get("MARKET_ARCHIVE"):
+            self.market_archive = os.environ["MARKET_ARCHIVE"]
+        if not self.live_db and os.environ.get("LIVE_DB"):
+            self.live_db = os.environ["LIVE_DB"]
+        if not self.live_dir and os.environ.get("LIVE_DIR"):
+            self.live_dir = os.environ["LIVE_DIR"]
+        if not self.paper_ledger_dir and os.environ.get("PAPER_LEDGER_DIR"):
+            self.paper_ledger_dir = os.environ["PAPER_LEDGER_DIR"]
+        if not self.paper_lock_dir and os.environ.get("PAPER_LOCK_DIR"):
+            self.paper_lock_dir = os.environ["PAPER_LOCK_DIR"]
+        if not self.jobs_db and os.environ.get("JOBS_DB"):
+            self.jobs_db = os.environ["JOBS_DB"]
+        if not self.pid_dir and os.environ.get("SYS_PID_DIR"):
+            self.pid_dir = Path(os.environ["SYS_PID_DIR"])
+        if not self.log_dir and os.environ.get("SYS_LOG_DIR"):
+            self.log_dir = Path(os.environ["SYS_LOG_DIR"])
+    
+        # 2. 判定是否为隔离模式（显式声明或环境变量 ISOLATED_MODE=1）
+        if not self.is_isolated:
+            if os.environ.get("ISOLATED_MODE") == "1":
+                self.is_isolated = True
+    
+        # 3. 隔离模式下强校验：必须显式传入全部必要路径，严禁 fallback 到日常目录
+        if self.is_isolated:
+            missing = []
+            if not self.market_db:
+                missing.append("market_db")
+            if not self.market_archive:
+                missing.append("market_archive")
+            if not self.live_db:
+                missing.append("live_db")
+            if not self.paper_ledger_dir:
+                missing.append("paper_ledger_dir")
+            if not self.paper_lock_dir:
+                missing.append("paper_lock_dir")
+            if not self.jobs_db:
+                missing.append("jobs_db")
+            if not self.pid_dir:
+                missing.append("pid_dir")
+            if not self.log_dir:
+                missing.append("log_dir")
+            if missing:
+                raise RuntimeError(f"隔离模式缺少必要路径配置：{missing}，拒绝启动，禁止退回日常目录")
+    
+            # 严禁使用任何日常生产数据与状态目录（全面防别名、防相对路径绕行、防符号链接）
+            protected_daily_roots = [
+                ("日常数据根目录", (self.project_root / "数据").resolve()),
+                ("日常实时信号库目录", (self.backend_dir / "live").resolve()),
+                ("日常锁目录", (self.backend_dir / "locks").resolve()),
+                ("日常日志目录", (self.backend_dir / "logs").resolve()),
+                ("日常后台根目录PID", self.backend_dir.resolve()),
+            ]
+    
+            paths_to_audit = [
+                ("market_db", Path(self.market_db)),
+                ("market_archive", Path(self.market_archive)),
+                ("live_db", Path(self.live_db)),
+                ("paper_ledger_dir", Path(self.paper_ledger_dir)),
+                ("paper_lock_dir", Path(self.paper_lock_dir)),
+                ("jobs_db", Path(self.jobs_db)),
+                ("pid_dir", Path(self.pid_dir)),
+                ("log_dir", Path(self.log_dir)),
+            ]
+            if self.live_dir:
+                paths_to_audit.append(("live_dir", Path(self.live_dir)))
+    
+            for name, p in paths_to_audit:
+                resolved_p = p.resolve()
+                for desc, daily_p in protected_daily_roots:
+                    # 检查是否等于日常受保护目录，或者位于其内部
+                    if resolved_p == daily_p or daily_p in resolved_p.parents:
+>                       raise RuntimeError(
+                            f"隔离模式严禁使用日常数据/状态目录：{name} -> '{p}' 解析为 '{resolved_p}'，"
+                            f"指向{desc} '{daily_p}'（已阻断任何别名或相对路径绕行）"
+                        )
+E                       RuntimeError: 隔离模式严禁使用日常数据/状态目录：market_archive -> '0' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0'，指向日常后台根目录PID '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend'（已阻断任何别名或相对路径绕行）
+
+service_manager.py:147: RuntimeError
+_ TestSystemIsolation04.test_05_stop_precision_idempotency_mismatch_rejection_and_health _
+
+self = <test_system_isolation_04.TestSystemIsolation04 testMethod=test_05_stop_precision_idempotency_mismatch_rejection_and_health>
+
+    def test_05_stop_precision_idempotency_mismatch_rejection_and_health(self):
+        """测试 5：正常停止、重复停止幂等、身份不匹配拒绝报错，停止后 overall_health 准确为 stopped。"""
+        cfg = self._get_valid_config()
+>       mgr = SM.ServiceManager(cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_system_isolation_04.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+service_manager.py:308: in __init__
+    self.cfg.resolve_paths()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ServiceConfig(port=54141, fe_port=3000, py='/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python', projec...ll', config_path=None, check_collector=False, stop_collector=False, inprocess_jobs=0, web_readonly=1, is_isolated=True)
+
+    def resolve_paths(self):
+        # 1. 优先读取环境变量填充缺失项
+        if not self.market_db and os.environ.get("MARKET_DB"):
+            self.market_db = os.environ["MARKET_DB"]
+        if not self.market_archive and os.environ.get("MARKET_ARCHIVE"):
+            self.market_archive = os.environ["MARKET_ARCHIVE"]
+        if not self.live_db and os.environ.get("LIVE_DB"):
+            self.live_db = os.environ["LIVE_DB"]
+        if not self.live_dir and os.environ.get("LIVE_DIR"):
+            self.live_dir = os.environ["LIVE_DIR"]
+        if not self.paper_ledger_dir and os.environ.get("PAPER_LEDGER_DIR"):
+            self.paper_ledger_dir = os.environ["PAPER_LEDGER_DIR"]
+        if not self.paper_lock_dir and os.environ.get("PAPER_LOCK_DIR"):
+            self.paper_lock_dir = os.environ["PAPER_LOCK_DIR"]
+        if not self.jobs_db and os.environ.get("JOBS_DB"):
+            self.jobs_db = os.environ["JOBS_DB"]
+        if not self.pid_dir and os.environ.get("SYS_PID_DIR"):
+            self.pid_dir = Path(os.environ["SYS_PID_DIR"])
+        if not self.log_dir and os.environ.get("SYS_LOG_DIR"):
+            self.log_dir = Path(os.environ["SYS_LOG_DIR"])
+    
+        # 2. 判定是否为隔离模式（显式声明或环境变量 ISOLATED_MODE=1）
+        if not self.is_isolated:
+            if os.environ.get("ISOLATED_MODE") == "1":
+                self.is_isolated = True
+    
+        # 3. 隔离模式下强校验：必须显式传入全部必要路径，严禁 fallback 到日常目录
+        if self.is_isolated:
+            missing = []
+            if not self.market_db:
+                missing.append("market_db")
+            if not self.market_archive:
+                missing.append("market_archive")
+            if not self.live_db:
+                missing.append("live_db")
+            if not self.paper_ledger_dir:
+                missing.append("paper_ledger_dir")
+            if not self.paper_lock_dir:
+                missing.append("paper_lock_dir")
+            if not self.jobs_db:
+                missing.append("jobs_db")
+            if not self.pid_dir:
+                missing.append("pid_dir")
+            if not self.log_dir:
+                missing.append("log_dir")
+            if missing:
+                raise RuntimeError(f"隔离模式缺少必要路径配置：{missing}，拒绝启动，禁止退回日常目录")
+    
+            # 严禁使用任何日常生产数据与状态目录（全面防别名、防相对路径绕行、防符号链接）
+            protected_daily_roots = [
+                ("日常数据根目录", (self.project_root / "数据").resolve()),
+                ("日常实时信号库目录", (self.backend_dir / "live").resolve()),
+                ("日常锁目录", (self.backend_dir / "locks").resolve()),
+                ("日常日志目录", (self.backend_dir / "logs").resolve()),
+                ("日常后台根目录PID", self.backend_dir.resolve()),
+            ]
+    
+            paths_to_audit = [
+                ("market_db", Path(self.market_db)),
+                ("market_archive", Path(self.market_archive)),
+                ("live_db", Path(self.live_db)),
+                ("paper_ledger_dir", Path(self.paper_ledger_dir)),
+                ("paper_lock_dir", Path(self.paper_lock_dir)),
+                ("jobs_db", Path(self.jobs_db)),
+                ("pid_dir", Path(self.pid_dir)),
+                ("log_dir", Path(self.log_dir)),
+            ]
+            if self.live_dir:
+                paths_to_audit.append(("live_dir", Path(self.live_dir)))
+    
+            for name, p in paths_to_audit:
+                resolved_p = p.resolve()
+                for desc, daily_p in protected_daily_roots:
+                    # 检查是否等于日常受保护目录，或者位于其内部
+                    if resolved_p == daily_p or daily_p in resolved_p.parents:
+>                       raise RuntimeError(
+                            f"隔离模式严禁使用日常数据/状态目录：{name} -> '{p}' 解析为 '{resolved_p}'，"
+                            f"指向{desc} '{daily_p}'（已阻断任何别名或相对路径绕行）"
+                        )
+E                       RuntimeError: 隔离模式严禁使用日常数据/状态目录：market_archive -> '0' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0'，指向日常后台根目录PID '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend'（已阻断任何别名或相对路径绕行）
+
+service_manager.py:147: RuntimeError
+________ TestSystemIsolation05.test_01_missing_market_archive_rejected _________
+
+self = <test_system_isolation_05.TestSystemIsolation05 testMethod=test_01_missing_market_archive_rejected>
+
+    def test_01_missing_market_archive_rejected(self):
+        """测试 1：market_archive 必填，缺失时直接拒绝启动，严禁回退日常 数据/市场数据/parquet。"""
+        cfg = self._get_valid_config()
+        cfg.market_archive = None  # 故意缺失 market_archive
+    
+        with self.assertRaises(RuntimeError) as ctx:
+            SM.ServiceManager(cfg)
+>       self.assertIn("隔离模式缺少必要路径配置", str(ctx.exception))
+E       AssertionError: '隔离模式缺少必要路径配置' not found in "隔离模式严禁使用日常数据/状态目录：market_archive -> '0' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0'，指向日常后台根目录PID '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend'（已阻断任何别名或相对路径绕行）"
+
+tests/test_system_isolation_05.py:184: AssertionError
+_ TestSystemIsolation05.test_04_cold_archive_isolation_and_actual_read_verification _
+
+self = <test_system_isolation_05.TestSystemIsolation05 testMethod=test_04_cold_archive_isolation_and_actual_read_verification>
+
+    def test_04_cold_archive_isolation_and_actual_read_verification(self):
+        """测试 4：启动隔离服务，实际触发冷层读取，证明读到隔离归档中的特征数据，子进程零访问日常数据。"""
+        cfg = self._get_valid_config()
+        mgr = SM.ServiceManager(cfg)
+        self.addCleanup(mgr.stop)
+        st = mgr.start()
+    
+        api_pid = st["services"]["api"]["pid"]
+        w_pid = st["services"]["worker"]["pid"]
+        self.assertIsNotNone(api_pid)
+        self.assertIsNotNone(w_pid)
+    
+        # 1. 实际触发冷层读取：调用 HTTP API 读取 funding 历史
+        url = f"http://127.0.0.1:{self.port}/api/v1/markets/binance/BTCUSDT/funding?limit=10"
+        req = urllib.request.Request(url, headers={"Connection": "close", "User-Agent": "test_isolation_05"})
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        with opener.open(req, timeout=5.0) as resp:
+            self.assertEqual(resp.status, 200)
+            data = json.loads(resp.read().decode("utf-8"))
+    
+        # 断言读取到了隔离冷层中的专属记录
+        items = data if isinstance(data, list) else data.get("items", [])
+        self.assertTrue(len(items) > 0, f"API 返回列表为空：{data}")
+        found_isolated_record = any(
+            item.get("source") == "isolated_test_05_cold_record" and
+            abs(item.get("funding_rate", 0) - 0.00777777) < 1e-7
+            for item in items
+        )
+        self.assertTrue(
+            found_isolated_record,
+            f"必须实际读取到隔离冷层 parquet 中的特征数据 (source='isolated_test_05_cold_record')，实际返回: {items}"
+        )
+        print("\n[Test 4-A] 真实冷层读取断言通过：接口成功返回隔离归档专属特征数据。")
+    
+        # 真实 HTTP 投影必须保留挂单方向和来源臂；只写本次临时账本。
+        for arm, direction in (("3a", "long"), ("3b", "short")):
+            with sqlite3.connect(str(self.ledger_dir / f"paper_{arm}.sqlite3")) as con:
+                con.execute("INSERT INTO paper_pending(account_id,arm,symbol,direction,requested_at,earliest_fill_ms,status,created_at) VALUES(?,?,?,?,?,?,?,?)",
+                            (f"paper43_{arm}", arm, "TESTFIXUSDT", direction, 1, 9999999999999, "pending", 1))
+        with opener.open(f"http://127.0.0.1:{self.port}/api/v1/paper/accounts", timeout=5) as resp:
+            accounts_response = json.loads(resp.read())
+        pending = [p for a in accounts_response.get("items", []) for p in a.get("pending", [])]
+        self.assertEqual({(p["arm"], p["direction"]) for p in pending}, {("3a", "long"), ("3b", "short")}, accounts_response)
+    
+        # 2. 检查子进程打开文件列表（lsof）
+        protected_patterns = [
+            str((PROJECT_ROOT / "数据").resolve()),
+            str((PROJECT_ROOT / "数据" / "任务队列").resolve()),
+            str((PROJECT_ROOT / "数据" / "paper").resolve()),
+            str((BACKEND / "live" / "live_signals.sqlite3").resolve()),
+            str((BACKEND / "locks").resolve()),
+            str((BACKEND / "logs").resolve()),
+        ]
+    
+        sub_evidence = {}
+        for p_name, pid in [("api", api_pid), ("worker", w_pid)]:
+            out = subprocess.check_output(
+                ["lsof", "-p", str(pid), "-Fn"],
+                stderr=subprocess.DEVNULL,
+                timeout=3.0
+            ).decode("utf-8", errors="replace")
+            opened_files = [line[1:] for line in out.splitlines() if line.startswith("n") and line[1:].strip()]
+            sub_evidence[p_name] = opened_files
+    
+            # 断言绝对未打开日常受保护数据文件
+            for f in opened_files:
+                for pat in protected_patterns:
+>                   self.assertNotIn(pat, f, f"[{p_name}] 隔离违规：子进程访问了日常受保护数据文件：{f} (匹配规则: {pat})")
+E                   AssertionError: '/Users/boos/Desktop/威科夫因子共振趋势/数据' unexpectedly found in '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3-shm' : [api] 隔离违规：子进程访问了日常受保护数据文件：/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3-shm (匹配规则: /Users/boos/Desktop/威科夫因子共振趋势/数据)
+
+tests/test_system_isolation_05.py:304: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[*] 默认启动模式：不开放自动交易链（交易链保持禁用）
+[*] 启动 API 服务 (端口 54148)...
+[✔] API 服务已就绪: pid=47159, 端口: 54148
+[*] 启动回测 Worker 进程...
+[✔] 回测 Worker 已就绪: pid=47164
+
+[Test 4-A] 真实冷层读取断言通过：接口成功返回隔离归档专属特征数据。
+[*] 停止本实例回测 Worker 进程 pid=47164...
+[*] 停止本实例 API 服务 pid=47159 (释放端口 54148)...
+[*] 按照防误停策略，实时采集器保持不动（如需停止请传 --stop-collector）
+_____ TestSystemIsolation05.test_05_non_isolated_daily_mode_compatibility ______
+
+self = <test_system_isolation_05.TestSystemIsolation05 testMethod=test_05_non_isolated_daily_mode_compatibility>
+
+    def test_05_non_isolated_daily_mode_compatibility(self):
+        """测试 5：日常非隔离模式兼容性，未提供 market_archive 时正确回退日常 parquet。"""
+        # 非隔离模式配置
+        cfg_daily = SM.ServiceConfig(
+            port=self.port,
+            py=self.py,
+            is_isolated=False,
+            market_archive=None  # 未提供归档路径
+        )
+        cfg_daily.resolve_paths()
+    
+        expected_daily_parquet = str((PROJECT_ROOT / "数据" / "市场数据" / "parquet").resolve())
+>       self.assertEqual(
+            str(Path(cfg_daily.market_archive).resolve()),
+            expected_daily_parquet,
+            "非隔离模式必须兼容回退到日常 数据/市场数据/parquet"
+        )
+E       AssertionError: '/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0' != '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet'
+E       - /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/0
+E       ?                               ^^ ^ ^^ ^^^^
+E       + /Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet
+E       ?                               ^^ ^^^^^^ ^^^ ^
+E        : 非隔离模式必须兼容回退到日常 数据/市场数据/parquet
+
+tests/test_system_isolation_05.py:340: AssertionError
+_________ TestSystemStartup01.test_02_unified_start_default_safe_mode __________
+
+self = <test_system_startup_01.TestSystemStartup01 testMethod=test_02_unified_start_default_safe_mode>
+
+    def test_02_unified_start_default_safe_mode(self):
+        """测试 2：隔离端口统一安全启动，默认模式绝不暗中开放交易链。"""
+        cfg = self._make_config(enable_paper=False)
+        mgr = SM.ServiceManager(cfg)
+    
+        status_before = mgr.status()
+        self.assertEqual(status_before["services"]["api"]["status"], "stopped")
+    
+        # 启动
+>       st = mgr.start()
+             ^^^^^^^^^^^
+
+tests/test_system_startup_01.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <service_manager.ServiceManager object at 0x11a4c0230>
+
+    def start(self) -> dict:
+        """统一启动入口。严格门禁、端口核验与错误分类。"""
+        # 1. 端口占用与冲突前置判定
+        listener_pid = get_port_listener_pid(self.cfg.port)
+        if listener_pid is not None:
+            cwd = get_process_cwd(listener_pid)
+            cmd = get_process_cmdline(listener_pid)
+            # 校验是否是本项目的 adapter
+            is_own_adapter = ("adapter.py" in cmd) and (str(self.cfg.backend_dir) in cwd or str(self.cfg.project_root) in cwd)
+            if not is_own_adapter:
+                err_msg = f"端口冲突：端口 {self.cfg.port} 已被非本项目进程占用 (pid={listener_pid}, cwd='{cwd}', cmd='{cmd}')"
+                self._save_meta("api", {"state": "failed_port_conflict", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            # 如果是自己的 adapter 且健康探测正常，则复用
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            is_healthy, _ = probe_http_health(health_url)
+            if is_healthy:
+                print(f"[*] API 端口 {self.cfg.port} 已就绪且健康（复用 pid={listener_pid}）")
+                self.get_api_pidfile().write_text(str(listener_pid), encoding="ascii")
+            else:
+                print(f"[!] API 端口 {self.cfg.port} 被旧实例占用但健康探测失败，先尝试停止旧进程...")
+                try:
+                    os.kill(listener_pid, signal.SIGTERM)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+    
+        # 2. 真实信号交易链配置门禁强校验（仅在 enable_paper 激活时）
+        if self.cfg.enable_paper:
+            print(f"[*] 检测到明确启用隔离模拟交易链 (Arm: {self.cfg.paper_arm})... 开始参数契约强验")
+            # 通过 paper_engine 校验生效视图
+            env_test = dict(os.environ)
+            if self.cfg.config_path:
+                env_test["EFFECTIVE_VIEW"] = self.cfg.config_path
+            orig_effective_view = os.environ.get("EFFECTIVE_VIEW")
+            sys_path_save = list(sys.path)
+            try:
+                if str(self.cfg.backend_dir) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.backend_dir))
+                if str(self.cfg.project_root) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.project_root))
+                import paper_engine as PE
+                if self.cfg.config_path:
+                    os.environ["EFFECTIVE_VIEW"] = self.cfg.config_path
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+                approved = PE.approved_params()
+                if not approved.get("_config_valid", False):
+                    cfg_err = approved.get("_config_error") or "未知配置无效原因"
+                    err_msg = f"启动拒绝：交易链配置无效或缺失 ({cfg_err})"
+                    self._save_meta("runtime", {"state": "failed_missing_config", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                print(f"[✔] 交易链配置契约校验通过（版本: {approved.get('model_version')}, 规则: {approved.get('rule')}）")
+            finally:
+                sys.path = sys_path_save
+                if orig_effective_view is not None:
+                    os.environ["EFFECTIVE_VIEW"] = orig_effective_view
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+        else:
+            print("[*] 默认启动模式：不开放自动交易链（交易链保持禁用）")
+    
+        # 准备共享环境变量（必须贯穿全部子进程，严禁遗漏或回退）
+        shared_env = dict(os.environ)
+        shared_env["PORT"] = str(self.cfg.port)
+        shared_env["DATA_HUB_PROJECT"] = str(self.cfg.project_root)
+        shared_env["PYTHONPATH"] = f"{self.cfg.project_root}/框架:{self.cfg.backend_dir}:{self.cfg.project_root}:{shared_env.get('PYTHONPATH', '')}"
+        shared_env["MARKET_DB"] = str(self.cfg.market_db)
+        if self.cfg.market_archive:
+            shared_env["MARKET_ARCHIVE"] = str(self.cfg.market_archive)
+        else:
+            shared_env.pop("MARKET_ARCHIVE", None)
+        shared_env["LIVE_DB"] = str(self.cfg.live_db)
+        shared_env["LIVE_DIR"] = str(self.cfg.live_dir)
+        shared_env["PAPER_LEDGER_DIR"] = str(self.cfg.paper_ledger_dir)
+        shared_env["PAPER_LOCK_DIR"] = str(self.cfg.paper_lock_dir)
+        if self.cfg.jobs_db:
+            shared_env["JOBS_DB"] = str(self.cfg.jobs_db)
+        shared_env["SYS_PID_DIR"] = str(self.cfg.pid_dir)
+        shared_env["SYS_LOG_DIR"] = str(self.cfg.log_dir)
+        shared_env["INPROCESS_JOBS"] = str(self.cfg.inprocess_jobs)
+        shared_env["WEB_READONLY"] = str(self.cfg.web_readonly)
+        if self.cfg.is_isolated:
+            shared_env["ISOLATED_MODE"] = "1"
+        shared_env["NO_PROXY"] = "127.0.0.1,localhost,::1"
+        shared_env["no_proxy"] = shared_env["NO_PROXY"]
+        if self.cfg.config_path:
+            shared_env["EFFECTIVE_VIEW"] = self.cfg.config_path
+        else:
+            shared_env.pop("EFFECTIVE_VIEW", None)
+        now_str = dt.datetime.now(dt.timezone.utc).isoformat()
+    
+        # 3. 启动 API (adapter.py)
+        api_pid = get_port_listener_pid(self.cfg.port)
+        if not api_pid or not is_pid_alive(api_pid):
+            log_path = self.cfg.log_dir / f"backend-{self.cfg.port}.log"
+            pid_path = self.get_api_pidfile()
+            print(f"[*] 启动 API 服务 (端口 {self.cfg.port})...")
+            api_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "adapter.py")],
+                cwd=self.cfg.backend_dir,
+                log_file=log_path,
+                pid_file=pid_path,
+                env=shared_env
+            )
+            # 等待就绪
+            deadline = time.time() + 30.0
+            health_ok = False
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            while time.time() < deadline:
+                if not is_pid_alive(api_pid):
+                    err_tail = log_path.read_text(encoding="utf-8", errors="replace")[-500:] if log_path.exists() else ""
+                    err_msg = f"API 进程刚拉起便崩溃 (pid={api_pid})：{err_tail}"
+                    self._save_meta("api", {"state": "failed_process_crashed", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                health_ok, _ = probe_http_health(health_url)
+                if health_ok:
+                    break
+                time.sleep(0.5)
+    
+            if not health_ok:
+                err_msg = f"API 服务未能于 30s 内响应健康探针（{health_url}）"
+                self._save_meta("api", {"state": "failed_timeout", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            print(f"[✔] API 服务已就绪: pid={api_pid}, 端口: {self.cfg.port}")
+            self._save_meta("api", {"state": "running", "pid": api_pid, "started_at": now_str, "exit_reason": None})
+    
+        # 4. 启动 Worker (workers/backtest_worker.py)
+        w_pid = self._read_pid(self.get_worker_pidfile())
+        if not w_pid or not is_pid_alive(w_pid):
+            w_log = self.cfg.log_dir / f"worker-{self.cfg.port}.log"
+            w_pidfile = self.get_worker_pidfile()
+            print(f"[*] 启动回测 Worker 进程...")
+            w_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "workers" / "backtest_worker.py"), "--db", str(self.cfg.jobs_db), "--owner", f"service_manager_{self.cfg.port}"],
+                cwd=self.cfg.backend_dir,
+                log_file=w_log,
+                pid_file=w_pidfile,
+                env=shared_env
+            )
+            time.sleep(1.0)
+            if not is_pid_alive(w_pid):
+                err_tail = w_log.read_text(encoding="utf-8", errors="replace")[-500:] if w_log.exists() else ""
+                err_msg = f"Worker 进程启动后崩溃：{err_tail}"
+                self._save_meta("worker", {"state": "failed_process_crashed", "exit_reason": err_msg})
+>               raise RuntimeError(err_msg)
+E               RuntimeError: Worker 进程启动后崩溃：{"ts": "2026-10-25T13:10:25Z", "proc": "worker", "event": "worker_already_running", "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"}
+
+service_manager.py:810: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+[*] 默认启动模式：不开放自动交易链（交易链保持禁用）
+[*] 启动 API 服务 (端口 54211)...
+[✔] API 服务已就绪: pid=47221, 端口: 54211
+[*] 启动回测 Worker 进程...
+____ TestSystemStartup01.test_03_repeat_start_idempotency_and_port_conflict ____
+
+self = <test_system_startup_01.TestSystemStartup01 testMethod=test_03_repeat_start_idempotency_and_port_conflict>
+
+    def test_03_repeat_start_idempotency_and_port_conflict(self):
+        """测试 3：重复启动幂等复用与端口冲突拦截。"""
+        cfg = self._make_config(enable_paper=False)
+        mgr = SM.ServiceManager(cfg)
+    
+>       st1 = mgr.start()
+              ^^^^^^^^^^^
+
+tests/test_system_startup_01.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <service_manager.ServiceManager object at 0x11a4c32f0>
+
+    def start(self) -> dict:
+        """统一启动入口。严格门禁、端口核验与错误分类。"""
+        # 1. 端口占用与冲突前置判定
+        listener_pid = get_port_listener_pid(self.cfg.port)
+        if listener_pid is not None:
+            cwd = get_process_cwd(listener_pid)
+            cmd = get_process_cmdline(listener_pid)
+            # 校验是否是本项目的 adapter
+            is_own_adapter = ("adapter.py" in cmd) and (str(self.cfg.backend_dir) in cwd or str(self.cfg.project_root) in cwd)
+            if not is_own_adapter:
+                err_msg = f"端口冲突：端口 {self.cfg.port} 已被非本项目进程占用 (pid={listener_pid}, cwd='{cwd}', cmd='{cmd}')"
+                self._save_meta("api", {"state": "failed_port_conflict", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            # 如果是自己的 adapter 且健康探测正常，则复用
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            is_healthy, _ = probe_http_health(health_url)
+            if is_healthy:
+                print(f"[*] API 端口 {self.cfg.port} 已就绪且健康（复用 pid={listener_pid}）")
+                self.get_api_pidfile().write_text(str(listener_pid), encoding="ascii")
+            else:
+                print(f"[!] API 端口 {self.cfg.port} 被旧实例占用但健康探测失败，先尝试停止旧进程...")
+                try:
+                    os.kill(listener_pid, signal.SIGTERM)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+    
+        # 2. 真实信号交易链配置门禁强校验（仅在 enable_paper 激活时）
+        if self.cfg.enable_paper:
+            print(f"[*] 检测到明确启用隔离模拟交易链 (Arm: {self.cfg.paper_arm})... 开始参数契约强验")
+            # 通过 paper_engine 校验生效视图
+            env_test = dict(os.environ)
+            if self.cfg.config_path:
+                env_test["EFFECTIVE_VIEW"] = self.cfg.config_path
+            orig_effective_view = os.environ.get("EFFECTIVE_VIEW")
+            sys_path_save = list(sys.path)
+            try:
+                if str(self.cfg.backend_dir) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.backend_dir))
+                if str(self.cfg.project_root) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.project_root))
+                import paper_engine as PE
+                if self.cfg.config_path:
+                    os.environ["EFFECTIVE_VIEW"] = self.cfg.config_path
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+                approved = PE.approved_params()
+                if not approved.get("_config_valid", False):
+                    cfg_err = approved.get("_config_error") or "未知配置无效原因"
+                    err_msg = f"启动拒绝：交易链配置无效或缺失 ({cfg_err})"
+                    self._save_meta("runtime", {"state": "failed_missing_config", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                print(f"[✔] 交易链配置契约校验通过（版本: {approved.get('model_version')}, 规则: {approved.get('rule')}）")
+            finally:
+                sys.path = sys_path_save
+                if orig_effective_view is not None:
+                    os.environ["EFFECTIVE_VIEW"] = orig_effective_view
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+        else:
+            print("[*] 默认启动模式：不开放自动交易链（交易链保持禁用）")
+    
+        # 准备共享环境变量（必须贯穿全部子进程，严禁遗漏或回退）
+        shared_env = dict(os.environ)
+        shared_env["PORT"] = str(self.cfg.port)
+        shared_env["DATA_HUB_PROJECT"] = str(self.cfg.project_root)
+        shared_env["PYTHONPATH"] = f"{self.cfg.project_root}/框架:{self.cfg.backend_dir}:{self.cfg.project_root}:{shared_env.get('PYTHONPATH', '')}"
+        shared_env["MARKET_DB"] = str(self.cfg.market_db)
+        if self.cfg.market_archive:
+            shared_env["MARKET_ARCHIVE"] = str(self.cfg.market_archive)
+        else:
+            shared_env.pop("MARKET_ARCHIVE", None)
+        shared_env["LIVE_DB"] = str(self.cfg.live_db)
+        shared_env["LIVE_DIR"] = str(self.cfg.live_dir)
+        shared_env["PAPER_LEDGER_DIR"] = str(self.cfg.paper_ledger_dir)
+        shared_env["PAPER_LOCK_DIR"] = str(self.cfg.paper_lock_dir)
+        if self.cfg.jobs_db:
+            shared_env["JOBS_DB"] = str(self.cfg.jobs_db)
+        shared_env["SYS_PID_DIR"] = str(self.cfg.pid_dir)
+        shared_env["SYS_LOG_DIR"] = str(self.cfg.log_dir)
+        shared_env["INPROCESS_JOBS"] = str(self.cfg.inprocess_jobs)
+        shared_env["WEB_READONLY"] = str(self.cfg.web_readonly)
+        if self.cfg.is_isolated:
+            shared_env["ISOLATED_MODE"] = "1"
+        shared_env["NO_PROXY"] = "127.0.0.1,localhost,::1"
+        shared_env["no_proxy"] = shared_env["NO_PROXY"]
+        if self.cfg.config_path:
+            shared_env["EFFECTIVE_VIEW"] = self.cfg.config_path
+        else:
+            shared_env.pop("EFFECTIVE_VIEW", None)
+        now_str = dt.datetime.now(dt.timezone.utc).isoformat()
+    
+        # 3. 启动 API (adapter.py)
+        api_pid = get_port_listener_pid(self.cfg.port)
+        if not api_pid or not is_pid_alive(api_pid):
+            log_path = self.cfg.log_dir / f"backend-{self.cfg.port}.log"
+            pid_path = self.get_api_pidfile()
+            print(f"[*] 启动 API 服务 (端口 {self.cfg.port})...")
+            api_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "adapter.py")],
+                cwd=self.cfg.backend_dir,
+                log_file=log_path,
+                pid_file=pid_path,
+                env=shared_env
+            )
+            # 等待就绪
+            deadline = time.time() + 30.0
+            health_ok = False
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            while time.time() < deadline:
+                if not is_pid_alive(api_pid):
+                    err_tail = log_path.read_text(encoding="utf-8", errors="replace")[-500:] if log_path.exists() else ""
+                    err_msg = f"API 进程刚拉起便崩溃 (pid={api_pid})：{err_tail}"
+                    self._save_meta("api", {"state": "failed_process_crashed", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                health_ok, _ = probe_http_health(health_url)
+                if health_ok:
+                    break
+                time.sleep(0.5)
+    
+            if not health_ok:
+                err_msg = f"API 服务未能于 30s 内响应健康探针（{health_url}）"
+                self._save_meta("api", {"state": "failed_timeout", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            print(f"[✔] API 服务已就绪: pid={api_pid}, 端口: {self.cfg.port}")
+            self._save_meta("api", {"state": "running", "pid": api_pid, "started_at": now_str, "exit_reason": None})
+    
+        # 4. 启动 Worker (workers/backtest_worker.py)
+        w_pid = self._read_pid(self.get_worker_pidfile())
+        if not w_pid or not is_pid_alive(w_pid):
+            w_log = self.cfg.log_dir / f"worker-{self.cfg.port}.log"
+            w_pidfile = self.get_worker_pidfile()
+            print(f"[*] 启动回测 Worker 进程...")
+            w_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "workers" / "backtest_worker.py"), "--db", str(self.cfg.jobs_db), "--owner", f"service_manager_{self.cfg.port}"],
+                cwd=self.cfg.backend_dir,
+                log_file=w_log,
+                pid_file=w_pidfile,
+                env=shared_env
+            )
+            time.sleep(1.0)
+            if not is_pid_alive(w_pid):
+                err_tail = w_log.read_text(encoding="utf-8", errors="replace")[-500:] if w_log.exists() else ""
+                err_msg = f"Worker 进程启动后崩溃：{err_tail}"
+                self._save_meta("worker", {"state": "failed_process_crashed", "exit_reason": err_msg})
+>               raise RuntimeError(err_msg)
+E               RuntimeError: Worker 进程启动后崩溃：{"ts": "2026-10-25T13:10:27Z", "proc": "worker", "event": "worker_already_running", "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"}
+
+service_manager.py:810: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+[*] 默认启动模式：不开放自动交易链（交易链保持禁用）
+[*] 启动 API 服务 (端口 54232)...
+[✔] API 服务已就绪: pid=47242, 端口: 54232
+[*] 启动回测 Worker 进程...
+_ TestSystemStartup01.test_04_paper_mode_missing_config_rejected_and_valid_config _
+
+self = <test_system_startup_01.TestSystemStartup01 testMethod=test_04_paper_mode_missing_config_rejected_and_valid_config>
+
+    def test_04_paper_mode_missing_config_rejected_and_valid_config(self):
+        """测试 4：隔离模拟交易模式启动，缺配置硬拦截与有效配置启动。"""
+        # A. 缺配置/错误配置硬拦截
+        fake_cfg_path = str(self.test_dir / "nonexistent_config.json")
+        cfg_fail = self._make_config(enable_paper=True, config_path=fake_cfg_path)
+        mgr_fail = SM.ServiceManager(cfg_fail)
+    
+        with self.assertRaises(RuntimeError) as ctx:
+            mgr_fail.start()
+        self.assertIn("启动拒绝：交易链配置无效或缺失", str(ctx.exception))
+        st_fail = mgr_fail.status()
+        self.assertEqual(st_fail["services"]["runtime"]["status"], "failed_missing_config")
+        print(f"\n[Test 4-A] 缺配置硬拦截成功: {ctx.exception}")
+    
+        # B. 有效配置启动交易链
+        cfg_ok = self._make_config(enable_paper=True)
+        mgr_ok = SM.ServiceManager(cfg_ok)
+>       st_ok = mgr_ok.start()
+                ^^^^^^^^^^^^^^
+
+tests/test_system_startup_01.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <service_manager.ServiceManager object at 0x11a535850>
+
+    def start(self) -> dict:
+        """统一启动入口。严格门禁、端口核验与错误分类。"""
+        # 1. 端口占用与冲突前置判定
+        listener_pid = get_port_listener_pid(self.cfg.port)
+        if listener_pid is not None:
+            cwd = get_process_cwd(listener_pid)
+            cmd = get_process_cmdline(listener_pid)
+            # 校验是否是本项目的 adapter
+            is_own_adapter = ("adapter.py" in cmd) and (str(self.cfg.backend_dir) in cwd or str(self.cfg.project_root) in cwd)
+            if not is_own_adapter:
+                err_msg = f"端口冲突：端口 {self.cfg.port} 已被非本项目进程占用 (pid={listener_pid}, cwd='{cwd}', cmd='{cmd}')"
+                self._save_meta("api", {"state": "failed_port_conflict", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            # 如果是自己的 adapter 且健康探测正常，则复用
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            is_healthy, _ = probe_http_health(health_url)
+            if is_healthy:
+                print(f"[*] API 端口 {self.cfg.port} 已就绪且健康（复用 pid={listener_pid}）")
+                self.get_api_pidfile().write_text(str(listener_pid), encoding="ascii")
+            else:
+                print(f"[!] API 端口 {self.cfg.port} 被旧实例占用但健康探测失败，先尝试停止旧进程...")
+                try:
+                    os.kill(listener_pid, signal.SIGTERM)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+    
+        # 2. 真实信号交易链配置门禁强校验（仅在 enable_paper 激活时）
+        if self.cfg.enable_paper:
+            print(f"[*] 检测到明确启用隔离模拟交易链 (Arm: {self.cfg.paper_arm})... 开始参数契约强验")
+            # 通过 paper_engine 校验生效视图
+            env_test = dict(os.environ)
+            if self.cfg.config_path:
+                env_test["EFFECTIVE_VIEW"] = self.cfg.config_path
+            orig_effective_view = os.environ.get("EFFECTIVE_VIEW")
+            sys_path_save = list(sys.path)
+            try:
+                if str(self.cfg.backend_dir) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.backend_dir))
+                if str(self.cfg.project_root) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.project_root))
+                import paper_engine as PE
+                if self.cfg.config_path:
+                    os.environ["EFFECTIVE_VIEW"] = self.cfg.config_path
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+                approved = PE.approved_params()
+                if not approved.get("_config_valid", False):
+                    cfg_err = approved.get("_config_error") or "未知配置无效原因"
+                    err_msg = f"启动拒绝：交易链配置无效或缺失 ({cfg_err})"
+                    self._save_meta("runtime", {"state": "failed_missing_config", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                print(f"[✔] 交易链配置契约校验通过（版本: {approved.get('model_version')}, 规则: {approved.get('rule')}）")
+            finally:
+                sys.path = sys_path_save
+                if orig_effective_view is not None:
+                    os.environ["EFFECTIVE_VIEW"] = orig_effective_view
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+        else:
+            print("[*] 默认启动模式：不开放自动交易链（交易链保持禁用）")
+    
+        # 准备共享环境变量（必须贯穿全部子进程，严禁遗漏或回退）
+        shared_env = dict(os.environ)
+        shared_env["PORT"] = str(self.cfg.port)
+        shared_env["DATA_HUB_PROJECT"] = str(self.cfg.project_root)
+        shared_env["PYTHONPATH"] = f"{self.cfg.project_root}/框架:{self.cfg.backend_dir}:{self.cfg.project_root}:{shared_env.get('PYTHONPATH', '')}"
+        shared_env["MARKET_DB"] = str(self.cfg.market_db)
+        if self.cfg.market_archive:
+            shared_env["MARKET_ARCHIVE"] = str(self.cfg.market_archive)
+        else:
+            shared_env.pop("MARKET_ARCHIVE", None)
+        shared_env["LIVE_DB"] = str(self.cfg.live_db)
+        shared_env["LIVE_DIR"] = str(self.cfg.live_dir)
+        shared_env["PAPER_LEDGER_DIR"] = str(self.cfg.paper_ledger_dir)
+        shared_env["PAPER_LOCK_DIR"] = str(self.cfg.paper_lock_dir)
+        if self.cfg.jobs_db:
+            shared_env["JOBS_DB"] = str(self.cfg.jobs_db)
+        shared_env["SYS_PID_DIR"] = str(self.cfg.pid_dir)
+        shared_env["SYS_LOG_DIR"] = str(self.cfg.log_dir)
+        shared_env["INPROCESS_JOBS"] = str(self.cfg.inprocess_jobs)
+        shared_env["WEB_READONLY"] = str(self.cfg.web_readonly)
+        if self.cfg.is_isolated:
+            shared_env["ISOLATED_MODE"] = "1"
+        shared_env["NO_PROXY"] = "127.0.0.1,localhost,::1"
+        shared_env["no_proxy"] = shared_env["NO_PROXY"]
+        if self.cfg.config_path:
+            shared_env["EFFECTIVE_VIEW"] = self.cfg.config_path
+        else:
+            shared_env.pop("EFFECTIVE_VIEW", None)
+        now_str = dt.datetime.now(dt.timezone.utc).isoformat()
+    
+        # 3. 启动 API (adapter.py)
+        api_pid = get_port_listener_pid(self.cfg.port)
+        if not api_pid or not is_pid_alive(api_pid):
+            log_path = self.cfg.log_dir / f"backend-{self.cfg.port}.log"
+            pid_path = self.get_api_pidfile()
+            print(f"[*] 启动 API 服务 (端口 {self.cfg.port})...")
+            api_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "adapter.py")],
+                cwd=self.cfg.backend_dir,
+                log_file=log_path,
+                pid_file=pid_path,
+                env=shared_env
+            )
+            # 等待就绪
+            deadline = time.time() + 30.0
+            health_ok = False
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            while time.time() < deadline:
+                if not is_pid_alive(api_pid):
+                    err_tail = log_path.read_text(encoding="utf-8", errors="replace")[-500:] if log_path.exists() else ""
+                    err_msg = f"API 进程刚拉起便崩溃 (pid={api_pid})：{err_tail}"
+                    self._save_meta("api", {"state": "failed_process_crashed", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                health_ok, _ = probe_http_health(health_url)
+                if health_ok:
+                    break
+                time.sleep(0.5)
+    
+            if not health_ok:
+                err_msg = f"API 服务未能于 30s 内响应健康探针（{health_url}）"
+                self._save_meta("api", {"state": "failed_timeout", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            print(f"[✔] API 服务已就绪: pid={api_pid}, 端口: {self.cfg.port}")
+            self._save_meta("api", {"state": "running", "pid": api_pid, "started_at": now_str, "exit_reason": None})
+    
+        # 4. 启动 Worker (workers/backtest_worker.py)
+        w_pid = self._read_pid(self.get_worker_pidfile())
+        if not w_pid or not is_pid_alive(w_pid):
+            w_log = self.cfg.log_dir / f"worker-{self.cfg.port}.log"
+            w_pidfile = self.get_worker_pidfile()
+            print(f"[*] 启动回测 Worker 进程...")
+            w_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "workers" / "backtest_worker.py"), "--db", str(self.cfg.jobs_db), "--owner", f"service_manager_{self.cfg.port}"],
+                cwd=self.cfg.backend_dir,
+                log_file=w_log,
+                pid_file=w_pidfile,
+                env=shared_env
+            )
+            time.sleep(1.0)
+            if not is_pid_alive(w_pid):
+                err_tail = w_log.read_text(encoding="utf-8", errors="replace")[-500:] if w_log.exists() else ""
+                err_msg = f"Worker 进程启动后崩溃：{err_tail}"
+                self._save_meta("worker", {"state": "failed_process_crashed", "exit_reason": err_msg})
+>               raise RuntimeError(err_msg)
+E               RuntimeError: Worker 进程启动后崩溃：{"ts": "2026-10-25T13:10:30Z", "proc": "worker", "event": "worker_already_running", "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"}
+
+service_manager.py:810: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验
+
+[Test 4-A] 缺配置硬拦截成功: 启动拒绝：交易链配置无效或缺失 (config_file_not_found: 配置文件不存在于指定路径: /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/startup_test_y9xg8e6u/nonexistent_config.json)
+[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验
+[✔] 交易链配置契约校验通过（版本: FT-LOW4H-EXP-V2.2, 规则: FT-LOW4H）
+[*] 启动 API 服务 (端口 54254)...
+[✔] API 服务已就绪: pid=47261, 端口: 54254
+[*] 启动回测 Worker 进程...
+______ TestSystemStartup01.test_05_process_crashed_detection_and_restart _______
+
+self = <test_system_startup_01.TestSystemStartup01 testMethod=test_05_process_crashed_detection_and_restart>
+
+    def test_05_process_crashed_detection_and_restart(self):
+        """测试 5：进程崩溃异常识别（failed_process_crashed）与重启恢复。"""
+        cfg = self._make_config(enable_paper=False)
+        mgr = SM.ServiceManager(cfg)
+>       st = mgr.start()
+             ^^^^^^^^^^^
+
+tests/test_system_startup_01.py:196: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <service_manager.ServiceManager object at 0x11bad97d0>
+
+    def start(self) -> dict:
+        """统一启动入口。严格门禁、端口核验与错误分类。"""
+        # 1. 端口占用与冲突前置判定
+        listener_pid = get_port_listener_pid(self.cfg.port)
+        if listener_pid is not None:
+            cwd = get_process_cwd(listener_pid)
+            cmd = get_process_cmdline(listener_pid)
+            # 校验是否是本项目的 adapter
+            is_own_adapter = ("adapter.py" in cmd) and (str(self.cfg.backend_dir) in cwd or str(self.cfg.project_root) in cwd)
+            if not is_own_adapter:
+                err_msg = f"端口冲突：端口 {self.cfg.port} 已被非本项目进程占用 (pid={listener_pid}, cwd='{cwd}', cmd='{cmd}')"
+                self._save_meta("api", {"state": "failed_port_conflict", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            # 如果是自己的 adapter 且健康探测正常，则复用
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            is_healthy, _ = probe_http_health(health_url)
+            if is_healthy:
+                print(f"[*] API 端口 {self.cfg.port} 已就绪且健康（复用 pid={listener_pid}）")
+                self.get_api_pidfile().write_text(str(listener_pid), encoding="ascii")
+            else:
+                print(f"[!] API 端口 {self.cfg.port} 被旧实例占用但健康探测失败，先尝试停止旧进程...")
+                try:
+                    os.kill(listener_pid, signal.SIGTERM)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+    
+        # 2. 真实信号交易链配置门禁强校验（仅在 enable_paper 激活时）
+        if self.cfg.enable_paper:
+            print(f"[*] 检测到明确启用隔离模拟交易链 (Arm: {self.cfg.paper_arm})... 开始参数契约强验")
+            # 通过 paper_engine 校验生效视图
+            env_test = dict(os.environ)
+            if self.cfg.config_path:
+                env_test["EFFECTIVE_VIEW"] = self.cfg.config_path
+            orig_effective_view = os.environ.get("EFFECTIVE_VIEW")
+            sys_path_save = list(sys.path)
+            try:
+                if str(self.cfg.backend_dir) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.backend_dir))
+                if str(self.cfg.project_root) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.project_root))
+                import paper_engine as PE
+                if self.cfg.config_path:
+                    os.environ["EFFECTIVE_VIEW"] = self.cfg.config_path
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+                approved = PE.approved_params()
+                if not approved.get("_config_valid", False):
+                    cfg_err = approved.get("_config_error") or "未知配置无效原因"
+                    err_msg = f"启动拒绝：交易链配置无效或缺失 ({cfg_err})"
+                    self._save_meta("runtime", {"state": "failed_missing_config", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                print(f"[✔] 交易链配置契约校验通过（版本: {approved.get('model_version')}, 规则: {approved.get('rule')}）")
+            finally:
+                sys.path = sys_path_save
+                if orig_effective_view is not None:
+                    os.environ["EFFECTIVE_VIEW"] = orig_effective_view
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+        else:
+            print("[*] 默认启动模式：不开放自动交易链（交易链保持禁用）")
+    
+        # 准备共享环境变量（必须贯穿全部子进程，严禁遗漏或回退）
+        shared_env = dict(os.environ)
+        shared_env["PORT"] = str(self.cfg.port)
+        shared_env["DATA_HUB_PROJECT"] = str(self.cfg.project_root)
+        shared_env["PYTHONPATH"] = f"{self.cfg.project_root}/框架:{self.cfg.backend_dir}:{self.cfg.project_root}:{shared_env.get('PYTHONPATH', '')}"
+        shared_env["MARKET_DB"] = str(self.cfg.market_db)
+        if self.cfg.market_archive:
+            shared_env["MARKET_ARCHIVE"] = str(self.cfg.market_archive)
+        else:
+            shared_env.pop("MARKET_ARCHIVE", None)
+        shared_env["LIVE_DB"] = str(self.cfg.live_db)
+        shared_env["LIVE_DIR"] = str(self.cfg.live_dir)
+        shared_env["PAPER_LEDGER_DIR"] = str(self.cfg.paper_ledger_dir)
+        shared_env["PAPER_LOCK_DIR"] = str(self.cfg.paper_lock_dir)
+        if self.cfg.jobs_db:
+            shared_env["JOBS_DB"] = str(self.cfg.jobs_db)
+        shared_env["SYS_PID_DIR"] = str(self.cfg.pid_dir)
+        shared_env["SYS_LOG_DIR"] = str(self.cfg.log_dir)
+        shared_env["INPROCESS_JOBS"] = str(self.cfg.inprocess_jobs)
+        shared_env["WEB_READONLY"] = str(self.cfg.web_readonly)
+        if self.cfg.is_isolated:
+            shared_env["ISOLATED_MODE"] = "1"
+        shared_env["NO_PROXY"] = "127.0.0.1,localhost,::1"
+        shared_env["no_proxy"] = shared_env["NO_PROXY"]
+        if self.cfg.config_path:
+            shared_env["EFFECTIVE_VIEW"] = self.cfg.config_path
+        else:
+            shared_env.pop("EFFECTIVE_VIEW", None)
+        now_str = dt.datetime.now(dt.timezone.utc).isoformat()
+    
+        # 3. 启动 API (adapter.py)
+        api_pid = get_port_listener_pid(self.cfg.port)
+        if not api_pid or not is_pid_alive(api_pid):
+            log_path = self.cfg.log_dir / f"backend-{self.cfg.port}.log"
+            pid_path = self.get_api_pidfile()
+            print(f"[*] 启动 API 服务 (端口 {self.cfg.port})...")
+            api_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "adapter.py")],
+                cwd=self.cfg.backend_dir,
+                log_file=log_path,
+                pid_file=pid_path,
+                env=shared_env
+            )
+            # 等待就绪
+            deadline = time.time() + 30.0
+            health_ok = False
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            while time.time() < deadline:
+                if not is_pid_alive(api_pid):
+                    err_tail = log_path.read_text(encoding="utf-8", errors="replace")[-500:] if log_path.exists() else ""
+                    err_msg = f"API 进程刚拉起便崩溃 (pid={api_pid})：{err_tail}"
+                    self._save_meta("api", {"state": "failed_process_crashed", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                health_ok, _ = probe_http_health(health_url)
+                if health_ok:
+                    break
+                time.sleep(0.5)
+    
+            if not health_ok:
+                err_msg = f"API 服务未能于 30s 内响应健康探针（{health_url}）"
+                self._save_meta("api", {"state": "failed_timeout", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            print(f"[✔] API 服务已就绪: pid={api_pid}, 端口: {self.cfg.port}")
+            self._save_meta("api", {"state": "running", "pid": api_pid, "started_at": now_str, "exit_reason": None})
+    
+        # 4. 启动 Worker (workers/backtest_worker.py)
+        w_pid = self._read_pid(self.get_worker_pidfile())
+        if not w_pid or not is_pid_alive(w_pid):
+            w_log = self.cfg.log_dir / f"worker-{self.cfg.port}.log"
+            w_pidfile = self.get_worker_pidfile()
+            print(f"[*] 启动回测 Worker 进程...")
+            w_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "workers" / "backtest_worker.py"), "--db", str(self.cfg.jobs_db), "--owner", f"service_manager_{self.cfg.port}"],
+                cwd=self.cfg.backend_dir,
+                log_file=w_log,
+                pid_file=w_pidfile,
+                env=shared_env
+            )
+            time.sleep(1.0)
+            if not is_pid_alive(w_pid):
+                err_tail = w_log.read_text(encoding="utf-8", errors="replace")[-500:] if w_log.exists() else ""
+                err_msg = f"Worker 进程启动后崩溃：{err_tail}"
+                self._save_meta("worker", {"state": "failed_process_crashed", "exit_reason": err_msg})
+>               raise RuntimeError(err_msg)
+E               RuntimeError: Worker 进程启动后崩溃：{"ts": "2026-10-25T13:10:33Z", "proc": "worker", "event": "worker_already_running", "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"}
+
+service_manager.py:810: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+[*] 默认启动模式：不开放自动交易链（交易链保持禁用）
+[*] 启动 API 服务 (端口 54296)...
+[✔] API 服务已就绪: pid=47275, 端口: 54296
+[*] 启动回测 Worker 进程...
+______ TestSystemStartup01.test_06_stop_isolation_does_not_kill_collector ______
+
+self = <test_system_startup_01.TestSystemStartup01 testMethod=test_06_stop_isolation_does_not_kill_collector>
+
+    def test_06_stop_isolation_does_not_kill_collector(self):
+        """测试 6：停止只作用于本启动器管理的进程，绝不误停采集器。"""
+        cfg = self._make_config(enable_paper=False)
+        mgr = SM.ServiceManager(cfg)
+>       mgr.start()
+
+tests/test_system_startup_01.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <service_manager.ServiceManager object at 0x11a49dbe0>
+
+    def start(self) -> dict:
+        """统一启动入口。严格门禁、端口核验与错误分类。"""
+        # 1. 端口占用与冲突前置判定
+        listener_pid = get_port_listener_pid(self.cfg.port)
+        if listener_pid is not None:
+            cwd = get_process_cwd(listener_pid)
+            cmd = get_process_cmdline(listener_pid)
+            # 校验是否是本项目的 adapter
+            is_own_adapter = ("adapter.py" in cmd) and (str(self.cfg.backend_dir) in cwd or str(self.cfg.project_root) in cwd)
+            if not is_own_adapter:
+                err_msg = f"端口冲突：端口 {self.cfg.port} 已被非本项目进程占用 (pid={listener_pid}, cwd='{cwd}', cmd='{cmd}')"
+                self._save_meta("api", {"state": "failed_port_conflict", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            # 如果是自己的 adapter 且健康探测正常，则复用
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            is_healthy, _ = probe_http_health(health_url)
+            if is_healthy:
+                print(f"[*] API 端口 {self.cfg.port} 已就绪且健康（复用 pid={listener_pid}）")
+                self.get_api_pidfile().write_text(str(listener_pid), encoding="ascii")
+            else:
+                print(f"[!] API 端口 {self.cfg.port} 被旧实例占用但健康探测失败，先尝试停止旧进程...")
+                try:
+                    os.kill(listener_pid, signal.SIGTERM)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+    
+        # 2. 真实信号交易链配置门禁强校验（仅在 enable_paper 激活时）
+        if self.cfg.enable_paper:
+            print(f"[*] 检测到明确启用隔离模拟交易链 (Arm: {self.cfg.paper_arm})... 开始参数契约强验")
+            # 通过 paper_engine 校验生效视图
+            env_test = dict(os.environ)
+            if self.cfg.config_path:
+                env_test["EFFECTIVE_VIEW"] = self.cfg.config_path
+            orig_effective_view = os.environ.get("EFFECTIVE_VIEW")
+            sys_path_save = list(sys.path)
+            try:
+                if str(self.cfg.backend_dir) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.backend_dir))
+                if str(self.cfg.project_root) not in sys.path:
+                    sys.path.insert(0, str(self.cfg.project_root))
+                import paper_engine as PE
+                if self.cfg.config_path:
+                    os.environ["EFFECTIVE_VIEW"] = self.cfg.config_path
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+                approved = PE.approved_params()
+                if not approved.get("_config_valid", False):
+                    cfg_err = approved.get("_config_error") or "未知配置无效原因"
+                    err_msg = f"启动拒绝：交易链配置无效或缺失 ({cfg_err})"
+                    self._save_meta("runtime", {"state": "failed_missing_config", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                print(f"[✔] 交易链配置契约校验通过（版本: {approved.get('model_version')}, 规则: {approved.get('rule')}）")
+            finally:
+                sys.path = sys_path_save
+                if orig_effective_view is not None:
+                    os.environ["EFFECTIVE_VIEW"] = orig_effective_view
+                else:
+                    os.environ.pop("EFFECTIVE_VIEW", None)
+        else:
+            print("[*] 默认启动模式：不开放自动交易链（交易链保持禁用）")
+    
+        # 准备共享环境变量（必须贯穿全部子进程，严禁遗漏或回退）
+        shared_env = dict(os.environ)
+        shared_env["PORT"] = str(self.cfg.port)
+        shared_env["DATA_HUB_PROJECT"] = str(self.cfg.project_root)
+        shared_env["PYTHONPATH"] = f"{self.cfg.project_root}/框架:{self.cfg.backend_dir}:{self.cfg.project_root}:{shared_env.get('PYTHONPATH', '')}"
+        shared_env["MARKET_DB"] = str(self.cfg.market_db)
+        if self.cfg.market_archive:
+            shared_env["MARKET_ARCHIVE"] = str(self.cfg.market_archive)
+        else:
+            shared_env.pop("MARKET_ARCHIVE", None)
+        shared_env["LIVE_DB"] = str(self.cfg.live_db)
+        shared_env["LIVE_DIR"] = str(self.cfg.live_dir)
+        shared_env["PAPER_LEDGER_DIR"] = str(self.cfg.paper_ledger_dir)
+        shared_env["PAPER_LOCK_DIR"] = str(self.cfg.paper_lock_dir)
+        if self.cfg.jobs_db:
+            shared_env["JOBS_DB"] = str(self.cfg.jobs_db)
+        shared_env["SYS_PID_DIR"] = str(self.cfg.pid_dir)
+        shared_env["SYS_LOG_DIR"] = str(self.cfg.log_dir)
+        shared_env["INPROCESS_JOBS"] = str(self.cfg.inprocess_jobs)
+        shared_env["WEB_READONLY"] = str(self.cfg.web_readonly)
+        if self.cfg.is_isolated:
+            shared_env["ISOLATED_MODE"] = "1"
+        shared_env["NO_PROXY"] = "127.0.0.1,localhost,::1"
+        shared_env["no_proxy"] = shared_env["NO_PROXY"]
+        if self.cfg.config_path:
+            shared_env["EFFECTIVE_VIEW"] = self.cfg.config_path
+        else:
+            shared_env.pop("EFFECTIVE_VIEW", None)
+        now_str = dt.datetime.now(dt.timezone.utc).isoformat()
+    
+        # 3. 启动 API (adapter.py)
+        api_pid = get_port_listener_pid(self.cfg.port)
+        if not api_pid or not is_pid_alive(api_pid):
+            log_path = self.cfg.log_dir / f"backend-{self.cfg.port}.log"
+            pid_path = self.get_api_pidfile()
+            print(f"[*] 启动 API 服务 (端口 {self.cfg.port})...")
+            api_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "adapter.py")],
+                cwd=self.cfg.backend_dir,
+                log_file=log_path,
+                pid_file=pid_path,
+                env=shared_env
+            )
+            # 等待就绪
+            deadline = time.time() + 30.0
+            health_ok = False
+            health_url = f"http://127.0.0.1:{self.cfg.port}/api/health"
+            while time.time() < deadline:
+                if not is_pid_alive(api_pid):
+                    err_tail = log_path.read_text(encoding="utf-8", errors="replace")[-500:] if log_path.exists() else ""
+                    err_msg = f"API 进程刚拉起便崩溃 (pid={api_pid})：{err_tail}"
+                    self._save_meta("api", {"state": "failed_process_crashed", "exit_reason": err_msg})
+                    raise RuntimeError(err_msg)
+                health_ok, _ = probe_http_health(health_url)
+                if health_ok:
+                    break
+                time.sleep(0.5)
+    
+            if not health_ok:
+                err_msg = f"API 服务未能于 30s 内响应健康探针（{health_url}）"
+                self._save_meta("api", {"state": "failed_timeout", "exit_reason": err_msg})
+                raise RuntimeError(err_msg)
+    
+            print(f"[✔] API 服务已就绪: pid={api_pid}, 端口: {self.cfg.port}")
+            self._save_meta("api", {"state": "running", "pid": api_pid, "started_at": now_str, "exit_reason": None})
+    
+        # 4. 启动 Worker (workers/backtest_worker.py)
+        w_pid = self._read_pid(self.get_worker_pidfile())
+        if not w_pid or not is_pid_alive(w_pid):
+            w_log = self.cfg.log_dir / f"worker-{self.cfg.port}.log"
+            w_pidfile = self.get_worker_pidfile()
+            print(f"[*] 启动回测 Worker 进程...")
+            w_pid = spawn_detached_process(
+                argv=[self.cfg.py, str(self.cfg.backend_dir / "workers" / "backtest_worker.py"), "--db", str(self.cfg.jobs_db), "--owner", f"service_manager_{self.cfg.port}"],
+                cwd=self.cfg.backend_dir,
+                log_file=w_log,
+                pid_file=w_pidfile,
+                env=shared_env
+            )
+            time.sleep(1.0)
+            if not is_pid_alive(w_pid):
+                err_tail = w_log.read_text(encoding="utf-8", errors="replace")[-500:] if w_log.exists() else ""
+                err_msg = f"Worker 进程启动后崩溃：{err_tail}"
+                self._save_meta("worker", {"state": "failed_process_crashed", "exit_reason": err_msg})
+>               raise RuntimeError(err_msg)
+E               RuntimeError: Worker 进程启动后崩溃：{"ts": "2026-10-25T13:10:35Z", "proc": "worker", "event": "worker_already_running", "db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3"}
+
+service_manager.py:810: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+[*] 默认启动模式：不开放自动交易链（交易链保持禁用）
+[*] 启动 API 服务 (端口 54322)...
+[✔] API 服务已就绪: pid=47295, 端口: 54322
+[*] 启动回测 Worker 进程...
+=========================== short test summary info ============================
+FAILED tests/test_system_isolation_03.py::TestSystemIsolation03::test_01_isolation_mode_rejects_missing_paths
+FAILED tests/test_system_isolation_03.py::TestSystemIsolation03::test_02_subprocesses_path_isolation_and_open_files
+FAILED tests/test_system_isolation_03.py::TestSystemIsolation03::test_03_stop_precision_and_idempotency_and_mismatch_rejection
+FAILED tests/test_system_isolation_03.py::TestSystemIsolation03::test_04_overall_health_accurate_distinction
+FAILED tests/test_system_isolation_04.py::TestSystemIsolation04::test_02_direct_daily_paths_rejected
+FAILED tests/test_system_isolation_04.py::TestSystemIsolation04::test_04_subprocesses_full_isolation_including_jobs_wal_shm_lock
+FAILED tests/test_system_isolation_04.py::TestSystemIsolation04::test_05_stop_precision_idempotency_mismatch_rejection_and_health
+FAILED tests/test_system_isolation_05.py::TestSystemIsolation05::test_01_missing_market_archive_rejected
+FAILED tests/test_system_isolation_05.py::TestSystemIsolation05::test_04_cold_archive_isolation_and_actual_read_verification
+FAILED tests/test_system_isolation_05.py::TestSystemIsolation05::test_05_non_isolated_daily_mode_compatibility
+FAILED tests/test_system_startup_01.py::TestSystemStartup01::test_02_unified_start_default_safe_mode
+FAILED tests/test_system_startup_01.py::TestSystemStartup01::test_03_repeat_start_idempotency_and_port_conflict
+FAILED tests/test_system_startup_01.py::TestSystemStartup01::test_04_paper_mode_missing_config_rejected_and_valid_config
+FAILED tests/test_system_startup_01.py::TestSystemStartup01::test_05_process_crashed_detection_and_restart
+FAILED tests/test_system_startup_01.py::TestSystemStartup01::test_06_stop_isolation_does_not_kill_collector
+15 failed, 364 passed, 79 skipped in 100.86s (0:01:40)

@@ -1,0 +1,173 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-05-E | 脚本 01: 04-A 规则与 04-B 实现的静态与行为定义深度独立对照
+
+重点对照：
+1. 扫低对象 (Sweep Object / Reference)
+2. 局部压制位 (Local Resistance)
+3. 承接与卖压指标 (Absorption & Sell Pressure)
+4. 失效机制 (Invalidation)
+5. 冷却机制 (Cooldown)
+6. 重复候选与事件状态机 (Repeat Candidate & Lifecycle)
+"""
+import json
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+OUT_DIR = PROJECT_ROOT / "evidence" / "ACCUM-EARLY-05-E" / "out"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+def analyze_differences():
+    diffs = []
+
+    # 1. 扫低对象
+    diffs.append({
+        "item": "sweep_object",
+        "category": "扫低对象与局部支撑",
+        "rule_04a": {
+            "param_name": "sweep_object",
+            "values": ["local_support", "box_low"],
+            "support_definition": "local_support_bars=24, 前24根1h的最低价(不含当根)",
+            "hard_guard": "s_loc > box['L'] (必须严格高于箱底 L，否则属于原策略破L扫低)",
+            "recovery_scope": "single_bar (单根完成)",
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py::detect_sweep",
+        },
+        "impl_04b": {
+            "param_name": "shared.sweep_reference.mode",
+            "values": ["box_low", "prior_n_low"],
+            "support_definition": "prior_n_low, n由配置指定(如20或24)",
+            "hard_guard": "无！未校验 ref > box['low_l']",
+            "recovery_scope": "支持 single_bar 和 multi_bar (max_bars)",
+            "location_in_code": "框架/backend/accum_early_entry.py::_sweep_check",
+        },
+        "discrepancy_level": "CRITICAL_SEMANTIC_DRIFT",
+        "impact": "04-B 缺失 s_loc > box_low 的防护，当局部支撑落在箱底以下时，会把破箱底的真破位当成箱内局部扫低，改变提前入场的语义范围。",
+    })
+
+    # 2. 局部压制位
+    diffs.append({
+        "item": "local_resistance",
+        "category": "局部压制位定义与合格性",
+        "rule_04a": {
+            "definitions": ["swing_high_k3_lookback48 (推荐首选)", "prior_high_24", "box_mid", "box_close_pct70"],
+            "qualified_guard": "L + 0.5A <= R_loc <= H - 0.5A (resistance_min_gap_atr=0.5A)",
+            "unqualified_terminal_state": "NO_RESISTANCE (离箱底或箱顶空间不足时终结为 NO_RESISTANCE，不算失败)",
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py::local_resistance & resistance_qualified",
+        },
+        "impl_04b": {
+            "definitions": ["prior_n_high", "box_high (未实现 swing_high 摆动高点)"],
+            "qualified_guard": "无！未校验离箱底/箱顶空间是否 >= 0.5A",
+            "unqualified_terminal_state": "无 NO_RESISTANCE 状态处理，只要算出数字即进入候选判断",
+            "location_in_code": "框架/backend/accum_early_entry.py::_resistance",
+        },
+        "discrepancy_level": "CRITICAL_SEMANTIC_DRIFT",
+        "impact": "04-B 未实现 04-A 推荐的核心摆动高点算法；同时完全遗漏压制位合格性过滤，导致若压制位贴近箱顶（提前量消失退化为普通突破）或贴近箱底（5%止损空间容不下）时仍产生信号。",
+    })
+
+    # 3. 承接与卖压指标
+    diffs.append({
+        "item": "absorption_sell_pressure",
+        "category": "承接与卖压指标计算及判定时序",
+        "rule_04a": {
+            "evaluation_timing": "在扫低根 (i_sweep) 判定！作为进入 ARMED 的硬门槛 (absorption_is_gate=True)",
+            "data_source": "1h K 线自带的 quote_volume 与 taker_buy_quote_volume (USDT 名义额)",
+            "metrics": [
+                "主动买占比 tbr = taker_buy_quote_volume / quote_volume >= base_tbr * 1.0",
+                "收盘位置 close_pos = (close - low) / (high - low) >= 0.5 (上半区)",
+                "主动卖出额 sell = quote_volume - taker_buy_quote_volume <= base_sell * 0.8 (卖压减弱)"
+            ],
+            "baseline": "前 20 根 1h 的中位数 (base_tbr, base_sell)",
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py::absorption",
+        },
+        "impl_04b": {
+            "evaluation_timing": "严重错位：在【确认根】(收上压制位那根 bar) 判定！扫低根完全不测承接！",
+            "data_source": "1h K 线自带的 volume 与 taker_buy_volume (币数量纲，非 USDT 名义额)",
+            "metrics": [
+                "主动买占比 ratio = taker_buy_volume / volume >= buy_ratio_min (固定阈值，如 0.5)",
+                "未计算收盘位置 close_pos",
+                "未计算推导卖压额与基准的乘数比对"
+            ],
+            "baseline": "计算了前 n 根 volume 的中位数 base_val，但判定中完全没有使用 base_val！",
+            "location_in_code": "框架/backend/accum_early_entry.py::_sell_pressure & SchemeObserver._confirm_actions (line 712)",
+        },
+        "discrepancy_level": "CRITICAL_TIMING_AND_FORMULA_MISMATCH",
+        "impact": "承接是在恐慌扫低时看是否有大单托底、吸收卖盘；04-B 在扫低时根本不查承接，反而挪到突破压制位的那根 K 线上查；且计算公式与基准未结合，量纲也不一致。",
+    })
+
+    # 4. 失效机制
+    diffs.append({
+        "item": "invalidation",
+        "category": "结构失效与假突破失效机制",
+        "rule_04a": {
+            "mechanisms": [
+                "1. 箱体结构破位：连续 2 根 1h 收盘 < 箱体下沿 L，或任一根 1h 最低价 < L - 0.5A => INVALIDATED",
+                "2. 扫低破位：最低价 < S_loc - 0.5A => 扫低不成立",
+                "3. 假突破跌回：收上压制位后，连续 2 根 1h 收盘跌回 R_loc - 0.1A 下方 => INVALIDATED",
+                "4. 观察超期：建档起超过 observe_deadline_hours (336h) => EXPIRED",
+                "5. 丙组回抽超期：收上后 pullback_deadline_hours (48h) 内未回抽 => 放弃"
+            ],
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py::invalidation",
+        },
+        "impl_04b": {
+            "mechanisms": [
+                "1. 仅实现了跌破当次扫低低点：bar['low'] 或 bar['close'] < sweep_low - buffer_atr * atr => INVALIDATED",
+                "2. 观察超期：超过 observe_deadline_hours => EXPIRED",
+                "3. 丙组回抽超期：超过 pullback_deadline_hours => EXPIRED",
+                "缺少：箱体结构破位（破 L 机制）",
+                "缺少：收上压制位后连续 2 根收盘跌回 R - 0.1A"
+            ],
+            "location_in_code": "框架/backend/accum_early_entry.py::_invalid_check",
+        },
+        "discrepancy_level": "SIGNIFICANT_LOGIC_OMISSION",
+        "impact": "04-B 遗漏了箱体下沿被深破时的全局失效保护，以及收上压制位后的二次跌破保护，只盯住 sweep_low 单点。",
+    })
+
+    # 5. 冷却机制
+    diffs.append({
+        "item": "cooldown",
+        "category": "事件冷却与标的重复触发控制",
+        "rule_04a": {
+            "cooldown_hours": 24,
+            "rule": "同标的事件终结后冷却 24 小时；每个方案同时只允许一个活跃事件",
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py::cooling_hours",
+        },
+        "impl_04b": {
+            "cooldown_hours": "从配置 repeat_candidate_limit.cooldown_hours 读取",
+            "guard_in_unapproved": "当配置未批准时，代码显式将 cooldown_ms 设为 0（并在报告标明未生效），导致未批准扫描时冷却不生效",
+            "state_release_on_blocked": "在配置未批准时，事件停在 BOX 触发 blocked_config 后将 obs.done 设为 True 释放槽位",
+            "location_in_code": "框架/backend/accum_early_entry.py::scan_symbol (lines 1176-1185, 1239)",
+        },
+        "discrepancy_level": "BEHAVIORAL_DIFFERENCE",
+        "impact": "未批准状态下扫描多个箱体时，因 cooldown=0 且 blocked 后释放槽位，可能在密集时间段频繁产生 blocked_config 事件记录。",
+    })
+
+    # 6. 重复候选与事件状态机
+    diffs.append({
+        "item": "repeat_candidate_and_lifecycle",
+        "category": "事件生命周期与重复候选约束",
+        "rule_04a": {
+            "lifecycle": "OBSERVE -> SWEEP -> ARMED -> CONFIRMED -> FILLED (或终态 INVALIDATED / EXPIRED / NO_RESISTANCE / CANCELLED)",
+            "candidate_count": "每个事件只有一次入场确认机会",
+            "location_in_code": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py",
+        },
+        "impl_04b": {
+            "lifecycle": "BOX -> SWEEP -> RETEST(乙/丙) -> CANDIDATE -> try_open (或终态 INVALIDATED / EXPIRED / DATA_INSUFFICIENT)",
+            "candidate_count": "生成 CANDIDATE 后立即标记 obs.done = True，一个事件只产出 1 个候选",
+            "location_in_code": "框架/backend/accum_early_entry.py::SchemeObserver",
+        },
+        "discrepancy_level": "MODERATE_ALIGNMENT",
+        "impact": "状态机命名存在映射（BOX对应OBSERVE，RETEST对应乙丙过渡态），单事件单候选逻辑一致，但缺少 NO_RESISTANCE 终态。",
+    })
+
+    out_file = OUT_DIR / "01_rule_impl_diff.json"
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump({
+            "generated_by": "ACCUM-EARLY-05-E::01_rule_impl_diff.py",
+            "differences_count": len(diffs),
+            "differences": diffs
+        }, f, ensure_ascii=False, indent=2)
+
+    print(f"[OK] 差异比对完成，共登记 {len(diffs)} 项核心维度差异，结果已写入: {out_file}")
+
+if __name__ == "__main__":
+    analyze_differences()

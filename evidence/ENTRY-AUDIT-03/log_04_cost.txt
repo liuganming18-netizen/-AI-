@@ -1,0 +1,57 @@
+{
+ "trades": 213,
+ "fees_eq_entry_plus_exit_true": 213,
+ "net_identity_true": 213,
+ "net_identity_false": 0,
+ "max_abs_net_residual": 7.105427357601002e-15,
+ "slip_split_ok_true": 213,
+ "slip_split_ok_false": 0,
+ "funding_gaps_total": 14,
+ "funding_gaps_reason": "funding_event_missing_fields:mark —— 资金费事件缺 mark_price，引擎记 gap 不补 0 ⇒ 这些结算没有计入费用，方向未知",
+ "sum_gross": 144.923304,
+ "sum_entry_fee": 6.819895,
+ "sum_exit_fee": 6.892357,
+ "sum_fees": 13.712252,
+ "sum_funding": 7.93734,
+ "sum_net": 123.273711,
+ "identity_check_sum": 123.273711
+}
+{
+ "runs_compared": 174,
+ "fee_ok_true": 174,
+ "fee_ok_false": 0,
+ "funding_ok_true": 174,
+ "funding_ok_false": 0,
+ "net_ok_true": 174,
+ "net_ok_false": 0,
+ "cash_identity_ok_false": 0,
+ "equity_identity_ok_false": 0
+}
+{
+ "runs_probed": 5,
+ "probe_tasks": [
+  "B|129|ETHWUSDT",
+  "A|SPELLUSDT",
+  "A|UNIUSDT",
+  "A|LPTUSDT",
+  "B|39|COTIUSDT"
+ ],
+ "all_fee_match": true,
+ "all_funding_match": true,
+ "all_position_closed_net_multiset_match": true,
+ "ledger_event_identity_limitation": {
+  "FEE_CHARGED": "payload 只有 {side, fee}，不带 signal_id / order_id",
+  "FUNDING_FEE": "payload 只有 {delta, cum_funding_fee}，不带 signal_id",
+  "POSITION_CLOSED": "payload 带 trade_id 与 net_pnl",
+  "consequence": "账本事件本身无法逐笔归属到候选；逐笔身份必须靠引擎的 ValidationResult / trade rec（它们带 signal_id / order_id）。因此本轮的对账方式是：run 级汇总相等 + POSITION_CLOSED 的 net_pnl 多重集相等，两条同时成立才算对上。"
+ },
+ "sign_convention_across_layers": {
+  "FEE_CHARGED.payload.fee": "正号 = 支出（与 rec.fees 同号，直接比）",
+  "FUNDING_FEE.payload.delta": "**现金变动**：支出为负、收入为正",
+  "rec.funding_fee / cum_funding_fee": "**成本口径**：支出为正、收入为负",
+  "relation": "cum_funding_fee = −Σdelta",
+  "how_compared": "先把账本 delta 取负统一到成本口径，再与 rec.funding_fee 比较",
+  "why_it_matters": "这正是工单要求的「统一费用正负号」：两层口径符号相反，不统一就会得出「资金费对不上」的假结论"
+ },
+ "conclusion": "账本 FEE_CHARGED 的 fee 合计 = rec 的 fees 合计；FUNDING_FEE 的 delta 合计 = rec 的 funding_fee 合计；POSITION_CLOSED 的 net_pnl 多重集 = rec 的 net_pnl 多重集⇒ rec 不是另算的一套数，而是账本事件的直接汇总。"
+}

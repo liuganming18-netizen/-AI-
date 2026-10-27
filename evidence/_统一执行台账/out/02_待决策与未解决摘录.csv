@@ -1,0 +1,57 @@
+﻿工单目录,来源文件,摘录
+BREAKEVEN-ROBUST-01,BREAKEVEN-ROBUST-01/报告.md,- 结论状态：**待审核**；本单不宣布阈值最佳、不上线
+BREAKEVEN-ROBUST-02,BREAKEVEN-ROBUST-02/验收报告.md,本次未重跑全池、策略撮合或新实验；未读取或计算 200 笔持仓缩量退出费用分支（`pos_low_vol_exit` / `pos_exit_*`），不做缩量研究收尾。脚本、复现命令、实际日志及未解决项均只写在本次新目录 `evidence/BREAKEVEN-ROBUST-02/`。
+BREAKEVEN-ROBUST-02,BREAKEVEN-ROBUST-02/未解决项.md,# 未解决项与待审事项
+CLOSE-VERIFY-01,CLOSE-VERIFY-01/01_框架版本收口独立核验.md,"- 结果：**25 passed, 0 failed, 0 not_tested**"
+CLOSE-VERIFY-01,CLOSE-VERIFY-01/报告.md,| **B. 策略增量核验** | `ACCUM-STRAT-01` | **增量机制 PASS**<br>**原策略复现 NOT_TESTED**<br>**正式上线资格 FAIL** | 真实入场函数严格使用历史可用数据并按次日开盘成交；重算表明 T+5 字面收盘口径净改善仅 +0.033%/笔近乎无增益，盘中跌破口径则造成 -1.681%/笔大幅恶化；G4 弱市极端依赖极少数交易（Top 1
+CLOSE-VERIFY-01,CLOSE-VERIFY-01/02_策略增量独立核验.md,- 判定结论：**增量机制分析 PASS / 原始策略复现 NOT_TESTED（缺失阻断） / 正式上线资格 FAIL（不具备）**
+CLOSE-VERIFY-01,CLOSE-VERIFY-01/02_策略增量独立核验.md,- 结论：工单字面入场规则不可复现，样本不足无法判定。
+DATA-CLEAN-01,DATA-CLEAN-01/README.md,"| `_backup/20261014T190050Z` | 9,031.6 MB | **待核**：520 个 funding 的 `source` 比当前目录多 `+fapi` / `+mark1h` 后缀 |"
+DATA-CLEAN-01,DATA-CLEAN-01/README.md,**这意味着：如果 9 月之后跑过用这份数据做输入的回测，结论可能建立在错位数据上。** 建议在清理之前，先查这批回测有哪些。这件事已写进 `04_待核清单.md` 第 3 项。
+DATA-CLEAN-01,DATA-CLEAN-01/README.md,| `04_待核清单.md` | 9 项未查清的事，含数据质量问题 |
+DATA-CLEAN-01,DATA-CLEAN-01/02_研究输入核实.md,"| `ohlcv/`（15m/1h/4h） | 3,208.7 MB | 共同行数值基本一致；多出 09-14 之后的增量 | **无**（可从 SQLite 重建） | 可重建，**待用户确认后**才可删 |"
+ENTRY-AUDIT-05,ENTRY-AUDIT-05/报告.md,| **二、历史规格、PIT 发布时点、样本来源限制** | **全部仍未解除** | 规格 `verified` 0 条（`unverified_historical` 212 / `contradicted` 13 / `not_listed` 2）；`formal_pass_allowed` 227 条全 `false`；PIT 仍为 UNPROVEN；两代际净盈亏方向相反（+144.106
+FACTOR-ENTRY-02,FACTOR-ENTRY-02/experiment_plan.md,- **复核动机**：上一轮汇总汇报（Baseline 205 笔 +101.53，Flow 122 笔 +32.42，Crowding 169 笔 +272.55，Combined 102 笔 +143.83）仅为待验收结果。必须从样本去重、时点对齐、数据缺失偏差、单因子独立贡献和微观路径上进行全面复核，确认上述改善是真实阿尔法，还是数据缺失导致的假象。
+FRAME-PIT-01,FRAME-PIT-01/01_改动清单.md,| `AvailabilityStatus` | `exchange_close` / `declared_lag` / `settlement_event` / `unproven` |
+FRAME-PIT-01,FRAME-PIT-01/01_改动清单.md,**关键取舍**：`rule_bucket_metrics` 在不给 `declared_lag_ms` 时一律返回 `UNPROVEN`。
+FRAME-PIT-01,FRAME-PIT-01/02_约束契约.md,| `declared_lag` | 官方 metrics / OI 统计桶 | `ts + bucket_ms + declared_lag_ms` | **必须**有显式声明的延迟数值；没声明就是 `unproven` |
+FRAME-PIT-01,FRAME-PIT-01/02_约束契约.md,| `unproven` | 其它一切 | 整列 NaN，不猜 | —— |
+FRAME-PIT-02,FRAME-PIT-02/01_改动清单.md,| metrics 5m | `ts`（桶起点） | 无 `create_time` / `available_at` | `unproven` |
+FRAME-PIT-02,FRAME-PIT-02/01_改动清单.md,| OI 5m | `ts`（桶起点） | `fetched_at` 全空 | `unproven` |
+FRAME-PIT-02,FRAME-PIT-02/02_约束契约.md,| `metrics_5m` | `rule_bucket_metrics(...)` | 未证明时按 `ts + 300_000` **假设** | `unproven` | 无 `create_time` / `available_at` 列 |
+FRAME-PIT-02,FRAME-PIT-02/02_约束契约.md,| `oi_5m` | `rule_bucket_metrics(...)` | 未证明时按 `ts + 300_000` **假设** | `unproven` | `fetched_at` 100% 为空 |
+FRAME-VERIFY-03,FRAME-VERIFY-03/报告.md,│ **C. PIT-02 修复**  │ `evidence/`  │ **NOT_TESTED**    │ 交付目录无回执，按纪律锁定为  │
+FRAME-VERIFY-03,FRAME-VERIFY-03/01_被测版本与变更清单.md,在 Work 窗口正式出具交付回执并冻结清单之前，本工单严格遵守纪律，**将 PIT-02 复验状态保持为 `NOT_TESTED（待测）`，绝不跨版本抢跑宣布通过**。
+FRAME-VERIFY-04,FRAME-VERIFY-04/报告.md,│ **第二部分：**      │ `guard_create`│ **NOT_TESTED**    │ 检索未发现 FIT-02 官方修复回执│
+FRAME-VERIFY-04,FRAME-VERIFY-04/报告.md,- **纪律保持**：按照工单明确指令：“未收到修复回执时只标此部分待测，不影响先完成PIT复验”，将以下 3 项严格锁定为 `NOT_TESTED`：
+FRAME-VERIFY-04,FRAME-VERIFY-04/报告.md,- `VERIFY-FIT-1-BOOTSTRAP-CREATE-AND-EXECUTE` (NOT_TESTED)
+FRAME-VERIFY-04,FRAME-VERIFY-04/报告.md,- `VERIFY-FIT-2-REJECT-UNFROZEN-DRIFT-INVALID-SPLIT` (NOT_TESTED)
+OOS-READY-01,OOS-READY-01/00_报告.md,- 结论状态：**数据资格不满足，按工单要求到此停止并报告**；方案部分只提交待审批，不执行。
+OOS-READY-01,OOS-READY-01/00_报告.md,| ③ 最小验证方案 | 只建议原策略 A 进入下一阶段；1R／2R／缩量／联合建议不进入（理由见 §4） | `03_推荐方案与待决策项.md` |
+OOS-READY-01,OOS-READY-01/00_报告.md,| ④ 冻结评估办法 | 已写明样本选择、数据时钟、指标、成本、失败条件、停止规则，并列 7 项前置缺口 | `04_冻结评估办法.md` |
+OOS-READY-01,OOS-READY-01/00_报告.md,| 震荡吸筹 | 不可复现 | — | — | — | 仅剩汇总表，入场规则本机无存 |
+PRECISION-07,PRECISION-07/PRECISION-07_精度整改方案订正_2026-10-17.md,- 待审对象：P06 报告 §3.5 的 A/B/C 分类表（第 226–232 行）与 §5 的 R7 容差说明（第 391–400 行）
+PRECISION-08,PRECISION-08/PRECISION-08_成交边界模型比较与验收设计_2026-10-17.md,- 前置：PRECISION-07 把 R7 定为零容差并称「定稿」。本单按要求**把它恢复为待审核候选**，不再当作已定结论。
+STEP1-A,STEP1-A/README.md,| `04_待确认问题清单.md` | 需 Codex 拍板的问题，每条附「为什么必须定」与「用什么证据能定」 |
+VALIDATION-CONTRACT-01,VALIDATION-CONTRACT-01/下一阶段验证实验契约草案.md,**当前状态**：**待用户审批**
+VALIDATION-CONTRACT-01,VALIDATION-CONTRACT-01/下一阶段验证实验契约草案.md,- **资格基本原则（建议）**：测试数据必须与历史回测训练样本（2021—2026 已用候选）在时间或标的维度物理隔离，防止样本内信息泄漏（待用户审批）。
+VALIDATION-CONTRACT-01,VALIDATION-CONTRACT-01/下一阶段验证实验契约草案.md,| **B 1R 保本** | 当浮盈达 1R 时提早保本，能否有效保护本金，还是普遍过早切断趋势？ | **【建议保留】**<br>*(待用户审批)* | 样本内虽然净差为负（-53.01 U），但结论对 `PUMPBTC` 单笔大盈利（-56.65 U）高度敏感，剔除后转正（+3.64 U）。需在独立样本集中检验其究竟是内生切断趋势还是异常值偶然所致。 |
+VALIDATION-CONTRACT-01,VALIDATION-CONTRACT-01/下一阶段验证实验契约草案.md,| **C 2R 保本** | 将保本阈值放宽至 2R，能否在规避假信号的同时不误伤主升浪？ | **【建议暂缓】**<br>*(待用户审批)* | 样本内 200/201 笔交易（99.5%）完全未触发（贡献为 0），全样本增益 100% 依赖单一样本的偶然避险，缺乏统计活性与样本外泛化预期。 |
+VOLUME-BE-01,VOLUME-BE-01/00_规则冻结与假设契约.md,- 震荡吸筹策略因缺少历史缓存列为待验证（NOT_TESTED），禁止替换入场条件代测；
+VOLUME-BE-02,VOLUME-BE-02/研究收口.md,- **震荡吸筹策略不可判断**：因缺少吸筹策略历史缓存与执行代码，严格保持为待验证（NOT_TESTED），暂无吸筹场景结论；
+VOLUME-BE-02,VOLUME-BE-02/00_整改契约与假设定义.md,- **核验对象**：基于 Codex 验收清单对 `VOLUME-BE-01` 进行全量阻塞项修复
+VOLUME-BE-02,VOLUME-BE-02/00_整改契约与假设定义.md,## 一、五大阻塞项修复契约
+VOLUME-BE-02,VOLUME-BE-02/00_整改契约与假设定义.md,| # | 验收清单阻塞项 | 产生根因 | VOLUME-BE-02 修复方案与执行契约 | 验证手段 |
+VOLUME-BE-VERIFY-01,VOLUME-BE-VERIFY-01/报告.md,根据工单要求，“给出逐项 PASS／FAIL／NOT_TESTED、证据路径和最小整改项。规则执行正确与策略效果有效分开判定；不要求收益必须变好才能通过测试，也不能仅凭总收益增加认定保护本金有效”。
+VOLUME-BE-VERIFY-01,VOLUME-BE-VERIFY-01/报告.md,| **2** | **检查缩量计算只使用当时可用数据，防止用完整 K 线量决定该 K 线内部成交** | **NOT_TESTED** | — | **NOT_TESTED** | `02_VOLUME_BE_独立核验.md §2` | **事实**：Work 窗口 2 因 `429` 报错中断，`VOLUME-BE-01` 目录及代码完全不存在，严格保持待测，不替实现方编写规则。<br>**整
+VOLUME-BE-VERIFY-01,VOLUME-BE-VERIFY-01/报告.md,| **3** | **检查四组候选全集一致、被过滤信号未被丢弃、共同交易仓位固定** | **NOT_TESTED** | — | **NOT_TESTED** | `02_VOLUME_BE_独立核验.md §3` | **事实**：A/B/C/D 四组联合对照数据未交付。<br>**整改项**：待 VOLUME-BE-01 交付包含被过滤保留行的配对全集表。 |
+VOLUME-BE-VERIFY-01,VOLUME-BE-VERIFY-01/报告.md,| **5** | **从逐笔数据独立重算减少亏损、牺牲盈利和净变化；分别检查入场过滤与持仓退出效果** | **PASS**<br>*(重算精准)* | **FAIL**<br>*(本金保护无效)* | **PASS / FAIL**<br>*(过滤项待测)* | `recalculated_breakeven_stats.json`<br>`01_BREAKEVEN_独立核验.md §3` |
+Work_六笔账本接口页面一致性整改_2026-10-17,Work_六笔账本接口页面一致性整改_2026-10-17/回执_2026-10-17.md,> 本回执只陈述**有落盘证据**的结论。凡未验证的，列在 §7「未解决项 / 边界内报告」，不写成「已通过」。
+Work_完整回测窗口_2026-10-16,Work_完整回测窗口_2026-10-16/验收回执_WORK-05_2026-10-16.md,## 2. WORK-04B 冲突：报告阻塞范围，不碰冲突文件
+Work_完整回测窗口_2026-10-16,Work_完整回测窗口_2026-10-16/验收回执_WORK-05_2026-10-16.md,- **阻塞范围**：无。本窗口交付物（回测前端 + 新增只读展示）**不依赖**上述被删文件；后端 `8787` 健康（`/api/v1/strategies` 200，返回新策略 + 退役元数据），故不构成对本单的阻塞。
+Work_执行核心_2026-10-15,Work_执行核心_2026-10-15/05_summary.md,## 四、未通过项 / 阻塞（如实）
+Work_执行核心_2026-10-15,Work_执行核心_2026-10-15/05_summary.md,该阻塞属**任务一启动路径/迁移范围**，本任务**不伪造替身、不改任务一启动文件**。
+Work_执行核心_2026-10-15,Work_执行核心_2026-10-15/05_summary.md,为不阻塞验收，本任务以**替身模块 + 合成 bar** 完成了适配层核验
+Work_数据完整度验收_2026-10-14,Work_数据完整度验收_2026-10-14/01_验收报告.md,- **完成状态：等待 Codex 审核 / 等待用户审核。本窗口不自动补缺、不迁移。**
+Work_闭环整改_2026-10-15,Work_闭环整改_2026-10-15/01_授权来源核对.md,"| 1 | `docs/单策略施工授权与待核对问题_2026-10-14.md` | 「模拟实盘统一为一个账户，总资金5,000 USDT，同时有效持仓合计最多10个」「最新授权允许按用户方案推进单策略及数据接线；**不再沿用「四组各5,000U、各10仓」作为生产账户规则**。旧实验、代码和账本保留。」 | **不覆盖**。且与冻结视图一致（单账户 5000U、最多 10 仓）；明确**旧账本保"
+Work_阶梯回测_2026-10-15,Work_阶梯回测_2026-10-15/00_回测窗口准备报告_2026-10-15.md,未过项（**唯一阻塞，属数据窗**）：

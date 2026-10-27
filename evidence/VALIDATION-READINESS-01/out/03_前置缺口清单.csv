@@ -1,0 +1,12 @@
+﻿编号,缺口,分类,依据,对下一阶段的影响,可复用已有通过项
+V1,固定仓位配对实现不在生产策略包内（evidence/BREAKEVEN-02/code）,阻止结果可信,CODE_FILES 20 项不含 be_core.py/02_run_fixed.py；代码指纹无法覆盖,下一阶段若用固定仓位配对，跑出来的结果无法用指纹证明「用的是哪一版配对代码」,否（BREAKEVEN-02 自检通过，但不是独立验收）
+V2,输出目录硬编码在 <base_dir>/回测日志/event_trend_v0_1/runs,仅影响方便使用,策略/WyckoffMaster/event_trend_v0_1/runner.py:117,无法只写工单目录；与「写入范围仅限工单目录」的执行纪律冲突,否
+V3,批次脚本会把成交写入生产前端 UI界面/web/public/all_trades.json,仅影响方便使用,run_batch_2026_sep_oct_50.py update_all_trades_json(),误用批次脚本会改动前端生产数据；最小命令必须绕开该函数,否
+V4,批次脚本把币池/窗口/输出 CSV 写死在脚本里,仅影响方便使用,SYMBOLS_FILE / START_DATE / END_DATE 为模块级常量,换币池或换窗口必须改脚本或另写脚本，容易与冻结口径漂移,否
+V5,汇总层无组合回撤/盈亏比/胜率,阻止结果可信,summary_variant_a 字段清单（无 max_drawdown / profit_factor / win_rate）,OOS-READY-01 冻结评估办法把回撤列为主要指标，当前入口算不出，需另写,否
+V6,PIT 资格当前全部 False（oi_available_at_unproven）,阻止结果可信,真实 run summary.json：formal_pass_allowed=false，pit=false,任何在此状态下的回测都只能算研究结果，不能作为正式验证通过,是：OOS-READY-01 G1 已记录，不重复测试
+V7,历史合约规格 0 条 verified,阻止结果可信,真实 run summary.json：instrument_spec_unproven,价格步长/数量步长缺乏历史证据，取整口径无法证明对当时有效,是：OOS-READY-01 G2 已记录
+V8,暂无可证明的样本外数据,阻止结果可信,evidence/OOS-READY-01/out/02_验证数据资格表.csv（8 段全部不可用）,入口再完备也无法产出「样本外」结论；这是数据资格问题不是工具问题,是：OOS-READY-01 已交付结论
+V9,四项对账套件不在主回测流程内,仅影响方便使用,策略/WyckoffMaster/event_trend_v0_1/runner.py:378 无调用点,要证明确定性/断点恢复需额外显式跑一遍,否
+V10,chart.json 需调用方另行生成,仅影响方便使用,框架/backend/backtest_chart.py:437,只影响看图，不影响数值结论,否
+V11,事件级去重（同标的+同入场时刻）无内置支持,仅影响方便使用,OOS-READY-01 中 206 候选 → 201 事件为外部脚本去重,口径易混（296/206/201 三套），需在报告里显式声明用的是哪套,否

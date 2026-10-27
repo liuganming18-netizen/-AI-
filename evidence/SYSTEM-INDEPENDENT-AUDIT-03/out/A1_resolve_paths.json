@@ -1,0 +1,97 @@
+{
+  "工单": "SYSTEM-INDEPENDENT-AUDIT-03 / A-1",
+  "检查时刻": "2026-10-23 14:56:03",
+  "被检源码": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/service_manager.py",
+  "源码_sha256": "ddd02d32f34623927904768cb0506fd24938e629eeba9a2b45f46051bc13d02d",
+  "源码_sha256_前16": "ddd02d32f3462392",
+  "源码_mtime": "2026-10-23 14:52:44",
+  "源码字节数": 50405,
+  "环境快照_检查前": {
+    "JOBS_DB": null,
+    "ISOLATED_MODE": null,
+    "PAPER_LEDGER_DIR": null,
+    "PAPER_LOCK_DIR": null,
+    "LIVE_DB": null,
+    "LIVE_DIR": null,
+    "MARKET_DB": null,
+    "SYS_PID_DIR": null,
+    "SYS_LOG_DIR": null
+  },
+  "交付哈希清单": {
+    "version_hash.txt_生成时刻": "2026-10-23T14:36:30+08:00",
+    "service_manager.py_在清单中的状态": "?? 未跟踪（无 SHA-256 记录）",
+    "是否可按SHA绑定": false
+  },
+  "测试脚本是否出现jobs_db字样": false,
+  "生产任务队列": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3",
+    "exists": true,
+    "mtime": "2026-10-23 14:33:46",
+    "size": 2170880
+  },
+  "场景": [
+    {
+      "case": "S1 隔离+无jobs_db(等价Test2构造)",
+      "input_keys": [
+        "is_isolated"
+      ],
+      "is_isolated_before": true,
+      "jobs_db_before": null,
+      "raised": "RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录",
+      "verdict": "已阻断"
+    },
+    {
+      "case": "S2 隔离+jobs_db=生产任务队列",
+      "input_keys": [
+        "is_isolated",
+        "jobs_db"
+      ],
+      "is_isolated_before": true,
+      "jobs_db_before": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3",
+      "raised": "RuntimeError: 隔离模式严禁使用日常数据/状态目录：jobs_db -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+      "verdict": "已阻断"
+    },
+    {
+      "case": "S3 非隔离+无jobs_db",
+      "input_keys": [
+        "is_isolated"
+      ],
+      "is_isolated_before": false,
+      "jobs_db_before": null,
+      "raised": null,
+      "is_isolated_after": false,
+      "jobs_db_after": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3",
+      "jobs_db_resolved": "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3",
+      "points_to_production_jobs": true,
+      "under_production_data_root": true,
+      "verdict": "未阻断"
+    },
+    {
+      "case": "S4 非隔离入参+ISOLATED_MODE=1",
+      "input_keys": [
+        "is_isolated"
+      ],
+      "is_isolated_before": false,
+      "jobs_db_before": null,
+      "raised": "RuntimeError: 隔离模式缺少必要路径配置：['jobs_db']，拒绝启动，禁止退回日常目录",
+      "verdict": "已阻断"
+    },
+    {
+      "case": "S5 隔离+jobs_db=tmp(正确用法)",
+      "input_keys": [
+        "is_isolated",
+        "jobs_db"
+      ],
+      "is_isolated_before": true,
+      "jobs_db_before": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/audit03_resolve_bv0_113n/jobs.sqlite3",
+      "raised": null,
+      "is_isolated_after": true,
+      "jobs_db_after": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/audit03_resolve_bv0_113n/jobs.sqlite3",
+      "jobs_db_resolved": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/audit03_resolve_bv0_113n/jobs.sqlite3",
+      "points_to_production_jobs": false,
+      "under_production_data_root": false,
+      "verdict": "未阻断"
+    }
+  ],
+  "临时目录": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/audit03_resolve_bv0_113n"
+}

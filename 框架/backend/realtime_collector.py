@@ -33,6 +33,7 @@ import hashlib
 import json
 import os
 import socket
+import sqlite3
 import ssl
 import struct
 import sys
@@ -171,16 +172,39 @@ GAPFILL_MAX_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
 # 预算核对（币安 fapi 宿主，网关 budget_units=1200 / cost=10 ⇒ 120 请求/分钟）：
 #   既有 OI 全池 528 次/600s ≈ 52.8 请求/分钟；费率历史 ≈ 35；K 线尾段 ≈ 8；
 #   本刷新 ≤60 标 × 2 次 / 300s ≤ 24 请求/分钟（**占预算上限 20%**）；合计 ≈ 115/120。
-PUBLIC_EXTRAS_HEAD_N = int(os.environ.get("PUBLIC_EXTRAS_HEAD_N", "48"))
-# 页首字母序只覆盖列表最前面几屏；主流标的（BTC/ETH…）字母序靠后（实测 BTCUSDT 第 107 位），
-# 人工核验最常直接查它们，故**额外**纳入一个有界固定清单（可经环境变量覆盖）。
+PUBLIC_EXTRAS_HEAD_N = int(os.environ.get("PUBLIC_EXTRAS_HEAD_N", "60"))
+# 选取依据（DATA-UI-02 订正）：按 **24h 成交额**降序取前 N（读本机行情表，不产生上游请求），
+# 再并入主流清单兜底。原先取的是 `sorted(coins)[:48]`，即 ASCII 升序前 48 ——
+# 全是 `0GUSDT`/`1000000BOBUSDT`/`1000CATUSDT` 这类 0-9/A 开头的冷门币
+# （24h 成交额几十万到几百万美元），而 BTC/ETH 字母序在 100 位之后。
+# 结果是「60 个标的里 48 个是字母表最前面的币」，对指标展示毫无代表性。
+# 主流标的（BTC/ETH…）字母序靠后，额外纳入有界固定清单（可经环境变量覆盖）。
 PUBLIC_EXTRAS_MAJORS = tuple(
     s.strip().upper() for s in os.environ.get(
         "PUBLIC_EXTRAS_MAJORS",
         "BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT,DOGEUSDT,"
         "TRXUSDT,LTCUSDT,LINKUSDT,AVAXUSDT,DOTUSDT,SUIUSDT").split(",") if s.strip())
+# **固定观测清单**：流动性不高但需要长期稳定可观测的标的。
+# 为什么单独列：按成交额取前 N 后，`1000CATUSDT`（24h 约 31 万美元）这类
+# 「历史有指标的小币」会被挤出榜单，而它们正是人工核验/回归最常用的对照样本；
+# 同时界面「快捷」按钮里的标的必须始终有快照，否则点进去就是空白。
+# 与 `PUBLIC_EXTRAS_MAJORS` 的区别：主流是「按体量一定在榜」的兜底，
+# 固定观测是「按体量进不来、但必须一直有」的显式钉住。
+PUBLIC_EXTRAS_PINNED = tuple(
+    s.strip().upper() for s in os.environ.get(
+        "PUBLIC_EXTRAS_PINNED", "1000CATUSDT,ACHUSDT").split(",") if s.strip())
 PUBLIC_EXTRAS_INTERVAL_S = int(os.environ.get("PUBLIC_EXTRAS_INTERVAL_S", "300"))
 PUBLIC_EXTRAS_PERIOD = os.environ.get("PUBLIC_EXTRAS_PERIOD", "1h")
+# ── DATA-UI-01：三个原先「未取」比率块的**有界轮转补采** ──────────────────────
+# 背景：核心口径每轮单标只取 2 次（OI 名义额 + 持仓量多空比），
+# `top_account_long_short_ratio` / `global_account_long_short_ratio` /
+# `taker_buy_sell_ratio` 三块恒为「未取」。整轮一次性补齐会让上游请求从 120 涨到 300
+# （超预算 2.5 倍）。故按**轮转窗口**补：每轮只对窗口内的 N 个标的取齐（单标 +3 次）。
+# 预算核对（fapi.binance.com，120 请求/分钟上限）：
+#   现有 ≈ 24 请求/分钟（60 标 × 2 / 300s）；本窗口 N=12 ⇒ +36 次/300s = +7.2/分钟；
+#   合计 ≈ 31/分钟，仍远低于 120 上限，也不与 OI/费率/K 线抢空。
+# 覆盖周期：ceil(60 / 12) × 300s = **15 分钟**覆盖一轮全部 60 个标的。
+PUBLIC_EXTRAS_RATIO_EXTRA_N = int(os.environ.get("PUBLIC_EXTRAS_RATIO_EXTRA_N", "12"))
 # ── 币安**聪明钱（Smart Signal）**本机快照 ────────────────────────────────────
 # 来源 = 币安公开页面自身 bapi（`www.binance.bh/bapi/.../smart-money/signal/*`，无鉴权只读）。
 # **独立 host 作用域**：网关按 host 记账，`www.binance.bh` 与 `fapi.binance.com` **互不占预算**
@@ -188,7 +212,9 @@ PUBLIC_EXTRAS_PERIOD = os.environ.get("PUBLIC_EXTRAS_PERIOD", "1h")
 # 预算核对（www.binance.bh，budget_units=1200 / cost=10 ⇒ 120 请求/分钟）：
 #   单标 ≤3 次上游；默认有界集合 60 标 × 3 = 180 次 / 300s = 36 请求/分钟（**≤30% 上限**）。
 SMART_MONEY_INTERVAL_S = int(os.environ.get("SMART_MONEY_INTERVAL_S", "300"))
-SMART_MONEY_HEAD_N = int(os.environ.get("SMART_MONEY_HEAD_N", str(PUBLIC_EXTRAS_HEAD_N)))
+# 聪明钱的标的数**不跟随** `PUBLIC_EXTRAS_HEAD_N`：两者取数依据不同
+# （聪明钱按字母序前 N，公开扩展按流动性前 N），共用一个默认值会让改一处影响另一处。
+SMART_MONEY_HEAD_N = int(os.environ.get("SMART_MONEY_HEAD_N", "48"))
 SMART_MONEY_TIME_RANGE = os.environ.get("SMART_MONEY_TIME_RANGE", "ALL")
 # 全池刷新（可选）：`SMART_MONEY_FULL_POOL=1` 时改用**币安全部活动合约**（约 5xx 标）。
 SMART_MONEY_FULL_POOL = os.environ.get("SMART_MONEY_FULL_POOL", "0") not in ("0", "", "false")
@@ -1031,7 +1057,14 @@ def oi_bucket_rows(symbol, arr, now, fetched_at=None):
 
 
 def oi_sweep(gw, universe):
-    """OI 轮询：欧易批量（1 次）；币安逐币（官方无全市场 OI 端点）。"""
+    """OI 轮询：欧易批量（1 次）；币安逐币（官方无全市场 OI 端点）。
+
+    DATA-UI-02 结论：曾试过「把一轮摊到 interval 的 65% 内」来给公开扩展快照让路，
+    实测**无效且方向相反** —— 528 个请求实际要 ~545 秒，比目标 390 秒还长，节流从未触发；
+    而把周期改成「按本轮开始计时」会让 OI 从「一轮 + 空闲 600 秒」变成几乎不间断，
+    反而更久地占住网关 `min_interval_ms`。故回退为原来的「跑完再等 interval」。
+    真正的杠杆是降低全池 OI 频率或缩小标的数，那会改变 OI 新鲜度，属产品决策（见未完成项）。
+    """
     rid = start_round("oi_sweep", "okx", "swap", "v5/public/open-interest 全 SWAP")
     try:
         r = gw_get(gw, "okx.open_interest", {"instType": "SWAP"})
@@ -1124,7 +1157,7 @@ def oi_sweep(gw, universe):
     if supply_rows:
         n_sup = upsert_supply(supply_rows)
         log(f"流通量（CMCCirculatingSupply）写入 {n_sup} 条")
-    finish_round(rid, len(syms), ok_n, fail_n, newest, oldest,
+    finish_round(rid, min(i, len(syms)), ok_n, fail_n, newest, oldest,
                  "总量(sumOpenInterest)与名义额(sumOpenInterestValue)取自同一行、同一时点；"
                  "失败不写 0、不用数量×价格替代")
     log(f"OI 币安逐币完成：成功 {ok_n}，失败 {fail_n}（来源 openInterestHist，含美元名义额）")
@@ -2088,7 +2121,10 @@ def heartbeat_loop(stop, interval=15):
 
 
 def oi_loop(gw, universe, stop, interval_s=600):
-    """OI 轮询：**首轮立即执行**，之后按 interval 循环。"""
+    """OI 轮询：**首轮立即执行**，之后按 interval 循环。
+
+    等待时间是「本轮跑完再等 interval_s」（DATA-UI-02 实测后的结论，见 `oi_sweep` 文档）。
+    """
     while not stop.is_set():
         try:
             oi_sweep(gw, universe)
@@ -2109,21 +2145,144 @@ def funding_loop(gw, universe, stop, interval_s=8 * 3600):
             return
 
 
-def public_extras_head_symbols(universe, n=None):
-    """**页首有界集合 ∪ 少量主流标的**（去重、稳定序）。
+# 「价格流仍然活着」的判定窗口（毫秒）：价格时间落后全表最新时刻超过它 ⇒ 视为已下市/停更。
+# 只影响**选标的**，不影响任何已落库数据的读取。
+_PRICE_ALIVE_MS = int(os.environ.get(
+    "PUBLIC_EXTRAS_PRICE_ALIVE_MS", str(30 * 60 * 1000)))
 
-    工作台列表按 `(exchange, symbol)` 升序，币安全部在前 ⇒ 「首屏/前几屏」
-    = 币安标的按 **ASCII 升序**的前 N 个（与 `adapter._v1_markets_compute` 的
-    `sorted(keys)` 同一字典序）。再并入 `PUBLIC_EXTRAS_MAJORS`（有界固定清单），
-    使人工直接核验 BTC/ETH 等主流标的时也有快照。
+
+def _liquidity_ranked_symbols(n):
+    """按**24 小时成交额**降序取前 n 个币安标的（读本机行情表，不请求上游）。
+
+    为什么不再用字母序：`sorted(coins)[:48]` 取到的是 `0GUSDT`、`1000000BOBUSDT`、
+    `1000CATUSDT`… 全是 0-9/A 开头的小币，24h 成交额多在几十万到几百万美元；
+    而 BTC/ETH 的字母序在 100 位之后，只能靠主流清单额外补进来。
+    结果是「60 个标的里 48 个是字母表最前面的冷门币」，对指标展示毫无代表性。
+    改成按流动性排序后，前 60 个覆盖了全池绝大部分成交额。
+
+    **必须同时要求「价格流是活的」**（DATA-UI-02 补）：成交额是**滚动 24 小时**值，
+    下市/改名后这一列会停在最后一次成交时的数字不再变化。实测本机有 3 个标的
+    （`PUMPBTCUSDT`、`1000000BOBUSDT`、`PROMPTUSDT`）价格时间停在 2026-10-05，
+    却仍带着 1 亿以上的旧成交额，按成交额排序会稳定排进前 60 —— 于是「应采」里混进
+    已经不在交易的标的，K 线取不到、指标永远缺。判据用 `price_event_time`
+    （逐字段时间列，随 ticker 刷新），允许比全表最新时刻落后 `_PRICE_ALIVE_MS`。
+    """
+    try:
+        con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True, timeout=5)
+    except sqlite3.Error:
+        return []
+    try:
+        base = ("SELECT symbol FROM realtime_quotes WHERE exchange='binance' "
+                "AND CAST(quote_volume_24h AS REAL) > 0 ")
+        order = "ORDER BY CAST(quote_volume_24h AS REAL) DESC LIMIT ?"
+        try:
+            newest = con.execute(
+                "SELECT MAX(CAST(price_event_time AS INTEGER)) FROM realtime_quotes "
+                "WHERE exchange='binance'").fetchone()[0]
+        except sqlite3.Error:
+            newest = None          # 老库没有这个列 ⇒ 只按成交额排（不做存活判定）
+        if newest:
+            rows = con.execute(
+                base + "AND CAST(price_event_time AS INTEGER) >= ? " + order,
+                (int(newest) - _PRICE_ALIVE_MS, int(n))).fetchall()
+        else:
+            rows = con.execute(base + order, (int(n),)).fetchall()
+    except sqlite3.Error:
+        return []
+    finally:
+        con.close()
+    return [r[0] for r in rows]
+
+
+def public_extras_head_symbols(universe, n=None):
+    """**有界标的集合**：按 24h 成交额前 N ∪ 主流清单（去重、稳定序）。
+
+    选取依据（DATA-UI-02 订正）：
+      · 首选**流动性**：本机 `realtime_quotes.quote_volume_24h` 降序前 N；
+        该数据由既有 ticker 轮询写入，读它**不产生任何上游请求**；
+      · 行情表不可用/为空时**回退字母序**（保持可用，不让采集因缺表停摆）；
+      · 再并入 `PUBLIC_EXTRAS_MAJORS`（BTC/ETH… 有界固定清单），保证人工核验常用标的一定在；
+      · 与**完整加密池**的关系：池 = 币安 `underlyingType=COIN` 的全部合约（当前 526），
+        本集合只是其中一个**有界子集**（默认 60 个 ≈ 11%），
+        但按流动性取头部 ⇒ 覆盖绝大部分真实成交。
     """
     n = PUBLIC_EXTRAS_HEAD_N if n is None else n
     coins = set(universe.get("binance_coins") or ())
-    head = sorted(coins)[:max(0, n)]
+    ranked = [s for s in _liquidity_ranked_symbols(n) if s in coins]
+    head = ranked if ranked else sorted(coins)[:max(0, n)]
     seen, out = set(), []
-    for s in list(head) + [m for m in PUBLIC_EXTRAS_MAJORS if m in coins]:
+    extra = ([m for m in PUBLIC_EXTRAS_MAJORS if m in coins]
+             + [p for p in PUBLIC_EXTRAS_PINNED if p in coins])
+    for s in list(head) + extra:
         if s not in seen:
             seen.add(s)
+            out.append(s)
+    return out
+
+
+def public_extras_ratio_order(symbols):
+    """轮转**队列顺序**：主流标的优先，其余按原稳定序。
+
+    为什么不是直接按 `symbols` 原序：`public_extras_head_symbols` 是「字母序前 N ∪ 主流」，
+    主流标的（BTC/ETH…）被追加在**末尾**（BTCUSDT 字母序第 107 位）。若按原序轮转，
+    最常被查看的 BTC/ETH 要等好几轮才轮到，验收时看到的就是"主流标的缺三个比率"。
+    故把主流标的前置 —— 第 0 轮窗口就覆盖它们，其余标的随后逐轮补齐。
+    """
+    seq = list(symbols or ())
+    pool = set(seq)
+    # 主流优先，其次固定观测清单（1000CAT/ACH 等），其余按原稳定序
+    front = [m for m in PUBLIC_EXTRAS_MAJORS if m in pool]
+    front += [p for p in PUBLIC_EXTRAS_PINNED if p in pool and p not in set(front)]
+    head = list(front)
+    rest = [s for s in seq if s not in set(head)]
+    return head + rest
+
+
+def merge_target_symbols(current, fresh):
+    """把每轮重算出的目标集合并入**既有轮转序**：存活项保持原相对顺序，新增项追加到末尾。
+
+    返回 `(merged, added, dropped)`；集合没变时原样返回 `current`（`added/dropped` 均为空）。
+
+    为什么不能直接 `symbols = fresh`：`fresh` 是按 24h 成交额降序排的，**每轮都在漂移**。
+    直接替换会让 `public_extras_ratio_order` 的序列在轮次之间错位，环形游标扫过的窗口
+    随之漂移，个别标的会被**整轮跳过** —— 实测 `PENGUUSDT` 在 05:11 那版进程跑完的
+    6 轮里一次都没轮到（最后成功时间停在上一代进程的 05:09:27）。
+    保留既有顺序后，游标语义稳定，`ceil(N/12)` 轮必定覆盖全部。
+    """
+    cur = list(current or ())
+    new = list(fresh or ())
+    if not new:
+        return cur, [], []
+    pool_old, pool_new = set(cur), set(new)
+    added = [s for s in new if s not in pool_old]
+    dropped = [s for s in cur if s not in pool_new]
+    if not added and not dropped:
+        return cur, [], []
+    return [s for s in cur if s in pool_new] + added, added, dropped
+
+
+def public_extras_ratio_window(symbols, round_no, n=None, pending=None):
+    """本轮要**取齐 3 个额外比率块**的标的窗口（有界、轮转、稳定序）。
+
+    `round_no` 每轮 +1；窗口按环形切片推进 ⇒ `ceil(len(symbols)/n)` 轮覆盖全部。
+    `pending` 给出上一轮**没取齐**的标的（多为本地预算用尽被推迟），
+    它们**优先占窗口前位**重试，剩余位置仍按轮转切片填 —— 否则某块一旦被推迟，
+    要等满一整圈（`ceil(总数/n)` 轮）才再轮到，表现为长期缺失。
+    返回空列表表示本轮不补采（`n<=0` 时可用于回退到纯核心口径）。
+    """
+    n = PUBLIC_EXTRAS_RATIO_EXTRA_N if n is None else n
+    seq = public_extras_ratio_order(symbols)
+    if n <= 0 or not seq:
+        return []
+    n = min(n, len(seq))
+    pool = set(seq)
+    out = [s for s in (pending or ()) if s in pool][:n]
+    start = (round_no * n) % len(seq)
+    for i in range(len(seq)):
+        if len(out) >= n:
+            break
+        s = seq[(start + i) % len(seq)]
+        if s not in out:
             out.append(s)
     return out
 
@@ -2134,27 +2293,56 @@ def public_extras_loop(gw, universe, stop, interval_s=None):
     · 复用**同一** `RestGateway`（缓存/预算/租约/冷却/封禁均与既有工作器共享）；
     · 只刷**页首有界集合**（`public_extras_head_symbols`），不扩张到全池；
     · 只写本机可读快照（`public_snapshot`），**不落库、不写历史**；
+    · **轮转补采**：每轮只对 `PUBLIC_EXTRAS_RATIO_EXTRA_N` 个标的取齐 3 个额外比率块，
+      `ceil(总数/N)` 轮覆盖全部（62 标 / 每轮 12 / 单轮实测约 456s ⇒ 约 38 分钟铺满）；
+    · **目标集合每轮重算**：24h 成交额会漂移，进程启动时算一次就固定的话，
+      新进入前 60 的标的会一直采不到（实测漏过 `LITUSDT`）；
+      重算只把**增减**并入既有轮转序（`merge_target_symbols`）：存活项保持原顺序、
+      新增追加末尾，只在集合真变化时打一行日志。**不许**直接换成最新排名列表 ——
+      那样序列在轮次间错位，会有标的整轮被跳过（实测 `PENGUUSDT`）；
     · 异常只记日志、不中断其它工作器；`stop` 可即时退出。
     """
     interval = PUBLIC_EXTRAS_INTERVAL_S if interval_s is None else interval_s
     symbols = public_extras_head_symbols(universe)
     log(f"公开扩展快照：目标 {len(symbols)} 个（页首 {PUBLIC_EXTRAS_HEAD_N} ∪ 主流 "
         f"{len(PUBLIC_EXTRAS_MAJORS)}），周期 {interval}s，"
-        f"period={PUBLIC_EXTRAS_PERIOD}（单标 2 次上游，core 精简口径）")
+        f"period={PUBLIC_EXTRAS_PERIOD}（单标 2 次上游，core 精简口径；"
+        f"轮转窗口 {PUBLIC_EXTRAS_RATIO_EXTRA_N} 标/轮补齐 3 个额外比率）")
+    round_no = 0
+    pending = []
     while not stop.is_set():
         try:
+            merged, added, dropped = merge_target_symbols(
+                symbols, public_extras_head_symbols(universe))
+            if added or dropped:
+                log(f"公开扩展目标变更：{len(symbols)} → {len(merged)}"
+                    f"（新增 {added[:5]}{'…' if len(added) > 5 else ''}；"
+                    f"移出 {dropped[:5]}{'…' if len(dropped) > 5 else ''}）")
+                symbols = merged
+                pending = [s for s in pending if s in set(symbols)]
             import public_market_read
+            window = public_extras_ratio_window(symbols, round_no, pending=pending)
             stats = public_market_read.refresh_snapshot(
                 gw, symbols, period=PUBLIC_EXTRAS_PERIOD,
+                ratio_extra=window,
                 extra={"interval_s": interval, "head_n": len(symbols),
-                       "head_symbols": symbols[:8]})
+                       "head_symbols": symbols[:8],
+                       "ratio_extra_n": PUBLIC_EXTRAS_RATIO_EXTRA_N,
+                       "ratio_extra_round": round_no,
+                       "ratio_extra_window": window,
+                       "ratio_extra_pending_in": pending})
+            pending = list(stats.get("ratio_extra_incomplete") or [])
             req = stats.get("requests") or {}
             log(f"公开扩展快照刷新：目标 {stats['targets']}，成功 {stats['ok']}，"
                 f"跳过 {stats['skipped']}，失败 {stats['failed']}；"
+                f"轮转窗口 {stats.get('ratio_extra_done', 0)}/"
+                f"{len(stats.get('ratio_extra_targets') or [])} 取齐 3 比率"
+                f"（下一轮优先重试 {len(pending)} 个）；"
                 f"上游请求 {req.get('upstream', 0)}（缓存 {req.get('cached', 0)}，"
                 f"本地节流 {req.get('deferred', 0)}），用时 {stats['elapsed_s']}s")
             if stats.get("failures"):
                 log(f"公开扩展快照失败样例：{'；'.join(stats['failures'][:5])}")
+            round_no += 1
         except Exception as exc:                                   # noqa: BLE001
             log(f"公开扩展快照刷新异常：{type(exc).__name__}: {str(exc)[:120]}")
         if stop.wait(interval):
@@ -2409,10 +2597,14 @@ def main():
     if a.public_extras_once:
         import public_market_read
         syms = public_extras_head_symbols(universe)
+        # 单轮也走同一轮转函数（round_no=0 ⇒ 取第 0 个窗口），保证与常驻循环同口径
+        window = public_extras_ratio_window(syms, 0)
         stats = public_market_read.refresh_snapshot(
-            gw, syms, period=PUBLIC_EXTRAS_PERIOD,
+            gw, syms, period=PUBLIC_EXTRAS_PERIOD, ratio_extra=window,
             extra={"interval_s": PUBLIC_EXTRAS_INTERVAL_S, "head_n": len(syms),
-                   "head_symbols": syms[:8], "mode_run": "once"})
+                   "head_symbols": syms[:8], "mode_run": "once",
+                   "ratio_extra_n": PUBLIC_EXTRAS_RATIO_EXTRA_N,
+                   "ratio_extra_round": 0, "ratio_extra_window": window})
         print(json.dumps(stats, ensure_ascii=False, indent=1))
         return 0
 

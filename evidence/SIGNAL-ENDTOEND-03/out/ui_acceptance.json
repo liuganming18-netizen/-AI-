@@ -1,0 +1,209 @@
+{
+  "title": "SIGNAL-ENDTOEND-03 真实浏览器页面交互深度验收报告",
+  "target_run_id": "bt_20261024T120001Z_e1a10001",
+  "second_run_id": "bt_20261024T120002Z_e1a10002",
+  "timestamp_utc": "2026-10-24T08:59:23.234Z",
+  "total_checks": 21,
+  "passed_checks": 21,
+  "failed_checks": 0,
+  "status": "ALL_PASSED",
+  "downloads": [
+    {
+      "filename": "backtest_bt_20261024T120001Z_e1a10001_all.json",
+      "bytes": 9412
+    },
+    {
+      "filename": "fills_bt_20261024T120001Z_e1a10001.csv",
+      "bytes": 601
+    },
+    {
+      "filename": "orders_bt_20261024T120001Z_e1a10001.csv",
+      "bytes": 782
+    },
+    {
+      "filename": "trades_bt_20261024T120001Z_e1a10001.csv",
+      "bytes": 673
+    }
+  ],
+  "screenshots": [
+    "01_overview_default_1h.png",
+    "02_order_click_focus_entry_1515.png",
+    "03_order_click_focus_exit_0515.png",
+    "04_fill_click_focus_1515.png",
+    "05_pan_zoom_after_drag.png",
+    "06_marker_inverse_lookup_order.png",
+    "07_timeframe_4h.png",
+    "08_chart_expanded_large.png",
+    "09_switched_to_susdt.png",
+    "10_persistence_reopen_success.png"
+  ],
+  "checks": [
+    {
+      "id": "B01_RENDER",
+      "name": "回测复盘页面正常渲染且包含丰富内容",
+      "pass": true,
+      "detail": "body 文本长度=77601"
+    },
+    {
+      "id": "B02_TF_DEFAULT_1H",
+      "name": "默认以小时线 (1h) 为主展示",
+      "pass": true,
+      "detail": "当前激活周期=\"1h\""
+    },
+    {
+      "id": "B03_HEAD_METADATA",
+      "name": "主图头部展示 run_id、币种、UTC时区及策略规则",
+      "pass": true,
+      "detail": "卡片头部文本=\"K 线 · 成交量 · 持仓量（OI） VELVETUSDT · 997 根（1h 聚合） · 开平仓 1 笔 · 委托 2 条 ID: bt_2026102...a10001 | 策略: v0.1.0 | UTC | 2026-09-07 ~ 2026-10-18 ◀ 上一笔 1/1 下一笔 ▶ 日线 12h 8h \""
+    },
+    {
+      "id": "B04_CROSSHAIR_READOUT",
+      "name": "移动十字线时K线面板读数随位置实时更新",
+      "pass": true,
+      "detail": {
+        "pos1_kline": "时刻 2026-10-02 17:00 UTC 开 0.0671 高 0.0685 低 0.0667 收 0.0677 ",
+        "pos2_kline": "时刻 2026-10-03 07:00 UTC 开 0.0755 高 0.0765 低 0.0730 收 0.0749 "
+      }
+    },
+    {
+      "id": "B05_MULTI_PANEL_SYNC",
+      "name": "读数条包含时间、价格、成交量及 OI 四位一体联动信息",
+      "pass": true,
+      "detail": "包含OHLC=true, 包含Volume=true, 包含OI=true"
+    },
+    {
+      "id": "B05_2_FUNDING_PANEL_SYNC",
+      "name": "资金曲线与主图按时间真实联动",
+      "pass": true,
+      "detail": {
+        "kline_time": "2026-10-03 07:00",
+        "funding_time": "10-03 07:00",
+        "reading": "时刻 10-03 07:00 UTC 策略净值 $5,019.73 (+0.39%)"
+      }
+    },
+    {
+      "id": "B06_ORDER_ROW_FOCUS_ENTRY",
+      "name": "点击开仓订单精确对齐归桶 15:00 及精确 15:15 事件徽章且高亮",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_af1ce46b242122be4dff48a9",
+        "selected": true,
+        "hoverbar": "时刻 2026-10-02 15:00 UTC 🎯 定位事件 2026-10-02 15:15 UTC (1h归桶 2026-10-02 15:00) 开 0.0675 高 0.0691 低 0.0661 收 0.0673 量（base） 14.184M 持仓量 6835.84 万（5m 归档最近一条） 真实信号：box_breakout / long · 止损 0.0543 · ATR 0.003362",
+        "expected_bucket": "2026-10-02 15:00 UTC",
+        "expected_badge": "15:15 UTC"
+      }
+    },
+    {
+      "id": "B07_ORDER_ROW_FOCUS_EXIT",
+      "name": "点击退出止损订单精确对齐归桶 05:00 及精确 05:15 事件徽章且高亮",
+      "pass": true,
+      "detail": {
+        "order_id": "ord_eec8efe1cbd2e0b57493fbae",
+        "selected": true,
+        "hoverbar": "时刻 2026-10-03 05:00 UTC 🎯 定位事件 2026-10-03 05:15 UTC (1h归桶 2026-10-03 05:00) 开 0.0826 高 0.0840 低 0.0671 收 0.0733 量（base） 135.559M 持仓量 7839.59 万（5m 归档最近一条） 该根无真实信号记录",
+        "expected_bucket": "2026-10-03 05:00 UTC",
+        "expected_badge": "05:15 UTC"
+      }
+    },
+    {
+      "id": "B08_FILL_ROW_FOCUS",
+      "name": "点击成交行精确定位图表 15:00 归桶与 15:15 成交时刻且高亮",
+      "pass": true,
+      "detail": {
+        "fill_id": "evt_2599eecae2003ae21592b1096ae0320b",
+        "selected": true,
+        "hoverbar": "时刻 2026-10-02 15:00 UTC 🎯 定位事件 2026-10-02 15:15 UTC (1h归桶 2026-10-02 15:00) 开 0.0675 高 0.0691 低 0.0661 收 0.0673 量（base） 14.184M 持仓量 6835.84 万（5m 归档最近一条） 真实信号：box_breakout / long · 止损 0.0543 · ATR 0.003362",
+        "expected_bucket": "2026-10-02 15:00 UTC"
+      }
+    },
+    {
+      "id": "B09_PAN_ZOOM_SYNC",
+      "name": "平移缩放主图视窗平滑滚动且净值图时间轴实时保持严格同步",
+      "pass": true,
+      "detail": {
+        "pre_range": {
+          "fromMs": 1790913600000,
+          "toMs": 1791000000000
+        },
+        "post_range": {
+          "fromMs": 1790902800000,
+          "toMs": 1791021600000
+        },
+        "equity_range": {
+          "fromSec": 1790902800,
+          "toSec": 1791025200
+        }
+      }
+    },
+    {
+      "id": "B10_CHART_MARKER_INVERSE_LOOKUP",
+      "name": "点击图表条目反查关联订单，自动展开订单面板并高亮对应行",
+      "pass": true,
+      "detail": {
+        "target_sec": 1790953200,
+        "order_id": "ord_af1ce46b242122be4dff48a9",
+        "selected": true
+      }
+    },
+    {
+      "id": "C01_EXPORT_TRADES_CSV",
+      "name": "真实点击并下载逐笔交易 CSV",
+      "pass": true,
+      "detail": "文件名=trades_bt_20261024T120001Z_e1a10001.csv, 大小=673 字节"
+    },
+    {
+      "id": "C02_EXPORT_ALL_JSON",
+      "name": "真实点击并下载完整综合 JSON",
+      "pass": true,
+      "detail": "文件名=backtest_bt_20261024T120001Z_e1a10001_all.json, 大小=9412 字节"
+    },
+    {
+      "id": "C03_EXPORT_ORDERS_CSV",
+      "name": "真实点击并下载委托订单 CSV",
+      "pass": true,
+      "detail": "文件名=orders_bt_20261024T120001Z_e1a10001.csv, 大小=782 字节"
+    },
+    {
+      "id": "C04_EXPORT_FILLS_CSV",
+      "name": "真实点击并下载逐次成交 CSV",
+      "pass": true,
+      "detail": "文件名=fills_bt_20261024T120001Z_e1a10001.csv, 大小=601 字节"
+    },
+    {
+      "id": "B11_TF_SWITCH_4H",
+      "name": "平稳切换至 4h 趋势背景",
+      "pass": true,
+      "detail": "激活周期=\"4h\""
+    },
+    {
+      "id": "B12_TF_SWITCH_15M",
+      "name": "平稳切换至 15m 执行粒度",
+      "pass": true,
+      "detail": "激活周期=\"15m\""
+    },
+    {
+      "id": "B13_TF_RESTORE_1H",
+      "name": "平稳切回 1h 主小时线",
+      "pass": true,
+      "detail": "恢复后激活周期=\"1h\""
+    },
+    {
+      "id": "B14_CHART_EXPAND_COLLAPSE",
+      "name": "支持大图展开且容器自适应放大，收起平稳恢复紧凑视图",
+      "pass": true,
+      "detail": "初始高度=736.25, 展开后高度=906.25"
+    },
+    {
+      "id": "B15_SWITCH_RUN_AND_SYMBOL",
+      "name": "切换到第二候选标的 (SUSDT) 成功且未串旧数据",
+      "pass": true,
+      "detail": "第二标的头部=\"K 线 · 成交量 · 持仓量（OI） SUSDT · 997 根（1h 聚合） · 开平仓 1 笔 · 委托 2 条 ID: bt_2026102...a10002 | 策略: v0.1.0 | U\", 交易首行=\"2026-10-06 06:00 SUSDT 做多 0.0440 0.0418 -$25.76 盘中止损\""
+    },
+    {
+      "id": "B16_PERSISTENCE_REOPEN",
+      "name": "新窗口重开带 run 参数深链确定性完全恢复同一回测复盘",
+      "pass": true,
+      "detail": "重开标的匹配=true, 交易行数=9"
+    }
+  ]
+}

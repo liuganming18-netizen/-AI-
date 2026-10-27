@@ -1,0 +1,75 @@
+[
+  {
+    "suspect": "逐笔跟踪止损通道",
+    "classification": "部分实际缺陷(回测starts污染)，部分旧路径/未证实猜测(无逐笔ticker通道)",
+    "engine_adapter_starts_bug_present": true,
+    "realtime_tick_channel_present": false,
+    "isolation_reproduction": {
+      "candidate_1_entry": "2026-10-01 05:00:00",
+      "candidate_2_entry": "2026-10-01 09:00:00",
+      "bar_4h_closed_at": "2026-10-01 08:00:00",
+      "starts_list": [
+        "2026-10-01 05:00:00",
+        "2026-10-01 09:00:00"
+      ],
+      "bug_trigger": "候选2借用了 08:00 已收盘4h（早于候选2入场时刻09:00），因 starts[0] < 08:00 收盘时刻"
+    },
+    "frozen_rule_fact": "冻结规范仅支持4h收盘抬高候选线、15m低点判断退出；不存在毫秒级逐笔跟踪通道"
+  },
+  {
+    "suspect": "跳空成交 (Gap Execution)",
+    "classification": "实际缺陷 (P0 经济失真)",
+    "code_location": "框架/backend/paper_engine.py:2296-2302 & 2458-2464",
+    "has_hardcoded_stop_exit": true,
+    "trigger_condition": "当15m或4h K线出现开盘向下跳空（open <= cur_stop）",
+    "expected_behavior": "按跳空开盘价 open=90.0 执行平仓并计滑点",
+    "actual_behavior": "以完美止损价 cur_stop=95.0 平仓，低估亏损 5.0 美元/单位",
+    "impact_scope": "所有遭遇黑天鹅或剧烈跳空跌破止损的持仓，模拟盘账本系统性高估资金净值"
+  },
+  {
+    "suspect": "漏检中间十五分钟线",
+    "classification": "实际缺陷 (P0 穿透存活漏洞)",
+    "code_location": "框架/backend/unified_runtime.py:2097-2103 & paper_loop.py:200-215",
+    "limit_1_present_in_ur": true,
+    "limit_1_present_in_pl": true,
+    "trigger_condition": "系统停机重启、网络拉取延迟或循环阻塞超过 15 分钟，期间产生 >=2 根 15m K线",
+    "expected_behavior": "连续遍历区间内所有已闭合 15m K线，中间 K线低点击穿止损即执行退出",
+    "actual_behavior": "仅查询 ORDER BY open_time DESC LIMIT 1，导致中间触及止损的 Bar 1 被漏检，模拟结果 exit_triggered=False（错误存活）",
+    "impact_scope": "任何非零延迟/断网重启场景下的持仓保护彻底失效，产生虚假盈利或严重漂移"
+  },
+  {
+    "suspect": "资金费与回撤调度",
+    "classification": "实际缺陷 (P0 核心风控脱幅)",
+    "code_location": "框架/backend/unified_runtime.py (主运行入口)",
+    "unified_runtime_accrue_funding_called": false,
+    "unified_runtime_enforce_drawdown_called": false,
+    "paper_loop_accrue_funding_called": false,
+    "paper_loop_enforce_drawdown_called": false,
+    "trigger_condition": "统一运行时 (UnifiedRuntime) 常驻运行时",
+    "expected_behavior": "每 15m 驱动 enforce_drawdown 检查 20% 账户回撤；每 8h 驱动 accrue_funding 计提持仓资金费",
+    "actual_behavior": "UnifiedRuntime.step_once 中完全没有调用 accrue_funding 与 enforce_drawdown，风控完全脱幅，资金费为0行",
+    "impact_scope": "模拟盘运行期间即便回撤超过 20% 也不会触发熔断强平；持仓期间动态净值完全失真"
+  },
+  {
+    "suspect": "价格精度兜底",
+    "classification": "实际缺陷 (违背严禁静默兜底准则)",
+    "code_location": "框架/backend/paper_engine.py:2404",
+    "has_silent_fallback": true,
+    "trigger_condition": "当新上线币种或无合约元数据标的参与计算跟踪止损",
+    "expected_behavior": "严禁兜底，合约规格缺失时必须明确抛错并拒绝推进 (missing_contract_spec)",
+    "actual_behavior": "静默回退到 price_step=0.01。对比 BTC: 兜底成交价=65399.42 vs 正确成交价=65399.4 (产生价格精度非法分叉)",
+    "impact_scope": "合约缺失标的止损位计算精度失准，直接违背交易所实盘下单规则"
+  },
+  {
+    "suspect": "重启恢复信号资格",
+    "classification": "已修补路径但存在时序/多进程边界隐患 (需严格测试去重与时效)",
+    "code_location": "框架/backend/unified_runtime.py:896-960 & 2233-2275",
+    "has_recovered_routing": true,
+    "has_epoch_guard": true,
+    "has_lag_check": false,
+    "trigger_condition": "服务进程重启时执行 bootstrap 预热回放",
+    "expected_behavior": "严格识别停机期间产生的合法信号（在 MAX_FILL_LAG 内），且对已存在订单/持仓幂等去重",
+    "actual_behavior": "当前通过 recovered_candidates 恢复并检查三重表，但缺乏对'模型动态决策'状态的恢复协议（动态策略的上下文在重启时会丢失）",
+    "impact_scope": "若接入 AI 动态策略，无状态的重启将导致 AI 上下文断裂、做出重复或冲突动作"
+  }
+]

@@ -47,6 +47,9 @@ from .policy import (ACTION_EXIT_EOD, ACTION_EXIT_GAP, ACTION_EXIT_MAX_HOLDING,
                      EXIT_MAX_HOLDING, ExecutionPolicy, EntryDecision,
                      ExitDecision)
 from .position import Position, unrealized_net_open, unrealized_pnl
+from .rejects import (STAGE_ENTRY_FILL, STAGE_ENTRY_NOTIONAL, STAGE_ENTRY_QTY,
+                      STAGE_EXIT_EOD, STAGE_EXIT_GAP, STAGE_EXIT_INTRABAR,
+                      classify_reject, mark_if_execution_invalid)
 
 ENGINE_CONTRACT_VERSION = "trading_engine_v1.0.0"
 
@@ -389,8 +392,10 @@ class TradingCore:
                 except FillRejected as rej:
                     # 出场失败 ⇒ **仓位保持未平**，运行标记为无效（不得当作已平仓）
                     precision_rejects.append({"symbol": sym, "stage": "exit_gap",
-                                              "timestamp": int(t_now), **rej.detail})
-                    invalid_reasons.append(f"exit_gap_fill_rejected:{rej.reason}")
+                                              "timestamp": int(t_now),
+                                              "class": classify_reject(rej.reason),
+                                              **rej.detail})
+                    mark_if_execution_invalid(invalid_reasons, STAGE_EXIT_GAP, rej.reason)
                     unclosed_positions.append(sym)
                     continue
                 exit_audit = getattr(self.adapter, "last_exit_audit", None)
@@ -450,10 +455,15 @@ class TradingCore:
                             price_step=spec_step_by_symbol.get(sym, step),
                             stop_price=stop_ref)
                     except FillRejected as rej:
-                        # 入场价格非法/规格非法 ⇒ **不生成成交**
+                        # 入场价格非法/规格非法 ⇒ **不生成成交**，且属执行有效性错误：
+                        # 必须与出场同口径登记 invalid_reasons（PRECISION-09 修复缺口）
                         precision_rejects.append({"symbol": sym, "stage": "entry",
                                                   "timestamp": int(t_now),
-                                                  "signal_id": sig_id, **rej.detail})
+                                                  "signal_id": sig_id,
+                                                  "class": classify_reject(rej.reason),
+                                                  **rej.detail})
+                        mark_if_execution_invalid(invalid_reasons, STAGE_ENTRY_FILL,
+                                                  rej.reason)
                         rejected.append({"timestamp": int(t_now), "symbol": sym,
                                          "phase": "C_entry", "reason": rej.reason})
                         self._emit(SIGNAL_REJECTED, symbol=sym, event_time=int(t_now),
@@ -537,7 +547,10 @@ class TradingCore:
                             precision_rejects.append({
                                 "symbol": sym, "stage": "entry", "timestamp": int(t_now),
                                 "signal_id": sig_id, "reason": "qty_below_min_step",
+                                "class": classify_reject("qty_below_min_step"),
                                 **qty_audit})
+                            mark_if_execution_invalid(invalid_reasons, STAGE_ENTRY_QTY,
+                                                      "qty_below_min_step")
                             rejected.append({"timestamp": int(t_now), "symbol": sym,
                                              "phase": "C_entry",
                                              "reason": "qty_below_min_step"})
@@ -554,7 +567,10 @@ class TradingCore:
                             precision_rejects.append({
                                 "symbol": sym, "stage": "entry", "timestamp": int(t_now),
                                 "signal_id": sig_id, "reason": "notional_below_min",
+                                "class": classify_reject("notional_below_min"),
                                 **qty_audit})
+                            mark_if_execution_invalid(invalid_reasons, STAGE_ENTRY_NOTIONAL,
+                                                      "notional_below_min")
                             rejected.append({"timestamp": int(t_now), "symbol": sym,
                                              "phase": "C_entry",
                                              "reason": "notional_below_min"})
@@ -589,11 +605,12 @@ class TradingCore:
                             entry_round_loss = abs(entry_fill - _ps) * dec.intent.quantity
                         except (KeyError, TypeError, ValueError):
                             entry_slip_pure, entry_round_loss = entry_slip_loss, 0.0
+                    pos_stop = float(dec.intent.stop_price if (dec.intent is not None and dec.intent.stop_price is not None) else stop_ref)
                     pos = Position(
                         symbol=sym, direction=direction, signal_type=sig_type,
                         entry_time=int(t_now), entry_time_sec=int(arr["timestamp_sec"][i]),
                         entry_price=entry_fill, qty=dec.intent.quantity,
-                        initial_stop=stop_ref, current_stop=stop_ref,
+                        initial_stop=pos_stop, current_stop=pos_stop,
                         entry_fee=e_fee, last_mark_price=entry_fill,
                         entry_slip_loss=entry_slip_loss,
                         entry_slip_pure=entry_slip_pure,
@@ -606,13 +623,13 @@ class TradingCore:
                     if enable_trail:
                         lvl = self.policy.trail_level(
                             direction=direction, exit_low=float(arr["exit_low"][i]),
-                            exit_high=float(arr["exit_high"][i]), current_stop=stop_ref)
+                            exit_high=float(arr["exit_high"][i]), current_stop=pos_stop)
                         if lvl is not None:
                             pos.current_stop = float(lvl)
                             pos.stop_trace.append({"ts": int(arr["timestamp"][i]),
                                                    "stop": float(lvl), "reason": "trail"})
                     pos.stop_trace.insert(0, {"ts": int(arr["timestamp"][i]),
-                                              "stop": float(stop_ref), "reason": "init"})
+                                              "stop": float(pos_stop), "reason": "init"})
                     self._fill_order(o, price=entry_fill, qty=dec.intent.quantity,
                                      fee=e_fee, ts=int(t_now), liquidity=Liquidity.TAKER,
                                      detail={"signal_id": sig_id})
@@ -620,7 +637,7 @@ class TradingCore:
                                payload={"order_id": o.order_id, "signal_id": sig_id,
                                         "entry_price": entry_fill,
                                         "qty": dec.intent.quantity,
-                                        "stop_price": stop_ref})
+                                        "stop_price": pos_stop})
                     self._emit(FEE_CHARGED, symbol=sym, event_time=int(t_now),
                                payload={"side": "entry", "fee": float(e_fee)})
                     self._emit(SIGNAL_ACCEPTED, symbol=sym, event_time=int(t_now),
@@ -661,8 +678,11 @@ class TradingCore:
                             reason=dec.reason)
                     except FillRejected as rej:
                         precision_rejects.append({"symbol": sym, "stage": "exit_intrabar",
-                                                  "timestamp": int(t_now), **rej.detail})
-                        invalid_reasons.append(f"exit_intrabar_fill_rejected:{rej.reason}")
+                                                  "timestamp": int(t_now),
+                                                  "class": classify_reject(rej.reason),
+                                                  **rej.detail})
+                        mark_if_execution_invalid(invalid_reasons, STAGE_EXIT_INTRABAR,
+                                                  rej.reason)
                         unclosed_positions.append(sym)
                         pos.last_mark_price = cl
                         continue
@@ -723,8 +743,10 @@ class TradingCore:
                         reason=dec.reason)
                 except FillRejected as rej:
                     precision_rejects.append({"symbol": sym, "stage": "exit_eod",
-                                              "timestamp": int(last_ts), **rej.detail})
-                    invalid_reasons.append(f"exit_eod_fill_rejected:{rej.reason}")
+                                              "timestamp": int(last_ts),
+                                              "class": classify_reject(rej.reason),
+                                              **rej.detail})
+                    mark_if_execution_invalid(invalid_reasons, STAGE_EXIT_EOD, rej.reason)
                     unclosed_positions.append(sym)
                     continue
                 exit_audit = getattr(self.adapter, "last_exit_audit", None)

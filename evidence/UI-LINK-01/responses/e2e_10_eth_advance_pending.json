@@ -1,0 +1,215 @@
+{
+ "clock_injection": {
+  "T_ms": 1792761300000,
+  "T_utc": "2026-10-23T13:15:00Z",
+  "why": "隔离环境无常驻 worker，用同一引擎函数按「15m 逐格推进到该 bar 闭合」推一次；成交价规则（最早可成交 15m 闭合 bar 开盘价）与拒单不补旧价逻辑完全不变。结论中不得写成「真实挂钟自动成交」。",
+  "attempts": [
+   {
+    "T_ms": 1792761300000,
+    "T_utc": "2026-10-23T13:15:00Z",
+    "filled": 1,
+    "rejected": 0,
+    "still_pending": 0
+   }
+  ]
+ },
+ "pending_before": [
+  {
+   "pending_id": 2,
+   "arm": "3a",
+   "symbol": "ETHUSDT",
+   "direction": "long",
+   "origin": "signal",
+   "status": "pending",
+   "reason": null,
+   "earliest_fill_ms": 1792759715787,
+   "requested_at": 1792758815787,
+   "signal_uid": "sig_uilink01_seed_ethusdt"
+  }
+ ],
+ "advance_result": {
+  "filled": [
+   {
+    "ok": true,
+    "reason": "filled",
+    "position_id": 2,
+    "order_id": 5,
+    "qty": 0.20700000000000002,
+    "entry_price": 2403.34,
+    "raw_price": 2402.13,
+    "stop_price": 2283.17,
+    "initial_stop_price": 2283.17,
+    "stop_dist": 120.17000000000007,
+    "planned_risk": 24.875190000000018,
+    "notional": 497.49138000000005,
+    "fee": 0.24874569000000002,
+    "slippage_cost": 0.2504700000000076,
+    "bar_open_time": 1792760400000,
+    "bar_close_time": 1792761299999,
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "signal_uid": "sig_uilink01_seed_ethusdt",
+    "origin": "signal",
+    "event_time": 1792756799999,
+    "available_at": 1792756799999,
+    "requested_at": 1792758815787,
+    "earliest_fill_ms": 1792759715787,
+    "filled_at": 1792760400000,
+    "fill_lag_ms": 900000,
+    "market_source": "binance.um.candles_15m.is_closed.open"
+   }
+  ],
+  "rejected": [],
+  "still_pending": 0,
+  "by_arm": {
+   "3a": {
+    "pending_total": 1,
+    "filled": 1,
+    "rejected": 0,
+    "still_pending": 0
+   },
+   "3b": {
+    "pending_total": 0,
+    "filled": 0,
+    "rejected": 0,
+    "still_pending": 0
+   },
+   "3c": {
+    "pending_total": 0,
+    "filled": 0,
+    "rejected": 0,
+    "still_pending": 0
+   },
+   "3d": {
+    "pending_total": 0,
+    "filled": 0,
+    "rejected": 0,
+    "still_pending": 0
+   }
+  }
+ },
+ "positions_after": [
+  {
+   "arm": "3a",
+   "account_id": "paper43_3a",
+   "position_id": 2,
+   "symbol": "ETHUSDT",
+   "direction": "long",
+   "qty": 0.20700000000000002,
+   "entry_price": 2403.34,
+   "mark_price": 2397.95,
+   "mark_source": "closed_15m_close",
+   "mark_time": 1792761299999,
+   "unrealized_pnl": -1.11573,
+   "unrealized_pnl_pct": -0.2243,
+   "stop_price": 2283.17,
+   "atr_at_entry": 22.550000000000182,
+   "entry_ts": 1792760400000,
+   "signal_uid": "sig_uilink01_seed_ethusdt",
+   "leverage": 1.0,
+   "notional": 497.49138,
+   "opened_by": "FT-LOW4H-EXP-V2.2",
+   "funding_paid": 0.0,
+   "event_time": 1792756799999,
+   "available_at": 1792756799999,
+   "requested_at": 1792758815787,
+   "earliest_fill_ms": 1792759715787,
+   "filled_at": 1792760400000,
+   "market_source": "binance.um.candles_15m.is_closed.open",
+   "origin": "signal",
+   "stop_history": {
+    "ok": true,
+    "exists": true,
+    "position_id": 2,
+    "items": [
+     {
+      "id": 2,
+      "account_id": "paper43_3a",
+      "position_id": 2,
+      "old_stop": null,
+      "new_stop": 2283.17,
+      "reason": "initial_stop",
+      "ref_bar_open_ms": 1792760400000,
+      "available_at": 1792756799999,
+      "decision_at": 1792761300000,
+      "effective_at": 1792760400000,
+      "created_at": 1792761459656
+     }
+    ]
+   },
+   "verification_status": "legacy_unverified",
+   "label": "旧版/未验收",
+   "violations": [],
+   "excluded_from_official_strategy_performance": true
+  }
+ ],
+ "accounts_after": [
+  {
+   "arm": "3a",
+   "equity": 4997.791513,
+   "n_closed": 1,
+   "n_orders": 3,
+   "n_pending": 0,
+   "realized_pnl_total": -1.092757,
+   "pending": [],
+   "positions": [
+    {
+     "position_id": 2,
+     "symbol": "ETHUSDT",
+     "direction": "long",
+     "qty": 0.20700000000000002,
+     "entry_price": 2403.34,
+     "mark_price": 2397.95,
+     "mark_source": "closed_15m_close",
+     "mark_time": 1792761299999,
+     "unrealized_pnl": -1.11573,
+     "unrealized_pnl_pct": -0.2243,
+     "stop_price": 2283.17,
+     "atr_at_entry": 22.550000000000182,
+     "entry_ts": 1792760400000,
+     "signal_uid": "sig_uilink01_seed_ethusdt",
+     "leverage": 1.0,
+     "notional": 497.49138,
+     "opened_by": "FT-LOW4H-EXP-V2.2",
+     "funding_paid": 0.0,
+     "event_time": 1792756799999,
+     "available_at": 1792756799999,
+     "requested_at": 1792758815787,
+     "earliest_fill_ms": 1792759715787,
+     "filled_at": 1792760400000,
+     "market_source": "binance.um.candles_15m.is_closed.open",
+     "origin": "signal"
+    }
+   ]
+  },
+  {
+   "arm": "3b",
+   "equity": 5000.0,
+   "n_closed": 0,
+   "n_orders": 0,
+   "n_pending": 0,
+   "realized_pnl_total": 0.0,
+   "pending": [],
+   "positions": []
+  },
+  {
+   "arm": "3c",
+   "equity": 5000.0,
+   "n_closed": 0,
+   "n_orders": 0,
+   "n_pending": 0,
+   "realized_pnl_total": 0.0,
+   "pending": [],
+   "positions": []
+  },
+  {
+   "arm": "3d",
+   "equity": 5000.0,
+   "n_closed": 0,
+   "n_orders": 0,
+   "n_pending": 0,
+   "realized_pnl_total": 0.0,
+   "pending": [],
+   "positions": []
+  }
+ ]
+}

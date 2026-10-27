@@ -1,0 +1,69 @@
+{
+  "work_order": "FT-FACTOR-03",
+  "description": "未来数据泄漏与偏差检查真实证据报告（含上一轮错误更正）",
+  "previous_round_errata": [
+    {
+      "item": "官方 lookahead-analysis",
+      "previous_claim": "PASS",
+      "actual_fact": "上一轮 AGLD 仅捕获 2 笔交易，未达到官方 10 笔最低门槛 (0/10 trades caught. Test failed.)，进程退出码为 0 被误标 PASS",
+      "corrected_status": "未完成 (样本不足: 未达官方10笔门槛)"
+    },
+    {
+      "item": "官方 recursive-analysis",
+      "previous_claim": "PASS",
+      "actual_fact": "上一轮 AGLD 测试区间设为 2023-06~2024-01，但 AGLD 实际于 2023-07-29 上市，前半段无数据报错 Terminating，被误标 PASS",
+      "corrected_status": "未完成 (无数据: No data found)"
+    },
+    {
+      "item": "前缀截断一致性检验",
+      "previous_claim": "PASS (ADA / ALGO)",
+      "actual_fact": "上一轮截断点前候选数为 0 笔，属于空集一致，不能作为通过依据",
+      "corrected_status": "未闭合 (空集一致不能作为通过依据)"
+    }
+  ],
+  "current_round_evidence": {
+    "official_recursive_analysis": {
+      "status": "PASS (无递归发散，指标严格稳定)",
+      "returncode": 0,
+      "pair": "ADA/USDT:USDT",
+      "timerange": "20230101-20230601",
+      "log_path": "evidence/FT-FACTOR-03/logs/official_recursive_analysis.log"
+    },
+    "official_lookahead_analysis": {
+      "status": "未完成 (交易样本不足: 未达到官方 10 笔门槛，低频事件不改策略凑数)",
+      "returncode": 0,
+      "pair": "AGLD/USDT:USDT",
+      "timerange": "20230815-20241231",
+      "export_csv": "evidence/FT-FACTOR-03/out/lookahead_analysis_result.csv",
+      "log_path": "evidence/FT-FACTOR-03/logs/official_lookahead_analysis.log"
+    },
+    "prefix_consistency_check_non_empty": {
+      "status": "PASS (非空真实交易 100% 严格一致，无未来数据泄漏)",
+      "pair": "AGLD/USDT:USDT",
+      "cutoff_utc": "2024-01-01T00:00:00Z",
+      "full_timerange": "20230815-20241231",
+      "trunc_timerange": "20230815-20240101",
+      "full_trades_before_cutoff_count": 1,
+      "trunc_trades_count": 1,
+      "is_non_empty_sample": true,
+      "diff_count": 0,
+      "mismatch_details": [],
+      "sample_trades_detail": [
+        {
+          "pair": "AGLD/USDT:USDT",
+          "open_date": "2023-12-18 21:15:00+00:00",
+          "open_rate": 1.0645,
+          "enter_tag": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGLDUSDT_1702612800000_1702933200000",
+          "initial_stop_loss_abs": 0.0107
+        }
+      ]
+    }
+  },
+  "formal_gate_status": {
+    "recursive_check": "PASS (无递归发散，指标严格稳定)",
+    "lookahead_check": "未完成 (交易样本不足: 未达到官方 10 笔门槛，低频事件不改策略凑数)",
+    "prefix_consistency_check": "PASS (非空真实交易 100% 严格一致，无未来数据泄漏)",
+    "overall_gate_closed": false,
+    "formal_conclusion_statement": "因官方 lookahead-analysis 在低频事件策略下交易样本不足 10 笔（不改策略凑数），官方检查未完全闭合。因此，本次 FT-FACTOR-03 扩大样本回测结论【明确保留为探索结果】，严禁发布正式因子准入或有效性结论。"
+  }
+}

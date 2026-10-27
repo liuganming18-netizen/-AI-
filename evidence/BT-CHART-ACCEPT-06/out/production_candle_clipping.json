@@ -1,0 +1,58 @@
+{
+  "task": "BT-CHART-ACCEPT-06",
+  "section": "production_candle_clipping",
+  "checks": [
+    {
+      "id": "PROD_CLIP_01_NORMAL_7D",
+      "name": "生产函数 _apply_candle_context 正常执行 ±7 天上下文，run 区间完整保全且未触发裁剪",
+      "pass": true,
+      "detail": {
+        "context_days": 7,
+        "before_count": 168,
+        "after_count": 167,
+        "total_bars": 519,
+        "budget_clipped": false,
+        "run_bars_count": 184,
+        "run_bars_all_preserved": true
+      }
+    },
+    {
+      "id": "PROD_CLIP_02_OVER_BUDGET_CLIPPED",
+      "name": "生产函数 _apply_candle_context 超预算时执行生产裁剪分支，精准砍掉最远端，run 根数一根不少",
+      "pass": true,
+      "detail": {
+        "configured_cap": 224,
+        "result_bars": 224,
+        "context_before": 20,
+        "context_after": 20,
+        "context_sum": 40,
+        "budget_clipped_flag": true,
+        "budget_remaining": 0,
+        "run_bars_preserved": true
+      }
+    },
+    {
+      "id": "PROD_CLIP_03_BOUNDARY_EXTENSION",
+      "name": "生产函数 _apply_candle_context 处理超长上下文时如实提取市场库可用范围，如实标注非本 run 区间",
+      "pass": true,
+      "detail": {
+        "context_days": 90,
+        "before_count": 2160,
+        "after_count": 2159,
+        "total_bars": 4503,
+        "source_note": "读时从市场库读取 binance/um/BCHUSDT/1h 连续行情（2021-12-11 22:15Z ~ 2021-12-19 14:30Z，UTC）；r"
+      }
+    },
+    {
+      "id": "PROD_CLIP_04_API_INTEGRATION",
+      "name": "通过生产 API 接口 get_chart 传参 context_days 完整调通生产裁剪路径",
+      "pass": true,
+      "detail": {
+        "api_code": 200,
+        "api_context_days": 7,
+        "api_candles_bars": 519
+      }
+    }
+  ],
+  "all_passed": true
+}

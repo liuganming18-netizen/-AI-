@@ -1,0 +1,267 @@
+{
+  "schema": "accum-early-06-w1/pending-questions/v1",
+  "order": "06-02",
+  "generated_at_utc": "2026-10-26T18:26:00Z",
+  "depends_on": "evidence/ACCUM-EARLY-06-W1/01/规则来源映射.json",
+  "status_legend": {
+    "NO_SOURCE": "没有任何来源（既非用户、也非方案文本）",
+    "PROPOSED": "有执行方/方案推荐，但未批准",
+    "INHERITED_UNRATIFIED": "沿用冻结包或引擎既有值，未获新批准",
+    "CONFLICT": "两套及以上取值并列，必须指名",
+    "USER_DECIDED": "用户原话覆盖，不再询问"
+  },
+  "not_asked": [
+    {"item": "初始止损 = 成交价 × 95%", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 25, "must_contain": "实际成交价 × 95%"}, "why": "用户原话，且引擎 stoploss_s 已对撞一致"},
+    {"item": "跟踪候选止损 = 新收盘 4h 最低价 × 95%", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 26, "must_contain": "候选止损＝该根最低价 × 95%"}, "why": "用户原话"},
+    {"item": "只上移、不下移、不追溯", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "不得用新止损追溯此前行情"}, "why": "用户原话"},
+    {"item": "入场当根 4h 在入场后收盘可用于未来止损", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 28, "must_contain": "不要求该线开盘时间晚于入场"}, "why": "用户原话"},
+    {"item": "不设 2R 启动门槛", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "不设“盈利到初始风险两倍才启动跟踪”"}, "why": "用户原话"},
+    {"item": "不设 10 天强平", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "不设持仓 10 天自动平仓"}, "why": "用户原话"},
+    {"item": "执行周期 15m", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "15 分钟执行规则"}, "why": "用户原话"},
+    {"item": "确认→成交延迟 15 分钟、不回填", "source": {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "最早 12:15，不回填 12:00"}, "why": "用户原话"}
+  ],
+  "credentials": {
+    "id": "Q0",
+    "question": "批准凭证怎么填（不是策略选择，是流程）",
+    "fields": ["schema_version", "kind", "approved", "approval_ref"],
+    "note": "schema_version 由格式决定（accum-early-05/v1），已预填；kind/approved/approval_ref 必须由批准人填写，执行方不得预填、不得虚构 approval_ref。",
+    "sources": [
+      {"file": "evidence/ACCUM-EARLY-05-B/向05-A-R1协调说明_配置字段表.md", "line": 88, "must_contain": "`kind=approved` 时也必须为 `true`"},
+      {"file": "evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json", "line": 0, "must_contain": "\"approved\": null", "line_search": true}
+    ]
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "question": "扫低扫的是什么：局部支撑（前 N 根 1h 最低）还是箱体下沿 L？",
+      "fields": ["shared.sweep_reference.mode", "shared.sweep_reference.n", "shared.sweep_reference.must_be_above_box_low", "shared.sweep_recovery_scope.mode", "shared.sweep_recovery_scope.max_bars", "shared.sweep_max_overshoot_atr", "shared.sweep_min_recovery_atr"],
+      "why": "决定事件链起点与机会量级（两档差约 12 倍），是 04-A 自述的「本单最重要的待决项」；但它**不在** 13 项待决映射里。",
+      "candidates": [
+        {"label": "A 局部支撑 S_loc", "values": {"mode": "prior_n_low", "n": 24, "must_be_above_box_low": true, "scope": "single_bar"}, "basis": "04-A 推荐；研究区间甲组 3209 笔、R 合计 −192.78（新增机会 3153 笔、−220.41）", "owner": "04-A", "approved": false},
+        {"label": "B 箱体下沿 L", "values": {"mode": "box_low"}, "basis": "05-A-R1 推荐；研究区间甲组 266 笔、R 合计 −34.03", "owner": "05-A-R1", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 23, "must_contain": "这是本单最重要的一个待决项"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 126, "must_contain": "sweep_object"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/02_简明决策表.md", "line": 28, "must_contain": "推荐选择 B"}
+      ],
+      "recommendation": {"value": "两份文档推荐相反：04-A 推 A，05-A-R1 推 B", "status": "CONFLICT", "note": "不得替用户择一；B 的样本只有 266 笔，是否足够也未评估。"},
+      "impact": "改它会把「提前入场」变成「原策略换一个更早的触发位」；机会量差约 12 倍。",
+      "if_not_decided": "开仓阻塞（配置必填）。"
+    },
+    {
+      "id": "Q2",
+      "question": "局部压制位怎么取：摆动高点、前 N 根最高、还是箱顶？",
+      "fields": ["shared.local_resistance.mode", "shared.local_resistance.lookback_bars", "shared.local_resistance.swing_k", "shared.local_resistance.timeframe", "shared.resistance_qualify.min_gap_atr"],
+      "why": "直接决定入场触发点高低与假突破比例；同时 timeframe=1h 被误标「用户已定」（06-01 C-01），需一并澄清来源。",
+      "candidates": [
+        {"label": "A 摆动高点 k=3 / 回看 48", "values": {"mode": "swing_high_k3_lookback48", "lookback_bars": 48, "swing_k": 3}, "basis": "04-A 推荐；甲组 3209 笔 −192.78", "owner": "04-A", "approved": false},
+        {"label": "B 前 24 根最高", "values": {"mode": "prior_n_high", "lookback_bars": 24}, "basis": "05-A-R1 推荐；甲组 2409 笔 −121.27", "owner": "05-A-R1", "approved": false},
+        {"label": "C 箱体上沿 H", "values": {"mode": "box_high"}, "basis": "会退化为原策略突破，失去提前量", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 129, "must_contain": "swing_high_k3_lookback48"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 41, "must_contain": "prior_n_high"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 42, "must_contain": "**用户已定**"}
+      ],
+      "recommendation": {"value": "两份文档推荐相反：04-A 推 A，05-A-R1 推 B；timeframe=1h 的真实来源是冻结包 config.py:21，不是用户", "status": "CONFLICT", "note": "timeframe 不是「用户已定」，但作为沿用值可先不动。"},
+      "impact": "定义越低入场越早、假突破越多；lookback 越长越容易取到箱顶而失去提前量。",
+      "if_not_decided": "开仓阻塞。"
+    },
+    {
+      "id": "Q3",
+      "question": "承接与卖压：门槛倍率取多少，是否作为硬门槛？",
+      "fields": ["shared.sell_pressure.require", "shared.sell_pressure.baseline", "shared.sell_pressure.n", "shared.sell_pressure.buy_ratio_mult", "shared.sell_pressure.require_upper_half", "shared.sell_pressure.sell_pressure_mult"],
+      "why": "这是策略命题的核心（「发现承接后提前入场」）；但 1.0/0.8/20 全部无批准来源，且 1.2 倍能把研究区间 R 翻正（过拟合红线）。",
+      "candidates": [
+        {"label": "A 1.0 倍硬门槛（基准 20 根中位数）", "values": {"require": true, "baseline": "v20_median", "n": 20, "buy_ratio_mult": 1.0, "sell_pressure_mult": 0.8, "require_upper_half": true}, "basis": "04-A 与 05-A-R1 都推荐 1.0；研究区间 −192.78", "owner": "04-A / 05-A-R1", "approved": false},
+        {"label": "B 1.2 倍强承接", "values": {"buy_ratio_mult": 1.2}, "basis": "甲组翻正 +6.89、丙 +21.47，但笔数 3209→1098", "owner": "04-A 敏感性", "approved": false},
+        {"label": "C 只作证据不作门槛", "values": {"require": false}, "basis": "会失去「承接」前提，等于无承接的提前入场", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 135, "must_contain": "× 1.0"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 136, "must_contain": "× 0.8"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 51, "must_contain": "建议未批准"}
+      ],
+      "recommendation": {"value": "A（1.0 / 0.8 / 20）", "status": "PROPOSED", "note": "「有承接要求」≠「倍率获批」；1.2 只能当敏感性看，不得据它定参。卖压 0.8 从未做过 0.8 vs 1.0 对照。"},
+      "impact": "门槛越高事件越少、单笔质量越高（样本不足证明）；关掉则命题不成立。",
+      "if_not_decided": "开仓阻塞。"
+    },
+    {
+      "id": "Q4",
+      "question": "确认方式与失效：收阳要求、连续几根失效、观察期多久、盘中破位算不算？",
+      "fields": ["shared.local_resistance_confirm.mode", "shared.local_resistance_confirm.buffer_atr", "shared.confirm.require_bull_close", "shared.armed_fail.bars", "shared.armed_fail.buffer_atr", "shared.invalidate.close_below_l_bars", "shared.invalidate.l_overshoot_atr", "shared.intrabar_break_cancel.mode", "shared.intrabar_break_cancel.buffer_atr", "shared.observe_deadline_hours"],
+      "why": "这一组决定「一个事件能活多久、什么算失败」，其中多数是「工程上必须先有一个值」而不是已验证值。",
+      "candidates": [
+        {"label": "A 现状建议（收阳 / 2 根 / 336h / 只看收盘）", "values": {"confirm.mode": "1h_close", "require_bull_close": true, "armed_fail.bars": 2, "invalidate.close_below_l_bars": 2, "intrabar_break_cancel.mode": "close_only", "observe_deadline_hours": 336}, "basis": "04-A 建议；多数自述「未做对照」", "owner": "04-A", "approved": false},
+        {"label": "B 允许盘中破位取消", "values": {"intrabar_break_cancel.mode": "intrabar"}, "basis": "未做对照", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 138, "must_contain": "未跑「不要求收阳」的对照"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 141, "must_contain": "未做 1 根/2 根/3 根的对照"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 146, "must_contain": "未跑「允许盘中破位即取消」的对照"}
+      ],
+      "recommendation": {"value": "A", "status": "PROPOSED", "note": "三条关键阈值都没有对照实验，属「为了让规则可执行」的取值，不是验证过的值。"},
+      "impact": "改小会更早失效/更早放弃，改大更宽容但更容易拖到亏损扩大。",
+      "if_not_decided": "开仓阻塞。"
+    },
+    {
+      "id": "Q5",
+      "question": "甲/乙/丙三组是否继续并行？回抽带与期限取多少？",
+      "fields": ["schemes.4a.enabled", "schemes.4a.confirm", "schemes.4b.enabled", "schemes.4b.confirm", "schemes.4c.enabled", "schemes.4c.confirm", "schemes.4c.pullback.zone_atr", "schemes.4c.pullback.deadline_hours"],
+      "why": "三组在研究区间全负、验证区间乙翻正，方向不一致；并行是最不主观的选择，但要占三份跟踪与三本账。",
+      "candidates": [
+        {"label": "A 三组并行", "values": {"4a": true, "4b": true, "4c": true}, "basis": "05-A-R1 决策 4 推荐", "owner": "05-A-R1", "approved": false},
+        {"label": "B/C/D 单推某一组", "values": {"4a": "only"}, "basis": "无稳定优势证据", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/02_简明决策表.md", "line": 31, "must_contain": "甲/乙/丙三组继续并行隔离验证"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 139, "must_contain": "0.25"}
+      ],
+      "recommendation": {"value": "A（三组并行，回抽带 0.25A / 48h）", "status": "PROPOSED", "note": "回抽带 0.25A 未做 0.5A 对照；期限 48h 无对照。"},
+      "impact": "单推会押注；并行需三倍状态跟踪。",
+      "if_not_decided": "开仓阻塞（enabled 是必填布尔）。"
+    },
+    {
+      "id": "Q6",
+      "question": "风控口径：本金、最大仓位数、单笔风险、单名上限、总风险预算取哪一套？",
+      "fields": ["conflict_resolution.risk_config"],
+      "why": "两套文件互斥；用户文档明确「3／10 等冲突记录未查清前不得当成批准」。",
+      "candidates": [
+        {"label": "A 策略包", "values": {"initial_equity": 2000, "max_positions": 3, "risk_per_trade": 0.005, "max_notional_per_position": 0.30, "max_total_notional": 0.90, "max_total_risk_budget": 0.015}, "basis": "冻结包 make_ft_low4h_config()", "owner": "策略包", "approved": false},
+        {"label": "B 生效视图", "values": {"initial_equity": 5000, "max_positions": 10, "risk_per_trade": 0.005, "single_name_cap": 0.10, "gross_long_cap": 0.80, "portfolio_initial_stop_risk_cap": 0.05}, "basis": "approved_params() 实际加载值（view_sha256 82dec362c182）", "owner": "生效视图", "approved": false},
+        {"label": "C 第三套（自定）", "values": {}, "basis": "允许，但必须逐项写明，不得拿 A/B 的片段拼", "owner": "用户", "approved": false}
+      ],
+      "sources": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 32, "must_contain": "未查清来源前均不得当成用户批准"},
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 63, "must_contain": "2000/3仓/30%"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 69, "must_contain": "strategy_package"}
+      ],
+      "recommendation": {"value": "无（两套并列）", "status": "CONFLICT", "note": "单笔风险 0.5% 两套一致；本金/仓位/单名上限/总风险预算四项不同。"},
+      "impact": "决定名义额与最大持仓数，直接改盈亏量级。",
+      "if_not_decided": "开仓阻塞；且声明值必须与引擎实际一致，否则 economic_caliber_declared_mismatch。"
+    },
+    {
+      "id": "Q7",
+      "question": "摩擦成本：滑点取 3bps 还是 5bps？手续费 5bps 是否确认？",
+      "fields": ["conflict_resolution.slippage_source"],
+      "why": "滑点两套值并列；手续费虽两套一致，但「一致」不等于批准，且它没有配置字段（硬编码在 check_fixed_rules）。",
+      "candidates": [
+        {"label": "A 生效视图 5bps 滑点 + 5bps 手续费", "values": {"slippage_bps": 5, "fee_bps": 5}, "basis": "引擎当前实际值", "owner": "生效视图", "approved": false},
+        {"label": "B 策略包 3bps 滑点 + 5bps 手续费", "values": {"slippage_bps": 3, "fee_bps": 5}, "basis": "冻结包 slippage_bps=3.0", "owner": "策略包", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 62, "must_contain": "策略包 3bps / 生效视图 5bps"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/01_旧表到新表的纠错清单.md", "line": 16, "must_contain": "基线默认值（待确认）"}
+      ],
+      "recommendation": {"value": "A（5bps）", "status": "PROPOSED", "note": "手续费 5bps 无配置字段：若批准其他费率，必须改代码而非填表。"},
+      "impact": "改所有净额；每笔约 0.02R 量级差异。",
+      "if_not_decided": "开仓阻塞（滑点必填）；手续费只能维持 5bps。"
+    },
+    {
+      "id": "Q8",
+      "question": "参与率上限取 0.1% 还是 1.0%？超限缩量还是拒单？",
+      "fields": ["conflict_resolution.participation_cap"],
+      "why": "决定小币种能否成交；该字段**不在** 13 项待决映射里（只在冲突字段里）。",
+      "candidates": [
+        {"label": "A 0.1%", "values": {"cap": 0.001}, "basis": "策略包", "owner": "策略包", "approved": false},
+        {"label": "B 1.0%", "values": {"cap": 0.01}, "basis": "生效视图", "owner": "生效视图", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 64, "must_contain": "0.1% / 1%"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 70, "must_contain": "participation_cap"}
+      ],
+      "recommendation": {"value": "无（两套并列）", "status": "CONFLICT", "note": "超限处理方式（缩量 vs 拒单）两套也不同，必须一起定。"},
+      "impact": "0.1% 下小币种大概率被缩量或拒单，回放净额会显著变小。",
+      "if_not_decided": "开仓阻塞。"
+    },
+    {
+      "id": "Q9",
+      "question": "同一事件最多几个候选？事件终结后冷却多久？",
+      "fields": ["shared.repeat_candidate_limit.per_event", "shared.repeat_candidate_limit.cooldown_hours"],
+      "why": "决定同一波行情会不会被反复计数；冷却 24h 只是建议沿用，05-E-R1 的「恢复 24」是执行方建议，不得当规定。",
+      "candidates": [
+        {"label": "A 每事件 1 个 + 冷却 24h", "values": {"per_event": 1, "cooldown_hours": 24}, "basis": "冻结包 cooling_hours=24；附件表「建议沿用」", "owner": "沿用", "approved": false},
+        {"label": "B 每事件 1 个 + 冷却 0", "values": {"per_event": 1, "cooldown_hours": 0}, "basis": "当前 fixture 实际值（未批准 ⇒ 冷却不生效）", "owner": "工程现状", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 65, "must_contain": "**建议沿用**"},
+        {"file": "evidence/ACCUM-EARLY-05-E-R1/README.md", "line": 190, "must_contain": "恢复为 24"},
+        {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "不能写成用户批准"}
+      ],
+      "recommendation": {"value": "A（1 / 24h）", "status": "INHERITED_UNRATIFIED", "note": "05-E-R1 §7.2 的「恢复 24」是执行方建议，本表不将其升级为规定。"},
+      "impact": "冷却 0 会让候选更密、样本虚增；24h 会压掉一部分真实机会。",
+      "if_not_decided": "开仓阻塞（两字段必填）；当前 fixture 用 0 仅为工程自测。"
+    },
+    {
+      "id": "Q10",
+      "question": "跳空与成交价闸门：止损跳空按开盘价还是止损价？入场跳空/偏离上限多少？",
+      "fields": ["exit.gap_model", "shared.entry_gate.max_gap_up_atr", "shared.entry_gate.entry_price_deviation_cap"],
+      "why": "决定跳空行情下的真实亏损；`exit.gap_model` **不在** 13 项待决映射里，只在附件表标「待确认」。",
+      "candidates": [
+        {"label": "A bar_open（真实跳空）", "values": {"gap_model": "bar_open"}, "basis": "04-D 整改推荐", "owner": "04-D", "approved": false},
+        {"label": "B stop_price（现行，高估成交价）", "values": {"gap_model": "stop_price"}, "basis": "引擎现行行为 / fixture 现值", "owner": "工程现状", "approved": false},
+        {"label": "C midpoint", "values": {"gap_model": "midpoint"}, "basis": "敏感性中间档", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 67, "must_contain": "**待确认"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 147, "must_contain": "max_gap_up_atr"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 148, "must_contain": "1.5%"}
+      ],
+      "recommendation": {"value": "A（bar_open）+ 入场 0.5A / 偏离 1.5%", "status": "PROPOSED", "note": "51 个候选上三档极差为 0（无真实跳空）⇒ 影响未在样本内体现，但模型本身必须定。"},
+      "impact": "改它会改盈亏口径；stop_price 在真实跳空时高估成交价（低估亏损）。",
+      "if_not_decided": "开仓阻塞（gap_model 必填）。"
+    },
+    {
+      "id": "Q11",
+      "question": "资金费结算与退出同刻时，先结算还是先退出？",
+      "fields": [],
+      "why": "49 个配置字段里**没有任何 funding 字段**（实测 0 个）⇒ 填完表也定不了这一项，必须在口径层裁决。",
+      "candidates": [
+        {"label": "A 结算时刻 ≤ 退出时刻即结算（先结算后退出）", "values": {"order": "funding_first"}, "basis": "replay_calc.py:380 `entry_ms < 结算时刻 ≤ exit_ms`，现行实现；同刻标记 funding_order_uncertain（≤15min）但不改结果", "owner": "工程现状", "approved": false},
+        {"label": "B 严格早于退出才结算（先退出后结算）", "values": {"order": "exit_first"}, "basis": "旧引擎 order_bar_events 是「资金费→出场」，但那是 bar 内四相位，不直接等价", "owner": "旧 v3.1", "approved": false},
+        {"label": "C 同刻并列、不计入", "values": {"order": "uncertain_excluded"}, "basis": "W4/02 的处理方式：保持并列未决，不自行裁决", "owner": "06-W4", "approved": false}
+      ],
+      "sources": [
+        {"file": "框架/backend/replay_calc.py", "line": 380, "must_contain": "entry_ms) < int(e[\"time_ms\"]) <= int(exit_ms)"},
+        {"file": "evidence/ACCUM-EARLY-06-W4/02/README.md", "line": 97, "must_contain": "结算与退出同刻歧义项处理"},
+        {"file": "evidence/Work_阶梯回测_2026-10-15/24_引擎与数据接入_v31.md", "line": 44, "must_contain": "①资金费 → ②到期/回撤/预约出场"}
+      ],
+      "recommendation": {"value": "无", "status": "CONFLICT", "note": "现行是「≤ 即结算」并标不确定；W4 保持并列未决。两种做法对同刻交易差一次资金费。"},
+      "impact": "只影响结算时刻与退出时刻相差 ≤15 分钟的成交；方向取决于费率正负。",
+      "if_not_decided": "不阻塞配置填写（无字段），但阻塞「资金费完整」这一结论。"
+    },
+    {
+      "id": "Q12",
+      "question": "持仓量（OI）在入场门槛里扮演什么角色？",
+      "fields": ["shared.oi_role"],
+      "why": "OI 缺历史可得时点证明（PIT UNPROVEN），当前只作证据；若改成硬门槛，需要先解决可得性。",
+      "candidates": [
+        {"label": "A 只作证据", "values": {"oi_role": "evidence_only"}, "basis": "04-A / 05-B 建议", "owner": "04-A", "approved": false},
+        {"label": "B 硬门槛", "values": {"oi_role": "required"}, "basis": "需要 PIT 证据，当前不具备", "owner": "备选", "approved": false},
+        {"label": "C 完全不用", "values": {"oi_role": "ignored"}, "basis": "会浪费已采集数据", "owner": "备选", "approved": false}
+      ],
+      "sources": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 66, "must_contain": "evidence_only"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 58, "must_contain": "本单不把 OI 放进任何门槛"}
+      ],
+      "recommendation": {"value": "A", "status": "PROPOSED", "note": "改 B 之前必须先有可得时点证据，否则等于用未来数据。"},
+      "impact": "改 B 会显著减少候选（OI 历史覆盖不全）。",
+      "if_not_decided": "开仓阻塞（必填）。"
+    }
+  ],
+  "economic_mixing_warning": {
+    "statement": "本金、仓位、单名上限、总风险预算、滑点、参与率六个值分属两套文件；任意跨套组合都是「拼接」，必须逐项写明来源，不得只写「稳健组合」。",
+    "dimensions": [
+      {"name": "本金", "strategy_package": "2000", "effective_view": "5000"},
+      {"name": "最大仓位数", "strategy_package": "3", "effective_view": "10"},
+      {"name": "单笔风险", "strategy_package": "0.5%", "effective_view": "0.5%（一致）"},
+      {"name": "单名名义上限", "strategy_package": "30%", "effective_view": "10%"},
+      {"name": "总风险预算", "strategy_package": "1.5%（3×0.5%）", "effective_view": "5%（portfolio cap）"},
+      {"name": "滑点", "strategy_package": "3bps", "effective_view": "5bps"},
+      {"name": "参与率", "strategy_package": "0.1%", "effective_view": "1.0%"},
+      {"name": "手续费", "strategy_package": "5bps", "effective_view": "5bps（一致）"}
+    ],
+    "prohibited": "不得把「滑点 5bps + 3 仓 + 参与率 0.1%」写成「保守口径」而不说明这是跨套拼接（05-A-R1 纠错清单第 5 项已判过此类写法）。"
+  }
+}

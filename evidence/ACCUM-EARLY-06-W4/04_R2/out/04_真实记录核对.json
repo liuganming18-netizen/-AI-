@@ -1,0 +1,941 @@
+{
+ "工单": "ACCUM-EARLY-06-W4-R2",
+ "性质": "真实记录核对（生产数据），不含合成",
+ "R1_R1缺失复核": {
+  "r1_missing_instants": 188,
+  "其中在 ±1s 内有真实事件": 188,
+  "比例": 1.0,
+  "最大偏移ms": 11,
+  "偏移分布ms": {
+   "1": 43,
+   "2": 36,
+   "3": 15,
+   "4": 51,
+   "5": 15,
+   "6": 11,
+   "7": 5,
+   "8": 1,
+   "10": 2,
+   "11": 9
+  },
+  "明细_样例": [
+   {
+    "symbol": "1000PEPEUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+    "expected_utc": "2026-07-26T08:00:00Z",
+    "nearest_actual_utc": "2026-07-26T08:00:00Z",
+    "offset_ms": 2,
+    "within_tol": true
+   },
+   {
+    "symbol": "1000PEPEUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+    "expected_utc": "2026-07-27T00:00:00Z",
+    "nearest_actual_utc": "2026-07-27T00:00:00Z",
+    "offset_ms": 10,
+    "within_tol": true
+   },
+   {
+    "symbol": "1000PEPEUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+    "expected_utc": "2026-07-27T16:00:00Z",
+    "nearest_actual_utc": "2026-07-27T16:00:00Z",
+    "offset_ms": 1,
+    "within_tol": true
+   },
+   {
+    "symbol": "AGTUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+    "expected_utc": "2026-09-07T16:00:00Z",
+    "nearest_actual_utc": "2026-09-07T16:00:00Z",
+    "offset_ms": 3,
+    "within_tol": true
+   },
+   {
+    "symbol": "AGTUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+    "expected_utc": "2026-09-08T00:00:00Z",
+    "nearest_actual_utc": "2026-09-08T00:00:00Z",
+    "offset_ms": 4,
+    "within_tol": true
+   },
+   {
+    "symbol": "AIGENSYNUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "expected_utc": "2026-09-21T08:00:00Z",
+    "nearest_actual_utc": "2026-09-21T08:00:00Z",
+    "offset_ms": 4,
+    "within_tol": true
+   },
+   {
+    "symbol": "AIGENSYNUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "expected_utc": "2026-09-21T16:00:00Z",
+    "nearest_actual_utc": "2026-09-21T16:00:00Z",
+    "offset_ms": 2,
+    "within_tol": true
+   },
+   {
+    "symbol": "AIGENSYNUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "expected_utc": "2026-09-21T20:00:00Z",
+    "nearest_actual_utc": "2026-09-21T20:00:00Z",
+    "offset_ms": 3,
+    "within_tol": true
+   }
+  ],
+  "结论": "R1 的「缺失」几乎全部是毫秒抖动：预期时刻按整点生成，实际记录带毫秒尾数（最大 11 ms），精确相等匹配必然落空。这不是数据缺失，是判据缺陷。"
+ },
+ "R2_周期切换实证": {
+  "有切换点的标的数": 15,
+  "明细": [
+   {
+    "symbol": "SKRUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-02-24T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1771920000000,
+      "prev_run_count": 197,
+      "next_run_count": 137
+     },
+     {
+      "at_utc": "2026-03-02T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1772424000001,
+      "prev_run_count": 137,
+      "next_run_count": 683
+     },
+     {
+      "at_utc": "2026-08-31T00:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1788134400002,
+      "prev_run_count": 406,
+      "next_run_count": 188
+     },
+     {
+      "at_utc": "2026-09-07T20:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1788811200000,
+      "prev_run_count": 188,
+      "next_run_count": 250
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-09-07T19:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-09-07T20:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1788811200000,
+     "prev_run_count": 188,
+     "next_run_count": 250
+    },
+    "update_minus_switch_hours": -0.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "YGGUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2023-08-07T14:00:00Z",
+      "from_h": 8.0,
+      "to_h": 2.0,
+      "at_ms": 1691416800000,
+      "prev_run_count": 8,
+      "next_run_count": 11
+     },
+     {
+      "at_utc": "2023-08-08T16:00:00Z",
+      "from_h": 2.0,
+      "to_h": 8.0,
+      "at_ms": 1691510400000,
+      "prev_run_count": 11,
+      "next_run_count": 194
+     },
+     {
+      "at_utc": "2023-10-12T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 4.0,
+      "at_ms": 1697097600000,
+      "prev_run_count": 194,
+      "next_run_count": 5914
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2023-10-19T08:10:30Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2023-10-12T08:00:00Z",
+     "from_h": 8.0,
+     "to_h": 4.0,
+     "at_ms": 1697097600000,
+     "prev_run_count": 194,
+     "next_run_count": 5914
+    },
+    "update_minus_switch_hours": 168.175,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "AXSUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-01-17T16:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1768665600002,
+      "prev_run_count": 5653,
+      "next_run_count": 208
+     },
+     {
+      "at_utc": "2026-01-26T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1769414400003,
+      "prev_run_count": 208,
+      "next_run_count": 892
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-01-26T07:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-01-26T08:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1769414400003,
+     "prev_run_count": 208,
+     "next_run_count": 892
+    },
+    "update_minus_switch_hours": -0.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "BABYUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-06-05T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1780660800000,
+      "prev_run_count": 2555,
+      "next_run_count": 64
+     },
+     {
+      "at_utc": "2026-06-08T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1780891200009,
+      "prev_run_count": 64,
+      "next_run_count": 95
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-06-08T04:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-06-08T04:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1780891200009,
+     "prev_run_count": 64,
+     "next_run_count": 95
+    },
+    "update_minus_switch_hours": 0.017,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "BLURUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-04-01T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1775030400000,
+      "prev_run_count": 3209,
+      "next_run_count": 57
+     },
+     {
+      "at_utc": "2026-04-03T20:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1775246400001,
+      "prev_run_count": 57,
+      "next_run_count": 487
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-04-03T17:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-04-03T20:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1775246400001,
+     "prev_run_count": 57,
+     "next_run_count": 487
+    },
+    "update_minus_switch_hours": -2.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "DUSKUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-01-19T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1768809600007,
+      "prev_run_count": 4421,
+      "next_run_count": 112
+     },
+     {
+      "at_utc": "2026-01-24T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1769212800011,
+      "prev_run_count": 112,
+      "next_run_count": 906
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-01-23T23:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-01-24T00:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1769212800011,
+     "prev_run_count": 112,
+     "next_run_count": 906
+    },
+    "update_minus_switch_hours": -0.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "HYPERUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2025-07-10T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1752134400000,
+      "prev_run_count": 472,
+      "next_run_count": 200
+     },
+     {
+      "at_utc": "2025-07-18T16:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1752854400000,
+      "prev_run_count": 200,
+      "next_run_count": 2042
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2025-07-18T16:01:28Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2025-07-18T16:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1752854400000,
+     "prev_run_count": 200,
+     "next_run_count": 2042
+    },
+    "update_minus_switch_hours": 0.025,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "IRYSUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-05-15T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1778846400001,
+      "prev_run_count": 1019,
+      "next_run_count": 92
+     },
+     {
+      "at_utc": "2026-05-19T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1779177600001,
+      "prev_run_count": 92,
+      "next_run_count": 919
+     }
+    ],
+    "official_interval_h": 1,
+    "official_update_utc": "2026-10-23T20:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-05-19T08:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1779177600001,
+     "prev_run_count": 92,
+     "next_run_count": 919
+    },
+    "update_minus_switch_hours": 3780.017,
+    "official_matches_last_regime": false
+   },
+   {
+    "symbol": "JELLYJELLYUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-03-10T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1773129600002,
+      "prev_run_count": 2092,
+      "next_run_count": 17
+     },
+     {
+      "at_utc": "2026-03-11T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1773201600000,
+      "prev_run_count": 17,
+      "next_run_count": 629
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-03-11T01:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-03-11T04:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1773201600000,
+     "prev_run_count": 17,
+     "next_run_count": 629
+    },
+    "update_minus_switch_hours": -2.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "PIXELUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-03-10T20:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1773172800004,
+      "prev_run_count": 4501,
+      "next_run_count": 52
+     },
+     {
+      "at_utc": "2026-03-13T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1773360000006,
+      "prev_run_count": 52,
+      "next_run_count": 618
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-03-13T00:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-03-13T00:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1773360000006,
+     "prev_run_count": 52,
+     "next_run_count": 618
+    },
+    "update_minus_switch_hours": 0.017,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "PLUMEUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2025-11-26T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1764144000001,
+      "prev_run_count": 1498,
+      "next_run_count": 837
+     },
+     {
+      "at_utc": "2025-12-31T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1767168000001,
+      "prev_run_count": 837,
+      "next_run_count": 1048
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2025-12-31T05:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2025-12-31T08:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1767168000001,
+     "prev_run_count": 837,
+     "next_run_count": 1048
+    },
+    "update_minus_switch_hours": -2.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "PROVEUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-05-21T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1779364800000,
+      "prev_run_count": 1733,
+      "next_run_count": 44
+     },
+     {
+      "at_utc": "2026-05-23T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1779523200001,
+      "prev_run_count": 44,
+      "next_run_count": 190
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-05-23T07:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-05-23T08:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1779523200001,
+     "prev_run_count": 44,
+     "next_run_count": 190
+    },
+    "update_minus_switch_hours": -0.983,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "TNSRUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2025-11-19T16:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1763568000008,
+      "prev_run_count": 3539,
+      "next_run_count": 1052
+     },
+     {
+      "at_utc": "2026-01-02T12:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1767355200000,
+      "prev_run_count": 1052,
+      "next_run_count": 1035
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-01-02T12:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-01-02T12:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1767355200000,
+     "prev_run_count": 1052,
+     "next_run_count": 1035
+    },
+    "update_minus_switch_hours": 0.017,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "UAIUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2025-11-07T00:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1762473600005,
+      "prev_run_count": 3,
+      "next_run_count": 472
+     },
+     {
+      "at_utc": "2025-11-26T16:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1764172800000,
+      "prev_run_count": 472,
+      "next_run_count": 1961
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2025-11-26T16:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2025-11-26T16:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1764172800000,
+     "prev_run_count": 472,
+     "next_run_count": 1961
+    },
+    "update_minus_switch_hours": 0.017,
+    "official_matches_last_regime": true
+   },
+   {
+    "symbol": "ZKUSDT",
+    "switch_points": [
+     {
+      "at_utc": "2026-02-01T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1769947200004,
+      "prev_run_count": 3564,
+      "next_run_count": 60
+     },
+     {
+      "at_utc": "2026-02-04T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1770163200002,
+      "prev_run_count": 60,
+      "next_run_count": 840
+     }
+    ],
+    "official_interval_h": 4,
+    "official_update_utc": "2026-02-03T23:01:00Z",
+    "nearest_switch_to_update": {
+     "at_utc": "2026-02-04T00:00:00Z",
+     "from_h": 1.0,
+     "to_h": 4.0,
+     "at_ms": 1770163200002,
+     "prev_run_count": 60,
+     "next_run_count": 840
+    },
+    "update_minus_switch_hours": -0.983,
+    "official_matches_last_regime": true
+   }
+  ],
+  "官方与最后一段一致": 14,
+  "updateTime 与最后切换 ≤48h 的标的数": 13,
+  "未对齐明细": [
+   {
+    "symbol": "YGGUSDT",
+    "Δh": 168.175
+   },
+   {
+    "symbol": "IRYSUSDT",
+    "Δh": 3780.017
+   }
+  ]
+ },
+ "R3_相位实证": {
+  "相位=0 的候选": 51,
+  "相位≠0 的候选": 0,
+  "相位改变网格的候选": 0,
+  "说明": "本数据集里 4h/8h 结算都落在 UTC 整点，所以「相位=0」在事后看是对的；但这是**验证结果**：本单先从观测算残差再生成网格。若某标的相位非 0，按 0 生成会全部落空（见 03 的 S4 反例）。"
+ },
+ "R4_端点抖动实证": {
+  "cases": [
+   {
+    "caliber": "生效视图_5bps",
+    "symbol": "AIGENSYNUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "exit_utc": "2026-09-23T16:00:00Z",
+    "detail": [
+     {
+      "funding_utc": "2026-09-23T16:00:00Z",
+      "cost": 0.017469676
+     }
+    ],
+    "cost_if_included": 0.017469676,
+    "events_old": 14,
+    "events_new": 14
+   },
+   {
+    "caliber": "生效视图_5bps",
+    "symbol": "WALUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+    "exit_utc": "2026-10-10T12:00:00Z",
+    "detail": [
+     {
+      "funding_utc": "2026-10-10T12:00:00Z",
+      "cost": -0.362186164
+     }
+    ],
+    "cost_if_included": -0.362186164,
+    "events_old": 0,
+    "events_new": 0
+   },
+   {
+    "caliber": "策略包_3bps",
+    "symbol": "AIGENSYNUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "exit_utc": "2026-09-23T16:00:00Z",
+    "detail": [
+     {
+      "funding_utc": "2026-09-23T16:00:00Z",
+      "cost": 0.00174707
+     }
+    ],
+    "cost_if_included": 0.00174707,
+    "events_old": 14,
+    "events_new": 14
+   },
+   {
+    "caliber": "策略包_3bps",
+    "symbol": "WALUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+    "exit_utc": "2026-10-10T12:00:00Z",
+    "detail": [
+     {
+      "funding_utc": "2026-10-10T12:00:00Z",
+      "cost": -0.144868873
+     }
+    ],
+    "cost_if_included": -0.144868873,
+    "events_old": 0,
+    "events_new": 0
+   }
+  ]
+ },
+ "R5_非零结算但仍漏": {
+  "cases": [
+   {
+    "symbol": "AXSUSDT",
+    "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+    "entry_utc": "2026-09-18T02:15:00Z",
+    "exit_utc": "2026-09-23T14:00:00Z",
+    "events_old": 30,
+    "events_new": 33,
+    "funding_old": 0.777432772,
+    "funding_new": 0.851664202
+   }
+  ],
+  "结论": "热库已有结算 ≠ 完整：这些笔热库有非零次数，合并后次数变多，说明原来漏了若干次；「有结算就判完整」不成立。"
+ },
+ "R6_补入事件是否在网格上": {
+  "补入事件数（51 笔持仓内）": 44,
+  "网格外": 0,
+  "明细": [
+   {
+    "symbol": "AGTUSDT",
+    "cold_only_in_hold": 5,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "AIGENSYNUSDT",
+    "cold_only_in_hold": 2,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "AXSUSDT",
+    "cold_only_in_hold": 3,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "CROSSUSDT",
+    "cold_only_in_hold": 2,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "GOATUSDT",
+    "cold_only_in_hold": 9,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "METUSDT",
+    "cold_only_in_hold": 3,
+    "off_grid": 0,
+    "off_grid_utc": []
+   },
+   {
+    "symbol": "WUSDT",
+    "cold_only_in_hold": 20,
+    "off_grid": 0,
+    "off_grid_utc": []
+   }
+  ]
+ },
+ "checks": [
+  {
+   "检查": "R1a R1 的缺失时刻在 ±1s 内都能找到真实事件（抖动而非缺失）",
+   "通过": true,
+   "证据": {
+    "r1_missing": 188,
+    "matched_within_1s": 188,
+    "max_offset_ms": 11,
+    "offset_dist": {
+     "1": 43,
+     "2": 36,
+     "3": 15,
+     "4": 51,
+     "5": 15,
+     "6": 11,
+     "7": 5,
+     "8": 1,
+     "10": 2,
+     "11": 9
+    }
+   }
+  },
+  {
+   "检查": "R1b 抖动幅度远小于最小周期（1h）",
+   "通过": true,
+   "证据": {
+    "max_offset_ms": 11
+   }
+  },
+  {
+   "检查": "R2a 观测到的周期切换至少有 3 个标的（不是个别噪声）",
+   "通过": true,
+   "证据": {
+    "n": 15,
+    "样例": [
+     {
+      "symbol": "SKRUSDT",
+      "n_switches": 4,
+      "regimes": [
+       4.0,
+       1.0,
+       4.0,
+       1.0,
+       4.0
+      ]
+     },
+     {
+      "symbol": "YGGUSDT",
+      "n_switches": 3,
+      "regimes": [
+       8.0,
+       2.0,
+       8.0,
+       4.0
+      ]
+     },
+     {
+      "symbol": "AXSUSDT",
+      "n_switches": 2,
+      "regimes": [
+       8.0,
+       1.0,
+       4.0
+      ]
+     },
+     {
+      "symbol": "BABYUSDT",
+      "n_switches": 2,
+      "regimes": [
+       4.0,
+       1.0,
+       4.0
+      ]
+     },
+     {
+      "symbol": "BLURUSDT",
+      "n_switches": 2,
+      "regimes": [
+       8.0,
+       1.0,
+       4.0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "检查": "R2b 多数标的的官方 updateTime 与观测到的最后一次切换对得上（≤48h）",
+   "通过": true,
+   "证据": {
+    "对齐": 13,
+    "总": 15,
+    "未对齐": [
+     {
+      "symbol": "YGGUSDT",
+      "Δh": 168.175,
+      "说明": "updateTime 也可能是费率上下限变更，不必然是周期变更"
+     },
+     {
+      "symbol": "IRYSUSDT",
+      "Δh": 3780.017,
+      "说明": "updateTime 也可能是费率上下限变更，不必然是周期变更"
+     }
+    ]
+   }
+  },
+  {
+   "检查": "R3a 本数据集相位残差确实全为 0（验证结果，不是默认值）",
+   "通过": true,
+   "证据": {
+    "phase_zero": 51,
+    "phase_nonzero": 0,
+    "phase_shift_changes_grid": 0
+   }
+  },
+  {
+   "检查": "R4a 端点抖动是真实存在的（至少 1 笔，且有金额）",
+   "通过": true,
+   "证据": {
+    "n": 4,
+    "样例": [
+     {
+      "caliber": "生效视图_5bps",
+      "symbol": "AIGENSYNUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "exit_utc": "2026-09-23T16:00:00Z",
+      "detail": [
+       {
+        "funding_utc": "2026-09-23T16:00:00Z",
+        "cost": 0.017469676
+       }
+      ],
+      "cost_if_included": 0.017469676,
+      "events_old": 14,
+      "events_new": 14
+     },
+     {
+      "caliber": "生效视图_5bps",
+      "symbol": "WALUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "exit_utc": "2026-10-10T12:00:00Z",
+      "detail": [
+       {
+        "funding_utc": "2026-10-10T12:00:00Z",
+        "cost": -0.362186164
+       }
+      ],
+      "cost_if_included": -0.362186164,
+      "events_old": 0,
+      "events_new": 0
+     }
+    ]
+   }
+  },
+  {
+   "检查": "R5a 存在「热库已有非零结算、合并后次数更多」的真实笔",
+   "通过": true,
+   "证据": {
+    "n": 1,
+    "cases": [
+     {
+      "symbol": "AXSUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "entry_utc": "2026-09-18T02:15:00Z",
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "events_old": 30,
+      "events_new": 33,
+      "funding_old": 0.777432772,
+      "funding_new": 0.851664202
+     }
+    ]
+   }
+  },
+  {
+   "检查": "R6a 冷档补入的事件全部落在网格上（没有网格外野事件）",
+   "通过": true,
+   "证据": {
+    "added": 44,
+    "off_grid": 0,
+    "非零明细": []
+   }
+  }
+ ]
+}

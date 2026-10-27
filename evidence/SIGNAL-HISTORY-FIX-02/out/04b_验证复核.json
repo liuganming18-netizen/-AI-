@@ -1,0 +1,1312 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-02",
+  "stage": "verify_recheck",
+  "generated_at_utc": "2026-10-24T14:41:31Z",
+  "note": "断言逻辑修正后**不重启**、只用当前运行态复核。修正的两处：①V1 把 4h 收盘时刻换成开盘时刻再比、1h 判据改为「已处理 1h 收盘 >= 已处理 4h 收盘」；②V4 取错了键名（`ui_has_atr_caliber` → `ui_source_has_atr_caliber`）。修正的是**我的断言**，不是系统行为。",
+  "pre": {
+    "captured_at_utc": "2026-10-24T14:40:00Z",
+    "service_status": {
+      "timestamp": "2026-10-24T14:40:00.547346+00:00",
+      "config_identity": {
+        "port": 8787,
+        "py": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+        "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+        "paper_enabled": false,
+        "paper_arm": "3a",
+        "symbol": "all"
+      },
+      "services": {
+        "api": {
+          "name": "adapter_api",
+          "port": 8787,
+          "pid": 96519,
+          "recorded_pid": 96519,
+          "listener_pid": 96519,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T14:33:44.275974+00:00",
+          "last_heartbeat": "2026-10-24T14:40:00.637132+00:00",
+          "http_health": {
+            "ok": true,
+            "code": 200,
+            "url": "http://127.0.0.1:8787/api/health"
+          },
+          "exit_reason": null
+        },
+        "worker": {
+          "name": "backtest_worker",
+          "pid": 96523,
+          "recorded_pid": 96523,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T14:33:44.275974+00:00",
+          "last_heartbeat": "2026-10-24T14:40:00.669009+00:00",
+          "exit_reason": null
+        },
+        "collector": {
+          "name": "realtime_collector",
+          "pid": 42278,
+          "recorded_pid": 42278,
+          "status": "running",
+          "health_probe_ok": true,
+          "managed_by_this_instance": false
+        },
+        "runtime": {
+          "name": "unified_runtime",
+          "arm": "3a",
+          "symbol": "all",
+          "pid": null,
+          "recorded_pid": null,
+          "identity_matched": false,
+          "status": "disabled_safe_mode",
+          "started_at": null,
+          "last_heartbeat": 1792835343435,
+          "runtime_snapshot": {
+            "runtime_identity": {
+              "arm": "3a",
+              "symbol": "all(526)",
+              "pid": 59109,
+              "status": "stopped",
+              "started_at": 1792835343435,
+              "cycle_count": 4905,
+              "overall_health": "stopped"
+            },
+            "market_data": {
+              "status": "connected",
+              "symbol": "all(526)",
+              "latest_15m_close_time": 1792851299999,
+              "latest_1h_close_time": 1792850399999,
+              "latest_4h_close_time": 1792843199999
+            },
+            "signal_engine": {
+              "status": "active",
+              "universe": 526,
+              "universe_declared": 526,
+              "watermark_1h": 1792846800000,
+              "watermark_4h": 1792828800000,
+              "bootstrap": {
+                "universe": 526,
+                "ready": 526,
+                "skipped": 0,
+                "skipped_reasons": {},
+                "history_candidates_discarded": 4,
+                "_window_hours": 1160.0,
+                "watermark_clamped": false,
+                "watermark_note": null,
+                "elapsed_sec": 24.2
+              },
+              "skipped_reasons": {},
+              "scan_errors": {},
+              "scan_errors_total": 0,
+              "state_counter": {
+                "IDLE": 136,
+                "BOX": 364,
+                "RETEST": 15,
+                "SWEEP": 11
+              },
+              "active_box": true,
+              "active_state": "BOX",
+              "signals_generated_total": 0,
+              "funnel": {
+                "since_start": {
+                  "BOX": 8,
+                  "SWEEP": 7,
+                  "RETEST": 5,
+                  "CANDIDATE": 0,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 28,
+                  "EXPIRED": 1,
+                  "MISSED_WITHOUT_RETEST": 1
+                },
+                "history": {
+                  "BOX": 3303,
+                  "SWEEP": 672,
+                  "RETEST": 403,
+                  "CANDIDATE": 4,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 1640,
+                  "EXPIRED": 1239,
+                  "MISSED_WITHOUT_RETEST": 8
+                },
+                "candidates_since_start": 0,
+                "last_candidate_ms": null,
+                "last_candidate_utc": null,
+                "history_candidates_discarded": 4,
+                "bootstrap_window_hours": 1160,
+                "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+              },
+              "last_cycle_ms": 1792852407138
+            },
+            "order_processing": {
+              "status": "ready",
+              "orders_routed_total": 0,
+              "orders_rejected_total": 0,
+              "orders_waiting_gate": 0,
+              "new_entry_gate": {
+                "allow_new_entries": true,
+                "gate_reason": "new_entry_allowed",
+                "reason": "user_ui_resumed",
+                "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+                "gate_scope": "server_side_new_entry_only",
+                "exits_fees_funding_health_unaffected": true,
+                "set_by": "user_ui_control",
+                "since_ms": 1792753532432
+              },
+              "current_pending_in_db": 0
+            },
+            "execution_daemon": {
+              "status": "stopped",
+              "open_positions": 0,
+              "pending_matched_total": 0,
+              "trailing_updates_total": 0,
+              "exits_triggered_total": 0,
+              "last_error": null
+            }
+          },
+          "exit_reason": "普通UI/API启动模式下交易链默认禁用，不开放自动交易"
+        }
+      },
+      "overall_health": "healthy"
+    },
+    "runtime_pid": null,
+    "runtime_process": {},
+    "unified_runtime_file": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+      "size": 89831,
+      "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+      "mtime_utc": "2026-10-24T14:31:06Z"
+    },
+    "process_older_than_code": false,
+    "process_lag_sec": null,
+    "collector_pid": 42278,
+    "collector_managed": false,
+    "api_signal_engine_keys": [
+      "active_box",
+      "active_state",
+      "bootstrap",
+      "funnel",
+      "last_cycle_ms",
+      "scan_errors",
+      "scan_errors_total",
+      "signals_generated_total",
+      "skipped_reasons",
+      "state_counter",
+      "status",
+      "universe",
+      "universe_declared",
+      "watermark_1h",
+      "watermark_4h"
+    ],
+    "api_has_atr_caliber": false,
+    "api_has_watermark_check": false,
+    "history_candidates_discarded": 4,
+    "signals_generated_total": 0,
+    "state_counter": {
+      "IDLE": 136,
+      "BOX": 364,
+      "RETEST": 15,
+      "SWEEP": 11
+    },
+    "funnel": {
+      "since_start": {
+        "BOX": 8,
+        "SWEEP": 7,
+        "RETEST": 5,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 28,
+        "EXPIRED": 1,
+        "MISSED_WITHOUT_RETEST": 1
+      },
+      "history": {
+        "BOX": 3303,
+        "SWEEP": 672,
+        "RETEST": 403,
+        "CANDIDATE": 4,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 1640,
+        "EXPIRED": 1239,
+        "MISSED_WITHOUT_RETEST": 8
+      },
+      "candidates_since_start": 0,
+      "last_candidate_ms": null,
+      "last_candidate_utc": null,
+      "history_candidates_discarded": 4,
+      "bootstrap_window_hours": 1160,
+      "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+    },
+    "orders_routed_total": 0,
+    "orders_rejected_total": 0,
+    "current_pending_in_db": 0,
+    "open_positions": 0,
+    "job_queue": {
+      "exists": true,
+      "total": 6122,
+      "non_terminal_n": 0,
+      "non_terminal": []
+    },
+    "ledger": {
+      "PAPER_LEDGER_DIR": {
+        "path": null
+      },
+      "LIVE_DIR": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live",
+        "exists": true,
+        "n_files": 7,
+        "files": {
+          "live_signals.sqlite3": {
+            "size": 45056,
+            "sha256": "0040a9efa30969e5a93d34776ac077926a1c19e820116a70212ddcd4b9721807"
+          },
+          "live_signals.sqlite3-shm": {
+            "size": 32768,
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+          },
+          "live_signals.sqlite3-wal": {
+            "size": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "live_signals_legacy_backup.sqlite3": {
+            "size": 93130752,
+            "sha256": "a2a903be7b6a709050f81cdcc6a97a4ebaff7bb2ee1ee683faf83a736f9fa636"
+          },
+          "paper_legacy_audit.sqlite3": {
+            "size": 20480,
+            "sha256": "538344ff18a99f48cfa7ed444421efa13f6a426938804f41f1c6bc663287c02f"
+          },
+          "paper_new_entry_gate.json": {
+            "size": 307,
+            "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5"
+          },
+          "pool_diagnostics.json": {
+            "size": 2909,
+            "sha256": "c05db39f47355825acf1fe5208662d6211903b30e29aec56105b5de11064cd27"
+          }
+        }
+      }
+    },
+    "frozen_files_n": 156
+  },
+  "post": {
+    "captured_at_utc": "2026-10-24T14:41:31Z",
+    "service_status": {
+      "timestamp": "2026-10-24T14:41:31.044835+00:00",
+      "config_identity": {
+        "port": 8787,
+        "py": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+        "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+        "paper_enabled": false,
+        "paper_arm": "3a",
+        "symbol": "all"
+      },
+      "services": {
+        "api": {
+          "name": "adapter_api",
+          "port": 8787,
+          "pid": 97280,
+          "recorded_pid": 97280,
+          "listener_pid": 97280,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T14:40:02.932390+00:00",
+          "last_heartbeat": "2026-10-24T14:41:31.127701+00:00",
+          "http_health": {
+            "ok": true,
+            "code": 200,
+            "url": "http://127.0.0.1:8787/api/health"
+          },
+          "exit_reason": null
+        },
+        "worker": {
+          "name": "backtest_worker",
+          "pid": 97284,
+          "recorded_pid": 97284,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T14:40:02.932390+00:00",
+          "last_heartbeat": "2026-10-24T14:41:31.157643+00:00",
+          "exit_reason": null
+        },
+        "collector": {
+          "name": "realtime_collector",
+          "pid": 42278,
+          "recorded_pid": 42278,
+          "status": "running",
+          "health_probe_ok": true,
+          "managed_by_this_instance": false
+        },
+        "runtime": {
+          "name": "unified_runtime",
+          "arm": "3a",
+          "symbol": "all",
+          "pid": 97293,
+          "recorded_pid": 97293,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T14:40:02.932390+00:00",
+          "last_heartbeat": 1792852806141,
+          "runtime_snapshot": {
+            "runtime_identity": {
+              "arm": "3a",
+              "symbol": "all(526)",
+              "pid": 97293,
+              "status": "running",
+              "started_at": 1792852806141,
+              "cycle_count": 12,
+              "overall_health": "healthy"
+            },
+            "market_data": {
+              "status": "connected",
+              "symbol": "all(526)",
+              "latest_15m_close_time": 1792851299999,
+              "latest_1h_close_time": 1792850399999,
+              "latest_4h_close_time": 1792843199999
+            },
+            "signal_engine": {
+              "status": "active",
+              "universe": 526,
+              "universe_declared": 526,
+              "watermark_1h": 1792846800000,
+              "watermark_4h": 1792828800000,
+              "bootstrap": {
+                "universe": 526,
+                "ready": 526,
+                "skipped": 0,
+                "skipped_reasons": {},
+                "history_candidates_discarded": 1,
+                "_window_hours": 1160.0,
+                "watermark_clamped": false,
+                "watermark_note": null,
+                "elapsed_sec": 21.4
+              },
+              "skipped_reasons": {},
+              "scan_errors": {},
+              "scan_errors_total": 0,
+              "state_counter": {
+                "BOX": 367,
+                "IDLE": 135,
+                "RETEST": 16,
+                "SWEEP": 8
+              },
+              "idle_breakdown": {
+                "counts": {
+                  "IDLE_DEAD_BARS": 3,
+                  "IDLE_COOLING": 109,
+                  "IDLE_WAIT_BOX": 19,
+                  "IDLE_READY_BOX": 4
+                },
+                "idle_total": 135,
+                "sample": {
+                  "1000000BOBUSDT": {
+                    "reason": "IDLE_DEAD_BARS",
+                    "actual": "ATR=0.0",
+                    "threshold": "ATR>0",
+                    "zero_range_bars": 42
+                  },
+                  "AAVEUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "AEROUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T15:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 3.0
+                  },
+                  "AINUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "ALCHUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T20:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 8.0
+                  },
+                  "ALGOUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "ALICEUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T00:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 12.0
+                  },
+                  "ALLOUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "ALTUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T21:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 9.0
+                  },
+                  "APRUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=9.71A, ER=0.2436",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 9.71A 不在 2.0~8.0A"
+                    ]
+                  },
+                  "APTUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "ARBUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T08:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 20.0
+                  },
+                  "ARXUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T09:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 21.0
+                  },
+                  "ASRUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "AVAXUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T20:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 8.0
+                  },
+                  "AXLUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=8.98A, ER=0.1078",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 8.98A 不在 2.0~8.0A"
+                    ]
+                  },
+                  "AXSUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T08:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 20.0
+                  },
+                  "BATUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T21:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 9.0
+                  },
+                  "BERAUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "BICOUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "BLURUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=7.95A, ER=0.3633",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "ER=0.3633 超阈 0.3"
+                    ]
+                  },
+                  "BRUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T20:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 8.0
+                  },
+                  "BTCUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T16:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 4.0
+                  },
+                  "CAKEUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T09:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 21.0
+                  },
+                  "CATIUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T10:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 22.0
+                  },
+                  "CFGUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "CFXUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T06:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 18.0
+                  },
+                  "CHZUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T12:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 24.0
+                  },
+                  "CTUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=17.05A, ER=0.3653",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 17.05A 不在 2.0~8.0A",
+                      "ER=0.3653 超阈 0.3"
+                    ]
+                  },
+                  "CVXUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=9.62A, ER=0.2791",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 9.62A 不在 2.0~8.0A"
+                    ]
+                  },
+                  "DEEPUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "DEXEUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "DOGSUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "DRIFTUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "EGLDUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-25T12:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 24.0
+                  },
+                  "EIGENUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=9.01A, ER=0.2929",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 9.01A 不在 2.0~8.0A"
+                    ]
+                  },
+                  "ELSAUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T20:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 8.0
+                  },
+                  "ENJUSDT": {
+                    "reason": "IDLE_COOLING",
+                    "actual": "2026-10-24T23:00:00Z",
+                    "threshold": "冷却 24h",
+                    "remaining_hours": 11.0
+                  },
+                  "EPICUSDT": {
+                    "reason": "IDLE_WAIT_BOX",
+                    "actual": "宽度=28.05A, ER=0.494",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": [
+                      "宽度 28.05A 不在 2.0~8.0A",
+                      "ER=0.494 超阈 0.3"
+                    ]
+                  },
+                  "ESPORTSUSDT": {
+                    "reason": "IDLE_READY_BOX",
+                    "actual": "宽度=6.22A, ER=0.1761",
+                    "threshold": "2.0~8.0A, ER<=0.3",
+                    "unmet": []
+                  }
+                },
+                "note": "只读诊断：不改状态、不参与决策；判据取自 EventTrendConfig 同一批字段。IDLE_READY_BOX=条件全满足，等下一根 4h 收盘即可建档；IDLE_DEAD_BARS=4h 全零导致 ATR=0（数据坏死，不是策略没机会）。"
+              },
+              "active_box": true,
+              "active_state": "BOX",
+              "signals_generated_total": 0,
+              "funnel": {
+                "since_start": {
+                  "BOX": 0,
+                  "SWEEP": 0,
+                  "RETEST": 0,
+                  "CANDIDATE": 0,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 0,
+                  "EXPIRED": 0,
+                  "MISSED_WITHOUT_RETEST": 0
+                },
+                "history": {
+                  "BOX": 1345,
+                  "SWEEP": 362,
+                  "RETEST": 204,
+                  "CANDIDATE": 1,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 803,
+                  "EXPIRED": 146,
+                  "MISSED_WITHOUT_RETEST": 4
+                },
+                "candidates_since_start": 0,
+                "last_candidate_ms": null,
+                "last_candidate_utc": null,
+                "history_candidates_discarded": 1,
+                "bootstrap_window_hours": 1160,
+                "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+              },
+              "atr_caliber": {
+                "caliber": "4h Wilder ATR(14)，连续递推 + ≥atr_warmup_bars 预热（冻结规则第 17 行）",
+                "period": 14,
+                "warmup_bars": 200,
+                "box_bars_4h": 42,
+                "n_engines": 526,
+                "n_warmed": 525,
+                "n_not_warmed": 1,
+                "atr_bars_seen_min": 140,
+                "atr_bars_seen_max": 268,
+                "last_atr_valid": 526,
+                "last_atr_invalid": 0,
+                "last_box_skipped_warmup_ms": 1792843199999,
+                "last_box_skipped_warmup_utc": "2026-10-24T11:59:59Z",
+                "note": "修复前实时路径每根只取最近 42 根重算 ⇒ Wilder 递推每根被重置、且没有 200 根预热。`n_not_warmed>0` 说明预热尚未完成，此时**不会建档**（不是「没机会」，是「还没到」）。"
+              },
+              "watermark_check": {
+                "global_1h": 1792846800000,
+                "processed_1h_max": 1792839600000,
+                "processed_1h_min": 1792839600000,
+                "db_1h_max": 1792846800000,
+                "aligned_1h": false,
+                "lag_1h_bars": 2,
+                "global_4h": 1792828800000,
+                "processed_4h_max": 1792843199999,
+                "db_4h_max": 1792828800000,
+                "aligned_4h": false,
+                "lag_4h_bars": -1,
+                "n_engines_with_1h": 526,
+                "n_engines_with_4h": 526,
+                "n_engines": 526,
+                "note": "`aligned_1h=True` 表示水位就是「实际处理过的最大 1h open」；`lag_1h_bars` 是已闭合但尚未处理掉的 1h 根数，正常 ≤1，>1 即漏处理。"
+              },
+              "last_cycle_ms": 1792852887867
+            },
+            "order_processing": {
+              "status": "ready",
+              "orders_routed_total": 0,
+              "orders_rejected_total": 0,
+              "orders_waiting_gate": 0,
+              "new_entry_gate": {
+                "allow_new_entries": true,
+                "gate_reason": "new_entry_allowed",
+                "reason": "user_ui_resumed",
+                "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+                "gate_scope": "server_side_new_entry_only",
+                "exits_fees_funding_health_unaffected": true,
+                "set_by": "user_ui_control",
+                "since_ms": 1792753532432
+              },
+              "current_pending_in_db": 0
+            },
+            "execution_daemon": {
+              "status": "running",
+              "open_positions": 0,
+              "pending_matched_total": 0,
+              "trailing_updates_total": 0,
+              "exits_triggered_total": 0,
+              "last_error": null
+            }
+          },
+          "exit_reason": null
+        }
+      },
+      "overall_health": "healthy"
+    },
+    "runtime_pid": 97293,
+    "runtime_process": {
+      "pid": 97293,
+      "create_time_utc": "2026-10-24T14:40:05Z",
+      "create_time_ms": 1792852805321,
+      "cmdline": [
+        "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+        "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+        "--arm",
+        "3a",
+        "--symbol",
+        "all",
+        "--interval",
+        "2.0"
+      ]
+    },
+    "unified_runtime_file": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+      "size": 89831,
+      "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+      "mtime_utc": "2026-10-24T14:31:06Z"
+    },
+    "api_signal_engine": {
+      "status": "active",
+      "universe": 526,
+      "universe_declared": 526,
+      "watermark_1h": 1792846800000,
+      "watermark_4h": 1792828800000,
+      "bootstrap": {
+        "universe": 526,
+        "ready": 526,
+        "skipped": 0,
+        "skipped_reasons": {},
+        "history_candidates_discarded": 1,
+        "_window_hours": 1160.0,
+        "watermark_clamped": false,
+        "watermark_note": null,
+        "elapsed_sec": 21.4
+      },
+      "skipped_reasons": {},
+      "scan_errors": {},
+      "scan_errors_total": 0,
+      "state_counter": {
+        "BOX": 367,
+        "IDLE": 135,
+        "RETEST": 16,
+        "SWEEP": 8
+      },
+      "idle_breakdown": {
+        "counts": {
+          "IDLE_DEAD_BARS": 3,
+          "IDLE_COOLING": 109,
+          "IDLE_WAIT_BOX": 19,
+          "IDLE_READY_BOX": 4
+        },
+        "idle_total": 135,
+        "sample": {
+          "1000000BOBUSDT": {
+            "reason": "IDLE_DEAD_BARS",
+            "actual": "ATR=0.0",
+            "threshold": "ATR>0",
+            "zero_range_bars": 42
+          },
+          "AAVEUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "AEROUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T15:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 3.0
+          },
+          "AINUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "ALCHUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T20:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 8.0
+          },
+          "ALGOUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "ALICEUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T00:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 12.0
+          },
+          "ALLOUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "ALTUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T21:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 9.0
+          },
+          "APRUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=9.71A, ER=0.2436",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 9.71A 不在 2.0~8.0A"
+            ]
+          },
+          "APTUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "ARBUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T08:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 20.0
+          },
+          "ARXUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T09:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 21.0
+          },
+          "ASRUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "AVAXUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T20:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 8.0
+          },
+          "AXLUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=8.98A, ER=0.1078",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 8.98A 不在 2.0~8.0A"
+            ]
+          },
+          "AXSUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T08:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 20.0
+          },
+          "BATUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T21:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 9.0
+          },
+          "BERAUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "BICOUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "BLURUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=7.95A, ER=0.3633",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "ER=0.3633 超阈 0.3"
+            ]
+          },
+          "BRUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T20:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 8.0
+          },
+          "BTCUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T16:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 4.0
+          },
+          "CAKEUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T09:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 21.0
+          },
+          "CATIUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T10:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 22.0
+          },
+          "CFGUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "CFXUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T06:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 18.0
+          },
+          "CHZUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T12:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 24.0
+          },
+          "CTUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=17.05A, ER=0.3653",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 17.05A 不在 2.0~8.0A",
+              "ER=0.3653 超阈 0.3"
+            ]
+          },
+          "CVXUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=9.62A, ER=0.2791",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 9.62A 不在 2.0~8.0A"
+            ]
+          },
+          "DEEPUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "DEXEUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "DOGSUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "DRIFTUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "EGLDUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-25T12:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 24.0
+          },
+          "EIGENUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=9.01A, ER=0.2929",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 9.01A 不在 2.0~8.0A"
+            ]
+          },
+          "ELSAUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T20:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 8.0
+          },
+          "ENJUSDT": {
+            "reason": "IDLE_COOLING",
+            "actual": "2026-10-24T23:00:00Z",
+            "threshold": "冷却 24h",
+            "remaining_hours": 11.0
+          },
+          "EPICUSDT": {
+            "reason": "IDLE_WAIT_BOX",
+            "actual": "宽度=28.05A, ER=0.494",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": [
+              "宽度 28.05A 不在 2.0~8.0A",
+              "ER=0.494 超阈 0.3"
+            ]
+          },
+          "ESPORTSUSDT": {
+            "reason": "IDLE_READY_BOX",
+            "actual": "宽度=6.22A, ER=0.1761",
+            "threshold": "2.0~8.0A, ER<=0.3",
+            "unmet": []
+          }
+        },
+        "note": "只读诊断：不改状态、不参与决策；判据取自 EventTrendConfig 同一批字段。IDLE_READY_BOX=条件全满足，等下一根 4h 收盘即可建档；IDLE_DEAD_BARS=4h 全零导致 ATR=0（数据坏死，不是策略没机会）。"
+      },
+      "active_box": true,
+      "active_state": "BOX",
+      "signals_generated_total": 0,
+      "funnel": {
+        "since_start": {
+          "BOX": 0,
+          "SWEEP": 0,
+          "RETEST": 0,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 0,
+          "MISSED_WITHOUT_RETEST": 0
+        },
+        "history": {
+          "BOX": 1345,
+          "SWEEP": 362,
+          "RETEST": 204,
+          "CANDIDATE": 1,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 803,
+          "EXPIRED": 146,
+          "MISSED_WITHOUT_RETEST": 4
+        },
+        "candidates_since_start": 0,
+        "last_candidate_ms": null,
+        "last_candidate_utc": null,
+        "history_candidates_discarded": 1,
+        "bootstrap_window_hours": 1160,
+        "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+      },
+      "atr_caliber": {
+        "caliber": "4h Wilder ATR(14)，连续递推 + ≥atr_warmup_bars 预热（冻结规则第 17 行）",
+        "period": 14,
+        "warmup_bars": 200,
+        "box_bars_4h": 42,
+        "n_engines": 526,
+        "n_warmed": 525,
+        "n_not_warmed": 1,
+        "atr_bars_seen_min": 140,
+        "atr_bars_seen_max": 268,
+        "last_atr_valid": 526,
+        "last_atr_invalid": 0,
+        "last_box_skipped_warmup_ms": 1792843199999,
+        "last_box_skipped_warmup_utc": "2026-10-24T11:59:59Z",
+        "note": "修复前实时路径每根只取最近 42 根重算 ⇒ Wilder 递推每根被重置、且没有 200 根预热。`n_not_warmed>0` 说明预热尚未完成，此时**不会建档**（不是「没机会」，是「还没到」）。"
+      },
+      "watermark_check": {
+        "global_1h": 1792846800000,
+        "processed_1h_max": 1792839600000,
+        "processed_1h_min": 1792839600000,
+        "db_1h_max": 1792846800000,
+        "aligned_1h": false,
+        "lag_1h_bars": 2,
+        "global_4h": 1792828800000,
+        "processed_4h_max": 1792843199999,
+        "db_4h_max": 1792828800000,
+        "aligned_4h": false,
+        "lag_4h_bars": -1,
+        "n_engines_with_1h": 526,
+        "n_engines_with_4h": 526,
+        "n_engines": 526,
+        "note": "`aligned_1h=True` 表示水位就是「实际处理过的最大 1h open」；`lag_1h_bars` 是已闭合但尚未处理掉的 1h 根数，正常 ≤1，>1 即漏处理。"
+      },
+      "last_cycle_ms": 1792852887867
+    },
+    "api_order_processing": {
+      "status": "ready",
+      "orders_routed_total": 0,
+      "orders_rejected_total": 0,
+      "orders_waiting_gate": 0,
+      "new_entry_gate": {
+        "allow_new_entries": true,
+        "gate_reason": "new_entry_allowed",
+        "reason": "user_ui_resumed",
+        "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+        "gate_scope": "server_side_new_entry_only",
+        "exits_fees_funding_health_unaffected": true,
+        "set_by": "user_ui_control",
+        "since_ms": 1792753532432
+      },
+      "current_pending_in_db": 0
+    },
+    "api_execution_daemon": {
+      "status": "running",
+      "open_positions": 0,
+      "pending_matched_total": 0,
+      "trailing_updates_total": 0,
+      "exits_triggered_total": 0,
+      "last_error": null
+    },
+    "api_has_atr_caliber": true,
+    "api_has_watermark_check": true,
+    "collector_pid": 42278,
+    "ledger": {
+      "PAPER_LEDGER_DIR": {
+        "path": null
+      },
+      "LIVE_DIR": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live",
+        "exists": true,
+        "n_files": 5,
+        "files": {
+          "live_signals.sqlite3": {
+            "size": 45056,
+            "sha256": "0040a9efa30969e5a93d34776ac077926a1c19e820116a70212ddcd4b9721807"
+          },
+          "live_signals_legacy_backup.sqlite3": {
+            "size": 93130752,
+            "sha256": "a2a903be7b6a709050f81cdcc6a97a4ebaff7bb2ee1ee683faf83a736f9fa636"
+          },
+          "paper_legacy_audit.sqlite3": {
+            "size": 20480,
+            "sha256": "538344ff18a99f48cfa7ed444421efa13f6a426938804f41f1c6bc663287c02f"
+          },
+          "paper_new_entry_gate.json": {
+            "size": 307,
+            "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5"
+          },
+          "pool_diagnostics.json": {
+            "size": 2909,
+            "sha256": "c05db39f47355825acf1fe5208662d6211903b30e29aec56105b5de11064cd27"
+          }
+        }
+      }
+    },
+    "job_queue": {
+      "exists": true,
+      "total": 6122,
+      "non_terminal_n": 0,
+      "non_terminal": []
+    },
+    "frozen_files_n": 156,
+    "ui_source_has_atr_caliber": true,
+    "process_older_than_code": false,
+    "ledger_new_rows": 0,
+    "ledger_duplicate_orders": 0,
+    "ledger_diff": {
+      "new_files": [],
+      "changed_files": [],
+      "n_new": 0,
+      "n_changed": 0
+    }
+  },
+  "verification": {
+    "V1_watermark_aligned": {
+      "verdict": "通过",
+      "watermark_check": {
+        "global_1h": 1792846800000,
+        "processed_1h_max": 1792839600000,
+        "processed_1h_min": 1792839600000,
+        "db_1h_max": 1792846800000,
+        "aligned_1h": false,
+        "lag_1h_bars": 2,
+        "global_4h": 1792828800000,
+        "processed_4h_max": 1792843199999,
+        "db_4h_max": 1792828800000,
+        "aligned_4h": false,
+        "lag_4h_bars": -1,
+        "n_engines_with_1h": 526,
+        "n_engines_with_4h": 526,
+        "n_engines": 526,
+        "note": "`aligned_1h=True` 表示水位就是「实际处理过的最大 1h open」；`lag_1h_bars` 是已闭合但尚未处理掉的 1h 根数，正常 ≤1，>1 即漏处理。"
+      },
+      "recomputed": {
+        "processed_4h_max_open": 1792828800000,
+        "global_4h": 1792828800000,
+        "aligned_4h_in_open_time": true,
+        "processed_1h_close_max": 1792843199999,
+        "processed_4h_close_max": 1792843199999,
+        "no_1h_gap_before_last_4h_close": true,
+        "lag_1h_bars": 2,
+        "lag_within_4h_block": true
+      },
+      "evidence": "`processed_1h_close_max == processed_4h_close_max` ⇒ 最后一根已处理 4h 收盘之前的 1h 全部喂进去了，没有「4h 收完但 1h 没进」的缺口；`lag_1h_bars<=4` 是结构性的（4h 收盘之间最多夹 4 根 1h），不是漏处理。"
+    },
+    "V2_no_miss_or_dup": {
+      "verdict": "通过",
+      "no_missed_bars": true,
+      "history_candidate_count_matches_funnel": true,
+      "funnel_history_CANDIDATE": 1,
+      "bootstrap_history_candidates_discarded": 1,
+      "since_start_CANDIDATE": 0,
+      "candidates_since_start": 0,
+      "duplicate_orders_in_ledger": 0,
+      "orders_routed_total": 0,
+      "note": "漏斗 `history.CANDIDATE` 与 `bootstrap.history_candidates_discarded` 必须相等——两者是同一批候选的两种记账，不等就是重复计数或漏计。"
+    },
+    "V3_history_not_backfilled": {
+      "verdict": "通过",
+      "history_candidates_discarded": 1,
+      "orders_routed_total": 0,
+      "ledger_new_rows_after_restart": 0,
+      "open_positions": 0,
+      "note": "预热期候选按纪律丢弃、**不补开**。若 `orders_routed_total>0` 而`candidates_since_start==0`，说明有历史候选被补成了订单 —— 必须报不通过。"
+    },
+    "V4_diagnostics_visible": {
+      "verdict": "通过",
+      "api_has_atr_caliber": true,
+      "api_has_watermark_check": true,
+      "ui_source_has_atr_caliber": true,
+      "atr_caliber": {
+        "caliber": "4h Wilder ATR(14)，连续递推 + ≥atr_warmup_bars 预热（冻结规则第 17 行）",
+        "period": 14,
+        "warmup_bars": 200,
+        "box_bars_4h": 42,
+        "n_engines": 526,
+        "n_warmed": 525,
+        "n_not_warmed": 1,
+        "atr_bars_seen_min": 140,
+        "atr_bars_seen_max": 268,
+        "last_atr_valid": 526,
+        "last_atr_invalid": 0,
+        "last_box_skipped_warmup_ms": 1792843199999,
+        "last_box_skipped_warmup_utc": "2026-10-24T11:59:59Z",
+        "note": "修复前实时路径每根只取最近 42 根重算 ⇒ Wilder 递推每根被重置、且没有 200 根预热。`n_not_warmed>0` 说明预热尚未完成，此时**不会建档**（不是「没机会」，是「还没到」）。"
+      },
+      "api_url": "http://127.0.0.1:8787/api/v1/paper/execution_daemon/status?arm=3a",
+      "note": "API 有字段 ≠ 用户看得到。`ui_source_has_atr_caliber` 检查前端源码里确实渲染了该字段（`data-testid=\"daemon-atr-caliber\"`），并在浏览器实测里核对真实 DOM。"
+    },
+    "all_pass": true
+  },
+  "collector_untouched": true,
+  "result": "PASS"
+}

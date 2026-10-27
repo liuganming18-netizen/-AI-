@@ -1,0 +1,1162 @@
+[
+  {
+    "category": "案例 A: 入场走弱 (Early Loss / Stop Out)",
+    "batch": "runs_sep_all_latest",
+    "symbol": "AIXBTUSDT",
+    "run_id": "run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009",
+    "trade_id": "trd_b98a8788210986a909a86a78",
+    "desc": "入场后即刻走弱，MFE仅0.21%，MAE达17.08%，被逐笔内止损intrabar_stop击穿出局",
+    "ledger_positions_close": {
+      "event_id": "evt_1d145fbb6ee13b18a11c41d0f1d4666f",
+      "event_time": 1789457400000,
+      "event_type": "POSITION_CLOSED",
+      "payload": {
+        "exit_reason": "intrabar_stop",
+        "net_pnl": -10.146651252795035,
+        "trade_id": "trd_b98a8788210986a909a86a78"
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "AIXBTUSDT"
+    },
+    "ledger_positions_open": {
+      "event_id": "evt_4b5eb3f5bf8fc267fa011ee76be106ce",
+      "event_time": 1788599700000,
+      "event_type": "POSITION_OPENED",
+      "payload": {
+        "entry_price": 0.02336,
+        "order_id": "ord_b12ffba0910c7ee1fdab9836",
+        "qty": 2520.0,
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIXBTUSDT_1788393600000_1788598800000",
+        "stop_price": 0.01941926653321507
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "AIXBTUSDT"
+    },
+    "ledger_trades": {
+      "direction": 1,
+      "entry_fee": 0.0294336,
+      "entry_price": 0.02336,
+      "entry_time": 1788599700000,
+      "exit_fee": 0.024456600000000002,
+      "exit_order_id": "ord_1ab58d7d46ddf7bbfd202497",
+      "exit_price": 0.01941,
+      "exit_reason": "intrabar_stop",
+      "exit_time": 1789457400000,
+      "fees": 0.0538902,
+      "funding_fee": 0.138761052795036,
+      "funding_gaps": [],
+      "gross_pnl": -9.953999999999997,
+      "mae": 0.17080479452054798,
+      "mfe": 0.002140410958904171,
+      "net_pnl": -10.146651252795035,
+      "order_id": "ord_b12ffba0910c7ee1fdab9836",
+      "price_audit": {
+        "entry": {
+          "is_buy": true,
+          "post_round_price": "0.02336",
+          "post_slip_price": "0.023357005",
+          "price_step": "0.00001",
+          "raw_price": "0.02335",
+          "round_delta": "0.000002995",
+          "slip_delta": "0.000007005"
+        },
+        "exit": {
+          "is_buy": false,
+          "post_round_price": "0.01941",
+          "post_slip_price": "0.019413440753255105479",
+          "price_step": "0.00001",
+          "raw_price": "0.01941926653321507",
+          "reason": "intrabar_stop",
+          "round_delta": "-0.000003440753255105479",
+          "slip_delta": "-0.000005825779959964521"
+        }
+      },
+      "qty": 2520.0,
+      "rounding_loss": 0.016218098202860076,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIXBTUSDT_1788393600000_1788598800000",
+      "signal_type": 1,
+      "slippage_loss": 0.04855166370197575,
+      "slippage_loss_pure": 0.032333565499115674,
+      "stop_trace": [
+        {
+          "reason": "init",
+          "stop": 0.01941926653321507,
+          "ts": 1788599700000
+        }
+      ],
+      "symbol": "AIXBTUSDT"
+    },
+    "ledger_signals": {},
+    "api_batch_trades_row": {
+      "batch_id": "runs_sep_all_latest",
+      "run_id": "run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009",
+      "trade_id": "trd_b98a8788210986a909a86a78",
+      "trade_id_source": "positions.jsonl(POSITION_CLOSED，按平仓时刻+净盈亏对齐)",
+      "symbol": "AIXBTUSDT",
+      "direction": 1,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIXBTUSDT_1788393600000_1788598800000",
+      "signal_time_ms": 1788598800000,
+      "signal_time_source": "chart.signals[].t（按 signal_id 命中）",
+      "entry_time_ms": 1788599700000,
+      "entry_price": 0.02336,
+      "initial_stop": 0.01941926653321507,
+      "initial_stop_reason": "init",
+      "exit_time_ms": 1789457400000,
+      "exit_price": 0.01941,
+      "exit_reason": "intrabar_stop",
+      "qty": 2520.0,
+      "gross_pnl": -9.953999999999997,
+      "fees": 0.0538902,
+      "funding_fee": 0.138761052795036,
+      "net_pnl": -10.146651252795035,
+      "mae": 0.17080479452054798,
+      "mfe": 0.002140410958904171,
+      "holding_hours": 238.25,
+      "stop_trace_points": 1
+    },
+    "api_chart_trade": {
+      "trade_id": "trd_b98a8788210986a909a86a78",
+      "symbol": "AIXBTUSDT",
+      "direction": "long",
+      "signal_type": 1,
+      "entry": {
+        "t": 1788599700000,
+        "price": 0.02336,
+        "qty": 2520.0
+      },
+      "exit": {
+        "t": 1789457400000,
+        "price": 0.01941,
+        "reason": "intrabar_stop"
+      },
+      "stop_trace": [
+        {
+          "t": 1788599700000,
+          "stop": 0.01941926653321507,
+          "reason": "init"
+        }
+      ],
+      "net_pnl": -10.146651252795035,
+      "holding_hours": 238.25,
+      "funding_events": 59,
+      "exit_reason": "intrabar_stop",
+      "initial_stop": 0.01941926653321507,
+      "initial_stop_source": "ledger:trades.jsonl.stop_trace[0]"
+    },
+    "api_chart_signal": {
+      "t": 1788598800000,
+      "kind": "box_breakout",
+      "direction": "long",
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIXBTUSDT_1788393600000_1788598800000",
+      "stop_price": 0.01941926653321507,
+      "atr": 0.0005073346678493218,
+      "oi_score": 0.07800981033499044,
+      "oi_available": true,
+      "oi_quality": "real_5m"
+    },
+    "api_metrics": {
+      "initial_equity": 2000.0,
+      "final_equity": 1989.8533487472046,
+      "net_pnl": -10.146651252795035,
+      "net_return_pct": -0.5073325626397719,
+      "gross_pnl": -9.953999999999997,
+      "total_entry_fee": 0.0294336,
+      "total_exit_fee": 0.024456600000000002,
+      "total_fees": 0.0538902,
+      "total_funding_fee": 0.138761052795036,
+      "trades_count": 1,
+      "wins": 0,
+      "losses": 1,
+      "flats": 0,
+      "win_rate_pct": 0.0,
+      "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+      "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+      "avg_win": null,
+      "avg_loss": -10.146651252795035,
+      "avg_win_loss_ratio": null,
+      "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+      "profit_factor": 0.0,
+      "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+      "expectancy_usd": -10.146651252795035,
+      "max_drawdown_pct": 0.5073325626397719,
+      "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+      "max_drawdown_detail": {
+        "peak_index": 0,
+        "trough_index": 1374,
+        "peak_equity": 2000.0,
+        "trough_equity": 1989.8533487472046,
+        "points": 4489
+      },
+      "equity_points": 4489,
+      "open_positions_remaining": null,
+      "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+      "funding_events_total": 59
+    },
+    "verification_table": {
+      "run_id": {
+        "ledger": "run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009",
+        "api_batch": "run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009",
+        "chart": "run_WX_EVENT_TREND_V0_1_AIXBTUSDT_1792262009",
+        "status": "PASS: 完全一致"
+      },
+      "trade_id": {
+        "ledger_positions": "trd_b98a8788210986a909a86a78",
+        "api_batch": "trd_b98a8788210986a909a86a78",
+        "chart": "trd_b98a8788210986a909a86a78",
+        "status": "PASS: 完全一致"
+      },
+      "signal_time": {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIXBTUSDT_1788393600000_1788598800000",
+        "chart_signal_utc": "2026-09-05 09:00:00 UTC",
+        "api_signal_time_utc": "2026-09-05 09:00:00 UTC",
+        "status": "PASS: UTC一致且与成交点分离"
+      },
+      "entry_time": {
+        "ledger_trades_utc": "2026-09-05 09:15:00 UTC",
+        "api_batch_utc": "2026-09-05 09:15:00 UTC",
+        "chart_entry_utc": "2026-09-05 09:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "entry_price": {
+        "ledger_trades": 0.02336,
+        "api_batch": 0.02336,
+        "chart": 0.02336,
+        "status": "PASS: 完全一致"
+      },
+      "initial_stop": {
+        "ledger_stop_trace_0": 0.01941926653321507,
+        "api_batch": 0.01941926653321507,
+        "chart": 0.01941926653321507,
+        "status": "PASS: 完全一致"
+      },
+      "exit_time": {
+        "ledger_trades_utc": "2026-09-15 07:30:00 UTC",
+        "api_batch_utc": "2026-09-15 07:30:00 UTC",
+        "chart_exit_utc": "2026-09-15 07:30:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "exit_price": {
+        "ledger_trades": 0.01941,
+        "api_batch": 0.01941,
+        "chart": 0.01941,
+        "status": "PASS: 完全一致"
+      },
+      "exit_reason": {
+        "ledger_trades": "intrabar_stop",
+        "api_batch": "intrabar_stop",
+        "chart": "intrabar_stop",
+        "status": "PASS: 完全一致"
+      },
+      "net_pnl": {
+        "ledger_positions_close": -10.146651252795035,
+        "ledger_trades": -10.146651252795035,
+        "api_batch": -10.146651252795035,
+        "chart": -10.146651252795035,
+        "api_metrics": -10.146651252795035,
+        "status": "PASS: 账本/API/逐笔/指标全部对齐"
+      }
+    },
+    "chart_meta": {
+      "symbol": "AIXBTUSDT",
+      "fallback_rebuilt": false,
+      "candles_count": 4489,
+      "first_candle_time": "—",
+      "last_candle_time": "—"
+    }
+  },
+  {
+    "category": "案例 B: 浮盈回吐 (Profit Giveback / Holding Expiry)",
+    "batch": "runs_sep_all_latest",
+    "symbol": "EVAAUSDT",
+    "run_id": "run_WX_EVENT_TREND_V0_1_EVAAUSDT_1792262148",
+    "trade_id": "trd_e3ee0b804971c2ca26ac0a2e",
+    "desc": "冲高浮盈MFE达44.28%，但未触及目标止盈，持续回撤后满240小时超时平仓，净收益仅0.86",
+    "ledger_positions_close": {
+      "event_id": "evt_6a5f9b5d6adcc117d883b8959aacd725",
+      "event_time": 1790608500000,
+      "event_type": "POSITION_CLOSED",
+      "payload": {
+        "exit_reason": "max_holding_expired",
+        "net_pnl": 0.8570219546471614,
+        "trade_id": "trd_e3ee0b804971c2ca26ac0a2e"
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "EVAAUSDT"
+    },
+    "ledger_positions_open": {
+      "event_id": "evt_ace616204d65e0ba63f3da162621b7f5",
+      "event_time": 1789744500000,
+      "event_type": "POSITION_OPENED",
+      "payload": {
+        "entry_price": 0.6445,
+        "order_id": "ord_36904d1d0f6d09bce205b000",
+        "qty": 44.4,
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+        "stop_price": 0.42040223831602547
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "EVAAUSDT"
+    },
+    "ledger_trades": {
+      "direction": 1,
+      "entry_fee": 0.014307899999999998,
+      "entry_price": 0.6445,
+      "entry_time": 1789744500000,
+      "exit_fee": 0.014920619999999999,
+      "exit_order_id": "ord_78b223d3d0c7b147cee86f66",
+      "exit_price": 0.6721,
+      "exit_reason": "max_holding_expired",
+      "exit_time": 1790608500000,
+      "fees": 0.029228519999999997,
+      "funding_fee": 0.33918952535284164,
+      "funding_gaps": [],
+      "gross_pnl": 1.225440000000003,
+      "mae": 0.14243599689681924,
+      "mfe": 0.44282389449185416,
+      "net_pnl": 0.8570219546471614,
+      "order_id": "ord_36904d1d0f6d09bce205b000",
+      "price_audit": {
+        "entry": {
+          "is_buy": true,
+          "post_round_price": "0.6445",
+          "post_slip_price": "0.64449329",
+          "price_step": "0.0001",
+          "raw_price": "0.6443",
+          "round_delta": "0.00000671",
+          "slip_delta": "0.00019329"
+        },
+        "exit": {
+          "is_buy": false,
+          "post_round_price": "0.6721",
+          "post_slip_price": "0.67219828",
+          "price_step": "0.0001",
+          "raw_price": "0.6724",
+          "reason": "max_holding_expired",
+          "round_delta": "-0.00009828",
+          "slip_delta": "-0.00020172"
+        }
+      },
+      "qty": 44.4,
+      "rounding_loss": 0.004661555999998734,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+      "signal_type": 1,
+      "slippage_loss": 0.022199999999997555,
+      "slippage_loss_pure": 0.01753844399999882,
+      "stop_trace": [
+        {
+          "reason": "init",
+          "stop": 0.42040223831602547,
+          "ts": 1789744500000
+        }
+      ],
+      "symbol": "EVAAUSDT"
+    },
+    "ledger_signals": {},
+    "api_batch_trades_row": {
+      "batch_id": "runs_sep_all_latest",
+      "run_id": "run_WX_EVENT_TREND_V0_1_EVAAUSDT_1792262148",
+      "trade_id": "trd_e3ee0b804971c2ca26ac0a2e",
+      "trade_id_source": "positions.jsonl(POSITION_CLOSED，按平仓时刻+净盈亏对齐)",
+      "symbol": "EVAAUSDT",
+      "direction": 1,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+      "signal_time_ms": 1789743600000,
+      "signal_time_source": "chart.signals[].t（按 signal_id 命中）",
+      "entry_time_ms": 1789744500000,
+      "entry_price": 0.6445,
+      "initial_stop": 0.42040223831602547,
+      "initial_stop_reason": "init",
+      "exit_time_ms": 1790608500000,
+      "exit_price": 0.6721,
+      "exit_reason": "max_holding_expired",
+      "qty": 44.4,
+      "gross_pnl": 1.225440000000003,
+      "fees": 0.029228519999999997,
+      "funding_fee": 0.33918952535284164,
+      "net_pnl": 0.8570219546471614,
+      "mae": 0.14243599689681924,
+      "mfe": 0.44282389449185416,
+      "holding_hours": 240.0,
+      "stop_trace_points": 1
+    },
+    "api_chart_trade": {
+      "trade_id": "trd_e3ee0b804971c2ca26ac0a2e",
+      "symbol": "EVAAUSDT",
+      "direction": "long",
+      "signal_type": 1,
+      "entry": {
+        "t": 1789744500000,
+        "price": 0.6445,
+        "qty": 44.4
+      },
+      "exit": {
+        "t": 1790608500000,
+        "price": 0.6721,
+        "reason": "max_holding_expired"
+      },
+      "stop_trace": [
+        {
+          "t": 1789744500000,
+          "stop": 0.42040223831602547,
+          "reason": "init"
+        }
+      ],
+      "net_pnl": 0.8570219546471614,
+      "holding_hours": 240.0,
+      "funding_events": 60,
+      "exit_reason": "max_holding_expired",
+      "initial_stop": 0.42040223831602547,
+      "initial_stop_source": "ledger:trades.jsonl.stop_trace[0]"
+    },
+    "api_chart_signal": {
+      "t": 1789743600000,
+      "kind": "box_breakout",
+      "direction": "long",
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+      "stop_price": 0.42040223831602547,
+      "atr": 0.023977616839745173,
+      "oi_score": 0.3242523473465866,
+      "oi_available": true,
+      "oi_quality": "real_5m"
+    },
+    "api_metrics": {
+      "initial_equity": 2000.0,
+      "final_equity": 2000.8570219546466,
+      "net_pnl": 0.8570219546471614,
+      "net_return_pct": 0.04285109773232989,
+      "gross_pnl": 1.225440000000003,
+      "total_entry_fee": 0.014307899999999998,
+      "total_exit_fee": 0.014920619999999999,
+      "total_fees": 0.029228519999999997,
+      "total_funding_fee": 0.33918952535284164,
+      "trades_count": 1,
+      "wins": 1,
+      "losses": 0,
+      "flats": 0,
+      "win_rate_pct": 100.0,
+      "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+      "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+      "avg_win": 0.8570219546471614,
+      "avg_loss": null,
+      "avg_win_loss_ratio": null,
+      "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+      "profit_factor": null,
+      "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+      "expectancy_usd": 0.8570219546471614,
+      "max_drawdown_pct": 0.5501634006776952,
+      "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+      "max_drawdown_detail": {
+        "peak_index": 2019,
+        "trough_index": 2653,
+        "peak_equity": 2011.9259019157416,
+        "trough_equity": 2000.8570219546466,
+        "points": 4490
+      },
+      "equity_points": 4490,
+      "open_positions_remaining": null,
+      "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+      "funding_events_total": 60
+    },
+    "verification_table": {
+      "run_id": {
+        "ledger": "run_WX_EVENT_TREND_V0_1_EVAAUSDT_1792262148",
+        "api_batch": "run_WX_EVENT_TREND_V0_1_EVAAUSDT_1792262148",
+        "chart": "run_WX_EVENT_TREND_V0_1_EVAAUSDT_1792262148",
+        "status": "PASS: 完全一致"
+      },
+      "trade_id": {
+        "ledger_positions": "trd_e3ee0b804971c2ca26ac0a2e",
+        "api_batch": "trd_e3ee0b804971c2ca26ac0a2e",
+        "chart": "trd_e3ee0b804971c2ca26ac0a2e",
+        "status": "PASS: 完全一致"
+      },
+      "signal_time": {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574400000_1789743600000",
+        "chart_signal_utc": "2026-09-18 15:00:00 UTC",
+        "api_signal_time_utc": "2026-09-18 15:00:00 UTC",
+        "status": "PASS: UTC一致且与成交点分离"
+      },
+      "entry_time": {
+        "ledger_trades_utc": "2026-09-18 15:15:00 UTC",
+        "api_batch_utc": "2026-09-18 15:15:00 UTC",
+        "chart_entry_utc": "2026-09-18 15:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "entry_price": {
+        "ledger_trades": 0.6445,
+        "api_batch": 0.6445,
+        "chart": 0.6445,
+        "status": "PASS: 完全一致"
+      },
+      "initial_stop": {
+        "ledger_stop_trace_0": 0.42040223831602547,
+        "api_batch": 0.42040223831602547,
+        "chart": 0.42040223831602547,
+        "status": "PASS: 完全一致"
+      },
+      "exit_time": {
+        "ledger_trades_utc": "2026-09-28 15:15:00 UTC",
+        "api_batch_utc": "2026-09-28 15:15:00 UTC",
+        "chart_exit_utc": "2026-09-28 15:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "exit_price": {
+        "ledger_trades": 0.6721,
+        "api_batch": 0.6721,
+        "chart": 0.6721,
+        "status": "PASS: 完全一致"
+      },
+      "exit_reason": {
+        "ledger_trades": "max_holding_expired",
+        "api_batch": "max_holding_expired",
+        "chart": "max_holding_expired",
+        "status": "PASS: 完全一致"
+      },
+      "net_pnl": {
+        "ledger_positions_close": 0.8570219546471614,
+        "ledger_trades": 0.8570219546471614,
+        "api_batch": 0.8570219546471614,
+        "chart": 0.8570219546471614,
+        "api_metrics": 0.8570219546471614,
+        "status": "PASS: 账本/API/逐笔/指标全部对齐"
+      }
+    },
+    "chart_meta": {
+      "symbol": "EVAAUSDT",
+      "fallback_rebuilt": false,
+      "candles_count": 4490,
+      "first_candle_time": "—",
+      "last_candle_time": "—"
+    }
+  },
+  {
+    "category": "案例 C: 持续盈利 (Trend Continuation / Max Win)",
+    "batch": "runs_sep_all_latest",
+    "symbol": "GOATUSDT",
+    "run_id": "run_WX_EVENT_TREND_V0_1_GOATUSDT_1792262169",
+    "trade_id": "trd_f5263b6a08288094460d9270",
+    "desc": "趋势行情充分展开，MFE达33.90%，净收益+20.54美元（批次内最高单笔正收益）",
+    "ledger_positions_close": {
+      "event_id": "evt_7c8897b2092ce04ebedc87be81ba780f",
+      "event_time": 1790122500000,
+      "event_type": "POSITION_CLOSED",
+      "payload": {
+        "exit_reason": "max_holding_expired",
+        "net_pnl": 20.536761375661428,
+        "trade_id": "trd_f5263b6a08288094460d9270"
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "GOATUSDT"
+    },
+    "ledger_positions_open": {
+      "event_id": "evt_99ec07c3b7388a537fc2e05cf055afd5",
+      "event_time": 1789258500000,
+      "event_type": "POSITION_OPENED",
+      "payload": {
+        "entry_price": 0.01643,
+        "order_id": "ord_b955b5e5d4f607d0b7ef0d94",
+        "qty": 4806.0,
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788393600000_1789257600000",
+        "stop_price": 0.01436903774284832
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "GOATUSDT"
+    },
+    "ledger_trades": {
+      "direction": 1,
+      "entry_fee": 0.03948129,
+      "entry_price": 0.01643,
+      "entry_time": 1789258500000,
+      "exit_fee": 0.05000643,
+      "exit_order_id": "ord_bab56e0daa1fee26311d7cf8",
+      "exit_price": 0.02081,
+      "exit_reason": "max_holding_expired",
+      "exit_time": 1790122500000,
+      "fees": 0.08948771999999999,
+      "funding_fee": 0.4240309043385666,
+      "funding_gaps": [],
+      "gross_pnl": 21.050279999999994,
+      "mae": 0.10772976262933662,
+      "mfe": 0.33901399878271443,
+      "net_pnl": 20.536761375661428,
+      "order_id": "ord_b955b5e5d4f607d0b7ef0d94",
+      "price_audit": {
+        "entry": {
+          "is_buy": true,
+          "post_round_price": "0.01643",
+          "post_slip_price": "0.016424926",
+          "price_step": "0.00001",
+          "raw_price": "0.01642",
+          "round_delta": "0.000005074",
+          "slip_delta": "0.000004926"
+        },
+        "exit": {
+          "is_buy": false,
+          "post_round_price": "0.02081",
+          "post_slip_price": "0.020813754",
+          "price_step": "0.00001",
+          "raw_price": "0.02082",
+          "reason": "max_holding_expired",
+          "round_delta": "-0.000003754",
+          "slip_delta": "-0.000006246"
+        }
+      },
+      "qty": 4806.0,
+      "rounding_loss": 0.042427368000011484,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788393600000_1789257600000",
+      "signal_type": 1,
+      "slippage_loss": 0.09612000000001275,
+      "slippage_loss_pure": 0.053692632000001274,
+      "stop_trace": [
+        {
+          "reason": "init",
+          "stop": 0.01436903774284832,
+          "ts": 1789258500000
+        },
+        {
+          "reason": "trail",
+          "stop": 0.01739,
+          "ts": 1790107200000
+        },
+        {
+          "reason": "trail",
+          "stop": 0.01755,
+          "ts": 1790121600000
+        }
+      ],
+      "symbol": "GOATUSDT"
+    },
+    "ledger_signals": {},
+    "api_batch_trades_row": {
+      "batch_id": "runs_sep_all_latest",
+      "run_id": "run_WX_EVENT_TREND_V0_1_GOATUSDT_1792262169",
+      "trade_id": "trd_f5263b6a08288094460d9270",
+      "trade_id_source": "positions.jsonl(POSITION_CLOSED，按平仓时刻+净盈亏对齐)",
+      "symbol": "GOATUSDT",
+      "direction": 1,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788393600000_1789257600000",
+      "signal_time_ms": 1789257600000,
+      "signal_time_source": "chart.signals[].t（按 signal_id 命中）",
+      "entry_time_ms": 1789258500000,
+      "entry_price": 0.01643,
+      "initial_stop": 0.01436903774284832,
+      "initial_stop_reason": "init",
+      "exit_time_ms": 1790122500000,
+      "exit_price": 0.02081,
+      "exit_reason": "max_holding_expired",
+      "qty": 4806.0,
+      "gross_pnl": 21.050279999999994,
+      "fees": 0.08948771999999999,
+      "funding_fee": 0.4240309043385666,
+      "net_pnl": 20.536761375661428,
+      "mae": 0.10772976262933662,
+      "mfe": 0.33901399878271443,
+      "holding_hours": 240.0,
+      "stop_trace_points": 3
+    },
+    "api_chart_trade": {
+      "trade_id": "trd_f5263b6a08288094460d9270",
+      "symbol": "GOATUSDT",
+      "direction": "long",
+      "signal_type": 1,
+      "entry": {
+        "t": 1789258500000,
+        "price": 0.01643,
+        "qty": 4806.0
+      },
+      "exit": {
+        "t": 1790122500000,
+        "price": 0.02081,
+        "reason": "max_holding_expired"
+      },
+      "stop_trace": [
+        {
+          "t": 1789258500000,
+          "stop": 0.01436903774284832,
+          "reason": "init"
+        },
+        {
+          "t": 1790107200000,
+          "stop": 0.01739,
+          "reason": "trail"
+        },
+        {
+          "t": 1790121600000,
+          "stop": 0.01755,
+          "reason": "trail"
+        }
+      ],
+      "net_pnl": 20.536761375661428,
+      "holding_hours": 240.0,
+      "funding_events": 60,
+      "exit_reason": "max_holding_expired",
+      "initial_stop": 0.01436903774284832,
+      "initial_stop_source": "ledger:trades.jsonl.stop_trace[0]"
+    },
+    "api_chart_signal": {
+      "t": 1789257600000,
+      "kind": "box_breakout",
+      "direction": "long",
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788393600000_1789257600000",
+      "stop_price": 0.01436903774284832,
+      "atr": 0.00040962257151677857,
+      "oi_score": 0.027250956540951332,
+      "oi_available": true,
+      "oi_quality": "real_5m"
+    },
+    "api_metrics": {
+      "initial_equity": 2000.0,
+      "final_equity": 2020.5367613756619,
+      "net_pnl": 20.536761375661428,
+      "net_return_pct": 1.0268380687830927,
+      "gross_pnl": 21.050279999999994,
+      "total_entry_fee": 0.03948129,
+      "total_exit_fee": 0.05000643,
+      "total_fees": 0.08948771999999999,
+      "total_funding_fee": 0.4240309043385666,
+      "trades_count": 1,
+      "wins": 1,
+      "losses": 0,
+      "flats": 0,
+      "win_rate_pct": 100.0,
+      "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+      "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+      "avg_win": 20.536761375661428,
+      "avg_loss": null,
+      "avg_win_loss_ratio": null,
+      "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+      "profit_factor": null,
+      "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+      "expectancy_usd": 20.536761375661428,
+      "max_drawdown_pct": 0.5899133756650676,
+      "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+      "max_drawdown_detail": {
+        "peak_index": 1166,
+        "trough_index": 1510,
+        "peak_equity": 2003.57177114,
+        "trough_equity": 1991.7524332709957,
+        "points": 4490
+      },
+      "equity_points": 4490,
+      "open_positions_remaining": null,
+      "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+      "funding_events_total": 60
+    },
+    "verification_table": {
+      "run_id": {
+        "ledger": "run_WX_EVENT_TREND_V0_1_GOATUSDT_1792262169",
+        "api_batch": "run_WX_EVENT_TREND_V0_1_GOATUSDT_1792262169",
+        "chart": "run_WX_EVENT_TREND_V0_1_GOATUSDT_1792262169",
+        "status": "PASS: 完全一致"
+      },
+      "trade_id": {
+        "ledger_positions": "trd_f5263b6a08288094460d9270",
+        "api_batch": "trd_f5263b6a08288094460d9270",
+        "chart": "trd_f5263b6a08288094460d9270",
+        "status": "PASS: 完全一致"
+      },
+      "signal_time": {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788393600000_1789257600000",
+        "chart_signal_utc": "2026-09-13 00:00:00 UTC",
+        "api_signal_time_utc": "2026-09-13 00:00:00 UTC",
+        "status": "PASS: UTC一致且与成交点分离"
+      },
+      "entry_time": {
+        "ledger_trades_utc": "2026-09-13 00:15:00 UTC",
+        "api_batch_utc": "2026-09-13 00:15:00 UTC",
+        "chart_entry_utc": "2026-09-13 00:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "entry_price": {
+        "ledger_trades": 0.01643,
+        "api_batch": 0.01643,
+        "chart": 0.01643,
+        "status": "PASS: 完全一致"
+      },
+      "initial_stop": {
+        "ledger_stop_trace_0": 0.01436903774284832,
+        "api_batch": 0.01436903774284832,
+        "chart": 0.01436903774284832,
+        "status": "PASS: 完全一致"
+      },
+      "exit_time": {
+        "ledger_trades_utc": "2026-09-23 00:15:00 UTC",
+        "api_batch_utc": "2026-09-23 00:15:00 UTC",
+        "chart_exit_utc": "2026-09-23 00:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "exit_price": {
+        "ledger_trades": 0.02081,
+        "api_batch": 0.02081,
+        "chart": 0.02081,
+        "status": "PASS: 完全一致"
+      },
+      "exit_reason": {
+        "ledger_trades": "max_holding_expired",
+        "api_batch": "max_holding_expired",
+        "chart": "max_holding_expired",
+        "status": "PASS: 完全一致"
+      },
+      "net_pnl": {
+        "ledger_positions_close": 20.536761375661428,
+        "ledger_trades": 20.536761375661428,
+        "api_batch": 20.536761375661428,
+        "chart": 20.536761375661428,
+        "api_metrics": 20.536761375661428,
+        "status": "PASS: 账本/API/逐笔/指标全部对齐"
+      }
+    },
+    "chart_meta": {
+      "symbol": "GOATUSDT",
+      "fallback_rebuilt": false,
+      "candles_count": 4490,
+      "first_candle_time": "—",
+      "last_candle_time": "—"
+    }
+  },
+  {
+    "category": "案例 D: 缺数据/零成交 (Zero Trades / No Signal)",
+    "batch": "runs_sep_all_latest",
+    "symbol": "0GUSDT",
+    "run_id": "run_WX_EVENT_TREND_V0_1_0GUSDT_1792261978",
+    "trade_id": null,
+    "desc": "在回测窗口内无有效突破信号，真实成交为0，UI必须显示真实零成交而非报错",
+    "ledger_positions_close": {},
+    "ledger_positions_open": {},
+    "ledger_trades": {},
+    "ledger_signals": {},
+    "api_batch_trades_row": {
+      "run_trades_count": 0
+    },
+    "api_chart_trade": {
+      "trades_count_in_chart": 0
+    },
+    "api_chart_signal": {
+      "signals_count_in_chart": 0
+    },
+    "api_metrics": {
+      "initial_equity": 2000.0,
+      "final_equity": 2000.0,
+      "net_pnl": null,
+      "net_return_pct": 0.0,
+      "gross_pnl": null,
+      "total_entry_fee": null,
+      "total_exit_fee": null,
+      "total_fees": null,
+      "total_funding_fee": null,
+      "trades_count": 0,
+      "wins": 0,
+      "losses": 0,
+      "flats": 0,
+      "win_rate_pct": null,
+      "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+      "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+      "avg_win": null,
+      "avg_loss": null,
+      "avg_win_loss_ratio": null,
+      "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+      "profit_factor": null,
+      "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+      "expectancy_usd": null,
+      "max_drawdown_pct": 0.0,
+      "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+      "max_drawdown_detail": {
+        "peak_index": 0,
+        "trough_index": 0,
+        "peak_equity": 2000.0,
+        "trough_equity": 2000.0,
+        "points": 4489
+      },
+      "equity_points": 4489,
+      "open_positions_remaining": null,
+      "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+      "funding_events_total": 0
+    },
+    "verification_table": {
+      "trades_total": {
+        "ledger_positions": 0,
+        "api_batch": 0,
+        "chart": 0,
+        "api_metrics": 0,
+        "status": "PASS: 真实0成交核实"
+      }
+    },
+    "chart_meta": {
+      "symbol": "0GUSDT",
+      "fallback_rebuilt": false,
+      "candles_count": 4489,
+      "first_candle_time": "—",
+      "last_candle_time": "—"
+    }
+  },
+  {
+    "category": "案例 E: 读时动态补图 (Fallback Chart Rebuilt)",
+    "batch": "runs",
+    "symbol": "QNTUSDT",
+    "run_id": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792273818",
+    "trade_id": "trd_ac4bb173ab27ceec22dc065f",
+    "desc": "回测离线生成时未产出chart.json，后端在API请求时按parquet底表即时重建K线与打点",
+    "ledger_positions_close": {
+      "event_id": "evt_6e049b6eb7c57c61d0751ae8926347ff",
+      "event_time": 1758294000000,
+      "event_type": "POSITION_CLOSED",
+      "payload": {
+        "exit_reason": "intrabar_stop",
+        "net_pnl": -6.517192295611407,
+        "trade_id": "trd_ac4bb173ab27ceec22dc065f"
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "QNTUSDT"
+    },
+    "ledger_positions_open": {
+      "event_id": "evt_abbf9a51c218c60c5c1ef83ed9d4da44",
+      "event_time": 1757758500000,
+      "event_type": "POSITION_OPENED",
+      "payload": {
+        "entry_price": 104.56,
+        "order_id": "ord_5052d9d3494448a28e134585",
+        "qty": 0.9,
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_QNTUSDT_1757448000000_1757757600000",
+        "stop_price": 97.61867546862898
+      },
+      "sequence": 0,
+      "strategy_key": "WX_EVENT_TREND_V0_1",
+      "symbol": "QNTUSDT"
+    },
+    "ledger_trades": {
+      "direction": 1,
+      "entry_fee": 0.047052000000000004,
+      "entry_price": 104.56,
+      "entry_time": 1757758500000,
+      "exit_fee": 0.043911000000000006,
+      "exit_order_id": "ord_4842307ca7b92f39f6e32d25",
+      "exit_price": 97.58,
+      "exit_reason": "intrabar_stop",
+      "exit_time": 1758294000000,
+      "fees": 0.09096300000000002,
+      "funding_fee": 0.144229295611404,
+      "funding_gaps": [],
+      "gross_pnl": -6.282000000000004,
+      "mae": 0.06962509563886765,
+      "mfe": 0.007651109410864548,
+      "net_pnl": -6.517192295611407,
+      "order_id": "ord_5052d9d3494448a28e134585",
+      "price_audit": {
+        "entry": {
+          "is_buy": true,
+          "post_round_price": "104.56",
+          "post_slip_price": "104.551356",
+          "price_step": "0.01",
+          "raw_price": "104.52",
+          "round_delta": "0.008644",
+          "slip_delta": "0.031356"
+        },
+        "exit": {
+          "is_buy": false,
+          "post_round_price": "97.58",
+          "post_slip_price": "97.589389865988391306",
+          "price_step": "0.01",
+          "raw_price": "97.61867546862898",
+          "reason": "intrabar_stop",
+          "round_delta": "-0.009389865988391306",
+          "slip_delta": "-0.029285602640588694"
+        }
+      },
+      "qty": 0.9,
+      "rounding_loss": 0.01623047938956006,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_QNTUSDT_1757448000000_1757757600000",
+      "signal_type": 1,
+      "slippage_loss": 0.0708079217660881,
+      "slippage_loss_pure": 0.05457744237652804,
+      "stop_trace": [
+        {
+          "reason": "init",
+          "stop": 97.61867546862898,
+          "ts": 1757758500000
+        }
+      ],
+      "symbol": "QNTUSDT"
+    },
+    "ledger_signals": {},
+    "api_batch_trades_row": {
+      "batch_id": "runs",
+      "run_id": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792273818",
+      "trade_id": "trd_ac4bb173ab27ceec22dc065f",
+      "trade_id_source": "positions.jsonl(POSITION_CLOSED，按平仓时刻+净盈亏对齐)",
+      "symbol": "QNTUSDT",
+      "direction": 1,
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_QNTUSDT_1757448000000_1757757600000",
+      "signal_time_ms": 1757757600000,
+      "signal_time_source": "signal_id 尾段（chart.signals 未命中/无图载荷）",
+      "entry_time_ms": 1757758500000,
+      "entry_price": 104.56,
+      "initial_stop": 97.61867546862898,
+      "initial_stop_reason": "init",
+      "exit_time_ms": 1758294000000,
+      "exit_price": 97.58,
+      "exit_reason": "intrabar_stop",
+      "qty": 0.9,
+      "gross_pnl": -6.282000000000004,
+      "fees": 0.09096300000000002,
+      "funding_fee": 0.144229295611404,
+      "net_pnl": -6.517192295611407,
+      "mae": 0.06962509563886765,
+      "mfe": 0.007651109410864548,
+      "holding_hours": 148.75,
+      "stop_trace_points": 1
+    },
+    "api_chart_trade": {
+      "trade_id": "trd_ac4bb173ab27ceec22dc065f",
+      "symbol": "QNTUSDT",
+      "direction": "long",
+      "signal_type": 1,
+      "entry": {
+        "t": 1757758500000,
+        "price": 104.56,
+        "qty": 0.9
+      },
+      "exit": {
+        "t": 1758294000000,
+        "price": 97.58,
+        "reason": "intrabar_stop"
+      },
+      "net_pnl": -6.517192295611407,
+      "initial_stop": 97.61867546862898,
+      "stop_trace": [
+        {
+          "t": 1757758500000,
+          "stop": 97.61867546862898,
+          "reason": "init"
+        }
+      ],
+      "initial_stop_source": "ledger:trades.jsonl.stop_trace[0]"
+    },
+    "api_chart_signal": {
+      "t": 1757757600000,
+      "kind": "box_breakout",
+      "direction": "long",
+      "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_QNTUSDT_1757448000000_1757757600000",
+      "stop_price": 97.61867546862898,
+      "atr": 1.81324531371014,
+      "oi_score": 0.022600370258211155,
+      "oi_available": true,
+      "oi_quality": "real_5m"
+    },
+    "api_metrics": {
+      "initial_equity": 2000.0,
+      "final_equity": 1993.4828077043885,
+      "net_pnl": -6.517192295611407,
+      "net_return_pct": -0.32585961478057474,
+      "gross_pnl": -6.282000000000004,
+      "total_entry_fee": 0.047052000000000004,
+      "total_exit_fee": 0.043911000000000006,
+      "total_fees": 0.09096300000000002,
+      "total_funding_fee": 0.144229295611404,
+      "trades_count": 1,
+      "wins": 0,
+      "losses": 1,
+      "flats": 0,
+      "win_rate_pct": 0.0,
+      "win_rate_basis": "盈利笔数 / 已平仓笔数（含平盘）",
+      "win_loss_basis": "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平",
+      "avg_win": null,
+      "avg_loss": -6.517192295611407,
+      "avg_win_loss_ratio": null,
+      "avg_win_loss_ratio_basis": "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）",
+      "profit_factor": 0.0,
+      "profit_factor_basis": "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）",
+      "expectancy_usd": -6.517192295611407,
+      "max_drawdown_pct": 0.35030385963078214,
+      "max_drawdown_basis": "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，15m 粒度；峰值起点=首个权益点）",
+      "max_drawdown_detail": {
+        "peak_index": 33455,
+        "trough_index": 34044,
+        "peak_equity": 2000.4906035000001,
+        "trough_equity": 1993.4828077043885,
+        "points": 35040
+      },
+      "equity_points": 35040,
+      "open_positions_remaining": null,
+      "note": "指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；PF 为聚合口径、平均盈亏比为均值口径（两者不混用）",
+      "funding_events_total": 18
+    },
+    "verification_table": {
+      "run_id": {
+        "ledger": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792273818",
+        "api_batch": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792273818",
+        "chart": "run_WX_EVENT_TREND_V0_1_QNTUSDT_1792273818",
+        "status": "PASS: 完全一致"
+      },
+      "trade_id": {
+        "ledger_positions": "trd_ac4bb173ab27ceec22dc065f",
+        "api_batch": "trd_ac4bb173ab27ceec22dc065f",
+        "chart": "trd_ac4bb173ab27ceec22dc065f",
+        "status": "PASS: 完全一致"
+      },
+      "signal_time": {
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_QNTUSDT_1757448000000_1757757600000",
+        "chart_signal_utc": "2025-09-13 10:00:00 UTC",
+        "api_signal_time_utc": "2025-09-13 10:00:00 UTC",
+        "status": "PASS: UTC一致且与成交点分离"
+      },
+      "entry_time": {
+        "ledger_trades_utc": "2025-09-13 10:15:00 UTC",
+        "api_batch_utc": "2025-09-13 10:15:00 UTC",
+        "chart_entry_utc": "2025-09-13 10:15:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "entry_price": {
+        "ledger_trades": 104.56,
+        "api_batch": 104.56,
+        "chart": 104.56,
+        "status": "PASS: 完全一致"
+      },
+      "initial_stop": {
+        "ledger_stop_trace_0": 97.61867546862898,
+        "api_batch": 97.61867546862898,
+        "chart": 97.61867546862898,
+        "status": "PASS: 完全一致"
+      },
+      "exit_time": {
+        "ledger_trades_utc": "2025-09-19 15:00:00 UTC",
+        "api_batch_utc": "2025-09-19 15:00:00 UTC",
+        "chart_exit_utc": "2025-09-19 15:00:00 UTC",
+        "status": "PASS: 完全一致"
+      },
+      "exit_price": {
+        "ledger_trades": 97.58,
+        "api_batch": 97.58,
+        "chart": 97.58,
+        "status": "PASS: 完全一致"
+      },
+      "exit_reason": {
+        "ledger_trades": "intrabar_stop",
+        "api_batch": "intrabar_stop",
+        "chart": "intrabar_stop",
+        "status": "PASS: 完全一致"
+      },
+      "net_pnl": {
+        "ledger_positions_close": -6.517192295611407,
+        "ledger_trades": -6.517192295611407,
+        "api_batch": -6.517192295611407,
+        "chart": -6.517192295611407,
+        "api_metrics": -6.517192295611407,
+        "status": "PASS: 账本/API/逐笔/指标全部对齐"
+      }
+    },
+    "chart_meta": {
+      "symbol": "QNTUSDT",
+      "fallback_rebuilt": false,
+      "candles_count": 35040,
+      "first_candle_time": "—",
+      "last_candle_time": "—"
+    }
+  }
+]

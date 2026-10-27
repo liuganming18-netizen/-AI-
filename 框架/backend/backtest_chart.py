@@ -45,8 +45,10 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import tempfile
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
@@ -271,12 +273,25 @@ def equity_from_run_dir(run_dir) -> List[dict]:
     except Exception:                                       # noqa: BLE001
         return []
     out: List[dict] = []
+    # CODE-REVIEW-02（R7）：缺字段给 None，不用 0.0 顶替（0.0 会把「没记录」
+    # 显示成「现金 0 / 浮亏 0」）。equity 缺失仍走原语义：整行跳过（不造权益点）。
+    def _fnum(v):
+        try:
+            return None if v is None else float(v)
+        except (TypeError, ValueError):
+            return None
     for e in rows:
         try:
+            _eq = e.get("total_equity")
+            if _eq is None:
+                _eq = e.get("equity")
+            _cash = e.get("cash_equity")
+            if _cash is None:
+                _cash = e.get("cash")
             out.append({"t": int(e.get("timestamp") or e.get("t") or 0),
-                        "equity": float(e.get("total_equity") or e.get("equity")),
-                        "cash": float(e.get("cash_equity") or e.get("cash") or 0.0),
-                        "unrealized": float(e.get("unrealized_pnl") or 0.0)})
+                        "equity": float(_eq),
+                        "cash": _fnum(_cash),
+                        "unrealized": _fnum(e.get("unrealized_pnl"))})
         except (TypeError, ValueError):
             continue
     return out
@@ -308,13 +323,109 @@ def benchmark_from_frame(df_15m, initial_equity: float, symbol: str) -> dict:
     }
 
 
+# ── OI 持仓量序列（真实 5m 归档；与跑批同一取数口径）────────────────────────
+#
+# 为什么在**读取侧**补：批量脚本落盘的 `chart.json` 只有 K 线 / 信号 / 成交，
+# 没有 OI；而页面标题一直写着「持仓量（OI）」却没有那张副图。
+# 这里直接调 `MarketDataRepository.oi(period="5m")` —— 与
+# `backtest_runner.load_inputs()` 给策略喂数时**同一个方法、同一个 period**，
+# 不聚合求均值、不插值、不用实时快照冒充历史。
+
+_OI_CACHE: "OrderedDict[tuple, dict]" = OrderedDict()
+_OI_CACHE_MAX = 16
+_REPO_SINGLETON = None
+
+
+def _repo():
+    """惰性拿仓储单例（`from_archive` 会开库，不能每次请求都建）。"""
+    global _REPO_SINGLETON
+    if _REPO_SINGLETON is None:
+        import backtest_runner as _R
+        _REPO_SINGLETON = _R._repo()
+    return _REPO_SINGLETON
+
+
+def oi_series(symbol: str, exchange: str, market: str,
+              start_ms: int, end_ms: int, limit: int = 20000) -> Dict[str, Any]:
+    """取该 run 窗口内的真实 5m OI，返回 `{points:[{t,oi}], meta:{…}}`。
+
+    纪律：取不到就返回空 `points` 并把原因写进 `meta.error`，**不造点、不用快照顶替**。
+    行数被 `limit` 截断时 `meta.truncated=True` 并写明实际首末时点（如实标注，不静默）。
+    """
+    key = (symbol, exchange, market, int(start_ms), int(end_ms), int(limit))
+    hit = _OI_CACHE.get(key)
+    if hit is not None:
+        _OI_CACHE.move_to_end(key)
+        return hit
+
+    points: List[dict] = []
+    meta: Dict[str, Any] = {
+        "source": "market_repository.oi(period=5m)",
+        "period": "5m",
+        "align_rule": "原始 5m 观测点，前端按展示周期分桶（桶内取最后一个真实观测，不改数值）",
+        "rows": 0,
+        "truncated": False,
+        "error": None,
+    }
+    try:
+        rows = _repo().oi(exchange, market, symbol, period="5m",
+                          start=int(start_ms), end=int(end_ms), limit=int(limit)) or []
+        seen = set()
+        for r in rows:
+            try:
+                t = int(r["ts"])
+                v = float(r["open_interest"])
+            except (TypeError, ValueError, KeyError):
+                continue
+            if t in seen or not math.isfinite(v):
+                continue
+            seen.add(t)
+            points.append({"t": t, "oi": v})
+        points.sort(key=lambda x: x["t"])
+        meta["rows"] = len(points)
+        meta["first_ms"] = points[0]["t"] if points else None
+        meta["last_ms"] = points[-1]["t"] if points else None
+        # 半开窗口：末点早于窗口终点一个周期以上 ⇒ 该段没有 5m 归档（不补）
+        meta["truncated"] = len(rows) >= int(limit)
+        if not points:
+            meta["error"] = "该窗口没有 5m OI 归档行（不补值）"
+    except Exception as exc:                                # noqa: BLE001
+        meta["error"] = f"{type(exc).__name__}: {exc}"
+
+    out = {"points": points, "meta": meta}
+    _OI_CACHE[key] = out
+    while len(_OI_CACHE) > _OI_CACHE_MAX:
+        _OI_CACHE.popitem(last=False)
+    return out
+
+
+def attach_oi(chart: Dict[str, Any], *, exchange: str, market: str) -> Dict[str, Any]:
+    """给 chart 载荷补 `oi` / `oi_meta`（已有就跳过，幂等）。
+
+    窗口与标的**只取载荷自己的**（`chart.window` / `chart.symbol`），不另找来源。
+    """
+    if chart.get("oi"):
+        return chart
+    w = chart.get("window") or {}
+    ws, we = w.get("start_ms"), w.get("end_ms")
+    symbol = chart.get("symbol")
+    if not symbol or not isinstance(ws, int) or not isinstance(we, int) or we <= ws:
+        chart.setdefault("oi", [])
+        chart.setdefault("oi_meta", {"error": "载荷缺 symbol/window ⇒ 无法取 OI（不猜）"})
+        return chart
+    got = oi_series(symbol, exchange, market, ws, we)
+    chart["oi"] = got["points"]
+    chart["oi_meta"] = got["meta"]
+    return chart
+
+
 # ── 组装 ──────────────────────────────────────────────────────────────────
 
 def build_chart(*, symbol: str, run_dir, candles: List[dict],
                 window_start_ms: int, window_end_ms: int,
                 initial_equity: float, run_id: Optional[str] = None,
                 benchmark: Optional[dict] = None,
-                df_15m=None) -> Dict[str, Any]:
+                df_15m=None, oi: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """按**唯一契约**组装 chart 载荷（只搬运，不推算）。"""
     bm = benchmark if benchmark is not None else benchmark_from_frame(
         df_15m, initial_equity, symbol)
@@ -328,6 +439,9 @@ def build_chart(*, symbol: str, run_dir, candles: List[dict],
         "equity_curve": equity_from_run_dir(run_dir),
         "funding_events": funding_events_from_run_dir(run_dir, run_id),
         "benchmark": bm,
+        # OI 持仓量：批量脚本落盘时不带（体积大），由读接口按窗口现取（见 attach_oi）
+        "oi": (oi or {}).get("points") or [],
+        "oi_meta": (oi or {}).get("meta") or {},
         "stop_trace_source": ("ledger:trades.jsonl.stop_trace（官方 `t` 毫秒；"
                               "无后续调整时只有 1 个 init 点，不合成）"),
     }

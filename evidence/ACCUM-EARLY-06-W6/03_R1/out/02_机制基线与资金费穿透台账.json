@@ -1,0 +1,60 @@
+{
+  "task": "ACCUM-EARLY-06-W6-R1",
+  "step": "02_两套机制基线与主线追踪",
+  "generated_at_utc": "2026-10-27T01:09:42Z",
+  "pipeline_tracking": {
+    "step_1_signal_generation": {
+      "module": "策略状态机 (state_machine.py)",
+      "mother_set_events": 1178,
+      "mother_set_symbols": 48,
+      "window": "2026-06-27T08:00:00Z ~ 2026-10-26T09:00:00Z",
+      "historical_candidates_produced": 46,
+      "events_retest_unbroken": 174,
+      "w5_retest_original_7_events_result": "产生候选 0 笔（案例 1~6 跌破箱体下沿失效，案例 7 因前序占位未生成）。",
+      "discipline_statement": "严禁因原 7 事件零候选就擅自扩大测试集；零候选仅反映该组输入在当前规则下的客观工程表现，不构成扩大研究范围的授权。"
+    },
+    "step_2_simulated_order_execution": {
+      "module": "回放撮合与合约约束 (replay_calc.py / contract_limits.csv)",
+      "timing_rule": "12:00 信号确认，最早于 12:15:00 之后第一根 15m 开盘执行，禁止回填 12:00",
+      "stop_loss_rule": "初始止损 0.95；入场后新收盘 4h 最低价 × 0.95 只上移不下移；无 2R 激活限制，无 10 天强平",
+      "tested_trades": 102,
+      "filled_trades": 101,
+      "rejected_trades": 1,
+      "rejected_detail": {
+        "symbol": "CARVUSDT",
+        "caliber": "策略包_3bps",
+        "notional_compressed": 4.4436,
+        "binance_min_notional": 5.0,
+        "action": "低于交易所最小名义额合规拒单"
+      }
+    },
+    "step_3_review_and_accounting": {
+      "module": "财务结算与冷热合并资金费 (funding_events_adapter.py)",
+      "merged_funding_events": 31811,
+      "cold_archive_supplemented_events": 3755,
+      "financial_impact_reconciliation": {
+        "生效视图_5bps": {
+          "total_realized_net_old": -225.181453,
+          "total_realized_net_new": -225.840653,
+          "delta_net": -0.6592,
+          "total_funding_cost_old": -6.554309,
+          "total_funding_cost_new": -5.895109,
+          "delta_funding": 0.6592,
+          "identity_verified": true
+        },
+        "策略包_3bps": {
+          "total_realized_net_old": -89.189143,
+          "total_realized_net_new": -89.238243,
+          "delta_net": -0.0491,
+          "total_funding_cost_old": -2.721954,
+          "total_funding_cost_new": -2.672855,
+          "delta_funding": 0.0491,
+          "identity_verified": true
+        }
+      },
+      "eliminated_real_gaps_count": 6,
+      "portfolio_separation_reminder": "单事件独立回放缺少并发与排队约束，同时在仓峰值达 9 笔，伪回撤极差 478.38 USDT。组合账户表现维持【未验证】定性。"
+    }
+  },
+  "discipline_statement": "保持信号→模拟订单→复盘主线，不新建第三套混搭参数，不运行未批准新策略正式对照，不要求用户额外签署文件。"
+}

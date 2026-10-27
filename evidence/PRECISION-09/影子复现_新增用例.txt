@@ -1,0 +1,16 @@
+PRECISION-09 影子复现：新增用例是否真的抓得住缺陷
+==============================================================================
+用例                                                            正常      影子      
+test_entry_notional_reject_marks_run_invalid                  passed  failed  
+test_entry_qty_reject_marks_run_invalid                       passed  failed  
+test_entry_price_reject_marks_run_invalid                     passed  failed  
+test_strategy_cancel_does_not_invalidate_run                  passed  passed  
+test_every_precision_gate_reason_is_registered                passed  passed  
+test_all_fill_rejected_literals_are_registered                passed  passed  
+test_strategy_reasons_are_never_classified_as_execution_errorspassed  passed  
+test_mark_helper_never_writes_strategy_or_unknown_reasons     passed  passed  
+test_every_precision_reject_carries_class_and_is_traceable    passed  failed  
+test_stage_prefixes_are_byte_identical_to_pre_fix_literals    passed  passed  
+
+说明：影子只禁「写 invalid_reasons」这一条链路，不改撮合/风控/账本。
+判定：符合预期

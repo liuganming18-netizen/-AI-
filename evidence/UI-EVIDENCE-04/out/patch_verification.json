@@ -1,0 +1,149 @@
+{
+  "工单": "UI-EVIDENCE-04 / 修复有效性",
+  "检查时刻": "2026-10-23 16:18:53",
+  "原脚本": {
+    "路径": "evidence/SYSTEM-UI-03/test_system_ui_03.py",
+    "sha256": "cd18ac6115e0e22714f7a2083a89a534b2f82092855a69155e23bdb8d61a1a73",
+    "字节": 85275,
+    "字符数": 70827
+  },
+  "修复版": {
+    "路径": "evidence/UI-EVIDENCE-04/patched/test_system_ui_04.py",
+    "sha256": "2af6d33315b2bbc0afe6a464d0b921bcdb3d528fc3c795bfa3e7ede02df8c539",
+    "字节": 97377,
+    "字符数": 80786
+  },
+  "语法检查": {
+    "通过": true,
+    "错误": null
+  },
+  "逐项": [
+    {
+      "编号": "P1",
+      "修复项": "manifest 缺失静默取 {} 并谎称哈希来源",
+      "原脚本含缺陷特征": [
+        "manifest_data = json.load(open(manifest_path)) if manifest_path.exists() else {}"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "official_summary_sha256",
+        "official_sha_source"
+      ],
+      "判定": "PASS",
+      "说明": "manifest 不存在时必须记 missing，哈希来源不得标成 manifest"
+    },
+    {
+      "编号": "P2",
+      "修复项": "找不到 run 时硬编码回落固定目录",
+      "原脚本含缺陷特征": [
+        "runs_ft_replay_01/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "[P2]",
+        "raise AssertionError"
+      ],
+      "判定": "PASS",
+      "说明": "页面 run 与磁盘对不上必须 FAIL，禁止代填"
+    },
+    {
+      "编号": "P3",
+      "修复项": "字段层靠 or 链兜底、来源不明",
+      "原脚本含缺陷特征": [
+        "ts_data = summary_data.get(\"trading_summary\") or summary_data.get(\"summary_variant_a\") or {}"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "ts_layer = \"trading_summary\"",
+        "summary_field_layer",
+        "field_paths_used"
+      ],
+      "判定": "PASS",
+      "说明": "必须记录实际命中的字段层"
+    },
+    {
+      "编号": "P4",
+      "修复项": "对账表字段路径手写且恒判一致",
+      "原脚本含缺陷特征": [
+        "\"summary.json / run_id\"",
+        "\"manifest.json / files.summary.json.sha256\"",
+        "\"summary.json / trading_summary.initial_equity\""
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "_fp.get(\"run_id\")",
+        "_fp.get(\"initial_equity\")",
+        "无法比对·未验证"
+      ],
+      "判定": "PASS",
+      "说明": "字段路径取真实命中值，判定按实际比对"
+    },
+    {
+      "编号": "P5",
+      "修复项": "文件清单含自身且自身被写成空文件",
+      "原脚本含缺陷特征": [
+        "for p in sorted(EVID_DIR.glob(\"*\")):"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "_p.resolve() == inv_path.resolve()",
+        "08_清单自身哈希.json",
+        "排除自身"
+      ],
+      "判定": "PASS",
+      "说明": "清单排除自身，自身哈希单独保存"
+    },
+    {
+      "编号": "P6",
+      "修复项": "截图数量写死 24 张",
+      "原脚本含缺陷特征": [
+        "24 张高清测试截图",
+        "8 张独立 State"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "png_total",
+        "png_unique",
+        "png_dup_groups"
+      ],
+      "判定": "PASS",
+      "说明": "数量从实际文件统计，重复画面单独标出"
+    },
+    {
+      "编号": "P7",
+      "修复项": "无前后端源码/构建产物版本绑定",
+      "原脚本含缺陷特征": [],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "collect_version_binding",
+        "frontend_src",
+        "frontend_dist",
+        "test_script"
+      ],
+      "判定": "PASS",
+      "说明": "绑定前端源码/构建产物/后端源码/脚本哈希"
+    },
+    {
+      "编号": "P8",
+      "修复项": "顶栏价格硬编码兜底",
+      "原脚本含缺陷特征": [
+        "81,624",
+        "2,404"
+      ],
+      "修复版仍含缺陷特征": [],
+      "修复版含修复特征": [
+        "_btc_dom or \"未提取\"",
+        "无法比对·未验证"
+      ],
+      "判定": "PASS",
+      "说明": "DOM 取不到就写未提取，不填数字"
+    }
+  ],
+  "汇总": {
+    "PASS": 8,
+    "FAIL": 0,
+    "总数": 8
+  },
+  "总判定": "PASS",
+  "边界": "本验证只证明「脚本已按 7 项要求改对」，不证明修复版能跑通端到端。端到端需起后端，按工单在 A 隔离核验通过前不做。"
+}

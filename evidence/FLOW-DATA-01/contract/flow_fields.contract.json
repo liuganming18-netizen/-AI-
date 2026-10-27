@@ -1,0 +1,333 @@
+{
+  "contract_id": "FLOW-DATA-01",
+  "version": "1.0.0",
+  "issued_at_utc": "2026-10-18T11:30:00Z",
+  "scope": {
+    "exchange": "binance",
+    "market": "USD-M 永续（um）",
+    "instrument_whitelist": "币安加密合约标的；排除 INDEX/指数与合成标的",
+    "units_policy": "数量=基础资产（币）；金额=计价资产（USDT）；比率无量纲",
+    "time_policy": "全链路 UTC；毫秒时间戳；不做本地时区换算"
+  },
+  "global_rules": {
+    "null_not_zero": "任何缺失、断档、零分母、上游空值一律 null，禁止填 0、禁止插值、禁止 clamp、禁止裁剪到“合理区间”",
+    "denominator_zero": "分母 <= 0 时结果为 null，禁止加 epsilon（如 +1e-8）把 0 分母伪装成有效值",
+    "dedupe_key": "同一标的同一周期按时间列去重；本工程 Parquet 实测存在重复行（见 duplicate_rows）",
+    "numeric_cast": "candles 的 OHLCV 在 Parquet 中以字符串存储，必须先转数值再聚合，否则 sum() 会做字符串拼接",
+    "no_implicit_fill": "禁止 ffill/bfill 跨越断档；允许的“沿用”只能发生在实时快照层，且必须带 carried_over=true 与各自 fetched_at",
+    "rounding": "契约层不做四舍五入；展示层统一 6 位有效数字"
+  },
+  "time_alignment": {
+    "bar_availability_rule": "open_time=T 的 K 线在 close_time=T+period-1ms 才可用；信号时刻 ts 只能使用 close_time < ts 的 K 线",
+    "metrics_availability_rule": "create_time=T 的 metrics 桶覆盖 [T, T+5min)，在 T+5min 才可用；信号时刻 ts 只能使用 T+5min <= ts 的桶",
+    "metrics_publication_lag": "上游 create_time 是观测桶时间，真实发布时点未公开；本契约按“桶结束即可用”作为乐观假设（PIT 假设，非事实）",
+    "metrics_archive_lag_days": 4,
+    "metrics_archive_lag_note": "官方日档案实测最新到 T-4 天（2026-10-14 为止），实时只能走 REST（近 30 天）",
+    "stale_limit_seconds": {
+      "metrics_5m": 900,
+      "oi_5m": 900,
+      "funding": "按该标的自身结算周期 ×2（4h/8h 混合，不得写死 8h）",
+      "smart_money_snapshot": 600
+    },
+    "stale_limit_note": "超过上限即视为断档，结果置 null 并写 reason；不得用更早的值顶替后仍标“新鲜”"
+  },
+  "fields": [
+    {
+      "name": "volume",
+      "layer": "candle",
+      "source": "官方 K 线档案 open_time/volume",
+      "unit": "基础资产",
+      "formula": "原样",
+      "historical": true,
+      "pit": "close_time 后可用",
+      "notes": "1h/15m/30m/5m 等多周期；5m 档案仅覆盖 2025-10-04 起"
+    },
+    {
+      "name": "quote_volume",
+      "layer": "candle",
+      "source": "官方 K 线档案 quote_volume",
+      "unit": "USDT",
+      "formula": "原样",
+      "historical": true,
+      "pit": "close_time 后可用",
+      "notes": "校验：quote_volume/volume 应落在 [low, high] 内（实测 0 例外）"
+    },
+    {
+      "name": "taker_buy_volume",
+      "layer": "candle",
+      "source": "官方 K 线档案 taker_buy_volume",
+      "unit": "基础资产",
+      "formula": "原样",
+      "historical": true,
+      "pit": "close_time 后可用",
+      "invariant": "0 <= taker_buy_volume <= volume"
+    },
+    {
+      "name": "taker_buy_quote_volume",
+      "layer": "candle",
+      "source": "官方 K 线档案 taker_buy_quote_volume",
+      "unit": "USDT",
+      "formula": "原样",
+      "historical": true,
+      "pit": "close_time 后可用",
+      "invariant": "0 <= taker_buy_quote_volume <= quote_volume"
+    },
+    {
+      "name": "taker_sell_volume",
+      "layer": "derived",
+      "source": "volume - taker_buy_volume",
+      "unit": "基础资产",
+      "formula": "volume - taker_buy_volume",
+      "historical": true,
+      "pit": "同 taker_buy_volume",
+      "zero_denominator": "不适用（减法）"
+    },
+    {
+      "name": "taker_sell_quote_volume",
+      "layer": "derived",
+      "source": "quote_volume - taker_buy_quote_volume",
+      "unit": "USDT",
+      "formula": "quote_volume - taker_buy_quote_volume",
+      "historical": true,
+      "pit": "同 taker_buy_quote_volume"
+    },
+    {
+      "name": "taker_net_base",
+      "layer": "derived",
+      "source": "主动买量 − 主动卖量",
+      "unit": "基础资产",
+      "formula": "2 * taker_buy_volume - volume",
+      "historical": true,
+      "pit": "close_time 后可用",
+      "semantics": "区间内的主动方向净额；正=主动买占优。只表达“谁先动手”，不表达资金进出市场"
+    },
+    {
+      "name": "taker_net_quote",
+      "layer": "derived",
+      "source": "主动买额 − 主动卖额",
+      "unit": "USDT",
+      "formula": "2 * taker_buy_quote_volume - quote_volume",
+      "historical": true,
+      "pit": "close_time 后可用"
+    },
+    {
+      "name": "taker_buy_share_base",
+      "layer": "derived",
+      "source": "taker_buy_volume / volume",
+      "unit": "比率 [0,1]",
+      "formula": "taker_buy_volume / volume",
+      "historical": true,
+      "zero_denominator": "volume <= 0 -> null",
+      "notes": "与 taker_buy_share_quote 数值接近但不等价（差 = 买卖均价差）；两者不得混用"
+    },
+    {
+      "name": "taker_buy_share_quote",
+      "layer": "derived",
+      "source": "taker_buy_quote_volume / quote_volume",
+      "unit": "比率 [0,1]",
+      "formula": "taker_buy_quote_volume / quote_volume",
+      "historical": true,
+      "zero_denominator": "quote_volume <= 0 -> null",
+      "notes": "与官方 sum_taker_long_short_vol_ratio 同口径：share = r/(1+r)，r=买额/卖额"
+    },
+    {
+      "name": "cvd_base_cum",
+      "layer": "derived",
+      "source": "基础资产累计主动净额",
+      "unit": "基础资产",
+      "formula": "cumsum(taker_net_base) 自窗口起点",
+      "historical": true,
+      "window": "必须显式声明起点；跨断档即中断重开，禁止跨缺口连续累加",
+      "pit": "仅使用已收盘 K 线"
+    },
+    {
+      "name": "cvd_quote_cum",
+      "layer": "derived",
+      "source": "计价资产累计主动净额",
+      "unit": "USDT",
+      "formula": "cumsum(taker_net_quote) 自窗口起点",
+      "historical": true,
+      "window": "同 cvd_base_cum",
+      "notes": "与 cvd_base_cum 是两个量，禁止互相替代或混名"
+    },
+    {
+      "name": "cvd_quote_norm",
+      "layer": "derived",
+      "source": "cvd_quote_cum / 同窗口 quote_volume 合计",
+      "unit": "比率 [-1,1]",
+      "formula": "cvd_quote_cum / sum(quote_volume, window)",
+      "historical": true,
+      "zero_denominator": "分母 <= 0 -> null",
+      "notes": "跨币种可比的唯一形式；禁止用 base 版做跨币种比较"
+    },
+    {
+      "name": "oi_base",
+      "layer": "official_metrics",
+      "source": "sum_open_interest",
+      "unit": "基础资产（币）",
+      "formula": "原样",
+      "historical": true,
+      "pit": "桶结束后可用（见 metrics_availability_rule）",
+      "notes": "全市场总量，无多空拆分、无身份。零值观测视为缺失（见 data_defects.oi_zero_rows）"
+    },
+    {
+      "name": "oi_quote",
+      "layer": "official_metrics",
+      "source": "sum_open_interest_value",
+      "unit": "USDT 名义额",
+      "formula": "原样",
+      "historical": true,
+      "notes": "实测恒等于 oi_base × 标记价（残差 ~1e-16）；标记价与 K 线收盘价不完全相同（中位差 0.08%~0.36%，小币最大 10.4%），不得把 oi_quote/oi_base 当收盘价"
+    },
+    {
+      "name": "delta_oi_base",
+      "layer": "derived",
+      "source": "(oi_base_t − oi_base_t-w) / oi_base_t-w",
+      "unit": "比率",
+      "formula": "(oi_base_t - oi_base_t_minus_w) / oi_base_t_minus_w",
+      "historical": true,
+      "zero_denominator": "分母 <= 0 -> null（禁止 +epsilon）",
+      "notes": "唯一可用于“真实加仓/减仓”判断的 OI 变化；不含价格效应"
+    },
+    {
+      "name": "delta_oi_quote",
+      "layer": "derived",
+      "source": "(oi_quote_t − oi_quote_t-w) / oi_quote_t-w",
+      "unit": "比率",
+      "formula": "(oi_quote_t - oi_quote_t_minus_w) / oi_quote_t_minus_w",
+      "historical": true,
+      "zero_denominator": "分母 <= 0 -> null",
+      "notes": "混入价格效应，不得命名为“资金流入”。恒等式：1+Δquote = (1+Δbase)(1+Δprice)"
+    },
+    {
+      "name": "oi_implied_price",
+      "layer": "derived",
+      "source": "oi_quote / oi_base",
+      "unit": "USDT/币",
+      "formula": "sum_open_interest_value / sum_open_interest",
+      "historical": true,
+      "zero_denominator": "oi_base <= 0 -> null",
+      "notes": "仅用于口径核验（与标记价对照），不得当成交价"
+    },
+    {
+      "name": "top_position_ls_ratio",
+      "layer": "official_metrics",
+      "source": "sum_toptrader_long_short_ratio",
+      "unit": "比率（量比）",
+      "formula": "原样",
+      "historical": true,
+      "semantics": "大户（币安口径：保证金余额前 20% 账户）净多头持仓量 / 净空头持仓量",
+      "must_not_rename_to": ["聪明钱金额", "账户身份", "净流入", "多空均价"],
+      "availability_gap": "2022 年多段整块缺失（见 coverage）"
+    },
+    {
+      "name": "top_account_ls_ratio",
+      "layer": "official_metrics",
+      "source": "count_toptrader_long_short_ratio",
+      "unit": "比率（账户数比）",
+      "formula": "原样",
+      "historical": true,
+      "semantics": "大户中多头账户数 / 空头账户数",
+      "must_not_rename_to": ["持仓量比", "资金金额", "聪明钱人数"]
+    },
+    {
+      "name": "global_account_ls_ratio",
+      "layer": "official_metrics",
+      "source": "count_long_short_ratio",
+      "unit": "比率（账户数比）",
+      "formula": "原样",
+      "historical": true,
+      "semantics": "全市场持仓用户中多头账户数 / 空头账户数",
+      "must_not_rename_to": ["大户比", "持仓量比", "资金金额"]
+    },
+    {
+      "name": "taker_ls_vol_ratio",
+      "layer": "official_metrics",
+      "source": "sum_taker_long_short_vol_ratio",
+      "unit": "比率（买额/卖额）",
+      "formula": "原样；等价买入占比 = r / (1 + r)",
+      "historical": true,
+      "verified_against": "同一 5 分钟桶 K 线派生 buy额/卖额：相对误差中位 2.5e-7~1.2e-4，量级一致 ⇒ 该比值是**计价额**口径，不是币数口径",
+      "must_not_rename_to": ["主动买入量", "净流入", "CVD"]
+    },
+    {
+      "name": "funding_rate",
+      "layer": "official_funding",
+      "source": "资金费历史（funding_time/funding_rate/mark_price）",
+      "unit": "比率/期",
+      "formula": "原样",
+      "historical": true,
+      "notes": "结算周期实测 4h（391 标的）/8h（134）/1h（1），禁止写死 8h；‘当时已知’= funding_time 时刻的结算值，未来结算值不可用"
+    },
+    {
+      "name": "funding_cost",
+      "layer": "derived",
+      "source": "持仓期跨越的已结算资金费之和",
+      "unit": "USDT",
+      "formula": "sum(-side_sign * funding_rate * mark_price * qty) 逐次结算",
+      "historical": true,
+      "pit": "只用 funding_time <= t 的结算；缺 mark_price 记 gap，不得补 0"
+    },
+    {
+      "name": "smart_money_long_avg_entry_price",
+      "layer": "realtime_only",
+      "source": "bapi smart-money overview.longTradersAvgEntryPrice",
+      "unit": "USDT/币",
+      "formula": "原样",
+      "historical": false,
+      "pit": "只有本机取回时点，无上游发布时点",
+      "scope": "仅该合约的“聪明钱”队列（币安未公开成员判定规则），不是全市场、不是大户聚合",
+      "notes": "同族字段：longWhalesAvgEntryPrice / shortTradersAvgEntryPrice / shortWhalesAvgEntryPrice；加权方式未公开"
+    },
+    {
+      "name": "smart_money_cohort_positions",
+      "layer": "realtime_only",
+      "source": "bapi smart-money details/stats.longPositions / shortPositions",
+      "unit": "USDT（按标记价折算的持仓市值）",
+      "formula": "原样",
+      "historical": false,
+      "notes": "不是开仓成本额；不是 OI；不得与 sum_open_interest_value 混用"
+    },
+    {
+      "name": "smart_money_named_trader_row",
+      "layer": "realtime_only",
+      "source": "bapi smart-money details/list 中 userType=0/1 行",
+      "unit": "混合",
+      "formula": "原样",
+      "historical": false,
+      "notes": "含 topTraderId（19 位伪匿名 ID）与 traderName（昵称），是**伪匿名**身份不是真实账户；每标的最多 8 行，不构成账户范围全貌"
+    },
+    {
+      "name": "net_external_flow",
+      "layer": "unavailable",
+      "source": "无",
+      "unit": "—",
+      "formula": "—",
+      "historical": false,
+      "status": "UNAVAILABLE",
+      "notes": "币安不公开合约账户的充值/提现（法币或稳定币入金）明细。主动成交净额、CVD、OI 变化都不能代表外部资金净流入：OI 变化是“场内开平仓净额”，CVD 是“主动方向净额”，两者都不含跨市场资金转移。禁止用任一派生量冒充净流入"
+    }
+  ],
+  "duplicate_rows": {
+    "candles_15m": "222 个标的各有 2688 行重复（=28 天 ×96 根），重复行数值逐位相同，来源为 live.parquet 与年度分片重叠；按 open_time 去重即可",
+    "candles_1h": "9 个标的各 7~22 行重复，同为 live.parquet 重叠",
+    "metrics_raw_archive_2020": "2020 年早期日档案每行重复 2 次（576 行 / 288 唯一时间戳）",
+    "metrics_raw_archive_2026": "日档案行序**不按时间排序**（2026 年文件），必须先排序再算差分"
+  },
+  "data_defects": {
+    "oi_zero_rows": "官方 metrics 存在 sum_open_interest=0 且 sum_open_interest_value=0 的观测（候选标的中 142/152 个标的存在，共 16922 行；LPTUSDT 2026-09-12 21:05 为实例）。OI 不可能真为 0 ⇒ 视为缺失",
+    "top_trader_2022_gap": "2022-01-31~2022-12-14 多段整块为空（BTCUSDT 该年 87.27% 为空），全市场账户比与 taker 量比的缺口区间不同，三者不得共用一个缺失标记",
+    "parquet_string_ohlcv": "candles 的 open/high/low/close/volume/quote_volume/taker_buy_* 落盘为字符串",
+    "available_at_empty": "candles.available_at 全为空，PIT 只能由 close_time 推导"
+  },
+  "derivation_rules": {
+    "rolling_window": "窗口必须用“时间差”定义（如 ts-24h），不得用“往前数 N 根”，因为存在断档；窗口内实际根数须一并记录",
+    "partial_window": "窗口内根数不足预期 90% 时，滚动类指标置 null 并写 partial_window=true",
+    "cross_symbol": "跨币种比较只能用无量纲量（占比、归一化 CVD、比率、变化率），禁止直接比金额或币数"
+  },
+  "pit_assumption": {
+    "statement": "所有历史派生字段的时间戳只有“观测时间”（K 线 open_time / metrics create_time / funding_time），没有“发布/可获取时间”。本契约按“区间结束即可用”作为假设，该假设对 metrics 是乐观的（真实发布可能滞后），对 K 线是成立的（档案即收盘快照）。",
+    "required_disclosure": "任何使用这些字段的回测必须在报告里写明该假设；不得声称已完成严格 PIT。",
+    "realtime_only_fields": "只能实时观察、无历史序列的字段：smart_money_*（11 天本地正文、106 个标的、137 个小时桶）、net_external_flow（不可得）"
+  }
+}

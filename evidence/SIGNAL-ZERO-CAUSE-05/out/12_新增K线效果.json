@@ -1,0 +1,69 @@
+{
+ "generated_at_utc": "2026-10-25T05:02:24Z",
+ "before_file": "07_当前卡点.csv",
+ "after_file": "02_逐币归因_upto1792904399999.csv",
+ "A_actually_processed": {
+  "watermark_from_utc": "2026-10-25T03:00:00Z",
+  "watermark_to_utc": "2026-10-25T04:00:00Z",
+  "watermark_advanced": true,
+  "db_1h_max_utc": "2026-10-25T04:00:00Z",
+  "aligned_1h": true,
+  "lag_1h_bars": 0,
+  "lag_1h_max": 0,
+  "n_lag_1h_gt1": 0,
+  "cycle_count_from": 9,
+  "cycle_count_to": 604,
+  "n_samples": 105
+ },
+ "B_stage_changes": {
+  "n_state_changed": 0,
+  "n_stage_entered_changed": 0,
+  "n_last_processed_1h_differs": 526,
+  "vacuity_guard": "n_last_processed_1h_differs 必须 > 0，否则两个文件是同一截止，「0 变化」等于什么都没比",
+  "changes": []
+ },
+ "C_candidate_result": {
+  "prod_funnel_since_start": {
+   "BOX": 0,
+   "SWEEP": 0,
+   "RETEST": 0,
+   "CANDIDATE": 0,
+   "VOLUME_REJECTED": 0,
+   "OI_UNAVAILABLE": 0,
+   "OI_REJECTED": 0,
+   "INVALIDATED": 0,
+   "EXPIRED": 0,
+   "MISSED_WITHOUT_RETEST": 0
+  },
+  "prod_new_candidates": 0,
+  "prod_orders_routed_total": 0,
+  "prod_open_positions": 0,
+  "offline_state_before": {
+   "BOX": 320,
+   "IDLE": 167,
+   "RETEST": 34,
+   "SWEEP": 5
+  },
+  "offline_state_after": {
+   "BOX": 320,
+   "IDLE": 167,
+   "RETEST": 34,
+   "SWEEP": 5
+  },
+  "n_symbols_compared": 526,
+  "n_state_changed": 0,
+  "changes": []
+ },
+ "D_ledger_and_real_trading": {
+  "checked_at_utc": "2026-10-25T05:02:24Z",
+  "ledger_sha256_now": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+  "ledger_sha256_after_restart": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+  "ledger_unchanged": true
+ },
+ "verdict": {
+  "processed": true,
+  "no_new_candidate_in_prod": true,
+  "real_trading_still_off": true
+ },
+ "note": "B 段是离线复算（同行情、两个相邻截止），只用来解释「这根小时线改变了什么」；C 段生产自报的 since_start 才是「实际有没有出新候选」的判据。两者口径不同，不能互相替代。"
+}

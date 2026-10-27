@@ -1,0 +1,517 @@
+{
+ "段": {
+  "S0 读取时点指纹": {
+   "读取时刻": "2026-10-22T20:37:16+08:00",
+   "paper_engine.py": {
+    "sha256": "1a300ea8dc81293a",
+    "mtime": "2026-10-22T20:23:36+08:00"
+   },
+   "live_api.py": {
+    "sha256": "febe7180e4443004",
+    "mtime": "2026-10-22T20:24:51+08:00"
+   },
+   "live_store.py": {
+    "sha256": "bf6a08ef71a6390f",
+    "mtime": "2026-10-22T20:22:09+08:00"
+   },
+   "adapter.py": {
+    "sha256": "4a27bdd8c976df99",
+    "mtime": "2026-10-19T01:50:52+08:00"
+   },
+   "live_worker.py": {
+    "sha256": "bd1d44c6867ecb4e",
+    "mtime": "2026-10-16T17:39:41+08:00"
+   },
+   "SignalListPanel.tsx": {
+    "sha256": "2737c4451a13c995",
+    "mtime": "2026-10-22T20:26:34+08:00"
+   },
+   "StrategyManagementView.tsx": {
+    "sha256": "a909bdcb4d6325b7",
+    "mtime": "2026-10-22T20:26:21+08:00"
+   }
+  },
+  "P0-1 交易因果": {
+   "写入口读请求体时钟的行": [],
+   "服务端挂钟来源": [
+    {
+     "行": 919,
+     "内容": "# 为准（挂钟 L.now_ms()），外部传入的 requested_at、now_ms 一律忽略，绝不得改变成交下限；"
+    },
+    {
+     "行": 922,
+     "内容": "req = L.now_ms()"
+    },
+    {
+     "行": 988,
+     "内容": "now = L.now_ms()"
+    },
+    {
+     "行": 1030,
+     "内容": "now = L.now_ms()"
+    },
+    {
+     "行": 1114,
+     "内容": "now = _time.time()"
+    }
+   ],
+   "MAX_FILL_LAG_MS 定义": [
+    {
+     "行": 126,
+     "内容": "MAX_FILL_LAG_MS = 3600_000"
+    }
+   ],
+   "order_request_ms 构成": [
+    {
+     "行": 105,
+     "内容": "#   ② 最早可成交时刻 `earliest_fill_ms = order_request_ms + 已批准延迟(15m)`。"
+    },
+    {
+     "行": 582,
+     "内容": "2026-10-14 09 契约：`order_request_ms = max(信号事件/可用时刻, **真实首次请求**)`；"
+    },
+    {
+     "行": 839,
+     "内容": "order_request_ms = max(eco + [first_req, attempt_ms])"
+    },
+    {
+     "行": 841,
+     "内容": "earliest_fill_ms = order_request_ms + delay_ms"
+    },
+    {
+     "行": 851,
+     "内容": "requested_at=req_ms, earliest_fill_ms=earliest_fill_ms,"
+    }
+   ],
+   "真实挂钟变量（real_wall / attempt_ms）": [
+    {
+     "行": 798,
+     "内容": "real_wall_ms = L.now_ms()"
+    },
+    {
+     "行": 800,
+     "内容": "attempt_ms = int(now_ms) if (is_replay and now_ms is not None) else real_wall_ms"
+    }
+   ]
+  },
+  "P0-2 隔离": {
+   "生产 live 库路径": "框架/backend/live/live_signals.sqlite3",
+   "live_signal 总行数": 3,
+   "合成测试信号": [
+    {
+     "signal_uid": "sig_closeloop_btc_1792668513",
+     "symbol": "BTCUSDT",
+     "strategy_version": "WX_EVENT_TREND_V0_1",
+     "event_time": 1792665900000,
+     "first_seen_at": 1792668510021,
+     "executable_state": "enterable"
+    },
+    {
+     "signal_uid": "sig_closeloop_btc_1792668586",
+     "symbol": "BTCUSDT",
+     "strategy_version": "WX_EVENT_TREND_V0_1",
+     "event_time": 1792665900000,
+     "first_seen_at": 1792668583794,
+     "executable_state": "enterable"
+    },
+    {
+     "signal_uid": "sig_closeloop_btc_1792668605",
+     "symbol": "BTCUSDT",
+     "strategy_version": "WX_EVENT_TREND_V0_1",
+     "event_time": 1792666800000,
+     "first_seen_at": 1792668603581,
+     "executable_state": "enterable"
+    }
+   ],
+   "生产闸门现状": {
+    "内容": {
+     "allow_new_entries": false,
+     "reason": "system_closeloop_02_paused_for_audit",
+     "gate_reason": "new_entry_blocked_pending_closure_review",
+     "set_by": "system_closeloop_02_safety_guard",
+     "since_ms": 1792671530204,
+     "scope": "server_side_new_entry_only",
+     "note": "SYSTEM-CLOSELOOP-02 整改保护：日常实例暂停新模拟开仓，保持行情采集、持仓管理和历史对账。"
+    },
+    "mtime": "2026-10-22T20:18:50+08:00"
+   },
+   "闸门是否仍为开启态": false
+  },
+  "P1-A10": {
+   "paper_order_post 定义与实现": [
+    {
+     "行": 822,
+     "内容": "def paper_order_post(payload: dict) -> tuple[dict, int]:"
+    },
+    {
+     "行": 824,
+     "内容": "return _paper_order_post_legacy(payload)"
+    }
+   ],
+   "legacy 函数的自我声明": [
+    {
+     "行": 609,
+     "内容": "\"\"\"（退役保留，只读参考）旧四臂纸面账户读取实现。**不再挂任何路由。**\"\"\""
+    },
+    {
+     "行": 673,
+     "内容": "\"\"\"（退役保留，只读参考）旧四臂纸面持仓读取实现。**不再挂任何路由。**\"\"\""
+    },
+    {
+     "行": 804,
+     "内容": "\"\"\"（退役保留，只读参考）旧资金费对账实现。**不再挂任何路由。**\"\"\""
+    },
+    {
+     "行": 903,
+     "内容": "\"\"\"（退役保留，只读参考）旧纸面开/平仓写入口实现。**不再挂任何路由。**\"\"\""
+    },
+    {
+     "行": 1274,
+     "内容": "\"\"\"（退役保留，只读参考）旧 3a–3d 回测复盘实现。**不再挂任何路由。**\"\"\""
+    }
+   ],
+   "只读侧 not_connected 声明": [
+    {
+     "行": 374,
+     "内容": "quality={\"status\": \"not_connected\", \"age_seconds\": None,"
+    },
+    {
+     "行": 534,
+     "内容": "quality={\"status\": \"not_connected\", \"age_seconds\": None,"
+    },
+    {
+     "行": 709,
+     "内容": "def _not_connected(mode: str, *, note: str, ident: dict | None = None) -> dict:"
+    },
+    {
+     "行": 710,
+     "内容": "\"\"\"Paper / Live **未接新共享核心**期间的统一 `NOT_CONNECTED` 响应（fail-closed）。"
+    },
+    {
+     "行": 717,
+     "内容": "quality={\"status\": \"not_connected\", \"age_seconds\": None,"
+    }
+   ]
+  },
+  "P1-L4 止损轨迹": {
+   "paper_stop_history 表定义": [
+    {
+     "行": 382,
+     "内容": "CREATE TABLE IF NOT EXISTS paper_stop_history("
+    }
+   ],
+   "开仓写初始止损": [
+    {
+     "行": 973,
+     "内容": "\"INSERT OR IGNORE INTO paper_stop_history(account_id,position_id,old_stop,new_stop,reason,\""
+    },
+    {
+     "行": 1834,
+     "内容": "\"INSERT OR IGNORE INTO paper_stop_history(\""
+    }
+   ],
+   "record_stop_update 的调用点": [],
+   "paper_position.stop_price 的 UPDATE 点": [
+    {
+     "文件": "框架/backend/paper_engine.py",
+     "行": 1832,
+     "内容": "con.execute(\"UPDATE paper_position SET stop_price=? WHERE position_id=?\", (new_stop, position_id))"
+    }
+   ],
+   "声明的止损口径": [
+    {
+     "行": 19,
+     "内容": "- 固定止损 `stops.uniform = 入场价 − 3×信号 ATR`；`ROI/trailing=off`；"
+    },
+    {
+     "行": 20,
+     "内容": "- `gap_at_stop = worse_open_with_adverse_slippage`；`max_holding_hours=720`；"
+    },
+    {
+     "行": 64,
+     "内容": "def expiry_exit_ms(entry_ts_ms, max_holding_hours):"
+    },
+    {
+     "行": 65,
+     "内容": "return int(entry_ts_ms) + int(max_holding_hours) * 3600_000"
+    },
+    {
+     "行": 190,
+     "内容": "\"short_enabled\": False, \"max_holding_hours\": 720,"
+    },
+    {
+     "行": 248,
+     "内容": "if \"max_holding_hours\" in st:"
+    },
+    {
+     "行": 249,
+     "内容": "p[\"max_holding_hours\"] = st[\"max_holding_hours\"]"
+    },
+    {
+     "行": 250,
+     "内容": "# 固定止损倍数：冻结 `stops.uniform` = `actual_entry_minus_3_signal_ATR_fixed`"
+    },
+    {
+     "行": 753,
+     "内容": "# ── 模式校验 + 结构低点必需性（缺结构低点**不得**退回固定止损）──────────────"
+    },
+    {
+     "行": 957,
+     "内容": "# ② 资金费计费窗 `(entry_ts, exit_ts]` 起点；③ `max_holding_hours=720` 的计时起点。"
+    },
+    {
+     "行": 1591,
+     "内容": "return EB.expiry_exit_ms(int(entry_ts_ms), int(approved_params()[\"max_holding_hours\"]))"
+    },
+    {
+     "行": 1593,
+     "内容": "due = int(entry_ts_ms) + int(approved_params()[\"max_holding_hours\"]) * H"
+    }
+   ]
+  },
+  "P1-A20 闸门隔离": {
+   "GATE_FILE 定义": [
+    {
+     "行": 143,
+     "内容": "GATE_FILE = Path(os.environ.get(\"PAPER_GATE_FILE\") or (Path(__file__).resolve().parent / \"live\" / \"paper_new_entry_gate.json\")).resolve()"
+    }
+   ],
+   "环境变量出口": [
+    {
+     "行": 143,
+     "内容": "GATE_FILE = Path(os.environ.get(\"PAPER_GATE_FILE\") or (Path(__file__).resolve().parent / \"live\" / \"paper_new_entry_gate.json\")).resolve()"
+    },
+    {
+     "行": 736,
+     "内容": "if os.environ.get(\"PAPER_GATE_STRICT\", \"0\") == \"1\" and _RET is not None and _RET.is_retired(arm):"
+    }
+   ]
+  },
+  "P2-C2": {
+   "校验顺序": {
+    "position_not_found 行": 1360,
+    "no_closed_15m_for_exit 行": 1374,
+    "先查仓位": true
+   }
+  },
+  "P2-X3b 信号标识": {
+   "SignalListPanel 里是否渲染 signal_id": [
+    {
+     "行": 29,
+     "内容": "* 服务端账本未平仓持仓（用于按 `signal_uid` 关联「实际成交」）。"
+    },
+    {
+     "行": 227,
+     "内容": "* 账本联动索引：`signal_uid → 持仓 / 挂单`（2026-10-15 任务四）。"
+    },
+    {
+     "行": 385,
+     "内容": "*   ③ 计划下单：服务端登记的**未成交挂单**（按 `signal_uid` 关联；无 ⇒ 未登记）"
+    },
+    {
+     "行": 386,
+     "内容": "*   ④ 实际成交：服务端账本**已成交持仓**（按 `signal_uid` 关联；无 ⇒ 未成交）"
+    },
+    {
+     "行": 601,
+     "内容": "{/* 可复制 signal_id 标识行（SYSTEM-CLOSELOOP-02 X3b 修复） */}"
+    },
+    {
+     "行": 613,
+     "内容": "title=\"复制完整 signal_id\""
+    }
+   ]
+  },
+  "P2-X11 页签空壳": {
+   "activeTab 使用点": [
+    [
+     30,
+     "const [activeTab, setActiveTab] = useState<'rules' | 'deps' | 'versions'>('rules');"
+    ],
+    [
+     104,
+     "activeTab === 'rules'"
+    ],
+    [
+     115,
+     "activeTab === 'deps'"
+    ],
+    [
+     126,
+     "activeTab === 'versions'"
+    ],
+    [
+     137,
+     "当前处于：{activeTab === 'rules' ? '规则定义与计算口径' : activeTab === 'deps' ? '多周期数据流与质量协议' : '生产候选 vs 历史归档对比'}"
+    ],
+    [
+     165,
+     "{/* 3. 主体内容：根据 activeTab 渲染完全独立的内容分支 */}"
+    ],
+    [
+     166,
+     "{activeTab === 'rules' && ("
+    ],
+    [
+     300,
+     "{activeTab === 'deps' && ("
+    ],
+    [
+     378,
+     "{activeTab === 'versions' && ("
+    ]
+   ],
+   "activeTab 是否只参与样式": false
+  },
+  "执行身份": {
+   "adapter 注册的写路由": [
+    {
+     "行": 3663,
+     "内容": "· `POST /api/v1/paper/orders` → 服务端**纸面账本**开/平仓（`paper_engine`），"
+    },
+    {
+     "行": 3690,
+     "内容": "elif parsed.path == \"/api/v1/paper/orders\":"
+    },
+    {
+     "行": 3696,
+     "内容": "elif parsed.path in (\"/api/v1/paper/control\", \"/api/v1/paper/toggle_gate\"):"
+    },
+    {
+     "行": 3702,
+     "内容": "elif parsed.path == \"/api/v1/signals/clear\":"
+    }
+   ],
+   "MODEL_VERSION / 模型声明": [
+    {
+     "行": 80,
+     "内容": "MODEL_VERSION = \"paper_exec_v1_derived_from_effective_view_20261013\""
+    },
+    {
+     "行": 82,
+     "内容": "LEDGER_MODEL_VERSION = \"paper_exec_v1_legacy_retired_in_work04b\""
+    }
+   ],
+   "approved_params 来源": [
+    {
+     "行": 12,
+     "内容": "· **成交模型直接由已批准参数视图推导**（`10_研究参数生效视图_v2_2_user5000_shared.json`"
+    },
+    {
+     "行": 174,
+     "内容": "\"10_研究参数生效视图_v2_2_user5000_shared.json\")"
+    },
+    {
+     "行": 180,
+     "内容": "# 依据：`10_研究参数生效视图_v2_2_user5000_shared.json`（spec"
+    },
+    {
+     "行": 213,
+     "内容": "def approved_params() -> dict:"
+    },
+    {
+     "行": 219,
+     "内容": "· 冻结视图 `10_研究参数生效视图_v2_2_user5000_shared.json` 明列"
+    }
+   ],
+   "旧执行路径是否仍可达": [
+    {
+     "行": 44,
+     "内容": "class _RetiredExecBridgeStub:"
+    },
+    {
+     "行": 45,
+     "内容": "CORE_AVAILABLE = False"
+    },
+    {
+     "行": 70,
+     "内容": "EB = _RetiredExecBridgeStub()                 # WORK-04B: exec_bridge 已退役，以只读安全存根提供降级"
+    },
+    {
+     "行": 202,
+     "内容": "if EB and getattr(EB, \"CORE_AVAILABLE\", False):"
+    },
+    {
+     "行": 284,
+     "内容": "if not (EB and getattr(EB, \"CORE_AVAILABLE\", False)):"
+    }
+   ]
+  }
+ },
+ "判据": [
+  {
+   "段": "P0-1 交易因果",
+   "项": "写入口读请求体时钟的行",
+   "判定": "已修",
+   "说明": "只要还有 payload.get('requested_at'|'now_ms')，调用方就能注入成交时钟"
+  },
+  {
+   "段": "P0-2 隔离",
+   "项": "合成测试信号",
+   "判定": "未清（待用户批准清理范围）",
+   "说明": "工单要求：不删除合成记录、不替用户批准清理范围 ⇒ 本轮只记录，不处置"
+  },
+  {
+   "段": "P0-2 隔离",
+   "项": "闸门是否仍为开启态",
+   "判定": "通过",
+   "说明": "验收未通过前 allow_new_entries 应为 false"
+  },
+  {
+   "段": "P1-A10",
+   "项": "paper_order_post 定义与实现",
+   "判定": "未修",
+   "说明": "docstring 说『已接通新共享核心』却 return legacy ⇒ 三句自相矛盾仍在"
+  },
+  {
+   "段": "P1-L4 止损轨迹",
+   "项": "paper_stop_history 表定义",
+   "判定": "已建表",
+   "说明": "表已建（live_store.py）"
+  },
+  {
+   "段": "P1-L4 止损轨迹",
+   "项": "record_stop_update 的调用点",
+   "判定": "未修",
+   "说明": "函数定义了但全后端零调用 ⇒ 跟踪上移永远不会落盘"
+  },
+  {
+   "段": "P1-A20 闸门隔离",
+   "项": "GATE_FILE 定义",
+   "判定": "已修",
+   "说明": "有 os.environ.get 出口才能把隔离实例的闸门指到 /tmp"
+  },
+  {
+   "段": "P2-C2",
+   "项": "校验顺序",
+   "判定": "已修",
+   "说明": "不存在的仓位必须先返回 position_not_found，不能被行情缺失抢先"
+  },
+  {
+   "段": "P2-X3b 信号标识",
+   "项": "SignalListPanel 里是否渲染 signal_id",
+   "判定": "已修",
+   "说明": "页面必须能显示可对账的 signal_id"
+  },
+  {
+   "段": "P2-X11 页签空壳",
+   "项": "activeTab 是否只参与样式",
+   "判定": "已修",
+   "说明": "只参与 className ⇒ 切页签只改高亮，不改内容"
+  }
+ ],
+ "读取时点指纹_汇总": {
+  "框架/backend/paper_engine.py": "1a300ea8dc81293a4433c05876b51812e8a1d18c9fad11ed55e0a27b79a4e431",
+  "框架/backend/live_api.py": "febe7180e4443004a6c3873000c14b18091da74e5f5176d2eeef50bc4874a7fb",
+  "框架/backend/live_store.py": "bf6a08ef71a6390f3d20adb34d0136f24b3b11293921496f0411d6b2dd5fb104",
+  "框架/backend/adapter.py": "4a27bdd8c976df993468f4d3dd649135b37d4c553610b4da610eb82880e88f53",
+  "框架/backend/live_worker.py": "bd1d44c6867ecb4efbc4c455610d28cd4febb28bdb94ed5c5a454f275944c903"
+ },
+ "判定统计": {
+  "已修": 5,
+  "未清（待用户批准清理范围）": 1,
+  "通过": 1,
+  "未修": 2,
+  "已建表": 1
+ }
+}

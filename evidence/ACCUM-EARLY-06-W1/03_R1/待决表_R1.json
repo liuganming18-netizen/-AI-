@@ -1,0 +1,528 @@
+{
+  "schema": "accum-early-06-w1-r1/pending-table/v1",
+  "order": "ACCUM-EARLY-06-W1-R1（工单 D 第 3/4 条：去重 + 三类标注）",
+  "generated_at_utc": "2026-10-27T01:20:00Z",
+  "supersedes_nothing": "本表不删除、不改写 06-02 的 12 问；它只做三件事：去重（21 项，一项一决策）、分类（P/E/G）、标注证据等级（E1/E2/E3）。旧表原样保留在 ../02/。",
+  "classes": {
+    "P": {
+      "name": "参数待决",
+      "definition": "需要用户（或获授权的人）给出取值；给不出来就无法从 fixture 转 approved。",
+      "decision_owner": "用户",
+      "can_proceed_in_isolation": false,
+      "note": "本表只列候选与来源，不填代选值，不新增审批表。"
+    },
+    "E": {
+      "name": "证据缺口",
+      "definition": "缺的是证据（原始用户消息、可得性时间、文档定义），不是参数值；补证据或由上游澄清才能继续。",
+      "decision_owner": "补证据 / 上游澄清（用户拍板也不解决问题）",
+      "can_proceed_in_isolation": "仅限不依赖该证据的部分",
+      "note": "不得由执行方替用户「补一个定义」再当成已定。"
+    },
+    "G": {
+      "name": "明确工程问题",
+      "definition": "代码行为与已有文本依据或已确认语义不一致，可在隔离测试下修，不需要新的参数批准。",
+      "decision_owner": "主代理排期（本单不修）",
+      "can_proceed_in_isolation": true,
+      "note": "修它不改变任何未批准参数；修完仍不能说策略有效。"
+    }
+  },
+  "items": [
+    {
+      "id": "P-01",
+      "class": "P",
+      "q": "Q1",
+      "title": "扫低对象与扫低窗口",
+      "old_ids": [
+        "Q1",
+        "SW-05",
+        "SW-06"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「扫低」原话（0 命中）；本轮未取证原始消息。",
+      "must_not_write": "不得写「用户要求扫箱体下沿」或「用户已选 A/B」。"
+    },
+    {
+      "id": "P-02",
+      "class": "P",
+      "q": "Q2",
+      "title": "局部压制位定义与合格间距",
+      "old_ids": [
+        "Q2"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「压制」原话（0 命中）。",
+      "must_not_write": "不得把 `local_resistance.timeframe=1h` 写成用户已定（C-01/E-01）。"
+    },
+    {
+      "id": "P-03",
+      "class": "P",
+      "q": "Q3",
+      "title": "承接与卖压：倍率、基准、是否硬门槛",
+      "old_ids": [
+        "Q3",
+        "AB-03",
+        "AB-04",
+        "AB-05",
+        "AB-06"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "倍率数值无原话；「作硬门槛」受决策:33「新增门槛」类级否定覆盖（E2 类级，非逐项）。",
+      "must_not_write": "不得写「承接 1.0 已定」；不得把 1.2 倍的历史 R 翻转当定参依据。"
+    },
+    {
+      "id": "P-04",
+      "class": "P",
+      "q": "Q4",
+      "title": "确认方式、失效根数、观察期、盘中破位",
+      "old_ids": [
+        "Q4",
+        "FX-10"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「失效」「观察期」原话（均 0 命中）；「提前退出」受决策:33 类级约束。",
+      "must_not_write": "不得把 336h / 2 根 / 0.5A 写成已定。"
+    },
+    {
+      "id": "P-05",
+      "class": "P",
+      "q": "Q5",
+      "title": "甲/乙/丙三组是否并行、回抽带与期限",
+      "old_ids": [
+        "Q5"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无三组相关原话。",
+      "must_not_write": "不得写「用户同意并行」。"
+    },
+    {
+      "id": "P-06",
+      "class": "P",
+      "q": "Q6",
+      "title": "风控口径：本金/仓位数/单笔/单名/总风险",
+      "old_ids": [
+        "Q6",
+        "FX-07",
+        "C-08"
+      ],
+      "approval_evidence": "E2",
+      "approval_note": "用户明确未批准：决策:32「3／10 冲突未查清前不得当成用户批准，不得推定新 8 仓」。",
+      "must_not_write": "不得把引擎现状 5000/10 仓写成已批准；也不得写成「用户已选定策略包」。"
+    },
+    {
+      "id": "P-07",
+      "class": "P",
+      "q": "Q7",
+      "title": "摩擦成本：滑点 3/5bps、手续费 5bps",
+      "old_ids": [
+        "Q7",
+        "FX-04",
+        "FX-06",
+        "C-07",
+        "C-08"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「滑点」「手续费」原话（均 0 命中）；两套文件一致 ≠ 批准。",
+      "must_not_write": "不得写「手续费 5bps 已批准」；改费率须改代码（无配置字段）。"
+    },
+    {
+      "id": "P-08",
+      "class": "P",
+      "q": "Q8",
+      "title": "参与率上限与超限处理",
+      "old_ids": [
+        "Q8",
+        "FX-08",
+        "C-08"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「参与率」原话（0 命中）。",
+      "must_not_write": "不得写「谁都没批过」；正确写法是「统一记录未载·本轮未取证」。"
+    },
+    {
+      "id": "P-09",
+      "class": "P",
+      "q": "Q9",
+      "title": "重复候选上限与冷却",
+      "old_ids": [
+        "Q9",
+        "FX-05"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「冷却」「24 小时」原话（均 0 命中）；本轮总单第 4 条明写 24h 是建议沿用值。",
+      "must_not_write": "不得把 24 小时写成规定；不得代选 24h 或 0。",
+      "current_state": "fixture `cooldown_hours=0`，代码记 `cooldown_not_applied`；24h 未生效。"
+    },
+    {
+      "id": "P-10",
+      "class": "P",
+      "q": "Q10",
+      "title": "跳空成交模型与入场跳空/偏离上限",
+      "old_ids": [
+        "Q10",
+        "FX-09"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「跳空」原话（0 命中）。",
+      "must_not_write": "不得把 fixture 的 `stop_price` 写成已定。"
+    },
+    {
+      "id": "P-11",
+      "class": "P",
+      "q": "Q11",
+      "title": "资金费结算与退出同刻的先后",
+      "old_ids": [
+        "Q11"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「资金费」原话（0 命中）。",
+      "fields_override": [],
+      "must_not_write": "不得写「先结算后退出已是用户规则」；本项 49 个配置字段里没有任何对应字段。"
+    },
+    {
+      "id": "P-12",
+      "class": "P",
+      "q": "Q12",
+      "title": "OI 在入场门槛中的角色",
+      "old_ids": [
+        "Q12"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录无「OI」原话；决策:20 有「不要求每个指标都成为开仓硬门槛」的相关表述，但不是对 OI 角色的决定。",
+      "must_not_write": "不得写「用户要求 OI 作硬门槛」。"
+    },
+    {
+      "id": "E-01",
+      "class": "E",
+      "title": "1h 确认的来源归因（谁把它标成「用户已确认」）",
+      "old_ids": [
+        "C-01",
+        "FX-01"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录关键词「1h」0 命中 ⇒ 04-A/05-A-R1 的「用户已确认」缺依据。**撤销的是标注资格，不是 1h 这个行为**：1h 继续作为沿用值执行。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md",
+          "line": 99,
+          "must_contain": "已确认：1h 确认"
+        },
+        {
+          "file": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+          "line": 21,
+          "must_contain": "timeframe_event"
+        }
+      ],
+      "evidence_action": "拿到原始消息后回改 04-A/05-A-R1 的标注；拿不到就永久标「归因未证实」。",
+      "must_not_write": "不得写「用户已确认 1h」，也不得写「1h 已被用户否决」。"
+    },
+    {
+      "id": "E-02",
+      "class": "E",
+      "title": "承接门槛不满足时停在哪一步（ARMED vs SWEEP）",
+      "old_ids": [
+        "C-02",
+        "SW-03"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "两处文本互斥，且都不是用户原话；属文档口径冲突，不是用户没批。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-04-A/03_决策表.md",
+          "line": 28,
+          "must_contain": "ARMED"
+        },
+        {
+          "file": "evidence/ACCUM-EARLY-05-E-R1/README.md",
+          "line": 188,
+          "must_contain": "SWEEP"
+        }
+      ],
+      "evidence_action": "由上游（04-A 作者）确认哪一处是笔误；本窗不代选。",
+      "must_not_write": "不得写「代码与方案文本一致」。"
+    },
+    {
+      "id": "E-03",
+      "class": "E",
+      "title": "multi_bar 时扫低根取哪一根（原文无定义）",
+      "old_ids": [
+        "C-03",
+        "SW-06"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "没有任何文档给出该定义 ⇒ 不是「用户没批」，而是「没有候选定义可批」。代码按窗口最低价取，并自标 `multi_bar_scope_unverified`。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md",
+          "line": 128,
+          "must_contain": "single_bar"
+        },
+        {
+          "file": "框架/backend/accum_early_entry.py",
+          "line": 1030,
+          "must_contain": "multi_bar_scope_unverified"
+        }
+      ],
+      "evidence_action": "要补的是「定义」这份证据，不是「批准」这个动作。",
+      "must_not_write": "不得把 multi_bar 档计入「时序已验证」。"
+    },
+    {
+      "id": "E-04",
+      "class": "E",
+      "title": "原始用户消息未取证（本单所有「未找到」的总限定）",
+      "old_ids": [],
+      "approval_evidence": "E3",
+      "approval_note": "统一记录本身是 2026-10-26 的二手整理稿；本轮未读取主聊天 `01a17396-e343-7202-908d-d01292e46af7` 原文。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-06-W1/01/规则来源矩阵.md",
+          "line": 57,
+          "must_contain": "没有取得原始用户消息"
+        }
+      ],
+      "evidence_action": "取原始消息 → 逐项回填；在此之前所有 E3 结论只能写「本轮未找到」。",
+      "must_not_write": "不得把 E3 写成「用户否决」。"
+    },
+    {
+      "id": "E-05",
+      "class": "E",
+      "title": "05-A-R1 附件表总览与逐行状态自相矛盾",
+      "old_ids": [],
+      "approval_evidence": "E3",
+      "approval_note": "总览写 4/30/6/9，逐行合计 2/34/5/4；差 2/4/1/5。这是文档计数缺陷，不是参数问题。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md",
+          "line": 11,
+          "must_contain": "4 项"
+        }
+      ],
+      "evidence_action": "由 05-A-R1 作者重算并统一；本窗只登记差异，不改上游。",
+      "must_not_write": "不得引用总览数字作为「4 项已定」的依据。"
+    },
+    {
+      "id": "E-06",
+      "class": "E",
+      "title": "冷档 `available_at` 缺失 ⇒ 承接/事件的「当时可得」未证明",
+      "old_ids": [],
+      "approval_evidence": "E3",
+      "approval_note": "冷档没有 `available_at` 列（不是填充率 0）；因此只能声明「计算不超前」，不能声明「当时拿得到」。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-06-W1/01/规则来源矩阵.md",
+          "line": 197,
+          "must_contain": "填充率"
+        }
+      ],
+      "evidence_action": "要补的是可得性证据（采集时间戳），不是用户批准。",
+      "must_not_write": "不得写「PIT 已通过」。"
+    },
+    {
+      "id": "G-01",
+      "class": "G",
+      "title": "局部压制位窗口传了确认根而不是扫低根",
+      "old_ids": [
+        "C-04",
+        "SW-07"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "有方案文本依据（04-A/README:52「扫低根之前 48 根」），代码传确认根 ⇒ 明确缺陷，不需要新批准。",
+      "refs": [
+        {
+          "file": "evidence/ACCUM-EARLY-04-A/README.md",
+          "line": 52,
+          "must_contain": "48 根"
+        },
+        {
+          "file": "框架/backend/accum_early_entry.py",
+          "line": 1089,
+          "must_contain": "_resistance"
+        }
+      ],
+      "isolation_testable": true,
+      "evidence_action": "主代理排期；修前修后要用「扫低根相对 R vs 确认根相对 R」两个数作对照（06-W2 §8 已有 103.9 / 105.0）。",
+      "must_not_write": "不得把 06-03 的承接修正算成修好了本项。"
+    },
+    {
+      "id": "G-02",
+      "class": "G",
+      "title": "止损生效时刻两套公式（研究 `(c4//15m+1)*15m` vs 生产 `max(挂钟, c4)`）",
+      "old_ids": [
+        "C-05",
+        "TS-04"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "用户原话只覆盖「确认→成交 12:15」与「不追溯」；4h 收盘→止损生效的公式是实现选择。本项是工程问题，不是新参数。",
+      "refs": [
+        {
+          "file": "框架/backend/accum_early_entry.py",
+          "line": 1803,
+          "must_contain": "c4 // M15 + 1"
+        },
+        {
+          "file": "框架/backend/paper_engine.py",
+          "line": 2583,
+          "must_contain": "max(dec_ms, ref_close_ms)"
+        }
+      ],
+      "isolation_testable": true,
+      "evidence_action": "影响范围与实测见 out/03_effective_time.json；是否改由主代理判定。",
+      "must_not_write": "不得写「全链同一生效口径」；也不得因此改动已确认的止损幅度。"
+    },
+    {
+      "id": "G-03",
+      "class": "G",
+      "title": "`check_fixed_rules` 9 行里 5 行恒真（自证）",
+      "old_ids": [
+        "C-06",
+        "FX-11"
+      ],
+      "approval_evidence": "E3",
+      "approval_note": "这不是参数，是验收脚本的自证缺陷；不影响「不设 2R / 不设 10 天」这两条用户决定本身。",
+      "refs": [
+        {
+          "file": "框架/backend/accum_early_entry.py",
+          "line": 125,
+          "must_contain": "trailing_trigger_r"
+        }
+      ],
+      "isolation_testable": true,
+      "evidence_action": "可用负例验证：把 expected 改成 0.04 必须失败；改不动说明仍是恒真。",
+      "must_not_write": "不得写「9 项已逐项对撞通过」。"
+    }
+  ],
+  "not_asked": [
+    {
+      "id": "N-01",
+      "item": "初始止损 = 实际成交价 × 95%",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 25,
+          "must_contain": "实际成交价 × 95%"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "初始止损为实际成交价×95%"
+        }
+      ]
+    },
+    {
+      "id": "N-02",
+      "item": "跟踪候选止损 = 新收盘 4h 最低价 × 95%",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 26,
+          "must_contain": "候选止损＝该根最低价 × 95%"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "新收盘4h线最低价×95%只上移"
+        }
+      ]
+    },
+    {
+      "id": "N-03",
+      "item": "实际止损取初始/此前/本次候选三者最高，只上移不下移",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 26,
+          "must_contain": "只上移、不下移"
+        }
+      ]
+    },
+    {
+      "id": "N-04",
+      "item": "不得用新止损追溯此前行情",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不得用新止损追溯此前行情"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "不得追溯生效"
+        }
+      ]
+    },
+    {
+      "id": "N-05",
+      "item": "入场当根 4h 线在入场后收盘可用于未来止损",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 28,
+          "must_contain": "可以用于未来止损"
+        }
+      ]
+    },
+    {
+      "id": "N-06",
+      "item": "不设「盈利到初始风险两倍」才启动跟踪（取消 2R 激活）",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不设“盈利到初始风险两倍才启动跟踪”"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "不设2R激活或10天强平"
+        }
+      ]
+    },
+    {
+      "id": "N-07",
+      "item": "不设持仓 10 天自动平仓",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不设持仓 10 天自动平仓"
+        }
+      ]
+    },
+    {
+      "id": "N-08",
+      "item": "执行周期 15m；确认于 12:00 最早 12:15，不回填 12:00",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "最早 12:15，不回填 12:00"
+        }
+      ]
+    }
+  ],
+  "dedupe_rules": [
+    "一个决策只出现一次：P-01…P-12 的 fields 互不相交，并集 = 45 个行为字段（另 4 个凭证字段属 Q0，不是策略选择）。",
+    "冲突不单列：C-01…C-08 全部折叠进 P/E/G（见 校正表.json 的 conflict_map），避免「同一个问题既是冲突又是待决」。",
+    "同一决策的多字段合并：Q1 的 7 个字段、Q4 的 10 个字段各自只问一次（沿用 06-02 的合并口径，不重新切）。",
+    "工程问题不混进参数表：G-01/G-02/G-03 不要求用户批任何值；它们要的是排期与隔离测试。",
+    "证据缺口不混进参数表：E-01…E-06 用户拍板也解决不了（缺的是原始消息/定义/可得性）。"
+  ],
+  "counts_expected": {
+    "items_total": 21,
+    "P": 12,
+    "E": 6,
+    "G": 3,
+    "P_fields": 45,
+    "credential_fields": 4,
+    "required_total": 49,
+    "not_asked": 8
+  }
+}

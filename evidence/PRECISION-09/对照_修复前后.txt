@@ -1,0 +1,56 @@
+PRECISION-09 修复前后对照（同一脚本两次运行，差异只可能来自被测代码）
+==============================================================================
+
+[S1_名义额低于最小]（必须翻转）
+  run_valid      : True → False
+  invalid_reasons: [] → ['entry_notional_rejected:notional_below_min']
+  成交/持仓      : 0/[] → 0/[]
+  现金/费用      : 2000.0/0.0 → 2000.0/0.0
+  formal_pass    : False → False
+
+[S2_数量低于最小]（必须翻转）
+  run_valid      : True → False
+  invalid_reasons: [] → ['entry_qty_rejected:qty_below_min_step']
+  成交/持仓      : 0/[] → 0/[]
+  现金/费用      : 2000.0/0.0 → 2000.0/0.0
+  formal_pass    : False → False
+
+[S3_原价非正]（必须翻转）
+  run_valid      : True → False
+  invalid_reasons: [] → ['entry_fill_rejected:nonpositive_raw_price']
+  成交/持仓      : 0/[] → 0/[]
+  现金/费用      : 2000.0/0.0 → 2000.0/0.0
+  formal_pass    : False → False
+
+[S4_跌回箱体取消]（必须不变）
+  run_valid      : True → True
+  invalid_reasons: [] → []
+  成交/持仓      : 0/[] → 0/[]
+  现金/费用      : 2000.0/0.0 → 2000.0/0.0
+  formal_pass    : False → False
+
+[S5_正常成交]（必须不变）
+  run_valid      : True → True
+  invalid_reasons: [] → []
+  成交/持仓      : 1/[] → 1/[]
+  现金/费用      : 1999.04/0.6 → 1999.04/0.6
+  formal_pass    : False → False
+
+[S6_出场拒绝]（必须不变）
+  run_valid      : False → False
+  invalid_reasons: ['exit_eod_fill_rejected:nonpositive_or_nonfinite_exit_fill'] → ['exit_eod_fill_rejected:nonpositive_or_nonfinite_exit_fill']
+  成交/持仓      : 0/['SOLUSDT'] → 0/['SOLUSDT']
+  现金/费用      : 1999.9928646854/0.0 → 1999.9928646854/0.0
+  formal_pass    : False → False
+
+[S7_历史规格不可证]（必须不变）
+  run_valid      : True → True
+  invalid_reasons: [] → []
+  成交/持仓      : 1/[] → 1/[]
+  现金/费用      : 1999.04/0.6 → 1999.04/0.6
+  formal_pass    : False → False
+
+[S8_缺规格]（必须不变）
+  抛出: ExecutionInputError: instrument_spec_required: 必须提供交易所合约规格（或显式 price_step）；禁止用固定 0.01 默认值成交 → ExecutionInputError: instrument_spec_required: 必须提供交易所合约规格（或显式 price_step）；禁止用固定 0.01 默认值成交
+
+判定：全部符合预期（0 处偏差）

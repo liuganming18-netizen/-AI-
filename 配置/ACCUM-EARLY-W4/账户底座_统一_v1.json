@@ -1,0 +1,216 @@
+{
+  "schema_version": "account-base/1",
+  "base_id": "W4-UNIFIED-BASE-v1",
+  "created_at": "2026-10-27T11:00:00+08:00",
+  "status": "engineering_unified_pending_arbitration",
+  "approved": false,
+  "approval_ref": null,
+  "strategy_config_untouched": true,
+  "derivation_rule": "两套现存口径逐维取最严：成本取高、敞口取小、上限取低；不新增语义、不改原策略配置、不改任何策略/风控代码。",
+  "sources": {
+    "strategy_package": {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+      "class": "EventTrendConfig / make_ft_low4h_config()",
+      "note": "策略包只固定「每笔风险 = 提交时权益的 0.5%」这个比例；本金 2000 为本轮研究口径"
+    },
+    "effective_view": {
+      "path": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+      "sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+      "view_sha256_short": "82dec362c182"
+    },
+    "pending_table": {
+      "path": "evidence/ACCUM-EARLY-06-W1/03_R1/待决表_R1.md",
+      "items": ["P-06 风控口径(E2)", "P-07 摩擦成本(E3)", "P-08 参与率(E3)", "P-11 资金费与退出同刻(E3)", "P-10 跳空模型(E3)"]
+    },
+    "workorder": {
+      "path": "docs/派工_SIGNAL-ENDTOEND-03_完整币池链路收口_2026-10-24.md",
+      "constraints": ["遵守既有准入门禁，不为本单解除限制", "不改交易参数、启用时刻或准入门禁", "真实交易保持禁用"]
+    }
+  },
+
+  "account": {
+    "initial_equity_USDT": 2000.0,
+    "risk_per_trade_equity_fraction": 0.005,
+    "max_positions": 3,
+    "max_symbol_positions": 1,
+    "single_name_notional_equity_cap": 0.30,
+    "gross_long_notional_equity_cap": 0.80,
+    "cash_or_free_margin_reserve_fraction": 0.20,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "maximum_account_drawdown_fraction": 0.20,
+    "leverage": 1.0,
+    "margin_mode": "cross",
+    "short_enabled": false
+  },
+
+  "cost": {
+    "fee_each_side": 0.0005,
+    "fee_bps": 5.0,
+    "fee_side": "taker 单边，开仓与平仓各计一次",
+    "slippage_each_side": 0.0005,
+    "slippage_bps": 5.0,
+    "slippage_side": "单边，按方向不利计入成交价",
+    "entry_participation_previous_15m_quote_cap": 0.001,
+    "participation_basis": "上一根已闭合 15m 的 quote_volume（严格早于入场 bar，不用入场 bar 自身成交额）",
+    "participation_overflow_action": "缩量至上限；缩量后低于最小可下单量则拒单（不放大、不改价）",
+    "gap_model": "stop_price",
+    "stress_overlay_available": {
+      "taker_fee_bps": 10.0,
+      "slippage_bps": 6.0,
+      "note": "config.py 方案C 压力档，仅作敏感性叠加，不进本底座默认值"
+    }
+  },
+
+  "funding": {
+    "settlement_interval_source": "交易所官方 fundingIntervalHours（/fapi/v1/fundingInfo），按标的逐项取，不按全池统一值",
+    "observed_intervals": "4h（39 标的）/ 8h（9 标的）/ 个别 1h（IRYSUSDT 官方 1h vs 观测 4h）",
+    "forbidden_assumption": "不得按 8h 统一推算结算时刻",
+    "accounting": "按实际结算事件逐笔计入；不插值、不外推、不补造缺失事件",
+    "known_data_gap": "热库 funding_history 缺 2026-09-02T20:00Z→2026-09-18T16:00Z（380h），冷档同段完整 ⇒ 必须冷热合并，否则漏记",
+    "available_at": "冷档无 available_at 列 ⇒ 「当时可得」未证明，一律记 unproven",
+    "same_bar_order": "unresolved",
+    "same_bar_order_ref": "待决表 P-11（资金费结算与退出同刻先后未裁决）"
+  },
+
+  "binding_analysis": [
+    {
+      "field": "单名实际名义额",
+      "formula": "权益 × 0.5% ÷ 5% = 权益 × 10%",
+      "value": "200 USDT（本金 2000）",
+      "why_binding": "止损幅度固定 5%，风险预算 0.5% ⇒ 名义额被风险预算唯一决定，单名上限 30% 永不触发"
+    },
+    {
+      "field": "总敞口",
+      "formula": "3 仓 × 权益 × 10% = 权益 × 30%",
+      "value": "600 USDT（本金 2000）",
+      "why_binding": "max_positions=3 为硬约束；总名义 80%、现金储备 20% 均不触发"
+    },
+    {
+      "field": "总初始止损风险",
+      "formula": "3 × 0.5% = 1.5%",
+      "value": "30 USDT（本金 2000）",
+      "why_binding": "组合风险上限 5% 不触发；真实上限由每笔 0.5% × 3 仓决定"
+    },
+    {
+      "field": "参与率",
+      "formula": "名义额 ≤ 前一根 15m quote_volume × 0.1%",
+      "value": "200U 订单需前一根 15m 成交额 ≥ 200,000 USDT",
+      "why_binding": "实测 51 条真实候选中 0.1% 口径 22 条被压量、1 条缩量后低于最小下单量被拒 ⇒ 是真实约束"
+    }
+  ],
+
+  "non_binding_caps_proof": "单名 30% ≥ 实际 10%；总名义 80% ≥ 实际 30%；现金储备 20% ≤ 可用 70%；组合风险 5% ≥ 实际 1.5%。四项均不可能松绑任何一笔的实际敞口，故取原值以避开「上限与实际值精确相等」的边界拒单风险（精确相等会在权益漂移时把第 3 仓误拒）。",
+
+  "conflict_resolution_declaration": {
+    "slippage_source": "effective_view",
+    "risk_config": "strategy_package",
+    "participation_cap": "strategy_package",
+    "why": "本底座的三个维度恰好各自落在一套现存口径上：滑点 5bps = 生效视图；本金 2000/3 仓/单名 30% = 策略包；参与率 0.1% = 策略包。故无需新增第三套标签，accum_early_entry 的二分硬校验可逐项通过。"
+  },
+
+  "differences_resolved": [
+    {"dimension": "本金", "strategy_package": "2000", "effective_view": "5000", "adopted": "2000", "rule": "绝对风险更小，且为被测策略的声明口径"},
+    {"dimension": "最大仓数", "strategy_package": "3", "effective_view": "10", "adopted": "3", "rule": "敞口更小"},
+    {"dimension": "单笔风险", "strategy_package": "0.5%", "effective_view": "0.5%", "adopted": "0.5%", "rule": "两套一致"},
+    {"dimension": "单名名义上限", "strategy_package": "30%", "effective_view": "10%", "adopted": "30%", "rule": "非绑定（实际恒为 10%），取 30% 避免精确边界拒单"},
+    {"dimension": "总名义上限", "strategy_package": "90%", "effective_view": "80%", "adopted": "80%", "rule": "取低者；实际仅 30%，仍不绑定"},
+    {"dimension": "组合止损风险上限", "strategy_package": "1.5%", "effective_view": "5%", "adopted": "5%", "rule": "非绑定（实际恒为 1.5%），取 5% 避免精确边界拒单"},
+    {"dimension": "滑点", "strategy_package": "3 bps", "effective_view": "5 bps", "adopted": "5 bps", "rule": "成本取高"},
+    {"dimension": "手续费", "strategy_package": "5 bps", "effective_view": "5 bps", "adopted": "5 bps", "rule": "两套一致"},
+    {"dimension": "参与率", "strategy_package": "0.1%", "effective_view": "1.0%", "adopted": "0.1%", "rule": "敞口取小，差 10 倍且真实绑定"}
+  ],
+
+  "strategy_side_unchanged": {
+    "note": "以下为策略侧冻结值，本底座不参与、不改动，仅声明一致性",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "trailing_trigger_r": 0.0,
+    "trailing_lookback_4h_bars": 1,
+    "max_holding_days": null,
+    "signal_execution_delay_minutes": 15,
+    "signal_exit_delay_minutes": 15,
+    "detail_timeframe": "15m",
+    "tracking_timeframe": "4h",
+    "max_holding_hours_view_field": 240,
+    "max_holding_hours_note": "该字段仍在生效视图内并计入 view_sha256，但 FT-LOW4H 不执行到期强平（max_holding_days=None）⇒ 不得改成 null，否则实验身份整体漂移"
+  },
+
+  "known_edges": [
+    {
+      "id": "E-BASE-01",
+      "topic": "本金 2000 与参与率的相互作用",
+      "detail": "订单越小越容易通过参与率闸门（200U 需前一根 15m 成交额 ≥ 200k；500U 需 ≥ 500k）。因此 2000 在绝对风险上更严，在「成交可得性」上反而更松。若要求参与率维度最严，本金应取 5000。",
+      "status": "已登记，未择一，需一次裁决"
+    },
+    {
+      "id": "E-BASE-02",
+      "topic": "底座不等于当前引擎生效视图",
+      "detail": "引擎当前仍读 10_..._user5000_shared.json（5000U/10 仓/1% 参与率/5bps）。本底座需通过环境变量 EFFECTIVE_VIEW 指向 11_..._W4统一底座.json 才生效，属配置切换，零代码改动，可随时回退。",
+      "status": "切换前引擎行为不变"
+    },
+    {
+      "id": "E-BASE-03",
+      "topic": "P-06/P-07/P-08 仍属待决",
+      "detail": "本底座是工程收口口径，不是用户裁决结果。不得在任何报告中写成「本金 2000 已批准」「滑点 5bps 已批准」「参与率 0.1% 已批准」。",
+      "status": "措辞约束"
+    }
+  ],
+
+  "how_to_use": {
+    "view_file": "配置/ACCUM-EARLY-W4/11_研究参数生效视图_v2_3_W4统一底座.json",
+    "switch_env": "EFFECTIVE_VIEW=<abs path>/11_研究参数生效视图_v2_3_W4统一底座.json",
+    "presets": [
+      "配置/ACCUM-EARLY-W4/预设_甲_4a.json",
+      "配置/ACCUM-EARLY-W4/预设_乙_4b.json",
+      "配置/ACCUM-EARLY-W4/预设_丙_4c.json"
+    ],
+    "preset_switch_env": "ACCUM05_CONFIG=<abs path>/预设_甲_4a.json",
+    "preset_open_gate": "预设为 fixture（approved=false）⇒ 仅 ACCUM05_FIXTURE_OK=1 时允许隔离开仓，生产开仓仍被 not_approved 阻塞"
+  },
+
+  "_verification": {
+    "verified_at": "2026-10-27T11:07:00+08:00",
+    "python": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python (3.13.12, numpy 2.5.4, pandas 3.0.6)",
+    "how": "直接调用现有只读加载器，未修改任何代码：strategy_contracts.load_ft_low4h_config() + accum_early_entry.load_config()",
+    "view_load": {
+      "config_valid": true,
+      "identity_errors": [],
+      "view_sha256": "188ab58f9656",
+      "note": "与旧视图 82dec362c182 不同 ⇒ 实验身份可分离，可随时回退"
+    },
+    "presets_load": {
+      "required_paths": 49,
+      "per_preset": [
+        {"file": "预设_甲_4a.json", "ready": true, "missing": 0, "unsupported": 0, "caliber_mismatch": null, "fixed_rules_ok": true},
+        {"file": "预设_乙_4b.json", "ready": true, "missing": 0, "unsupported": 0, "caliber_mismatch": null, "fixed_rules_ok": true},
+        {"file": "预设_丙_4c.json", "ready": true, "missing": 0, "unsupported": 0, "caliber_mismatch": null, "fixed_rules_ok": true}
+      ],
+      "blocked_by": ["not_approved", "fixture_without_explicit_env"],
+      "blocked_by_meaning": "预期状态：三组阈值未裁决 ⇒ 生产开仓必须阻塞，与底座无关"
+    },
+    "isolation_gate": {
+      "env": "ACCUM05_FIXTURE_OK=1",
+      "open_allowed": true,
+      "open_scope": "fixture_chain_selfcheck",
+      "meaning": "隔离链路可跑；这是「可直接调用」的实测依据，不等于策略有效"
+    },
+    "negative_control": {
+      "case": "同一份预设改回旧视图 82dec362c182",
+      "ready": false,
+      "blocked_by": ["economic_caliber_declared_mismatch"],
+      "message": "风控声明为策略包（本金2000U/最多3仓/单名30%），但引擎实际生效为（本金5000U/最多10仓/单名10%）；参与率声明为策略包（0.1%），但引擎实际生效为（1.0%）",
+      "meaning": "反向对照成立：预设确实绑定统一底座，不是「碰巧通过」"
+    },
+    "three_file_diff": {
+      "differing_fields": 15,
+      "scope": "全部落在 preset.* / _notes.* / approval_ref / schemes.{4a,4b,4c}.enabled",
+      "identical_blocks": ["account_base", "shared", "exit", "conflict_resolution", "schema_version", "kind", "approved"],
+      "meaning": "三份预设共用同一账户与成本底座，差异只在入场触发链"
+    },
+    "concurrency_warning": {
+      "issue": "本窗口期间 框架/backend/accum_early_entry.py 被并行窗口改动（读取时 frozen_config 在 588 行，运行时报错栈在 623 行，位移 +35）",
+      "my_impact": "本窗口未写入任何 .py；已实测「import 不刷新源文件 mtime」排除自身原因",
+      "risk": "若该模块后续新增必填路径，三份预设会转为 missing>0；复跑前须先确认 REQUIRED_PATHS 仍为 49"
+    }
+  }
+}

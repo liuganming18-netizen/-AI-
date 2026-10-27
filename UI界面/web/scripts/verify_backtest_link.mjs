@@ -60,7 +60,11 @@ if (!RUN_ID) {
     const c = await candidatesWithTrades();
     report.checks.candidates = { listCount: c.listCount, withTrades: c.ids.length };
     const present = await page.$$eval('[data-run-id]', (els, ids) => {
-      const have = els.map((e) => e.getAttribute('data-run-id'));
+      /* 只认**可见**行：整批逐笔（折叠里）也有 data-run-id，
+         折叠未展开时它们仍在 DOM 里 ⇒ 不筛可见会把隐藏行当成「页面上有」。 */
+      const have = els
+        .filter((e) => e.offsetParent !== null)
+        .map((e) => e.getAttribute('data-run-id'));
       return have.filter((x) => ids.includes(x));
     }, c.ids);
     if (present.length > 0) {
@@ -78,7 +82,7 @@ if (!RUN_ID) {
   process.exit(3);
 }
 
-await page.locator(`[data-run-id="${RUN_ID}"]`).click();
+await page.locator(`[data-run-id="${RUN_ID}"]:visible`).first().click();
 await page.waitForTimeout(3500);
 await page.evaluate(() => document.querySelector('[data-backtest-scroll]')?.scrollTo({ top: 0 }));
 
@@ -124,18 +128,18 @@ const m5 = page.locator('[data-testid="lab-chart-tf"] button[data-tf="5m"]');
 report.checks.m5Disabled = await m5.isDisabled();
 report.checks.m5Title = await m5.getAttribute('title');
 
-/* ── ② 逐笔明细 → 资金分析联动 ── */
-const vp = page.locator('[data-testid="lab-funding-viewport"]');
-report.checks.fundingViewportFound = await vp.count();
-report.checks.fundingViewportBefore = (await vp.count()) ? (await vp.innerText()).trim() : null;
-report.checks.underwaterActiveBefore = await page.evaluate(() => {
-  const btns = [...document.querySelectorAll('[data-testid="lab-funding-panel"] button')];
-  const b = btns.find((x) => x.textContent.trim() === '水下回撤');
-  return b ? b.className.includes('ds-accent') : null;
-});
+/* ── ② 单条记录回放 → 回撤曲线联动 ──
+ * 中栏改成「净值曲线 | 回撤曲线」两张并排卡之后，旧的「一张卡切页签」已经不存在：
+ * 联动改为「点某一笔 ⇒ 回撤卡出现『已定位』徽章 + 时间轴缩到该笔区间」，
+ * 点徽章 ⇒ 恢复全区间、徽章消失。
+ */
+report.checks.fundingPanels = await page.locator('[data-testid="lab-funding-panel"]').count();
+report.checks.fundingChartFound = await page.locator('[data-testid="lab-funding-chart"]').count();
+const focus = page.locator('[data-testid="lab-funding-focus"]');
+report.checks.focusBadgeBefore = await focus.count();
 await shot('04_funding_before');
 
-const tradeRow = page.locator('[data-trade-id]').first();
+const tradeRow = page.locator('[data-trade-id]:visible').first();
 report.checks.tradeRowCount = await tradeRow.count();
 if (report.checks.tradeRowCount > 0) {
   report.checks.tradeId = await tradeRow.getAttribute('data-trade-id');
@@ -144,16 +148,9 @@ if (report.checks.tradeRowCount > 0) {
   await tradeRow.click();
   await page.waitForTimeout(2200);
 
-  report.checks.underwaterActiveAfter = await page.evaluate(() => {
-    const btns = [...document.querySelectorAll('[data-testid="lab-funding-panel"] button')];
-    const b = btns.find((x) => x.textContent.trim() === '水下回撤');
-    return b ? b.className.includes('ds-accent') : null;
-  });
-  const focus = page.locator('[data-testid="lab-funding-focus"]');
   report.checks.focusBadgeFound = await focus.count();
   report.checks.focusBadgeText = (await focus.count()) ? (await focus.innerText()).trim() : null;
-  report.checks.fundingViewportAfter = (await vp.innerText()).trim();
-  report.checks.fundingReadout = (await page.locator('[data-testid="lab-funding-panel"]').innerText())
+  report.checks.fundingReadout = (await page.locator('[data-testid="lab-funding-panel"]').last().innerText())
     .replace(/\s+/g, ' ')
     .slice(0, 320);
   // ④ 执行视图是否也认出了这一笔（图上高亮 + 底部选中读数）
@@ -165,11 +162,11 @@ if (report.checks.tradeRowCount > 0) {
   await page.waitForTimeout(400);
   await shot('05_linked_underwater');
 
-  // 点「净值对比」应能切回，且定位徽章被清掉
-  await page.locator('[data-testid="lab-funding-panel"] button:text-is("净值对比")').click();
-  await page.waitForTimeout(700);
-  await page.locator('[data-testid="lab-funding-panel"] button:text-is("全部")').click();
-  await page.waitForTimeout(700);
+  // 点「已定位」徽章应能恢复全区间，徽章随即消失
+  if (await focus.count()) {
+    await focus.click();
+    await page.waitForTimeout(900);
+  }
   report.checks.focusBadgeAfterReset = await focus.count();
   await shot('06_after_reset');
 }

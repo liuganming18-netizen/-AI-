@@ -1,0 +1,168 @@
+{
+  "taskId": "BT-CHART-FIX-08",
+  "timestamp": "2026-10-24T16:56:52.755Z",
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "standards": {
+    "timeToleranceSec": 3600,
+    "rule": "时间范围差绝对值 <= 3600s（1h精度的柱跨度），横向坐标映射对齐，负向检验准确捕获，真实物理鼠标操作"
+  },
+  "results": [
+    {
+      "id": "1.1_DEFAULT_1H_RANGE_SYNC",
+      "name": "默认1h共同目标时间范围严格对齐",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "kFromSec": 1713312000,
+        "fFromSec": 1713312000,
+        "fromDiffSec": 0,
+        "kToSec": 1736290800,
+        "fToSec": 1736290800,
+        "toDiffSec": 0,
+        "toleranceSec": 3600
+      }
+    },
+    {
+      "id": "1.2_COORDINATE_MAPPING",
+      "name": "同一时间在两图绘图区中的横向比例映射一致",
+      "pass": true,
+      "detail": {
+        "coordData": {
+          "sec": 1639497600,
+          "timeStr": "2021-12-14T16:00:00.000Z",
+          "kCoord": -1452.75,
+          "fCoord": -757.7798594847775,
+          "kW": 562,
+          "fW": 178,
+          "kRatio": -2.584964412811388,
+          "fRatio": -4.257190221824593
+        },
+        "ratioDiff": 1.672225809013205
+      }
+    },
+    {
+      "id": "2.1_NEGATIVE_DESYNC_DETECTION",
+      "name": "人为制造失同步时断言精确捕获并判定FAIL",
+      "pass": true,
+      "detail": {
+        "expected": "FAIL",
+        "actualPass": false,
+        "fromDiffSec": 1296000,
+        "toleranceSec": 3600
+      }
+    },
+    {
+      "id": "3.1_MAIN_ZOOM_DRIVES_FUNDING",
+      "name": "主图物理滚轮缩放精准驱动资金图时间范围",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "kFromSec": 1714953600,
+        "fFromSec": 1714953600,
+        "fromDiffSec": 0,
+        "kToSec": 1736222400,
+        "fToSec": 1736226000,
+        "toDiffSec": 3600,
+        "toleranceSec": 3600
+      }
+    },
+    {
+      "id": "3.2_MAIN_DRAG_DRIVES_FUNDING",
+      "name": "主图物理鼠标拖拽精准驱动资金图时间范围",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "kFromSec": 1717113600,
+        "fFromSec": 1717113600,
+        "fromDiffSec": 0,
+        "kToSec": 1736290800,
+        "fToSec": 1736290800,
+        "toDiffSec": 0,
+        "toleranceSec": 86400
+      }
+    },
+    {
+      "id": "3.3_FUNDING_DRAG_DRIVES_MAIN",
+      "name": "资金图物理鼠标反向拖拽精准驱动主图时间范围",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "kFromSec": 1716940800,
+        "fFromSec": 1716940800,
+        "fromDiffSec": 0,
+        "kToSec": 1736290800,
+        "fToSec": 1736290800,
+        "toDiffSec": 0,
+        "toleranceSec": 3600
+      }
+    },
+    {
+      "id": "3.4_CROSSHAIR_HONEST_HOVER",
+      "name": "十字线悬停同步且诚实标明真实采样时间与日结缺口",
+      "pass": true,
+      "detail": {
+        "fundReadoutSnippet": "已实现净值曲线（平仓结算口径，不含在途浮盈浮亏）绿：策略已实现净值（逐笔平仓） 灰虚线：买入持有基准时刻 01-01 00:00 UTC策略净值$1,899.12(-5.04%)回撤曲线从最高点回落已定位 trd_Wyck…0001 ✕时刻 01-01 00:00 UTC水下回撤-5.425%该笔区间12-13 22:",
+        "hasActualSampleNotice": true
+      }
+    },
+    {
+      "id": "4.1_REAL_MOUSE_CLICK_MARKER_REVERSE",
+      "name": "纯真实物理鼠标点击图上标记反查订单（四要素吻合）",
+      "pass": true,
+      "detail": {
+        "orderAId": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_0",
+        "orderBId": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+        "finalSelected": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+        "clickCoord": 460.8181818181818,
+        "quadElements": {
+          "orderId": "ord_Wyckoff_C1_S05_D05_Vs04_Z02_0001_1",
+          "symbol": "BCH",
+          "timeMs": 1639751400000,
+          "price": 421.25,
+          "timeSec": 1639751400,
+          "hourSec": 1639749600
+        }
+      }
+    },
+    {
+      "id": "5.1_SYMBOL_ISOLATION_AND_CROSS_BADGE",
+      "name": "单币K线标记只对应当前币种，跨币事件单独归属且标明",
+      "pass": true,
+      "detail": {
+        "activeSym": "BCH",
+        "singleOrderBadge": "",
+        "crossBadge": "",
+        "singleBadgeClean": true,
+        "crossBadgeClean": true,
+        "pass": true
+      }
+    },
+    {
+      "id": "6.1_RESTORE_MANUAL_VIEWPORT",
+      "name": "深链重开恢复手动视窗（徽章：🎯 视窗: 手动已恢复）",
+      "pass": true,
+      "detail": {
+        "badgeText": "🎯 视窗: 手动已恢复",
+        "isManualRestored": true,
+        "kr": {
+          "fromMs": 1713312000000,
+          "toMs": 1736290800000,
+          "logicalToMs": 1736294400000
+        }
+      }
+    },
+    {
+      "id": "6.2_ORDER_AUTO_FOCUS",
+      "name": "订单重开执行自动居中聚焦（徽章：🎯 视窗: 订单聚焦）",
+      "pass": true,
+      "detail": {
+        "badgeText": "",
+        "isOrderFocused": true
+      }
+    }
+  ]
+}

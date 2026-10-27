@@ -1,0 +1,335 @@
+/* ============================================================================
+ * 设计规范系统 · 令牌层 (Design Tokens)
+ * ----------------------------------------------------------------------------
+ * 这是全站唯一的设计事实源。组件层（components.css）与页面样式**只允许**引用
+ * 本文件的变量，不允许再出现硬编码色值 / 字号 / 间距。
+ *
+ * 【2026-10-17 双主题改造】原来的两条色彩通道（index.css 的 :root 反转色阶、
+ * 本文件的 .ds-scope 作用域重映射）已合并成一条：
+ *
+ *   ① `--ds-n-950 … --ds-n-100` 十一级中性阶梯 —— **唯一**的明暗事实源。
+ *      语义位固定：950 = 画布（最底），900 = 卡片，850 = 卡片内次级块，
+ *      800 = 内嵌区，700/600 = 描边（600 更强），500/400/300/200/100 = 文字
+ *      由弱到强。深浅两套主题只换这 11 个值，不换语义位。
+ *
+ *   ② `--ds-*` 语义令牌一律写成 `var(--ds-n-*)`，因此**不需要**在浅色主题里
+ *      重复声明一遍 —— 阶梯一变，表面/描边/文字自动跟随。只有那些不跟随
+ *      中性阶梯的（强调色亮度、语义色、图表色、浮层、阴影）才需要两套。
+ *
+ *   ③ `.ds-scope` 不再声明任何色阶字面量，只做「语义色收敛」：
+ *      把既有 Tailwind 的 emerald/rose/amber/sky 收敛到 `--ds-*`，
+ *      让新老写法在同一个子树里同色。
+ *
+ * 主题开关：`<html data-theme="dark|light">`。缺省（无属性）即深色。
+ * ========================================================================== */
+
+/* 深色既作用于根节点，也是一个**可显式声明的子树作用域**。
+ * 写成 `:root, [data-theme="dark"]` 而不是只写 `:root`：这样任何子树都能被强制
+ * 成深色（设计规范页的「深浅并排对照」就是这么做的），且不产生第二份色值。
+ * 顺序上本块必须在 [data-theme="light"] 之前 —— 两者特异性相同，后者后写者胜。 */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ── 中性阶梯 · 深色（默认） ─────────────────────────────────────────
+   * 数值越大越暗。950 画布 → 100 一级文字。 */
+  --ds-n-950: #0a0f1a;
+  --ds-n-900: #0f1728;
+  --ds-n-850: #131d31;
+  --ds-n-800: #1a2438;
+  --ds-n-700: #24314a;
+  --ds-n-600: #2e3d59;
+  --ds-n-500: #6f7d94;
+  --ds-n-400: #8896ab;
+  --ds-n-300: #b8c4d6;
+  --ds-n-200: #d3dceb;
+  --ds-n-100: #e6edf7;
+
+  /* ── 表面层 (Surface) ──────────────────────────────────────────────────
+   * 从最底（画布）到最上（浮层），语义固定，页面不按「颜色深浅」选，按「层级」选。 */
+  --ds-canvas: var(--ds-n-950);
+  --ds-surface: var(--ds-n-900);
+  --ds-surface-2: var(--ds-n-850);
+  --ds-surface-3: var(--ds-n-800);
+  /* 反色条（代码 / 哈希 / 终端块）：深色主题下用比画布更深的一层，
+   * 而不是翻成白底 —— 白底块在深色页面里会像一块补丁。 */
+  --ds-surface-inverse: #05080f;
+  --ds-overlay: rgba(10, 15, 26, 0.86); /* 浮层底（配 backdrop-filter） */
+  --ds-scrim: rgba(0, 0, 0, 0.62);      /* 模态遮罩 */
+
+  /* ── 描边 (Border) ────────────────────────────────────────────────────
+   * subtle 用于同层分隔，default 用于卡片轮廓，strong 用于强调边界。 */
+  --ds-border-subtle: var(--ds-n-800);
+  --ds-border: var(--ds-n-700);
+  --ds-border-strong: var(--ds-n-600);
+  --ds-border-focus: #3b6df6;
+
+  /* 分段控件（页签条）的底：设计稿 `.tabs2` 的 #E9EEEB。
+   * 它比 n-800(#EEF1F0) 略深、比 n-700(#E3E8E5) 略浅，落在阶梯缝里，
+   * 所以单独给一个令牌，而不是硬编码到组件里。 */
+  --ds-tabstrip: var(--ds-n-800);
+
+  /* ── 文字 (Text) ──────────────────────────────────────────────────────
+   * 四级层次，必须严格单调：1 级最强 → 4 级最弱。
+   * 【2026-10-17 修正】原先把 text-3 绑 n-500、text-4 绑 n-400，而阶梯是「数字越大
+   * 越暗」，导致四级文字反而比三级更亮（浅色下则是更深）—— 语义与视觉反向。
+   * 现已按「3 级 = n-400、4 级 = n-500」对调，两级在深浅主题里都恢复正确顺序，
+   * 同时三级文字（标签/说明）对比度从 4.4:1 提到 6.2:1（深）/ 5.7:1（浅），稳过 AA。 */
+  --ds-text: var(--ds-n-100);   /* 一级：标题、关键数字 */
+  --ds-text-2: var(--ds-n-300); /* 二级：正文 */
+  --ds-text-3: var(--ds-n-400); /* 三级：标签、说明 */
+  --ds-text-4: var(--ds-n-500); /* 四级：占位、极弱辅助（≈4.4:1，不用于正文） */
+  --ds-text-inverse: #0b1526;
+
+  /* ── 强调色 (Accent) ──────────────────────────────────────────────────
+   * 品牌蓝。只用于：主按钮、选中态、焦点环、当前区块标记。不用于数据涨跌。 */
+  --ds-accent-50: #101d38;
+  --ds-accent-100: #16274a;
+  --ds-accent-300: #6b93ff;
+  --ds-accent: #3b6df6;
+  --ds-accent-600: #2f5ce0;
+  --ds-accent-700: #2449bb;
+  /* 「强调底上的文字」专用色。
+   * 不能直接用 accent-700 —— 它在深色主题里是给**浅底**配的深蓝，
+   * 放到 accent-50（深色下也是深蓝）上对比度只有 2.2:1，选中态直接糊掉。
+   * 深色用 accent-300（#6b93ff，5.8:1），浅色仍用 accent-700（6.9:1）。 */
+  --ds-accent-text: var(--ds-accent-300);
+
+  /* ── 语义色 (Semantic) ────────────────────────────────────────────────
+   * 每个语义色三件套：fg（文字/描边）/ bg（底）/ border（边）。
+   * 口径：本项目沿用「涨绿跌红」的图表注释约定（见 index.css 页脚与图表注释），
+   * 因此 pos = 绿（盈利/上涨），neg = 红（亏损/下跌）。若整体切到 A 股习惯，
+   * 只需在此处互换 pos 与 neg 两组色值，全站组件自动跟随。 */
+  --ds-pos: #22c55e;
+  --ds-pos-bg: rgba(34, 197, 94, 0.14);
+  --ds-pos-border: rgba(34, 197, 94, 0.34);
+
+  --ds-neg: #ef4444;
+  --ds-neg-bg: rgba(239, 68, 68, 0.14);
+  --ds-neg-border: rgba(239, 68, 68, 0.34);
+
+  --ds-warn: #f59e0b;
+  --ds-warn-bg: rgba(245, 158, 11, 0.14);
+  --ds-warn-border: rgba(245, 158, 11, 0.34);
+
+  --ds-info: #3b82f6;
+  --ds-info-bg: rgba(59, 130, 246, 0.14);
+  --ds-info-border: rgba(59, 130, 246, 0.34);
+
+  --ds-neutral-fg: var(--ds-n-300);
+  --ds-neutral-bg: var(--ds-n-800);
+  --ds-neutral-border: var(--ds-n-700);
+
+  /* ── 图表色 (Chart) ──────────────────────────────────────────────────
+   * lightweight-charts 拿不到 CSS 变量，运行时由 chartTheme.ts 用
+   * getComputedStyle 读出来喂给图表。新增图表一律先在这里加令牌。 */
+  --ds-chart-bg: var(--ds-surface);
+  --ds-chart-grid: var(--ds-n-800);
+  --ds-chart-grid-v: var(--ds-n-850);
+  --ds-chart-text: var(--ds-n-500);
+  --ds-chart-border: var(--ds-n-700);
+  --ds-chart-up: var(--ds-pos);
+  --ds-chart-down: var(--ds-neg);
+  --ds-chart-forming: var(--ds-warn);
+  --ds-chart-signal: #6c8cff;
+  --ds-chart-oi: var(--ds-pos);
+  --ds-chart-benchmark: #eab308;
+  --ds-chart-ma-fast: #4f8dff;
+  --ds-chart-ma-slow: #eab308;
+  --ds-chart-crosshair: #64748b;
+  --ds-chart-crosshair-label: #334155;
+
+  /* ── 字体 ────────────────────────────────────────────────────────────
+   * 数字一律走 mono + tabular-nums：等宽让表格列对齐，tabular 让数字不跳动。 */
+  --ds-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --ds-mono: "SF Mono", ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  /* ── 字号阶梯 ────────────────────────────────────────────────────────
+   * 7 档，够用即止。正文 12px，正文加强 13px，卡片标题 13px，区块标题 15px。 */
+  --ds-fs-2xs: 10px;   /* 徽标内文字、极弱脚注 */
+  --ds-fs-xs: 11px;    /* 表格、密集标签 */
+  --ds-fs-sm: 12px;    /* 正文基准 */
+  --ds-fs-md: 13px;    /* 卡片标题、按钮 */
+  --ds-fs-lg: 15px;    /* 区块标题 */
+  --ds-fs-xl: 20px;    /* 指标数字 */
+  --ds-fs-2xl: 26px;   /* 主指标数字 */
+
+  --ds-lh-tight: 1.25;
+  --ds-lh-base: 1.5;
+
+  /* ── 间距（4px 基） ──────────────────────────────────────────────────
+   * 页面只用这几档，禁止出现 7px / 13px 这类散值。 */
+  --ds-1: 4px;
+  --ds-2: 8px;
+  --ds-3: 12px;
+  --ds-4: 16px;
+  --ds-5: 20px;
+  --ds-6: 24px;
+  --ds-8: 32px;
+
+  /* ── 圆角 ────────────────────────────────────────────────────────────
+   * sm 徽标/输入小件，md 按钮/输入/指标卡，lg 卡片，pill 胶囊。 */
+  --ds-r-sm: 4px;
+  --ds-r-md: 6px;
+  --ds-r-lg: 12px;
+  --ds-r-xl: 14px;
+  --ds-r-pill: 999px;
+
+  /* ── 阴影（只表达层级，不表达「发光」） ────────────────────────────────
+   * 深色底上阴影几乎不可见，层级主要靠描边表达；阴影只做极轻的托底。 */
+  --ds-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ds-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ds-shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --ds-shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  /* 冻结列右缘投影：深色底需要更重的黑影，否则横向滚动时看不出列边界 */
+  --ds-shadow-freeze: 8px 0 12px -10px rgba(0, 0, 0, 0.6);
+  --ds-ring: 0 0 0 3px rgba(59, 109, 246, 0.32);
+
+  /* ── 动效 ────────────────────────────────────────────────────────────
+   * 只做「状态变化」，不做装饰性动画。 */
+  --ds-dur-fast: 120ms;
+  --ds-dur: 180ms;
+  --ds-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── 布局常量 ────────────────────────────────────────────────────────
+   * 坐标系统一说明（踩过坑，写清楚）：
+   *   页头 `.ds-pagehead` 在**滚动容器之外**（是它的兄弟），所以滚动容器顶部
+   *   本身就已经位于页头下方。容器**内部**的 sticky 元素（如 `.ds-toolbar`）
+   *   若再叠加页头高度做 top，就会被推到页头下方 92px 处并与首张卡片重叠。
+   *   因此容器内 sticky 只需 `--ds-sticky-gap`；`--ds-pagehead-h` 只用于
+   *   容器之外的场合（例如需要对齐页头的浮层）。 */
+  --ds-pagehead-h: 89px;
+  --ds-sticky-gap: 8px;
+  --ds-toolbar-h: 42px;
+  --ds-scroll-pad: 16px;
+}
+
+/* ============================================================================
+ * 浅色主题
+ * ----------------------------------------------------------------------------
+ * 只覆盖「不跟随中性阶梯」的部分：阶梯本身 + 强调色亮度 + 语义色 + 图表色
+ * + 浮层 + 阴影。表面/描边/文字三组语义令牌全部是 var(--ds-n-*)，自动跟随。
+ * ========================================================================== */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* ── 中性阶梯：**逐位取设计稿 `gm-layout.html` 的实测色值** ─────────────
+   *   画布 #F4F6F5 · 卡片 #FFFFFF · 卡片内次级 #FAFBFA · 内嵌区/分段底 #EEF1F0
+   *   卡片描边 #E3E8E5 · 输入与按钮描边 #D5DCD8
+   * 设计稿只定义了两档文字：正文/标题 #17201C、次要 #66726C。
+   * ⇒ 阶梯的 300/200/100 三级**同取 #17201C**（设计稿里标题与正文就是一个颜色），
+   *   400 = #66726C，500 = #8C9891（占位/极弱，设计稿没有，这里补一档）。
+   *   四级顺序仍是「1 级最深 → 4 级最浅」，只是前三级并档。 */
+  --ds-n-950: #f4f6f5;
+  --ds-n-900: #ffffff;
+  --ds-n-850: #fafbfa;
+  --ds-n-800: #eef1f0;
+  --ds-n-700: #e3e8e5;
+  --ds-n-600: #d5dcd8;
+  --ds-n-500: #8c9891;
+  --ds-n-400: #66726c;
+  --ds-n-300: #17201c;
+  --ds-n-200: #17201c;
+  --ds-n-100: #17201c;
+
+  --ds-surface-inverse: #17201c;
+  --ds-overlay: rgba(255, 255, 255, 0.86);
+  --ds-scrim: rgba(23, 32, 28, 0.32);
+
+  --ds-border-focus: #0f7b55;
+
+  /* 页签条底：设计稿 `.tabs2` 原值 */
+  --ds-tabstrip: #e9eeeb;
+
+  --ds-text-inverse: #ffffff;
+
+  /* ── 强调色：设计稿的「选中 / 主按钮 / 当前项」全部是绿 #0F7B55
+   * （`.nav.on`、`.btn.g`、`.chip.on`、`.tf span.on`、`.cond.sel`）
+   * ⇒ 品牌色由蓝改绿，与设计稿一致。 */
+  --ds-accent-50: #e6f4ee;
+  --ds-accent-100: #d3ede3;
+  --ds-accent-300: #2f9c74;
+  --ds-accent: #0f7b55;
+  --ds-accent-600: #0c6a49;
+  --ds-accent-700: #0a5b3e;
+  --ds-accent-text: #0f7b55;
+
+  /* ── 涨跌（设计稿 `.up` #0F7B55 / `.dn` #C8323C）───────────────────── */
+  --ds-pos: #0f7b55;
+  --ds-pos-bg: #e6f4ee;
+  --ds-pos-border: #bde7d4;
+
+  --ds-neg: #c8323c;
+  --ds-neg-bg: #fdecee;
+  --ds-neg-border: #f8ccd4;
+
+  /* ── 提示条（设计稿 `.tg` / `.warn` / `.nt2`：底 #FFF4D6 字 #7A5200）── */
+  --ds-warn: #7a5200;
+  --ds-warn-bg: #fff4d6;
+  --ds-warn-border: #f2d98a;
+
+  --ds-info: #1f6fd0;
+  --ds-info-bg: #eaf3ff;
+  --ds-info-border: #c9defa;
+
+  --ds-chart-signal: #0f7b55;
+  --ds-chart-ma-fast: #2f6bff;
+  --ds-chart-ma-slow: #c17600;
+  --ds-chart-crosshair: #94a3b8;
+  --ds-chart-crosshair-label: #334155;
+
+  --ds-shadow-xs: 0 1px 2px rgba(23, 32, 28, 0.05);
+  --ds-shadow-sm: 0 1px 3px rgba(23, 32, 28, 0.07), 0 1px 2px rgba(23, 32, 28, 0.04);
+  --ds-shadow-md: 0 4px 12px -2px rgba(23, 32, 28, 0.1);
+  --ds-shadow-lg: 0 16px 40px -12px rgba(23, 32, 28, 0.2);
+  --ds-shadow-freeze: 8px 0 12px -10px rgba(23, 32, 28, 0.16);
+  --ds-ring: 0 0 0 3px var(--ds-accent-100);
+}
+
+/* ============================================================================
+ * 作用域语义色收敛
+ * ----------------------------------------------------------------------------
+ * 既有页面里还散落着 `text-emerald-400` / `bg-rose-500/10` 这类 Tailwind 写法。
+ * 在 `.ds-scope` 子树内把它们收敛到 `--ds-*`，新老写法同色。
+ * 中性色阶不在这里重声明 —— `:root` 的 `--color-neutral-*` 已经指向阶梯。
+ * ========================================================================== */
+.ds-scope {
+  --color-emerald-300: var(--ds-pos);
+  --color-emerald-400: var(--ds-pos);
+  --color-emerald-500: var(--ds-pos);
+  --color-emerald-600: var(--ds-pos);
+  --color-emerald-700: var(--ds-pos);
+
+  --color-rose-300: var(--ds-neg);
+  --color-rose-400: var(--ds-neg);
+  --color-rose-500: var(--ds-neg);
+  --color-rose-600: var(--ds-neg);
+  --color-rose-700: var(--ds-neg);
+
+  --color-amber-300: var(--ds-warn);
+  --color-amber-400: var(--ds-warn);
+  --color-amber-500: var(--ds-warn);
+  --color-amber-600: var(--ds-warn);
+  --color-amber-700: var(--ds-warn);
+  --color-amber-800: var(--ds-warn);
+  --color-amber-900: var(--ds-warn);
+
+  --color-sky-300: var(--ds-info);
+  --color-sky-500: var(--ds-info);
+  --color-sky-600: var(--ds-info);
+  --color-sky-700: var(--ds-info);
+  --color-sky-800: var(--ds-info);
+
+  /* 浅底一律用令牌，避免 --color-*-50 在深色下被当成亮色块 */
+  --color-emerald-50: var(--ds-pos-bg);
+  --color-rose-50: var(--ds-neg-bg);
+  --color-amber-50: var(--ds-warn-bg);
+  --color-sky-50: var(--ds-info-bg);
+  --color-neutral-50: var(--ds-surface-2);
+
+  background: var(--ds-canvas);
+  color: var(--ds-text-2);
+  font-family: var(--ds-font);
+}

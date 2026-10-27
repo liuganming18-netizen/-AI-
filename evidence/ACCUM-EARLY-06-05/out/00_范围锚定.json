@@ -1,0 +1,174 @@
+{
+  "task": "ACCUM-EARLY-06-05",
+  "probe": "00_范围锚定",
+  "generated_at_utc": "2026-10-26T18:06:32Z",
+  "window": {
+    "start_utc": "2026-06-27T08:00:00Z",
+    "end_utc": "2026-10-26T09:00:00Z",
+    "start_ms": 1782547200000,
+    "end_ms": 1793005200000,
+    "source": "05-C/out/01_输入快照与版本锁定.json#window（沿用 04-C 同一窗口）"
+  },
+  "universe": {
+    "mother_48": 48,
+    "symbols": [
+      "1000PEPEUSDT",
+      "AGTUSDT",
+      "AIGENSYNUSDT",
+      "ASTERUSDT",
+      "AXSUSDT",
+      "BABYUSDT",
+      "BBUSDT",
+      "BLURUSDT",
+      "BNBUSDT",
+      "CARVUSDT",
+      "CHZUSDT",
+      "COLLECTUSDT",
+      "COOKIEUSDT",
+      "CROSSUSDT",
+      "DOTUSDT",
+      "DUSKUSDT",
+      "ETHWUSDT",
+      "EVAAUSDT",
+      "GOATUSDT",
+      "HYPERUSDT",
+      "IRYSUSDT",
+      "JELLYJELLYUSDT",
+      "KATUSDT",
+      "KMNOUSDT",
+      "KOMAUSDT",
+      "METISUSDT",
+      "METUSDT",
+      "NEARUSDT",
+      "NILUSDT",
+      "PEOPLEUSDT",
+      "PIXELUSDT",
+      "PLUMEUSDT",
+      "PORTALUSDT",
+      "PROVEUSDT",
+      "PYTHUSDT",
+      "SAFEUSDT",
+      "SANDUSDT",
+      "SKRUSDT",
+      "SUSDT",
+      "TNSRUSDT",
+      "UAIUSDT",
+      "VELVETUSDT",
+      "WALUSDT",
+      "WUSDT",
+      "XLMUSDT",
+      "YGGUSDT",
+      "ZECUSDT",
+      "ZKUSDT"
+    ],
+    "note": "主口径 = 05-C 统一观察母集（51 条候选涉及的标的去重）；全池 526 只作对照，两者不混算"
+  },
+  "data_identity": {
+    "hot": {
+      "path": "数据/市场数据/db/market_v2.sqlite3",
+      "bytes": 13481799680,
+      "mtime_utc": "2026-10-26T18:06:29Z",
+      "identity_caveat": "采集器实时写入 ⇒ 字节数/mtime 只代表取锚点时刻；12 GB 不做整库 sha256（本单只做只读统计，不声明库内容指纹）",
+      "funding_rows_all_exchanges": 2125240,
+      "funding_rows_binance_um": 2065205,
+      "funding_rows_okx_swap": 60035,
+      "跨交易所口径": "热库同一张表混装 binance/um 与 okx/swap；本单所有查询强制 exchange='binance' AND market='um'，不跨交易所拼接"
+    },
+    "cold": {
+      "files": 526,
+      "bytes": 40134797,
+      "manifest_sha256": "1858dbf7092881675706ed28a047eafe38a549febe4374aff15fa8d34059f31a",
+      "rule": "对 (文件名, 字节, 分片 sha256) 按文件名排序后逐行哈希",
+      "dir": "数据/市场数据/parquet/funding/binance/um",
+      "columns": [
+        "funding_time",
+        "funding_rate",
+        "mark_price",
+        "rate_type",
+        "source"
+      ],
+      "symbol_column": "无（标的名在文件名里）",
+      "available_at_column": "无",
+      "caveat": "冷档是只增归档，导出器在跑 ⇒ 分片数/指纹只代表取锚点时刻"
+    }
+  },
+  "claims_to_retest": [
+    {
+      "编号": "C1",
+      "主张": "热库资金费存在主缺口段",
+      "claim": {
+        "from_utc": "2026-09-02T20:00:00Z",
+        "to_utc": "2026-09-18T16:00:00Z",
+        "symbols": 407,
+        "max_hours": 380.0
+      },
+      "来源": "05-F/out/03.funding_coverage_gap.hot_gap_segments[0]"
+    },
+    {
+      "编号": "C2",
+      "主张": "缺口段内冷档完整（热少冷多）",
+      "claim": {
+        "window": {
+          "from_utc": "2026-08-20T00:00:00Z",
+          "to_utc": "2026-10-01T00:00:00Z"
+        },
+        "hot_rows": 101945,
+        "cold_rows": 120309,
+        "cold_more_symbols": 420,
+        "cold_more_rows": 40718
+      },
+      "来源": "05-F/out/03.funding_coverage_gap（注意：它的对比窗口是 2026-08-20→2026-10-01，不是 05-C 的 06-27→10-26；本单两个窗口都算）"
+    },
+    {
+      "编号": "C3",
+      "主张": "验证区间「该结算却无记录」的真实缺口笔数",
+      "claim": {
+        "fills": 1523,
+        "zero_settlement": 156,
+        "zero_but_hold_lt_8h": 60,
+        "real_gap": 96,
+        "inside_hot_gap": 96
+      },
+      "来源": "05-F/out/04.quantified.holdout_final"
+    },
+    {
+      "编号": "C4",
+      "主张": "结算间隔中位数",
+      "claim": 4.0,
+      "来源": "05-F/out/04.quantified.holdout_final.settlements.median_interval_hours"
+    },
+    {
+      "编号": "C5",
+      "主张": "热库 fetched_at 事后回填占比",
+      "claim": {
+        "le_1h": 7,
+        "le_24h": 4436,
+        "gt_24h": 2120804,
+        "fetched_before_event": 0,
+        "gt_24h_pct": 99.79,
+        "含义": "fetched_at 有值 ≠ 当时可得。差值 > 24h 的是事后批量回填，对历史回放只能算 late/unknown，不能算 proven"
+      },
+      "来源": "05-F/out/03.non_bar_inputs.funding.fetch_lag"
+    },
+    {
+      "编号": "C6",
+      "主张": "冷档是否有「当时可得」字段",
+      "claim": false,
+      "来源": "05-F/out/03.non_bar_inputs.funding.available_at_in_cold"
+    },
+    {
+      "编号": "C7",
+      "主张": "G4 是唯一阻塞项",
+      "claim": [
+        "G4"
+      ],
+      "来源": "05-F/out/05.gaps[].阻塞等级"
+    }
+  ],
+  "env": {
+    "python": "3.13.12",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "duckdb": "1.5.6"
+  },
+  "elapsed_sec": 2.86
+}

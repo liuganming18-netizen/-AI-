@@ -1,0 +1,181 @@
+{
+  "title": "SIGNAL-ENDTOEND-03 隔离工程流水线与生产代码端到端核验报告",
+  "timestamp_utc": "2026-10-24T08:45:25.558690+00:00",
+  "scope": "ISOLATED_ENGINE_TEST",
+  "production_code_reused": [
+    "unified_runtime.UnifiedRuntime",
+    "unified_runtime.SignalPersistenceAndRouter",
+    "unified_runtime.UnifiedExecutionDaemon",
+    "paper_engine.open_position",
+    "paper_engine.advance_pending",
+    "live_store.ensure_live_schema",
+    "live_store.paper_conn"
+  ],
+  "total_checks": 14,
+  "passed_checks": 14,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "id": "P01_ENGINE_BOOTSTRAP",
+      "name": "信号引擎在隔离沙盒成功预热",
+      "passed": true,
+      "detail": {
+        "symbol": "VELVETUSDT",
+        "upto_ms": 1792677600000
+      }
+    },
+    {
+      "id": "P02_SIGNAL_PERSIST",
+      "name": "候选信号成功持久化到 live_signal 库",
+      "passed": true,
+      "detail": {
+        "new": 1,
+        "updated": 0,
+        "total_written": 1
+      }
+    },
+    {
+      "id": "P03_SIGNAL_DB_LOOKUP",
+      "name": "信号查验且角色为 enterable_arm_entry",
+      "passed": true,
+      "detail": {
+        "symbol": "VELVETUSDT",
+        "direction": "long",
+        "state": "enterable"
+      }
+    },
+    {
+      "id": "P04_SIGNAL_IDEMPOTENCY",
+      "name": "重复扫描幂等性验证：同一信号不重复落库",
+      "passed": true,
+      "detail": {
+        "new": 0,
+        "updated": 1,
+        "total_written": 1
+      }
+    },
+    {
+      "id": "P05_ORDER_ROUTING",
+      "name": "订单路由成功生成挂单 (paper_pending)",
+      "passed": true,
+      "detail": {
+        "processed": 1,
+        "registered": 1,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      }
+    },
+    {
+      "id": "P06_PENDING_ORDER_IN_DB",
+      "name": "挂单登记于 paper_pending 且状态为 pending",
+      "passed": true,
+      "detail": {
+        "symbol": "VELVETUSDT",
+        "status": "pending"
+      }
+    },
+    {
+      "id": "P07_ORDER_IDEMPOTENT_ROUTING",
+      "name": "订单路由幂等：已存在挂单不重复挂单",
+      "passed": true,
+      "detail": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      }
+    },
+    {
+      "id": "P08_EXECUTION_MATCH",
+      "name": "模拟撮合执行推进：挂单成功匹配成交",
+      "passed": true,
+      "detail": {
+        "pending_matched": 1,
+        "trailing_updates": 0,
+        "exits_triggered": 0,
+        "errors": []
+      }
+    },
+    {
+      "id": "P09_POSITION_OPEN",
+      "name": "持仓表生成确切开仓记录且状态为 open",
+      "passed": true,
+      "detail": {
+        "position_id": 1,
+        "symbol": "VELVETUSDT",
+        "entry_price": 0.05303000000000001,
+        "stop_price": 0.050370000000000005
+      }
+    },
+    {
+      "id": "P10_TRAILING_UPDATE",
+      "name": "4h 推进触发跟踪止损单调抬高",
+      "passed": true,
+      "detail": {
+        "pending_matched": 0,
+        "trailing_updates": 1,
+        "exits_triggered": 0,
+        "errors": []
+      }
+    },
+    {
+      "id": "P11_STOP_PRICE_INCREASED",
+      "name": "跟踪止损价格严格单调抬高",
+      "passed": true,
+      "detail": {
+        "initial_stop": 0.050370000000000005,
+        "updated_stop": 0.051300000000000005,
+        "delta": 0.0009300000000000003
+      }
+    },
+    {
+      "id": "P12_EXIT_TRIGGERED",
+      "name": "价格击穿止损线触发平仓退出",
+      "passed": true,
+      "detail": {
+        "pending_matched": 0,
+        "trailing_updates": 0,
+        "exits_triggered": 1,
+        "errors": []
+      }
+    },
+    {
+      "id": "P13_REALIZED_ARCHIVE",
+      "name": "持仓完全清空且已实现平仓记录归档 (paper_realized)",
+      "passed": true,
+      "detail": {
+        "open_positions": 0,
+        "realized_count": 1,
+        "exit_reason": "trailing_stop_loss"
+      }
+    },
+    {
+      "id": "P14_GATE_DEFENSE_VERIFIED",
+      "name": "门禁关闭防御：挂单被阻止且正确统计 waiting_gate",
+      "passed": true,
+      "detail": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 1,
+        "terminal": 0,
+        "errors": []
+      }
+    }
+  ],
+  "pipeline_summary": {
+    "engine_bootstrap": true,
+    "signal_to_db": true,
+    "db_to_order_routing": true,
+    "order_to_fill": true,
+    "fill_to_position": true,
+    "trailing_stop_update": true,
+    "position_exit_and_archive": true,
+    "idempotency_confirmed": true,
+    "gate_defense_confirmed": true
+  }
+}

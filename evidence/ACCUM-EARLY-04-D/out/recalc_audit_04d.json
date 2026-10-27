@@ -1,0 +1,5497 @@
+{
+  "summary": {
+    "total_records": 102,
+    "total_candidates": 51,
+    "comparisons_count": 102,
+    "all_matched_count": 102,
+    "window3_summary": {
+      "total_items": 102,
+      "usable_count": 63,
+      "hold_count": 39,
+      "usable_pct": 61.76
+    }
+  },
+  "timing_failure_evidence": {
+    "case_name": "timing_1200_vs_1215_intrabar_touch",
+    "description": "4h线在12:00收盘，12:00~12:15价格击穿新止损但未击穿初始止损",
+    "initial_stop": 95.0,
+    "candidate_stop": 98.8,
+    "buggy_old_behavior": {
+      "effective_ms": 1785585599999,
+      "effective_utc": "2026-08-01T11:59:59Z",
+      "exit_result": {
+        "exit_utc": "2026-08-01T12:00:00Z",
+        "stop_used": 98.8
+      },
+      "failed_as_expected": true,
+      "assertion_error": "旧逻辑断言失败：在 12:00 发生了提前误退出！exit={'exit_utc': '2026-08-01T12:00:00Z', 'stop_used': 98.8}"
+    },
+    "corrected_user_timing_behavior": {
+      "effective_ms": 1785586500000,
+      "effective_utc": "2026-08-01T12:15:00Z",
+      "exit_result": null,
+      "assertion_passed": true
+    },
+    "verdict": "验证通过：旧逻辑在12:00发生时序穿透并触发真实断言失败；整改后严格遵守12:15生效，成功阻断错误退出。"
+  },
+  "comparisons": [
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "策略包_3bps",
+      "ind_status": "rejected",
+      "r02_status": "rejected",
+      "status_match": true,
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "生效视图_5bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "策略包_3bps",
+      "match_02": {
+        "entry_price": true,
+        "initial_stop": true,
+        "qty": true,
+        "entry_fee": true,
+        "exit_utc": true,
+        "exit_fill": true,
+        "funding_cost": true,
+        "realized_net": true
+      },
+      "match_replay_calc_fixed": {
+        "exit_utc": true,
+        "realized_net": true
+      },
+      "all_match": true
+    }
+  ],
+  "recalc_records": [
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-24T08:15:00Z",
+      "entry_price": 0.03365,
+      "initial_stop": 0.03196,
+      "qty": 14792.800000000001,
+      "notional": 497.77772,
+      "entry_fee": 0.24888886,
+      "exit_utc": "2026-07-25T19:45:00Z",
+      "exit_fill": 0.03196,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -4.07071644,
+      "funding_uncertain_count": 0,
+      "realized_net": -21.414393,
+      "realized_net_open_model": -21.414393,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-24T08:15:00Z",
+      "entry_price": 0.03365,
+      "initial_stop": 0.03196,
+      "qty": 5917.1,
+      "notional": 199.110415,
+      "entry_fee": 0.09955521,
+      "exit_utc": "2026-07-25T19:45:00Z",
+      "exit_fill": 0.03196,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -1.62828107,
+      "funding_uncertain_count": 0,
+      "realized_net": -8.565728,
+      "realized_net_open_model": -8.565728,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-25T19:15:00Z",
+      "entry_price": 0.005664,
+      "initial_stop": 0.005379999999999999,
+      "qty": 88028.0,
+      "notional": 498.590592,
+      "entry_fee": 0.2492953,
+      "exit_utc": "2026-07-29T11:00:00Z",
+      "exit_fill": 0.006403949999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.62684616,
+      "funding_uncertain_count": 0,
+      "realized_net": 63.978314,
+      "realized_net_open_model": 63.978314,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-25T19:15:00Z",
+      "entry_price": 0.005663,
+      "initial_stop": 0.005379,
+      "qty": 35211.0,
+      "notional": 199.399893,
+      "entry_fee": 0.09969995,
+      "exit_utc": "2026-07-29T11:00:00Z",
+      "exit_fill": 0.006403949999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.25073704,
+      "funding_uncertain_count": 0,
+      "realized_net": 25.626409,
+      "realized_net_open_model": 25.626409,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-26T07:15:00Z",
+      "entry_price": 0.0030061999999999997,
+      "initial_stop": 0.0028558,
+      "qty": 166223.0,
+      "notional": 499.699583,
+      "entry_fee": 0.24984979,
+      "exit_utc": "2026-07-27T22:30:00Z",
+      "exit_fill": 0.0028558,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.24691429,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.734053,
+      "realized_net_open_model": -25.734053,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-26T07:15:00Z",
+      "entry_price": 0.0030055999999999998,
+      "initial_stop": 0.0028553,
+      "qty": 66533.0,
+      "notional": 199.971585,
+      "entry_fee": 0.09998579,
+      "exit_utc": "2026-07-27T22:30:00Z",
+      "exit_fill": 0.0028553,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.09883078,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.293712,
+      "realized_net_open_model": -10.293712,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-27T01:15:00Z",
+      "entry_price": 0.03941,
+      "initial_stop": 0.037430000000000005,
+      "qty": 12626.2,
+      "notional": 497.598542,
+      "entry_fee": 0.24879927,
+      "exit_utc": "2026-07-27T23:30:00Z",
+      "exit_fill": 0.039387,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -3.85815482,
+      "funding_uncertain_count": 0,
+      "realized_net": 3.070299,
+      "realized_net_open_model": 3.070299,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-27T01:15:00Z",
+      "entry_price": 0.03941,
+      "initial_stop": 0.037430000000000005,
+      "qty": 5050.5,
+      "notional": 199.040205,
+      "entry_fee": 0.0995201,
+      "exit_utc": "2026-07-27T23:30:00Z",
+      "exit_fill": 0.039387,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -1.54326804,
+      "funding_uncertain_count": 0,
+      "realized_net": 1.228124,
+      "realized_net_open_model": 1.228124,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-27T04:15:00Z",
+      "entry_price": 0.008834999999999999,
+      "initial_stop": 0.008393,
+      "qty": 27785.0,
+      "notional": 245.480475,
+      "entry_fee": 0.12274024,
+      "exit_utc": "2026-07-27T22:45:00Z",
+      "exit_fill": 0.008569,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.03013966,
+      "funding_uncertain_count": 0,
+      "realized_net": -7.662735,
+      "realized_net_open_model": -7.662735,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-27T04:15:00Z",
+      "entry_price": 0.008832999999999999,
+      "initial_stop": 0.008391,
+      "qty": 2779.0,
+      "notional": 24.546907,
+      "entry_fee": 0.01227345,
+      "exit_utc": "2026-07-27T22:45:00Z",
+      "exit_fill": 0.008569,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.00301451,
+      "funding_uncertain_count": 0,
+      "realized_net": -0.760851,
+      "realized_net_open_model": -0.760851,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-29T14:15:00Z",
+      "entry_price": 0.40130000000000005,
+      "initial_stop": 0.38120000000000004,
+      "qty": 1243.0,
+      "notional": 498.8159,
+      "entry_fee": 0.24940795,
+      "exit_utc": "2026-07-29T19:00:00Z",
+      "exit_fill": 0.38120000000000004,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.26120403,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.731828,
+      "realized_net_open_model": -25.731828,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-07-29T14:15:00Z",
+      "entry_price": 0.4012,
+      "initial_stop": 0.3811,
+      "qty": 497.0,
+      "notional": 199.3964,
+      "entry_fee": 0.0996982,
+      "exit_utc": "2026-07-29T19:00:00Z",
+      "exit_fill": 0.3811,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.10443958,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.288541,
+      "realized_net_open_model": -10.288541,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-04T02:15:00Z",
+      "entry_price": 0.8408,
+      "initial_stop": 0.7987000000000001,
+      "qty": 593.8000000000001,
+      "notional": 499.26704,
+      "entry_fee": 0.24963352,
+      "exit_utc": "2026-08-07T14:00:00Z",
+      "exit_fill": 0.8048399999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.36058377,
+      "funding_uncertain_count": 0,
+      "realized_net": -22.202222,
+      "realized_net_open_model": -22.202222,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-04T02:15:00Z",
+      "entry_price": 0.8406,
+      "initial_stop": 0.7985,
+      "qty": 237.5,
+      "notional": 199.6425,
+      "entry_fee": 0.09982125,
+      "exit_utc": "2026-08-07T14:00:00Z",
+      "exit_fill": 0.8048399999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.14422136,
+      "funding_uncertain_count": 0,
+      "realized_net": -8.832617,
+      "realized_net_open_model": -8.832617,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-06T17:15:00Z",
+      "entry_price": 0.012410000000000001,
+      "initial_stop": 0.01178,
+      "qty": 39682.0,
+      "notional": 492.45362,
+      "entry_fee": 0.24622681,
+      "exit_utc": "2026-08-07T05:30:00Z",
+      "exit_fill": 0.011932,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.07538497,
+      "funding_uncertain_count": 0,
+      "realized_net": -19.526351,
+      "realized_net_open_model": -19.526351,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-06T17:15:00Z",
+      "entry_price": 0.012410000000000001,
+      "initial_stop": 0.01178,
+      "qty": 15117.0,
+      "notional": 187.60197,
+      "entry_fee": 0.09380099,
+      "exit_utc": "2026-08-07T05:30:00Z",
+      "exit_fill": 0.011932,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.02871817,
+      "funding_uncertain_count": 0,
+      "realized_net": -7.438633,
+      "realized_net_open_model": -7.438633,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-07T03:15:00Z",
+      "entry_price": 0.020970000000000003,
+      "initial_stop": 0.01992,
+      "qty": 23809.0,
+      "notional": 499.27473,
+      "entry_fee": 0.24963737,
+      "exit_utc": "2026-08-07T04:45:00Z",
+      "exit_fill": 0.01992,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -1.76842947,
+      "funding_uncertain_count": 0,
+      "realized_net": -23.717796,
+      "realized_net_open_model": -23.717796,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-07T03:15:00Z",
+      "entry_price": 0.020960000000000003,
+      "initial_stop": 0.01991,
+      "qty": 9523.0,
+      "notional": 199.60208,
+      "entry_fee": 0.09980104,
+      "exit_utc": "2026-08-07T04:45:00Z",
+      "exit_fill": 0.01991,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.70732722,
+      "funding_uncertain_count": 0,
+      "realized_net": -9.486425,
+      "realized_net_open_model": -9.486425,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-09T05:15:00Z",
+      "entry_price": 0.032740000000000005,
+      "initial_stop": 0.031100000000000003,
+      "qty": 15243.900000000001,
+      "notional": 499.085286,
+      "entry_fee": 0.24954264,
+      "exit_utc": "2026-08-13T16:30:00Z",
+      "exit_fill": 0.031100000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.62490948,
+      "funding_uncertain_count": 0,
+      "realized_net": -26.111491,
+      "realized_net_open_model": -26.111491,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-09T05:15:00Z",
+      "entry_price": 0.03273,
+      "initial_stop": 0.031090000000000003,
+      "qty": 5124.6,
+      "notional": 167.728158,
+      "entry_fee": 0.08386408,
+      "exit_utc": "2026-08-13T16:30:00Z",
+      "exit_fill": 0.031090000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.2100782,
+      "funding_uncertain_count": 0,
+      "realized_net": -8.777948,
+      "realized_net_open_model": -8.777948,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-16T12:15:00Z",
+      "entry_price": 0.01284,
+      "initial_stop": 0.012190000000000001,
+      "qty": 38461.5,
+      "notional": 493.84566,
+      "entry_fee": 0.24692283,
+      "exit_utc": "2026-08-17T01:45:00Z",
+      "exit_fill": 0.015333000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -1.12697414,
+      "funding_uncertain_count": 0,
+      "realized_net": 96.469706,
+      "realized_net_open_model": 96.469706,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-16T12:15:00Z",
+      "entry_price": 0.01284,
+      "initial_stop": 0.012190000000000001,
+      "qty": 15384.6,
+      "notional": 197.538264,
+      "entry_fee": 0.09876913,
+      "exit_utc": "2026-08-17T01:45:00Z",
+      "exit_fill": 0.015333000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -0.45078966,
+      "funding_uncertain_count": 0,
+      "realized_net": 38.587882,
+      "realized_net_open_model": 38.587882,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.6277,
+      "initial_stop": 0.5963,
+      "qty": 796.0,
+      "notional": 499.6492,
+      "entry_fee": 0.2498246,
+      "exit_utc": "2026-08-21T19:00:00Z",
+      "exit_fill": 0.6820999999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.29468952,
+      "funding_uncertain_count": 0,
+      "realized_net": 42.48641,
+      "realized_net_open_model": 42.48641,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.6275000000000001,
+      "initial_stop": 0.5961000000000001,
+      "qty": 318.0,
+      "notional": 199.545,
+      "entry_fee": 0.0997725,
+      "exit_utc": "2026-08-21T19:00:00Z",
+      "exit_fill": 0.6820999999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.11772772,
+      "funding_uncertain_count": 0,
+      "realized_net": 17.036846,
+      "realized_net_open_model": 17.036846,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.2619,
+      "initial_stop": 0.24880000000000002,
+      "qty": 1908.0,
+      "notional": 499.7052,
+      "entry_fee": 0.2498526,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.27113,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.36585269,
+      "funding_uncertain_count": 0,
+      "realized_net": 16.736477,
+      "realized_net_open_model": 16.736477,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.26180000000000003,
+      "initial_stop": 0.2487,
+      "qty": 253.0,
+      "notional": 66.2354,
+      "entry_fee": 0.0331177,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.27113,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.04851191,
+      "funding_uncertain_count": 0,
+      "realized_net": 2.244562,
+      "realized_net_open_model": 2.244562,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.06652000000000001,
+      "initial_stop": 0.06319000000000001,
+      "qty": 7507.0,
+      "notional": 499.36564,
+      "entry_fee": 0.24968282,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.06679449999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.3175053,
+      "funding_uncertain_count": 0,
+      "realized_net": 1.24277,
+      "realized_net_open_model": 1.24277,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-19T21:15:00Z",
+      "entry_price": 0.0665,
+      "initial_stop": 0.06317,
+      "qty": 1606.0,
+      "notional": 106.799,
+      "entry_fee": 0.0533995,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.06679449999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.06792507,
+      "funding_uncertain_count": 0,
+      "realized_net": 0.298006,
+      "realized_net_open_model": 0.298006,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T05:15:00Z",
+      "entry_price": 0.008372,
+      "initial_stop": 0.007953,
+      "qty": 42559.0,
+      "notional": 356.303948,
+      "entry_fee": 0.17815197,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.00891005,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.22970952,
+      "funding_uncertain_count": 0,
+      "realized_net": 22.301407,
+      "realized_net_open_model": 22.301407,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T05:15:00Z",
+      "entry_price": 0.008369999999999999,
+      "initial_stop": 0.007951,
+      "qty": 4257.0,
+      "notional": 35.63109,
+      "entry_fee": 0.01781554,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.00891005,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.02297689,
+      "funding_uncertain_count": 0,
+      "realized_net": 2.239235,
+      "realized_net_open_model": 2.239235,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T09:15:00Z",
+      "entry_price": 0.01433,
+      "initial_stop": 0.01361,
+      "qty": 24305.0,
+      "notional": 348.29065,
+      "entry_fee": 0.17414533,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.0155325,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.20204271,
+      "funding_uncertain_count": 0,
+      "realized_net": 28.661816,
+      "realized_net_open_model": 28.661816,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T09:15:00Z",
+      "entry_price": 0.01433,
+      "initial_stop": 0.01361,
+      "qty": 2430.0,
+      "notional": 34.8219,
+      "entry_fee": 0.01741095,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.0155325,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.02020011,
+      "funding_uncertain_count": 0,
+      "realized_net": 2.865592,
+      "realized_net_open_model": 2.865592,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T16:15:00Z",
+      "entry_price": 0.04274,
+      "initial_stop": 0.040600000000000004,
+      "qty": 11682.0,
+      "notional": 499.28868,
+      "entry_fee": 0.24964434,
+      "exit_utc": "2026-08-22T01:30:00Z",
+      "exit_fill": 0.0443555,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.155443,
+      "funding_uncertain_count": 0,
+      "realized_net": 18.208103,
+      "realized_net_open_model": 18.208103,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-20T16:15:00Z",
+      "entry_price": 0.042730000000000004,
+      "initial_stop": 0.04059,
+      "qty": 4672.0,
+      "notional": 199.63456,
+      "entry_fee": 0.09981728,
+      "exit_utc": "2026-08-22T01:30:00Z",
+      "exit_fill": 0.0443555,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.06216655,
+      "funding_uncertain_count": 0,
+      "realized_net": 7.328738,
+      "realized_net_open_model": 7.328738,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T05:15:00Z",
+      "entry_price": 0.06842000000000001,
+      "initial_stop": 0.06499,
+      "qty": 7288.0,
+      "notional": 498.64496,
+      "entry_fee": 0.24932248,
+      "exit_utc": "2026-08-21T08:15:00Z",
+      "exit_fill": 0.06499,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.04467696,
+      "funding_uncertain_count": 1,
+      "realized_net": -25.528663,
+      "realized_net_open_model": -25.528663,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T05:15:00Z",
+      "entry_price": 0.06841000000000001,
+      "initial_stop": 0.06498000000000001,
+      "qty": 2915.0,
+      "notional": 199.41515,
+      "entry_fee": 0.09970758,
+      "exit_utc": "2026-08-21T08:15:00Z",
+      "exit_fill": 0.06498000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.01786956,
+      "funding_uncertain_count": 1,
+      "realized_net": -10.210735,
+      "realized_net_open_model": -10.210735,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T09:15:00Z",
+      "entry_price": 0.0047279999999999996,
+      "initial_stop": 0.004491,
+      "qty": 105485.0,
+      "notional": 498.73308,
+      "entry_fee": 0.24936654,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.004572349999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.53860193,
+      "funding_uncertain_count": 0,
+      "realized_net": -17.447866,
+      "realized_net_open_model": -17.447866,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T09:15:00Z",
+      "entry_price": 0.004726999999999999,
+      "initial_stop": 0.00449,
+      "qty": 16644.0,
+      "notional": 78.676188,
+      "entry_fee": 0.03933809,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.004572349999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.08498356,
+      "funding_uncertain_count": 0,
+      "realized_net": -2.736367,
+      "realized_net_open_model": -2.736367,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T09:15:00Z",
+      "entry_price": 0.09385,
+      "initial_stop": 0.08915000000000001,
+      "qty": 5319.0,
+      "notional": 499.18815,
+      "entry_fee": 0.24959407,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.0906585,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.12849855,
+      "funding_uncertain_count": 0,
+      "realized_net": -17.594787,
+      "realized_net_open_model": -17.594787,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T09:15:00Z",
+      "entry_price": 0.09383000000000001,
+      "initial_stop": 0.08913,
+      "qty": 532.0,
+      "notional": 49.91756,
+      "entry_fee": 0.02495878,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.0906585,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.01285227,
+      "funding_uncertain_count": 0,
+      "realized_net": -1.749164,
+      "realized_net_open_model": -1.749164,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T13:15:00Z",
+      "entry_price": 0.008206,
+      "initial_stop": 0.007795,
+      "qty": 17935.0,
+      "notional": 147.17461,
+      "entry_fee": 0.07358731,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.007795,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.02970888,
+      "funding_uncertain_count": 0,
+      "realized_net": -7.544483,
+      "realized_net_open_model": -7.544483,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-08-21T13:15:00Z",
+      "entry_price": 0.008204,
+      "initial_stop": 0.007793,
+      "qty": 1793.0,
+      "notional": 14.709772,
+      "entry_fee": 0.00735489,
+      "exit_utc": "2026-08-22T05:00:00Z",
+      "exit_fill": 0.007793,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.00297006,
+      "funding_uncertain_count": 0,
+      "realized_net": -0.754234,
+      "realized_net_open_model": -0.754234,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-04T20:15:00Z",
+      "entry_price": 2.116,
+      "initial_stop": 2.0100000000000002,
+      "qty": 235.0,
+      "notional": 497.26,
+      "entry_fee": 0.24863,
+      "exit_utc": "2026-09-07T22:30:00Z",
+      "exit_fill": 2.27715,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.3460772,
+      "funding_uncertain_count": 0,
+      "realized_net": 37.007978,
+      "realized_net_open_model": 37.007978,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-04T20:15:00Z",
+      "entry_price": 2.115,
+      "initial_stop": 2.009,
+      "qty": 94.0,
+      "notional": 198.81,
+      "entry_fee": 0.099405,
+      "exit_utc": "2026-09-07T22:30:00Z",
+      "exit_fill": 2.27715,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.13843088,
+      "funding_uncertain_count": 0,
+      "realized_net": 14.897238,
+      "realized_net_open_model": 14.897238,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-05T13:15:00Z",
+      "entry_price": 0.016867999999999998,
+      "initial_stop": 0.016024,
+      "qty": 29620.0,
+      "notional": 499.63016,
+      "entry_fee": 0.24981508,
+      "exit_utc": "2026-09-05T13:30:00Z",
+      "exit_fill": 0.016024,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.486411,
+      "realized_net_open_model": -25.486411,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-05T13:15:00Z",
+      "entry_price": 0.016864999999999998,
+      "initial_stop": 0.016021,
+      "qty": 11848.0,
+      "notional": 199.81652,
+      "entry_fee": 0.09990826,
+      "exit_utc": "2026-09-05T13:30:00Z",
+      "exit_fill": 0.016021,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.194529,
+      "realized_net_open_model": -10.194529,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-06T12:15:00Z",
+      "entry_price": 0.010248,
+      "initial_stop": 0.009734999999999999,
+      "qty": 48732.9,
+      "notional": 499.414759,
+      "entry_fee": 0.24970738,
+      "exit_utc": "2026-09-09T22:00:00Z",
+      "exit_fill": 0.009759349999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -24.30084,
+      "realized_net_open_model": -24.30084,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-06T12:15:00Z",
+      "entry_price": 0.010246,
+      "initial_stop": 0.009733,
+      "qty": 5786.900000000001,
+      "notional": 59.292577,
+      "entry_fee": 0.02964629,
+      "exit_utc": "2026-09-09T22:00:00Z",
+      "exit_fill": 0.009759349999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -2.874079,
+      "realized_net_open_model": -2.874079,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T07:15:00Z",
+      "entry_price": 0.02127,
+      "initial_stop": 0.020200000000000003,
+      "qty": 23364.0,
+      "notional": 496.95228,
+      "entry_fee": 0.24847614,
+      "exit_utc": "2026-09-07T15:45:00Z",
+      "exit_fill": 0.020200000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.483933,
+      "realized_net_open_model": -25.483933,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T07:15:00Z",
+      "entry_price": 0.02126,
+      "initial_stop": 0.020190000000000003,
+      "qty": 6678.0,
+      "notional": 141.97428,
+      "entry_fee": 0.07098714,
+      "exit_utc": "2026-09-07T15:45:00Z",
+      "exit_fill": 0.020190000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -7.283862,
+      "realized_net_open_model": -7.283862,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T09:15:00Z",
+      "entry_price": 0.017151,
+      "initial_stop": 0.016293,
+      "qty": 12167.0,
+      "notional": 208.676217,
+      "entry_fee": 0.10433811,
+      "exit_utc": "2026-09-08T07:30:00Z",
+      "exit_fill": 0.016503399999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -8.084086,
+      "realized_net_open_model": -8.084086,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T09:15:00Z",
+      "entry_price": 0.017148,
+      "initial_stop": 0.01629,
+      "qty": 1216.0,
+      "notional": 20.851968,
+      "entry_fee": 0.01042598,
+      "exit_utc": "2026-09-08T07:30:00Z",
+      "exit_fill": 0.016503399999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -0.804294,
+      "realized_net_open_model": -0.804294,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T13:15:00Z",
+      "entry_price": 0.19452000000000003,
+      "initial_stop": 0.18479,
+      "qty": 2569.0,
+      "notional": 499.72188,
+      "entry_fee": 0.24986094,
+      "exit_utc": "2026-09-09T15:00:00Z",
+      "exit_fill": 0.18479,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.26953346,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.753127,
+      "realized_net_open_model": -25.753127,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-07T13:15:00Z",
+      "entry_price": 0.19448000000000001,
+      "initial_stop": 0.18475000000000003,
+      "qty": 1027.0,
+      "notional": 199.73096,
+      "entry_fee": 0.09986548,
+      "exit_utc": "2026-09-09T15:00:00Z",
+      "exit_fill": 0.18475000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.10775043,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.295195,
+      "realized_net_open_model": -10.295195,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-09T09:15:00Z",
+      "entry_price": 0.11533000000000002,
+      "initial_stop": 0.10956,
+      "qty": 1644.0,
+      "notional": 189.60252,
+      "entry_fee": 0.09480126,
+      "exit_utc": "2026-09-09T17:30:00Z",
+      "exit_fill": 0.1110835,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -7.167358,
+      "realized_net_open_model": -7.167358,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-09T09:15:00Z",
+      "entry_price": 0.11531000000000001,
+      "initial_stop": 0.10954000000000001,
+      "qty": 164.0,
+      "notional": 18.91084,
+      "entry_fee": 0.00945542,
+      "exit_utc": "2026-09-09T17:30:00Z",
+      "exit_fill": 0.1110835,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -0.71171,
+      "realized_net_open_model": -0.71171,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-11T09:15:00Z",
+      "entry_price": 0.24810000000000001,
+      "initial_stop": 0.2356,
+      "qty": 1999.0,
+      "notional": 495.9519,
+      "entry_fee": 0.24797595,
+      "exit_utc": "2026-09-11T21:45:00Z",
+      "exit_fill": 0.24576499999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -5.161283,
+      "realized_net_open_model": -5.161283,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-11T09:15:00Z",
+      "entry_price": 0.248,
+      "initial_stop": 0.2356,
+      "qty": 806.0,
+      "notional": 199.888,
+      "entry_fee": 0.099944,
+      "exit_utc": "2026-09-11T21:45:00Z",
+      "exit_fill": 0.24576499999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -2.000397,
+      "realized_net_open_model": -2.000397,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-13T00:15:00Z",
+      "entry_price": 0.01643,
+      "initial_stop": 0.015600000000000001,
+      "qty": 30120.0,
+      "notional": 494.8716,
+      "entry_fee": 0.2474358,
+      "exit_utc": "2026-09-14T12:30:00Z",
+      "exit_fill": 0.0157605,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -20.650129,
+      "realized_net_open_model": -20.650129,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-13T00:15:00Z",
+      "entry_price": 0.01643,
+      "initial_stop": 0.015600000000000001,
+      "qty": 6396.0,
+      "notional": 105.08628,
+      "entry_fee": 0.05254314,
+      "exit_utc": "2026-09-14T12:30:00Z",
+      "exit_fill": 0.0157605,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -4.385067,
+      "realized_net_open_model": -4.385067,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-16T19:15:00Z",
+      "entry_price": 1339.38,
+      "initial_stop": 1272.41,
+      "qty": 0.373,
+      "notional": 499.58874,
+      "entry_fee": 0.24979437,
+      "exit_utc": "2026-09-16T19:15:00Z",
+      "exit_fill": 1272.41,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.466909,
+      "realized_net_open_model": -25.466909,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-16T19:15:00Z",
+      "entry_price": 1339.1200000000001,
+      "initial_stop": 1272.16,
+      "qty": 0.149,
+      "notional": 199.52888,
+      "entry_fee": 0.09976444,
+      "exit_utc": "2026-09-16T19:15:00Z",
+      "exit_fill": 1272.16,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.17158,
+      "realized_net_open_model": -10.17158,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T01:15:00Z",
+      "entry_price": 0.01191,
+      "initial_stop": 0.01131,
+      "qty": 41666.0,
+      "notional": 496.24206,
+      "entry_fee": 0.24812103,
+      "exit_utc": "2026-09-18T03:30:00Z",
+      "exit_fill": 0.01131,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.483342,
+      "realized_net_open_model": -25.483342,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T01:15:00Z",
+      "entry_price": 0.01191,
+      "initial_stop": 0.01131,
+      "qty": 16666.0,
+      "notional": 198.49206,
+      "entry_fee": 0.09924603,
+      "exit_utc": "2026-09-18T03:30:00Z",
+      "exit_fill": 0.01131,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.193092,
+      "realized_net_open_model": -10.193092,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T02:15:00Z",
+      "entry_price": 1.0093,
+      "initial_stop": 0.9588000000000001,
+      "qty": 495.0,
+      "notional": 499.6035,
+      "entry_fee": 0.24980175,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 1.06951,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.77743277,
+      "funding_uncertain_count": 0,
+      "realized_net": 28.512012,
+      "realized_net_open_model": 28.512012,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T02:15:00Z",
+      "entry_price": 1.0091,
+      "initial_stop": 0.9586,
+      "qty": 198.0,
+      "notional": 199.8018,
+      "entry_fee": 0.0999009,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 1.06951,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.31097311,
+      "funding_uncertain_count": 0,
+      "realized_net": 11.444425,
+      "realized_net_open_model": 11.444425,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T15:15:00Z",
+      "entry_price": 0.6447,
+      "initial_stop": 0.6124,
+      "qty": 773.9000000000001,
+      "notional": 498.93333,
+      "entry_fee": 0.24946667,
+      "exit_utc": "2026-09-18T15:15:00Z",
+      "exit_fill": 0.6124,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.483405,
+      "realized_net_open_model": -25.483405,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T15:15:00Z",
+      "entry_price": 0.6445000000000001,
+      "initial_stop": 0.6122000000000001,
+      "qty": 309.5,
+      "notional": 199.47275,
+      "entry_fee": 0.09973638,
+      "exit_utc": "2026-09-18T15:15:00Z",
+      "exit_fill": 0.6122000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.191324,
+      "realized_net_open_model": -10.191324,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T17:15:00Z",
+      "entry_price": 0.20770000000000002,
+      "initial_stop": 0.1973,
+      "qty": 2403.8,
+      "notional": 499.26926,
+      "entry_fee": 0.24963463,
+      "exit_utc": "2026-09-22T00:00:00Z",
+      "exit_fill": 0.233605,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -3.7172706,
+      "funding_uncertain_count": 1,
+      "realized_net": 65.457305,
+      "realized_net_open_model": 65.457305,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-18T17:15:00Z",
+      "entry_price": 0.2076,
+      "initial_stop": 0.19720000000000001,
+      "qty": 465.20000000000005,
+      "notional": 96.57552,
+      "entry_fee": 0.04828776,
+      "exit_utc": "2026-09-22T00:00:00Z",
+      "exit_fill": 0.233605,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": -0.71939191,
+      "funding_uncertain_count": 1,
+      "realized_net": 12.714294,
+      "realized_net_open_model": 12.714294,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-19T04:15:00Z",
+      "entry_price": 0.025130000000000003,
+      "initial_stop": 0.023870000000000002,
+      "qty": 11150.0,
+      "notional": 280.1995,
+      "entry_fee": 0.14009975,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.026296,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.37705691,
+      "funding_uncertain_count": 0,
+      "realized_net": 12.337143,
+      "realized_net_open_model": 12.337143,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-19T04:15:00Z",
+      "entry_price": 0.025120000000000003,
+      "initial_stop": 0.023860000000000003,
+      "qty": 1115.0,
+      "notional": 28.0088,
+      "entry_fee": 0.0140044,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.026296,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.03770569,
+      "funding_uncertain_count": 0,
+      "realized_net": 1.24487,
+      "realized_net_open_model": 1.24487,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-19T13:15:00Z",
+      "entry_price": 0.03864,
+      "initial_stop": 0.0367,
+      "qty": 1153.0,
+      "notional": 44.55192,
+      "entry_fee": 0.02227596,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.042009,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.05757404,
+      "funding_uncertain_count": 0,
+      "realized_net": 3.780389,
+      "realized_net_open_model": 3.780389,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "策略包_3bps",
+      "status": "rejected",
+      "reject_reason": "notional_below_min_notional:4.4436<5.0",
+      "entry_bar_utc": "2026-09-19T13:15:00Z"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-20T00:15:00Z",
+      "entry_price": 0.01575,
+      "initial_stop": 0.014960000000000001,
+      "qty": 20571.0,
+      "notional": 323.99325,
+      "entry_fee": 0.16199663,
+      "exit_utc": "2026-09-20T11:00:00Z",
+      "exit_fill": 0.014960000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.09095468,
+      "funding_uncertain_count": 0,
+      "realized_net": -16.657912,
+      "realized_net_open_model": -16.657912,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-20T00:15:00Z",
+      "entry_price": 0.01575,
+      "initial_stop": 0.014960000000000001,
+      "qty": 2057.0,
+      "notional": 32.39775,
+      "entry_fee": 0.01619888,
+      "exit_utc": "2026-09-20T11:00:00Z",
+      "exit_fill": 0.014960000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.00909503,
+      "funding_uncertain_count": 0,
+      "realized_net": -1.66571,
+      "realized_net_open_model": -1.66571,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T04:15:00Z",
+      "entry_price": 0.020790000000000003,
+      "initial_stop": 0.01975,
+      "qty": 17049.0,
+      "notional": 354.44871,
+      "entry_fee": 0.17722436,
+      "exit_utc": "2026-09-23T16:00:00Z",
+      "exit_fill": 0.0202065,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.25438414,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.55195,
+      "realized_net_open_model": -10.55195,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T04:15:00Z",
+      "entry_price": 0.020780000000000003,
+      "initial_stop": 0.01974,
+      "qty": 1705.0,
+      "notional": 35.4299,
+      "entry_fee": 0.01771495,
+      "exit_utc": "2026-09-23T16:00:00Z",
+      "exit_fill": 0.0202065,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.02543991,
+      "funding_uncertain_count": 0,
+      "realized_net": -1.038198,
+      "realized_net_open_model": -1.038198,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T08:15:00Z",
+      "entry_price": 0.08399000000000001,
+      "initial_stop": 0.07979,
+      "qty": 5952.0,
+      "notional": 499.90848,
+      "entry_fee": 0.24995424,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.087058,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.34239974,
+      "funding_uncertain_count": 0,
+      "realized_net": 17.409297,
+      "realized_net_open_model": 17.409297,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T08:15:00Z",
+      "entry_price": 0.08397,
+      "initial_stop": 0.07977000000000001,
+      "qty": 2003.0,
+      "notional": 168.19191,
+      "entry_fee": 0.08409596,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.087058,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.11522626,
+      "funding_uncertain_count": 0,
+      "realized_net": 5.898753,
+      "realized_net_open_model": 5.898753,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T11:15:00Z",
+      "entry_price": 0.005423,
+      "initial_stop": 0.005151,
+      "qty": 23532.0,
+      "notional": 127.614036,
+      "entry_fee": 0.06380702,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.0054587,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.08494075,
+      "funding_uncertain_count": 0,
+      "realized_net": 0.627118,
+      "realized_net_open_model": 0.627118,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-21T11:15:00Z",
+      "entry_price": 0.005422,
+      "initial_stop": 0.00515,
+      "qty": 2353.0,
+      "notional": 12.757966,
+      "entry_fee": 0.00637898,
+      "exit_utc": "2026-09-23T14:00:00Z",
+      "exit_fill": 0.0054587,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.00849335,
+      "funding_uncertain_count": 0,
+      "realized_net": 0.065061,
+      "realized_net_open_model": 0.065061,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-26T09:15:00Z",
+      "entry_price": 0.06663000000000001,
+      "initial_stop": 0.06329,
+      "qty": 7485.0,
+      "notional": 498.72555,
+      "entry_fee": 0.24936278,
+      "exit_utc": "2026-09-26T14:15:00Z",
+      "exit_fill": 0.06329,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.20022398,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.68635,
+      "realized_net_open_model": -25.68635,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-09-26T09:15:00Z",
+      "entry_price": 0.06661,
+      "initial_stop": 0.06327,
+      "qty": 2994.0,
+      "notional": 199.43034,
+      "entry_fee": 0.09971517,
+      "exit_utc": "2026-09-26T14:15:00Z",
+      "exit_fill": 0.06327,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.08008959,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.27448,
+      "realized_net_open_model": -10.27448,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-02T12:15:00Z",
+      "entry_price": 0.028860000000000004,
+      "initial_stop": 0.027410000000000004,
+      "qty": 17241.0,
+      "notional": 497.57526,
+      "entry_fee": 0.24878763,
+      "exit_utc": "2026-10-02T18:15:00Z",
+      "exit_fill": 0.027410000000000004,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.02391847,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.508444,
+      "realized_net_open_model": -25.508444,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-02T12:15:00Z",
+      "entry_price": 0.02885,
+      "initial_stop": 0.0274,
+      "qty": 6896.0,
+      "notional": 198.9496,
+      "entry_fee": 0.0994748,
+      "exit_utc": "2026-10-02T18:15:00Z",
+      "exit_fill": 0.0274,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.00956683,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.202717,
+      "realized_net_open_model": -10.202717,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-02T15:15:00Z",
+      "entry_price": 0.06692000000000001,
+      "initial_stop": 0.06357,
+      "qty": 7462.0,
+      "notional": 499.35704,
+      "entry_fee": 0.24967852,
+      "exit_utc": "2026-10-03T05:15:00Z",
+      "exit_fill": 0.06974899999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.50164063,
+      "funding_uncertain_count": 0,
+      "realized_net": 20.098445,
+      "realized_net_open_model": 20.098445,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-02T15:15:00Z",
+      "entry_price": 0.06691000000000001,
+      "initial_stop": 0.06356,
+      "qty": 2037.0,
+      "notional": 136.29567,
+      "entry_fee": 0.06814784,
+      "exit_utc": "2026-10-03T05:15:00Z",
+      "exit_fill": 0.06974899999999999,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.13693942,
+      "funding_uncertain_count": 0,
+      "realized_net": 5.506916,
+      "realized_net_open_model": 5.506916,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": true
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-03T04:15:00Z",
+      "entry_price": 0.017580000000000002,
+      "initial_stop": 0.016700000000000003,
+      "qty": 28409.0,
+      "notional": 499.43022,
+      "entry_fee": 0.24971511,
+      "exit_utc": "2026-10-05T04:30:00Z",
+      "exit_fill": 0.016700000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.00209963,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.484751,
+      "realized_net_open_model": -25.484751,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-03T04:15:00Z",
+      "entry_price": 0.017580000000000002,
+      "initial_stop": 0.016700000000000003,
+      "qty": 11363.0,
+      "notional": 199.76154,
+      "entry_fee": 0.09988077,
+      "exit_utc": "2026-10-05T04:30:00Z",
+      "exit_fill": 0.016700000000000003,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.00083981,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.193362,
+      "realized_net_open_model": -10.193362,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-05T03:15:00Z",
+      "entry_price": 801.72,
+      "initial_stop": 761.63,
+      "qty": 0.62,
+      "notional": 497.0664,
+      "entry_fee": 0.2485332,
+      "exit_utc": "2026-10-07T02:00:00Z",
+      "exit_fill": 761.63,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.16952552,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.509964,
+      "realized_net_open_model": -25.509964,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-05T03:15:00Z",
+      "entry_price": 801.5600000000001,
+      "initial_stop": 761.48,
+      "qty": 0.24,
+      "notional": 192.3744,
+      "entry_fee": 0.0961872,
+      "exit_utc": "2026-10-07T02:00:00Z",
+      "exit_fill": 761.48,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.06562278,
+      "funding_uncertain_count": 0,
+      "realized_net": -9.872388,
+      "realized_net_open_model": -9.872388,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-06T06:15:00Z",
+      "entry_price": 0.043960000000000006,
+      "initial_stop": 0.041760000000000005,
+      "qty": 11363.0,
+      "notional": 499.51748,
+      "entry_fee": 0.24975874,
+      "exit_utc": "2026-10-07T02:00:00Z",
+      "exit_fill": 0.041760000000000005,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.06459143,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.421027,
+      "realized_net_open_model": -25.421027,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-06T06:15:00Z",
+      "entry_price": 0.04395,
+      "initial_stop": 0.04175,
+      "qty": 4545.0,
+      "notional": 199.75275,
+      "entry_fee": 0.09987638,
+      "exit_utc": "2026-10-07T02:00:00Z",
+      "exit_fill": 0.04175,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.02583544,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.167918,
+      "realized_net_open_model": -10.167918,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-08T21:15:00Z",
+      "entry_price": 0.08378000000000001,
+      "initial_stop": 0.07959000000000001,
+      "qty": 5966.0,
+      "notional": 499.83148,
+      "entry_fee": 0.24991574,
+      "exit_utc": "2026-10-09T00:30:00Z",
+      "exit_fill": 0.07959000000000001,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.00634053,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.478532,
+      "realized_net_open_model": -25.478532,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-08T21:15:00Z",
+      "entry_price": 0.08376,
+      "initial_stop": 0.07957,
+      "qty": 2386.0,
+      "notional": 199.85136,
+      "entry_fee": 0.09992568,
+      "exit_utc": "2026-10-09T00:30:00Z",
+      "exit_fill": 0.07957,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": -0.00253579,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.189657,
+      "realized_net_open_model": -10.189657,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-10T11:15:00Z",
+      "entry_price": 0.038590000000000006,
+      "initial_stop": 0.036660000000000005,
+      "qty": 12953.0,
+      "notional": 499.85627,
+      "entry_fee": 0.24992814,
+      "exit_utc": "2026-10-10T12:00:00Z",
+      "exit_fill": 0.036660000000000005,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -25.486647,
+      "realized_net_open_model": -25.486647,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-10T11:15:00Z",
+      "entry_price": 0.038590000000000006,
+      "initial_stop": 0.036660000000000005,
+      "qty": 5181.0,
+      "notional": 199.93479,
+      "entry_fee": 0.0999674,
+      "exit_utc": "2026-10-10T12:00:00Z",
+      "exit_fill": 0.036660000000000005,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.0,
+      "funding_uncertain_count": 0,
+      "realized_net": -10.194265,
+      "realized_net_open_model": -10.194265,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-11T07:15:00Z",
+      "entry_price": 0.010336,
+      "initial_stop": 0.009819,
+      "qty": 48355.0,
+      "notional": 499.79728,
+      "entry_fee": 0.24989864,
+      "exit_utc": "2026-10-11T08:00:00Z",
+      "exit_fill": 0.009819,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.00397934,
+      "funding_uncertain_count": 1,
+      "realized_net": -25.490812,
+      "realized_net_open_model": -25.490812,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-11T07:15:00Z",
+      "entry_price": 0.010334,
+      "initial_stop": 0.009817,
+      "qty": 19342.0,
+      "notional": 199.880228,
+      "entry_fee": 0.09994011,
+      "exit_utc": "2026-10-11T08:00:00Z",
+      "exit_fill": 0.009817,
+      "exit_kind": "intrabar",
+      "exit_reason": "init_stop_loss",
+      "funding_cost": 0.00159174,
+      "funding_uncertain_count": 1,
+      "realized_net": -10.196286,
+      "realized_net_open_model": -10.196286,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "生效视图_5bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-11T20:15:00Z",
+      "entry_price": 3.826,
+      "initial_stop": 3.634,
+      "qty": 130.2,
+      "notional": 498.1452,
+      "entry_fee": 0.2490726,
+      "exit_utc": "2026-10-12T13:15:00Z",
+      "exit_fill": 3.7258999999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.02791531,
+      "funding_uncertain_count": 0,
+      "realized_net": -13.552564,
+      "realized_net_open_model": -13.552564,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "策略包_3bps",
+      "status": "ok",
+      "entry_bar_utc": "2026-10-11T20:15:00Z",
+      "entry_price": 3.826,
+      "initial_stop": 3.634,
+      "qty": 52.08,
+      "notional": 199.25808,
+      "entry_fee": 0.09962904,
+      "exit_utc": "2026-10-12T13:15:00Z",
+      "exit_fill": 3.7258999999999998,
+      "exit_kind": "intrabar",
+      "exit_reason": "trail_stop_loss",
+      "funding_cost": 0.01116613,
+      "funding_uncertain_count": 0,
+      "realized_net": -5.421026,
+      "realized_net_open_model": -5.421026,
+      "gap_sensitivity_diff": 0.0,
+      "participation_capped": false
+    }
+  ],
+  "window3_manifest": [
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -21.4144,
+      "realized_net_open": -21.4144,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -8.5657,
+      "realized_net_open": -8.5657,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 63.9783,
+      "realized_net_open": 63.9783,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+      "symbol": "PEOPLEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 25.6264,
+      "realized_net_open": 25.6264,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.7341,
+      "realized_net_open": -25.7341,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "symbol": "1000PEPEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.2937,
+      "realized_net_open": -10.2937,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 3.0703,
+      "realized_net_open": 3.0703,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+      "symbol": "NILUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 1.2281,
+      "realized_net_open": 1.2281,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -7.6627,
+      "realized_net_open": -7.6627,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+      "symbol": "COOKIEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -0.7609,
+      "realized_net_open": -0.7609,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.7318,
+      "realized_net_open": -25.7318,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+      "symbol": "UAIUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.2885,
+      "realized_net_open": -10.2885,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -22.2022,
+      "realized_net_open": -22.2022,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+      "symbol": "DOTUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -8.8326,
+      "realized_net_open": -8.8326,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -19.5264,
+      "realized_net_open": -19.5264,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+      "symbol": "PLUMEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -7.4386,
+      "realized_net_open": -7.4386,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -23.7178,
+      "realized_net_open": -23.7178,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+      "symbol": "KMNOUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -9.4864,
+      "realized_net_open": -9.4864,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -26.1115,
+      "realized_net_open": -26.1115,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+      "symbol": "TNSRUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -8.7779,
+      "realized_net_open": -8.7779,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 96.4697,
+      "realized_net_open": 96.4697,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+      "symbol": "PORTALUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 38.5879,
+      "realized_net_open": 38.5879,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 42.4864,
+      "realized_net_open": 42.4864,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+      "symbol": "ASTERUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 17.0368,
+      "realized_net_open": 17.0368,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 16.7365,
+      "realized_net_open": 16.7365,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+      "symbol": "ETHWUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 2.2446,
+      "realized_net_open": 2.2446,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 1.2428,
+      "realized_net_open": 1.2428,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+      "symbol": "HYPERUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 0.298,
+      "realized_net_open": 0.298,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 22.3014,
+      "realized_net_open": 22.3014,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+      "symbol": "ZKUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 2.2392,
+      "realized_net_open": 2.2392,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 28.6618,
+      "realized_net_open": 28.6618,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+      "symbol": "BLURUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 2.8656,
+      "realized_net_open": 2.8656,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 18.2081,
+      "realized_net_open": 18.2081,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+      "symbol": "SANDUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 7.3287,
+      "realized_net_open": 7.3287,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN"
+      ],
+      "realized_net_default": -25.5287,
+      "realized_net_open": -25.5287,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+      "symbol": "COLLECTUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN"
+      ],
+      "realized_net_default": -10.2107,
+      "realized_net_open": -10.2107,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -17.4479,
+      "realized_net_open": -17.4479,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+      "symbol": "KATUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -2.7364,
+      "realized_net_open": -2.7364,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -17.5948,
+      "realized_net_open": -17.5948,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+      "symbol": "SAFEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -1.7492,
+      "realized_net_open": -1.7492,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -7.5445,
+      "realized_net_open": -7.5445,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+      "symbol": "SKRUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -0.7542,
+      "realized_net_open": -0.7542,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 37.008,
+      "realized_net_open": 37.008,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+      "symbol": "NEARUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 14.8972,
+      "realized_net_open": 14.8972,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4864,
+      "realized_net_open": -25.4864,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+      "symbol": "KOMAUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1945,
+      "realized_net_open": -10.1945,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -24.3008,
+      "realized_net_open": -24.3008,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+      "symbol": "WUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -2.8741,
+      "realized_net_open": -2.8741,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4839,
+      "realized_net_open": -25.4839,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -7.2839,
+      "realized_net_open": -7.2839,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -8.0841,
+      "realized_net_open": -8.0841,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+      "symbol": "AGTUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -0.8043,
+      "realized_net_open": -0.8043,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.7531,
+      "realized_net_open": -25.7531,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+      "symbol": "XLMUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.2952,
+      "realized_net_open": -10.2952,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -7.1674,
+      "realized_net_open": -7.1674,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+      "symbol": "CROSSUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -0.7117,
+      "realized_net_open": -0.7117,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -5.1613,
+      "realized_net_open": -5.1613,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+      "symbol": "METUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -2.0004,
+      "realized_net_open": -2.0004,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -20.6501,
+      "realized_net_open": -20.6501,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+      "symbol": "GOATUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -4.3851,
+      "realized_net_open": -4.3851,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4669,
+      "realized_net_open": -25.4669,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+      "symbol": "ZECUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1716,
+      "realized_net_open": -10.1716,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4833,
+      "realized_net_open": -25.4833,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+      "symbol": "BABYUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1931,
+      "realized_net_open": -10.1931,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 28.512,
+      "realized_net_open": 28.512,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+      "symbol": "AXSUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 11.4444,
+      "realized_net_open": 11.4444,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4834,
+      "realized_net_open": -25.4834,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+      "symbol": "EVAAUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1913,
+      "realized_net_open": -10.1913,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN"
+      ],
+      "realized_net_default": 65.4573,
+      "realized_net_open": 65.4573,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+      "symbol": "PROVEUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN",
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 12.7143,
+      "realized_net_open": 12.7143,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN, WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 12.3371,
+      "realized_net_open": 12.3371,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 1.2449,
+      "realized_net_open": 1.2449,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 3.7804,
+      "realized_net_open": 3.7804,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+      "symbol": "CARVUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_REJECTED",
+      "reason": "由于参与率缩量后低于最小可下单量拒单 (notional_below_min_notional:4.4436<5.0)，未形成真实持仓，不能用于正向策略收益评估"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -16.6579,
+      "realized_net_open": -16.6579,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+      "symbol": "IRYSUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -1.6657,
+      "realized_net_open": -1.6657,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -10.552,
+      "realized_net_open": -10.552,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+      "symbol": "AIGENSYNUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": -1.0382,
+      "realized_net_open": -1.0382,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 17.4093,
+      "realized_net_open": 17.4093,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+      "symbol": "DUSKUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 5.8988,
+      "realized_net_open": 5.8988,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 0.6271,
+      "realized_net_open": 0.6271,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+      "symbol": "PIXELUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 0.0651,
+      "realized_net_open": 0.0651,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.6863,
+      "realized_net_open": -25.6863,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+      "symbol": "JELLYJELLYUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.2745,
+      "realized_net_open": -10.2745,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.5084,
+      "realized_net_open": -25.5084,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+      "symbol": "YGGUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.2027,
+      "realized_net_open": -10.2027,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": 20.0984,
+      "realized_net_open": 20.0984,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "symbol": "VELVETUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "WARN_PARTICIPATION_SCALED"
+      ],
+      "realized_net_default": 5.5069,
+      "realized_net_open": 5.5069,
+      "funding_uncertain": false,
+      "reason": "存在未决争议或时序不确定项：WARN_PARTICIPATION_SCALED，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4848,
+      "realized_net_open": -25.4848,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+      "symbol": "CHZUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1934,
+      "realized_net_open": -10.1934,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.51,
+      "realized_net_open": -25.51,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+      "symbol": "BNBUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -9.8724,
+      "realized_net_open": -9.8724,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.421,
+      "realized_net_open": -25.421,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "symbol": "SUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1679,
+      "realized_net_open": -10.1679,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4785,
+      "realized_net_open": -25.4785,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+      "symbol": "PYTHUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1897,
+      "realized_net_open": -10.1897,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -25.4866,
+      "realized_net_open": -25.4866,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+      "symbol": "WALUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -10.1943,
+      "realized_net_open": -10.1943,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN"
+      ],
+      "realized_net_default": -25.4908,
+      "realized_net_open": -25.4908,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "symbol": "BBUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "HOLD_PENDING_POLICY",
+      "tags": [
+        "HOLD_FUNDING_ORDER_UNCERTAIN"
+      ],
+      "realized_net_default": -10.1963,
+      "realized_net_open": -10.1963,
+      "funding_uncertain": true,
+      "reason": "存在未决争议或时序不确定项：HOLD_FUNDING_ORDER_UNCERTAIN，必须暂缓直接用于策略选型"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "生效视图_5bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -13.5526,
+      "realized_net_open": -13.5526,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    },
+    {
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+      "symbol": "METISUSDT",
+      "caliber": "策略包_3bps",
+      "usability": "USABLE_BASELINE_REFERENCE",
+      "tags": [],
+      "realized_net_default": -5.421,
+      "realized_net_open": -5.421,
+      "funding_uncertain": false,
+      "reason": "算术、退出、时序与资金费完全自洽，无跳空无顺序不确定，可用作基线对照（仍待用户批准参数）"
+    }
+  ]
+}

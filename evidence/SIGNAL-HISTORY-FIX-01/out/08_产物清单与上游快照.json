@@ -1,0 +1,218 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-01",
+  "stage": "manifest",
+  "generated_at_utc": "2026-10-24T13:48:54Z",
+  "changed_files": [
+    {
+      "path": "框架/backend/unified_runtime.py",
+      "sha256_now": "b3dd374490ca18da469620aa6494206f93166f68c74b08308e6890cff041297a",
+      "size_now": 80221,
+      "sha256_before": "a4292310c8163602719e2fa434f742a4224c64c73cc20b187d9fb2d96d276c0c",
+      "note": "bootstrap 水位改取「状态机真正处理过的最大 1h」；新增 idle_breakdown() 与 IDLE 分因展示；export_state() 如实声明 state_persisted=False"
+    }
+  ],
+  "frozen_strategy_untouched": [
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+      "sha256_now": "d51e188a6dfbc9834c1cf2b3009f496f94e48fc355c30c2ea101cee7cd19b36d",
+      "sha256_recorded_in_03": "d51e188a6dfbc9834c1cf2b3009f496f94e48fc355c30c2ea101cee7cd19b36d",
+      "unchanged": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "sha256_now": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+      "sha256_recorded_in_03": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+      "unchanged": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/features.py",
+      "sha256_now": "163194b340e56b33b6a6666dbbcf3ffab58221a9d38f94686e689fcb6de7373d",
+      "sha256_recorded_in_03": null,
+      "unchanged": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/contracts.py",
+      "sha256_now": "6895e0949f9b683cd3280e299dfc40f958bcfdccdf6177736e30a45b767ec12d",
+      "sha256_recorded_in_03": null,
+      "unchanged": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+      "sha256_now": "3f47ba2bbd28dd5c56107eb66e3cb0af1602e99842a57044bd5eb1f4c70a0801",
+      "sha256_recorded_in_03": null,
+      "unchanged": true
+    }
+  ],
+  "frozen_strategy_all_unchanged": true,
+  "upstream": {
+    "market_db": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+      "size_bytes": 11774427136,
+      "mtime_utc": "2026-10-24T13:48:15Z",
+      "candle_heads": 8486108,
+      "candles_visible": 8486108,
+      "max_1h_open_utc": "2026-10-24T12:00:00Z"
+    },
+    "paper_ledger": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+      "size_bytes": 163840,
+      "sha256": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+      "mtime_utc": "2026-10-24T08:41:54Z",
+      "note": "只读核对（07），本单未写入任何账本行"
+    },
+    "production_status_file": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks/paper_runtime_3a_status.json",
+      "sha256": "67f6d5571532c72c7b48df25bcad9396e875d30b7c2ba9e321d81b18357bbbe2",
+      "note": "生产进程写出的状态快照；本单只读比对，不修改"
+    }
+  },
+  "artifacts": [
+    {
+      "rel": "00_报告_SIGNAL-HISTORY-FIX-01.md",
+      "size": 23380,
+      "sha256": "ee24d0263113acbed223ebc6bb499c94d2d1ebb7bb72083dcb49495b7eba5f97"
+    },
+    {
+      "rel": "code/00_common.py",
+      "size": 5511,
+      "sha256": "90ecb06ae696a43e82885c640732e0e06849351f44dfc6b12e0fd9a3044ddeb1"
+    },
+    {
+      "rel": "code/01_coverage.py",
+      "size": 8842,
+      "sha256": "749e64006278133ba7d53d6f26b507ad050ae4ecc38380f7776bdcd9e877b64d"
+    },
+    {
+      "rel": "code/02_atr_warmup.py",
+      "size": 10382,
+      "sha256": "30be8b989bc98bdf520e9f144c9929d7bab395317715ac127aa60c11e060f042"
+    },
+    {
+      "rel": "code/03_funnel_why.py",
+      "size": 16621,
+      "sha256": "3c55ffd4498145d83a5f20140239bf28c2457ec59e6700897bd66382f55a98af"
+    },
+    {
+      "rel": "code/04_defects.py",
+      "size": 26699,
+      "sha256": "9129a0e19701c1c4faf3339ebf781b0a0ceab06c123977481b6c03eec67fc642"
+    },
+    {
+      "rel": "code/05_linkage.py",
+      "size": 24483,
+      "sha256": "f3fa763fea7f6e8d2e47efecba6a7080c7b9943b60e5fcabb69b8d677319dae0"
+    },
+    {
+      "rel": "code/06_after_fix_check.py",
+      "size": 10843,
+      "sha256": "a37a809f8983830b0cd60a17f0746059db408d7c0a6fd2db20fc8e3f8806f473"
+    },
+    {
+      "rel": "code/07_ledger_audit.py",
+      "size": 8996,
+      "sha256": "b328edd1210022e2fc7ee387c96da68b1f4af1a3ae19556e7423db12abc18b8f"
+    },
+    {
+      "rel": "code/08_manifest.py",
+      "size": 6017,
+      "sha256": "c245934486f8c1abfffb2964402a9f1ab415ad057dbe455b7675e0cf167838d6"
+    },
+    {
+      "rel": "code/09_verify_report.py",
+      "size": 12992,
+      "sha256": "ac77b059def9b4e82e2f20225126c25638804a08b4de3cb0220eeb9bb85d1464"
+    },
+    {
+      "rel": "out/00_isolated_market/defects_market.sqlite3",
+      "size": 13901824,
+      "sha256": "516d55fcb0c4e4c987063e44cffea3f048957832e1e87a8a79cb13fa9e06630c"
+    },
+    {
+      "rel": "out/00_isolated_market/linkage_market.sqlite3",
+      "size": 16941056,
+      "sha256": "2782ff959b9cbbd47db3f477cad5448ca5505d48a35aa0c00afa44ca58400a1c"
+    },
+    {
+      "rel": "out/01_覆盖审计.json",
+      "size": 2250,
+      "sha256": "7851096380477823d162b98f55a8b8013d4935e2a416a4f76e4c20406ecbf7e0"
+    },
+    {
+      "rel": "out/01_逐币覆盖.csv",
+      "size": 134526,
+      "sha256": "ae1819a3c699912591df1666ee0149b2543a85d372aa253ab1b5c15d243bc7e9"
+    },
+    {
+      "rel": "out/02_ATR逐币差异.csv",
+      "size": 21646,
+      "sha256": "aa68f1914c999ce28d0cbcb611a3e6ddda400a25aa9ed688175f1f8463b0d7ad"
+    },
+    {
+      "rel": "out/02_ATR预热对照.json",
+      "size": 128901,
+      "sha256": "860a98ab0b0c3a4bb08281e0911a25de894bf67ed4dac4a9f03b3e2bdad981e2"
+    },
+    {
+      "rel": "out/03_漏斗汇总.json",
+      "size": 712255,
+      "sha256": "23a60a00c9be97d04fc80a43f022813d7620ded939c7766e65cc90cd1b7ef18d"
+    },
+    {
+      "rel": "out/03_逐币漏斗与原因.csv",
+      "size": 204165,
+      "sha256": "94137810b5164e10c9b707e6123ac37be7b45bbe88553940533956e449772d51"
+    },
+    {
+      "rel": "out/04_缺陷复现_after.json",
+      "size": 36842,
+      "sha256": "7ed3cdf75bb1da99ea704a8521278bc352c138ceeeaf8e543852bfe0d92aae5a"
+    },
+    {
+      "rel": "out/04_缺陷复现_before.json",
+      "size": 38045,
+      "sha256": "8461a82fa23a7a045714d747e12e4ccc47bf294c640ca1d82657b272d3c71ac7"
+    },
+    {
+      "rel": "out/05_三路衔接对比.json",
+      "size": 8634,
+      "sha256": "5e380ce8f1f2530a7afb280281a35b4bf7e67ee51983c2f4898ed6730dd40866"
+    },
+    {
+      "rel": "out/05_候选逐项对照.csv",
+      "size": 569,
+      "sha256": "88905a26751ef79ef4e55d22bc4b31fb889ba9348f4bd12beb5c0929311abf52"
+    },
+    {
+      "rel": "out/05_状态逐币对照.csv",
+      "size": 13209,
+      "sha256": "6516193a46f66ab4aaa702864ecbde3ba171ca93cf1bc17bcc511867030b4871"
+    },
+    {
+      "rel": "out/06_修复后全池复核.json",
+      "size": 98348,
+      "sha256": "ff8c69e4b5623c854f6ea2b807284319c6de0b82adedbcd9c4f3b0e5d8da96e8"
+    },
+    {
+      "rel": "out/07_执行链路核对.json",
+      "size": 30170,
+      "sha256": "1a03218f830d103295be5d4c4edf17ebf4fc623552602b22f3718bce62f30305"
+    },
+    {
+      "rel": "out/07_账本逐行.csv",
+      "size": 4787,
+      "sha256": "54ec3e897a23bf44a5fb5d42199df94f6c0e615934a77ee6b5816e0bb977060d"
+    },
+    {
+      "rel": "out/08_产物清单与上游快照.json",
+      "size": 7034,
+      "sha256": "b6c6dcdf01cff11cab67f1d9edadacbef76032daed5bf9034d4f15a07aeae1f7"
+    },
+    {
+      "rel": "out/09_报告复算结果.json",
+      "size": 14653,
+      "sha256": "31a485cc10fa5226be8449fbe65ff0ad0ecf2c6cf3ecf95b80a3d1f578eda9b4"
+    }
+  ],
+  "artifacts_n": 29,
+  "artifacts_total_bytes": 32453680
+}

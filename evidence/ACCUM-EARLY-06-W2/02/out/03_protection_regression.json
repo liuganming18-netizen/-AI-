@@ -1,0 +1,422 @@
+{
+ "generated_utc": "2026-10-27T03:02:34Z",
+ "R1_approved_gate": {
+  "script": "evidence/ACCUM-EARLY-05-B/scripts/04_配置闸门.py",
+  "called_via": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/scripts/_regr_runner.py",
+  "rc": 0,
+  "stdout_tail": "ed_rules_ok\": true,\n  \"all_ok\": true\n },\n \"cases\": [\n  {\n   \"case\": \"N1_配置不存在\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"config_file_missing\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N2_空白表单\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"config_fields_missing\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N3_只填一半\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"config_fields_missing\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N4_格式版本错\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"schema_version_mismatch\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N5_未批准\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"not_approved\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N6_未开开关\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"not_approved\",\n    \"fixture_without_explicit_env\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N7_取值未实现\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"config_value_unsupported\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N8_经济口径声明冲突\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"economic_caliber_declared_mismatch\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"N9_已确定语义被改\",\n   \"ok\": true,\n   \"blocked_by\": [\n    \"fixed_rules_mismatch\"\n   ],\n   \"open_allowed\": false\n  },\n  {\n   \"case\": \"P1_fixture放行\",\n   \"ok\": true,\n   \"blocked_by\": [],\n   \"open_allowed\": true\n  },\n  {\n   \"case\": \"P2_批准放行\",\n   \"ok\": true,\n   \"blocked_by\": [],\n   \"open_allowed\": true\n  }\n ]\n}\n{\"script\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/scripts/04_配置闸门.py\", \"rc\": 0}\n",
+  "stderr_tail": "",
+  "ok": true,
+  "summary": {
+   "cases_n": 11,
+   "cases_ok": 11,
+   "all_cases_ok": true,
+   "open_probe_ok": true,
+   "mapping_ok": true,
+   "fixed_rules_ok": true,
+   "all_ok": true
+  },
+  "cases": [
+   {
+    "case": "N1_配置不存在",
+    "ok": true,
+    "blocked_by": [
+     "config_file_missing"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N2_空白表单",
+    "ok": true,
+    "blocked_by": [
+     "config_fields_missing"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N3_只填一半",
+    "ok": true,
+    "blocked_by": [
+     "config_fields_missing"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N4_格式版本错",
+    "ok": true,
+    "blocked_by": [
+     "schema_version_mismatch"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N5_未批准",
+    "ok": true,
+    "blocked_by": [
+     "not_approved"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N6_未开开关",
+    "ok": true,
+    "blocked_by": [
+     "not_approved",
+     "fixture_without_explicit_env"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N7_取值未实现",
+    "ok": true,
+    "blocked_by": [
+     "config_value_unsupported"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N8_经济口径声明冲突",
+    "ok": true,
+    "blocked_by": [
+     "economic_caliber_declared_mismatch"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "N9_已确定语义被改",
+    "ok": true,
+    "blocked_by": [
+     "fixed_rules_mismatch"
+    ],
+    "open_allowed": false
+   },
+   {
+    "case": "P1_fixture放行",
+    "ok": true,
+    "blocked_by": [],
+    "open_allowed": true
+   },
+   {
+    "case": "P2_批准放行",
+    "ok": true,
+    "blocked_by": [],
+    "open_allowed": true
+   }
+  ],
+  "required_fields": 49,
+  "open_probe": {
+   "blocked": {
+    "reason": "blocked_by_unapproved_config",
+    "called_paper_engine": false,
+    "paper_calls": 0,
+    "open_allowed": false
+   },
+   "allowed": {
+    "reason": null,
+    "called_paper_engine": true,
+    "paper_calls": 1,
+    "open_allowed": true,
+    "isolation": {
+     "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/runs/05b_regression/04_gate/paper",
+     "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+     "explicit_env": true,
+     "inside_production": false,
+     "isolated": true,
+     "account_ids": {
+      "4a": "paper43_4a",
+      "4b": "paper43_4b",
+      "4c": "paper43_4c"
+     }
+    }
+   },
+   "prod_ledger_dir": {
+    "reason": "isolation_violation",
+    "called_paper_engine": false,
+    "paper_calls": 0,
+    "isolation": {
+     "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+     "production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+     "explicit_env": true,
+     "inside_production": true,
+     "isolated": false,
+     "account_ids": {
+      "4a": "paper43_4a",
+      "4b": "paper43_4b",
+      "4c": "paper43_4c"
+     }
+    }
+   },
+   "attempts_written": [
+    {
+     "scheme": "4a",
+     "symbol": "SOLUSDT",
+     "allowed": 0,
+     "reason": "blocked_by_unapproved_config",
+     "kind": "fixture"
+    },
+    {
+     "scheme": "4a",
+     "symbol": "SOLUSDT",
+     "allowed": 1,
+     "reason": "opened",
+     "kind": "fixture"
+    },
+    {
+     "scheme": "4a",
+     "symbol": "SOLUSDT",
+     "allowed": 0,
+     "reason": "isolation_violation",
+     "kind": "fixture"
+    }
+   ],
+   "ok": true
+  }
+ },
+ "R2_economic_caliber": {
+  "script": "evidence/ACCUM-EARLY-05-B/scripts/07_经济口径一致性校验.py",
+  "called_via": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/scripts/_regr_runner.py",
+  "rc": 0,
+  "stdout_tail": "[OK] 经济口径一致性校验测试完成，结果已写入: /Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/out/03_regr/07_经济口径一致性校验.json\n{\"script\": \"/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/scripts/07_经济口径一致性校验.py\", \"rc\": 0}\n",
+  "stderr_tail": "",
+  "ok": true,
+  "cases": {
+   "case_A_consistent_config": {
+    "pass": true,
+    "open_allowed": true,
+    "called_paper_engine": true,
+    "blocked_by": []
+   },
+   "case_B1_slippage_mismatch": {
+    "pass": true,
+    "open_allowed": false,
+    "called_paper_engine": false,
+    "blocked_by": [
+     "economic_caliber_declared_mismatch"
+    ]
+   },
+   "case_B2_risk_config_mismatch": {
+    "pass": true,
+    "open_allowed": false,
+    "called_paper_engine": false,
+    "blocked_by": [
+     "economic_caliber_declared_mismatch"
+    ]
+   },
+   "case_B3_participation_cap_mismatch": {
+    "pass": true,
+    "open_allowed": false,
+    "called_paper_engine": false,
+    "blocked_by": [
+     "economic_caliber_declared_mismatch"
+    ]
+   },
+   "case_C_missing_config_behavior": {
+    "pass": true,
+    "open_allowed": false,
+    "called_paper_engine": false,
+    "blocked_by": [
+     "config_fields_missing"
+    ]
+   }
+  },
+  "all_pass": true
+ },
+ "R3_gap_dedup": {
+  "unit": {
+   "returns_three_calls": [
+    true,
+    false,
+    false
+   ],
+   "rows_after_three_same": 1,
+   "new_key_return": true,
+   "rows_after_new_key": 2,
+   "raw_add_data_gap_three_calls_rows": 3,
+   "pass": true,
+   "why": "三次同键 ⇒ 只 1 行且后两次返回 False；换 to_ms ⇒ 真新增（不是恒假）；直接调 observe_store.add_data_gap 三次 ⇒ 3 行（去重确实来自调用侧包装）"
+  },
+  "end_to_end": {
+   "rounds": [
+    {
+     "round": 1,
+     "event_id": "ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+     "state": "CANDIDATE",
+     "done": true,
+     "gap_rows_this_event": 1,
+     "candidates_this_event": 1,
+     "observe_candidates": 1,
+     "observer_emitted_candidate": 1
+    },
+    {
+     "round": 2,
+     "event_id": "ev_4a_binance_W2SYNTHUSDT_box_W2SYNTHUSDT_1780455599999_1780455599999",
+     "state": "CANDIDATE",
+     "done": true,
+     "gap_rows_this_event": 1,
+     "candidates_this_event": 1,
+     "observe_candidates": 1,
+     "observer_emitted_candidate": 0
+    }
+   ],
+   "same_event_id": true,
+   "gap_rows_stable": true,
+   "candidate_not_duplicated": true,
+   "pass": true,
+   "why": "同一事件连跑两遍：缺口行数第 1 轮=1、第 2 轮仍=1（不增长），候选也只 1 条（第 2 轮命中既有候选 ⇒ dedup，不再落库）"
+  },
+  "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/runs/observe_dedup.sqlite3"
+ },
+ "R4_shared_files": {
+  "cutoff_utc": "2026-10-27T00:00:00Z",
+  "files": [
+   {
+    "name": "冻结包_state_machine",
+    "rel": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+    "exists": true,
+    "bytes": 33467,
+    "sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+    "mtime_utc": "2026-10-26T10:29:24Z",
+    "untouched_today": true
+   },
+   {
+    "name": "冻结包_config",
+    "rel": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+    "exists": true,
+    "bytes": 5851,
+    "sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+    "mtime_utc": "2026-10-26T05:45:20Z",
+    "untouched_today": true
+   },
+   {
+    "name": "引擎_paper_engine",
+    "rel": "框架/backend/paper_engine.py",
+    "exists": true,
+    "bytes": 154554,
+    "sha256": "d25f39d6812df1b8ec3dd2a4b44f1e6e66c22d4e06d833a193c108abb694eaba",
+    "mtime_utc": "2026-10-27T03:02:35Z",
+    "untouched_today": false
+   },
+   {
+    "name": "观察库_observe_store",
+    "rel": "框架/backend/observe_store.py",
+    "exists": true,
+    "bytes": 17561,
+    "sha256": "280210b32e906f4119682fb669f4721242e99a7cb50a12b25134a92c25573011",
+    "mtime_utc": "2026-10-26T09:24:54Z",
+    "untouched_today": true
+   },
+   {
+    "name": "共享读层_research_15m",
+    "rel": "框架/backend/research_15m.py",
+    "exists": true,
+    "bytes": 29403,
+    "sha256": "0c00ab0e11a72396be5c70521983b250f8e6ee26158a1bcfb0e1d5b673dd815f",
+    "mtime_utc": "2026-10-26T13:04:44Z",
+    "untouched_today": true
+   },
+   {
+    "name": "共享读层_replay_calc",
+    "rel": "框架/backend/replay_calc.py",
+    "exists": true,
+    "bytes": 33009,
+    "sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+    "mtime_utc": "2026-10-26T14:11:50Z",
+    "untouched_today": true
+   },
+   {
+    "name": "研究臂_live_store",
+    "rel": "框架/backend/live_store.py",
+    "exists": true,
+    "bytes": 45926,
+    "sha256": "02eaf41b2549ee569548ca41a7200191b42444cac92733131bf667f9b1bf1ca6",
+    "mtime_utc": "2026-10-26T14:14:48Z",
+    "untouched_today": true
+   },
+   {
+    "name": "采集器_realtime_collector",
+    "rel": "框架/backend/realtime_collector.py",
+    "exists": true,
+    "bytes": 153890,
+    "sha256": "363011632583249f65b5968b7ab353b1fc24a5cc292357ad0a760af4646d2d65",
+    "mtime_utc": "2026-10-18T05:59:38Z",
+    "untouched_today": true
+   },
+   {
+    "name": "前端_ObservePanel",
+    "rel": "UI界面/web/src/components/ObservePanel.tsx",
+    "exists": true,
+    "bytes": 22431,
+    "sha256": "c57ab7efefbc6fca7a4afc02d81cd6cd3003b52e937e0587dd0769aac668fd7c",
+    "mtime_utc": "2026-10-26T11:47:15Z",
+    "untouched_today": true
+   },
+   {
+    "name": "配置模板_空白表单",
+    "rel": "evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json",
+    "exists": true,
+    "bytes": 1641,
+    "sha256": "b3ac386a37cea7bb02c6a40f5e0037df97ed0d7f4fb623b558ded821bd72b138",
+    "mtime_utc": "2026-10-26T16:33:43Z",
+    "untouched_today": true
+   }
+  ],
+  "n": 10,
+  "n_untouched": 9,
+  "all_untouched": false,
+  "only_allowed_file": {
+   "rel": "框架/backend/accum_early_entry.py",
+   "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+   "bytes": 117711,
+   "mtime_utc": "2026-10-26T17:56:52Z",
+   "is_today": false
+  },
+  "note": "判据是 mtime 早于本日 00:00Z。`accum_early_entry.py` 是本单唯一允许改动的文件（06-03 改的，本单未再改），所以它必然是本日的。"
+ },
+ "R5_write_scope": {
+  "production_ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+  "research_ledger_files_in_production": [],
+  "production_ledgers": {
+   "3a": {
+    "exists": true,
+    "mtime_utc": "2026-10-25T15:01:27Z"
+   },
+   "3b": {
+    "exists": true,
+    "mtime_utc": "2026-10-23T03:13:44Z"
+   },
+   "3c": {
+    "exists": true,
+    "mtime_utc": "2026-10-23T03:13:44Z"
+   },
+   "3d": {
+    "exists": true,
+    "mtime_utc": "2026-10-23T03:13:44Z"
+   }
+  },
+  "my_runs_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W2/02/runs",
+  "my_runs_entries": [
+   "05b_regression",
+   "observe_dedup.sqlite3",
+   "observe_post.sqlite3",
+   "observe_pre.sqlite3",
+   "post",
+   "pre",
+   "pre_fix_accum_early_entry.py"
+  ],
+  "pass": true,
+  "note": "本单所有账本/观察库都落在 evidence/ACCUM-EARLY-06-W2/02/runs/ 下；生产账本目录里不得出现研究臂文件（paper_4*.sqlite3）"
+ },
+ "summary": {
+  "R1_ok": true,
+  "R1_cases": 11,
+  "R1_cases_n": 11,
+  "R2_ok": true,
+  "R2_cases_n": 5,
+  "R3_unit_ok": true,
+  "R3_e2e_ok": true,
+  "R4_ok": false,
+  "R4_n": 10,
+  "R5_ok": true,
+  "all_ok": false
+ }
+}

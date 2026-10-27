@@ -772,7 +772,13 @@ export function adaptSignal(row: RawSignal, symbolByMarketId: Map<string, string
     actionableReason: row.actionable_reason ?? null,
     currentDirection: cur,
     // ── 实时信号层扩展（2026-10-13）：原样透传，不做任何推断 ──
-    origin: row.origin === 'live' || row.origin === 'historical_research' ? row.origin : null,
+    // `recovered`（SIGNAL-UI-LINK-07）：进程短暂停机后重启、仍在成交时效内的真实候选。
+    // 它和 `live` 同为「实时真实臂入场」，只是入库分支不同；此前不在白名单里会被
+    // 归一成 null ⇒ 前端二次判定恒 false ⇒ 即使后端返回了也不显示。
+    origin:
+      row.origin === 'live' || row.origin === 'recovered' || row.origin === 'historical_research'
+        ? row.origin
+        : null,
     displayState: row.display_state ?? null,
     executableState: row.executable_state ?? null,
     structuralKind: row.structural_kind ?? null,

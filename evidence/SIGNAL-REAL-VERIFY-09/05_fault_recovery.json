@@ -1,0 +1,196 @@
+{
+  "probe": "30_fault_recovery",
+  "generated_real_utc": "2026-10-25T11:46:01.312Z",
+  "page": "http://127.0.0.1:3000",
+  "iso_api": "http://127.0.0.1:8799",
+  "expected_candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+  "steps": [
+    {
+      "name": "隔离后端就绪",
+      "ok": true,
+      "detail": "端口 8799"
+    },
+    {
+      "name": "① 加载中：显示「正在读取」而不是「暂无信号」",
+      "ok": true,
+      "detail": "loading=true empty=false state=loading"
+    },
+    {
+      "name": "① 加载中：不得同时显示错误",
+      "ok": true,
+      "detail": "errKind=null"
+    },
+    {
+      "name": "02_有卡：1 张卡、ID 一致、无错误",
+      "ok": true,
+      "detail": "state=ok rows=1 kind=null status=null"
+    },
+    {
+      "name": "03_业务异常200：显示「有效下限缺失」，卡片清零",
+      "ok": true,
+      "detail": "state=fault:no_watermark rows=0 kind=no_watermark status="
+    },
+    {
+      "name": "③ 文案含真实原因（不是空列表）",
+      "ok": true,
+      "detail": "当前信号无法判定：有效下限缺失有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定这不是「没有信号」，而是判定「当前」所必"
+    },
+    {
+      "name": "③ 不得同时显示空态诊断",
+      "ok": true,
+      "detail": "empty=false"
+    },
+    {
+      "name": "04_HTTP错误：显示「接口返回错误」且带 503，卡片清零",
+      "ok": true,
+      "detail": "state=fault:http rows=0 kind=http status=503"
+    },
+    {
+      "name": "④ 文案含 HTTP 503",
+      "ok": true,
+      "detail": "实时信号接口返回错误模拟 503：上游不可用（故障恢复验证）这不是「没有信号」，而是接口以非 2xx 响应。恢复后本区会自动重新加载。（错误不冒充空态；接口恢复"
+    },
+    {
+      "name": "05_网络失败：显示「无法连接后端」，卡片清零",
+      "ok": true,
+      "detail": "state=fault:network rows=0 kind=network status=0"
+    },
+    {
+      "name": "06_正常空列表：落空态诊断、不报错（note 非空不构成故障）",
+      "ok": true,
+      "detail": "state=ok rows=0 kind=null status=null"
+    },
+    {
+      "name": "⑥ 空态时 state=ok",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "07_恢复：错误消失、卡片重新出现、同一候选 ID",
+      "ok": true,
+      "detail": "state=ok rows=1 kind=null status=null"
+    },
+    {
+      "name": "⑧ 两轮轮询后仍稳定（1 张卡、同一 ID、无错误）",
+      "ok": true,
+      "detail": "rows=1 uid=cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000 kind=null"
+    },
+    {
+      "name": "页面无 JS 报错",
+      "ok": true,
+      "detail": "无"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "02_有卡",
+      "mode": "pass",
+      "expect": "1 张卡、ID 一致、无错误",
+      "waited_ms": 4301,
+      "snap": {
+        "state": "ok",
+        "count": 1,
+        "rows": 1,
+        "errKind": null,
+        "errStatus": null,
+        "errText": null,
+        "empty": false,
+        "loading": false,
+        "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+      },
+      "ok": true
+    },
+    {
+      "name": "03_业务异常200",
+      "mode": "biz200",
+      "expect": "显示「有效下限缺失」，卡片清零",
+      "waited_ms": 746,
+      "snap": {
+        "state": "fault:no_watermark",
+        "count": 0,
+        "rows": 0,
+        "errKind": "no_watermark",
+        "errStatus": "",
+        "errText": "当前信号无法判定：有效下限缺失有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定这不是「没有信号」，而是判定「当前」所必需的水位线（实时起点 / 模拟盘启用时点）读不到，接口拒绝猜测。接口原文（口径说明，不是判定依据）下限缺失时如实空态：不用当前时间重置水位、不放行旧信号（错误不冒充空态；接口恢复后本区自动重新加载）",
+        "empty": false,
+        "loading": false,
+        "uid": null
+      },
+      "ok": true
+    },
+    {
+      "name": "04_HTTP错误",
+      "mode": "http503",
+      "expect": "显示「接口返回错误」且带 503，卡片清零",
+      "waited_ms": 4946,
+      "snap": {
+        "state": "fault:http",
+        "count": 0,
+        "rows": 0,
+        "errKind": "http",
+        "errStatus": "503",
+        "errText": "实时信号接口返回错误模拟 503：上游不可用（故障恢复验证）这不是「没有信号」，而是接口以非 2xx 响应。恢复后本区会自动重新加载。（错误不冒充空态；接口恢复后本区自动重新加载）",
+        "empty": false,
+        "loading": false,
+        "uid": null
+      },
+      "ok": true
+    },
+    {
+      "name": "05_网络失败",
+      "mode": "netfail",
+      "expect": "显示「无法连接后端」，卡片清零",
+      "waited_ms": 4884,
+      "snap": {
+        "state": "fault:network",
+        "count": 0,
+        "rows": 0,
+        "errKind": "network",
+        "errStatus": "0",
+        "errText": "无法连接后端无法连接后端（/api/v1 不可达）这不是「没有信号」，而是浏览器连不上 /api/v1（后端未启动或端口不可达）。（错误不冒充空态；接口恢复后本区自动重新加载）",
+        "empty": false,
+        "loading": false,
+        "uid": null
+      },
+      "ok": true
+    },
+    {
+      "name": "06_正常空列表",
+      "mode": "empty200",
+      "expect": "落空态诊断、不报错（note 非空不构成故障）",
+      "waited_ms": 4840,
+      "snap": {
+        "state": "ok",
+        "count": 0,
+        "rows": 0,
+        "errKind": null,
+        "errStatus": null,
+        "errText": null,
+        "empty": true,
+        "loading": false,
+        "uid": null
+      },
+      "ok": true
+    },
+    {
+      "name": "07_恢复",
+      "mode": "pass",
+      "expect": "错误消失、卡片重新出现、同一候选 ID",
+      "waited_ms": 4900,
+      "snap": {
+        "state": "ok",
+        "count": 1,
+        "rows": 1,
+        "errKind": null,
+        "errStatus": null,
+        "errText": null,
+        "empty": false,
+        "loading": false,
+        "uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000"
+      },
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "page_errors": []
+}

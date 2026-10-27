@@ -1,0 +1,33 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-02",
+  "stage": "180d_coverage",
+  "generated_at_utc": "2026-10-24T14:17:43Z",
+  "read_only_on_production": true,
+  "downloaded_anything": false,
+  "isolated_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-HISTORY-FIX-02/out/180d_market.sqlite3",
+  "build": {
+    "reused": true
+  },
+  "target_days": 180,
+  "requested_start_utc": "2026-04-27T13:59:59Z",
+  "requested_end_utc": "2026-10-24T13:59:59Z",
+  "pool_n": 526,
+  "pool_source": null,
+  "verdict": {
+    "1h": {
+      "symbols": 526,
+      "covers_180d": 505,
+      "listed_late": 21,
+      "storage_missing": 0,
+      "no_data_at_all": 0
+    },
+    "4h": {
+      "symbols": 526,
+      "covers_180d": 505,
+      "listed_late": 21,
+      "storage_missing": 0,
+      "no_data_at_all": 0
+    }
+  },
+  "note": "`listed_late` = 该标的在冷层全历史里的最早一根就晚于请求起点 ⇒ **上市不足 180 天**，与存储无关；`storage_missing` = 真实起点早于请求起点但窗口内缺数据 ⇒ **存储缺失**。两者分开统计。"
+}

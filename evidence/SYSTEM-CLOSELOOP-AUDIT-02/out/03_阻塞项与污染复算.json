@@ -1,0 +1,400 @@
+{
+ "生成时刻": "2026-10-22T20:50:57+08:00",
+ "一_污染独立复算": {
+  "live_signal_总行数": 3,
+  "live_signal_合成行数": 3,
+  "live_signal_合成明细": [
+   {
+    "signal_uid": "sig_closeloop_btc_1792668513",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "first_seen_at": 1792668510021,
+    "event_time": 1792665900000
+   },
+   {
+    "signal_uid": "sig_closeloop_btc_1792668586",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "first_seen_at": 1792668583794,
+    "event_time": 1792665900000
+   },
+   {
+    "signal_uid": "sig_closeloop_btc_1792668605",
+    "symbol": "BTCUSDT",
+    "direction": "long",
+    "first_seen_at": 1792668603581,
+    "event_time": 1792666800000
+   }
+  ],
+  "live_signal_真实信号行数": 0,
+  "live_signal_结论": "整张表 3 行全部是合成记录，真实信号 0 条 ⇒ 即使读侧过滤掉合成前缀，当前信号区也只会是空的，「页面无合成信号」将变成空洞成立，不能当作通过证据",
+  "paper_position_行数": 3,
+  "paper_position_status": [
+   "closed"
+  ],
+  "paper_position_明细": [
+   {
+    "position_id": 1,
+    "symbol": "BTCUSDT",
+    "qty": 0.006,
+    "entry_price": 82033.1,
+    "stop_price": 81200.0,
+    "entry_ts": 1792666800000,
+    "exit_ts": 1792667699999,
+    "exit_price": 81888.0355,
+    "exit_reason": "manual_closeloop_test",
+    "status": "closed",
+    "signal_uid": "sig_closeloop_btc_1792668586",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013"
+   },
+   {
+    "position_id": 2,
+    "symbol": "BTCUSDT",
+    "qty": 0.006,
+    "entry_price": 81970.0,
+    "stop_price": 80470.0,
+    "entry_ts": 1792667700000,
+    "exit_ts": 1792668599999,
+    "exit_price": 81803.2779,
+    "exit_reason": "manual_closeloop_test",
+    "status": "closed",
+    "signal_uid": "sig_closeloop_btc_1792668605",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013"
+   },
+   {
+    "position_id": 3,
+    "symbol": "BTCUSDT",
+    "qty": 0.006,
+    "entry_price": 81970.0,
+    "stop_price": 80470.0,
+    "entry_ts": 1792667700000,
+    "exit_ts": 1792668599999,
+    "exit_price": 81803.2779,
+    "exit_reason": "ui_closeloop_verification",
+    "status": "closed",
+    "signal_uid": "sig_ui_test_1792668684487",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013"
+   }
+  ],
+  "paper_order_行数": 3,
+  "paper_fill_行数": 6,
+  "paper_realized_行数": 3,
+  "paper_pending_行数": 3,
+  "paper_request_anchor_行数": 6,
+  "paper_request_anchor_明细": [
+   {
+    "event_uid": "sig_closeloop_btc_1792668586",
+    "first_request_ms": 1792665900000
+   },
+   {
+    "event_uid": "sig_closeloop_btc_1792668605",
+    "first_request_ms": 1792666800000
+   },
+   {
+    "event_uid": "sig_ui_test_1792668684487",
+    "first_request_ms": 1792666800000
+   },
+   {
+    "event_uid": "sig_test_closeloop_01",
+    "first_request_ms": 1792668419751
+   },
+   {
+    "event_uid": "sig_closeloop_btc_1792668513",
+    "first_request_ms": 1792668513352
+   },
+   {
+    "event_uid": "sig_ui_test_1792668631241",
+    "first_request_ms": 1792668631263
+   }
+  ],
+  "paper_stop_history_行数": 0,
+  "paper_stop_history_结论": "表已建但 **0 行** ⇒ 止损轨迹在真实账本里一条都没有，L4「初始止损与跟踪上移可重建」既不能证真也不能证伪；同时也说明上一轮认为「开仓会写 initial_stop」这条并未实际发生",
+  "paper_position_新增因果列": [
+   "requested_at",
+   "earliest_fill_ms",
+   "first_request_ms",
+   "epoch_ms",
+   "voided",
+   "void_reason"
+  ],
+  "paper_state": {
+   "account_id": "paper43_3a",
+   "cash": 4995.6545447261005,
+   "realized_pnl": -4.3454552739000345,
+   "fees_paid": 1.4744030739,
+   "funding_paid": 0.0
+  },
+  "复算_手续费合计": 1.47440307,
+  "复算_毛盈亏合计": -2.8710522,
+  "复算_净盈亏合计": -4.34545527,
+  "复算_现金变动": -4.34545527,
+  "勾稽_净盈亏==毛盈亏-手续费": true,
+  "自报与复算比对": [
+   {
+    "项": "live_signal",
+    "反重力自报": 3,
+    "独立复算": 3,
+    "一致": true
+   },
+   {
+    "项": "paper_position",
+    "反重力自报": 3,
+    "独立复算": 3,
+    "一致": true
+   },
+   {
+    "项": "paper_order",
+    "反重力自报": 3,
+    "独立复算": 3,
+    "一致": true
+   },
+   {
+    "项": "paper_fill",
+    "反重力自报": 6,
+    "独立复算": 6,
+    "一致": true
+   },
+   {
+    "项": "paper_realized",
+    "反重力自报": 3,
+    "独立复算": 3,
+    "一致": true
+   },
+   {
+    "项": "paper_pending",
+    "反重力自报": 3,
+    "独立复算": 3,
+    "一致": true
+   },
+   {
+    "项": "现金变动",
+    "反重力自报": -4.3455,
+    "独立复算": -4.3455,
+    "一致": true
+   }
+  ],
+  "自报是否全部准确": true
+ },
+ "二_读侧排除": {
+  "命中行数": 1,
+  "命中明细": [
+   {
+    "行": 321,
+    "内容": "where.append(\"signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'\")"
+   }
+  ],
+  "live_signals_实现前40行": [
+   {
+    "行": 267,
+    "内容": "def live_signals(params) -> dict:"
+   },
+   {
+    "行": 268,
+    "内容": "\"\"\"实时层信号（`live_signal` 表）。"
+   },
+   {
+    "行": 269,
+    "内容": ""
+   },
+   {
+    "行": 270,
+    "内容": "参数："
+   },
+   {
+    "行": 271,
+    "内容": "· `scope=current`（**默认**）= 当前交易信号区：只返回**当前真实臂入场**信号"
+   },
+   {
+    "行": 272,
+    "内容": "（判据见上方注释），过滤在分页 `LIMIT` 与 `total` / `has_more` 计算**之前**；"
+   },
+   {
+    "行": 273,
+    "内容": "· `scope=all|audit|history` = 历史审计通道：返回全部行（含历史研究 / 结构提示），"
+   },
+   {
+    "行": 274,
+    "内容": "供审计与对账读取，**默认交易信号区不得使用**；"
+   },
+   {
+    "行": 275,
+    "内容": "· `origin` / `symbol` / `limit` / `executable_only` 保持原有语义。"
+   },
+   {
+    "行": 276,
+    "内容": "\"\"\""
+   },
+   {
+    "行": 277,
+    "内容": "scope = _scope_of(params)"
+   },
+   {
+    "行": 278,
+    "内容": "origin = (params.get(\"origin\") or [None])[0]"
+   },
+   {
+    "行": 279,
+    "内容": "symbol = (params.get(\"symbol\") or [None])[0]"
+   },
+   {
+    "行": 280,
+    "内容": "signal_id = (params.get(\"signal_id\") or [None])[0]"
+   },
+   {
+    "行": 281,
+    "内容": "ident = _runtime_identity()"
+   },
+   {
+    "行": 282,
+    "内容": "ledger = {\"kind\": \"live_signal_db\", \"path\": str(L.LIVE_DB),"
+   },
+   {
+    "行": 283,
+    "内容": "\"paper_ledger_dir\": str(L.LEDGER_DIR),"
+   },
+   {
+    "行": 284,
+    "内容": "\"paper_ledger_present\": bool(L.LEDGER_DIR.exists())}"
+   },
+   {
+    "行": 285,
+    "内容": "try:"
+   },
+   {
+    "行": 286,
+    "内容": "limit = int((params.get(\"limit\") or [\"200\"])[0])"
+   },
+   {
+    "行": 287,
+    "内容": "except (ValueError, TypeError):"
+   },
+   {
+    "行": 288,
+    "内容": "limit = 200"
+   },
+   {
+    "行": 289,
+    "内容": "limit = max(1, min(limit, 1000))"
+   },
+   {
+    "行": 290,
+    "内容": "only_exec = (params.get(\"executable_only\") or [\"0\"])[0] in (\"1\", \"true\", \"True\")"
+   },
+   {
+    "行": 291,
+    "内容": "where, args = [], []"
+   },
+   {
+    "行": 292,
+    "内容": "start_ms = None"
+   },
+   {
+    "行": 293,
+    "内容": "floor_ms = None"
+   },
+   {
+    "行": 294,
+    "内容": "epoch_ms = None"
+   },
+   {
+    "行": 295,
+    "内容": "if scope == CURRENT_SCOPE:"
+   },
+   {
+    "行": 296,
+    "内容": "# **有效下限 = max(live_start, paper epoch)**（2026-10-14 09 契约）："
+   },
+   {
+    "行": 297,
+    "内容": "# 四臂、挂单推进、自动/手工开仓与本 API **共用同一下限**。"
+   },
+   {
+    "行": 298,
+    "内容": "# 边界口径：原始 `close_time` 存闭区间右端 **−1ms** ⇒ 用真实右边界"
+   },
+   {
+    "行": 299,
+    "内容": "# `max(confirmed_at, available_at) + 1` 比较（**不改原值**）。"
+   },
+   {
+    "行": 300,
+    "内容": "start_ms = L.get_live_start_ms()"
+   },
+   {
+    "行": 301,
+    "内容": "epoch_ms = L.get_paper_epoch_ms()"
+   },
+   {
+    "行": 302,
+    "内容": "floor_ms = L.effective_floor_ms()"
+   },
+   {
+    "行": 303,
+    "内容": "if not floor_ms:"
+   },
+   {
+    "行": 304,
+    "内容": "# 下限缺失 ⇒ 无法判定「当前」；**不**用当前时间兜底重置水位，如实空态。"
+   },
+   {
+    "行": 305,
+    "内容": "return envelope(items=[], has_more=False, total=0, limit=limit,"
+   },
+   {
+    "行": 306,
+    "内容": "**ident, ledger_source=ledger,"
+   }
+  ],
+  "是否存在读侧排除": true,
+  "风险_误伤": "LIKE 'sig_%' 这类宽匹配会连带排除正常信号；必须精确到 sig_closeloop_% 与 sig_ui_test_% 两个前缀，且要有单元测试证明正常信号不被排除",
+  "定性": "**读侧排除不等于数据清理**：合成记录仍在库、亏损仍在账本（cash 已少 4.3455 USDT）。页面看起来干净 ≠ 账本干净，两者必须分开判。"
+ },
+ "三_生产闸门": {
+  "allow_new_entries": false,
+  "set_by": "system_closeloop_02_safety_guard",
+  "reason": "system_closeloop_02_paused_for_audit",
+  "mtime": "2026-10-22T20:18:50+08:00"
+ },
+ "四_阻塞项": [
+  {
+   "编号": "B-01",
+   "项": "版本冻结回执",
+   "阻塞对象": "⑦ 版本一致 / 正式验收整体",
+   "卡点": "evidence/SYSTEM-CLOSELOOP-02/ 里没有任何「版本冻结回执」实体；对方在 20:22:09 / 20:23:36 / 20:24:51 / 20:26:21 / 20:26:34 / 20:27:15 连续改代码，最后改动距本轮 T0 仅 16 秒",
+   "谁能解": "反重力（出具书面冻结回执，含被冻结文件清单与 SHA-256）",
+   "不解决会怎样": "正式验收不得开始；本轮只能交阶段 0"
+  },
+  {
+   "编号": "B-02",
+   "项": "生产库合成记录处置范围",
+   "阻塞对象": "② 隔离 / L8 / X3c",
+   "卡点": "生产 live 库仍有 3 条合成信号；纸面账本仍有 3 笔测试持仓、3 笔订单、6 笔成交、3 笔已实现，现金少 4.3455 USDT。工单明令「不删除合成记录，不替用户批准清理范围」",
+   "谁能解": "用户（明确批准清理范围与备份方式）",
+   "不解决会怎样": "L8 只能维持不通过；X3c 只能记录「数据在库、仅读侧隐藏」，不得判通过"
+  },
+  {
+   "编号": "B-03",
+   "项": "生产闸门被对方改为关闭",
+   "阻塞对象": "W3 / A20 / ② 隔离",
+   "卡点": "生产闸门 allow_new_entries=False、set_by=system_closeloop_02_safety_guard、mtime=2026-10-22T20:18:50+08:00；这是审核期间由被审方改动的生产状态，不是审核方动作",
+   "谁能解": "需在报告中如实记录；恢复开闸须由用户决定，审核方不代为翻转",
+   "不解决会怎样": "「日常实例闸门未被测试动作改变」这条只能证明审核方没改，不能证明整体未被改"
+  },
+  {
+   "编号": "B-04",
+   "项": "「既定规则」的唯一文本",
+   "阻塞对象": "⑥ 回测与模拟同规则对账",
+   "卡点": "paper_engine.py 头部声明 ROI/trailing=off、max_holding_hours=720、stops=入场价−3×ATR；而回测冻结参数是 trailing_trigger_r=2.0、trailing_lookback_4h_bars=10、max_holding_days=10。两套口径不同，且 paper 侧 record_stop_update() 零调用 ⇒ 跟踪止损在模拟链路里没实现",
+   "谁能解": "反重力（书面确认模拟盘「既定规则」到底是哪一套）",
+   "不解决会怎样": "同规则对账只能做「差异清单」，不能做「一致性判定」"
+  },
+  {
+   "编号": "B-05",
+   "项": "前向纸面验证的合格独立区间",
+   "阻塞对象": "四问之④",
+   "卡点": "合格独立验证区间 = 0（723 行「币×区间」审计结论，④49 条属计算级接触）",
+   "谁能解": "需先裁决前向方案与固定起点（工单：最后一项通过也不自动启动验证）",
+   "不解决会怎样": "工程条件可判，策略有效性不可判；两者不得混说"
+  }
+ ]
+}

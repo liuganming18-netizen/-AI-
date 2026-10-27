@@ -1,0 +1,280 @@
+{
+ "code_under_test": {
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+  "exists": true,
+  "bytes": 113875,
+  "sha256": "d96ad60eca61f7e53e273414196100ac21b33650a19480beafb0eb60c4d41a52",
+  "hashed_bytes": 113875
+ },
+ "config_sha256": "203d9b316583d4c16ca185cee08ee759f11bcdf00ee691cc83adfaeb97440e58",
+ "config_ready": true,
+ "expectation_source": "04-A README:53（承接判断时点=扫低根 1h 收盘）+ 02_规则接口.md:134（基准=扫低根之前 20 根）",
+ "cases": {
+  "A_扫低承接通过_突破根不通过": {
+   "sweep_bar": {
+    "i": 60,
+    "close_utc": "2026-06-03T12:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 700.0
+   },
+   "confirm_bar": {
+    "i": 61,
+    "close_utc": "2026-06-03T13:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 300.0
+   },
+   "expected": {
+    "n_candidates": 1,
+    "terminal_state": null,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 0,
+    "terminal_state": null,
+    "final_state": "SWEEP",
+    "candidate_status": null,
+    "absorption_call_indices": [
+     61
+    ],
+    "absorption_bar_i": 61,
+    "absorption_n_calls": 1,
+    "absorption_bar_close_utc": "2026-06-03T13:59:59Z",
+    "conditions": {
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "fail",
+     "absorption_close_upper_half": "pass",
+     "sell_pressure_amount": "fail",
+     "confirm_bar_is_bull": "pass"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     }
+    ],
+    "closed_reason": null
+   },
+   "mismatches": [
+    {
+     "item": "n_candidates",
+     "expected": 1,
+     "actual": 0
+    },
+    {
+     "item": "absorption_bar_i(承接判断读的 bar 下标)",
+     "expected": 60,
+     "actual": 61
+    }
+   ],
+   "verdict": "FAIL_AS_EXPECTED"
+  },
+  "B_扫低不通过_突破根通过": {
+   "sweep_bar": {
+    "i": 60,
+    "close_utc": "2026-06-03T12:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 300.0
+   },
+   "confirm_bar": {
+    "i": 61,
+    "close_utc": "2026-06-03T13:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 700.0
+   },
+   "expected": {
+    "n_candidates": 0,
+    "terminal_state": null,
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 1,
+    "terminal_state": null,
+    "final_state": "SWEEP",
+    "candidate_status": "WAIT_ENTRY",
+    "absorption_call_indices": [
+     61
+    ],
+    "absorption_bar_i": 61,
+    "absorption_n_calls": 1,
+    "absorption_bar_close_utc": "2026-06-03T13:59:59Z",
+    "conditions": {
+     "sweep_lowest_below_reference": "pass",
+     "sweep_overshoot_within": "pass",
+     "sweep_recover_close": "pass",
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "pass",
+     "absorption_close_upper_half": "pass",
+     "sell_pressure_amount": "pass",
+     "confirm_bar_is_bull": "pass",
+     "observe_deadline_hours": "pass",
+     "entry_15m_bar_exists": "pass",
+     "entry_delay_respected": "pass",
+     "entry_price_deviation": "pass",
+     "entry_gap_up_within": "pass",
+     "entry_bar_available_at_proven": "not_proven",
+     "oi_role": "not_required"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     },
+     {
+      "to": "WAIT_ENTRY",
+      "at": "2026-06-03T13:59:59Z",
+      "reason": "候选生成"
+     }
+    ],
+    "closed_reason": null
+   },
+   "mismatches": [
+    {
+     "item": "n_candidates",
+     "expected": 0,
+     "actual": 1
+    },
+    {
+     "item": "absorption_bar_i(承接判断读的 bar 下标)",
+     "expected": 60,
+     "actual": 61
+    }
+   ],
+   "verdict": "FAIL_AS_EXPECTED"
+  },
+  "C_扫低根数据不足": {
+   "sweep_bar": {
+    "i": 60,
+    "close_utc": "2026-06-03T12:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": null
+   },
+   "confirm_bar": {
+    "i": 86,
+    "close_utc": "2026-06-04T14:59:59Z",
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 700.0
+   },
+   "expected": {
+    "n_candidates": 0,
+    "terminal_state": "DATA_INSUFFICIENT",
+    "absorption_bar_i": 60,
+    "absorption_bar_close_utc": "2026-06-03T12:59:59Z"
+   },
+   "actual": {
+    "n_candidates": 1,
+    "terminal_state": null,
+    "final_state": "SWEEP",
+    "candidate_status": "WAIT_ENTRY",
+    "absorption_call_indices": [
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86
+    ],
+    "absorption_bar_i": 86,
+    "absorption_n_calls": 26,
+    "absorption_bar_close_utc": "2026-06-04T14:59:59Z",
+    "conditions": {
+     "sweep_lowest_below_reference": "pass",
+     "sweep_overshoot_within": "pass",
+     "sweep_recover_close": "pass",
+     "local_resistance": "pass",
+     "resistance_qualified": "pass",
+     "confirm_above_resistance": "pass",
+     "absorption_buy_ratio": "pass",
+     "absorption_close_upper_half": "pass",
+     "sell_pressure_amount": "pass",
+     "confirm_bar_is_bull": "pass",
+     "observe_deadline_hours": "pass",
+     "entry_15m_bar_exists": "pass",
+     "entry_delay_respected": "pass",
+     "entry_price_deviation": "pass",
+     "entry_gap_up_within": "pass",
+     "entry_bar_available_at_proven": "not_proven",
+     "oi_role": "not_required"
+    },
+    "transitions": [
+     {
+      "to": "BOX",
+      "at": "2026-06-03T02:59:59Z",
+      "reason": "事件建档（初始锚点冻结）"
+     },
+     {
+      "to": "SWEEP",
+      "at": "2026-06-03T12:59:59Z",
+      "reason": "扫低收回成立"
+     },
+     {
+      "to": "WAIT_ENTRY",
+      "at": "2026-06-04T14:59:59Z",
+      "reason": "候选生成"
+     }
+    ],
+    "closed_reason": null
+   },
+   "mismatches": [
+    {
+     "item": "n_candidates",
+     "expected": 0,
+     "actual": 1
+    },
+    {
+     "item": "terminal_state",
+     "expected": "DATA_INSUFFICIENT",
+     "actual": null
+    },
+    {
+     "item": "absorption_bar_i(承接判断读的 bar 下标)",
+     "expected": 60,
+     "actual": 86
+    }
+   ],
+   "verdict": "FAIL_AS_EXPECTED"
+  }
+ },
+ "summary": {
+  "all_cases_fail_before_fix": true,
+  "n_cases": 3,
+  "verdict": "修前必失败：三类全部不符预期"
+ }
+}

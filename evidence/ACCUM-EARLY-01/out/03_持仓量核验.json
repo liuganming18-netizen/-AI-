@@ -1,0 +1,122 @@
+{
+ "probe": "03_持仓量核验",
+ "generated_at_utc": "2026-10-26T10:00:09Z",
+ "errors": [],
+ "生产调用路径": {
+  "文件": "框架/backend/unified_runtime.py",
+  "喂给状态机的参数": [
+   [
+    559,
+    "oi_timestamps=np.array([], dtype=np.int64),"
+   ],
+   [
+    560,
+    "oi_values=np.array([], dtype=np.float64))"
+   ]
+  ],
+  "结论": "喂的是 np.array([], dtype=...) 空数组 ⇒ 持仓量未进入判断链路",
+  "开关": {
+   "EventTrendConfig.enable_oi_filter": true,
+   "说明": "开关是开的，但数组是空的 ⇒ 任何突破都会落 OI_UNAVAILABLE，除非开关被显式关掉（运行实例的漏斗显示 OI_UNAVAILABLE=0、history CANDIDATE=51，与「开关开+空数组」不相容 ⇒ 运行实例实际为关）"
+  }
+ },
+ "只注册一次缺陷": {
+  "strength": "behavior_isolated",
+  "初始 oi_available_at 为 None": true,
+  "注册空数组后 oi_available_at 非 None": true,
+  "空数组读取结果": {
+   "oi_curr": null,
+   "oi_past": null,
+   "growth": null,
+   "status": "oi_empty",
+   "assumed": false,
+   "curr_event_ms": null,
+   "curr_available_ms": null,
+   "past_event_ms": null,
+   "past_available_ms": null,
+   "decision_time_ms": 1793000000000,
+   "bucket_ms": 300000,
+   "detail": "无 OI 观测行"
+  },
+  "调用点守卫": "state_machine.py: `if self.pit.oi_available_at is None: self.pit.register_oi(...)` ⇒ 首次注册后永不更新",
+  "后果": "第一次突破若拿到空 OI，该进程后续所有突破读到的仍是空 ⇒ 接通 OI 必须改冻结包 state_machine.py，属策略实现变更，需裁决",
+  "手工再注册后的读取（仅证明桥本身可用）": {
+   "oi_curr": null,
+   "oi_past": null,
+   "growth": null,
+   "status": "oi_curr_too_far_3600000ms",
+   "assumed": true,
+   "curr_event_ms": 1793000000000,
+   "curr_available_ms": 1793000300000,
+   "past_event_ms": null,
+   "past_available_ms": null,
+   "decision_time_ms": 1793003600000,
+   "bucket_ms": 300000,
+   "detail": "最近可得观测的**观测时刻**距决策 3600000ms > 上限 900000ms"
+  }
+ },
+ "真实样本": {
+  "symbol": "BTCUSDT",
+  "found": true,
+  "ts": 1793008200000,
+  "ts_utc": "2026-10-26T09:50:00Z",
+  "bucket_close_utc": "2026-10-26T09:55:00Z",
+  "open_interest": 93694.726,
+  "open_interest_value_usdt": 7544121317.5406,
+  "oi_ccy": 93694.726,
+  "oi_usd": 7544121317.5406,
+  "unit_quantity": "币本位数量（base asset）",
+  "unit_notional": "USDT（名义价值）",
+  "source": "binance.fapi.openInterestHist",
+  "fetched_at": 1793008600628,
+  "fetched_at_utc": "2026-10-26T09:56:40Z",
+  "fetch_lag_sec": 400.628,
+  "available_at_proven": true
+ },
+ "真实序列": {
+  "meta": {
+   "symbol": "BTCUSDT",
+   "period": "5m",
+   "decision_ms": 1793005200000,
+   "decision_utc": "2026-10-26T09:00:00Z",
+   "lookback_ms": 21600000,
+   "window_utc": {
+    "from": "2026-10-26T02:50:00Z",
+    "to": "2026-10-26T08:55:00Z"
+   },
+   "rows_returned": 74,
+   "rows_raw": 74,
+   "zero_oi_rows_skipped": 0,
+   "fetched_at_missing": 0,
+   "available_at_rule": "ts + 5min <= decision_ms",
+   "available_at_proven": true,
+   "column": "open_interest",
+   "unit": "币本位数量（base asset）",
+   "source": "binance.fapi.openInterestHist",
+   "first_utc": "2026-10-26T02:50:00Z",
+   "last_utc": "2026-10-26T08:55:00Z",
+   "reason": null,
+   "note": "空结果不是零值；调用方不得用 0 填充"
+  },
+  "growth": {
+   "status": "ok",
+   "growth": -0.008637769779334989,
+   "oi_curr": 93984.287,
+   "oi_past": 94803.175,
+   "curr_utc": "2026-10-26T08:55:00Z",
+   "past_utc": "2026-10-26T02:55:00Z",
+   "gap_sec": 21600.0
+  }
+ },
+ "空结果行为": {
+  "rows": 0,
+  "reason": "no_rows_in_window",
+  "note": "空就是空，不返回零数组"
+ },
+ "覆盖": {
+  "有 5m 历史的标的": 528,
+  "一小时内更新": 522,
+  "起点_utc": "2026-09-12T00:00:00Z",
+  "说明": "采集健康；缺的是读取接线与注册守卫"
+ }
+}

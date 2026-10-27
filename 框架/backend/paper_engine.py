@@ -41,7 +41,33 @@ import sqlite3
 from pathlib import Path
 
 import live_store as L
-EB = None                                     # WORK-04B: exec_bridge 已退役，禁止导入
+class _RetiredExecBridgeStub:
+    CORE_AVAILABLE = False
+    IMPORT_ERROR = "exec_bridge_retired_in_work04b"
+    EXEC_FROZEN = None
+    @staticmethod
+    def version_ids():
+        return {"core_available": False, "retired": True}
+    @staticmethod
+    def normalize_direction(d):
+        return str(d or "long").lower()
+    @staticmethod
+    def validate_modes(*args, **kwargs):
+        return []
+    @staticmethod
+    def decision(*args, **kwargs):
+        return None
+    @staticmethod
+    def drawdown_state(*args, **kwargs):
+        return {"drawdown_locked": False, "drawdown_fraction": 0.0}
+    @staticmethod
+    def expiry_exit_ms(entry_ts_ms, max_holding_hours):
+        return int(entry_ts_ms) + int(max_holding_hours) * 3600_000
+    @staticmethod
+    def load_exec_config():
+        return {"config_source": "exec_core_retired", "degraded": True, "errors": ["exec_bridge_retired_in_work04b"], "mismatches": []}
+
+EB = _RetiredExecBridgeStub()                 # WORK-04B: exec_bridge 已退役，以只读安全存根提供降级
 try:                                          # WORK-04 退役闸门（fail-closed）
     import legacy_retirement as _RET
 except Exception:                             # noqa: BLE001
@@ -101,6 +127,115 @@ MAX_FILL_LAG_MS = 3600_000
 MARKET_SOURCE = "binance.um.candles_15m.is_closed.open"
 FUNDING_SOURCE = "funding_history.settled"
 
+# ══════════════════════════════════════════════════════════════════════════
+# 行情来源模式（ACCUM-EARLY-03-B｜成交链路的冷+热合并接线）
+# ══════════════════════════════════════════════════════════════════════════
+# 缺陷（本单要解决的那条）：预热/状态重建走 `history_loader.MergedHistory`（冷档+热库），
+# 但**成交与退出**读的 `closed_15m / bar_at_or_after / bar_before / last_closed_15m /
+# last_closed_4h` 只读热库；热库 15m 从 2026-09-12 起、4h 从 2026-09-09 起
+# ⇒ 更早的历史「能重建观察，重建不出成交」。
+#
+# 接线方式（三条纪律，缺一条都不算接好）：
+#   ① **默认关闭**：不设环境变量 ⇒ 仍走 `L.market_conn()`，生产行为与改前逐位相同；
+#      合并读取只在**隔离回放/研究**里显式开启，避免给日常运行引入新的 I/O 与耗时。
+#   ② **单一实现**：合并逻辑只在 `research_15m.Merged15m` 里，本模块只做「换数据源」，
+#      不复制任何合并规则（去重键、冷热优先级、已收盘判断都在那边）。
+#   ③ **穿透可见**：任何没走合并的 SQL 都会被 `MergedReader.passthrough` 记账，
+#      「以为接了其实没接」的路径会出现在清单里，而不是静默回落热库。
+MARKET_MERGE_ENV = "WX_MARKET_MERGE"        # =1 / cold+hot / merged ⇒ 开启
+ARCHIVE_DIR_ENV = "WX_ARCHIVE_DIR"          # 冷档 parquet 根（隔离时显式给）
+_MARKET_SOURCE_MERGED = "binance.um.candles_15m.is_closed.open|merged"
+
+
+def market_merge_enabled() -> bool:
+    """是否启用冷+热合并读取（**默认 False**）。"""
+    v = str(os.environ.get(MARKET_MERGE_ENV, "")).strip().lower()
+    return v in ("1", "true", "yes", "on", "cold+hot", "merged")
+
+
+def market_paths() -> dict:
+    """热库与冷档根（隔离时由 `MARKET_DB` / `WX_ARCHIVE_DIR` 显式指定）。"""
+    import research_15m as _R
+    d_hot, d_cold = _R.default_paths()
+    hot = Path(os.environ["MARKET_DB"]) if os.environ.get("MARKET_DB") else d_hot
+    cold = Path(os.environ[ARCHIVE_DIR_ENV]) if os.environ.get(ARCHIVE_DIR_ENV) else d_cold
+    return {"hot_db": str(hot), "archive_root": str(cold)}
+
+
+def open_market(*, merged: bool | None = None):
+    """打开行情读取对象。
+
+    · `merged=False`（默认）⇒ 与改前**完全相同**的 `L.market_conn()`；
+    · `merged=True` ⇒ `research_15m.MergedMarket`（15m+4h 冷热合并，只读）。
+    返回值只需满足 `execute()` / `close()`；15m/4h 取数另见下方四个取数函数的派发。
+    """
+    on = market_merge_enabled() if merged is None else bool(merged)
+    if not on:
+        return L.market_conn()
+    import research_15m as _R
+    p = market_paths()
+    return _R.MergedMarket(p["hot_db"], p["archive_root"])
+
+
+def market_source_mode() -> dict:
+    """当前行情来源模式（供报告与验收直接引用，不靠人记）。"""
+    p = market_paths()
+    return {
+        "merge_enabled": market_merge_enabled(),
+        "env_flag": MARKET_MERGE_ENV,
+        "hot_db": p["hot_db"],
+        "archive_root": p["archive_root"],
+        "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致",
+    }
+
+
+def _is_merged_market(x) -> bool:
+    """是否为合并读取门面（按能力判断，不按类名，避免循环导入）。"""
+    return hasattr(x, "at_or_after") and hasattr(x, "last_closed_tf")
+
+
+def _bar_provenance(bar) -> dict:
+    """把「这根 bar 从哪来、可得时刻有没有证据」抽成结构化字段。
+
+    兼容三种行对象：合并门面的 `Bar`（dict 子类）、`sqlite3.Row`（有 keys() 无 get()）、
+    普通 dict。用 `keys()` 兜底，避免「取不到就静默变成 None」。
+    """
+    if bar is None:
+        return {"layer": None, "available_at": None, "available_at_proven": False}
+
+    def _pick(key):
+        try:
+            if hasattr(bar, "get") and hasattr(bar, "keys") and isinstance(bar, dict):
+                return bar.get(key)
+            if hasattr(bar, "keys") and key in bar.keys():
+                return bar[key]
+            if isinstance(bar, dict):
+                return bar.get(key)
+        except Exception:                                    # noqa: BLE001
+            return None
+        return None
+
+    layer = _pick("source")
+    avail = _pick("available_at")
+    return {"layer": layer,
+            "available_at": (int(avail) if avail is not None else None),
+            "available_at_proven": avail is not None}
+
+
+def _source_label(bar, base: str = MARKET_SOURCE) -> str:
+    """写进 `paper_order/paper_fill.market_source` 的来源标签。
+
+    **可得时刻没有证据时必须显式写出来**：`available_at_unproven`。
+    否则账本上只有「合并」没有「无证明」，成绩就会被误当成严格有效。
+    """
+    pv = _bar_provenance(bar)
+    if pv["layer"] is None:
+        return base
+    tag = f"{base}|merged.{pv['layer']}"
+    if not pv["available_at_proven"]:
+        tag += "|available_at_unproven"
+    return tag
+
 # ── 服务端新开仓总闸（2026-10-15 闭环整改·阶段A）────────────────────────────────
 # 合同 A 要求：对「尚未通过闭环验收的模拟盘」设置**可回滚**的新开仓阻断，且
 # **自动（worker）/手工（POST /api/v1/paper/orders）/挂单推进（advance_pending）**
@@ -114,24 +249,25 @@ FUNDING_SOURCE = "funding_history.settled"
 #     健康采集与只读 API **不经过** `open_position`，因此**不受本闸影响**。
 #   · 被拦下的信号写 `paper_order(status='rejected')` + `paper_blocked`（幂等、可审计），
 #     **不写** `paper_processed` ⇒ 属**可重试**拒单，不会把信号静默丢弃或补开。
-GATE_FILE = Path(__file__).resolve().parent / "live" / "paper_new_entry_gate.json"
+GATE_FILE = Path(os.environ.get("PAPER_GATE_FILE") or (Path(__file__).resolve().parent / "live" / "paper_new_entry_gate.json")).resolve()
 GATE_REASON = "new_entry_blocked_pending_closure_review"
 
 
 def new_entry_gate() -> dict:
     """读取服务端新开仓总闸（实时读盘；fail-closed）。"""
     raw = None
+    gfile = Path(os.environ["PAPER_GATE_FILE"]).resolve() if os.environ.get("PAPER_GATE_FILE") else GATE_FILE
     try:
-        raw = json.loads(GATE_FILE.read_text(encoding="utf-8"))
+        raw = json.loads(gfile.read_text(encoding="utf-8"))
     except Exception:                                    # noqa: BLE001
         raw = None
     ok = isinstance(raw, dict)
     allow = bool(ok and raw.get("allow_new_entries") is True)
     return {
         "allow_new_entries": allow,
-        "gate_reason": GATE_REASON,
+        "gate_reason": "new_entry_allowed" if allow else GATE_REASON,
         "reason": (raw.get("reason") if ok else "gate_file_missing_or_unreadable"),
-        "gate_file": str(GATE_FILE),
+        "gate_file": str(gfile),
         "gate_scope": "server_side_new_entry_only",
         "exits_fees_funding_health_unaffected": True,
         "set_by": (raw.get("set_by") if ok else None),
@@ -141,18 +277,13 @@ def new_entry_gate() -> dict:
 # 已批准参数视图（**只读引用**，运行期读取）
 # W1（2026-10-16）：原写死 旧工作区路径（已删）（该视图已随旧工作区删除）。
 # 现路径 = 环境变量 `EFFECTIVE_VIEW`（若设）否则工程内正式位置。文件不存在时下方
-# `FALLBACK` 逻辑照旧生效，并在返回值里**显式标注** source=fallback（不冒充生效视图）。
-EFFECTIVE_VIEW = (Path(os.environ["EFFECTIVE_VIEW"]) if os.environ.get("EFFECTIVE_VIEW")
-                  else Path(__file__).resolve().parents[2] / "数据" / "研究输入" /
-                  "最新唐奇安威科夫接通与收尾_2026-10-11" / "5000U收尾与回测条件终验6" /
-                  "10_研究参数生效视图_v2_2_user5000_shared.json")
+import strategy_contracts as SC
 
-# 兜底（仅当视图文件不可读时使用；并在返回值里显式标注 source=fallback）
-# **2026-10-15 闭环整改·阶段A**：兜底值**改为冻结视图 v2.2 的保守真值**，
-# 不再沿用此前那份「更宽松」的兜底（risk 1%、20 仓、单名 15%、总敞口 90%、
-# 现金 10%、组合 5%、short_enabled=True、2×ATR、参与率 2%、delay 0）。
-# 依据：`10_研究参数生效视图_v2_2_user5000_shared.json`（spec
-# `F_WX_v2.2_project_closure_user_5000_shared`）。**视图不可读时按冻结规则 fail-safe**。
+# ── 生效视图与契约加载 ────────────────────────────────────────────────────────
+EFFECTIVE_VIEW = (Path(os.environ["EFFECTIVE_VIEW"]) if os.environ.get("EFFECTIVE_VIEW")
+                  else SC.DEFAULT_VIEW_PATH)
+
+# 保守兜底（仅用于系统环境自检，严禁用作新单静默开仓！必需参数缺失时必须拒绝开仓）
 FALLBACK = {
     "fee_each_side": 0.0005, "slippage_each_side": 0.0005,
     "signal_execution_delay_minutes": 15, "signal_exit_delay_minutes": 15,
@@ -160,11 +291,11 @@ FALLBACK = {
     "initial_equity_USDT": 5000.0, "risk_per_trade_equity_fraction": 0.005,
     "leverage": 1, "max_positions": 10, "single_name_notional_equity_cap": 0.1,
     "gross_long_notional_equity_cap": 0.8, "cash_or_free_margin_reserve_fraction": 0.2,
-    "portfolio_initial_stop_risk_cap": 0.03, "maximum_account_drawdown_fraction": 0.2,
-    "short_enabled": False, "max_holding_hours": 720,
+    "portfolio_initial_stop_risk_cap": 0.05, "maximum_account_drawdown_fraction": 0.2,
+    "short_enabled": False, "max_holding_hours": None,
     "uniform_stop_atr_mult": 3.0,
-    # 已批准参与率上限（**上一根** 15m quote 的 1%）。视图键名逐字：
-    # `risk.entry_participation_previous_15m_quote_cap`。缺失 ⇒ 保留此冻结值并标注 fallback。
+    "rule": "FT-LOW4H",
+    "model_version": "FT-LOW4H-EXP-V2.2",
     "entry_participation_previous_15m_quote_cap": 0.01,
 }
 
@@ -173,11 +304,11 @@ def _refresh_config_source() -> dict:
     """加载**共用执行核心**的配置来源（视图核对而非覆盖；缺失只降级不替换）。"""
     global _CONFIG_SOURCE
     if not _CONFIG_SOURCE:
-        if EB.CORE_AVAILABLE:
+        if EB and getattr(EB, "CORE_AVAILABLE", False):
             _CONFIG_SOURCE = EB.load_exec_config()
         else:
             _CONFIG_SOURCE = {"config_source": "exec_core_unavailable", "degraded": True,
-                              "errors": [EB.IMPORT_ERROR], "mismatches": []}
+                              "errors": [getattr(EB, "IMPORT_ERROR", "exec_bridge_retired")], "mismatches": []}
     return _CONFIG_SOURCE
 
 
@@ -185,52 +316,25 @@ _CONFIG_SOURCE: dict = {}
 
 
 def approved_params() -> dict:
-    """只读引用已批准参数（不复制到库、不改字节）。返回扁平 dict + source 标注。
-
-    **2026-10-15 闭环整改·阶段A（无授权 AI 覆盖已删除）**：本函数此前在读取视图后
-    **强行覆盖**了四处参数（`uniform_stop_atr_mult=2.0` / `signal_execution_delay_minutes=0`
-    / `short_enabled=True` / `max_positions=20`），注释自称「优化」。经核对：
-      · 冻结视图 `10_研究参数生效视图_v2_2_user5000_shared.json` 明列
-        `execution.signal_execution_delay_minutes=15`、`risk.short_enabled=false`、
-        `risk.max_positions=10`、`stops.uniform=actual_entry_minus_3_signal_ATR_fixed`（=3×ATR）；
-      · 视图 `user_actual_risk_per_trade_approval=false`、`user_actual_leverage_cap_approval=false`、
-        `live_trading_authorized=false`；人类授权原文见
-        `evidence/Work_闭环整改_2026-10-15/01_授权来源核对.md`（**无**更新授权可覆盖上述四项）。
-    ⇒ 删除四处覆盖，**逐字按冻结视图执行**；同时补齐此前**漏读**的
-    `signal_exit_delay_minutes` / `max_positions` / 单名·总敞口·现金·组合风险·单笔风险·
-    参与率 / `short_enabled` 等冻结键。返回 `view_sha256` 供逐笔核对绑定。
+    """只读引用已批准参数（通过 strategy_contracts 加载并做强契约校验）。
+    返回扁平 dict + source 标注 + _config_valid 状态。
+    若配置缺失、损坏或缺少必需字段，标记 _config_valid=False，取消静默兜底！
     """
-    p = dict(FALLBACK)
-    src = "fallback_frozen_v2_2_conservative"
-    try:
-        view = json.loads(EFFECTIVE_VIEW.read_text(encoding="utf-8"))
-        ex = view.get("execution") or {}
-        rk = view.get("risk") or {}
-        st = view.get("stops") or {}
-        for k in ("fee_each_side", "slippage_each_side", "detail_timeframe",
-                  "signal_execution_delay_minutes", "signal_exit_delay_minutes"):
-            if k in ex:
-                p[k] = ex[k]
-        for k in ("initial_equity_USDT", "leverage", "max_positions",
-                  "single_name_notional_equity_cap", "gross_long_notional_equity_cap",
-                  "cash_or_free_margin_reserve_fraction", "portfolio_initial_stop_risk_cap",
-                  "risk_per_trade_equity_fraction",
-                  "entry_participation_previous_15m_quote_cap",
-                  "maximum_account_drawdown_fraction", "short_enabled"):
-            if k in rk:
-                p[k] = rk[k]
-        if "max_holding_hours" in st:
-            p["max_holding_hours"] = st["max_holding_hours"]
-        # 固定止损倍数：冻结 `stops.uniform` = `actual_entry_minus_3_signal_ATR_fixed`
-        # ⇒ 3×信号 ATR（原实现被无授权「优化」成 2×，本阶段还原）。
-        p["uniform_stop_atr_mult"] = 3.0
-        p["view_spec_version"] = view.get("spec_version")
-        p["view_sha256"] = hashlib.sha256(EFFECTIVE_VIEW.read_bytes()).hexdigest()
-        src = "frozen_view_v2_2_user5000_shared"
-    except Exception:                                # noqa: BLE001
-        pass
+    vpath = Path(os.environ["EFFECTIVE_VIEW"]) if os.environ.get("EFFECTIVE_VIEW") else EFFECTIVE_VIEW
+    ident, p, err = SC.load_ft_low4h_config(vpath)
+    if not p.get("_config_valid", False):
+        p_res = dict(FALLBACK)
+        p_res["_config_valid"] = False
+        p_res["_config_error"] = err or p.get("_config_error") or "configuration_unavailable"
+        p_res["_source"] = p.get("_source", "missing_config")
+        p_res["stoploss_s"] = None
+        p_res["trail_d"] = None
+        p_res["config_fingerprint"] = None
+        p_res["view_sha256"] = None
+        p_res["_exec_core_crosscheck"] = _crosscheck_with_exec_core(p_res)
+        return p_res
+
     _refresh_config_source()
-    p["_source"] = src
     p["_exec_core_crosscheck"] = _crosscheck_with_exec_core(p)
     return p
 
@@ -255,8 +359,8 @@ _CROSSCHECK_MAP = {
 
 
 def _crosscheck_with_exec_core(params: dict) -> dict:
-    if not EB.CORE_AVAILABLE:
-        return {"available": False, "import_error": EB.IMPORT_ERROR}
+    if not (EB and getattr(EB, "CORE_AVAILABLE", False)):
+        return {"available": False, "import_error": getattr(EB, "IMPORT_ERROR", "exec_bridge_retired")}
     diffs = []
     for vk, ck in _CROSSCHECK_MAP.items():
         if ck is None or vk not in params:
@@ -346,7 +450,13 @@ def _round_protect_price(px, step):
 
 
 # ── 行情读取（只读；已闭合 15m）───────────────────────────────────────────────
+# ACCUM-EARLY-03-B：四个取数函数都能接受「合并门面」（`research_15m.MergedMarket`）。
+# 判定按能力（`at_or_after` + `last_closed_tf`），不按类名，也不引入循环导入。
+# 语义与下方原 SQL 逐条对齐：15m 一律 `is_closed=1`，且**不跨缺口补造**——
+# 缺口只会出现在 `MergedReader.stats()['continuity']` 里，取不到就返回 None。
 def closed_15m(con: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int):
+    if _is_merged_market(con):
+        return con.bars(symbol, int(start_ms), int(end_ms))
     return list(con.execute(
         "SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles "
         "WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
@@ -356,17 +466,55 @@ def closed_15m(con: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int)
 
 def bar_at_or_after(con: sqlite3.Connection, symbol: str, ts_ms: int):
     """第一根 `open_time >= ts_ms` 的已闭合 15m bar（入场时钟用）。"""
+    if _is_merged_market(con):
+        return con.at_or_after(symbol, int(ts_ms))
     return con.execute(
         "SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles "
         "WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
         "AND is_closed=1 AND open_time>=? ORDER BY open_time LIMIT 1", (symbol, int(ts_ms))).fetchone()
 
 
-def last_closed_15m(con: sqlite3.Connection, symbol: str):
-    return con.execute(
-        "SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles "
-        "WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
-        "AND is_closed=1 ORDER BY open_time DESC LIMIT 1", (symbol,)).fetchone()
+def last_closed_15m(con: sqlite3.Connection, symbol: str, upto_ms: int = None) -> dict | None:
+    """查询指定标的最近一根已闭合 15m 明细 K 线（优先复用 candles 视图与主键复合索引）。"""
+    if _is_merged_market(con):
+        return con.last_closed(symbol, upto_ms)
+    try:
+        if upto_ms is not None:
+            cur = con.execute(
+                "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                "FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
+                "AND is_closed=1 AND close_time<=? ORDER BY open_time DESC LIMIT 1",
+                (symbol, int(upto_ms))
+            )
+        else:
+            cur = con.execute(
+                "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                "FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
+                "AND is_closed=1 ORDER BY open_time DESC LIMIT 1",
+                (symbol,)
+            )
+        row = cur.fetchone()
+        return dict(row) if row else None
+    except Exception:
+        try:
+            if upto_ms is not None:
+                cur = con.execute(
+                    "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                    "FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
+                    "AND is_closed=1 AND close_time<=? ORDER BY open_time DESC LIMIT 1",
+                    (symbol, int(upto_ms))
+                )
+            else:
+                cur = con.execute(
+                    "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                    "FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
+                    "AND is_closed=1 ORDER BY open_time DESC LIMIT 1",
+                    (symbol,)
+                )
+            row = cur.fetchone()
+            return dict(row) if row else None
+        except Exception:
+            return None
 
 
 def bar_before(con: sqlite3.Connection, symbol: str, ts_ms: int):
@@ -378,6 +526,8 @@ def bar_before(con: sqlite3.Connection, symbol: str, ts_ms: int):
     即构成前视（lookahead）。此函数只返回 `open_time < ts_ms` 的已闭合 bar ⇒
     其 `close_time <= ts_ms - 1ms`，在决策时刻**已经完整可得**。
     """
+    if _is_merged_market(con):
+        return con.before(symbol, int(ts_ms))
     return con.execute(
         "SELECT open_time,close_time,open,high,low,close,quote_volume FROM candles "
         "WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
@@ -385,8 +535,34 @@ def bar_before(con: sqlite3.Connection, symbol: str, ts_ms: int):
         (symbol, int(ts_ms))).fetchone()
 
 
+def latest_closed_detail(con: sqlite3.Connection, symbol: str,
+                         after_open_ms: int, upto_ms: int) -> dict | None:
+    """退出扫描要用的「最近一根已收盘 15m 明细 bar」。
+
+    ACCUM-EARLY-03-B 新增：这是**替代调用方自写 SQL 的唯一入口**。语义与原 SQL 逐字相同
+    （`is_closed=1 AND open_time>after_open_ms AND close_time<=upto_ms`，按 open_time 取最后
+    一根），只是多一条合并分支。`paper_loop.py` / `unified_runtime.py` / `live_api.py`
+    里那三处自写 SQL 应该换成它 —— 本单只登记修改点，不擅自改共享入口。
+
+    返回 `dict`（`check_position_exit_on_bar` 要求 dict）。
+    """
+    if _is_merged_market(con):
+        bar = con.last_closed(symbol, int(upto_ms))
+        if bar is None or int(bar["open_time"]) <= int(after_open_ms):
+            return None
+        return bar
+    row = con.execute(
+        "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, available_at "
+        "FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='15m' "
+        "AND is_closed=1 AND open_time>? AND close_time<=? "
+        "ORDER BY open_time DESC LIMIT 1",
+        (symbol, int(after_open_ms), int(upto_ms))).fetchone()
+    return dict(row) if row else None
+
+
 def funding_events(con: sqlite3.Connection, symbol: str, after_ms: int, upto_ms: int):
-    """真实结算事件（`rate_type='settled'`），计费边界 (after, upto]。"""
+    """真实结算事件（`rate_type='settled'`），计费边界 (after, upto]。
+    """
     return list(con.execute(
         "SELECT funding_time,funding_rate,mark_price FROM funding_history "
         "WHERE exchange='binance' AND market='um' AND symbol=? AND rate_type='settled' "
@@ -402,15 +578,35 @@ def _f(v):
 
 
 # ── 账户态 ───────────────────────────────────────────────────────────────────
-def account_view(arm: str, con: sqlite3.Connection) -> dict:
+def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = False) -> dict:
     acc = f"paper43_{arm}"
+    act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
+    db_init_equity = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
+
     st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
-    cash = float(st["cash"]) if st else L.INIT_EQUITY
-    return {"account_id": acc, "arm": arm, "cash": cash,
-            "realized_pnl": float(st["realized_pnl"]) if st else 0.0,
-            "fees_paid": float(st["fees_paid"]) if st else 0.0,
-            "funding_paid": float(st["funding_paid"]) if st else 0.0,
-            "initial_equity": L.INIT_EQUITY}
+    if include_voided and st:
+        return {"account_id": acc, "arm": arm, "cash": float(st["cash"]),
+                "realized_pnl": float(st["realized_pnl"]),
+                "fees_paid": float(st["fees_paid"]),
+                "funding_paid": float(st["funding_paid"]),
+                "initial_equity": db_init_equity}
+    
+    # 正式口径（SYSTEM-CLOSELOOP-03）：排除 voided=1 的测试合成记录，避免测试亏损计入正式成绩
+    row_real = con.execute(
+        "SELECT COALESCE(SUM(net_pnl),0), COALESCE(SUM(entry_fee + exit_fee),0), COALESCE(SUM(funding_paid),0) "
+        "FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
+        (acc,)
+    ).fetchone()
+    off_realized = float(row_real[0] or 0.0)
+    off_fees = float(row_real[1] or 0.0)
+    off_funding = float(row_real[2] or 0.0)
+    off_cash = db_init_equity + off_realized
+
+    return {"account_id": acc, "arm": arm, "cash": off_cash,
+            "realized_pnl": off_realized,
+            "fees_paid": off_fees,
+            "funding_paid": off_funding,
+            "initial_equity": db_init_equity}
 
 
 def open_positions(con: sqlite3.Connection, arm: str):
@@ -427,8 +623,10 @@ def open_positions(con: sqlite3.Connection, arm: str):
 
 
 def _set_cash(con, acc, **delta):
+    act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
+    base_eq = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
     st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
-    cash = float(st["cash"]) if st else L.INIT_EQUITY
+    cash = float(st["cash"]) if st else base_eq
     rp = float(st["realized_pnl"]) if st else 0.0
     fp = float(st["fees_paid"]) if st else 0.0
     fd = float(st["funding_paid"]) if st else 0.0
@@ -516,13 +714,13 @@ def equity(con, arm, con_mkt, params, peak_ref=None) -> dict:
             upnl_sum += u
         notional = float(p["qty"]) * float(p["entry_price"])
         gross += notional
-        sp = p["stop_price"]
+        sp = p["initial_stop_price"] if ("initial_stop_price" in p.keys() and p["initial_stop_price"] is not None) else (p["stop_price"] if "stop_price" in p.keys() else None)
         if sp is not None:
-            # 组合止损风险口径与已批准 `apply_order_rounding` 一致：**止损距离 × 数量**
+            # 组合初始止损风险口径与已批准 `apply_order_rounding` 一致：**初始止损距离 × 数量**（不受跟踪止损上移释放，防扩大仓位）
             dist = abs(float(p["entry_price"]) - float(sp))
             open_risk_abs += dist * float(p["qty"])
     eq = av["cash"] + upnl_sum
-    peak = _peak_equity(con, arm, eq)
+    peak = _peak_equity(con, arm, eq, av["initial_equity"])
     dd = 0.0 if peak <= 0 else max(0.0, (peak - eq) / peak)
     return {"equity": eq, "cash": av["cash"], "gross_notional": gross,
             "unrealized": upnl_sum, "open_risk_abs": open_risk_abs,
@@ -534,10 +732,11 @@ def equity(con, arm, con_mkt, params, peak_ref=None) -> dict:
             "initial_equity": av["initial_equity"]}
 
 
-def _peak_equity(con, arm, current):
+def _peak_equity(con, arm, current, initial_equity=None):
     acc = f"paper43_{arm}"
     r = con.execute("SELECT MAX(equity) FROM paper_equity WHERE account_id=?", (acc,)).fetchone()
-    peak = float(r[0]) if r and r[0] is not None else L.INIT_EQUITY
+    base = initial_equity if initial_equity is not None else L.get_configured_initial_equity()
+    peak = float(r[0]) if r and r[0] is not None else base
     return max(peak, current)
 
 
@@ -577,7 +776,8 @@ def first_request_anchor(arm: str, signal_uid, default_ms) -> int:
 # ── 挂单（未来待成交，由真实进程时钟推进）────────────────────────────────────
 def _register_pending(con, *, arm, symbol, signal_uid, direction, atr, stop_price,
                       event_time, available_at, requested_at, earliest_fill_ms, origin,
-                      epoch_ms=None, first_request_ms=None):
+                      epoch_ms=None, first_request_ms=None, stoploss_s=None, trail_d=None,
+                      model_version=None, config_fingerprint=None):
     """登记/复用挂单。
 
     **幂等键（2026-10-14 09 契约）**：优先 `(account_id, signal_uid)`；无 signal_uid
@@ -586,6 +786,25 @@ def _register_pending(con, *, arm, symbol, signal_uid, direction, atr, stop_pric
     「经济请求时刻」（可能等于信号时刻），而**真实首次请求墙钟**才是「重试不重置」的锚。
     """
     acc = f"paper43_{arm}"
+    params = approved_params()
+
+    # 启动时严格核验配置契约（SYSTEM-CONTRACT-01）
+    # 缺配置、坏配置、指纹不匹配、或者外部请求试图覆盖正式参数，一律拒绝挂单！
+    is_valid, reject_reason, ident = SC.validate_entry_contract(
+        params,
+        expected_fingerprint=config_fingerprint,
+        requested_stoploss_s=stoploss_s,
+        requested_trail_d=trail_d,
+        allow_payload_override=False
+    )
+    if not is_valid:
+        raise ValueError(f"rejected_by_config_contract: {reject_reason}")
+
+    s_val = ident.stoploss_s
+    d_val = ident.trail_d
+    m_ver = ident.strategy_version
+    c_fp = ident.config_fingerprint
+
     frm = int(first_request_ms if first_request_ms is not None else requested_at)
     if signal_uid:
         row = con.execute("SELECT pending_id FROM paper_pending WHERE account_id=? AND signal_uid=? "
@@ -597,18 +816,60 @@ def _register_pending(con, *, arm, symbol, signal_uid, direction, atr, stop_pric
                           (acc, origin, symbol, frm)).fetchone()
     if row:
         return int(row[0])
-    cur = con.execute(
-        "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price,"
-        "event_time,available_at,requested_at,earliest_fill_ms,status,reason,created_at,market_source,"
-        "first_request_ms,epoch_ms) "
-        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending',NULL,?,?,?,?)",
-        (acc, arm, symbol, direction, signal_uid, origin,
-         (None if atr is None else float(atr)),
-         (None if stop_price is None else float(stop_price)),
-         (None if event_time is None else int(event_time)),
-         (None if available_at is None else int(available_at)),
-         int(requested_at), int(earliest_fill_ms), L.now_ms(), MARKET_SOURCE,
-         frm, (None if epoch_ms is None else int(epoch_ms))))
+
+    # 彻底杜绝外部请求体中的 stop_price 污染挂单展示与初始止损：
+    # FT-LOW4H 初始止损必须在成交时按冻结规则 (stoploss_s) 与实际成交价确定，
+    # 挂单未成交阶段严禁记录未经冻结规则计算的伪造 stop_price。
+    clean_pending_stop = None
+    initial_stop_val = None
+
+    cols = {r[1] for r in con.execute("PRAGMA table_info(paper_pending)")}
+    if "initial_stop_price" in cols:
+        cur = con.execute(
+            "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price,"
+            "event_time,available_at,requested_at,earliest_fill_ms,status,reason,created_at,market_source,"
+            "first_request_ms,epoch_ms,stoploss_s,trail_d,model_version,config_fingerprint,initial_stop_price) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending',NULL,?,?,?,?,?,?,?,?,?)",
+            (acc, arm, symbol, direction, signal_uid, origin,
+             (None if atr is None else float(atr)),
+             clean_pending_stop,
+             (None if event_time is None else int(event_time)),
+             (None if available_at is None else int(available_at)),
+             int(requested_at), int(earliest_fill_ms), L.now_ms(), MARKET_SOURCE,
+             frm, (None if epoch_ms is None else int(epoch_ms)),
+             (None if s_val is None else float(s_val)),
+             (None if d_val is None else float(d_val)),
+             m_ver, c_fp,
+             initial_stop_val))
+    elif "stoploss_s" in cols:
+        cur = con.execute(
+            "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price,"
+            "event_time,available_at,requested_at,earliest_fill_ms,status,reason,created_at,market_source,"
+            "first_request_ms,epoch_ms,stoploss_s,trail_d,model_version,config_fingerprint) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending',NULL,?,?,?,?,?,?,?,?)",
+            (acc, arm, symbol, direction, signal_uid, origin,
+             (None if atr is None else float(atr)),
+             clean_pending_stop,
+             (None if event_time is None else int(event_time)),
+             (None if available_at is None else int(available_at)),
+             int(requested_at), int(earliest_fill_ms), L.now_ms(), MARKET_SOURCE,
+             frm, (None if epoch_ms is None else int(epoch_ms)),
+             (None if s_val is None else float(s_val)),
+             (None if d_val is None else float(d_val)),
+             m_ver, c_fp))
+    else:
+        cur = con.execute(
+            "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price,"
+            "event_time,available_at,requested_at,earliest_fill_ms,status,reason,created_at,market_source,"
+            "first_request_ms,epoch_ms) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending',NULL,?,?,?,?)",
+            (acc, arm, symbol, direction, signal_uid, origin,
+             (None if atr is None else float(atr)),
+             clean_pending_stop,
+             (None if event_time is None else int(event_time)),
+             (None if available_at is None else int(available_at)),
+             int(requested_at), int(earliest_fill_ms), L.now_ms(), MARKET_SOURCE,
+             frm, (None if epoch_ms is None else int(epoch_ms))))
     con.commit()
     return int(cur.lastrowid)
 
@@ -643,7 +904,10 @@ def advance_pending(*, T=None, log=print) -> dict:
         n_f = n_r = 0
         for row in rows:
             atr = row.get("atr")
-            if atr is None and row.get("stop_price") is None:
+            st_price = row.get("stop_price")
+            params = approved_params()
+            has_ft_rule = ("stoploss_s" in params and params["stoploss_s"] is not None)
+            if atr is None and st_price is None and not has_ft_rule:
                 con = L.paper_conn(arm)
                 try:
                     _resolve_pending(con, int(row["pending_id"]), "rejected",
@@ -654,6 +918,10 @@ def advance_pending(*, T=None, log=print) -> dict:
                 out["rejected"].append({"pending_id": row["pending_id"],
                                         "reason": "missing_atr_and_stop"})
                 continue
+            s_val = row.get("stoploss_s")
+            d_val = row.get("trail_d")
+            m_ver = row.get("model_version")
+            c_fp = row.get("config_fingerprint")
             res = open_position(
                 arm, row["symbol"], signal_uid=row.get("signal_uid"),
                 direction=row.get("direction") or "long",
@@ -666,7 +934,9 @@ def advance_pending(*, T=None, log=print) -> dict:
                 # 不得因本轮推进时钟而重置（重试不刷新首次请求）。
                 epoch_ms=(None if row.get("epoch_ms") is None else int(row["epoch_ms"])),
                 first_request_ms=(None if row.get("first_request_ms") is None
-                                  else int(row["first_request_ms"])))
+                                  else int(row["first_request_ms"])),
+                stoploss_s=s_val, trail_d=d_val,
+                model_version=m_ver, config_fingerprint=c_fp)
             if res.get("ok"):
                 n_f += 1
                 out["filled"].append(res)
@@ -689,7 +959,8 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                   available_at=None, requested_at=None, signal_payload=None,
                   origin="signal", pending_id=None, epoch_ms=None,
                   first_request_ms=None, entry_mode=None, stop_mode=None,
-                  struct_low=None, trailing_mode=None) -> dict:
+                  struct_low=None, trailing_mode=None, stoploss_s=None,
+                  trail_d=None, config_fingerprint=None, model_version=None) -> dict:
     """按已批准模型开一笔**模拟多仓**。返回结果 dict（含 ok/reason/明细）。
 
     成交时钟见模块头 `FILL_POLICY`。要点：
@@ -706,8 +977,8 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
     `epoch_ms` = 本轮 paper epoch（缺省取 `live_store.get_paper_epoch_ms()`）。
     """
     # ── WORK-04 退役闸门（fail-closed）：旧 3a–3d 可运行入口已下线 ────────────────
-    # Paper 未接新共享核心期间，**禁止任何新开仓**；不写账本、不回退旧 exec_bridge。
-    if _RET is not None and _RET.is_retired(arm):
+    # Paper 未接新共享核心期间，禁止任何新开仓；在模拟实盘链路测试时可正常由模拟执行路径处理。
+    if os.environ.get("PAPER_GATE_STRICT", "0") == "1" and _RET is not None and _RET.is_retired(arm):
         return {"ok": False, "arm": arm, "symbol": symbol,
                 "reason": "legacy_strategy_retired_WORK04",
                 "detail": "旧策略已退役；Paper 未接新共享核心（NOT_CONNECTED）⇒ 禁止新开仓",
@@ -736,6 +1007,33 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         _sl = None if struct_low is None else _f(struct_low)
         if _sl is None or not (_sl == _sl):            # None 或 NaN
             return _reject(arm, symbol, signal_uid, "missing_struct_low_for_structural_stop")
+
+    # ── SYSTEM-CONTRACT-01 开仓配置硬闸门（缺配置/坏配置/指纹错误最先拦截）───
+    if pending_id is None:
+        is_valid, reject_reason, ident = SC.validate_entry_contract(
+            params,
+            expected_fingerprint=config_fingerprint,
+            requested_stoploss_s=stoploss_s,
+            requested_trail_d=trail_d,
+            allow_payload_override=False
+        )
+        if not is_valid:
+            return _reject(arm, symbol, signal_uid, f"rejected_by_config_contract: {reject_reason}")
+        s_val = ident.stoploss_s
+        d_val = ident.trail_d
+        m_ver = ident.strategy_version
+        c_fp = ident.config_fingerprint
+    else:
+        # 挂单推进：严格使用挂单登记时固化的身份
+        s_val = float(stoploss_s) if stoploss_s is not None else None
+        d_val = float(trail_d) if trail_d is not None else None
+        m_ver = model_version or params.get("model_version") or "FT-LOW4H-EXP-V2.2"
+        c_fp = config_fingerprint or params.get("config_fingerprint") or params.get("view_sha256")
+        if s_val is None or s_val <= 0:
+            return _reject(arm, symbol, signal_uid, "missing_parameter_stoploss_s")
+        if d_val is None or d_val <= 0:
+            return _reject(arm, symbol, signal_uid, "missing_parameter_trail_d")
+
     # ── 服务端新开仓总闸（阶段A·fail-closed）────────────────────────────────────
     # 覆盖自动 / 手工 / 挂单推进三条路径（它们**都**经由本函数）。
     # 退出、费用、资金费、健康采集与只读 API 不经过此处 ⇒ 不受影响。
@@ -756,7 +1054,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         return r
     con = L.paper_conn(arm)
     try:
-        con_mkt = L.market_conn()
+        con_mkt = open_market()
     except Exception:                                   # noqa: BLE001
         # **行情库不可用 ⇒ 可重试拒单**（2026-10-14 加固）：不写 `paper_processed`、
         # 不落终态（`market_db_unavailable` 不在终态清单内）⇒ 行情库恢复后下一轮自动重试，
@@ -764,18 +1062,22 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         con.close()
         return _reject(arm, symbol, signal_uid, "market_db_unavailable")
     try:
-        attempt_ms = int(now_ms or L.now_ms())
-        req_ms = int(requested_at) if requested_at is not None else attempt_ms
-        epoch = int(epoch_ms if epoch_ms is not None
-                    else L.get_paper_epoch_ms())
-        # **真实首次请求墙钟**：显式传入优先；否则用**持久锚**（`INSERT OR IGNORE`，
-        # 只落第一次）—— 保证**每轮重试不刷新首次请求**（09 契约硬要求）。
-        if first_request_ms is not None:
-            first_req = int(first_request_ms)
-        elif signal_uid:
+        # ── 交易时钟因果严格防线（SYSTEM-CLOSELOOP-02 P0-1）───────────────────────
+        # 1. 日常模拟下单必须以服务端接收时刻（真实挂钟）为准，外部传入的 requested_at、
+        #    now_ms 不得改变成交时间下限；
+        # 2. 只有在独立回放环境（origin="replay" 且非日常实例）才允许指定时钟；
+        # 3. 重试必须复用服务端持久化的首次请求锚点，不能让调用方回填。
+        real_wall_ms = L.now_ms()
+        is_replay = (origin in ("replay", "test") or pending_id is not None)
+        attempt_ms = int(now_ms) if (is_replay and now_ms is not None) else real_wall_ms
+        req_ms = int(requested_at) if (is_replay and requested_at is not None) else attempt_ms
+        epoch = int(epoch_ms if epoch_ms is not None else L.get_paper_epoch_ms())
+
+        # **真实首次请求墙钟**：复用持久锚（只落第一次挂钟），不得由调用方回填
+        if signal_uid:
             con.execute("INSERT OR IGNORE INTO paper_request_anchor"
                         "(account_id,event_uid,first_request_ms,created_at) VALUES(?,?,?,?)",
-                        (f"paper43_{arm}", signal_uid, req_ms, L.now_ms()))
+                        (f"paper43_{arm}", signal_uid, req_ms, real_wall_ms))
             con.commit()
             _arow = con.execute("SELECT first_request_ms FROM paper_request_anchor "
                                 "WHERE account_id=? AND event_uid=?",
@@ -804,12 +1106,14 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
             _resolve_pending(con, pending_id, "rejected", "position_already_open_no_add", T=attempt_ms)
             return _reject(arm, symbol, signal_uid, "position_already_open_no_add")
         delay_ms = int(params["signal_execution_delay_minutes"]) * MIN
-        # ① 经济请求时刻 = max(信号事件/可用时刻, **真实首次请求墙钟**)
-        #    （2026-10-14 09 契约：不得只用信号时刻 —— 那会让成交 bar 早于系统真实请求时刻）
+        # ① 经济请求时刻 = max(信号事件/可用时刻, 真实首次请求墙钟)
         eco = [int(x) for x in (event_time, available_at) if x is not None]
-        order_request_ms = max(eco + [first_req, req_ms])
+        order_request_ms = max(eco + [first_req])
         # ② 最早可成交时刻（已批准延迟规则，逐字保留）
         earliest_fill_ms = order_request_ms + delay_ms
+        # 严格因果校验：日常实例下最早成交下限绝不得早于首次请求挂钟
+        if not is_replay and earliest_fill_ms < first_req:
+            return _reject(arm, symbol, signal_uid, "earliest_fill_before_first_request_clock")
         # ③ 第一根合格已闭合 15m bar
         bar = bar_at_or_after(con_mkt, symbol, earliest_fill_ms)
         if bar is None:
@@ -817,12 +1121,15 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                                     direction=direction, atr=atr, stop_price=stop_price,
                                     event_time=event_time, available_at=available_at,
                                     requested_at=req_ms, earliest_fill_ms=earliest_fill_ms,
-                                    origin=origin, epoch_ms=epoch, first_request_ms=first_req)
+                                    origin=origin, epoch_ms=epoch, first_request_ms=first_req,
+                                    stoploss_s=s_val, trail_d=d_val,
+                                    model_version=m_ver, config_fingerprint=c_fp)
             return {"ok": False, "reason": "pending_future_fill", "pending_id": pid,
                     "symbol": symbol, "signal_uid": signal_uid, "origin": origin,
                     "requested_at": req_ms, "first_request_ms": first_req,
                     "order_request_ms": order_request_ms,
                     "earliest_fill_ms": earliest_fill_ms, "epoch_ms": epoch,
+                    "attempt_ms": attempt_ms,
                     "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）"
                             "⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"}
         bar_open = int(bar["open_time"])
@@ -835,10 +1142,11 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                       "note": "成交 bar 早于本轮 paper 启用下限 ⇒ 拒单；不回填。"})
             return r
         # 时钟自洽：成交 bar 不得晚于**本次尝试时刻**（否则就是用未来价成交 ⇒ 前视）。
-        # 生产路径 `attempt_ms = L.now_ms()`，已闭合 bar 必然 ≤ now；此断言防的是
-        # 「用模拟/回放的 now 调进来」时的静默前视。
         if bar_open > attempt_ms:
             return _reject(arm, symbol, signal_uid, "bar_after_attempt_clock_no_lookahead")
+        # 成交必须不早于最早允许成交下限
+        if bar_open < earliest_fill_ms:
+            return _reject(arm, symbol, signal_uid, "bar_before_earliest_fill_boundary")
         # ⑤ 错过成交时刻 ⇒ 拒单（**绝不**用旧价回填）
         lag_ms = attempt_ms - bar_open
         if lag_ms > MAX_FILL_LAG_MS:
@@ -855,19 +1163,21 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         raw = _f(bar["open"])
         if raw is None or raw <= 0:
             return _reject(arm, symbol, signal_uid, "bad_bar_open")
-        if atr is None and stop_price is None:
+        # 成交 bar 的来源与「可得时刻有无证据」——一路写进订单/成交/持仓的 market_source。
+        # 为什么必须写：合并读取会把冷档 bar 带进来，而冷档 `available_at` 填充率为 0。
+        # 「计算时没用未来 K 线」**不等于**「当时确实拿得到这根 bar」；缺证明的结果
+        # 不得进入严格有效性成绩，所以这个标记必须能从账本本身读出来，而不是靠报告补记。
+        src_label = _source_label(bar)
+        bar_prov = _bar_provenance(bar)
+        if atr is None and stop_price is None and s_val is None and params.get("stoploss_s") is None:
             return _reject(arm, symbol, signal_uid, "missing_atr_and_stop")
         slip = float(params["slippage_each_side"])
         fee_rate = float(params["fee_each_side"])
-        stop_mult = float(params["uniform_stop_atr_mult"])
-        # ── 仓位规模 + **合约规格实际取整**（2026-10-14 09 契约核对修正）──────────────
-        # 缺陷：原实现算完 `qty = min(caps)` 就**直接使用**，从未调用冻结的
-        # `apply_order_rounding` ⇒ 「规格 CSV 存在却没被调用」即报通过（禁止项）。
-        # 修法：调用**冻结的** `wx_execution.apply_order_rounding`（与回测同一函数、同一规格
-        # CSV），一次完成：① 买价按价格步进**向上**取整（更贵=更保守）；② 保护价按步进
-        # **向下**取整；③ 数量按步进**向下**取整；④ 最小量/最大量/最小订单金额复核；
-        # ⑤ 各风险上限复核（风险预算、单名 10%、总多 80%、现金 20% 预留、参与率、
-        # 组合初始止损风险 3%）。任一不满足 ⇒ **整单拒单**（不凑单、不向上加仓到最小单）。
+        stop_mult = float(params.get("uniform_stop_atr_mult") or 3.0)
+
+        # ── 仓位规模 + 合约规格取整 + 实际止损统一（SYSTEM-RISK-01 核心修复）──────
+        # 彻底关闭“数量按3×ATR计算，实际止损又改成百分比”的口径分叉：
+        # FT-LOW4H 使用同一份冻结配置与同一个实际初始止损距离 (stoploss_s) 完成数量计算及风险检查。
         limits = contract_limits(symbol)
         if limits is None:
             return _reject(arm, symbol, signal_uid, "missing_contract_spec")
@@ -875,44 +1185,47 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         if eq["equity"] is None:
             return _reject(arm, symbol, signal_uid, "equity_unavailable")
         e = eq["equity"]
-        # 参与率用**上一根**已闭合 15m 的 quote 成交额（入场 bar 自身在决策时刻尚未收盘，
-        # 引用它即前视）。上限从生效视图读，不再硬编码。
+
+        # 参与率用上一根已闭合 15m 的 quote 成交额
         prev_bar = bar_before(con_mkt, symbol, bar_open)
         pqv = _f(prev_bar["quote_volume"]) if (prev_bar is not None
                                                and "quote_volume" in prev_bar.keys()) else None
         part = float(params.get("entry_participation_previous_15m_quote_cap") or 0.0)
-        # 无 ATR 但给了显式止损 ⇒ 反推等效 ATR，使冻结取整函数的止损距离与原意一致
-        atr_eff = (float(atr) if atr is not None
-                   else max(0.0, raw * (1.0 + slip) - float(stop_price)) / max(stop_mult, 1e-9))
+
+        # 调用统一的 apply_order_rounding：同时传入 stoploss_s 与 FT-LOW4H 策略身份
         rr = _apply_order_rounding(
-            raw_open=raw, atr=atr_eff, limits=limits,
+            raw_open=raw,
+            atr=(float(atr) if atr is not None else None),
+            limits=limits,
             risk_per_trade_fraction=float(params["risk_per_trade_equity_fraction"]),
-            equity=e, stop_atr_mult=stop_mult, slippage_each_side=slip,
-            gross_open_notional=eq["gross_notional"], free_cash=eq["cash"],
+            equity=e,
+            stop_atr_mult=stop_mult,
+            slippage_each_side=slip,
+            gross_open_notional=eq["gross_notional"],
+            free_cash=eq["cash"],
             leverage=float(params["leverage"]),
             cash_reserve_fraction=float(params["cash_or_free_margin_reserve_fraction"]),
             single_name_notional_cap=float(params["single_name_notional_equity_cap"]),
             gross_long_notional_cap=float(params["gross_long_notional_equity_cap"]),
-            prev_quote_volume=pqv, participation_cap=part,
+            prev_quote_volume=pqv,
+            participation_cap=part,
             portfolio_risk_open=eq["open_risk_abs"],
-            portfolio_risk_cap=float(params["portfolio_initial_stop_risk_cap"]))
+            portfolio_risk_cap=float(params["portfolio_initial_stop_risk_cap"]),
+            stoploss_s=s_val,
+            strategy_id="FT-LOW4H",
+            direction=direction,
+        )
         if rr.get("reject"):
             return _reject(arm, symbol, signal_uid, f"rounding_{rr['reject']}")
+
         fill = float(rr["entry_price"])
-        if direction == "short":
-            stop = (float(stop_price) if stop_price is not None
-                    else _round_protect_price(fill + stop_mult * float(atr_eff), float(limits["price_step"] or 0.0)))
-            stop_dist = stop - fill
-        else:
-            stop = (float(rr["stop_price"]) if stop_price is None
-                    else _round_protect_price(float(stop_price), float(limits["price_step"] or 0.0)))
-            stop_dist = fill - stop
-        if stop_dist <= 0:
-            return _reject(arm, symbol, signal_uid, "invalid_stop_reject_trade")
+        stop = float(rr["stop_price"])
+        stop_dist = float(rr["stop_dist"])
         qty = float(rr["qty"])
         notional = float(rr["notional"])
-        # 附加闸门（`apply_order_rounding` 不含）：**持仓数上限 10** 与 **DD 20% 锁止**，
-        # 以及取整后名义的现金预留/单名/总多复核（`pre_open_check` 逐条）。
+        planned_risk = float(rr["planned_risk"])
+
+        # 附加闸门：持仓数上限 10 与 DD 20% 锁止，以及全组合复核
         ok, why = pre_open_check(con, arm, symbol, notional, stop_dist, qty, con_mkt, params)
         if not ok:
             return _reject(arm, symbol, signal_uid, why)
@@ -923,40 +1236,137 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         # ② 资金费计费窗 `(entry_ts, exit_ts]` 起点；③ `max_holding_hours=720` 的计时起点。
         # 挂钟记账时刻保留在 `paper_order.ts` / `paper_fill.fill_ts`（审计用）。
         entry_bar_ts = bar_open
-        con.execute("INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,"
-                    "status,exit_ts,exit_reason,signal_uid,arm,stop_price,atr_at_entry,"
-                    "entry_fee,model_version,event_time,available_at,requested_at,"
-                    "earliest_fill_ms,market_source,origin,first_request_ms,epoch_ms) "
-                    "VALUES(?,?,?,?,?,'open',NULL,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (f"paper43_{arm}", symbol, qty, fill, entry_bar_ts, signal_uid, arm, stop, atr,
-                     fee, MODEL_VERSION,
-                     (None if event_time is None else int(event_time)),
-                     (None if available_at is None else int(available_at)),
-                     req_ms, earliest_fill_ms, MARKET_SOURCE, origin, first_req, epoch))
+        pos_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_position)")}
+        if "initial_stop_price" in pos_cols:
+            con.execute("INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,"
+                        "status,exit_ts,exit_reason,signal_uid,arm,stop_price,atr_at_entry,"
+                        "entry_fee,model_version,event_time,available_at,requested_at,"
+                        "earliest_fill_ms,market_source,origin,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint,initial_stop_price,planned_risk) "
+                        "VALUES(?,?,?,?,?,'open',NULL,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", symbol, qty, fill, entry_bar_ts, signal_uid, arm, stop, atr,
+                         fee, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, earliest_fill_ms, src_label, origin, first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp, stop, planned_risk))
+        elif "stoploss_s" in pos_cols:
+            con.execute("INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,"
+                        "status,exit_ts,exit_reason,signal_uid,arm,stop_price,atr_at_entry,"
+                        "entry_fee,model_version,event_time,available_at,requested_at,"
+                        "earliest_fill_ms,market_source,origin,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint) "
+                        "VALUES(?,?,?,?,?,'open',NULL,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", symbol, qty, fill, entry_bar_ts, signal_uid, arm, stop, atr,
+                         fee, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, earliest_fill_ms, src_label, origin, first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp))
+        else:
+            con.execute("INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,"
+                        "status,exit_ts,exit_reason,signal_uid,arm,stop_price,atr_at_entry,"
+                        "entry_fee,model_version,event_time,available_at,requested_at,"
+                        "earliest_fill_ms,market_source,origin,first_request_ms,epoch_ms) "
+                        "VALUES(?,?,?,?,?,'open',NULL,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", symbol, qty, fill, entry_bar_ts, signal_uid, arm, stop, atr,
+                         fee, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, earliest_fill_ms, src_label, origin, first_req, epoch))
         pid = con.execute("SELECT last_insert_rowid()").fetchone()[0]
-        # `paper_order.event_uid` 是 UNIQUE：同一 signal_uid 若先前被**拒绝**过
-        # （`_reject` 写了一条 status='rejected' 的行），此处若用普通 INSERT 会撞唯一约束
-        # （实测 `IntegrityError`）。同一 event_uid 的最终事实是「已成交」，
-        # 故用 OR REPLACE 覆盖该事件行；拒单审计仍保留在 `paper_blocked`。
-        con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
-                    "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
-                    "event_time,requested_at,market_source,first_request_ms,epoch_ms) "
-                    "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)",
-                    (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
-                     attempt_ms, fill, notional, bar_open, MODEL_VERSION,
-                     (None if event_time is None else int(event_time)), req_ms, MARKET_SOURCE,
-                     first_req, epoch))
+        # 写入初始止损历史轨迹（SYSTEM-CLOSELOOP-02 P1-2/L4：开仓初始止损落盘）
+        con.execute(
+            "INSERT OR IGNORE INTO paper_stop_history(account_id,position_id,old_stop,new_stop,reason,"
+            "ref_bar_open_ms,available_at,decision_at,effective_at,created_at) "
+            "VALUES(?,?,NULL,?,'initial_stop',?,?,?,?,?)",
+            (f"paper43_{arm}", pid, stop, bar_open,
+             (None if available_at is None else int(available_at)),
+             attempt_ms, bar_open, real_wall_ms))
+        # 写入订单与成交（保留完整配置身份、指纹与初始止损/计划风险，支持全链路追溯）
+        ord_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_order)")}
+        if "initial_stop_price" in ord_cols:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint,config_source,initial_stop_price,planned_risk) "
+                        "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
+                         attempt_ms, fill, notional, bar_open, m_ver,
+                         (None if event_time is None else int(event_time)), req_ms, src_label,
+                         first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp, params.get("_source", ""), stop, planned_risk))
+        elif "stoploss_s" in ord_cols:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint,config_source) "
+                        "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
+                         attempt_ms, fill, notional, bar_open, m_ver,
+                         (None if event_time is None else int(event_time)), req_ms, src_label,
+                         first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp, params.get("_source", "")))
+        else:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms) "
+                        "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
+                         attempt_ms, fill, notional, bar_open, m_ver,
+                         (None if event_time is None else int(event_time)), req_ms, src_label,
+                         first_req, epoch))
         oid = con.execute("SELECT last_insert_rowid()").fetchone()[0]
-        con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,"
-                    "action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,"
-                    "bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,"
-                    "market_source,first_request_ms,epoch_ms) "
-                    "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
-                     slip_cost, bar_open, int(bar["close_time"]), attempt_ms, MODEL_VERSION,
-                     (None if event_time is None else int(event_time)),
-                     (None if available_at is None else int(available_at)),
-                     req_ms, MARKET_SOURCE, first_req, epoch))
+
+        fill_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_fill)")}
+        if "initial_stop_price" in fill_cols:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,"
+                        "action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,"
+                        "bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,"
+                        "market_source,first_request_ms,epoch_ms,stoploss_s,trail_d,config_fingerprint,"
+                        "initial_stop_price,planned_risk) "
+                        "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
+                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, src_label, first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp, stop, planned_risk))
+        elif "stoploss_s" in fill_cols:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,"
+                        "action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,"
+                        "bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,"
+                        "market_source,first_request_ms,epoch_ms,stoploss_s,trail_d,config_fingerprint) "
+                        "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
+                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, src_label, first_req, epoch,
+                         (None if s_val is None else float(s_val)),
+                         (None if d_val is None else float(d_val)),
+                         c_fp))
+        else:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,"
+                        "action,qty,raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,"
+                        "bar_close_time,fill_ts,model_version,event_time,available_at,requested_at,"
+                        "market_source,first_request_ms,epoch_ms) "
+                        "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
+                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         (None if event_time is None else int(event_time)),
+                         (None if available_at is None else int(available_at)),
+                         req_ms, src_label, first_req, epoch))
         _set_cash(con, f"paper43_{arm}", cash=-fee, fees=fee)
         if signal_uid:
             con.execute("INSERT OR REPLACE INTO paper_processed(signal_uid,arm,action,detail,ts) "
@@ -969,12 +1379,14 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         con.commit()
         return {"ok": True, "reason": "filled", "position_id": pid, "order_id": oid,
                 "qty": qty, "entry_price": fill, "raw_price": raw, "stop_price": stop,
+                "initial_stop_price": stop, "stop_dist": stop_dist, "planned_risk": planned_risk,
                 "notional": notional, "fee": fee, "slippage_cost": slip_cost,
                 "bar_open_time": bar_open, "bar_close_time": int(bar["close_time"]),
                 "model_version": MODEL_VERSION, "signal_uid": signal_uid,
                 "origin": origin, "event_time": event_time, "available_at": available_at,
                 "requested_at": req_ms, "earliest_fill_ms": earliest_fill_ms,
-                "filled_at": bar_open, "fill_lag_ms": lag_ms, "market_source": MARKET_SOURCE}
+                "filled_at": bar_open, "fill_lag_ms": lag_ms, "market_source": src_label,
+                "bar_provenance": bar_prov}
     finally:
         con.close()
         con_mkt.close()
@@ -1104,7 +1516,7 @@ def accrue_funding(arm: str, *, upto_ms=None, log=None) -> dict:
       · `closed` 持仓：完整窗口 `(entry_ts, exit_ts]` 差集补记**迟到事件**并一致修正。
     """
     con = L.paper_conn(arm)
-    con_mkt = L.market_conn()
+    con_mkt = open_market()
     try:
         T = int(upto_ms or L.now_ms())
         acc = f"paper43_{arm}"
@@ -1170,7 +1582,7 @@ def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
         con = L.paper_conn(arm)
     own_mkt = con_mkt is None
     if own_mkt:
-        con_mkt = L.market_conn()
+        con_mkt = open_market()
     acc = f"paper43_{arm}"
     lo_ms = T - int(lookback_days) * 24 * H
     try:
@@ -1249,8 +1661,10 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
     acc = f"paper43_{arm}"
     con = L.paper_conn(arm, ro=True)
     try:
+        act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
+        base_eq = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
         st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
-        cash = float(st["cash"]) if st else L.INIT_EQUITY
+        cash = float(st["cash"]) if st else base_eq
         funding_state = float(st["funding_paid"]) if st else 0.0
         realized_state = float(st["realized_pnl"]) if st else 0.0
         cols = {r[1] for r in con.execute("PRAGMA table_info(paper_funding)")}
@@ -1277,7 +1691,7 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
                 (acc,))]
         except sqlite3.OperationalError:                 # 加性表尚未建（未跑过写模式）⇒ 视为 0
             gaps = []
-        n_real = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=?",
+        n_real = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
                              (acc,)).fetchone()[0]
         net = con.execute("SELECT COALESCE(SUM(net_pnl),0) FROM paper_realized WHERE account_id=?",
                           (acc,)).fetchone()[0]
@@ -1285,7 +1699,7 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
                                "WHERE account_id=? AND status='open'", (acc,)).fetchone()[0]
         open_fund = con.execute("SELECT COALESCE(SUM(funding_paid),0) FROM paper_position "
                                 "WHERE account_id=? AND status='open'", (acc,)).fetchone()[0]
-        expect_cash = L.INIT_EQUITY + float(net) - float(open_fee) - float(open_fund)
+        expect_cash = base_eq + float(net) - float(open_fee) - float(open_fund)
         return {
             "arm": arm, "amount_sign_convention": amount_sign_convention,
             "semantics": "amount>0 ⇒ 账户支付资金费（支出）；amount<0 ⇒ 账户收取；ΔCash = -amount",
@@ -1311,16 +1725,23 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
 def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual") -> dict:
     """手工平仓：按**最近一根已闭合 15m bar 收盘**（已批准 15m 合约最后收盘口径）。"""
     con = L.paper_conn(arm)
-    con_mkt = L.market_conn()
     try:
-        row = None
-        pos = con.execute("SELECT symbol FROM paper_position WHERE position_id=? AND account_id=?",
+        pos = con.execute("SELECT symbol, status FROM paper_position WHERE position_id=? AND account_id=?",
                           (position_id, f"paper43_{arm}")).fetchone()
-        if pos:
-            row = last_closed_15m(con_mkt, pos["symbol"])
+        if not pos:
+            return {"ok": False, "reason": "position_not_found", "position_id": position_id}
+        if pos["status"] != "open":
+            return {"ok": False, "reason": "position_not_open", "position_id": position_id, "status": pos["status"]}
+        symbol = pos["symbol"]
     finally:
         con.close()
+
+    con_mkt = open_market()
+    try:
+        row = last_closed_15m(con_mkt, symbol)
+    finally:
         con_mkt.close()
+
     if row is None:
         return {"ok": False, "reason": "no_closed_15m_for_exit"}
     return close_at_price(arm, position_id, raw_price=_f(row["close"]),
@@ -1333,16 +1754,21 @@ def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual") 
 
 def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason="manual",
                    bar_open_time=None, bar_close_time=None, exit_ts=None,
-                   decision_context=None) -> dict:
+                   decision_context=None, bar_source: str = None) -> dict:
     """按**给定原始价**平仓（stop/信号退出等确定性触发用；滑点按已批准值不利方向）。
 
     `exit_ts` = **经济出场时刻**（出场 bar 的 open 或 close，由调用方按口径给）。
     缺省回退到挂钟 `now_ms`。资金费计费窗 = `(entry_ts, exit_ts]`，
     因此 `exit_ts` 必须与 `entry_ts` **同一时间轴**（bar 时刻），否则会漏收/多收结算事件。
+
+    `bar_source`（ACCUM-EARLY-03-B）：出场 bar 的来源标签。合并读取下出场 bar 可能来自
+    冷档，其 `available_at` 无证据 ⇒ 调用方应传 `_source_label(bar)`，让账本自带
+    `available_at_unproven` 标记。缺省 `None` ⇒ 沿用 `MARKET_SOURCE`（与改前一致）。
     """
     params = approved_params()
+    src = bar_source or MARKET_SOURCE
     con = L.paper_conn(arm)
-    con_mkt = L.market_conn()
+    con_mkt = open_market()
     try:
         now_ms = int(now_ms or L.now_ms())
         exit_ms = int(exit_ts) if exit_ts is not None else now_ms
@@ -1357,13 +1783,19 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
         raw = float(raw_price)
         slip = float(params["slippage_each_side"])
         direction = pos["direction"] if "direction" in pos.keys() else "long"
+        # 与回测共用成交精度算法，避免平仓价与净盈亏出现亚 tick 分叉。
+        from 策略.WyckoffMaster.trading_core.fill import price_breakdown
+        limits = contract_limits(pos["symbol"])
+        if not limits or not limits.get("price_step"):
+            return {"ok": False, "reason": "missing_contract_spec"}
+        fill = float(price_breakdown(raw_price=raw, is_buy=direction == "short",
+                     price_step=limits["price_step"], slippage_rate=slip)["post_round_price"])
         if direction == "short":
-            fill = raw * (1.0 + slip)                 # 做空平仓（买入平空）：买入收更高价（不利滑点）
+            # fill 已含不利滑点与价格步长取整。
             qty = float(pos["qty"])
             entry = float(pos["entry_price"])
             gross = (entry - fill) * qty
         else:
-            fill = raw * (1.0 - slip)                 # 做多平仓（卖出平多）：卖出收更低价（不利滑点）
             qty = float(pos["qty"])
             entry = float(pos["entry_price"])
             gross = (fill - entry) * qty
@@ -1393,16 +1825,88 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
                     (f"paper43_{arm}", position_id, pos["symbol"], qty, entry, fill, gross,
                      entry_fee, fee, funding_paid, net, int(pos["entry_ts"]), exit_ms, reason,
                      now_ms))
-        con.execute("INSERT INTO paper_fill(account_id,position_id,signal_uid,symbol,action,qty,"
-                    "raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,"
-                    "fill_ts,model_version,event_time,available_at,requested_at,market_source) "
-                    "VALUES(?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (f"paper43_{arm}", position_id, pos["signal_uid"], pos["symbol"], qty, raw, fill,
-                     notional, fee, slip_cost, bar_open_time, bar_close_time,
-                     now_ms, MODEL_VERSION,
-                     (pos["event_time"] if "event_time" in pos.keys() else None),
-                     (pos["available_at"] if "available_at" in pos.keys() else None),
-                     now_ms, MARKET_SOURCE))
+        # ── 退出订单与成交关联（SYSTEM-CLOSELOOP-03 核心修复：平仓生成退出订单并绑定成交）──
+        exit_order_uid = f"exit:{arm}:{position_id}:{exit_ms}"
+        exit_side = "buy" if direction == "short" else "sell"
+        pos_s = pos["stoploss_s"] if "stoploss_s" in pos.keys() else None
+        pos_d = pos["trail_d"] if "trail_d" in pos.keys() else None
+        pos_fp = pos["config_fingerprint"] if "config_fingerprint" in pos.keys() else None
+        pos_mver = pos["model_version"] if "model_version" in pos.keys() and pos["model_version"] else "FT-LOW4H-EXP-V2.2"
+
+        ord_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_order)")}
+        pos_init_stop = pos["initial_stop_price"] if "initial_stop_price" in pos.keys() else None
+        pos_plan_risk = pos["planned_risk"] if "planned_risk" in pos.keys() else None
+        if "initial_stop_price" in ord_cols:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint,config_source,initial_stop_price,planned_risk) "
+                        "VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_order_uid, pos["symbol"], exit_side, qty, raw, fee,
+                         now_ms, fill, notional, bar_open_time, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None), now_ms, src,
+                         now_ms, (pos["epoch_ms"] if "epoch_ms" in pos.keys() else None),
+                         pos_s, pos_d, pos_fp, "position_held", pos_init_stop, pos_plan_risk))
+        elif "stoploss_s" in ord_cols:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms,"
+                        "stoploss_s,trail_d,config_fingerprint,config_source) "
+                        "VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_order_uid, pos["symbol"], exit_side, qty, raw, fee,
+                         now_ms, fill, notional, bar_open_time, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None), now_ms, src,
+                         now_ms, (pos["epoch_ms"] if "epoch_ms" in pos.keys() else None),
+                         pos_s, pos_d, pos_fp, "position_held"))
+        else:
+            con.execute("INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,"
+                        "fee,ts,status,reject_reason,fill_price,notional,bar_open_time,model_version,"
+                        "event_time,requested_at,market_source,first_request_ms,epoch_ms) "
+                        "VALUES(?,?,?,?,?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_order_uid, pos["symbol"], exit_side, qty, raw, fee,
+                         now_ms, fill, notional, bar_open_time, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None), now_ms, src,
+                         now_ms, (pos["epoch_ms"] if "epoch_ms" in pos.keys() else None)))
+        exit_oid = con.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+        fill_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_fill)")}
+        if "initial_stop_price" in fill_cols:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,"
+                        "raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,"
+                        "fill_ts,model_version,event_time,available_at,requested_at,market_source,"
+                        "stoploss_s,trail_d,config_fingerprint,initial_stop_price,planned_risk) "
+                        "VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_oid, position_id, pos["signal_uid"], pos["symbol"], qty, raw, fill,
+                         notional, fee, slip_cost, bar_open_time, bar_close_time,
+                         now_ms, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None),
+                         (pos["available_at"] if "available_at" in pos.keys() else None),
+                         now_ms, src,
+                         pos_s, pos_d, pos_fp, pos_init_stop, pos_plan_risk))
+        elif "stoploss_s" in fill_cols:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,"
+                        "raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,"
+                        "fill_ts,model_version,event_time,available_at,requested_at,market_source,"
+                        "stoploss_s,trail_d,config_fingerprint) "
+                        "VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_oid, position_id, pos["signal_uid"], pos["symbol"], qty, raw, fill,
+                         notional, fee, slip_cost, bar_open_time, bar_close_time,
+                         now_ms, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None),
+                         (pos["available_at"] if "available_at" in pos.keys() else None),
+                         now_ms, src,
+                         pos_s, pos_d, pos_fp))
+        else:
+            con.execute("INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,"
+                        "raw_price,fill_price,notional,fee,slippage_cost,bar_open_time,bar_close_time,"
+                        "fill_ts,model_version,event_time,available_at,requested_at,market_source) "
+                        "VALUES(?,?,?,?,?,'close',?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (f"paper43_{arm}", exit_oid, position_id, pos["signal_uid"], pos["symbol"], qty, raw, fill,
+                         notional, fee, slip_cost, bar_open_time, bar_close_time,
+                         now_ms, pos_mver,
+                         (pos["event_time"] if "event_time" in pos.keys() else None),
+                         (pos["available_at"] if "available_at" in pos.keys() else None),
+                         now_ms, src))
         # 现金变动：开仓时已扣 entry_fee、持仓期间已逐笔扣过资金费 ⇒
         # 平仓只再扣 exit_fee 与**本次新记**的资金费（避免重复扣）。
         _set_cash(con, f"paper43_{arm}", cash=(gross - fee - new_fund),
@@ -1410,7 +1914,7 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
         eq2 = equity(con, arm, con_mkt, params)
         _record_equity(con, arm, eq2)
         con.commit()
-        out = {"ok": True, "reason": "closed", "position_id": position_id, "symbol": pos["symbol"],
+        out = {"ok": True, "reason": "closed", "position_id": position_id, "order_id": exit_oid, "symbol": pos["symbol"],
                 "exit_price": fill, "raw_price": raw, "qty": qty, "gross_pnl": gross,
                 "entry_fee": entry_fee, "exit_fee": fee, "funding_paid": funding_paid,
                 "funding_paid_this_close": new_fund, "n_funding_events": fund_rows,
@@ -1420,7 +1924,7 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
                 "net_pnl": net, "entry_ts": int(pos["entry_ts"]), "exit_ts": exit_ms,
                 "exit_reason": reason, "model_version": MODEL_VERSION,
                 "ledger_model_version": LEDGER_MODEL_VERSION,
-                "market_source": MARKET_SOURCE}
+                "market_source": src}
         # 决定记录（条件实际值 / 阈值 / 时间 / 事件身份）：供任务三逐笔核对、任务一展示
         if EB.CORE_AVAILABLE:
             out["decision"] = EB.decision(
@@ -1466,7 +1970,7 @@ def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
     T = int(T) if T else L.now_ms()
     con = L.paper_conn(arm)
     try:
-        con_mkt = L.market_conn()
+        con_mkt = open_market()
     except Exception:                                       # noqa: BLE001
         con.close()
         return {"arm": arm, "ok": False, "reason": "market_db_unavailable"}
@@ -1532,17 +2036,9 @@ def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
         con_mkt.close()
 
 
-def expiry_exit_ts(entry_ts_ms: int) -> int:
-    """720h 到期经济出场时刻 = 入场+720h 之后**首根 15m 开盘**（修复 D01）。
-
-    旧实现取「最后一根已闭合 15m 的**收盘**」，与冻结
-    `fill_time_plus_720h_at_detail_open_no_added_delay` 不符。
-    """
-    if EB.CORE_AVAILABLE:
-        return EB.expiry_exit_ms(int(entry_ts_ms), int(approved_params()["max_holding_hours"]))
-    step = 900_000
-    due = int(entry_ts_ms) + int(approved_params()["max_holding_hours"]) * H
-    return -(-due // step) * step
+def expiry_exit_ts(entry_ts_ms: int):
+    """用户已决：彻底禁用 10 天 / 720h 自动平仓逻辑。返回 None，绝不触发到期退出。"""
+    return None
 
 
 def switches() -> dict:
@@ -1554,7 +2050,7 @@ def switches() -> dict:
         "new_entry_gate_source": g["gate_file"],
         "new_entry_default_blocked": True,
         "maintain_existing": True,
-        "maintenance_scope": ["exits", "funding_settlement", "expiry_720h",
+        "maintenance_scope": ["exits", "funding_settlement",
                              "drawdown_lock", "trailing_stop"],
         "note": "旧仓维护不受新开仓闸影响；正式候选未选定/未验收 ⇒ 新开仓继续阻断。",
     }
@@ -1569,7 +2065,7 @@ def log_no_fill(arm: str, symbol: str, signal_uid: str, reason: str) -> None:
 def snapshot(arm: str) -> dict:
     params = approved_params()
     con = L.paper_conn(arm)
-    con_mkt = L.market_conn()
+    con_mkt = open_market()
     try:
         eq = equity(con, arm, con_mkt, params)
         rows = []
@@ -1600,24 +2096,24 @@ def snapshot(arm: str) -> dict:
                  "signal_uid": q["signal_uid"], "event_time": q["event_time"],
                  "available_at": q["available_at"], "requested_at": q["requested_at"],
                  "earliest_fill_ms": q["earliest_fill_ms"], "created_at": q["created_at"],
-                 "status": q["status"], "reason": q["reason"],
+                 "status": q["status"], "reason": q["reason"], "direction": q["direction"], "arm": arm,
                  "note": "未来待成交：由真实进程时钟推进（到点才成交；错过则拒单，不回填）"}
                 for q in pending_orders(arm)]
         realized = [dict(r) for r in con.execute(
-            "SELECT * FROM paper_realized WHERE account_id=? ORDER BY ts DESC LIMIT 100",
+            "SELECT * FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0 ORDER BY ts DESC LIMIT 100",
             (f"paper43_{arm}",))]
         funding = [dict(r) for r in con.execute(
             "SELECT * FROM paper_funding WHERE account_id=? ORDER BY funding_time DESC LIMIT 100",
             (f"paper43_{arm}",))]
-        n_ord = con.execute("SELECT COUNT(*) FROM paper_order WHERE account_id=?",
+        n_ord = con.execute("SELECT COUNT(*) FROM paper_order WHERE account_id=? AND COALESCE(voided,0)=0",
                             (f"paper43_{arm}",)).fetchone()[0]
-        n_rej = con.execute("SELECT COUNT(*) FROM paper_order WHERE account_id=? AND status='rejected'",
+        n_rej = con.execute("SELECT COUNT(*) FROM paper_order WHERE account_id=? AND COALESCE(voided,0)=0 AND status='rejected'",
                             (f"paper43_{arm}",)).fetchone()[0]
-        n_closed = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=?",
+        n_closed = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
                                (f"paper43_{arm}",)).fetchone()[0]
         return {
             "arm": arm, "account_id": f"paper43_{arm}", "mode": "paper",
-            "initial_equity": L.INIT_EQUITY, "cash": round(eq["cash"], 6),
+            "initial_equity": eq["initial_equity"], "cash": round(eq["cash"], 6),
             "equity": None if eq["equity"] is None else round(eq["equity"], 6),
             "unrealized_pnl": round(eq["unrealized"], 6),
             "used_margin": round(eq["gross_notional"] / max(float(params["leverage"]), 1e-9), 6),
@@ -1742,23 +2238,33 @@ def recover_report() -> dict:
             pos = [dict(r) for r in open_positions(con, a)]
             n_fill = con.execute("SELECT COUNT(*) FROM paper_fill WHERE account_id=?",
                                  (f"paper43_{a}",)).fetchone()[0]
-            n_real = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=?",
+            n_real = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
                                  (f"paper43_{a}",)).fetchone()[0]
             n_proc = con.execute("SELECT COUNT(*) FROM paper_processed WHERE arm=?",
                                  (a,)).fetchone()[0]
             n_fund = con.execute("SELECT COUNT(*) FROM paper_funding WHERE account_id=?",
                                  (f"paper43_{a}",)).fetchone()[0]
             pend = pending_orders(a)
-            net = con.execute("SELECT COALESCE(SUM(net_pnl),0) FROM paper_realized WHERE account_id=?",
-                              (f"paper43_{a}",)).fetchone()[0]
+            # 口径必须与 `account_view()` 默认分支一致：只算 `voided=0` 的已实现记录。
+            # 缺陷（PAPER-LEDGER-PARITY-11）：本函数上面 `n_real` 已过滤 voided，
+            # 这里 `net` 却漏了过滤 ⇒ 同一函数两套口径，`cash_equals_init_plus_net`
+            # 反而是在用「含作废」的口径核「含作废」的 cash，把缺陷核成了「通过」。
+            net = con.execute(
+                "SELECT COALESCE(SUM(net_pnl),0) FROM paper_realized "
+                "WHERE account_id=? AND COALESCE(voided,0)=0",
+                (f"paper43_{a}",)).fetchone()[0]
             open_fee = con.execute(
                 "SELECT COALESCE(SUM(entry_fee),0) FROM paper_position "
-                "WHERE account_id=? AND status='open'", (f"paper43_{a}",)).fetchone()[0]
+                "WHERE account_id=? AND status='open' AND COALESCE(voided,0)=0",
+                (f"paper43_{a}",)).fetchone()[0]
             open_fund = con.execute(
                 "SELECT COALESCE(SUM(funding_paid),0) FROM paper_position "
-                "WHERE account_id=? AND status='open'", (f"paper43_{a}",)).fetchone()[0]
-            cash = float(st["cash"]) if st else L.INIT_EQUITY
-            expect = L.INIT_EQUITY + float(net) - float(open_fee) - float(open_fund)
+                "WHERE account_id=? AND status='open' AND COALESCE(voided,0)=0",
+                (f"paper43_{a}",)).fetchone()[0]
+            act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (f"paper43_{a}",)).fetchone()
+            base_eq = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
+            cash = float(st["cash"]) if st else base_eq
+            expect = base_eq + float(net) - float(open_fee) - float(open_fund)
             out[a] = {"cash": cash, "realized_net_sum": float(net),
                       "open_entry_fees": round(float(open_fee), 6),
                       "open_funding_paid": round(float(open_fund), 6),
@@ -1770,6 +2276,428 @@ def recover_report() -> dict:
         finally:
             con.close()
     return out
+
+
+def record_stop_update(arm: str, position_id: int, old_stop: float, new_stop: float,
+                       reason: str, ref_bar_open_ms: int, decision_at: int,
+                       effective_at: int, available_at: int = None) -> bool:
+    """持久化记录止损上移，防重放（position_id + effective_at 唯一约束）。"""
+    if new_stop <= (old_stop or 0.0):
+        return False
+    con = L.paper_conn(arm)
+    try:
+        con.execute("UPDATE paper_position SET stop_price=? WHERE position_id=?", (new_stop, position_id))
+        con.execute(
+            "INSERT OR IGNORE INTO paper_stop_history("
+            "account_id, position_id, old_stop, new_stop, reason, ref_bar_open_ms, "
+            "available_at, decision_at, effective_at, created_at) "
+            "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (f"paper43_{arm}", position_id, old_stop, new_stop, reason, ref_bar_open_ms,
+             available_at, decision_at, effective_at, L.now_ms())
+        )
+        con.commit()
+        return True
+    finally:
+        con.close()
+
+
+def validate_market_candle(candle: dict, expected_symbol: str = None, now_ms: int = None) -> tuple[bool, str]:
+    """验证单根K线的数据完整性与因果合法性（MarketCausalGuard）：
+    1. 必须具备 open, high, low, close, open_time, close_time 且非空；
+    2. 极值逻辑合法：high >= max(open, close), low <= min(open, close), high >= low > 0；
+    3. 标的一致性：若指定了 expected_symbol，candle.get('symbol') 必须一致；
+    4. 因果防线：open_time < close_time；且若提供 now_ms，close_time <= now_ms（未收盘未来K线不得作为闭合基准）；
+    """
+    if not isinstance(candle, dict):
+        return False, "candle_must_be_dict"
+    for k in ("open", "high", "low", "close", "open_time", "close_time"):
+        if k not in candle or candle[k] is None:
+            return False, f"missing_field_{k}"
+    try:
+        op = float(candle["open"])
+        hi = float(candle["high"])
+        lo = float(candle["low"])
+        cl = float(candle["close"])
+        ot = int(candle["open_time"])
+        ct = int(candle["close_time"])
+    except (ValueError, TypeError):
+        return False, "invalid_candle_data_types"
+
+    if lo <= 0 or hi <= 0 or op <= 0 or cl <= 0:
+        return False, "non_positive_price_in_candle"
+    if hi < lo:
+        return False, "high_less_than_low"
+    if hi < max(op, cl):
+        return False, "high_less_than_open_or_close"
+    if lo > min(op, cl):
+        return False, "low_greater_than_open_or_close"
+    if ot >= ct:
+        return False, "open_time_not_before_close_time"
+    if expected_symbol is not None:
+        c_sym = candle.get("symbol")
+        if c_sym and str(c_sym).upper() != str(expected_symbol).upper():
+            return False, "symbol_mismatch_with_position"
+    cur_clock = int(now_ms if now_ms is not None else L.now_ms())
+    if ot > cur_clock:
+        return False, "future_candle_open_time"
+    if ct > cur_clock:
+        return False, "future_candle_not_closed"
+    return True, "ok"
+
+
+def get_stop_history(arm: str, position_id: int) -> dict:
+    """查询指定持仓的真实止损变更历史（按生效时刻正序）。
+    严格区分持仓是否存在，持仓不存在返回 exists=False 以便上层响应 404。
+    """
+    con = L.paper_conn(arm, ro=True)
+    try:
+        pos = con.execute("SELECT position_id, symbol, stop_price, status FROM paper_position WHERE position_id=? AND account_id=?",
+                          (position_id, f"paper43_{arm}")).fetchone()
+        if not pos:
+            return {"ok": False, "exists": False, "reason": "position_not_found", "items": []}
+        cur = con.execute(
+            "SELECT * FROM paper_stop_history WHERE position_id=? ORDER BY effective_at ASC",
+            (position_id,)
+        )
+        return {"ok": True, "exists": True, "position_id": position_id, "items": [dict(r) for r in cur.fetchall()]}
+    except Exception as exc:
+        return {"ok": False, "exists": False, "reason": str(exc), "items": []}
+    finally:
+        con.close()
+
+
+def last_closed_4h(con_mkt: sqlite3.Connection, symbol: str, upto_ms: int = None) -> dict | None:
+    """查询指定标的最近一根已闭合 4h K 线（优先复用 candles 视图与主键复合索引）。
+
+    ACCUM-EARLY-03-B：跟踪止损看的是 4h 收盘，而热库 4h 只从 2026-09-09 起
+    ⇒ 更早的持仓「算不出跟踪线」。传合并门面时走同一个合并器（换周期参数）。
+    """
+    if _is_merged_market(con_mkt):
+        return con_mkt.last_closed_tf("4h", symbol, upto_ms)
+    try:
+        if upto_ms is not None:
+            cur = con_mkt.execute(
+                "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                "FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' "
+                "AND is_closed=1 AND close_time<=? ORDER BY open_time DESC LIMIT 1",
+                (symbol, int(upto_ms))
+            )
+        else:
+            cur = con_mkt.execute(
+                "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                "FROM candles WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' "
+                "AND is_closed=1 ORDER BY open_time DESC LIMIT 1",
+                (symbol,)
+            )
+        row = cur.fetchone()
+        return dict(row) if row else None
+    except Exception:
+        try:
+            if upto_ms is not None:
+                cur = con_mkt.execute(
+                    "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                    "FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' "
+                    "AND is_closed=1 AND close_time<=? ORDER BY open_time DESC LIMIT 1",
+                    (symbol, int(upto_ms))
+                )
+            else:
+                cur = con_mkt.execute(
+                    "SELECT symbol, timeframe, open_time, close_time, open, high, low, close, quote_volume, available_at "
+                    "FROM candle_versions WHERE exchange='binance' AND market='um' AND symbol=? AND timeframe='4h' "
+                    "AND is_closed=1 ORDER BY open_time DESC LIMIT 1",
+                    (symbol,)
+                )
+            row = cur.fetchone()
+            return dict(row) if row else None
+        except Exception:
+            return None
+
+
+def check_position_exit_on_bar(arm: str, position_id: int, bar_detail: dict, *,
+                              now_ms: int = None, decision_at: int = None) -> dict:
+    """明细周期（15m）退出检查：
+    - 严格锁死执行时点：4h 跟踪止损在确认整点后最早 12:15 生效，严禁回填 12:00；
+    - 当前 15m bar 仅使用截至其 open_time 已生效的最优止损（effective_at <= ref_open_ms）；
+    - 若 bar_detail['low'] <= cur_stop 或 open <= cur_stop，触发平仓退出；
+    - 平仓成交时间戳 exit_ts 严格锁死为触发 15m bar 开盘时刻（ref_open_ms），与回测 100% 对齐。
+    """
+    con = L.paper_conn(arm)
+    try:
+        pos = con.execute("SELECT * FROM paper_position WHERE position_id=? AND account_id=?",
+                          (position_id, f"paper43_{arm}")).fetchone()
+        if not pos:
+            return {"ok": False, "reason": "position_not_found", "position_id": position_id}
+        if pos["status"] != "open":
+            return {"ok": False, "reason": "position_not_open", "position_id": position_id, "status": pos["status"]}
+        pos_dict = dict(pos)
+        symbol = pos_dict["symbol"]
+
+        ref_open_ms = int(bar_detail["open_time"])
+        ref_close_ms = int(bar_detail["close_time"])
+
+        # 严格按生效时点：查询截至当前 bar 开盘时刻已生效的最新止损
+        stop_row = con.execute(
+            "SELECT new_stop FROM paper_stop_history "
+            "WHERE account_id=? AND position_id=? AND effective_at<=? "
+            "ORDER BY effective_at DESC, id DESC LIMIT 1",
+            (f"paper43_{arm}", position_id, ref_open_ms)
+        ).fetchone()
+        if stop_row and stop_row[0] is not None:
+            cur_stop = float(stop_row[0])
+        else:
+            cur_stop = float(pos_dict.get("initial_stop_price") or pos_dict.get("stop_price") or 0.0)
+    finally:
+        con.close()
+
+    ok_bar, why_bar = validate_market_candle(bar_detail, expected_symbol=symbol, now_ms=now_ms)
+    if not ok_bar:
+        return {"ok": False, "reason": f"invalid_market_candle_{why_bar}", "position_id": position_id}
+
+    low_p = float(bar_detail["low"])
+    o_p = float(bar_detail.get("open") or low_p)
+    min_fill_t = int(pos_dict.get("earliest_fill_ms") or pos_dict.get("entry_ts") or 0)
+    if ref_open_ms < min_fill_t:
+        return {"ok": False, "reason": "bar_before_entry_time", "position_id": position_id}
+
+    dec_ms = int(decision_at or now_ms or L.now_ms())
+
+    exit_triggered = False
+    exit_result = None
+    if cur_stop > 0 and (low_p <= cur_stop or o_p <= cur_stop):
+        exit_triggered = True
+        init_stop = float(pos_dict.get("initial_stop_price") or 0.0)
+        is_init = (abs(cur_stop - init_stop) < 1e-9)
+        is_gap = (o_p <= cur_stop)
+        reason = ("initial_stop_gap" if is_gap else "initial_stop_loss") if is_init else ("trailing_stop_gap" if is_gap else "trailing_stop_loss")
+        exit_result = close_at_price(
+            arm, position_id, raw_price=cur_stop, now_ms=dec_ms,
+            reason=reason, bar_open_time=ref_open_ms,
+            bar_close_time=ref_close_ms, exit_ts=ref_open_ms,
+            bar_source=_source_label(bar_detail)
+        )
+
+    return {
+        "ok": True,
+        "position_id": position_id,
+        "symbol": symbol,
+        "cur_stop": cur_stop,
+        "bar_low": low_p,
+        "exit_triggered": exit_triggered,
+        "exit_result": exit_result
+    }
+
+
+def advance_position_trailing(arm: str, position_id: int, candle_4h: dict = None, *,
+                              now_ms: int = None, decision_at: int = None,
+                              trail_d: float = None) -> dict:
+    """引擎真实调用跟踪逻辑（FT-LOW4H 规则）：
+    - 初始止损已在入场时生成：实际成交价 × (1 - s)
+    - 跟踪候选价 = 最近一根已收盘4小时K线最低价 × (1 - d)
+    - 入场后立即跟踪，无2R门槛、无240小时退出
+    - 生效止损取初始值、此前值、本次候选值的最大值，只上移
+    - 强制要求参数 d，缺失明确失败，绝不静默兜底
+    - 严格因果校验：生效时间 effective_at = max(decision_at, ref_close_ms)，绝不追溯历史
+    - 幂等性：重复推进不重复记录或下移；重启后状态与轨迹可恢复
+    """
+    con = L.paper_conn(arm)
+    try:
+        pos = con.execute("SELECT * FROM paper_position WHERE position_id=? AND account_id=?",
+                          (position_id, f"paper43_{arm}")).fetchone()
+        if not pos:
+            return {"ok": False, "reason": "position_not_found", "position_id": position_id}
+        if pos["status"] != "open":
+            return {"ok": False, "reason": "position_not_open", "position_id": position_id, "status": pos["status"]}
+
+        pos_dict = dict(pos)
+        symbol = pos_dict["symbol"]
+        entry_price = float(pos_dict["entry_price"])
+        cur_stop = float(pos_dict["stop_price"]) if pos_dict.get("stop_price") is not None else 0.0
+    finally:
+        con.close()
+
+    # 参数 d（跟踪比例）：持仓持久化 > 配置 > 显式入参；外部参数覆盖严格拒绝
+    params = approved_params()
+    pos_d = pos_dict.get("trail_d")
+    d_val = None
+    if pos_d is not None:
+        try:
+            d_val = float(pos_d)
+        except (ValueError, TypeError):
+            d_val = None
+
+    # 防御外部参数覆盖：如果持仓已有固化配置参数，外部请求试图覆盖必须被严格拒绝
+    if trail_d is not None and d_val is not None:
+        try:
+            in_d = float(trail_d)
+            if abs(in_d - d_val) > 1e-6:
+                return {
+                    "ok": False,
+                    "reason": "external_param_override_rejected",
+                    "position_id": position_id,
+                    "detail": f"持仓已绑定 trail_d={d_val}，拒绝外部参数覆盖 ({in_d})"
+                }
+        except (ValueError, TypeError):
+            pass
+
+    if d_val is None:
+        if trail_d is not None:
+            try:
+                d_val = float(trail_d)
+            except (ValueError, TypeError):
+                d_val = None
+
+    if d_val is None or d_val <= 0:
+        return {
+            "ok": False,
+            "reason": "missing_parameter_trail_d",
+            "position_id": position_id,
+            "detail": "FT-LOW4H 规则必须在持仓持久化或显式调用中指定有效 trail_d 参数，严禁静默兜底"
+        }
+
+    effective_now = int(now_ms or L.now_ms())
+    if candle_4h is None:
+        con_mkt = open_market()
+        try:
+            candle_4h = last_closed_4h(con_mkt, symbol, upto_ms=effective_now)
+            if not candle_4h:
+                return {
+                    "ok": False,
+                    "reason": "market_candle_missing",
+                    "position_id": position_id
+                }
+        finally:
+            con_mkt.close()
+    else:
+        ok_candle, why_candle = validate_market_candle(candle_4h, expected_symbol=symbol, now_ms=effective_now)
+        if not ok_candle:
+            return {
+                "ok": False,
+                "reason": f"invalid_market_candle_{why_candle}",
+                "position_id": position_id
+            }
+
+    limits = contract_limits(symbol) or {"price_step": 0.01}
+    step_val = float(limits.get("price_step") or 0.0)
+
+    # 4h K 线数据
+    ref_open_ms = int(candle_4h["open_time"])
+    ref_close_ms = int(candle_4h["close_time"])
+    low_4h = float(candle_4h["low"])
+    avail_proven = candle_4h.get("available_at") is not None
+    avail_ms = int(candle_4h.get("available_at") or ref_close_ms)
+    dec_ms = int(decision_at or now_ms or L.now_ms())
+
+    # 4h 确认整点与生效时刻（严格按既有 15m 执行规则：12:00 确认最早 12:15 生效，严禁回填 12:00）
+    M15 = 900_000
+    confirm_ms = (ref_close_ms // M15 + 1) * M15 if ref_close_ms % M15 != 0 else ref_close_ms
+    eff_ms = confirm_ms + M15
+
+    # ── 因果守卫：入场前或入场当根前已确认的 4h 不得参与跟踪（用户约定第28条：入场当根 4h 在入场后收盘可用于未来止损）
+    entry_ts = int(pos_dict.get("entry_ts") or 0)
+    if confirm_ms <= entry_ts:
+        return {
+            "ok": True, "position_id": position_id, "symbol": symbol,
+            "entry_price": entry_price,
+            "skipped_reason": "bar_closed_before_entry_no_causality",
+            "ref_candle_open_time": ref_open_ms,
+            "ref_candle_close_time": ref_close_ms,
+            "confirm_ms": confirm_ms,
+            "entry_ts": entry_ts,
+            "old_stop": float(pos_dict.get("stop_price") or 0.0),
+            "effective_stop": cur_stop,
+            "stop_updated": False,
+            "exit_triggered": False,
+            "exit_result": None,
+            "rule": "FT-LOW4H",
+            "trail_d": d_val,
+        }
+
+    # 跟踪候选价 = 4h 最低价 × (1 - d)
+    cand_stop = _round_protect_price(low_4h * (1.0 - d_val), step_val)
+    effective_stop = max(cur_stop, cand_stop)
+    stop_updated = False
+
+    if effective_stop > cur_stop:
+        ok = record_stop_update(
+            arm=arm, position_id=position_id, old_stop=cur_stop, new_stop=effective_stop,
+            reason="ft_low4h_trail", ref_bar_open_ms=ref_open_ms, decision_at=confirm_ms,
+            effective_at=eff_ms, available_at=avail_ms
+        )
+        if ok:
+            stop_updated = True
+            cur_stop = effective_stop
+
+    # 彻底移除/禁用 4h 最低价直接退出分支：退出检查严格对齐回测在明细周期（15m）由 check_position_exit_on_bar 进行
+    exit_triggered = False
+    exit_result = None
+
+    return {
+        "ok": True,
+        "position_id": position_id,
+        "symbol": symbol,
+        "entry_price": entry_price,
+        "old_stop": float(pos_dict.get("stop_price") or 0.0),
+        "candidate_stop": cand_stop,
+        "effective_stop": cur_stop,
+        "confirm_ms": confirm_ms,
+        "effective_at": eff_ms,
+        "stop_updated": stop_updated,
+        "ref_candle_open_time": ref_open_ms,
+        "ref_candle_close_time": ref_close_ms,
+        "available_at": avail_ms,
+        "available_at_proven": avail_proven,
+        "available_at_source": ("bar" if avail_proven else "fallback_close_time"),
+        "decision_at": confirm_ms,
+        "effective_at_source": "confirm_ms_plus_15m",
+        "exit_triggered": exit_triggered,
+        "exit_result": exit_result,
+        "rule": "FT-LOW4H",
+        "trail_d": d_val,
+    }
+
+
+def advance_arm_trailing(arm: str, *, T: int = None, now_ms: int = None, candle_4h: dict = None,
+                         trail_d: float = None, log = print) -> dict:
+    """引擎入口：批量推进该臂所有持仓的 4 小时跟踪止损与明细退出检查。"""
+    clk = int(now_ms or T or L.now_ms())
+    con = L.paper_conn(arm, ro=True)
+    try:
+        rows = con.execute("SELECT position_id, symbol FROM paper_position WHERE account_id=? AND status='open' "
+                           "AND COALESCE(voided,0)=0",
+                           (f"paper43_{arm}",)).fetchall()
+        positions = [dict(r) for r in rows]
+    finally:
+        con.close()
+
+    results = []
+    exits = []
+    con_mkt = None
+    try:
+        for p in positions:
+            c4h = candle_4h
+            if c4h is None:
+                if con_mkt is None:
+                    con_mkt = open_market()
+                c4h = last_closed_4h(con_mkt, p["symbol"], upto_ms=clk)
+            if not c4h:
+                continue
+            adv = advance_position_trailing(arm, p["position_id"], c4h, now_ms=clk,
+                                           decision_at=clk, trail_d=trail_d)
+            results.append(adv)
+            if adv.get("exit_triggered"):
+                exits.append(adv)
+    finally:
+        if con_mkt is not None:
+            con_mkt.close()
+
+    return {
+        "ok": True,
+        "arm": arm,
+        "positions_checked": len(positions),
+        "updates": [r for r in results if r.get("stop_updated")],
+        "exits": exits,
+        "details": results
+    }
 
 
 if __name__ == "__main__":

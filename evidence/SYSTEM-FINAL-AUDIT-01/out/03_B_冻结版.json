@@ -1,0 +1,143 @@
+{
+ "生成时刻": "2026-10-23T01:49:24+08:00",
+ "配置": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-05/config/exp2_config.json",
+ "标签": "B",
+ "标的": "ETHUSDT",
+ "隔离账本": "/tmp/wx_final01/paper_B",
+ "base": 1792689300000,
+ "T_sig": 1792686600000,
+ "入口": "workers/paper_execution_worker.py --arm 3a --interval 1",
+ "加速回放声明": "信号与行情用回放时钟压缩；推进全部由守护按真实挂钟完成；工程测试，不计策略成绩",
+ "生效参数": {
+  "source": "frozen_view_exp2_config",
+  "stoploss_s": 0.03,
+  "trail_d": 0.08,
+  "max_holding_hours": 240,
+  "risk_per_trade": 0.005,
+  "uniform_stop_atr_mult": 3.0,
+  "portfolio_initial_stop_risk_cap": 0.05,
+  "model_version": "FT-LOW4H-EXP05-GROUP2",
+  "view_sha256": "5f9cdfe9da6c"
+ },
+ "1_挂单": {
+  "open_position": {
+   "reason": "pending_future_fill",
+   "pending_id": 1
+  },
+  "挂单行": [
+   {
+    "pending_id": 1,
+    "status": "pending",
+    "reason": null,
+    "stoploss_s": 0.03,
+    "trail_d": 0.08,
+    "config_fingerprint": "5f9cdfe9da6c",
+    "earliest_fill_ms": 1792687500000
+   }
+  ],
+  "持仓数": 0
+ },
+ "2_守护": {
+  "pid": 57181,
+  "存活": true
+ },
+ "2_成交": {
+  "持仓": [],
+  "订单": [
+   {
+    "order_id": 1,
+    "side": "buy",
+    "status": "rejected",
+    "fill_price": null,
+    "fee": null
+   }
+  ],
+  "成交": [],
+  "挂单": [
+   {
+    "pending_id": 1,
+    "status": "rejected",
+    "reason": "missed_fill_moment_no_backfill",
+    "stoploss_s": 0.03,
+    "trail_d": 0.08,
+    "config_fingerprint": "5f9cdfe9da6c",
+    "earliest_fill_ms": 1792687500000
+   }
+  ]
+ },
+ "2_判定": "不通过(成交数为 0 ⇒ 自动闭环失败)",
+ "2_持仓状态": [],
+ "6_运行身份": {
+  "get_daemon_status": {
+   "arm": "3a",
+   "pid": 57181,
+   "status": "running",
+   "running": true,
+   "started_at": 1792691364941,
+   "last_cycle_ms": 1792691375133,
+   "cycle_count": 11,
+   "pending_matched_count": 0,
+   "trailing_checked_count": 0,
+   "stops_updated_count": 0,
+   "exits_triggered_count": 0,
+   "last_error": null,
+   "health": "healthy"
+  },
+  "worker_pid": 57181,
+  "worker存活": true,
+  "一致": true
+ },
+ "7_结束": {
+  "worker已停": true
+ },
+ "时间线": [
+  {
+   "时刻": "2026-10-23T01:49:24+08:00",
+   "步骤": "生效参数",
+   "详情": {
+    "source": "frozen_view_exp2_config",
+    "stoploss_s": 0.03,
+    "trail_d": 0.08,
+    "max_holding_hours": 240,
+    "risk_per_trade": 0.005,
+    "uniform_stop_atr_mult": 3.0,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP05-GROUP2",
+    "view_sha256": "5f9cdfe9da6c"
+   }
+  },
+  {
+   "时刻": "2026-10-23T01:49:24+08:00",
+   "步骤": "归一 4h 历史（避免历史 low 直接击穿初始止损）",
+   "详情": {
+    "删除根数": 7,
+    "新 low": 99.0
+   }
+  },
+  {
+   "时刻": "2026-10-23T01:49:24+08:00",
+   "步骤": "撤掉尚未到达的 15m bar（制造真实挂单窗口）",
+   "详情": {
+    "删除根数": 2,
+    "自": 1792687500000
+   }
+  },
+  {
+   "时刻": "2026-10-23T01:49:24+08:00",
+   "步骤": "信号登记（引擎 open_position，只登记挂单）",
+   "详情": {
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "earliest_fill_ms": 1792687500000
+   }
+  },
+  {
+   "时刻": "2026-10-23T01:49:27+08:00",
+   "步骤": "行情到达：插入已闭合成交 bar",
+   "详情": {
+    "open_time": 1792687500000,
+    "close_time": 1792688399999
+   }
+  }
+ ]
+}

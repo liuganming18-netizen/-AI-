@@ -1,0 +1,146 @@
+--- evidence/WORK-DYNAMIC-BT-02/patches/backtest_api.py.patched	2026-10-24 17:53:45
++++ 框架/backend/backtest_api.py	2026-10-24 19:16:01
+@@ -1365,6 +1365,127 @@
+         chart["what_works"] = (
+             "K 线为空（原因见 chart_blocked_reason / candles_note）；"
+             "账户权益曲线、逐笔、信号仍可用。")
++    return chart
++
++
++# ══════════ 上下文行情：把图的时间窗扩到 run 消费区间之外（BT-KLINE-CONTEXT-01）══════════
++#
++# 用户原话：「只有 7 根 K 线」。查证：`FT-ENTRY-09` 那批 run 的窗口只有 0.25~27 小时
++# （`run.json.window`），而策略前置条件是 **7 天箱体 + 24h 冷却** ⇒ 窗口内根本看不到
++# 生成信号的箱体，复盘页在这种 run 上等于没用。
++#
++# 所以这里提供**可选**的上下文补数：`?context_days=N`（默认 0 = 完全保持原口径）。
++# 纪律（这是与「不把回测没消费过的行情画进复盘图」那条规则的和解方式）：
++#   · **只加不改**：run 区间内的 K 线原样保留（它们必须还能回到回测实际消费的数据）；
++#   · 新增的两段**单独计数**（`candles_context_before/after`）并给出 `candles_run_range`，
++#     前端据此把「非本 run 消费区间」标出来，不能混为一谈；
++#   · 上下文只来自市场库真实行情；取不到就**不加**，不拿别的 run / 别的周期顶替；
++#   · 总量受 `FT_REPLAY_CANDLE_CAP` 约束，超了**先砍上下文**，绝不砍 run 区间内的；
++#   · 只改内存副本，不写回 run 目录。
++
++_CONTEXT_DAYS_MAX = 90
++_TF_STEP_MS = {"15m": 900_000, "1h": 3_600_000, "4h": 14_400_000}
++
++
++def _parse_context_days(params: dict) -> int:
++    """`?context_days=N`（天，0~90）；缺省/非法 ⇒ 0（不改变既有行为）。"""
++    raw = params.get("context_days")
++    if isinstance(raw, list):
++        raw = raw[0] if raw else None
++    try:
++        n = int(raw) if raw not in (None, "") else 0
++    except (TypeError, ValueError):
++        n = 0
++    return max(0, min(n, _CONTEXT_DAYS_MAX))
++
++
++def _infer_tf_from_bars(bars: List[dict]) -> Optional[str]:
++    """从相邻 `t` 的中位间隔反推周期；只认白名单三档，认不出就 `None`（不猜）。"""
++    ts = [int(b["t"]) for b in bars[:60] if isinstance(b.get("t"), int)]
++    if len(ts) < 2:
++        return None
++    diffs = sorted(ts[i + 1] - ts[i] for i in range(len(ts) - 1))
++    step = diffs[len(diffs) // 2]
++    best = min(_TF_STEP_MS, key=lambda k: abs(_TF_STEP_MS[k] - step))
++    return best if abs(_TF_STEP_MS[best] - step) <= _TF_STEP_MS[best] * 0.25 else None
++
++
++def _apply_candle_context(run_id: str, doc: dict, chart: dict, context_days: int) -> dict:
++    """在 run 消费区间**之外**前后各补 `context_days` 天真实行情。"""
++    chart = dict(chart)
++    bars = [dict(b) for b in (chart.get("candles") or [])]
++    a, b = _run_data_range(run_id)
++    if not bars or not isinstance(a, int) or not isinstance(b, int):
++        chart["candles_context_note"] = (
++            "本 run 无可用数据区间或无 K 线 ⇒ 不补上下文（不伪造）")
++        return chart
++
++    tf = str(chart.get("display_timeframe") or "").strip().lower()
++    if tf not in _CHART_TF_ALLOWED:
++        tf = _infer_tf_from_bars(bars) or ""
++    if not tf:
++        chart["candles_context_note"] = "无法确定 K 线周期（白名单 15m/1h/4h 之外）⇒ 不补上下文"
++        return chart
++
++    symbol = str(chart.get("symbol") or "").strip()
++    if not symbol:
++        chart["candles_context_note"] = "载荷无标的 ⇒ 不补上下文"
++        return chart
++
++    budget = FT_REPLAY_CANDLE_CAP - len(bars)
++    if budget <= 0:
++        chart["candles_context_note"] = (
++            f"run 区间本身已 {len(bars)} 根、达到单次上限 {FT_REPLAY_CANDLE_CAP} ⇒ 不补上下文")
++        return chart
++
++    spec = doc.get("spec") or {}
++    ex = str(spec.get("exchange") or "binance")
++    mk = str(spec.get("market") or "um")
++    pad = context_days * 86_400_000
++    try:
++        before, _bt, _ = _market_candles_window(symbol, a - pad, a - 1, ex, mk, tf)
++        after, _at, _ = _market_candles_window(symbol, b + 1, b + pad, ex, mk, tf)
++    except Exception as exc:                                   # noqa: BLE001
++        chart["candles_context_note"] = (
++            f"上下文行情读取失败（{type(exc).__name__}: {exc}）⇒ 只保留 run 区间")
++        return chart
++
++    run_ts = {int(x["t"]) for x in bars}
++    pre = [dict(r) for r in before if int(r["t"]) not in run_ts]
++    post = [dict(r) for r in after if int(r["t"]) not in run_ts]
++    # 超预算时**从离 run 最远的开始砍**，run 区间一根不动
++    while len(pre) + len(post) > budget:
++        if len(pre) >= len(post):
++            pre = pre[1:]
++        else:
++            post = post[:-1]
++
++    merged = pre + bars + post
++    merged.sort(key=lambda x: int(x["t"]))
++    first_t, last_t = int(merged[0]["t"]), int(merged[-1]["t"])
++
++    chart["candles"] = merged
++    chart["candles_bars"] = len(merged)
++    chart["candles_context_days"] = context_days
++    chart["candles_context_before"] = len(pre)
++    chart["candles_context_after"] = len(post)
++    chart["candles_context_tf"] = tf
++    chart["candles_run_range"] = {"start_ms": a, "end_ms": b}
++    chart["candles_window_shown"] = {"start_ms": first_t, "end_ms": last_t}
++    chart["candles_window_matches_run_window"] = False
++    chart["candles_source"] = (
++        f"{str(chart.get('candles_source') or '').rstrip('；; ')}；"
++        f"另补**上下文行情** ±{context_days} 天（{tf}，前 {len(pre)} 根 / 后 {len(post)} 根），"
++        f"全部为市场库真实行情、**非本 run 消费区间**；"
++        f"run 区间 {cm_utc(a)} ~ {cm_utc(b)} 内的 {len(bars)} 根原样保留、未替换")
++    if not pre and not post:
++        chart["candles_context_note"] = (
++            f"市场库在 ±{context_days} 天内无 {symbol} {tf} 行情 ⇒ 只显示 run 区间（{len(bars)} 根）")
++    if isinstance(chart.get("what_works"), str):
++        chart["what_works"] = (
++            f"{chart['what_works']} 另补上下文 ±{context_days} 天 {tf} 真实行情"
++            f"（前 {len(pre)} 根 / 后 {len(post)} 根，非本 run 消费区间）；"
++            f"当前合计 {len(merged)} 根。")
+     return chart
+ 
+ 
+@@ -1663,6 +1784,15 @@
+         chart["oi_meta"] = {"error": f"{type(exc).__name__}: {exc}"}
+     # 元数据收口：K 线有了就别说「K 线为空」（WORK-DYNAMIC-BT-02）
+     chart = _finalize_chart_meta(chart, doc, req_sym=req_sym, req_tf=req_tf)
++    # 上下文行情（可选，默认 0 = 保持原口径）：把时间窗扩到 run 消费区间之外
++    _ctx_days = _parse_context_days(params)
++    if _ctx_days:
++        try:
++            chart = _apply_candle_context(run_id, doc, chart, _ctx_days)
++        except Exception as exc:                           # noqa: BLE001
++            chart = dict(chart)
++            chart["candles_context_note"] = (
++                f"上下文补齐失败（{type(exc).__name__}: {exc}）⇒ 只保留 run 区间")
+     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                      chart=chart), 200
+ 

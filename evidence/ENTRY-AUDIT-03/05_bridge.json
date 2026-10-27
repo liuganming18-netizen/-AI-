@@ -1,0 +1,99 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "sample_definition": {
+    "rows_227": 227,
+    "unique_signals_226": "227 行按「标的+快照时刻」去重后 226（COTI 同一快照被记两次，一次判取消一次判成交）",
+    "generation_A_continuous": {
+      "label": "连续回放（cand_ev_*）",
+      "rows": 185,
+      "filled": 163,
+      "unfilled": 22,
+      "window": "2021-12-01 ~ 2026-10-18",
+      "is_single_generation": true
+    },
+    "generation_B_windows": {
+      "label": "365 天窗口回放（old_cand_*）",
+      "rows": 42,
+      "filled": 42,
+      "unfilled": 0,
+      "windows": 34,
+      "is_single_generation": true
+    },
+    "verdict": "「205 笔」作为成交记录数成立；作为「当前策略在连续回放下的成交集」不成立（应为 163）。任何比率必须写明分母属于哪一代际。"
+  },
+  "stats_by_generation_true_cost": {
+    "generation_A": {
+      "trades": 163,
+      "gross_sum": 159.62366,
+      "fee_sum": 10.308546,
+      "funding_sum": 5.209154,
+      "net_sum": 144.10596,
+      "fee_pct_of_gross": 6.458,
+      "funding_pct_of_gross": 3.2634,
+      "win_count": 71,
+      "loss_count": 92,
+      "funding_income_trades": 41,
+      "funding_cost_trades": 122
+    },
+    "generation_B": {
+      "trades": 42,
+      "gross_sum": -37.988312,
+      "fee_sum": 2.817325,
+      "funding_sum": 1.768352,
+      "net_sum": -42.573989,
+      "fee_pct_of_gross": 7.4163,
+      "funding_pct_of_gross": 4.655,
+      "win_count": 13,
+      "loss_count": 29,
+      "funding_income_trades": 12,
+      "funding_cost_trades": 30
+    }
+  },
+  "naive_pool_if_summed": {
+    "trades": 205,
+    "gross_sum": 121.635348,
+    "fee_sum": 13.125871,
+    "funding_sum": 6.977506,
+    "net_sum": 101.531971,
+    "win_rate_pct": 40.9756
+  },
+  "pooling_risk": {
+    "cost_drag_error_before_fix": {
+      "table_fee_sum_on_163": 0.0,
+      "true_fee_sum_on_163": 10.308546,
+      "understated_by": 10.308546,
+      "note": "修之前 163 条费用全 0 ⇒ 任何「手续费拖累」都会被低估这个量"
+    },
+    "same_signal_two_verdicts": "COTI 同一快照在两侧一取消一成交；把它计入 205 会让「连续回放成交集」多一笔不该有的成交",
+    "cannot_average_across": "两代际的箱体、入场闸门、持仓路径都不同；跨代际求平均/求胜率不是「更稳健」，而是把两个总体混成一个"
+  },
+  "bridge_rule": {
+    "primary_sample": "generation_A（163 条成交 + 22 条未成交）—— 与连续回放口径一致，可作主样本",
+    "secondary_sample": "generation_B（42 条）—— 只能作为「另一套切分下的独立样本」单独报告",
+    "allowed_use_of_B": [
+      "作为机制稳健性旁证（方向一致/不一致）",
+      "作为箱体敏感性的反例（同一信号可一取消一成交）"
+    ],
+    "forbidden_use_of_B": [
+      "并入 A 计算胜率/期望/成本占比",
+      "用 B 的成交替换 A 的取消（或反之）"
+    ],
+    "twin_count": 2,
+    "no_twin_count": 40
+  },
+  "handover_to_factor_entry_06": {
+    "status": "待接收",
+    "required_from_them": [
+      "冻结版本的代码/配置指纹",
+      "唯一事件 ID（应能与 candidate_id 或 event_id 对齐）",
+      "特征表"
+    ],
+    "checks_ready": [
+      "candidate_id ↔ event_id 是否一一对应",
+      "同一 (symbol, snapshot_time_ms) 是否唯一",
+      "特征值能否用本目录 03_identity_full.csv 的候选快照复算"
+    ],
+    "rule": "无法匹配的不得强拼；在拿到可信样本前，不重新宣称任何指标组收益有效"
+  },
+  "conclusion_guard": "本轮只建立样本，不评价策略收益。在规格资格（全池 unverified_historical）与 PIT 未证未解决前，任何基于本样本的收益结论都必须带这两个限定。"
+}

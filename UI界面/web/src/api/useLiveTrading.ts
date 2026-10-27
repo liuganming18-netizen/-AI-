@@ -18,6 +18,10 @@ import {
   fetchPaperLedger,
   postPaperClose,
   postPaperOpen,
+  postPaperToggleGate,
+  postClearSignals,
+  fetchPaperDaemonStatus,
+  type ExecutionDaemonView,
   type LiveAccountView,
   type PaperAccountView,
   type PaperLedger,
@@ -94,6 +98,14 @@ export interface LiveTradingState {
   clearNotice: () => void;
   /** 立即重取账本（下单成功后调用） */
   refresh: () => void;
+  /** 切换模拟实盘运行/暂停状态 */
+  toggleGate: (action?: 'toggle' | 'start' | 'pause') => Promise<boolean>;
+  /** 清理实时信号 */
+  clearSignals: (scope?: 'all' | 'expired' | 'current') => Promise<number>;
+  /** 当前实盘模拟是否处于运行（允许新开仓）状态 */
+  isGateRunning: boolean;
+  /** 执行守护与信号引擎状态 */
+  executionDaemon: ExecutionDaemonView | null;
 }
 
 /** 纸面账本空态（字段齐全，避免 undefined 访问）。 */
@@ -119,6 +131,7 @@ export function useLiveTrading(): LiveTradingState {
   const [ledger, setLedger] = useState<PaperLedger>(EMPTY_LEDGER);
   const [liveAccounts, setLiveAccounts] = useState<LiveAccountView[]>([]);
   const [liveMissingReason, setLiveMissingReason] = useState<string | null>(null);
+  const [executionDaemon, setExecutionDaemon] = useState<ExecutionDaemonView | null>(null);
   const [orderNotice, setOrderNotice] = useState<string | null>(null);
   const [orderBusy, setOrderBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -162,6 +175,15 @@ export function useLiveTrading(): LiveTradingState {
         }
       } catch {
         if (alive.current) setLiveMissingReason('实盘账户读取失败（后端不可达）');
+      }
+      // 执行守护与信号引擎状态
+      try {
+        const daemon = await fetchPaperDaemonStatus();
+        if (alive.current) {
+          setExecutionDaemon(daemon);
+        }
+      } catch {
+        // 静默降级
       }
       if (alive.current) setLoaded(true);
     } finally {
@@ -239,6 +261,42 @@ export function useLiveTrading(): LiveTradingState {
 
   const clearNotice = useCallback(() => setOrderNotice(null), []);
 
+  const toggleGate = useCallback(
+    async (action: 'toggle' | 'start' | 'pause' = 'toggle') => {
+      try {
+        const res = await postPaperToggleGate(action);
+        setOrderNotice(
+          res.allowNewEntries
+            ? '实盘模拟已启动（允许新开仓）'
+            : '实盘模拟已暂停（已阻断新开仓，已有持仓继续盯市）',
+        );
+        void pull();
+        return res.allowNewEntries;
+      } catch (err) {
+        setOrderNotice(describeOrderError(err));
+        return false;
+      }
+    },
+    [pull],
+  );
+
+  const clearSignals = useCallback(
+    async (scope: 'all' | 'expired' | 'current' = 'all') => {
+      try {
+        const res = await postClearSignals(scope);
+        setOrderNotice(`已成功清理 ${res.clearedCount} 笔实时信号记录`);
+        void pull();
+        return res.clearedCount;
+      } catch (err) {
+        setOrderNotice(describeOrderError(err));
+        return 0;
+      }
+    },
+    [pull],
+  );
+
+  const isGateRunning = ledger.newEntryGate?.allowNewEntries === true;
+
   return {
     paperAccounts: ledger.accounts,
     paperPositions: ledger.positions,
@@ -265,5 +323,9 @@ export function useLiveTrading(): LiveTradingState {
     closePosition,
     clearNotice,
     refresh: () => void pull(),
+    toggleGate,
+    clearSignals,
+    isGateRunning,
+    executionDaemon,
   };
 }

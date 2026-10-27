@@ -1,0 +1,277 @@
+{
+  "1_退出机制": {
+    "含 timeout_240h 字符串": false,
+    "含 240 * 3600 判断": false,
+    "custom_exit 体": "(self, pair: str, trade: Trade, current_time: datetime, current_rate: float,\n                    current_profit: float, **kwargs) -> Optional[str]:\n        # FT-EXIT-01: 取消 240 小时超时及一切主动退出，仅凭初始止损离场\n        return None",
+    "含 trigger_2r": false,
+    "含 actual_r": false,
+    "含 latest_l10": false,
+    "含 pair_4h_df 用于止损": false,
+    "is_2r_activated 被读取": false,
+    "止损段源码": "# FT-EXIT-01: 仅初始止损，取消 2R 跟踪，止损位终生固定，触及才退出\n        if getattr(self, \"stoploss_scheme\", \"S\") == \"P\":\n            # P 组: 固定 20% (成交价 * 0.80)\n            effective_stop = actual_entry * 0.80\n        else:\n            # S 组: 原结构 P0\n            effective_stop = float(cand.initial_stop_price)\n\n        t_id = trade.id or 0\n        if t_id not in self.active_trade_stop_state:\n            self.active_trade_stop_state[t_id] = {\n                \"cand_id\": cand.candidate_id,\n                \"p0\": effective_stop,\n                \"current_stop\": effective_stop,\n                \"is_2r_activated\": False,\n                \"entry_time_ms\": _to_timestamp_ms(trade.open_date_utc)\n            }\n\n        if current_rate <= effective_stop:\n            return 0.0\n\n        stoploss_ratio = (effective_stop - current_rate) / current_rate\n        return float(stoploss_ratio)"
+  },
+  "2_入场与仓位": {
+    "confirm_trade_entry 与 FT-ENTRY-09 基线逐字节一致": true,
+    "populate_entry_trend 与 FT-ENTRY-09 基线逐字节一致": true,
+    "populate_indicators 与 FT-ENTRY-09 基线逐字节一致": false,
+    "custom_entry_price 与 FT-ENTRY-09 基线逐字节一致": true,
+    "leverage 与 FT-ENTRY-09 基线逐字节一致": true,
+    "风险预算 0.5%": {
+      "新版": 1,
+      "基线": 1,
+      "一致": true
+    },
+    "单仓 30% 帽": {
+      "新版": 1,
+      "基线": 1,
+      "一致": true
+    },
+    "24h 流动性 0.1% 帽": {
+      "新版": 1,
+      "基线": 1,
+      "一致": true
+    },
+    "3 槽位（config）": {
+      "新版": 0,
+      "基线": 0,
+      "一致": true
+    },
+    "config.max_open_trades": {
+      "实测": 3,
+      "期望": 3,
+      "一致": true
+    },
+    "config.dry_run_wallet": {
+      "实测": 2000,
+      "期望": 2000,
+      "一致": true
+    },
+    "config.timeframe": {
+      "实测": "15m",
+      "期望": "15m",
+      "一致": true
+    },
+    "config.fee": {
+      "实测": 0.0005,
+      "期望": 0.0005,
+      "一致": true
+    },
+    "config.trading_mode": {
+      "实测": "futures",
+      "期望": "futures",
+      "一致": true
+    },
+    "config.margin_mode": {
+      "实测": "cross",
+      "期望": "cross",
+      "一致": true
+    },
+    "config.stake_amount": {
+      "实测": "unlimited",
+      "期望": "unlimited",
+      "一致": true
+    },
+    "config.tradable_balance_ratio": {
+      "实测": 0.99,
+      "期望": 0.99,
+      "一致": true
+    },
+    "config.pairlist 数量": {
+      "实测": 74,
+      "期望": 74,
+      "一致": true
+    }
+  },
+  "3_差异清单": {
+    "函数总数": 12,
+    "逐字节或仅路径不同": 9,
+    "有实质差异的函数": [
+      "custom_exit",
+      "custom_stake_amount",
+      "custom_stoploss"
+    ],
+    "有实质差异函数数": 3,
+    "判定": "通过"
+  },
+  "4_包装策略": {
+    "组": [
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs04_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs04_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs04_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs06_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs06_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs06_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs08_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs08_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_S_P0_Vs08_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs04_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs04_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs04_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs06_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs06_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs06_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs08_Z02.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs08_Z04.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      },
+      {
+        "文件": "Wyckoff_C1_P_Stop20_Vs08_Z06.py",
+        "存在": true,
+        "scheme": true,
+        "vs": true,
+        "zone": true,
+        "C1": true,
+        "通过": true
+      }
+    ],
+    "数据目录": {
+      "软链": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-EXIT-01/user_data/data",
+      "真实路径": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-02/user_data/data",
+      "存在": true
+    },
+    "预热币池": 74
+  },
+  "5_指纹": {
+    "FT-EXIT-01/user_data/strategies/WyckoffExit01Base.py": "7dc02a292d7a9ade3812809d571c1363651cf4a2c2399fd156d7d8908670b6c1",
+    "FT-STOP-20-01/.../WyckoffStop20ParamExplorationBase.py": "0f43d4087ba4f0bcaf4132ee586091a016ea887ebcf5d71a9446db2cadc74641",
+    "FT-ENTRY-09/.../WyckoffParamExplorationBase.py": "137b9820325bb6c06dcb82e7b791cf38c1899c6d1abd9ee4c52c6d5ce19758fd",
+    "FT-EXIT-01/user_data/config.json": "49281ea8e4646191c0139fae4df39a3f861157588f4846bd831673ae7f8a98c7",
+    "FT-EXIT-01/code/00_generate_strategies.py": "2839288274d72ddfd91f7d55e04948c56fee9e372a13ed0295988b258f4b1dc8",
+    "FT-EXIT-01/code/01_run_all_backtests.py": "a2ebec3570e10665d91c295d8ae9f7b94c3ada20437c56958717179dfde5978c",
+    "FT-EXIT-01/code/02_reconcile_and_analyze.py": "7975c1de3f4f26fde0336f3cc1a61d6ff165460a7320b49e55736fd9578ce1c0"
+  }
+}

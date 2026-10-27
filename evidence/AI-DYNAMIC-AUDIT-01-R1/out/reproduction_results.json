@@ -1,0 +1,362 @@
+[
+  {
+    "id": "CASE-01",
+    "name": "后一笔交易错误借用前一笔的跟踪止损来源 (Trade-by-Trade Trailing Contamination)",
+    "input": {
+      "symbol": "BTCUSDT",
+      "candidate_1_entry": "2026-10-01 05:00:00 UTC",
+      "candidate_2_entry": "2026-10-01 09:00:00 UTC",
+      "bar1_4h_closed_at": "2026-10-01 08:00:00 UTC (low=90.0)",
+      "bar2_4h_closed_at": "2026-10-01 12:00:00 UTC (low=92.0)",
+      "observation_point": "2026-10-01 09:15:00 UTC (候选2已入场15m，候选2自身生命周期内第一个已收盘4h应在12:00)"
+    },
+    "entrypoint": "策略.WyckoffMaster.event_trend_v0_1.engine_adapter.build_exit_channel_15m",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "el_both_at_0915": 85.5,
+      "el_single2_at_0915": null,
+      "is_nan_in_isolated_single": true,
+      "contaminated_value_in_both": 85.5
+    },
+    "order_ledger_mutation": {
+      "impact": "回测中同标的共享单一 el 数组，导致候选2在 09:15 误用 85.5 作为跟踪止损线，提前触发退出"
+    },
+    "expected_difference": {
+      "expected_behavior": "候选2独立评估时在 09:15 尚无入场后闭合的 4h K 线，el[09:15] 必须为 NaN",
+      "actual_behavior": "build_exit_channel_15m 遍历全量 starts 命中了候选1入场时间，输出 el[09:15]=85.5，错误借用了 08:00 的 Bar 1",
+      "discrepancy_summary": "后一笔交易错误借用前一笔交易生命周期的 4h K 线，因果隔离失效"
+    }
+  },
+  {
+    "id": "CASE-02",
+    "name": "开盘跳空穿越止损时的实际成交价 (Gap Execution Price)",
+    "input": {
+      "symbol": "BTCUSDT",
+      "position_id": 201,
+      "entry_price": 100.0,
+      "current_stop": 95.0,
+      "bar_detail": {
+        "open": 90.0,
+        "high": 91.0,
+        "low": 88.0,
+        "close": 89.0,
+        "note": "开盘价 open=90.0 严重点位低于当前止损 cur_stop=95.0，发生开盘跳空"
+      }
+    },
+    "entrypoint": "框架.backend.paper_engine.check_position_exit_on_bar",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "call_result": {
+        "ok": true,
+        "position_id": 201,
+        "symbol": "BTCUSDT",
+        "cur_stop": 95.0,
+        "bar_low": 88.0,
+        "exit_triggered": true,
+        "exit_result": {
+          "ok": true,
+          "reason": "closed",
+          "position_id": 201,
+          "order_id": 1,
+          "symbol": "BTCUSDT",
+          "exit_price": 94.9,
+          "raw_price": 95.0,
+          "qty": 1.0,
+          "gross_pnl": -5.099999999999994,
+          "entry_fee": 0.0,
+          "exit_fee": 0.047450000000000006,
+          "funding_paid": 0.0,
+          "funding_paid_this_close": 0.0,
+          "n_funding_events": 0,
+          "n_funding_events_this_close": 0,
+          "funding_events": [],
+          "funding_gaps": [],
+          "amount_sign_convention": "expense_positive",
+          "net_pnl": -5.147449999999995,
+          "entry_ts": 1790800000000,
+          "exit_ts": 1790804500000,
+          "exit_reason": "trailing_stop_loss",
+          "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+          "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+          "market_source": "binance.um.candles_15m.is_closed.open"
+        }
+      },
+      "fill_record": {
+        "fill_id": 1,
+        "account_id": "paper43_3a",
+        "order_id": 1,
+        "position_id": 201,
+        "signal_uid": null,
+        "symbol": "BTCUSDT",
+        "action": "close",
+        "qty": 1.0,
+        "raw_price": 95.0,
+        "fill_price": 94.9,
+        "notional": 94.9,
+        "fee": 0.047450000000000006,
+        "slippage_cost": 0.09999999999999432,
+        "bar_open_time": 1790803600000,
+        "bar_close_time": 1790804500000,
+        "fill_ts": 1790804500000,
+        "model_version": "FT-LOW4H-EXP-V2.2",
+        "stoploss_s": null,
+        "trail_d": null,
+        "config_fingerprint": null,
+        "initial_stop_price": null,
+        "planned_risk": null,
+        "event_time": null,
+        "available_at": null,
+        "requested_at": 1790804500000,
+        "market_source": "binance.um.candles_15m.is_closed.open",
+        "first_request_ms": null,
+        "epoch_ms": null,
+        "voided": 0,
+        "void_reason": null
+      }
+    },
+    "order_ledger_mutation": {
+      "order_generated": false,
+      "fill_raw_price": 95.0,
+      "fill_executed_price": 94.9,
+      "fill_slippage_cost": 0.09999999999999432,
+      "position_status_after": "closed"
+    },
+    "expected_difference": {
+      "expected_raw_price": 90.0,
+      "expected_fill_price": 89.955,
+      "actual_raw_price": 95.0,
+      "actual_fill_price": 94.9,
+      "pnl_distortion_per_unit": 4.945,
+      "discrepancy_summary": "真实跳空撮合契约必须按 open=90.0 平仓 (实收 89.955)，生产实际按 cur_stop=95.0 撮合 (实收 94.9)，虚增净值 4.945 美元/单位"
+    }
+  },
+  {
+    "id": "CASE-03",
+    "name": "中间十五分钟线触及止损、随后反弹时的漏检 (Missing Intermediate 15m Bars)",
+    "input": {
+      "symbol": "ETHUSDT",
+      "position_id": 301,
+      "stop_price": 100.0,
+      "intermediate_bars_in_market_db": [
+        {
+          "bar": "Bar A (10:00-10:15)",
+          "low": 98.0,
+          "should_exit": true
+        },
+        {
+          "bar": "Bar B (10:15-10:30)",
+          "low": 101.5,
+          "should_exit": false
+        }
+      ]
+    },
+    "entrypoint": "框架.backend.unified_runtime.py (ORDER BY open_time DESC LIMIT 1) + PE.check_position_exit_on_bar",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "fetched_bar_open_time": 1790804500000,
+      "fetched_bar_low": 101.5,
+      "exit_triggered": null,
+      "position_status_after": "open"
+    },
+    "order_ledger_mutation": {
+      "position_remains_open": true,
+      "order_created": false
+    },
+    "expected_difference": {
+      "expected_behavior": "遍历未检查闭合 K 线，在 Bar A 处触发 exit_triggered=True，持仓关闭",
+      "actual_behavior": "LIMIT 1 仅拉取反弹后的 Bar B (low=101.5)，判定 exit_triggered=False，持仓非法存活",
+      "discrepancy_summary": "进程中断或轮询延迟期间触及止损的 K 线被彻底漏检，发生穿透存活"
+    }
+  },
+  {
+    "id": "CASE-04",
+    "name": "持仓跨越真实资金费结算及达到回撤条件时的调度行为 (Funding & Drawdown Scheduling)",
+    "input": {
+      "symbol": "SOLUSDT",
+      "position_id": 401,
+      "entry_ts": 1728996400000,
+      "actual_funding_settle_time": 1729000000000,
+      "actual_funding_rate": 0.00075,
+      "account_initial_equity": 10000.0,
+      "account_current_cash": 7500.0,
+      "drawdown_pct": "25.0% (超过系统 20% 熔断阈值)",
+      "process_clock_now_ms": 1729001800000
+    },
+    "entrypoint": "框架.backend.unified_runtime.UnifiedExecutionDaemon.execute_cycle vs PE.accrue_funding & PE.enforce_drawdown",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "unified_execution_cycle_result": {
+        "pending_matched": 0,
+        "trailing_updates": 0,
+        "exits_triggered": 0,
+        "errors": []
+      },
+      "explicit_accrue_funding_result": {
+        "arm": "3a",
+        "T": 1729001800000,
+        "n_open_positions": 1,
+        "amount_sign_convention": "expense_positive",
+        "n_new_events": 1,
+        "new_amount_sum": 450.0,
+        "per_position": [
+          {
+            "arm": "3a",
+            "position_id": 401,
+            "symbol": "SOLUSDT",
+            "qty": 10.0,
+            "entry_ts": 1728996400000,
+            "upto_ms": 1729001800000,
+            "n_new_events": 1,
+            "new_amount_sum": 450.0,
+            "events": [
+              {
+                "funding_time": 1729000000000,
+                "funding_rate": 0.00075,
+                "mark_price": 60000.0,
+                "qty": 10.0,
+                "amount": 450.0,
+                "late_backfill": false,
+                "recorded_at": 1792983444253
+              }
+            ],
+            "gaps": []
+          }
+        ],
+        "closed_late_backfill": {
+          "arm": "3a",
+          "T": 1729001800000,
+          "lookback_days": 60,
+          "n_closed_positions_scanned": 0,
+          "n_new_events": 0,
+          "new_amount_sum": 0.0,
+          "per_position": [],
+          "amount_sign_convention": "expense_positive"
+        }
+      },
+      "explicit_enforce_drawdown_result": {
+        "arm": "3a",
+        "ok": true,
+        "T": 1729001800000,
+        "drawdown": 0.0,
+        "locked": false,
+        "tripped_now": false,
+        "actions": [],
+        "cancelled_pending": 0,
+        "liquidated": [],
+        "already_locked": false
+      }
+    },
+    "order_ledger_mutation": {
+      "after_production_cycle": {
+        "funding_records_count": 0,
+        "position_funding_paid": 0.0,
+        "account_cash": 7500.0,
+        "position_status": "open"
+      },
+      "after_explicit_calls": {
+        "funding_records_count": 1,
+        "funding_detail": [
+          {
+            "id": 1,
+            "account_id": "paper43_3a",
+            "position_id": 401,
+            "funding_time": 1729000000000,
+            "rate": 0.00075,
+            "mark": 60000.0,
+            "amount": 450.0,
+            "source": "funding_history.settled",
+            "late_backfill": 0,
+            "recorded_at": 1792983444253
+          }
+        ],
+        "position_funding_paid": 450.0,
+        "account_cash": 7500.0,
+        "drawdown_enforced_status": null
+      }
+    },
+    "expected_difference": {
+      "expected_behavior": "UnifiedRuntime 主循环中每次 step/cycle 应当调度资金费结算与回撤熔断检查，发生资金费入账并触发熔断",
+      "actual_behavior": "execute_cycle 与 step_once 中 accrue_funding 与 enforce_drawdown 调用为 0；必须显式直接调用 PE 独立函数才产生资金费记账 (新计提 1 条) 与回撤保护",
+      "discrepancy_summary": "生产统一运行主进程漏挂载资金费与回撤调度，真实结算时间到达时主循环静默不计提"
+    }
+  },
+  {
+    "id": "CASE-05",
+    "name": "合约精度缺失时的实际处理 (Contract Spec Precision Fallback)",
+    "input": {
+      "symbol": "NEWTOKEN_USDT",
+      "position_id": 501,
+      "contract_limits_return": null,
+      "candle_4h_low": 1.2,
+      "trail_d": 0.05
+    },
+    "entrypoint": "框架.backend.paper_engine.advance_position_trailing",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "advance_result": {
+        "ok": true,
+        "position_id": 501,
+        "symbol": "NEWTOKEN_USDT",
+        "entry_price": 1.23456,
+        "old_stop": 1.1,
+        "candidate_stop": 1.1400000000000001,
+        "effective_stop": 1.1400000000000001,
+        "stop_updated": true,
+        "ref_candle_open_time": 1790800000000,
+        "ref_candle_close_time": 1790814400000,
+        "available_at": 1790814400000,
+        "decision_at": 1790814400000,
+        "effective_at": 1790814400000,
+        "exit_triggered": false,
+        "exit_result": null,
+        "rule": "FT-LOW4H",
+        "trail_d": 0.05
+      },
+      "updated_stop_price": 1.1400000000000001
+    },
+    "order_ledger_mutation": {
+      "operation_succeeded": true,
+      "stop_price_persisted": 1.1400000000000001
+    },
+    "expected_difference": {
+      "expected_behavior": "按照零兜底工程规范，当 contract_limits 返回 None 时，必须明确报错拒绝，禁止计算更新",
+      "actual_behavior": "代码采用 limits = contract_limits(symbol) or {'price_step': 0.01}，静默将未配置标的按 0.01 精度取整 (止损更新为 1.1400000000000001) 并返回 ok=True",
+      "discrepancy_summary": "违背严禁静默兜底准则，对未知标的放行了硬编码默认步长"
+    }
+  },
+  {
+    "id": "CASE-06",
+    "name": "有效重启恢复信号在后端与页面上的资格一致性 (Restart Signal Qualification)",
+    "input": {
+      "signal_uid": "cand_recovered_btcusdt_001",
+      "origin": "recovered",
+      "role": "enterable_arm_entry",
+      "scenario_A": "正常恢复且未被终态拒单",
+      "scenario_B": "纸面账本已存在终态拒单 (missed_fill_moment_no_backfill)"
+    },
+    "entrypoint": "框架.backend.live_api.live_signals vs 前端 SignalListPanel:isCurrentSignal",
+    "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+    "output": {
+      "scenario_A": {
+        "backend_qualified": false,
+        "frontend_qualified": true,
+        "consistent": false
+      },
+      "scenario_B": {
+        "backend_qualified": false,
+        "frontend_qualified": true,
+        "consistent": false,
+        "backend_excluded_n": null
+      }
+    },
+    "order_ledger_mutation": {
+      "paper_order_rejected_present": true,
+      "backend_query_attached_arms": true
+    },
+    "expected_difference": {
+      "expected_behavior": "前端页面与后端必须保持绝对资格一致；当后端因跨库终态拒单将信号剔除当前区时，页面不应展示为可执行有效信号",
+      "actual_behavior": "场景B中后端跨库 ATTACH 成功剔除该信号 (backend_qualified=False)，但若前端页面单靠自身 isCurrentSignal (不读订单终态) 会出现状态分叉 (frontend_qualified=True)",
+      "discrepancy_summary": "页面恢复信号必须依赖后端权威过滤输出，禁止脱离账本订单终态做纯客户端静态推导"
+    }
+  }
+]

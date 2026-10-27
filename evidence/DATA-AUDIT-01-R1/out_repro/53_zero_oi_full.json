@@ -1,0 +1,18 @@
+{
+  "stats_at_utc": "2026-10-26T03:40:29Z",
+  "population": "全量（oi 与 metrics 两个数据集全目录聚合，无抽样）",
+  "query_oi": "SELECT COUNT(*) AS n,\n       SUM(CASE WHEN TRY_CAST(open_interest AS DOUBLE) = 0 THEN 1 ELSE 0 END) AS zero_oi,\n       SUM(CASE WHEN open_interest IS NULL OR TRIM(open_interest) = '' THEN 1 ELSE 0 END) AS null_oi\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/oi/*/*/*/*.parquet', union_by_name = true)",
+  "query_metrics": "SELECT COUNT(*) AS n,\n       SUM(CASE WHEN sum_open_interest = 0 THEN 1 ELSE 0 END) AS zero_oi\nFROM read_parquet('/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet/metrics/*/*/*/*.parquet', union_by_name = true)",
+  "oi": {
+    "rows": 128566270,
+    "zero": 33585,
+    "null": 0,
+    "zero_pct": 0.0261
+  },
+  "metrics": {
+    "rows": 127973455,
+    "zero": 33588,
+    "zero_pct": 0.0262
+  },
+  "old_sample_claim": "原报告只给 BTC 473 行、CVC 709 行（抽样）"
+}

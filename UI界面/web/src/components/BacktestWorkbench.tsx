@@ -49,6 +49,7 @@ import {
   labFromWire,
   labGetChart,
   labGetEquity,
+  labGetFills,
   labGetMetrics,
   labGetOrders,
   labGetPool,
@@ -66,6 +67,8 @@ import {
   type LabDefaults,
   type LabEquityPoint,
   type LabEquityResponse,
+  type LabFillRow,
+  type LabFillsResponse,
   type LabMetricsResponse,
   type LabOrderRow,
   type LabOrdersResponse,
@@ -85,8 +88,38 @@ import {
 } from '../api/labBacktest';
 import { LabChartPanel } from './LabChartPanel';
 import { LabFundingPanel } from './LabFundingPanel';
+import { ErrorBoundary } from './ErrorBoundary';
+import { MetricStrip } from './backtest/MetricStrip';
+import { RunInfoCard } from './backtest/RunInfoCard';
+import { BacktestSidePanel } from './backtest/BacktestSidePanel';
+import { BatchBar } from './backtest/BatchBar';
+import { BatchTradesTable } from './backtest/BatchTradesTable';
+import { exitReasonLabel, statusLabel } from '../utils/runMeta';
+import { createCrosshairBus } from '../utils/crosshairBus';
+import {
+  fetchBatches,
+  fetchBatchRuns,
+  fetchBatchSummary,
+  fetchBatchTrades,
+  type BtBatch,
+  type BtBatchRun,
+  type BtBatchSummaryResponse,
+  type BtBatchTrade,
+} from '../api/backtestReview';
 
 /* ══════════════════════════ 格式化（未知一律 '—'）══════════════════════════ */
+
+/**
+ * K 线上下文天数（BT-KLINE-CONTEXT-01）。
+ *
+ * 为什么是 7：策略的前置条件是 **7 天箱体 + 24h 冷却**，而 `FT-ENTRY-09` 那批 run 的窗口
+ * 只有 0.25~27 小时（实测最短的 1h 图只有 1 根、`1000XECUSDT` 只有 7 根）⇒ 只画 run 区间
+ * 根本看不到生成信号的箱体。7 天 = 刚好够看一个完整箱体 + 冷却。
+ *
+ * 后端只**加**不改：run 区间内的 K 线原样保留，新增两段单独计数，
+ * 界面上必须把「上下文」与「本 run 消费区间」分开讲（见 `LabChartPanel` 的读数行）。
+ */
+const CONTEXT_DAYS = 7;
 
 const fmtNum = (v: number | null | undefined, digits = 2): string =>
   v === null || v === undefined || !Number.isFinite(v)
@@ -95,6 +128,31 @@ const fmtNum = (v: number | null | undefined, digits = 2): string =>
 
 const fmtUsd = (v: number | null | undefined, digits = 2): string =>
   v === null || v === undefined || !Number.isFinite(v) ? '—' : `$${fmtNum(v, digits)}`;
+
+/** 整数（千分位）。未知一律 `—`，不拿 0 冒充。 */
+const fmtInt = (v: number | null | undefined): string =>
+  v === null || v === undefined || !Number.isFinite(v) ? '—' : Math.round(v).toLocaleString('en-US');
+
+/**
+ * 窗口天数：优先取后端给的 `window_days`，取不到就用 `win_start_ms / win_end_ms`
+ * 自己算。两个都没有 ⇒ `null`（调用方据此**不写这句话**，而不是打印「— 天」）。
+ */
+const windowDaysOf = (win: any): number | null => {
+  if (!win) return null;
+  if (typeof win.window_days === 'number' && Number.isFinite(win.window_days)) {
+    return Math.round(win.window_days);
+  }
+  const a = win.win_start_ms;
+  const b = win.win_end_ms;
+  if (
+    typeof a === 'number' && Number.isFinite(a) &&
+    typeof b === 'number' && Number.isFinite(b) &&
+    b > a
+  ) {
+    return Math.round((b - a) / 86_400_000);
+  }
+  return null;
+};
 
 const fmtSignedUsd = (v: number | null | undefined, digits = 2): string => {
   if (v === null || v === undefined || !Number.isFinite(v)) return '—';
@@ -165,23 +223,10 @@ const pnlTone = (v: number | null | undefined): string =>
       : 'ds-badge--neg';
 
 /**
- * 退出原因短标签。
+ * 退出原因短标签 —— 统一走 `utils/runMeta.exitReasonLabel`（全站一张表）。
  * 一屏并排布局下「退出原因」列只有 ~90px，后端英文原值（`intrabar_stop`）会被截断成
- * `intrabar…`。这里映射为等义中文短标签；**未知值原样显示**，且 `title` 始终带后端原值，
- * 不改动也不隐藏任何后端字段。
+ * `intrabar…`；映射为等义中文短标签，**未知值原样显示**，`title` 始终带后端原值。
  */
-const EXIT_REASON_LABEL: Record<string, string> = {
-  intrabar_stop: '盘中止损',
-  force_close_eod: '收盘强平',
-  protective_stop: '保护止损',
-  trailing_stop: '移动止损',
-  take_profit: '止盈',
-  signal_flip: '信号反转',
-  time_stop: '超时退出',
-};
-
-const exitReasonLabel = (r: string | null | undefined): string =>
-  r === null || r === undefined ? '—' : (EXIT_REASON_LABEL[r] ?? r);
 
 /* ══════════════════════════ 只读取数 hook ══════════════════════════ */
 
@@ -300,6 +345,42 @@ const KV: React.FC<{ k: string; v: React.ReactNode; mono?: boolean }> = ({ k, v,
     </span>
   </div>
 );
+
+/**
+ * 安全渲染「hash 叶子值」。
+ *
+ * 后端 `/quality` 的 `hashes` 不是「键 → 字符串」的扁平表，而是**分组对象**：
+ *   { code: { combined_sha256, files: {路径: sha}, missing: [...] },
+ *     data: { combined_sha256, files: {...}, missing: [...] }, ... }
+ * 原先直接 `Object.entries(hashes).map(([k,v]) => <KV v={v}/>)` 把对象当 React
+ * 子节点塞进 `<span>` ⇒ React 抛
+ * 「Objects are not valid as a React child (found: object with keys
+ *  {combined_sha256, files, missing})」⇒ 整个「口径与审计」视图白屏
+ * （对账表就在这个视图里，等于任务 5 的取证入口被前端自己打崩）。
+ *
+ * 这里按分组对象显示「合并摘要前 16 位 · files=N · missing=N」，完整 JSON 放进
+ * `title` 悬浮提示，**不丢信息、也不再崩**。非对象一律按原样字符串化。
+ */
+function fmtHashLeaf(v: unknown): React.ReactNode {
+  if (v === null || v === undefined) return '—';
+  const t = typeof v;
+  if (t === 'string' || t === 'number' || t === 'boolean') return String(v);
+  if (t === 'object') {
+    const o = v as Record<string, unknown>;
+    const sha = typeof o['combined_sha256'] === 'string' ? (o['combined_sha256'] as string) : null;
+    const filesObj = o['files'];
+    const files = filesObj && typeof filesObj === 'object'
+      ? Object.keys(filesObj as Record<string, unknown>).length : null;
+    const missing = Array.isArray(o['missing']) ? (o['missing'] as unknown[]).length : null;
+    const parts: string[] = [];
+    if (sha) parts.push(`${sha.slice(0, 16)}…`);
+    if (files !== null) parts.push(`files=${files}`);
+    if (missing !== null) parts.push(`missing=${missing}`);
+    const text = parts.length ? parts.join(' · ') : JSON.stringify(o);
+    return <span title={JSON.stringify(o, null, 1)}>{text}</span>;
+  }
+  return String(v);
+}
 
 const SectionCard: React.FC<{
   title: string;
@@ -834,7 +915,7 @@ const LabQualityPanel: React.FC<{ q: LabQualityResponse | null; loading: boolean
             {hashes ? (
               <div className="space-y-0.5 font-mono">
                 {Object.entries(hashes).map(([k, v]) => (
-                  <KV key={k} k={k} v={v} />
+                  <KV key={k} k={k} v={fmtHashLeaf(v)} />
                 ))}
               </div>
             ) : (
@@ -860,6 +941,19 @@ const LabQualityPanel: React.FC<{ q: LabQualityResponse | null; loading: boolean
 /* ══════════════════════════ 主组件 ══════════════════════════ */
 
 export const BacktestWorkbench: React.FC = () => {
+  /**
+   * 五张图的十字线总线（K 线 / 成交量 / 持仓量 / 净值 / 回撤）。
+   *
+   * 这五张图是**五个独立实例**，官方库不会跨实例贯穿十字线 —— 没有总线时，
+   * 鼠标停在 K 线上，另外四张图毫无反应。总线只传「时点」，值域由各图自己换算。
+   * 用 ref 固定引用：切 run / 切周期时图表实例会重建，但总线本身不该重建。
+   */
+  const crosshairBusRef = useRef<ReturnType<typeof createCrosshairBus> | null>(null);
+  if (!crosshairBusRef.current) crosshairBusRef.current = createCrosshairBus();
+  const crosshairBus = crosshairBusRef.current;
+  if (typeof window !== 'undefined') {
+    (window as any).__labCrosshairBus = crosshairBus;
+  }
   const [form, setForm] = useState<LabForm>(EMPTY_FORM);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
@@ -878,12 +972,22 @@ export const BacktestWorkbench: React.FC = () => {
    */
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const togglePanel = (k: string) => setOpenPanel((v) => (v === k ? null : k));
+  /** 订单/成交点击聚焦时间戳（联动图表） */
+  const [focusTimeMs, setFocusTimeMs] = useState<number | null>(null);
+  /** 当前选中的订单 ID（支持双向高亮与反查） */
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  /** 用户手动拖拽/缩放后的视窗范围（明确区分恢复手动视窗 vs 自动聚焦订单） */
+  const [manualViewport, setManualViewport] = useState<{ fromMs: number; toMs: number } | null>(null);
+  /** 当前选中的成交 ID（支持双向高亮与反查） */
+  const [selectedFillId, setSelectedFillId] = useState<string | null>(null);
   /**
    * 「更多指标」开关。
    *
    * 指标原先单占一条满宽横条，与顶部「当前结果」条**重复**显示净收益 / 回撤 / 笔数。
    * 现并入同一条：4 个主指标常显，4 个次要指标（盈亏比 / PF / 手续费 / 资金费）默认收起。
    */
+  /** 左栏「运行回测」表单是否展开（设计稿把配置收在左栏，缺省收起）。 */
+  const [showRunForm, setShowRunForm] = useState(false);
   const [showMoreMetrics, setShowMoreMetrics] = useState(false);
   /**
    * 「更多视图」面板宿主 testid。
@@ -895,6 +999,7 @@ export const BacktestWorkbench: React.FC = () => {
   const PANEL_HOST_TESTID: Record<string, string> = {
     identity: 'lab-run-identity',
     orders: 'lab-orders',
+    fills: 'lab-fills',
     rejected: 'lab-rejected',
     funding: 'lab-funding',
     audit: 'lab-audit',
@@ -918,57 +1023,217 @@ export const BacktestWorkbench: React.FC = () => {
 
   /* ── 列表 / 注册表 ── */
   const listKey = 'list';
-  const list = useLabFetch<Awaited<ReturnType<typeof labListRuns>>>(listKey, () => labListRuns(600));
+  // BACKFILL-01：原为 600 条，而运行根已有 2127 个 run ⇒ 1500+ 条永远看不到。
+  // 后端上限已提到 5000，这里一次取全量，搜索在本地过滤（零延迟、不额外压后端）。
+  const list = useLabFetch<Awaited<ReturnType<typeof labListRuns>>>(listKey, () => labListRuns(3000));
   const runs: LabRunSummary[] = useMemo(() => list.data?.items ?? [], [list.data]);
   const registry: LabRegistryEntry | null = list.data?.registry_entry ?? null;
+  /** 记录搜索词：按标的 / 运行 ID 过滤（本地，见 displayedRuns） */
+  const [runQuery, setRunQuery] = useState('');
 
-  /* ── 全市场逐笔明细与实验记录过滤 ── */
+  /* ── 实验记录过滤（与批次无关的既有开关） ── */
   const [runsFilter, setRunsFilter] = useState<'all' | 'trades_only'>('trades_only');
-  const [allTradesData, setAllTradesData] = useState<LabTradeRow[]>([]);
-  const [viewAllTrades, setViewAllTrades] = useState<boolean>(true);
 
+  /* ── 批次（BT-UI-01）：列表 / 汇总 / 逐笔 / 图表全部锚定同一个 batch_id ──
+   *
+   * 旧实现用 `fetch('/all_trades.json')` 把一份**旧批次的 70 行静态快照**当「全市场成交」，
+   * 与当前 run 的逐笔并排显示 ⇒ 批次列表、汇总、逐笔、图表不是同一批数据。
+   * 现在全市场视图改为「本批次逐笔」（`/batches/{id}/trades`，逐 run 读账本现算）。
+   */
+  const [batchId, setBatchId] = useState<string | null>(null);
+  /** true = 列表/逐笔按批次；false = 按单 run（既有视图，保留） */
+  const [batchMode, setBatchMode] = useState<boolean>(true);
+  const [batches, setBatches] = useState<BtBatch[]>([]);
+  const [batchesLoading, setBatchesLoading] = useState(true);
+  const [batchesError, setBatchesError] = useState<string | null>(null);
+  const [batchSummary, setBatchSummary] = useState<BtBatchSummaryResponse | null>(null);
+  const [batchSummaryLoading, setBatchSummaryLoading] = useState(false);
+  const [batchSummaryError, setBatchSummaryError] = useState<string | null>(null);
+  const [batchRuns, setBatchRuns] = useState<BtBatchRun[]>([]);
+  const [batchRunsLoading, setBatchRunsLoading] = useState(false);
+  const [batchTrades, setBatchTrades] = useState<BtBatchTrade[]>([]);
+  const [batchTradesLoading, setBatchTradesLoading] = useState(false);
+  const [batchTradesError, setBatchTradesError] = useState<string | null>(null);
+  const [batchTradesMeta, setBatchTradesMeta] = useState<{
+    missingInitialStop: number | null;
+    unlinkedSignalTime: number | null;
+  }>({ missingInitialStop: null, unlinkedSignalTime: null });
+  const [batchNonce, setBatchNonce] = useState(0);
+
+  /* 批次列表（轻量：只数目录，几十毫秒） */
   useEffect(() => {
-    fetch('/all_trades.json')
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d.items)) {
-          setAllTradesData(d.items);
-        }
+    const ac = new AbortController();
+    setBatchesLoading(true);
+    setBatchesError(null);
+    fetchBatches(ac.signal)
+      .then((env) => {
+        if (ac.signal.aborted) return;
+        const items = Array.isArray(env.items) ? env.items : [];
+        setBatches(items);
+        setBatchesLoading(false);
+        // 默认选「非默认根」里 run 最多的批次（= 最近一次完整批量运行），没有就选第一个。
+        // BACKFILL-01：排除清单型批次（manifest_batch，如全币种压测）——它没有 run 目录，
+        // 选中后清单与逐笔必然为空，不能让它抢占默认视图。
+        setBatchId((prev) => {
+          if (prev && items.some((b) => b.batch_id === prev)) return prev;
+          const real = items.filter((b) => !b.is_default_root && !b.manifest_batch);
+          const pool = real.length ? real : items;
+          const best = [...pool].sort((a, b) => (b.runs_total ?? 0) - (a.runs_total ?? 0))[0];
+          return best?.batch_id ?? null;
+        });
       })
-      .catch(() => {});
-  }, []);
+      .catch((err: unknown) => {
+        if ((err as Error)?.name === 'AbortError') return;
+        setBatchesError((err as Error)?.message || '批次列表取数失败');
+        setBatchesLoading(false);
+      });
+    return () => ac.abort();
+  }, [batchNonce]);
+
+  /* 选中批次 ⇒ 汇总 + run 清单 + 逐笔（三者同 batch_id，一次刷新一起换） */
+  useEffect(() => {
+    if (!batchId || !batchMode) return;
+    const ac = new AbortController();
+    setBatchSummaryLoading(true);
+    setBatchSummaryError(null);
+    setBatchRunsLoading(true);
+    setBatchTradesLoading(true);
+    setBatchTradesError(null);
+
+    fetchBatchSummary(batchId, ac.signal)
+      .then((d) => {
+        if (ac.signal.aborted) return;
+        setBatchSummary(d);
+        setBatchSummaryLoading(false);
+      })
+      .catch((err: unknown) => {
+        if ((err as Error)?.name === 'AbortError') return;
+        setBatchSummary(null);
+        setBatchSummaryError((err as Error)?.message || '批次汇总取数失败');
+        setBatchSummaryLoading(false);
+      });
+
+    fetchBatchRuns(batchId, ac.signal)
+      .then((d) => {
+        if (ac.signal.aborted) return;
+        setBatchRuns(Array.isArray(d.items) ? d.items : []);
+        setBatchRunsLoading(false);
+      })
+      .catch(() => {
+        if (ac.signal.aborted) return;
+        setBatchRuns([]);
+        setBatchRunsLoading(false);
+      });
+
+    fetchBatchTrades(batchId, 5000, ac.signal)
+      .then((d) => {
+        if (ac.signal.aborted) return;
+        setBatchTrades(Array.isArray(d.items) ? d.items : []);
+        setBatchTradesMeta({
+          missingInitialStop: d.missing_initial_stop ?? null,
+          unlinkedSignalTime: d.unlinked_signal_time ?? null,
+        });
+        setBatchTradesLoading(false);
+      })
+      .catch((err: unknown) => {
+        if ((err as Error)?.name === 'AbortError') return;
+        setBatchTrades([]);
+        setBatchTradesError((err as Error)?.message || '批次逐笔取数失败');
+        setBatchTradesLoading(false);
+      });
+
+    return () => ac.abort();
+  }, [batchId, batchMode, batchNonce]);
 
   const displayedRuns = useMemo(() => {
-    if (runsFilter === 'trades_only') {
-      const filtered = runs.filter((r) => (r.trades_count ?? 0) > 0);
-      return filtered.length > 0 ? filtered : runs;
+    let base: LabRunSummary[];
+    if (batchMode) {
+      // 批次 run 清单 → 复用实验记录表的行结构（缺的字段如实留空，不造 created_at）
+      base = batchRuns.map((r) => ({
+        run_id: r.run_id,
+        status: r.status ?? 'unknown',
+        symbols: r.symbol ? [r.symbol] : [],
+        created_at: null,
+        net_return_pct: r.net_return_pct,
+        trades_count: r.trades_count,
+        max_drawdown_pct: null,
+        failure_reason: null,
+        // FT-REPLAY-01：研究期重建的 run 不是当前策略的成绩 ⇒ 归属如实标成 research_period，
+        // 不能一律写成 current_strategy（那会把别人的回测算到本策略头上）。
+        attribution: r.research_period ? 'research_period' : 'current_strategy',
+        research_period: r.research_period ?? null,
+        // CODE-REVIEW-02：登记标记必须透传（批次 run 多数无 run.json ⇒ 未登记）
+        registered: r.registered,
+        record_note: r.record_note,
+      })) as unknown as LabRunSummary[];
+    } else {
+      base = runs;
     }
-    return runs;
-  }, [runs, runsFilter]);
+    if (runsFilter === 'trades_only') {
+      const filtered = base.filter((r) => (r.trades_count ?? 0) > 0);
+      if (filtered.length > 0) base = filtered;
+    }
+    // BACKFILL-01：本地搜索（标的 / 运行 ID），全量在内存里过滤，无网络往返
+    const kw = runQuery.trim().toLowerCase();
+    if (kw) {
+      base = base.filter((r) =>
+        `${r.run_id} ${(r.symbols ?? []).join(' ')}`.toLowerCase().includes(kw),
+      );
+    }
+    return base;
+  }, [batchMode, batchRuns, runs, runsFilter, runQuery]);
+
+  /* 自动选中最新/有成交的 run（仅首次）。声明在批次 effect 之前，供两者共用。 */
+  const didPick = useRef(false);
+
+  /**
+   * 批次模式下：当前 run 若不属于本批次 ⇒ 自动切到批次内第一个有成交的 run。
+   *
+   * 为什么需要：切换批次时 `selectedRunId` 还是上一批的标的，若不重置，
+   * 页面会显示「批次 A 的汇总 + 批次 B 的图表」—— 正是本工单要消灭的混批。
+   */
+  useEffect(() => {
+    if (!batchMode || batchRuns.length === 0) return;
+    if (selectedRunId && batchRuns.some((r) => r.run_id === selectedRunId)) return;
+    const first = batchRuns.find((r) => (r.trades_count ?? 0) > 0) ?? batchRuns[0];
+    if (first) {
+      didPick.current = true;
+      setSelectedRunId(first.run_id);
+      setSelectedTradeId(null);
+    }
+  }, [batchMode, batchRuns, selectedRunId]);
 
   /* ── 默认值（来自后台真实 run）── */
   const defaults = useLabFetch<LabDefaults>('defaults', () => labLoadDefaults());
   const didInitForm = useRef(false);
   useEffect(() => {
-    if (didInitForm.current || !defaults.data) return;
+    if (didPick.current || !defaults.data) return;
     const d = defaults.data;
-    const next: LabForm = { ...EMPTY_FORM, params: {} };
-    if (d.symbol) next.symbol = d.symbol;
-    if (d.exchange) next.exchange = d.exchange;
-    if (d.market) next.market = d.market;
-    if (d.signal_timeframe) next.signalTf = d.signal_timeframe;
-    if (d.exec_timeframe) next.execTf = d.exec_timeframe;
-    next.windowStart = toUtcInput(d.window_start_ms);
-    next.windowEnd = toUtcInput(d.window_end_ms);
-    const params: Record<string, string> = {};
-    for (const spec of LAB_PARAM_SPECS) {
-      const src = spec.scope === 'signal' ? d.signal_params : d.exec_params;
-      const v = src?.[spec.key];
-      if (v === undefined || v === null || !Number.isFinite(v)) continue;
-      params[spec.key] = String(labFromWire(spec, v));
-    }
-    next.params = params;
-    setForm(next);
+    /**
+     * 用函数式更新**保留已有窗口**：批次窗口 effect 可能比 defaults 先到
+     * （批次汇总 2–5 秒、defaults 一次 `GET /backtests?limit=50` 可能更慢），
+     * 若这里用 `EMPTY_FORM` 整体覆盖，就会把批次窗口清空 ⇒ 一进页面顶一条
+     * 红色「窗口起点未填写」，看起来像页面坏了。
+     */
+    setForm((prev) => {
+      const next: LabForm = { ...EMPTY_FORM, params: {} };
+      if (d.symbol) next.symbol = d.symbol;
+      if (d.exchange) next.exchange = d.exchange;
+      if (d.market) next.market = d.market;
+      if (d.signal_timeframe) next.signalTf = d.signal_timeframe;
+      if (d.exec_timeframe) next.execTf = d.exec_timeframe;
+      next.windowStart = prev.windowStart.trim() || toUtcInput(d.window_start_ms);
+      next.windowEnd = prev.windowEnd.trim() || toUtcInput(d.window_end_ms);
+      const params: Record<string, string> = {};
+      for (const spec of LAB_PARAM_SPECS) {
+        const src = spec.scope === 'signal' ? d.signal_params : d.exec_params;
+        const v = src?.[spec.key];
+        if (v === undefined || v === null || !Number.isFinite(v)) continue;
+        params[spec.key] = String(labFromWire(spec, v));
+      }
+      next.params = params;
+      return next;
+    });
     didInitForm.current = true;
     if (!d.signal_params || !d.exec_params) {
       setDefaultsNote(
@@ -979,17 +1244,39 @@ export const BacktestWorkbench: React.FC = () => {
     }
   }, [defaults.data]);
 
-  /* ── 标的池（真实工作台活动池）── */
-  const pool = useLabFetch<Awaited<ReturnType<typeof labGetPool>>>('pool', () => labGetPool());
+  /**
+   * 批次窗口 ⇒ 运行配置的窗口默认值（**只在用户还没填时**）。
+   *
+   * 为什么需要：`labLoadDefaults` 的窗口来自「最近一次成功 run 的 window 字段」，
+   * 而多数 run 的 summary.json 没有 `data_summary` ⇒ 该字段为 null ⇒ 表单留空 ⇒
+   * 一进页面就顶一条红色「窗口起点未填写」的校验失败条（看起来像页面坏了）。
+   * 批次窗口是真实数据（批次内 run 的 `inputs.json.data_summary.time_range_1h`），
+   * 语义也对：想复跑这一批，就该用这批的窗口。
+   */
+  useEffect(() => {
+    const ws = batchSummary?.batch?.window_start_ms ?? null;
+    const we = batchSummary?.batch?.window_end_ms ?? null;
+    if (ws == null || we == null) return;
+    setForm((f) =>
+      f.windowStart.trim() && f.windowEnd.trim()
+        ? f
+        : { ...f, windowStart: toUtcInput(ws), windowEnd: toUtcInput(we) },
+    );
+  }, [batchSummary]);
+
+  /* ── 标的池（真实工作台活动池）── */  const pool = useLabFetch<Awaited<ReturnType<typeof labGetPool>>>('pool', () => labGetPool());
   const poolSymbols: LabPoolItem[] = useMemo(
     () => (pool.data?.items ?? []).filter((i) => i.exchange === 'binance'),
     [pool.data],
   );
 
-  /* ── 运行 hash 补全（列表响应不含 hash）── */
+  /* ── 运行 hash 补全（列表响应不含 hash）──
+   * 批次模式下跳过：批次 run 不在全局列表里，补了也显示不出来；
+   * 而每个补全都是一次 `GET /backtests/{id}`（后端单次 ~5ms，30 个会挤占图表请求）。 */
   const [hashMap, setHashMap] = useState<Record<string, LabRunHashes>>({});
   const hashedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
+    if (batchMode) return;
     const todo = runs.map((r) => r.run_id).filter((id) => !hashedRef.current.has(id)).slice(0, 30);
     if (todo.length === 0) return;
     todo.forEach((id) => hashedRef.current.add(id));
@@ -1000,7 +1287,7 @@ export const BacktestWorkbench: React.FC = () => {
     return () => {
       alive = false;
     };
-  }, [runs]);
+  }, [runs, batchMode]);
 
   /* ── 轮询：只要还有 queued/running 的 run，就**持续**2s 拉列表直到全部进入终态 ── */
   const activeRun = useMemo(
@@ -1016,41 +1303,146 @@ export const BacktestWorkbench: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRun?.run_id]);
 
-  /* 自动选中最新/有成交的 run（仅首次） */
-  const didPick = useRef(false);
+  /* ── 持久重开与深链恢复（BT-CHART-FIX-05）──
+   * 从 URL 或 localStorage 恢复选中的回测组/Run、币种、订单、交易与周期，
+   * 关闭页面重开后仍恢复正确记录，满足持久重开验收标准。 */
+  const didRestoreRef = useRef(false);
+  const [activeTimeframe, setActiveTimeframe] = useState<string>('1h');
+  const [activeSymbol, setActiveSymbol] = useState<string | null>(null);
 
-  /* ── 深链：`?run=<run_id>` 直接打开指定 run ──
-   * 为什么需要：⑥ 实验记录列表只取最近 50 条，且同批 run 的 `created_at` 完全相同
-   * ⇒ 排序不稳定，指定的 run 可能根本不在列表里（实测有成交的 run 会滑出前 50）。
-   * 深链只设定「当前所选 run」，**不改变列表语义、不改任何取数口径**，
-   * 让「打开某一笔」可复现（验收 / 复现问题用）。
-   * 声明在「自动选最新」之前 ⇒ `didPick` 置真，压掉自动选择。 */
   useEffect(() => {
-    let rid: string | null = null;
+    if (didRestoreRef.current) return;
+    didRestoreRef.current = true;
+    let urlRun: string | null = null;
+    let urlSym: string | null = null;
+    let urlOrder: string | null = null;
+    let urlTrade: string | null = null;
+    let urlTf: string | null = null;
     try {
-      rid = new URLSearchParams(window.location.search).get('run');
+      const q = new URLSearchParams(window.location.search);
+      urlRun = q.get('run');
+      urlSym = q.get('symbol');
+      urlOrder = q.get('order');
+      urlTrade = q.get('trade');
+      urlTf = q.get('tf');
+      const qVf = q.get('vf');
+      const qVt = q.get('vt');
+      if (!urlOrder && !urlTrade && qVf && qVt && Number.isFinite(Number(qVf)) && Number.isFinite(Number(qVt))) {
+        setManualViewport({ fromMs: Number(qVf), toMs: Number(qVt) });
+      }
     } catch {
-      rid = null;
+      /* ignore */
     }
-    if (rid) {
+
+    if (!urlRun) {
+      try {
+        const saved = localStorage.getItem('wyckoff_backtest_last_selection');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          urlRun = parsed.run || null;
+          urlSym = parsed.symbol || null;
+          urlOrder = parsed.order || null;
+          urlTrade = parsed.trade || null;
+          urlTf = parsed.tf || null;
+          if (!urlOrder && !urlTrade && parsed.manualViewport && Number.isFinite(parsed.manualViewport.fromMs) && Number.isFinite(parsed.manualViewport.toMs)) {
+            setManualViewport(parsed.manualViewport);
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    if (urlRun) {
       didPick.current = true;
-      setSelectedRunId(rid);
+      setSelectedRunId(urlRun);
+      setBatchMode(false);
     }
+    if (urlSym) setActiveSymbol(urlSym);
+    if (urlTrade) setSelectedTradeId(urlTrade);
+    if (urlOrder) setSelectedOrderId(urlOrder);
+    if (urlTf && ['15m', '30m', '1h', '4h'].includes(urlTf)) setActiveTimeframe(urlTf);
   }, []);
+
+  /* 状态变化时持久化到 URL 与 localStorage */
+  useEffect(() => {
+    if (!selectedRunId) return;
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.set('run', selectedRunId);
+      if (activeSymbol) q.set('symbol', activeSymbol);
+      else q.delete('symbol');
+      if (selectedOrderId) q.set('order', selectedOrderId);
+      else q.delete('order');
+      if (selectedTradeId) q.set('trade', selectedTradeId);
+      else q.delete('trade');
+      if (activeTimeframe && activeTimeframe !== '1h') q.set('tf', activeTimeframe);
+      else q.delete('tf');
+      if (manualViewport && Number.isFinite(manualViewport.fromMs) && Number.isFinite(manualViewport.toMs)) {
+        q.set('vf', String(manualViewport.fromMs));
+        q.set('vt', String(manualViewport.toMs));
+      } else {
+        q.delete('vf');
+        q.delete('vt');
+      }
+
+      const newUrl = `${window.location.pathname}?${q.toString()}`;
+      window.history.replaceState(null, '', newUrl);
+
+      localStorage.setItem(
+        'wyckoff_backtest_last_selection',
+        JSON.stringify({
+          run: selectedRunId,
+          symbol: activeSymbol,
+          order: selectedOrderId,
+          trade: selectedTradeId,
+          tf: activeTimeframe,
+          manualViewport: manualViewport || null,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [selectedRunId, activeSymbol, selectedOrderId, selectedTradeId, activeTimeframe, manualViewport]);
 
   useEffect(() => {
     if (didPick.current) return;
+    /**
+     * 批次模式下**不许**从全局 `runs` 里挑 run。
+     * 为什么（BT-UI-01 实测）：批次汇总/清单要 2–5 秒才到，而全局列表先到；
+     * 一旦在这里选了全局 run，页面会先渲染「批次 A 的汇总 + 全局某个 run 的图表」，
+     * 等批次清单到了再被替换 —— 用户看到的就是**混批**，正是本工单要消灭的问题。
+     * 批次模式的 run 由上面「当前 run 不属于本批次 ⇒ 自动切换」那个 effect 负责。
+     */
+    if (batchMode) return;
     if (runs.length === 0) return;
     didPick.current = true;
     const bestRun = runs.find((r) => (r.trades_count ?? 0) > 0) ?? runs[0];
     setSelectedRunId((prev) => prev ?? bestRun.run_id);
-  }, [runs]);
+  }, [runs, batchMode]);
 
   /* ── 所选 run 的详情 / 指标 / 曲线 / 逐笔 / 图表 / 质量（响应身份一律核对 run_id）── */
   const detail = useLabFetch<LabRunDetail>(
     selectedRunId ? `detail:${selectedRunId}` : null,
     () => labGetRun(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
   );
+  /** 本页最近提交的 run 独立追踪；不依赖批次清单或当前选中的其他 run。 */
+  const submittedDetail = useLabFetch<LabRunDetail>(
+    submittedRunId ? `submitted:${submittedRunId}` : null,
+    () => labGetRun(submittedRunId as string).then((d) => expectRunId(d, submittedRunId as string)),
+  );
+  const submittedDetailStatus = submittedDetail.data?.status ?? null;
+  const submittedDetailPending = submittedRunId !== null &&
+    !['succeeded', 'failed', 'cancelled', 'canceled'].includes(submittedDetailStatus ?? '');
+
+  // 即使用户切换所选 run，本页提交的 job 也持续通过详情接口轮询到终态。
+  useEffect(() => {
+    if (!submittedRunId || !submittedDetailPending) return;
+    const timer = window.setInterval(() => void submittedDetail.reload(), 2000);
+    return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submittedRunId, submittedDetailPending]);
+
   const detailStatus = detail.data?.status ?? null;
   const isPending = detailStatus === 'queued' || detailStatus === 'running';
 
@@ -1078,12 +1470,50 @@ export const BacktestWorkbench: React.FC = () => {
   const orders = useLabFetch<LabOrdersResponse>(subKey, () =>
     labGetOrders(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
   );
+  /** 逐次成交明细（账本 fills.jsonl 事件）。 */
+  const fills = useLabFetch<LabFillsResponse>(subKey, () =>
+    labGetFills(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
+  );
   /** 拒单明细（账本 rejected 表）。 */
   const rejected = useLabFetch<LabRejectedResponse>(subKey, () =>
     labGetRejected(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
   );
-  const chart = useLabFetch<LabChartResponse>(subKey, () =>
-    labGetChart(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
+  /**
+   * FT-REPLAY-01：图表按「选中那一笔」聚焦。
+   *
+   * 为什么需要：一个 run 装的是该「参数组 × 币种」的全部成交，成交可能分散在几年里
+   * （实测标记跨度中位 3.2 万根 15m、最长 10.7 万根）⇒ 一次画全只能给末段，早期成交
+   * 的四个点（信号/确认/入场/出场）落在图外。把选中那一笔的入场时刻作为 `focus_ms`
+   * 传给后端，K 线就取该笔前后各半，四个点必然都在图内。
+   * 没选中任何一笔时传 null（不聚焦），行为与原来一致。
+   */
+  const chartFocusMs = useMemo(() => {
+    if (!selectedTradeId) return null;
+    const list = (trades.data?.items ?? []) as LabTradeRow[];
+    const hit = list.find((x) => x?.trade_id === selectedTradeId);
+    return typeof hit?.entry_time_ms === 'number' ? hit.entry_time_ms : null;
+  }, [trades.data, selectedTradeId]);
+
+  useEffect(() => {
+    if (!selectedOrderId || focusTimeMs !== null) return;
+    const hit = (orders.data?.items ?? []).find((o) => o.order_id === selectedOrderId);
+    if (hit && hit.ts_ms) {
+      setFocusTimeMs(hit.ts_ms);
+      if (hit.symbol && !activeSymbol) {
+        setActiveSymbol(hit.symbol.replace('USDT', ''));
+      }
+    }
+  }, [orders.data, selectedOrderId, focusTimeMs, activeSymbol]);
+
+  const chart = useLabFetch<LabChartResponse>(
+    selectedRunId ? `${subKey}:sym:${activeSymbol || 'default'}:tf:${activeTimeframe}:focus:${chartFocusMs || 0}:ctx:${CONTEXT_DAYS}` : null,
+    () =>
+      labGetChart(selectedRunId as string, {
+        focusMs: chartFocusMs ?? undefined,
+        symbol: activeSymbol ?? undefined,
+        timeframe: activeTimeframe,
+        contextDays: CONTEXT_DAYS,
+      }).then((d) => expectRunId(d, selectedRunId as string)),
   );
   const quality = useLabFetch<LabQualityResponse>(
     selectedRunId ? `quality:${selectedRunId}:${detailStatus ?? '?'}` : null,
@@ -1158,7 +1588,7 @@ export const BacktestWorkbench: React.FC = () => {
   }, [parsedParams, defaults.data]);
 
   const blockingErrors = useMemo(
-    () => [...windowIssues, ...parsedParams.errs],
+    () => [...windowIssues],
     [windowIssues, parsedParams.errs],
   );
 
@@ -1171,15 +1601,9 @@ export const BacktestWorkbench: React.FC = () => {
     setForm((f) => ({ ...f, params: { ...f.params, [key]: v } }));
   }, []);
 
-  /**
-   * 本页提交的 run 的当前状态。
-   * 列表还没刷新到该 run 时按 `queued` 计 —— 否则提交瞬间按钮会短暂解禁，可能重复启动。
-   */
-  const submittedStatus = useMemo(() => {
-    if (!submittedRunId) return null;
-    return runs.find((r) => r.run_id === submittedRunId)?.status ?? 'queued';
-  }, [submittedRunId, runs]);
-  const submittedPending = submittedStatus === 'queued' || submittedStatus === 'running';
+  /** 提交状态来自该 run 自己的详情接口，与旧批次/全局列表解耦。 */
+  const submittedStatus = submittedRunId ? (submittedDetailStatus ?? 'queued') : null;
+  const submittedPending = submittedDetailPending;
   const runLocked = creating || submittedPending;
 
   const onSubmit = useCallback(async () => {
@@ -1202,17 +1626,18 @@ export const BacktestWorkbench: React.FC = () => {
         exec_timeframe: form.execTf,
         window_start: toIsoUtcZ(windowStartMs),
         window_end: toIsoUtcZ(windowEndMs),
-        params: wireParams.out,
+        params: {},
         note: 'GM 单策略工作台',
       });
       const rid = res.run_id;
       setCreateNotice(
         `已受理：run_id = ${rid} · status = ${res.status}（后台线程执行中；GET 只读不触发计算）。` +
-          `请求覆盖 ${wireParams.overridden.length} 项参数：${wireParams.overridden.length ? wireParams.overridden.join(', ') : '无（全部沿用冻结默认）'}。`,
+          `沿用已批准 FT-LOW4H 配置，无参数覆盖。`,
       );
       if (rid) {
         setSubmittedRunId(rid);
         setSelectedRunId(rid);
+        setBatchMode(false);
       }
       didPick.current = true;
       void list.reload();
@@ -1324,32 +1749,61 @@ export const BacktestWorkbench: React.FC = () => {
     qualityStatusOfRun === 'ok' &&
     quality.data?.data_quality != null;
 
-  const tradeRows: LabTradeRow[] = useMemo(() => trades.data?.items ?? [], [trades.data]);
-  const displayTrades: LabTradeRow[] = useMemo(() => {
-    if (viewAllTrades && allTradesData.length > 0) {
-      return allTradesData;
-    }
-    return tradeRows;
-  }, [viewAllTrades, allTradesData, tradeRows]);
+  /**
+   * 逐笔数据入口。
+   * 【2026-10-18】必须在这里剔除 `null` 元素：`/trades` 的 `items` 实测可能含空元素，
+   * 而下游有 5 处直接读 `t.entry_time_ms` / `t.trade_id`（选中、定位、时间轴、渲染），
+   * 任何一处抛错都会被**页面级**错误边界接住 ⇒ 整个回测页替换成报错卡（列表和 K 线一起消失）。
+   * 在入口过滤一次，比在 5 个下游各打一遍补丁可靠。
+   */
+  const tradeRows: LabTradeRow[] = useMemo(
+    () => (trades.data?.items ?? []).filter((t): t is LabTradeRow => t != null),
+    [trades.data],
+  );
+  /** 逐笔明细只显示**当前 run 自己账本里的成交**。
+   *  旧实现的「全市场成交」读的是 `public/all_trades.json`（旧批次静态快照，70 行），
+   *  与当前 run 不同源 ⇒ 已移除；跨 run 的批次视图改走 `BatchTradesTable`。 */
+  const displayTrades: LabTradeRow[] = tradeRows;
 
-  // 切换 run ⇒ 仅当旧选中交易不在新 run 且不在展示列表中时清空
+  // 切换 run ⇒ 旧选中交易若不属于新 run，清空（等新 run 的逐笔到位后再自动选中）
   useEffect(() => {
     if (!selectedTradeId) return;
     const currentTrade = displayTrades.find((t) => t.trade_id === selectedTradeId);
-    if (currentTrade && currentTrade.run_id && currentTrade.run_id !== selectedRunId && !viewAllTrades) {
+    if (currentTrade && currentTrade.run_id && currentTrade.run_id !== selectedRunId) {
       setSelectedTradeId(null);
     }
-  }, [selectedRunId, selectedTradeId, displayTrades, viewAllTrades]);
+  }, [selectedRunId, selectedTradeId, displayTrades]);
 
-  // 当有成交明细且当前未选中任何交易时，自动选中第一笔成交
+  /**
+   * 「这一行能不能拿去查单笔详情」——只认**本 run 账本逐笔里真实存在**的 `trade_id`。
+   *
+   * 为什么必须硬校验（2026-10-18 故障）：`public/all_trades.json` 的 70 行
+   * `trade_id` 全部写成了**订单号**（`ord_…`），而单笔详情接口只认 `trd_…`。
+   * 于是「点实验记录 → 自动选中第一笔 → 请求 /trades/ord_xxx」必然 404，
+   * 且会串到**另一个标的**的成交上（AEROUSDT 的 run 里显示了 METISUSDT 的订单号）。
+   * 这里不猜、不兼容：不在本 run 逐笔里就返回 null，交给「自动选中本 run 第一笔」。
+   */
+  const queryableTradeId = useCallback(
+    (row: LabTradeRow | undefined, runId: string | null): string | null => {
+      const id = row?.trade_id;
+      if (!id || !runId || row?.run_id !== runId) return null;
+      return tradeRows.some((r) => r.trade_id === id) ? id : null;
+    },
+    [tradeRows],
+  );
+
+  // 当有成交明细且当前未选中任何交易时，自动选中**本 run** 的第一笔真实成交
+  // （旧实现回退到 displayTrades[0] ⇒ 会选中别的标的的成交，再拿它的号去查本 run ⇒ 404）
   useEffect(() => {
     if (!selectedTradeId && displayTrades.length > 0) {
-      const targetTrade = displayTrades.find((t) => t.run_id === selectedRunId) ?? displayTrades[0];
-      if (targetTrade) {
+      const targetTrade = displayTrades.find(
+        (t) => t.run_id === selectedRunId && !!queryableTradeId(t, selectedRunId),
+      );
+      if (targetTrade?.trade_id) {
         setSelectedTradeId(targetTrade.trade_id);
       }
     }
-  }, [selectedRunId, displayTrades, selectedTradeId]);
+  }, [selectedRunId, displayTrades, selectedTradeId, queryableTradeId]);
 
   /**
    * 逐笔明细 → ③ 资金分析（水下回撤）联动载荷。
@@ -1357,7 +1811,9 @@ export const BacktestWorkbench: React.FC = () => {
    */
   const focusTrade = useMemo(() => {
     if (!selectedTradeId) return null;
-    const t = displayTrades.find((x) => x.trade_id === selectedTradeId);
+    const t = displayTrades.find(
+      (x) => x && x.trade_id === selectedTradeId && x.run_id === selectedRunId,
+    );
     if (!t) return null;
     if (!Number.isFinite(t.entry_time_ms) || !Number.isFinite(t.exit_time_ms)) return null;
     return { tradeId: t.trade_id, entryMs: t.entry_time_ms, exitMs: t.exit_time_ms };
@@ -1367,18 +1823,172 @@ export const BacktestWorkbench: React.FC = () => {
    * 逐笔明细行索引（真实 trade_id + 进出场毫秒）。
    * 图载荷 `chart.trades[].trade_id` 实测为 `null` ⇒ 执行视图靠它把 id 换回来，
    * 否则「选中高亮 / 图上点击定位」全失效。
+   *
+   * 【2026-10-18】`tradeRows` 里可能混进 `null` 元素（实测 `/trades` 返回
+   * `{items:[null]}` 时 `t.entry_time_ms` 直接抛 TypeError ⇒ 整个回测页被页面级
+   * 错误边界替换，列表与 K 线一起消失）。这里先剔除空元素再判时间戳。
    */
   const tradeIndex = useMemo(
     () =>
-      tradeRows
-        .filter((t) => Number.isFinite(t.entry_time_ms) && Number.isFinite(t.exit_time_ms))
+      (tradeRows ?? [])
+        .filter((t) => t != null && Number.isFinite(t.entry_time_ms) && Number.isFinite(t.exit_time_ms))
         .map((t) => ({ tradeId: t.trade_id, entryMs: t.entry_time_ms, exitMs: t.exit_time_ms })),
     [tradeRows],
   );
   const equityPoints: LabEquityPoint[] = useMemo(() => equity.data?.items ?? [], [equity.data]);
+  /** 研究期登记的 run：只按上游落盘成交重建，没有引擎写的净值序列 ⇒ 资金分析给「未记录」而不是「取数错误」。 */
+  const isResearchRun = detail.data?.research_period === true;
   const chartPayload: LabChart | null = chart.data?.chart ?? null;
+  const sharedGridTimes = useMemo(() => {
+    const set = new Set<number>();
+    if (chartPayload?.candles) {
+      for (const c of chartPayload.candles) {
+        const ms = Array.isArray(c) ? c[0] : c.t;
+        set.add(Math.floor(ms / 1000));
+      }
+    }
+    if (equityPoints && equityPoints.length > 0) {
+      for (const p of equityPoints) {
+        set.add(Math.floor(p.t / 1000));
+      }
+    }
+    if (set.size === 0) return undefined;
+    return Array.from(set).sort((a, b) => a - b);
+  }, [chartPayload?.candles, equityPoints]);
   const orderRows: LabOrderRow[] = useMemo(() => orders.data?.items ?? [], [orders.data]);
+  const fillRows: LabFillRow[] = useMemo(() => fills.data?.items ?? [], [fills.data]);
   const rejectedRows: LabRejectedRow[] = useMemo(() => rejected.data?.items ?? [], [rejected.data]);
+
+  /** 导出数据助手 */
+  const downloadFile = useCallback((filename: string, content: string, type: string) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const exportOrdersCsv = useCallback(() => {
+    if (!orderRows.length) return;
+    const strat = detail.data?.engine?.version ?? 'WX_EVENT_TREND_V0_1';
+    const header = [
+      'run_id', 'strategy_version', 'symbol', 'signal_id', 'order_id', 'trade_id',
+      'side', 'order_type', 'phase', 'status', 'action', 'price', 'qty', 'fee',
+      'stop_price', 'reason', 'ts_ms', 'time_utc'
+    ].join(',');
+    const rows = orderRows.map((o) => [
+      `"${o.run_id || selectedRunId || ''}"`,
+      `"${strat}"`,
+      `"${o.symbol || ''}"`,
+      `"${o.signal_id || ''}"`,
+      `"${o.order_id || ''}"`,
+      `"${o.trade_id || ''}"`,
+      `"${o.side || ''}"`,
+      `"${(o as any).order_type || 'MARKET'}"`,
+      `"${o.phase || ''}"`,
+      `"${(o as any).status || 'FILLED'}"`,
+      `"${o.action || ''}"`,
+      o.price ?? '',
+      o.qty ?? '',
+      o.fee ?? '',
+      o.stop_price ?? '',
+      `"${o.reason || ''}"`,
+      o.ts_ms ?? '',
+      `"${fmtUtc(o.ts_ms)}"`,
+    ].join(','));
+    downloadFile(`orders_${selectedRunId}.csv`, [header, ...rows].join('\n'), 'text/csv;charset=utf-8;');
+  }, [orderRows, selectedRunId, detail.data, downloadFile]);
+
+  const exportFillsCsv = useCallback(() => {
+    if (!fillRows.length) return;
+    const strat = detail.data?.engine?.version ?? 'WX_EVENT_TREND_V0_1';
+    const header = [
+      'run_id', 'strategy_version', 'symbol', 'fill_id', 'order_id', 'trade_id',
+      'action', 'fill_price', 'quantity', 'fee', 'liquidity', 'sequence',
+      'fill_time_ms', 'fill_time_utc'
+    ].join(',');
+    const rows = fillRows.map((f) => [
+      `"${f.run_id || selectedRunId || ''}"`,
+      `"${strat}"`,
+      `"${f.symbol || ''}"`,
+      `"${f.fill_id || ''}"`,
+      `"${f.order_id || ''}"`,
+      `"${f.trade_id || ''}"`,
+      `"${f.action || ''}"`,
+      f.fill_price ?? '',
+      f.quantity ?? '',
+      f.fee ?? '',
+      `"${f.liquidity || ''}"`,
+      f.sequence ?? '',
+      f.fill_time_ms ?? '',
+      `"${fmtUtc(f.fill_time_ms)}"`,
+    ].join(','));
+    downloadFile(`fills_${selectedRunId}.csv`, [header, ...rows].join('\n'), 'text/csv;charset=utf-8;');
+  }, [fillRows, selectedRunId, detail.data, downloadFile]);
+
+  const exportTradesCsv = useCallback(() => {
+    if (!displayTrades.length) return;
+    const header = [
+      'run_id', 'trade_id', 'symbol', 'direction', 'signal_id', 'entry_order_id',
+      'exit_order_id', 'entry_time_ms', 'entry_time_utc', 'entry_price', 'qty',
+      'exit_time_ms', 'exit_time_utc', 'exit_price', 'exit_reason', 'initial_stop',
+      'net_pnl', 'gross_pnl', 'fees', 'funding_fee', 'holding_hours', 'mae', 'mfe'
+    ].join(',');
+    const rows = displayTrades.map((t) => [
+      `"${selectedRunId || ''}"`,
+      `"${t.trade_id || ''}"`,
+      `"${t.symbol || ''}"`,
+      `"${t.direction || 'long'}"`,
+      `"${t.signal_id || ''}"`,
+      `"${(t as any).entry_order_id || ''}"`,
+      `"${(t as any).exit_order_id || ''}"`,
+      t.entry_time_ms ?? '',
+      `"${fmtUtc(t.entry_time_ms)}"`,
+      t.entry_price ?? '',
+      t.qty ?? '',
+      t.exit_time_ms ?? '',
+      `"${fmtUtc(t.exit_time_ms)}"`,
+      t.exit_price ?? '',
+      `"${t.exit_reason || ''}"`,
+      t.initial_stop ?? '',
+      t.net_pnl ?? '',
+      (t as any).gross_pnl ?? '',
+      t.fees ?? '',
+      (t as any).funding_fee ?? '',
+      t.holding_hours ?? '',
+      (t as any).mae ?? '',
+      (t as any).mfe ?? '',
+    ].join(','));
+    downloadFile(`trades_${selectedRunId}.csv`, [header, ...rows].join('\n'), 'text/csv;charset=utf-8;');
+  }, [displayTrades, selectedRunId, downloadFile]);
+
+  /**
+   * 同一候选跨模式对照（FT-REPLAY-01）。
+   *
+   * 为什么单独一块：一个候选在 C0 / C1 / C2 各参数组下可能是**三种不同结果** ——
+   * 成交 / 拒单 / 未成交。三者混成一个数字就等于把「没做」说成「做了亏」。
+   * 事件 ID 取当前选中那一笔的 `event_id`（研究期回测的候选 ID 就落在这里）。
+   */
+  const candidateMatrix = trades.data?.candidate_matrix ?? null;
+  const candidateMatrixNote = trades.data?.candidate_matrix_note ?? null;
+  const candidateRows = useMemo(() => {
+    if (!candidateMatrix) return null;
+    const evId =
+      displayTrades.find((t) => t != null && t.trade_id === selectedTradeId)?.event_id ?? null;
+    if (!evId) return null;
+    const rows = candidateMatrix[evId];
+    if (!rows || rows.length === 0) return null;
+    const cnt: Record<string, number> = { filled: 0, rejected: 0, not_filled: 0 };
+    for (const r of rows) {
+      const k = String(r.status ?? '');
+      cnt[k] = (cnt[k] ?? 0) + 1;
+    }
+    return { evId, rows, cnt };
+  }, [candidateMatrix, displayTrades, selectedTradeId]);
 
   /** 拒单原因聚合（按 `reason` 计数；仅统计真实返回的行，缺失不填 0）。 */
   const rejectedByReason = useMemo(() => {
@@ -1396,6 +2006,22 @@ export const BacktestWorkbench: React.FC = () => {
     if (fundingEvents.length === 0) return null;
     return fundingEvents.reduce((s, f) => s + (Number.isFinite(f.amount) ? f.amount : 0), 0);
   }, [fundingEvents]);
+
+  const exportAllJson = useCallback(() => {
+    const payload = {
+      run_id: selectedRunId,
+      exported_at_utc: new Date().toISOString(),
+      strategy_version: String((detail.data?.engine as any)?.version || 'WX_EVENT_TREND_V0_1'),
+      summary: (detail.data as any)?.summary ?? null,
+      metrics: metrics.data?.metrics ?? null,
+      trades: displayTrades,
+      orders: orderRows,
+      fills: fillRows,
+      rejected: rejectedRows,
+      funding: fundingEvents,
+    };
+    downloadFile(`backtest_${selectedRunId}_all.json`, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;');
+  }, [selectedRunId, detail.data, metrics.data, displayTrades, orderRows, fillRows, rejectedRows, fundingEvents, downloadFile]);
 
   /** 运行列表新旧归属（来自列表响应 `retirement`；缺失 ⇒ 不推断）。 */
   const retirement: LabRetirementInfo | null = list.data?.retirement ?? null;
@@ -1432,366 +2058,19 @@ export const BacktestWorkbench: React.FC = () => {
 
   const formVersions = registry?.signal_versions ?? null;
 
+  /* 「结果身份」面板显示的是**已生效参数**，不是表单里待运行的值。
+   * 新契约把它放在 `config.config.actual_config`（外层 config 装 spec/config 两段），
+   * 旧形状才在 `config.actual_config`。原先这里只读后者 ⇒ 后端明明返回
+   * `initial_equity=2000 / fee_rate=0.0005 / slippage_bps=3`，面板却三格全显示「—」，
+   * 看起来像"缺字段"，实际是路径少了一层。这里与 RunHeader / RunInfoCard
+   * 用同一条兜底链，避免三处口径分叉。
+   * 取不到就保持 null ⇒ 由 fmtUsd / fmtNum 渲染成「—」，不补默认值。 */
+  const cfgWrap = (detail.data?.config ?? null) as Record<string, unknown> | null;
+  const cfgInner = (cfgWrap?.['config'] ?? null) as Record<string, unknown> | null;
+  const actualCfg = (cfgInner?.['actual_config'] ?? cfgWrap?.['actual_config'] ?? null) as Record<string, unknown> | null;
+
   return (
     <div className="ds-page" data-testid="lab-workbench">
-      {/*
-        当前结果工具条（《设计规范》第 16 节）。
-        选中的 run 会决定下面 ③④⑤ 全部内容，但配置区在页首、结果区在页中，
-        不常驻就会「滚到中间忘了在看哪一次运行」。sticky 在页头之下，随时可见。
-      */}
-      {/*
-        当前结果工具条（《设计规范》第 16 节）。
-        选中的 run 会决定下面 ③④⑤ 全部内容，但配置区在页首、结果区在页中，
-        不常驻就会「滚到中间忘了在看哪一次运行」。sticky 在页头之下，随时可见。
-
-        2026-10-16 精简：原「收益指标」独立横条**并入本条** —— 两者都在讲同一个 run 的
-        净收益 / 回撤 / 笔数，属于重复；现为「4 个主指标常显 + 4 个次要指标一键展开」。
-      */}
-      <div className="ds-toolbar ds-toolbar--dense" data-testid="lab-run-context">
-        <span className="ds-toolbar__label">当前结果</span>
-        {!selectedRunId ? (
-          <span className="text-[11px] text-neutral-500">
-            未选择运行 · 在下方「实验记录」点一行，或点上方「运行回测」。
-          </span>
-        ) : (
-          <>
-            <span className="ds-badge ds-badge--accent" title={selectedRunId}>
-              {selectedRunId}
-            </span>
-            <span className={`ds-badge ${statusTone(detailStatus)}`}>{detailStatus ?? '—'}</span>
-            <span className={`ds-badge ${qualityOkOfRun ? 'ds-badge--pos' : 'ds-badge--neg'}`}>
-              质量：{qualityOkOfRun ? '通过' : (qualityStatusOfRun ?? (quality.loading ? '读取中' : '未通过'))}
-            </span>
-            <span className="ds-toolbar__divider" />
-            {detailStatus !== 'succeeded' ? (
-              <>
-                <span className="ds-badge ds-badge--warn">结果未就绪</span>
-                {detail.data?.failure_reason && (
-                  <span className="text-[11px] text-rose-600">失败原因：{detail.data.failure_reason}</span>
-                )}
-                {(detailStatus === 'queued' || detailStatus === 'running') && (
-                  <span className="text-[11px] text-neutral-400">正在轮询…</span>
-                )}
-              </>
-            ) : metrics.error ? (
-              <span className="ds-badge ds-badge--neg">指标取数失败（不得视为成绩）：{metrics.error}</span>
-            ) : metrics.loading && !metrics.data ? (
-              <span className="text-[11px] text-neutral-500">正在读取该 run 的真实指标…</span>
-            ) : (
-              <>
-                {metricCards
-                  .filter((c) => c.primary)
-                  .map((c) => (
-                    <span key={c.title} className="ds-mi" title={c.sub}>
-                      <span className="ds-mi__k">{c.title}</span>
-                      <span className={c.tone === 'plain' ? 'ds-mi__v' : `ds-mi__v ds-mi__v--${c.tone}`}>
-                        {c.value}
-                      </span>
-                    </span>
-                  ))}
-                <button
-                  type="button"
-                  className="ds-btn ds-btn--ghost ds-btn--sm"
-                  aria-pressed={showMoreMetrics}
-                  onClick={() => setShowMoreMetrics((v) => !v)}
-                  data-testid="lab-metrics-more"
-                  title="平均盈亏比 / Profit Factor / 手续费 / 资金费"
-                >
-                  {showMoreMetrics ? '▾' : '▸'} 更多指标
-                </button>
-                {showMoreMetrics &&
-                  metricCards
-                    .filter((c) => !c.primary)
-                    .map((c) => (
-                      <span key={c.title} className="ds-mi" title={c.sub}>
-                        <span className="ds-mi__k">{c.title}</span>
-                        <span className={c.tone === 'plain' ? 'ds-mi__v' : `ds-mi__v ds-mi__v--${c.tone}`}>
-                          {c.value}
-                        </span>
-                      </span>
-                    ))}
-                {metrics.loading && <span className="text-[10px] text-neutral-400">刷新中…</span>}
-              </>
-            )}
-          </>
-        )}
-
-        <span className="ds-toolbar__divider" />
-
-        {/* 更多视图：原先单占一条满宽横条，与「当前结果」同属"本页看什么"的控件 ⇒ 并入本条。
-            放在指标条件分支**之外**，保证任何状态下这排按钮都在。 */}
-        <span className="ds-toolbar__label">更多视图</span>
-        {(
-          [
-            ['identity', '结果身份'],
-            ['orders', `订单明细${orderRows.length ? ` (${orderRows.length})` : ''}`],
-            ['rejected', `拒单明细${rejectedRows.length ? ` (${rejectedRows.length})` : ''}`],
-            ['funding', `资金费结算${fundingEvents.length ? ` (${fundingEvents.length})` : ''}`],
-            ['audit', '口径与审计'],
-          ] as [string, string][]
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            className="ds-btn ds-btn--ghost ds-btn--sm"
-            aria-pressed={openPanel === key}
-            onClick={() => togglePanel(key)}
-            data-testid={`lab-panel-${key}`}
-          >
-            {openPanel === key ? '▾ ' : '▸ '}
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* ══ ① 运行配置（**单行**：选标的 + 定窗口 + 点运行；其余进「高级设置」）══ */}
-      <div className="ds-card" data-testid="lab-config" data-lab-section="lab-config">
-        <div className="ds-bar">
-          <span className="ds-bar__label">运行配置</span>
-          <label
-            className="block w-32"
-            title="单标的；建议取自工作台活动池，也可手工输入（后台按真实数据独立校验）"
-          >
-            <span className="text-[10px] text-neutral-500 flex items-center gap-1 whitespace-nowrap">
-              交易对
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  pool.loading ? 'bg-neutral-400' : symbolInPool ? 'bg-emerald-500' : 'bg-amber-500'
-                }`}
-                title={
-                  pool.loading
-                    ? '活动池读取中'
-                    : poolSymbols.length === 0
-                      ? '池未取到'
-                      : symbolInPool
-                        ? '在活动池内'
-                        : '不在活动池内（后台仍会独立校验）'
-                }
-              />
-            </span>
-            <input
-              list="lab-symbol-options"
-              value={form.symbol}
-              onChange={(e) => setForm((f) => ({ ...f, symbol: e.target.value.toUpperCase() }))}
-              className="ds-input"
-              data-testid="lab-symbol-input"
-            />
-            <datalist id="lab-symbol-options">
-              {poolSymbols.map((i) => (
-                <option key={`${i.exchange}:${i.market_id}`} value={i.symbol} />
-              ))}
-            </datalist>
-          </label>
-
-          {showAdvanced && (
-            <>
-              <OptionRow
-                label="交易所"
-                value={form.exchange}
-                options={LAB_EXCHANGE_OPTIONS}
-                onChange={(v) => setForm((f) => ({ ...f, exchange: v }))}
-              />
-              <OptionRow
-                label="市场"
-                value={form.market}
-                options={LAB_MARKET_OPTIONS}
-                onChange={(v) => setForm((f) => ({ ...f, market: v }))}
-              />
-              <OptionRow
-                label="信号周期"
-                value={form.signalTf}
-                options={LAB_SIGNAL_TF_OPTIONS}
-                onChange={(v) => setForm((f) => ({ ...f, signalTf: v }))}
-              />
-              <OptionRow
-                label="执行周期"
-                value={form.execTf}
-                options={LAB_EXEC_TF_OPTIONS}
-                onChange={(v) => setForm((f) => ({ ...f, execTf: v }))}
-              />
-            </>
-          )}
-
-          <span className="ds-bar__sep" />
-
-          <label className="block w-40" title="半开区间左端（含）；须对齐 15m 网格（分钟 00/15/30/45）">
-            <span className="text-[10px] text-neutral-500">窗口起点 UTC</span>
-            <input
-              value={form.windowStart}
-              onChange={(e) => setForm((f) => ({ ...f, windowStart: e.target.value }))}
-              placeholder="2026-10-09T00:00"
-              className="ds-input"
-              data-testid="lab-window-start"
-            />
-          </label>
-          <span className="text-neutral-400 text-[11px] pb-2">→</span>
-          <label className="block w-40" title="半开区间右端（不含）；须对齐 15m 网格；跨度至少 1 天">
-            <span className="text-[10px] text-neutral-500">窗口终点 UTC</span>
-            <input
-              value={form.windowEnd}
-              onChange={(e) => setForm((f) => ({ ...f, windowEnd: e.target.value }))}
-              placeholder="2026-10-16T00:00"
-              className="ds-input"
-              data-testid="lab-window-end"
-            />
-          </label>
-
-          {showAdvanced && (
-            <label className="block w-24" title="信号 bar 根数；留空 = 后台自动。预热段只喂数据不交易">
-              <span className="text-[10px] text-neutral-500">预热根数</span>
-              <input
-                value={form.warmup}
-                onChange={(e) => setForm((f) => ({ ...f, warmup: e.target.value }))}
-                placeholder="自动"
-                className="ds-input"
-              />
-            </label>
-          )}
-
-          <button
-            type="button"
-            onClick={() => void onSubmit()}
-            disabled={runLocked || blockingErrors.length > 0}
-            className="ds-btn ds-btn--primary"
-            data-testid="lab-run-button"
-          >
-            <Play className="w-3.5 h-3.5" />
-            {creating ? '提交中…' : submittedPending ? `运行中（${submittedStatus}）…` : '运行回测'}
-          </button>
-
-          <span className="ds-pagehead__spacer" />
-
-          <button
-            type="button"
-            className="ds-btn ds-btn--ghost ds-btn--sm"
-            aria-pressed={showAdvanced}
-            onClick={() => setShowAdvanced((v) => !v)}
-            data-testid="lab-advanced-toggle"
-            title={
-              formVersions
-                ? `信号 ${formVersions.signal ?? '—'} · 核心 ${formVersions.core ?? '—'} · 执行 ${formVersions.exec_core ?? '—'}`
-                : undefined
-            }
-          >
-            {showAdvanced ? '收起高级设置' : '高级设置'}
-          </button>
-          <button
-            type="button"
-            onClick={() => void list.reload()}
-            className="ds-btn ds-btn--secondary ds-btn--sm"
-          >
-            <RefreshCw className={`w-3 h-3 ${list.loading ? 'animate-spin' : ''}`} /> 刷新
-          </button>
-        </div>
-
-        {submittedRunId && (
-          <div
-            className={`ds-note ${submittedPending ? 'ds-note--info' : ''}`}
-            style={{ margin: '0 12px 8px' }}
-            data-testid="lab-run-progress"
-          >
-            本页提交：<span className="font-mono">{submittedRunId}</span> · 状态 <b>{submittedStatus ?? '—'}</b>
-            {submittedPending ? '（轮询中；进入终态前按钮保持禁用）' : '（已进入终态，可再次运行）'}
-          </div>
-        )}
-
-        {/* ── 高级设置区（成本 / 风险与策略参数）── */}
-        {showAdvanced && (
-          <div className="ds-card__body" style={{ paddingTop: 0 }}>
-        {/* ── 成本（高级设置内；单位与等价换算已标注）── */}
-        <div className="pt-2.5 border-t border-neutral-100 flex flex-wrap items-end gap-x-3 gap-y-2">
-            <span className="text-[10px] font-bold text-neutral-300 pb-1 shrink-0" title="参数留空 = 沿用后台冻结默认值">
-              成本
-            </span>
-            {LAB_PARAM_SPECS.filter((s) => s.group === 'exec_cost').map((spec) => (
-              <div key={spec.key} className="w-48">
-                <ParamField spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
-              </div>
-            ))}
-          </div>
-
-        {/* ── 风险与策略参数（高级设置内；标题行保留风险边界摘要）── */}
-        <div className="mt-2.5 pt-2.5 border-t border-neutral-100">
-          <button
-            type="button"
-            onClick={() => setShowSignalParams((s) => !s)}
-            className="ds-btn ds-btn--ghost"
-            style={{ width: '100%', justifyContent: 'flex-start', height: 'auto', padding: '4px 6px' }}
-            data-testid="lab-params-toggle"
-          >
-            {showSignalParams ? '▾' : '▸'} 风险与策略参数（白名单校验）
-            <span className="ml-2 font-normal text-neutral-500">
-              单笔风险 {form.params['risk_per_trade'] || '—'}% · 组合上限 {form.params['max_portfolio_risk'] || '—'}% ·
-              杠杆上限 {form.params['max_leverage_per_symbol'] || '—'}× · 本次覆盖 {wireParams.overridden.length} 项
-            </span>
-          </button>
-          {showSignalParams && (
-            <div className="mt-2 space-y-3">
-              <div>
-                <div className="text-[11px] text-neutral-400 mb-1.5">风险 / 仓位（exec）</div>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                  {LAB_PARAM_SPECS.filter((s) => s.group === 'exec_risk').map((spec) => (
-                    <ParamField key={spec.key} spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
-                  ))}
-                </div>
-              </div>
-              {(['sig_structure', 'sig_oi'] as const).map((g) => (
-                <div key={g}>
-                  <div className="text-[11px] text-neutral-400 mb-1.5">
-                    {g === 'sig_structure' ? '结构参数（唐奇安 / ATR / 回踩 / SC）' : 'OI 因子参数'}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                    {LAB_PARAM_SPECS.filter((s) => s.group === g).map((spec) => (
-                      <ParamField key={spec.key} spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-          </div>
-        )}
-
-        {/* 三条提示一律**单行**：整块列表会白占 ~50px/条，把单屏布局顶出屏幕。
-            全文（逐条原因）进 title，信息不删。 */}
-        {blockingErrors.length > 0 && (
-          <div
-            className="ds-note ds-note--neg"
-            style={{ margin: '6px 12px 8px', alignItems: 'center', columnGap: 8, rowGap: 2 }}
-            data-testid="lab-form-errors"
-            title={blockingErrors.map((e, i) => `${i + 1}. ${e}`).join('\n')}
-          >
-            <span className="font-bold whitespace-nowrap">提交前校验未通过</span>
-            <span className="ds-truncate">{blockingErrors.join(' · ')}</span>
-          </div>
-        )}
-
-        {createErrors.length > 0 && (
-          <div
-            className="ds-note ds-note--neg"
-            style={{ margin: '6px 12px 8px', alignItems: 'center', columnGap: 8, rowGap: 2 }}
-            data-testid="lab-create-errors"
-            title={createErrors.map((e, i) => `${i + 1}. ${e}`).join('\n')}
-          >
-            <span className="font-bold whitespace-nowrap">后台拒绝创建</span>
-            <span className="ds-truncate">{createErrors.join(' · ')}</span>
-          </div>
-        )}
-
-        {createNotice && (
-          <div className="ds-note ds-note--info" style={{ margin: '6px 12px 8px' }} data-testid="lab-create-notice">
-            {createNotice}
-          </div>
-        )}
-      </div>
-
-      {/* ══ ② 收益指标 已并入顶部「当前结果」工具条（见页首注释）——
-             原先单占一条满宽横条，且与工具条重复显示净收益 / 回撤 / 笔数。 ══ */}
-
-      {/* ══ 更多视图（按需展开，单选）已并入 ① 运行配置条 ——
-             两者都是「控件」，同一条更省一行，也不影响按需面板的字段完整性。 ══ */}
-
       {/* ══ 结果身份：所选 run 的实际时间 / 配置 / 版本（不是表单未运行的值）══ */}
       {openPanel === 'identity' && selectedRunId && detail.data && (
         <SectionCard title="结果身份" testid="lab-run-identity">
@@ -1799,7 +2078,7 @@ export const BacktestWorkbench: React.FC = () => {
           <div className="ds-kvgrid ds-kvgrid--4">
             <KV k="run_id" v={selectedRunId} />
             <KV k="窗口（UTC）" v={`${fmtUtc(detail.data.window?.win_start_ms)} → ${fmtUtc(detail.data.window?.win_end_ms)}`} />
-            <KV k="初始资金（生效）" v={fmtUsd((detail.data.config?.actual_config?.['initial_equity'] as number) ?? null, 2)} />
+            <KV k="初始资金（生效）" v={fmtUsd((actualCfg?.['initial_equity'] as number) ?? null, 2)} />
             <KV
               k="engine"
               v={`${(detail.data.engine?.['signal_version'] as string) ?? '—'} / ${(detail.data.engine?.['core_version'] as string) ?? '—'} / ${(detail.data.engine?.['exec_core_version'] as string) ?? '—'}`}
@@ -1825,8 +2104,8 @@ export const BacktestWorkbench: React.FC = () => {
                   k="窗口天数 / 预热"
                   v={`${fmtNum(detail.data.window?.window_days, 2)} 天 / ${detail.data.window?.warmup_bars ?? '—'} 根`}
                 />
-                <KV k="手续费率（生效）" v={String((detail.data.config?.actual_config?.['fee_rate'] as number) ?? '—')} />
-                <KV k="滑点 bps（生效）" v={String((detail.data.config?.actual_config?.['slippage_bps'] as number) ?? '—')} />
+                <KV k="手续费率（生效）" v={String((actualCfg?.['fee_rate'] as number) ?? '—')} />
+                <KV k="滑点 bps（生效）" v={String((actualCfg?.['slippage_bps'] as number) ?? '—')} />
               </div>
             </div>
           </details>
@@ -1868,344 +2147,1069 @@ export const BacktestWorkbench: React.FC = () => {
         </SectionCard>
       )}
 
-      {/* ══ ④ 执行视图 + ③ 资金分析（**左右并排 · 置于页面上部**）══ */}
-      {selectedRunId && detailStatus === 'succeeded' && (
-        <div className="ds-dash">
-          <div className="ds-col-7" data-lab-section="lab-chart">
-            <LabChartPanel
-              chart={chartPayload}
-              loading={chart.loading}
-              error={chart.error}
-              missingReason={chart.data?.missing_reason ?? null}
-              selectedTradeId={selectedTradeId}
-              onSelectTrade={setSelectedTradeId}
-              orders={orderRows}
-              tradeIndex={tradeIndex}
-            />
-          </div>
-          <div className="ds-col-5" data-lab-section="lab-funding">
-            <LabFundingPanel
-              points={equityPoints}
-              benchmarkSeries={equity.data?.benchmark_equity ?? null}
-              benchmarkMeta={equity.data?.benchmark ?? metrics.data?.benchmark_buy_hold ?? null}
+      {/* ══ ③a 指标条（8 格）：净收益 / 回撤 / 夏普 / 收益因子 / 成交笔数 / 胜率 / 盈亏比 / 总费用 ══
+          设计稿 gm-layout.html 把这八张卡放在页面最上方。这里只在**选中 run** 时出现；
+          每个数字都带口径副标，缺数据一律 `—`（夏普后端未算、总费用要求两项齐全）。 */}
+      {selectedRunId && (
+        <div data-lab-section="lab-metrics" style={{ marginBottom: 12 }}>
+          <ErrorBoundary label="指标条" key={`bt-metrics-${selectedRunId}`}>
+            <MetricStrip
               metrics={m}
-              monthly={metrics.data?.monthly_returns ?? null}
-              loading={equity.loading}
-              error={equity.error}
-              monthCloseCounts={monthCloseCounts}
               windowStartMs={detail.data?.window?.win_start_ms ?? null}
               windowEndMs={detail.data?.window?.win_end_ms ?? null}
-              focusTrade={focusTrade}
+              loading={metrics.loading}
             />
-          </div>
+          </ErrorBoundary>
         </div>
       )}
 
-      {/* ══ ⑤ 逐笔明细 + ⑥ 实验记录（**左右并排**）══ */}
-      <div className="ds-dash">
-        {selectedRunId && detailStatus === 'succeeded' && (
-          <div className="ds-col-5">
-
-          {/* ⑤ 逐笔明细（点击行 ⇒ 图表定位 + 下方单笔详情） */}
-          <SectionCard
-            title="⑤ 逐笔明细"
-            testid="lab-trades"
-            section="lab-trades"
-            right={
-              <div className="flex items-center gap-2 text-[10px] font-mono">
-                {allTradesData.length > 0 && (
-                  <div className="flex items-center gap-1 mr-1">
-                    <button
-                      type="button"
-                      className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${viewAllTrades ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
-                      onClick={() => setViewAllTrades(true)}
-                    >
-                      全市场成交 ({allTradesData.length}笔)
-                    </button>
-                    <button
-                      type="button"
-                      className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${!viewAllTrades ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
-                      onClick={() => setViewAllTrades(false)}
-                    >
-                      当前标的 ({tradeRows.length}笔)
-                    </button>
-                  </div>
-                )}
-                <Chip>共 {displayTrades.length} 笔</Chip>
-                <ColToggle on={!!allCols.trades} onToggle={() => toggleCols('trades')} total={13} />
-                {trades.error && <span className="text-rose-600">逐笔取数错误：{trades.error}</span>}
-              </div>
-            }
-          >
-          <div className="ds-tablewrap" style={{ maxHeight: '17.25rem' }} title="点击任意行 ⇒ 执行视图定位该笔 + ③ 资金分析切到「水下回撤」并定位该笔区间">
-            <table className={`ds-table ds-table--clickable${allCols.trades ? ' ds-table--all' : ''}`}>
-              <thead>
-                <tr>
-                  <th className="py-1.5 px-2">进场时间</th>
-                  <th className="py-1.5 px-2" data-secondary>出场时间</th>
-                  <th className="py-1.5 px-2">标的</th>
-                  <th className="py-1.5 px-2">方向</th>
-                  <th className="py-1.5 px-2 text-right">开仓价</th>
-                  <th className="py-1.5 px-2 text-right">出场价</th>
-                  <th className="py-1.5 px-2 text-right" data-secondary>数量</th>
-                  <th className="py-1.5 px-2 text-right" data-secondary>毛盈亏</th>
-                  <th className="py-1.5 px-2 text-right" data-secondary>双边手续费</th>
-                  <th className="py-1.5 px-2 text-right" data-secondary>资金费</th>
-                  <th className="py-1.5 px-2 text-right">净盈亏</th>
-                  <th className="py-1.5 px-2 whitespace-nowrap">退出原因</th>
-                  <th className="py-1.5 px-2" data-secondary>trade_id</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayTrades.length === 0 ? (
-                  <tr>
-                    <td colSpan={allCols.trades ? 13 : 7} className="ds-table__empty" data-testid="lab-trades-empty">
-                      {trades.loading ? '读取中…' : tradesEmptyHint}
-                    </td>
-                  </tr>
-                ) : (
-                  displayTrades.map((t) => {
-                    const sel = t.trade_id === selectedTradeId;
-                    const dirStr = String(t.direction ?? '');
-                    const isLong = dirStr === 'long' || dirStr === '1' || dirStr === 'buy';
-                    return (
-                      <tr
-                        key={t.trade_id}
-                        data-trade-id={t.trade_id}
-                        onClick={() => {
-                          if (t.run_id && t.run_id !== selectedRunId) {
-                            didPick.current = true;
-                            setSelectedRunId(t.run_id);
-                          }
-                          setSelectedTradeId(t.trade_id);
-                        }}
-                        aria-selected={sel}
-                      >
-                        <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">{fmtUtc(t.entry_time_ms)}</td>
-                        <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtUtc(t.exit_time_ms)}</td>
-                        <td className="py-1.5 px-2 font-bold text-neutral-100">{t.symbol}</td>
-                        <td className="py-1.5 px-2">
-                          <span className={`ds-badge ${isLong ? 'ds-badge--pos' : 'ds-badge--neg'}`}>
-                            {isLong ? '做多' : '做空'}
-                          </span>
-                        </td>
-                        <td className="py-1.5 px-2 text-right text-neutral-300">{fmtNum(t.entry_price, 4)}</td>
-                        <td className="py-1.5 px-2 text-right text-neutral-100 font-semibold">{fmtNum(t.exit_price, 4)}</td>
-                        <td className="py-1.5 px-2 text-right" data-secondary>{fmtNum(t.qty, 6)}</td>
-                        <td className="py-1.5 px-2 text-right" data-secondary>{fmtSignedUsd(t.gross_pnl, 2)}</td>
-                        <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.fees, 2)}</td>
-                        <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.funding_fee, 2)}</td>
-                        <td className={`py-1.5 px-2 text-right font-bold ${t.net_pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {fmtSignedUsd(t.net_pnl, 2)}
-                        </td>
-                        <td className="py-1.5 px-2 text-neutral-400 whitespace-nowrap" title={t.exit_reason ?? undefined}>
-                          {exitReasonLabel(t.exit_reason)}
-                        </td>
-                        <td className="py-1.5 px-2 text-neutral-400" data-secondary>{t.trade_id}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <details className="ds-details" style={{ marginTop: 8 }} open={false} data-testid="lab-trade-detail-fold">
-            <summary>单笔详情（选中某一笔后展开）</summary>
-            <div className="ds-details__body">
-              <LabTradeDetailPanel
-                detail={tradeDetail.data}
-                loading={tradeDetail.loading}
-                error={tradeDetail.error}
-              />
-            </div>
-          </details>
-          </SectionCard>
+      {/* ══ ③b 样本不足提示（设计稿 `.warn`）══════════════════════════════════
+          设计稿在指标条下面放了一条浅黄横幅提醒「样本太少，结论不可靠」。
+          这里同样只在**真的不够**时出现：成交笔数 < 30 且 > 0。
+          数字全部来自当前 run（窗口天数取 window_days、笔数取 trades_count），
+          缺任一项就不显示 —— 不猜、不写「约正负 N」这种算不出来的区间。 */}
+      {selectedRunId &&
+        typeof m?.trades_count === 'number' &&
+        m.trades_count > 0 &&
+        m.trades_count < 30 && (
+          <div className="ds-warnbar" data-testid="bt-small-sample-warn">
+            <b>样本太少，结论不可靠。</b>
+            <span>
+              {windowDaysOf(detail.data?.window) !== null
+                ? `窗口 ${windowDaysOf(detail.data?.window)} 天、`
+                : ''}
+              {m.trades_count} 笔交易；不足 30 笔时，胜率与夏普都不能当作结论。
+            </span>
           </div>
         )}
 
-        <div className={selectedRunId && detailStatus === 'succeeded' ? 'ds-col-7' : undefined}>
-      {/* ══ ⑥ 实验记录（永久保存 · 可选择历史 run）══ */}
-      <SectionCard
-        title="⑥ 实验记录"
-        testid="lab-runs"
-        section="lab-runs"
-        right={
-          <div className="flex items-center gap-2 text-[10px] font-mono">
+      {/* ══ ④ 回测复盘三栏（设计稿 `.bt3`：230 ｜ 自适应 ｜ 260）══════════════
+          左＝历史回测配置 + 回测范围（批次 / 运行 / 新建）；
+          中＝执行视图 + 资金分析；右＝成本与结果 / 数据与回放限制 / 复盘与样本外检查。
+          三栏**常驻**：设计稿把「配置」放左栏、页首只留页头 ——
+          不在页首再堆批次条与工具条（那些都在 10-18 被移走了）。 */}
+      <div className="ds-bt-3col" data-lab-section="lab-3col">
+        <div className="ds-bt-3col__left">
+          <RunInfoCard run={null} detail={detail.data} metrics={m} chart={chartPayload} />
+          {/* 回测范围（设计稿左栏第二张卡）：批次 / 取数口径 / 新建回测。
+              批次汇总压成一行灰字 —— 设计稿的简洁靠「不加卡」，不靠删信息。 */}
+          <section className="ds-card" data-testid="bt-scope-card">
+            <div className="ds-card__head">
+              <span className="ds-card__title">回测范围</span>
+            </div>
+            <div className="ds-card__body" style={{ paddingTop: 2 }}>
+              <select
+                className="ds-select"
+                style={{ width: '100%' }}
+                value={batchId ?? ''}
+                onChange={(e) => setBatchId(e.target.value)}
+                data-testid="bt-batch-select"
+                disabled={batchesLoading && batches.length === 0}
+                title="批次 = 一次批量运行的真实目录"
+              >
+                {batches.length === 0 ? (
+                  <option value="">{batchesLoading ? '读取批次…' : '无批次目录'}</option>
+                ) : (
+                  batches.map((b) => (
+                    <option key={b.batch_id} value={b.batch_id}>
+                      {b.batch_id} · {b.runs_total} run
+                    </option>
+                  ))
+                )}
+              </select>
+
+              <div className="ds-fldnote" data-testid="bt-batch-summary">
+                {fmtInt(batchSummary?.batch?.runs_total)} 个 run ·
+                有成交 {fmtInt(batchSummary?.batch?.runs_with_trades)} ·
+                合计 {fmtInt(batchSummary?.batch?.trades_total)} 笔
+                {batchSummary?.batch?.net_pnl_sum != null && (
+                  <>
+                    {' · 净盈亏 '}
+                    <span
+                      style={{
+                        color:
+                          batchSummary.batch.net_pnl_sum >= 0 ? 'var(--ds-pos)' : 'var(--ds-neg)',
+                      }}
+                    >
+                      {batchSummary.batch.net_pnl_sum >= 0 ? '+' : '-'}$
+                      {fmtNum(Math.abs(batchSummary.batch.net_pnl_sum), 2)}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div className="ds-seg" role="tablist" aria-label="取数口径" style={{ marginTop: 8 }}>
+                {([[true, '按批次'], [false, '按单 run']] as [boolean, string][]).map(([v, label]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    role="tab"
+                    aria-selected={batchMode === v}
+                    className="ds-seg__item"
+                    onClick={() => setBatchMode(v)}
+                    data-testid={`bt-batch-mode-${v ? 'batch' : 'run'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {(batchesError || batchSummaryError) && (
+                <div className="ds-fldnote" style={{ color: 'var(--ds-neg)' }}>
+                  {batchesError ? `批次列表失败：${batchesError}` : ''}
+                  {batchSummaryError ? ` 汇总失败：${batchSummaryError}` : ''}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                <button
+                  type="button"
+                  className="ds-btn ds-btn--primary"
+                  style={{ flex: 1 }}
+                  aria-expanded={showRunForm}
+                  onClick={() => setShowRunForm((v) => !v)}
+                  data-testid="lab-run-form-toggle"
+                >
+                  {showRunForm ? '收起配置' : '运行回测'}
+                </button>
+                <button
+                  type="button"
+                  className="ds-btn ds-btn--secondary"
+                  onClick={() => { setBatchNonce((n) => n + 1); void list.reload(); }}
+                  title="重新读取批次与运行列表"
+                >
+                  <RefreshCw className={`w-3 h-3 ${list.loading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* ══ 运行配置：设计稿里配置是「读」的，本应用要「填」——
+              所以缺省收起，点「运行回测」才展开。 */}
+          {showRunForm && (
+        <div className="ds-card" data-testid="lab-config" data-lab-section="lab-config">
+          <div className="ds-bar">
+            <span className="ds-bar__label">运行配置</span>
+            <label
+              className="block w-32"
+              title="单标的；建议取自工作台活动池，也可手工输入（后台按真实数据独立校验）"
+            >
+              <span className="text-[10px] text-neutral-500 flex items-center gap-1 whitespace-nowrap">
+                交易对
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    pool.loading ? 'bg-neutral-400' : symbolInPool ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}
+                  title={
+                    pool.loading
+                      ? '活动池读取中'
+                      : poolSymbols.length === 0
+                        ? '池未取到'
+                        : symbolInPool
+                          ? '在活动池内'
+                          : '不在活动池内（后台仍会独立校验）'
+                  }
+                />
+              </span>
+              <input
+                list="lab-symbol-options"
+                value={form.symbol}
+                onChange={(e) => setForm((f) => ({ ...f, symbol: e.target.value.toUpperCase() }))}
+                className="ds-input"
+                data-testid="lab-symbol-input"
+              />
+              <datalist id="lab-symbol-options">
+                {poolSymbols.map((i) => (
+                  <option key={`${i.exchange}:${i.market_id}`} value={i.symbol} />
+                ))}
+              </datalist>
+            </label>
+
+            <div className="p-3 text-xs">FT-LOW4H 冻结基线：5000 USDT；初始止损 5%；入场立即跟踪上一根已收盘 4h 最低价下方 5%，只升不降；无 2R 门槛，无 240h 强退；OI 门槛关闭。</div>
+          {false && showAdvanced && (
+              <>
+                <OptionRow
+                  label="交易所"
+                  value={form.exchange}
+                  options={LAB_EXCHANGE_OPTIONS}
+                  onChange={(v) => setForm((f) => ({ ...f, exchange: v }))}
+                />
+                <OptionRow
+                  label="市场"
+                  value={form.market}
+                  options={LAB_MARKET_OPTIONS}
+                  onChange={(v) => setForm((f) => ({ ...f, market: v }))}
+                />
+                <OptionRow
+                  label="信号周期"
+                  value={form.signalTf}
+                  options={LAB_SIGNAL_TF_OPTIONS}
+                  onChange={(v) => setForm((f) => ({ ...f, signalTf: v }))}
+                />
+                <OptionRow
+                  label="执行周期"
+                  value={form.execTf}
+                  options={LAB_EXEC_TF_OPTIONS}
+                  onChange={(v) => setForm((f) => ({ ...f, execTf: v }))}
+                />
+              </>
+            )}
+
+            <span className="ds-bar__sep" />
+
+            <label className="block w-40" title="半开区间左端（含）；须对齐 15m 网格（分钟 00/15/30/45）">
+              <span className="text-[10px] text-neutral-500">窗口起点 UTC</span>
+              <input
+                value={form.windowStart}
+                onChange={(e) => setForm((f) => ({ ...f, windowStart: e.target.value }))}
+                placeholder="2026-10-09T00:00"
+                className="ds-input"
+                data-testid="lab-window-start"
+              />
+            </label>
+            <span className="text-neutral-400 text-[11px] pb-2">→</span>
+            <label className="block w-40" title="半开区间右端（不含）；须对齐 15m 网格；跨度至少 1 天">
+              <span className="text-[10px] text-neutral-500">窗口终点 UTC</span>
+              <input
+                value={form.windowEnd}
+                onChange={(e) => setForm((f) => ({ ...f, windowEnd: e.target.value }))}
+                placeholder="2026-10-16T00:00"
+                className="ds-input"
+                data-testid="lab-window-end"
+              />
+            </label>
+
+            {showAdvanced && (
+              <label className="block w-24" title="信号 bar 根数；留空 = 后台自动。预热段只喂数据不交易">
+                <span className="text-[10px] text-neutral-500">预热根数</span>
+                <input
+                  value={form.warmup}
+                  onChange={(e) => setForm((f) => ({ ...f, warmup: e.target.value }))}
+                  placeholder="自动"
+                  className="ds-input"
+                />
+              </label>
+            )}
+
             <button
               type="button"
-              className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${runsFilter === 'trades_only' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
-              onClick={() => setRunsFilter((f) => (f === 'trades_only' ? 'all' : 'trades_only'))}
+              onClick={() => void onSubmit()}
+              disabled={runLocked || blockingErrors.length > 0}
+              className="ds-btn ds-btn--primary"
+              data-testid="lab-run-button"
             >
-              {runsFilter === 'trades_only' ? `仅显示有成交 (${runs.filter((r) => (r.trades_count ?? 0) > 0).length})` : `全部运行 (${runs.length})`}
+              <Play className="w-3.5 h-3.5" />
+              {creating ? '提交中…' : submittedPending ? `运行中（${submittedStatus}）…` : '运行回测'}
             </button>
-            <Chip>共 {displayedRuns.length} 条</Chip>
-            <ColToggle on={!!allCols.runs} onToggle={() => toggleCols('runs')} total={10} />
-            {activeRun && <Chip tone="info">轮询中：{activeRun.run_id} · {activeRun.status}</Chip>}
-            {list.error && <span className="text-rose-600">列表取数错误：{list.error}</span>}
+
+            <span className="ds-pagehead__spacer" />
+
+            <button
+              type="button"
+              className="ds-btn ds-btn--ghost ds-btn--sm"
+              aria-pressed={showAdvanced}
+              onClick={() => setShowAdvanced((v) => !v)}
+              data-testid="lab-advanced-toggle"
+              title={
+                formVersions
+                  ? `信号 ${formVersions.signal ?? '—'} · 核心 ${formVersions.core ?? '—'} · 执行 ${formVersions.exec_core ?? '—'}`
+                  : undefined
+              }
+            >
+              {showAdvanced ? '收起高级设置' : '高级设置'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void list.reload()}
+              className="ds-btn ds-btn--secondary ds-btn--sm"
+            >
+              <RefreshCw className={`w-3 h-3 ${list.loading ? 'animate-spin' : ''}`} /> 刷新
+            </button>
           </div>
-        }
-      >
-        {/* 新旧归属：本列表仅含当前策略；旧策略 run 已退役并排除。
-            常态（无被排除 run）**不刷横幅**，收成一行可展开说明；有被排除 run 才标黄提示。 */}
-        <details
-          className="ds-details"
-          style={{ marginBottom: 8 }}
-          data-testid="lab-run-attribution"
-        >
-          <summary
-            className={excludedLegacy.length > 0 ? 'text-amber-700' : undefined}
-            title={
-              (retirement?.retired_strategy_keys
-                ? `已退役旧策略：${retirement.retired_strategy_keys.join(' / ')}${retirement.retired_at ? `（${retirement.retired_at}）` : ''}\n`
-                : '') +
-              (excludedLegacy.length > 0
-                ? `被排除的旧/身份存疑 run：${excludedLegacy.map((x) => x.run_id).join('、')}`
-                : '无被排除 run')
+
+          {submittedRunId && (
+            <div
+              className={`ds-note ${submittedPending ? 'ds-note--info' : ''}`}
+              style={{ margin: '0 12px 8px' }}
+              data-testid="lab-run-progress"
+            >
+              本页提交：<span className="font-mono">{submittedRunId}</span> · 状态 <b>{submittedStatus ?? '—'}</b>
+              {submittedPending ? '（轮询中；进入终态前按钮保持禁用）' : '（已进入终态，可再次运行）'}
+            </div>
+          )}
+
+          {/* ── 高级设置区（成本 / 风险与策略参数）── */}
+          {showAdvanced && (
+            <div className="ds-card__body" style={{ paddingTop: 0 }}>
+          {/* ── 成本（高级设置内；单位与等价换算已标注）── */}
+          <div className="pt-2.5 border-t border-neutral-100 flex flex-wrap items-end gap-x-3 gap-y-2">
+              <span className="text-[10px] font-bold text-neutral-300 pb-1 shrink-0" title="参数留空 = 沿用后台冻结默认值">
+                成本
+              </span>
+              {LAB_PARAM_SPECS.filter((s) => s.group === 'exec_cost').map((spec) => (
+                <div key={spec.key} className="w-48">
+                  <ParamField spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
+                </div>
+              ))}
+            </div>
+
+          {/* ── 风险与策略参数（高级设置内；标题行保留风险边界摘要）── */}
+          <div className="mt-2.5 pt-2.5 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={() => setShowSignalParams((s) => !s)}
+              className="ds-btn ds-btn--ghost"
+              style={{ width: '100%', justifyContent: 'flex-start', height: 'auto', padding: '4px 6px' }}
+              data-testid="lab-params-toggle"
+            >
+              {showSignalParams ? '▾' : '▸'} 风险与策略参数（白名单校验）
+              <span className="ml-2 font-normal text-neutral-500">
+                单笔风险 {form.params['risk_per_trade'] || '—'}% · 组合上限 {form.params['max_portfolio_risk'] || '—'}% ·
+                杠杆上限 {form.params['max_leverage_per_symbol'] || '—'}× · 本次覆盖 {wireParams.overridden.length} 项
+              </span>
+            </button>
+            {showSignalParams && (
+              <div className="mt-2 space-y-3">
+                <div>
+                  <div className="text-[11px] text-neutral-400 mb-1.5">风险 / 仓位（exec）</div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                    {LAB_PARAM_SPECS.filter((s) => s.group === 'exec_risk').map((spec) => (
+                      <ParamField key={spec.key} spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
+                    ))}
+                  </div>
+                </div>
+                {(['sig_structure', 'sig_oi'] as const).map((g) => (
+                  <div key={g}>
+                    <div className="text-[11px] text-neutral-400 mb-1.5">
+                      {g === 'sig_structure' ? '结构参数（唐奇安 / ATR / 回踩 / SC）' : 'OI 因子参数'}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                      {LAB_PARAM_SPECS.filter((s) => s.group === g).map((spec) => (
+                        <ParamField key={spec.key} spec={spec} value={form.params[spec.key] ?? ''} onChange={(v) => setParam(spec.key, v)} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+            </div>
+          )}
+
+          {/* 提交后提示一律单行：全文进 title，信息不删；未点击提交时不空报校验错误避免首屏误警 */}
+          {createErrors.length > 0 && (
+            <div
+              className="ds-note ds-note--neg"
+              style={{ margin: '6px 12px 8px', alignItems: 'center', columnGap: 8, rowGap: 2 }}
+              data-testid="lab-create-errors"
+              title={createErrors.map((e, i) => `${i + 1}. ${e}`).join('\n')}
+            >
+              <span className="font-bold whitespace-nowrap">提交未通过</span>
+              <span className="ds-truncate">{createErrors.join(' · ')}</span>
+            </div>
+          )}
+
+          {createNotice && (
+            <div className="ds-note ds-note--info" style={{ margin: '6px 12px 8px' }} data-testid="lab-create-notice">
+              {createNotice}
+            </div>
+          )}
+        </div>
+          )}
+        </div>
+        <div className="ds-bt-3col__mid">
+          {selectedRunId && detailStatus === 'succeeded' ? (
+            <>
+              <div data-lab-section="lab-chart">
+                <LabChartPanel
+                  chart={chartPayload}
+                  loading={chart.loading}
+                  error={chart.error}
+                  missingReason={chart.data?.missing_reason ?? null}
+                  selectedTradeId={selectedTradeId}
+                  onSelectTrade={(tid) => {
+                    setSelectedTradeId(tid);
+                    if (tid && trades.data?.items) {
+                      const hit = trades.data.items.find((t) => t.trade_id === tid);
+                      if (hit?.symbol) setActiveSymbol(hit.symbol.replace('USDT', ''));
+                    }
+                  }}
+                  orders={orderRows}
+                  tradeIndex={tradeIndex}
+                  crosshairBus={crosshairBus}
+                  runId={selectedRunId}
+                  strategyVersion={String((detail.data?.engine as any)?.version || 'WX_EVENT_TREND_V0_1')}
+                  focusTimeMs={focusTimeMs}
+                  selectedOrderId={selectedOrderId}
+                  manualViewport={manualViewport}
+                  onManualViewportChange={(fromMs, toMs) => setManualViewport({ fromMs, toMs })}
+                  onSelectOrder={(oid) => {
+                    setSelectedOrderId(oid);
+                    setManualViewport(null);
+                    if (oid) setOpenPanel('orders');
+                    if (oid && orderRows) {
+                      const hit = orderRows.find((o) => o.order_id === oid);
+                      if (hit?.symbol) setActiveSymbol(hit.symbol.replace('USDT', ''));
+                    }
+                  }}
+                  symbols={(chart.data?.chart as any)?.symbols ?? null}
+                  activeSymbol={activeSymbol}
+                  onSelectSymbol={(sym) => setActiveSymbol(sym)}
+                  timeframe={activeTimeframe}
+                  onTimeframeChange={(newTf) => setActiveTimeframe(newTf)}
+                  gridTimes={sharedGridTimes}
+                />
+              </div>
+              {/* 设计稿 `.g2`：净值曲线与回撤曲线**两张并排卡**，不是一张卡切页签。
+                  两个实例读同一份权益序列，各自只画自己的那组线。 */}
+              <div className="ds-g2" data-lab-section="lab-funding">
+                <LabFundingPanel
+                  variant="equity"
+                  points={equityPoints}
+                  benchmarkSeries={equity.data?.benchmark_equity ?? null}
+                  benchmarkMeta={equity.data?.benchmark ?? metrics.data?.benchmark_buy_hold ?? null}
+                  metrics={m}
+                  monthly={null}
+                  loading={equity.loading}
+                  error={equity.error}
+                  emptyHint={
+                    isResearchRun
+                      ? '未记录：研究期 run 按上游落盘成交重建，没有引擎落盘的净值序列（不绘制合成曲线）'
+                      : null
+                  }
+                  monthCloseCounts={null}
+                  windowStartMs={detail.data?.window?.win_start_ms ?? null}
+                  windowEndMs={detail.data?.window?.win_end_ms ?? null}
+                  focusTrade={focusTrade}
+                  crosshairBus={crosshairBus}
+                  gridTimes={sharedGridTimes}
+                />
+                <LabFundingPanel
+                  variant="drawdown"
+                  points={equityPoints}
+                  benchmarkSeries={equity.data?.benchmark_equity ?? null}
+                  benchmarkMeta={equity.data?.benchmark ?? metrics.data?.benchmark_buy_hold ?? null}
+                  metrics={m}
+                  monthly={null}
+                  loading={equity.loading}
+                  error={equity.error}
+                  emptyHint={
+                    isResearchRun
+                      ? '未记录：研究期 run 按上游落盘成交重建，没有引擎落盘的净值序列（不绘制合成曲线）'
+                      : null
+                  }
+                  monthCloseCounts={null}
+                  windowStartMs={detail.data?.window?.win_start_ms ?? null}
+                  windowEndMs={detail.data?.window?.win_end_ms ?? null}
+                  focusTrade={focusTrade}
+                  crosshairBus={crosshairBus}
+                  gridTimes={sharedGridTimes}
+                />
+              </div>
+            </>
+          ) : (
+            <section className="ds-card">
+              <div className="ds-card__body ds-empty" data-testid="lab-chart-empty">
+                左栏「回测范围」里选一个批次，或点「运行回测」新建一次运行。
+              </div>
+            </section>
+          )}
+
+          {/* 留存记录清单（设计稿中栏第 3 块）：一行 = 一次留存运行，点一行回放该 run。
+              批次模式下就是本批次的 run 清单，与左栏汇总、下方逐笔同 batch_id。 */}
+          <SectionCard
+            title="留存记录清单"
+            testid="lab-runs"
+            section="lab-runs"
+            right={
+              <div className="flex items-center gap-2 text-[10px] font-mono">
+                {/* BACKFILL-01：全量记录搜索（标的 / 运行 ID），本地过滤 */}
+                <input
+                  value={runQuery}
+                  onChange={(e) => setRunQuery(e.target.value)}
+                  placeholder="搜标的 / 运行 ID"
+                  data-testid="lab-runs-search"
+                  title="按标的或运行 ID 过滤记录（全量在内存里过滤，不用等网络）"
+                  className="w-36 px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 border border-neutral-700 outline-none focus:border-emerald-500/60 placeholder:text-neutral-500"
+                />
+                <button
+                  type="button"
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${runsFilter === 'trades_only' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}
+                  onClick={() => setRunsFilter((f) => (f === 'trades_only' ? 'all' : 'trades_only'))}
+                >
+                  {runsFilter === 'trades_only'
+                    ? `仅显示有成交 (${displayedRuns.length})`
+                    : `全部运行 (${displayedRuns.length})`}
+                </button>
+                <Chip>
+                  共 {displayedRuns.length} 条
+                  {runQuery.trim() || runsFilter === 'trades_only'
+                    ? ` / 全部 ${batchMode ? batchRuns.length : runs.length} 条`
+                    : ''}
+                </Chip>
+                <ColToggle on={!!allCols.runs} onToggle={() => toggleCols('runs')} total={10} />
+                {!batchMode && activeRun && <Chip tone="info">轮询中：{activeRun.run_id} · {activeRun.status}</Chip>}
+                {!batchMode && list.error && <span className="text-rose-600">列表取数错误：{list.error}</span>}
+                {batchMode && batchRunsLoading && <span className="text-neutral-500">读取批次 run…</span>}
+              </div>
             }
           >
-            归属：仅含当前策略 {retirement?.successor_strategy_id ?? LAB_STRATEGY_ID}
-            {excludedLegacy.length > 0
-              ? ` · 已排除旧/存疑 run ${excludedLegacy.length} 条`
-              : ' · 无被排除 run'}
-          </summary>
-          <div className="ds-details__body text-[10px] text-neutral-400 space-y-0.5">
-            <div>
-              已退役旧策略：
-              {retirement?.retired_strategy_keys?.length
-                ? `${retirement.retired_strategy_keys.join(' / ')}${retirement.retired_at ? `（${retirement.retired_at}）` : ''}`
-                : '—'}
-            </div>
-            <div>
-              被排除的旧 / 身份存疑 run：
-              {excludedLegacy.length > 0 ? excludedLegacy.map((x) => x.run_id).join('、') : '无'}
-              {excludedLegacy.length > 0 ? ' ⇒ 旧结果不得当成新策略成绩' : ''}
-            </div>
-          </div>
-        </details>
-
-        <div className="ds-tablewrap" style={{ maxHeight: '11rem' }}>
-            <table className={`ds-table ds-table--clickable${allCols.runs ? ' ds-table--all' : ''}`}>
-              <thead>
-                <tr>
-                  <th className="py-1.5 px-2">标的</th>
-                  <th className="py-1.5 px-2">运行 ID</th>
-                  <th className="py-1.5 px-2">状态</th>
-                  <th className="py-1.5 px-2" data-secondary>归属</th>
-                  <th className="py-1.5 px-2">创建时间（UTC）</th>
-                  <th className="py-1.5 px-2 text-right">净收益</th>
-                  <th className="py-1.5 px-2 text-right">回撤</th>
-                  <th className="py-1.5 px-2 text-right">笔数</th>
-                  <th className="py-1.5 px-2" data-secondary>配置 hash</th>
-                  <th className="py-1.5 px-2">失败原因</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedRuns.length === 0 ? (
-                  <tr>
-                    <td colSpan={allCols.runs ? 10 : 7} className="ds-table__empty">
-                      {list.loading ? '读取中…' : '暂无实验记录'}
-                    </td>
-                  </tr>
-                ) : (
-                  displayedRuns.map((r) => {
-                    const sel = r.run_id === selectedRunId;
-                    const h = hashMap[r.run_id];
-                    const symbolText = (r.symbols ?? []).join(',') || '—';
-                    const displayRunId = r.run_id.length > 24 
-                      ? `${r.run_id.slice(0, 10)}...${r.run_id.slice(-8)}` 
-                      : r.run_id;
-                    return (
-                      <tr
-                        key={r.run_id}
-                        data-run-id={r.run_id}
-                        onClick={() => {
-                          didPick.current = true;
-                          setSelectedRunId(r.run_id);
-                          const runTrade = allTradesData.find((t) => t.run_id === r.run_id);
-                          if (runTrade) {
-                            setSelectedTradeId(runTrade.trade_id);
-                          }
-                        }}
-                        aria-selected={sel}
-                      >
-                        <td className="py-1.5 px-2 font-semibold text-emerald-400 whitespace-nowrap">{symbolText}</td>
-                        <td className="py-1.5 px-2 text-neutral-300 font-mono text-xs whitespace-nowrap" title={r.run_id}>
-                          {displayRunId}
-                        </td>
-                        <td className="py-1.5 px-2">
-                          <span className={`ds-badge ${statusTone(r.status)}`}>{r.status}</span>
-                        </td>
-                        <td className="py-1.5 px-2" data-secondary>
-                          {r.attribution === 'current_strategy' ? (
-                            <span className="ds-badge ds-badge--pos">
-                              当前策略
-                            </span>
-                          ) : (
-                            <span className="ds-badge ds-badge--warn">
-                              身份存疑
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">{fmtIsoUtc(r.created_at)}</td>
-                        <td className={`py-1.5 px-2 text-right ${(r.net_return_pct ?? 0) >= 0 ? 'text-emerald-500 font-medium' : 'text-rose-500 font-medium'}`}>
-                          {fmtPct(r.net_return_pct, 4)}
-                        </td>
-                        <td className="py-1.5 px-2 text-right text-rose-500 font-medium">
-                          {r.max_drawdown_pct === null || r.max_drawdown_pct === undefined ? '—' : `-${r.max_drawdown_pct.toFixed(4)}%`}
-                        </td>
-                        <td className="py-1.5 px-2 text-right">
-                          {(r.trades_count ?? 0) > 0 ? (
-                            <span className="font-bold text-amber-400 bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-800/60">
-                              {r.trades_count} 笔
-                            </span>
-                          ) : (
-                            <span className="text-neutral-500">0</span>
-                          )}
-                        </td>
-                        <td className="py-1.5 px-2 text-neutral-500" data-secondary title={h?.spec_sha256 ?? '未取到'}>
-                          {h ? shortHash(h.spec_sha256, 10) : '—'}
-                        </td>
-                        <td className="py-1.5 px-2 text-rose-600 max-w-[16rem] truncate" title={r.failure_reason ?? undefined}>
-                          {r.failure_reason ?? '—'}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-            <details className="ds-details" style={{ marginTop: 6 }} data-testid="lab-runs-hashnote">
-              <summary>「配置 hash」列为何可能为 —（端点缺口说明）</summary>
-              <div className="ds-details__body text-[10px] text-neutral-400">
-                列表端点 `GET /backtests` 的 summary <b>不含配置 hash</b>（精确缺口：`backtest_api._summary()` 未带
-                `spec_sha256`/`*_params_hash`）⇒ 这里用只读 `GET /backtests/{'{id}'}` 补齐（并发上限 4，最多 30 条）；
-                未取到的显示 —，不伪造。
+            {/* 批次模式下这一行改成「本批次同源说明」：归属/退役是全局列表的概念，
+                放在批次视图里会让人以为批次内也有旧策略 run。 */}
+            {batchMode ? (
+              <div
+                className="text-[10px] text-neutral-500"
+                style={{ marginBottom: 8, fontFamily: 'var(--ds-mono)' }}
+                data-testid="lab-runs-batch-note"
+                title="本列表 = 该批次目录内的 run（GET /batches/{id}/runs），与左栏汇总、下方整批逐笔同一个 batch_id。该接口不返回创建时间与最大回撤 ⇒ 显示 —（不猜）。"
+              >
+                批次 <b>{batchId ?? '—'}</b> 内的 run · 与左栏汇总同 batch_id
+              </div>
+            ) : (
+            <details
+              className="ds-details"
+              style={{ marginBottom: 8 }}
+              data-testid="lab-run-attribution"
+            >
+              <summary
+                className={excludedLegacy.length > 0 ? 'text-amber-700' : undefined}
+                title={
+                  (retirement?.retired_strategy_keys
+                    ? `已退役旧策略：${retirement.retired_strategy_keys.join(' / ')}${retirement.retired_at ? `（${retirement.retired_at}）` : ''}\n`
+                    : '') +
+                  (excludedLegacy.length > 0
+                    ? `被排除的旧/身份存疑 run：${excludedLegacy.map((x) => x.run_id).join('、')}`
+                    : '无被排除 run')
+                }
+              >
+                归属：仅含当前策略 {retirement?.successor_strategy_id ?? LAB_STRATEGY_ID}
+                {excludedLegacy.length > 0
+                  ? ` · 已排除旧/存疑 run ${excludedLegacy.length} 条`
+                  : ' · 无被排除 run'}
+              </summary>
+              <div className="ds-details__body text-[10px] text-neutral-400 space-y-0.5">
+                <div>
+                  已退役旧策略：
+                  {retirement?.retired_strategy_keys?.length
+                    ? `${retirement.retired_strategy_keys.join(' / ')}${retirement.retired_at ? `（${retirement.retired_at}）` : ''}`
+                    : '—'}
+                </div>
+                <div>
+                  被排除的旧 / 身份存疑 run：
+                  {excludedLegacy.length > 0 ? excludedLegacy.map((x) => x.run_id).join('、') : '无'}
+                  {excludedLegacy.length > 0 ? ' ⇒ 旧结果不得当成新策略成绩' : ''}
+                </div>
               </div>
             </details>
-        </div>
+            )}
 
-        {metrics.data?.m4_disclaimer && (
-          /* 边界声明：整段黄色文字太占视野 ⇒ 保留一行结论常显，全文一键展开（信息不删） */
-          <details className="ds-details" style={{ marginTop: 8 }} data-testid="lab-m4-disclaimer">
-            <summary>边界声明 · 本工作台输出不代表正式 M4 通过（展开全文）</summary>
-            <div className="ds-details__body text-[10px] text-amber-800">{metrics.data.m4_disclaimer}</div>
-          </details>
-        )}
-      </SectionCard>
+            <div className="ds-tablewrap" style={{ maxHeight: '15rem' }}>
+                <table className={`ds-table ds-table--clickable${allCols.runs ? ' ds-table--all' : ''}`}>
+                  <thead>
+                    <tr>
+                      <th className="py-1.5 px-2">标的</th>
+                      <th className="py-1.5 px-2">运行 ID</th>
+                      <th className="py-1.5 px-2">状态</th>
+                      <th className="py-1.5 px-2" data-secondary>归属</th>
+                      <th className="py-1.5 px-2" data-secondary>创建时间（UTC）</th>
+                      <th className="py-1.5 px-2 text-right">净收益</th>
+                      <th className="py-1.5 px-2 text-right" data-secondary>回撤</th>
+                      <th className="py-1.5 px-2 text-right">笔数</th>
+                      <th className="py-1.5 px-2" data-secondary>配置 hash</th>
+                      <th className="py-1.5 px-2" data-secondary>失败原因</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayedRuns.length === 0 ? (
+                      <tr>
+                        <td colSpan={allCols.runs ? 10 : 5} className="ds-table__empty">
+                          {batchMode ? (batchRunsLoading ? '读取批次 run…' : '该批次没有 run 目录') : list.loading ? '读取中…' : '暂无实验记录'}
+                        </td>
+                      </tr>
+                    ) : (
+                      displayedRuns.map((r) => {
+                        const sel = r.run_id === selectedRunId;
+                        const h = hashMap[r.run_id];
+                        const symbolText = (r.symbols ?? []).join(',') || '—';
+                        const displayRunId = r.run_id.length > 24 
+                          ? `${r.run_id.slice(0, 10)}...${r.run_id.slice(-8)}` 
+                          : r.run_id;
+                        return (
+                          <tr
+                            key={r.run_id}
+                            data-run-id={r.run_id}
+                            onClick={() => {
+                              didPick.current = true;
+                              setSelectedRunId(r.run_id);
+                              /* 只选**该 run 账本里真实存在**的成交号：先清空，
+                                 等新 run 的逐笔到位后由「自动选中本 run 第一笔」接管。
+                                 不再读 `all_trades.json`（旧批次快照，会串标的）。 */
+                              setSelectedTradeId(null);
+                            }}
+                            aria-selected={sel}
+                          >
+                            <td className="py-1.5 px-2 font-semibold text-emerald-400 whitespace-nowrap">{symbolText}</td>
+                            <td className="py-1.5 px-2 text-neutral-300 font-mono text-xs whitespace-nowrap" title={r.run_id}>
+                              {displayRunId}
+                            </td>
+                            <td className="py-1.5 px-2">
+                              {/* CODE-REVIEW-02：状态标签走全站统一的 statusLabel
+                                  （unknown=未登记 / interrupted=已中断，不再裸显示 succeeded）；
+                                  registered===false 的历史批量产物附「未登记」小徽标。 */}
+                              <span className={`ds-badge ${statusTone(r.status)}`}>
+                                {statusLabel(r.status)}
+                              </span>
+                              {r.registered === false && (
+                                <span
+                                  className="ds-badge ds-badge--neutral"
+                                  style={{ marginLeft: 4 }}
+                                  title={r.record_note ?? '该运行无 run.json：历史批量产物，未登记（只读参考）'}
+                                  data-testid="lab-run-unregistered"
+                                >
+                                  未登记
+                                </span>
+                              )}
+                              {/* FT-REPLAY-01：研究期结果必须一眼看出来 ——
+                                  它是上游回测按落盘 CSV 重建的，不是本引擎跑出来的成绩。
+                                  放在状态徽标旁（默认可见列），不用展开「全部列」才看得到。 */}
+                              {r.research_period && (
+                                <span
+                                  className="ds-badge ds-badge--warn"
+                                  style={{ marginLeft: 4 }}
+                                  title={(r.registration && r.registration.note)
+                                    || '研究期结果：由上游落盘 CSV 重建，非本引擎重跑；只读复盘用，不进生产订单 / 模拟实盘账本'}
+                                  data-testid="lab-run-research"
+                                >
+                                  研究期
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-1.5 px-2" data-secondary>
+                              {r.attribution === 'research_period' ? (
+                                <span className="ds-badge ds-badge--warn">
+                                  研究期重建
+                                </span>
+                              ) : r.attribution === 'current_strategy' ? (
+                                <span className="ds-badge ds-badge--pos">
+                                  当前策略
+                                </span>
+                              ) : (
+                                <span className="ds-badge ds-badge--warn">
+                                  身份存疑
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtIsoUtc(r.created_at)}</td>
+                            <td className={`py-1.5 px-2 text-right ${(r.net_return_pct ?? 0) >= 0 ? 'text-emerald-500 font-medium' : 'text-rose-500 font-medium'}`}>
+                              {fmtPct(r.net_return_pct, 4)}
+                            </td>
+                            <td className="py-1.5 px-2 text-right text-rose-500 font-medium" data-secondary>
+                              {r.max_drawdown_pct === null || r.max_drawdown_pct === undefined ? '—' : `-${r.max_drawdown_pct.toFixed(4)}%`}
+                            </td>
+                            <td className="py-1.5 px-2 text-right">
+                              {(r.trades_count ?? 0) > 0 ? (
+                                <span className="font-bold text-amber-400 bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-800/60">
+                                  {r.trades_count} 笔
+                                </span>
+                              ) : (
+                                <span className="text-neutral-500">0</span>
+                              )}
+                            </td>
+                            <td className="py-1.5 px-2 text-neutral-500" data-secondary title={h?.spec_sha256 ?? '未取到'}>
+                              {h ? shortHash(h.spec_sha256, 10) : '—'}
+                            </td>
+                            <td className="py-1.5 px-2 text-rose-600 max-w-[16rem] truncate" data-secondary title={r.failure_reason ?? undefined}>
+                              {r.failure_reason ?? '—'}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+                <details className="ds-details" style={{ marginTop: 6 }} data-testid="lab-runs-hashnote">
+                  <summary>「配置 hash」列为何可能为 —（端点缺口说明）</summary>
+                  <div className="ds-details__body text-[10px] text-neutral-400">
+                    列表端点 `GET /backtests` 的 summary <b>不含配置 hash</b>（精确缺口：`backtest_api._summary()` 未带
+                    `spec_sha256`/`*_params_hash`）⇒ 这里用只读 `GET /backtests/{'{id}'}` 补齐（并发上限 4，最多 30 条）；
+                    未取到的显示 —，不伪造。
+                  </div>
+                </details>
+            </div>
+
+            {metrics.data?.m4_disclaimer && (
+              /* 边界声明：整段黄色文字太占视野 ⇒ 保留一行结论常显，全文一键展开（信息不删） */
+              <details className="ds-details" style={{ marginTop: 8 }} data-testid="lab-m4-disclaimer">
+                <summary>边界声明 · 本工作台输出不代表正式 M4 通过（展开全文）</summary>
+                <div className="ds-details__body text-[10px] text-amber-800">{metrics.data.m4_disclaimer}</div>
+              </details>
+            )}
+          </SectionCard>
+
+          {/* 单条记录回放（设计稿中栏第 4 块）：当前 run 的逐笔，点一行 ⇒ 图表定位 + 单笔详情。 */}
+          {selectedRunId && detailStatus === 'succeeded' && (
+            <SectionCard
+              title="单条记录回放"
+              testid="lab-trades"
+              section="lab-trades"
+              right={
+                <div className="flex items-center gap-2 text-[10px] font-mono">
+                  <Chip>本 run 共 {displayTrades.length} 笔</Chip>
+                  <ColToggle on={!!allCols.trades} onToggle={() => toggleCols('trades')} total={21} />
+                  {displayTrades.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        className="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors"
+                        onClick={exportTradesCsv}
+                        title="导出本 run 逐笔交易记录为 CSV"
+                      >
+                        导出逐笔 CSV
+                      </button>
+                      <button
+                        type="button"
+                        className="px-2 py-0.5 rounded bg-indigo-900/60 hover:bg-indigo-800/80 text-indigo-200 border border-indigo-700/60 transition-colors"
+                        onClick={exportAllJson}
+                        title="导出本 run 完整三层数据（订单/成交/汇总）为 JSON"
+                      >
+                        导出完整 JSON
+                      </button>
+                    </>
+                  )}
+                  {trades.error && <span className="text-rose-600">逐笔取数错误：{trades.error}</span>}
+                </div>
+              }
+            >
+            <div className="ds-tablewrap" style={{ maxHeight: '17.25rem' }} title="点击任意行 ⇒ 执行视图定位该笔 + ③ 资金分析切到「水下回撤」并定位该笔区间">
+              <table className={`ds-table ds-table--clickable${allCols.trades ? ' ds-table--all' : ''}`}>
+                <thead>
+                  <tr>
+                    <th className="py-1.5 px-2" title="候选信号时刻（chart.signals[].t，UTC）">信号时间 (UTC)</th>
+                    <th className="py-1.5 px-2" data-secondary title="确认 K 线收盘时刻（chart.confirms[].t，UTC）；C0 模式无独立确认环节 ⇒ 无此环节">确认时间 (UTC)</th>
+                    <th className="py-1.5 px-2" data-secondary title="下单即成交时刻（账本 order_time_ms，UTC）；账本没记就是「未记录」，不用进场时间顶替">下单时间 (UTC)</th>
+                    <th className="py-1.5 px-2" data-secondary title="真实成交时刻（账本 trades.jsonl，UTC）">进场时间 (UTC)</th>
+                    <th className="py-1.5 px-2" data-secondary>出场时间 (UTC)</th>
+                    <th className="py-1.5 px-2">标的</th>
+                    <th className="py-1.5 px-2">方向</th>
+                    <th className="py-1.5 px-2 text-right">开仓价</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary title="实际仓位金额（stake_amount）">仓位金额</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary title="箱体/扫单基准价 P0（来自候选确认表）">原始 P0</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary title="入场时计划风险（USDT）；上游未落盘 ⇒ 未知，不拿兜底止损值推算">计划风险</th>
+                    <th className="py-1.5 px-2 text-right" title="账本 stop_trace 首点（引擎实况，非重算）">初始止损</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary>出场价</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary>数量</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary>毛盈亏</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary>双边手续费</th>
+                    <th className="py-1.5 px-2 text-right" data-secondary>资金费</th>
+                    <th className="py-1.5 px-2 text-right">净盈亏</th>
+                    <th className="py-1.5 px-2 whitespace-nowrap">退出原因</th>
+                    <th className="py-1.5 px-2" data-secondary>trade_id</th>
+                    <th className="py-1.5 px-2" data-secondary>候选 ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayTrades.length === 0 ? (
+                    <tr>
+                      <td colSpan={allCols.trades ? 21 : 7} className="ds-table__empty" data-testid="lab-trades-empty">
+                        {trades.loading ? '读取中…' : tradesEmptyHint}
+                      </td>
+                    </tr>
+                  ) : (
+                    displayTrades.map((t, rowIdx) => {
+                      const sel = t.trade_id === selectedTradeId;
+                      const dirStr = String(t.direction ?? '');
+                      const isLong = dirStr === 'long' || dirStr === '1' || dirStr === 'buy';
+                      return (
+                        <tr
+                          /* key 用 run_id + trade_id + 行号：账本里同一 run 理论上 trade_id 唯一，
+                             但历史批次出现过重复/缺失 ⇒ 加行号兜底，避免 React 吞行。 */
+                          key={`${t.run_id ?? ''}|${t.trade_id ?? t.order_id ?? ''}|${rowIdx}`}
+                          data-trade-id={t.trade_id ?? undefined}
+                          onClick={() => {
+                            if (t.run_id && t.run_id !== selectedRunId) {
+                              didPick.current = true;
+                              setSelectedRunId(t.run_id);
+                              /* 跨 run：此刻 tradeRows 还是旧 run 的，先不选，
+                                 等新 run 的逐笔到位后由「自动选中」接管（避免串号 404）。 */
+                              setSelectedTradeId(null);
+                              return;
+                            }
+                            setSelectedTradeId(queryableTradeId(t, selectedRunId));
+                            setManualViewport(null);
+                            if (t.entry_time_ms) setFocusTimeMs(t.entry_time_ms);
+                            if (t.symbol) setActiveSymbol(t.symbol.replace('USDT', ''));
+                          }}
+                          aria-selected={sel}
+                        >
+                          <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" title={t.signal_time_source ?? undefined}>
+                            {fmtUtc(t.signal_time_ms)}
+                          </td>
+                          {/* 确认 K 线收盘：C0 没有独立确认环节 ⇒ 写「无此环节」；
+                              其余模式确实没记到才写「未知」。两者不能都写成 —。 */}
+                          <td
+                            className="py-1.5 px-2 text-neutral-500 whitespace-nowrap"
+                            data-secondary
+                            title={t.confirm_time_source ?? '账本无确认时刻'}
+                          >
+                            {t.confirm_time_ms
+                              ? fmtUtc(t.confirm_time_ms)
+                              : (t.mode ?? '').toUpperCase() === 'C'
+                                ? '无此环节'
+                                : '未知'}
+                          </td>
+                          {/* 下单时间：账本没落盘就写「未记录」，绝不拿进场时间顶替 */}
+                          <td
+                            className="py-1.5 px-2 text-neutral-500 whitespace-nowrap"
+                            data-secondary
+                            title={t.order_time_source ?? '账本无下单时刻（不用进场时间替代）'}
+                          >
+                            {t.order_time_ms ? fmtUtc(t.order_time_ms) : '未记录'}
+                          </td>
+                          <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtUtc(t.entry_time_ms)}</td>
+                          <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtUtc(t.exit_time_ms)}</td>
+                          <td className="py-1.5 px-2 font-bold text-neutral-100">{t.symbol}</td>
+                          <td className="py-1.5 px-2">
+                            <span className={`ds-badge ${isLong ? 'ds-badge--pos' : 'ds-badge--neg'}`}>
+                              {isLong ? '做多' : '做空'}
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2 text-right text-neutral-300">{fmtNum(t.entry_price, 4)}</td>
+                          <td className="py-1.5 px-2 text-right" data-secondary title={t.stake_amount_source ?? '账本无仓位金额'}>
+                            {t.stake_amount == null ? '未知' : fmtNum(t.stake_amount, 2)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right" data-secondary title={t.P0_source ?? '候选表无 P0'}>
+                            {t.P0 == null ? '未知' : fmtNum(t.P0, 6)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right" data-secondary title={t.planned_risk_source ?? '上游未落盘计划风险'}>
+                            {t.planned_risk_usdt == null ? '未知' : fmtNum(t.planned_risk_usdt, 2)}
+                          </td>
+                          <td
+                            className="py-1.5 px-2 text-right text-amber-600"
+                            title={t.initial_stop_source ?? '账本无止损轨迹点（不合成、不用 -99% 兜底值顶替）'}
+                          >
+                            {t.initial_stop == null ? '未记录' : fmtNum(t.initial_stop, 4)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right text-neutral-100 font-semibold" data-secondary>{fmtNum(t.exit_price, 4)}</td>
+                          <td className="py-1.5 px-2 text-right" data-secondary>{fmtNum(t.qty, 6)}</td>
+                          <td
+                            className="py-1.5 px-2 text-right"
+                            data-secondary
+                            title={t.gross_pnl == null ? '上游只落净盈亏，未落毛盈亏（不拿净盈亏倒推）' : undefined}
+                          >
+                            {t.gross_pnl == null ? '未记录' : fmtSignedUsd(t.gross_pnl, 2)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.fees, 2)}</td>
+                          <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.funding_fee, 2)}</td>
+                          <td className={`py-1.5 px-2 text-right font-bold ${t.net_pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {fmtSignedUsd(t.net_pnl, 2)}
+                          </td>
+                          <td className="py-1.5 px-2 text-neutral-400 whitespace-nowrap" title={t.exit_reason ?? undefined}>
+                            {exitReasonLabel(t.exit_reason)}
+                          </td>
+                          <td className="py-1.5 px-2 text-neutral-400" data-secondary>{t.trade_id ?? '—'}</td>
+                          {/* 候选 ID：正式回测走 signal_id（cand_…）；研究期回测没有 cand_ 前缀，
+                              上游落盘的是 event_id（ev_…）⇒ 两者都认，都没有才写 —。 */}
+                          <td
+                            className="py-1.5 px-2 text-neutral-500"
+                            data-secondary
+                            title={t.signal_id ?? t.event_id ?? undefined}
+                          >
+                            {t.signal_id
+                              ? t.signal_id.replace('cand_ev_WX_EVENT_TREND_V0_1_binance_', '…_')
+                              : (t.event_id ?? '—')}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <details className="ds-details" style={{ marginTop: 8 }} open={false} data-testid="lab-trade-detail-fold">
+              <summary>单笔详情（选中某一笔后展开）</summary>
+              <div className="ds-details__body">
+                <LabTradeDetailPanel
+                  detail={tradeDetail.data}
+                  loading={tradeDetail.loading}
+                  error={tradeDetail.error}
+                />
+              </div>
+            </details>
+
+            {/* 同一候选在 C0 / C1 / C2 的结果对照：成交 / 拒单 / 未成交分开计数、分开列。
+                没有候选事件 ID（正式回测）或该候选不在索引里 ⇒ 不渲染，不编造一行。 */}
+            {candidateRows && (
+              <details className="ds-details" style={{ marginTop: 8 }} open={false} data-testid="lab-candidate-matrix">
+                <summary>
+                  同一候选在 C0 / C1 / C2 的结果对照
+                  <span className="ds-card__hint">
+                    成交 {candidateRows.cnt.filled ?? 0} · 拒单 {candidateRows.cnt.rejected ?? 0} · 未成交{' '}
+                    {candidateRows.cnt.not_filled ?? 0}
+                  </span>
+                </summary>
+                <div className="ds-details__body">
+                  <div className="text-[10px] text-neutral-400" style={{ marginBottom: 6 }}>
+                    候选事件 <span className="font-mono">{candidateRows.evId}</span>
+                    {candidateMatrixNote ? ` · ${candidateMatrixNote}` : ''}
+                  </div>
+                  <div className="ds-tablewrap" style={{ maxHeight: '13rem' }}>
+                    <table className="ds-table">
+                      <thead>
+                        <tr>
+                          <th className="py-1.5 px-2">模式</th>
+                          <th className="py-1.5 px-2">参数组</th>
+                          <th className="py-1.5 px-2">结果</th>
+                          <th className="py-1.5 px-2 text-right">净盈亏</th>
+                          <th className="py-1.5 px-2">入场时间 (UTC)</th>
+                          <th className="py-1.5 px-2">出场原因 / 拒单原因</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {candidateRows.rows.map((r, i) => {
+                          const st = String(r.status ?? '');
+                          const stLabel = st === 'filled' ? '成交' : st === 'rejected' ? '拒单' : st === 'not_filled' ? '未成交' : '未知';
+                          const stCls =
+                            st === 'filled' ? 'ds-badge--pos' : st === 'rejected' ? 'ds-badge--neg' : '';
+                          return (
+                            <tr key={`${r.mode ?? ''}|${r.strategy ?? ''}|${i}`} data-testid="lab-candidate-row">
+                              <td className="py-1.5 px-2 font-bold text-neutral-100">{r.mode ?? '未知'}</td>
+                              <td className="py-1.5 px-2 text-neutral-300 font-mono">{r.strategy ?? '未知'}</td>
+                              <td className="py-1.5 px-2">
+                                <span className={`ds-badge ${stCls}`}>{stLabel}</span>
+                              </td>
+                              <td
+                                className={`py-1.5 px-2 text-right ${
+                                  r.net_pnl == null
+                                    ? 'text-neutral-400'
+                                    : r.net_pnl >= 0
+                                      ? 'text-emerald-600'
+                                      : 'text-rose-600'
+                                }`}
+                              >
+                                {r.net_pnl == null ? '—' : fmtSignedUsd(r.net_pnl, 2)}
+                              </td>
+                              <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">
+                                {r.entry_time_ms == null ? '—' : fmtUtc(r.entry_time_ms)}
+                              </td>
+                              <td className="py-1.5 px-2 text-neutral-400">
+                                {r.status === 'filled'
+                                  ? exitReasonLabel(r.exit_reason)
+                                  : (r.reason ?? '未记录')}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
+            )}
+            </SectionCard>
+          )}
+
+          {/* 整批逐笔（跨 run）：设计稿没有这张表 ⇒ 只留一行折叠，展开才需要。
+              与上方「单条记录回放」的区别：那个只看当前 run；这里看整批，并带 run_id /
+              候选 ID / 信号时间 / 初始止损。两者都直接读账本，没有静态快照。
+              面板级兜底：批次逐笔是跨 run 拼出来的一张表，脏行风险最高；
+              key 绑 batchId ⇒ 切批次自动重置。 */}
+      {batchMode && batchId && (
+        <details className="ds-foldcard" data-testid="bt-batch-trades-fold">
+          <summary>
+            整批逐笔（跨 run）
+            <span className="ds-card__hint">本批次全部 run 的真实成交 · 点一行定位该笔</span>
+          </summary>
+          <ErrorBoundary label="整批逐笔" key={`bt-batch-${batchId}`}>
+        <BatchTradesTable
+          trades={batchTrades}
+          loading={batchTradesLoading}
+          error={batchTradesError}
+          missingInitialStop={batchTradesMeta.missingInitialStop}
+          unlinkedSignalTime={batchTradesMeta.unlinkedSignalTime}
+          selectedRunId={selectedRunId}
+          selectedTradeId={selectedTradeId}
+          onLocate={(runId, tradeId) => {
+            didPick.current = true;
+            setSelectedRunId(runId);
+            // 目标 run 的逐笔还没到位 ⇒ 先清空，由「自动选中本 run 第一笔」接管；
+            // 若目标就是当前 run，直接选中该笔（图表随即定位入场前后）。
+            if (runId === selectedRunId && tradeId) {
+              setSelectedTradeId(tradeId);
+            } else {
+              setSelectedTradeId(null);
+            }
+          }}
+          />
+          </ErrorBoundary>
+        </details>
+      )}
+        </div>
+        <div className="ds-bt-3col__right">
+          {selectedRunId && detailStatus === 'succeeded' && (
+            <BacktestSidePanel
+              metrics={m}
+              detail={detail.data}
+              chart={chartPayload}
+              qualityOk={qualityOkOfRun}
+              qualityStatus={qualityStatusOfRun}
+              missingReason={chart.data?.missing_reason ?? null}
+            />
+          )}
         </div>
       </div>
 
-      {/* ══ ⑤b 全局订单 / 成交明细（按需展开）══ */}
+
+      {/* ══ 更多视图（按需展开，单选）：从页首工具条搬到这里 ══
+          设计稿没有这一排；它是审计面板的入口，放在面板正上方最不占视觉。 */}
+      {selectedRunId && detailStatus === 'succeeded' && (
+        <div className="ds-viewbar" data-testid="lab-viewbar">
+          <span className="ds-viewbar__label">更多视图</span>
+          {(
+            [
+              ['identity', '结果身份'],
+              ['orders', `委托订单${orderRows.length ? ` (${orderRows.length})` : ''}`],
+              ['fills', `逐次成交${fillRows.length ? ` (${fillRows.length})` : ''}`],
+              ['rejected', `拒单明细${rejectedRows.length ? ` (${rejectedRows.length})` : ''}`],
+              ['funding', `资金费结算${fundingEvents.length ? ` (${fundingEvents.length})` : ''}`],
+              ['audit', '口径与审计'],
+            ] as [string, string][]
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              className="ds-btn ds-btn--ghost ds-btn--sm"
+              aria-pressed={openPanel === key}
+              onClick={() => togglePanel(key)}
+              data-testid={`lab-panel-${key}`}
+            >
+              {openPanel === key ? '▾ ' : '▸ '}
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ══ ⑤b 全局订单 / 委托明细（按需展开）══ */}
       {openPanel === 'orders' && selectedRunId && detailStatus === 'succeeded' && (
         <SectionCard
-          title="⑤b 订单 / 成交明细"
+          title="⑤b 委托订单明细"
           testid="lab-orders"
           sub
           right={
             <div className="flex items-center gap-2 text-[10px] font-mono">
               <Chip>共 {orderRows.length} 行</Chip>
               <ColToggle on={!!allCols.orders} onToggle={() => toggleCols('orders')} total={11} />
+              {orderRows.length > 0 && (
+                <button
+                  type="button"
+                  className="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors"
+                  onClick={exportOrdersCsv}
+                  title="导出委托订单为 CSV"
+                >
+                  导出订单 CSV
+                </button>
+              )}
               {orders.error && <span className="text-rose-600">订单取数错误：{orders.error}</span>}
               {orders.data?.missing_reason && <span className="text-amber-700">{orders.data.missing_reason}</span>}
             </div>
@@ -2236,8 +3240,27 @@ export const BacktestWorkbench: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  orderRows.map((o) => (
-                    <tr key={o.order_id} className="hover:bg-neutral-50">
+                  orderRows.map((o) => {
+                    const isSelected = selectedOrderId === o.order_id;
+                    return (
+                      <tr
+                        key={o.order_id}
+                        data-testid={`lab-order-row-${o.order_id}`}
+                        data-order-id={o.order_id}
+                        data-ts-ms={o.ts_ms}
+                        data-selected={isSelected ? 'true' : 'false'}
+                        className={`hover:bg-neutral-800/50 cursor-pointer transition-colors ${
+                          isSelected ? 'bg-indigo-950/80 ring-1 ring-indigo-500 font-semibold' : ''
+                        }`}
+                        title="点击该订单 ⇒ 执行图表定位并高亮发生时点"
+                        onClick={() => {
+                          setSelectedOrderId(o.order_id);
+                          setManualViewport(null);
+                          if (o.ts_ms) setFocusTimeMs(o.ts_ms);
+                          if (o.trade_id) setSelectedTradeId(o.trade_id);
+                          if (o.symbol) setActiveSymbol(o.symbol.replace('USDT', ''));
+                        }}
+                      >
                       <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">{fmtUtc(o.ts_ms)}</td>
                       <td className="py-1.5 px-2">{o.phase}</td>
                       <td className="py-1.5 px-2" data-secondary>{o.side}</td>
@@ -2250,7 +3273,103 @@ export const BacktestWorkbench: React.FC = () => {
                       <td className="py-1.5 px-2 text-neutral-400" data-secondary>{o.trade_id || '—'}</td>
                       <td className="py-1.5 px-2 text-neutral-500">{o.reason || '—'}</td>
                     </tr>
-                  ))
+                  );
+                })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* ══ ⑤d 逐次成交明细（按需展开）══ */}
+      {openPanel === 'fills' && selectedRunId && detailStatus === 'succeeded' && (
+        <SectionCard
+          title="⑤d 逐次成交明细 (Fills)"
+          testid="lab-fills"
+          sub
+          right={
+            <div className="flex items-center gap-2 text-[10px] font-mono">
+              <Chip>共 {fillRows.length} 笔</Chip>
+              <ColToggle on={!!allCols.fills} onToggle={() => toggleCols('fills')} total={10} />
+              {fillRows.length > 0 && (
+                <button
+                  type="button"
+                  className="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors"
+                  onClick={exportFillsCsv}
+                  title="导出逐次成交记录为 CSV"
+                >
+                  导出成交 CSV
+                </button>
+              )}
+              {fills.error && <span className="text-rose-600">成交取数错误：{fills.error}</span>}
+              {fills.data?.missing_reason && <span className="text-amber-700">{fills.data.missing_reason}</span>}
+            </div>
+          }
+        >
+          <div className="ds-tablewrap" style={{ maxHeight: '18rem' }}>
+            <table className={`ds-table ds-table--clickable${allCols.fills ? ' ds-table--all' : ''}`}>
+              <thead>
+                <tr>
+                  <th className="py-1.5 px-2">成交时刻 (UTC)</th>
+                  <th className="py-1.5 px-2">标的</th>
+                  <th className="py-1.5 px-2">动作</th>
+                  <th className="py-1.5 px-2 text-right">成交价格</th>
+                  <th className="py-1.5 px-2 text-right">成交数量</th>
+                  <th className="py-1.5 px-2 text-right" data-secondary>手续费</th>
+                  <th className="py-1.5 px-2" data-secondary>流动性</th>
+                  <th className="py-1.5 px-2" data-secondary>关联订单 (order_id)</th>
+                  <th className="py-1.5 px-2" data-secondary>关联交易 (trade_id)</th>
+                  <th className="py-1.5 px-2" data-secondary>成交标识 (fill_id)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fillRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={allCols.fills ? 10 : 5} className="ds-table__empty">
+                      {fills.loading ? '读取中…' : '无真实成交记录（账本 fills 为空）——不显示任何演示数据'}
+                    </td>
+                  </tr>
+                ) : (
+                  fillRows.map((f, i) => {
+                    const rowKey = f.fill_id || `fill-${i}`;
+                    const isSelected = selectedFillId === rowKey;
+                    return (
+                      <tr
+                        key={rowKey}
+                        data-testid={`lab-fill-row-${f.fill_id || i}`}
+                        data-fill-id={rowKey}
+                        data-order-id={f.order_id}
+                        data-ts-ms={f.fill_time_ms}
+                        data-selected={isSelected ? 'true' : 'false'}
+                        className={`hover:bg-neutral-800/50 cursor-pointer transition-colors ${
+                          isSelected ? 'bg-indigo-950/80 ring-1 ring-indigo-500 font-semibold' : ''
+                        }`}
+                        title="点击该成交 ⇒ 执行图表定位并高亮发生时点"
+                        onClick={() => {
+                          setSelectedFillId(rowKey);
+                          if (f.fill_time_ms) setFocusTimeMs(f.fill_time_ms);
+                          if (f.trade_id) setSelectedTradeId(f.trade_id);
+                          if (f.symbol) setActiveSymbol(f.symbol.replace('USDT', ''));
+                        }}
+                      >
+                      <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap">{fmtUtc(f.fill_time_ms)}</td>
+                      <td className="py-1.5 px-2 font-bold text-neutral-100">{f.symbol}</td>
+                      <td className="py-1.5 px-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] ${f.action === 'open' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`}>
+                          {f.action === 'open' ? '开仓' : '平仓'}
+                        </span>
+                      </td>
+                      <td className="py-1.5 px-2 text-right font-mono">{fmtNum(f.fill_price, 4)}</td>
+                      <td className="py-1.5 px-2 text-right font-mono">{fmtNum(f.quantity, 6)}</td>
+                      <td className="py-1.5 px-2 text-right font-mono" data-secondary>{fmtNum(f.fee, 6)}</td>
+                      <td className="py-1.5 px-2 text-neutral-400 uppercase text-[9px]" data-secondary>{f.liquidity || 'taker'}</td>
+                      <td className="py-1.5 px-2 text-neutral-400 font-mono text-[9px]" data-secondary title={f.order_id}>{f.order_id ? (f.order_id.length > 16 ? `${f.order_id.slice(0, 10)}...` : f.order_id) : '—'}</td>
+                      <td className="py-1.5 px-2 text-neutral-400 font-mono text-[9px]" data-secondary title={f.trade_id ?? undefined}>{f.trade_id ? (f.trade_id.length > 16 ? `${f.trade_id.slice(0, 10)}...` : f.trade_id) : '—'}</td>
+                      <td className="py-1.5 px-2 text-neutral-500 font-mono text-[9px]" data-secondary title={f.fill_id}>{f.fill_id ? (f.fill_id.length > 16 ? `${f.fill_id.slice(0, 10)}...` : f.fill_id) : '—'}</td>
+                    </tr>
+                  );
+                })
                 )}
               </tbody>
             </table>
@@ -2418,7 +3537,7 @@ export const BacktestWorkbench: React.FC = () => {
                 exec_timeframe: form.execTf,
                 window_start: windowStartMs === null ? null : toIsoUtcZ(windowStartMs),
                 window_end: windowEndMs === null ? null : toIsoUtcZ(windowEndMs),
-                params: wireParams.out,
+                params: {},
               })}
             </div>
             <div className="break-all">

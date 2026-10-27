@@ -1,0 +1,213 @@
+{
+ "generated_at": "2026-10-23T13:19:42.276Z",
+ "page_url": "http://127.0.0.1:3100/system-flow.html",
+ "backend_override": null,
+ "backend_requests_rewritten": 0,
+ "page_errors": [
+  "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ ],
+ "counters": "实测通过13 | 实测失败1 | 未验证5 | 契约缺陷1 | 共 20 张卡片",
+ "live_snapshot": "读取时间：2026/10/23 21:19:41　后端：http://127.0.0.1:3100　mode=—　as_of=2026-10-23T13:19:22Z\n运行臂：3a · 池 — · 进程 not_started · PID — · 周期 — · 健康 idle\n监控池：未知（运行时未注册）　行情池 币安 526 + 欧易补 23 = 549\n扫描状态：未知（signal_engine.status=unknown，运行时未注册）\n新开仓总闸：已开启（reason=user_ui_resumed · set_by=user_ui_control）　账本侧交叉核对：进程侧未注册，无法交叉核对　总闸文件：/private/tmp/ui-link-01/live/paper_new_entry_gate.json\n挂单：进程侧 未注册 · 账本 n_pending_orders 0 · 四臂 pending 合计 0\n持仓：进程侧 open_positions 未注册 · /paper/positions 1 条\n止损：进程侧 trailing_updates_total 未注册 · 明细接口 /api/v1/paper/stops/{pos_id}（见第 3 列卡片）\n退出：进程侧 exits_triggered_total 未注册 · 账本已平仓 1 笔 · 已实现 -1.09 USDT\n当前信号：2 条（scope=current）　最近错误：无",
+ "cards": [
+  {
+   "key": "data_status",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/data/status",
+   "evidence": "K线 115,211,060 行 / 4,385 组合 · OI 5,659,094 条 · 资金费 2,079,332 次结算",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=datacenter"
+  },
+  {
+   "key": "data_coverage",
+   "state": "unv",
+   "pill": "未验证",
+   "endpoint": "GET /api/v1/data/coverage",
+   "evidence": "已入库组合 13,155 个，但 coverage_ratio = null（仅统计已入库组合；全市场宇宙未知，故覆盖率不下结论）⇒ 覆盖率本身未验证",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=datacenter"
+  },
+  {
+   "key": "data_feeds",
+   "state": "fail",
+   "pill": "实测失败",
+   "endpoint": "GET /api/v1/data/feeds",
+   "evidence": "17 路采集中 3 路异常：kline_5m(报错告警)、kline_15m(报错告警)、funding(停更报错)",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=datacenter"
+  },
+  {
+   "key": "data_whitelist",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/data/whitelist",
+   "evidence": "下架核销 3 个 · 非原生跳过 1 个",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=datacenter"
+  },
+  {
+   "key": "wb_table",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/markets",
+   "evidence": "活动池 549（币安 526 + 欧易补 23）· 返回 549 行 · 5260 KB",
+   "warn": "⚠ 契约提示：传 limit=3 仍返回全部 549 行，limit 参数未生效（已登记 GAP-03）",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "wb_candles",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/markets/binance/BTCUSDT/candles?interval=4h&limit=3",
+   "evidence": "4h 返回 3 根 · is_native=true · quality=ok",
+   "warn": "⚠ 实测：路径写大写 BINANCE 同样返回 HTTP 200，但 quality=missing、missing_reason=「无已入库K线」—— 拼错大小写不会被报错，只会静默变成「没数据」（已登记 GAP-02）",
+   "http": "HTTP 200/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "wb_oi",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/markets/binance/BTCUSDT/oi?interval=5m&limit=3",
+   "evidence": "3 条 OI 快照 · 最新 event_time=2026-10-05T04:45:15Z · quality=ok",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "wb_okx8h",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/markets/okx/AEON-USDT-SWAP/candles?interval=8h&limit=3",
+   "evidence": "8h 返回 3 根 · is_native=true · quality=ok",
+   "warn": "⚠ 口径纠正：本卡片原先写死「OKX 官方无 8h 原生、返回 is_native=false」，实测对补充集合内的标的返回 is_native=true 且有数据，原结论不成立，已删除",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "run_arm",
+   "state": "unv",
+   "pill": "未验证",
+   "endpoint": "GET /api/v1/paper/status → item.runtime_identity",
+   "evidence": "arm=3a，但进程 status=not_started、overall_health=idle ⇒ 这只是配置默认值，没有被证明在运行",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "scan_state",
+   "state": "unv",
+   "pill": "未验证",
+   "endpoint": "GET /api/v1/paper/status → item.signal_engine",
+   "evidence": "signal_engine.status = unknown ⇒ 运行时未注册，扫描状态无法验证（HTTP 200 不代表在扫描）",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "sig_stream",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/signals?scope=current",
+   "evidence": "2 条 · 例：ETHUSDT long · origin=live · arm=3a · role=enterable_arm_entry · state=enterable",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "gate",
+   "state": "unv",
+   "pill": "未验证",
+   "endpoint": "GET /api/v1/paper/status + /api/v1/paper/accounts",
+   "evidence": "账本侧 allow_new_entries=true（reason=user_ui_resumed）；进程侧 order_processing 无 new_entry_gate（运行时未注册）⇒ 双来源无法交叉核对",
+   "warn": "",
+   "http": "HTTP 200/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "pending",
+   "state": "unv",
+   "pill": "未验证",
+   "endpoint": "GET /api/v1/paper/accounts → items[].pending",
+   "evidence": "挂单 0 笔（账本 n_pending_orders=0，四臂 pending 合计 0，进程侧 未注册）⇒ 无样本，挂单行渲染无法验证",
+   "warn": "",
+   "http": "HTTP 200/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "positions",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/paper/positions + /api/v1/paper/status",
+   "evidence": "1 条 · 例：ETHUSDT long · 入场 2403.34 · 止损 2283.17 · 臂 3a",
+   "warn": "",
+   "http": "HTTP 200/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "stops",
+   "state": "gone",
+   "pill": "端点不存在",
+   "endpoint": "GET /api/v1/paper/stops/{pos_id}?arm=…",
+   "evidence": "非法 pos_id 返回 HTTP 500（应为 400/404）：服务端把非整数直接喂给 int() 抛错，被外层兜成 500 —— 契约缺陷，已登记 GAP-01",
+   "warn": "",
+   "http": "HTTP 500/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "exits",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/paper/accounts → n_closed / realized_pnl_total",
+   "evidence": "账本已平仓 1 笔 · 已实现 -1.09 USDT · 进程内退出计数 未注册",
+   "warn": "",
+   "http": "HTTP 200/200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "live_account",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/accounts",
+   "evidence": "如实空态：quality=not_connected · 0 条账户 · 空态来自「无快照」，非「接口未实现」",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=workbench"
+  },
+  {
+   "key": "strategy_view",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/strategies",
+   "evidence": "current 1 个：WX_EVENT_TREND_V0_1 · runnable=true · live_order_enabled=false · formal_run_allowed=false · 注册表共 8 项",
+   "warn": "⚠ 口径矛盾：quality.note 声称「当前可运行策略仅 WX_OI_RESONANCE_V1」，但 current 数组里只有 WX_EVENT_TREND_V0_1（已登记 GAP-04）　只读：后端没有在线修改/保存接口，参数改动必须在服务端配置文件里做",
+   "http": "HTTP 200",
+   "link": "/?nav=strategy"
+  },
+  {
+   "key": "backtest_list",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/backtests",
+   "evidence": "500 条 · 全部带 run_id · 例 run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=backtest"
+  },
+  {
+   "key": "backtest_run",
+   "state": "pass",
+   "pill": "实测通过",
+   "endpoint": "GET /api/v1/backtests/{rid} / /metrics / /quality",
+   "evidence": "3 个 run 级端点（详情/metrics/quality）顶层 run_id 全部 = run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107",
+   "warn": "",
+   "http": "HTTP 200",
+   "link": "/?nav=backtest"
+  }
+ ]
+}

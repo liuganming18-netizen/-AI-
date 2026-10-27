@@ -6,7 +6,7 @@ SHA256: 1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab
 严禁随意调整任何参数！本轮不寻优。
 """
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 @dataclass(frozen=True)
@@ -50,6 +50,7 @@ class EventTrendConfig:
     breakout_vol_multiplier: float = 1.5         # 成交量 >= 1.5 * V20
     
     # 真实 OI 决策门槛
+    enable_oi_filter: bool = True                # 默认开启真实持仓量确认过滤
     oi_lookback_hours: int = 6                   # 6 小时持仓对比
     oi_min_growth_pct: float = 0.02              # 持仓数量增长 >= 2% (0.02)
     oi_max_time_distance_sec: int = 900          # 观测距收盘不超过 15 分钟
@@ -74,10 +75,16 @@ class EventTrendConfig:
     max_notional_per_position: float = 0.30      # 单仓名义金额上限 30%
     max_total_notional: float = 0.90             # 总名义金额上限 90%
     
-    # 退出规则
-    trailing_trigger_r: float = 2.0              # 4h 收盘浮盈达到 2R 启用跟踪止损
-    trailing_lookback_4h_bars: int = 10          # 最近 10 根 4h 最低价作为新止损
-    max_holding_days: int = 10                   # 最长持仓 10 个自然日 (240 小时)
+    # 执行与跟踪规则身份（统一 FT-LOW4H 用户确认规范）
+    rule: str = "FT-LOW4H"                       # 统一为用户明确决定的 FT-LOW4H 规范
+    model_version: str = "FT-LOW4H-EXP-V2.2"     # 参数模型版本
+    stoploss_s: Optional[float] = 0.05           # 固定 5% 初始止损
+    trail_d: float = 0.05                        # FT-LOW4H 4h 最低价跟踪比例
+ 
+    # 退出规则（统一 FT-LOW4H 用户确认规范）
+    trailing_trigger_r: float = 0.0              # 用户决定：取消 2R 门槛，入场立即跟踪
+    trailing_lookback_4h_bars: int = 1           # 用户决定：取新收盘 4h 最低价（而非前 10 根）
+    max_holding_days: Optional[int] = None       # 用户决定：取消 10 天自动平仓
 
     # 撮合约束 (冻结规则 §5)
     max_participation_of_prev_15m_quote: float = 0.001   # 订单名义 ≤ 已完成前一根 15m 成交额 0.1%
@@ -92,3 +99,18 @@ class EventTrendConfig:
     
     def to_dict(self) -> Dict[str, Any]:
         return dict(self.__dict__)
+
+
+def make_ft_low4h_config(**overrides) -> EventTrendConfig:
+    """创建严格遵循 FT-LOW4H 规范的回测配置（5% 初始止损、入场立即跟踪、4h low*0.95 跟踪线）。"""
+    defaults = {
+        "rule": "FT-LOW4H",
+        "model_version": "FT-LOW4H-EXP-V2.2",
+        "stoploss_s": 0.05,
+        "trail_d": 0.05,
+        "trailing_trigger_r": 0.0,
+        "trailing_lookback_4h_bars": 1,
+        "max_holding_days": None,
+    }
+    defaults.update(overrides)
+    return EventTrendConfig(**defaults)

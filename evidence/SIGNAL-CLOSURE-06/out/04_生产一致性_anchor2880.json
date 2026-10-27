@@ -1,0 +1,78 @@
+{
+ "generated_at_utc": "2026-10-25T06:44:40Z",
+ "upto_utc": "2026-10-25T05:59:59Z",
+ "state_replay_hours": 2880,
+ "replay_mode": "anchor2880",
+ "anchor_utc": "2026-06-27T05:59:59Z",
+ "symbols": [
+  "BTCUSDT",
+  "ETHUSDT",
+  "SOLUSDT",
+  "XRPUSDT",
+  "CTRUSDT",
+  "ADAUSDT",
+  "MASKUSDT",
+  "LUNA2USDT",
+  "AIGENSYNUSDT"
+ ],
+ "n_symbols": 9,
+ "n_compared_fields": 20,
+ "n_diff_symbols": 0,
+ "verdict": "PASS",
+ "judgement": "判据：**全部字段**（不只是状态键）逐币相同、且两边都真跑出了状态（不是两边都空）。只要有一项不同就是 FAIL —— 离线对照件不得被用来下结论。",
+ "path_A_production": {
+  "elapsed_sec": 5.23,
+  "bootstrap": {
+   "ready": 9,
+   "skipped": 0,
+   "history_candidates_discarded": 2,
+   "data_source": "merged_cold_hot",
+   "used": {
+    "replay_window_hours": 2880.0,
+    "replay_window_start_utc": "2026-06-27T05:59:59Z",
+    "declared_window_hours": 1160.0,
+    "state_replay_hours": 2880,
+    "atr_prewarm_bars_min": 41,
+    "atr_prewarm_bars_max": 41,
+    "bars_4h_min": 719,
+    "bars_4h_max": 719,
+    "bars_1h_min": 2880,
+    "bars_1h_max": 2880,
+    "box_bars": 42,
+    "er_bars": 42,
+    "breakout_vol_lookback": 20
+   },
+   "history": {
+    "declared_window_hours": 1160.0,
+    "replay_window_hours": 2880.0,
+    "replay_window_start_utc": "2026-06-27T05:59:59Z",
+    "state_replay_hours": 2880
+   }
+  }
+ },
+ "path_B_offline": {
+  "elapsed_sec": 2.74,
+  "bootstrap": {
+   "ready": 9,
+   "skipped": 0,
+   "history_candidates_discarded": 2
+  },
+  "used": {
+   "replay_window_hours": 2880.0,
+   "replay_window_start_utc": "2026-06-27T05:59:59Z",
+   "declared_window_hours": 1160.0,
+   "state_replay_hours": 2880,
+   "atr_prewarm_bars_min": 41,
+   "atr_prewarm_bars_max": 41,
+   "bars_4h_min": 719,
+   "bars_4h_max": 719,
+   "bars_1h_min": 2880,
+   "bars_1h_max": 2880,
+   "box_bars": 42,
+   "er_bars": 42,
+   "breakout_vol_lookback": 20
+  }
+ },
+ "diff_detail": [],
+ "note": "A 与 B 是**同一个类**（MultiSymbolSignalEngine）的两次实例化；差别只有 history_provider / watcher 是生产实现还是内存实现。所以 PASS 表示「离线件没有引入行为差异」，FAIL 表示离线件不可用。"
+}

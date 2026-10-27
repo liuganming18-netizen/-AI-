@@ -1,0 +1,130 @@
+{
+  "instrument_spec": {
+    "applicability": "unverified_historical",
+    "applicability_note": "没有任何快照的 serverTime 早于窗口开始 1788739200000 ⇒ 窗口起点之前无证据",
+    "blocking": true,
+    "change_evidence": [],
+    "contradiction_samples": [],
+    "coverage": {
+      "chain": [
+        {
+          "file_mtime_ms": 1791176008347,
+          "file_saved_ms": 1791176008000,
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+          "request_fetched_ms": 1791173366032,
+          "role": "anchor",
+          "same_as_anchor": true,
+          "sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+          "snapshot_server_ms": 1790941589242,
+          "spec_signature": "price_step=0.00001|qty_step=1|min_qty=1|max_qty=1100000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+        }
+      ],
+      "change_evidence": [],
+      "note": "没有任何快照的 serverTime 早于窗口开始 1788739200000 ⇒ 窗口起点之前无证据",
+      "numeric_source": null,
+      "reason": "no_snapshot_before_window_start",
+      "verdict": "unverified_historical"
+    },
+    "evidence_chain": [
+      {
+        "file_mtime_ms": 1791176008347,
+        "file_saved_ms": 1791176008000,
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+        "request_fetched_ms": 1791173366032,
+        "role": "anchor",
+        "same_as_anchor": true,
+        "sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+        "snapshot_server_ms": 1790941589242,
+        "spec_signature": "price_step=0.00001|qty_step=1|min_qty=1|max_qty=1100000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+      }
+    ],
+    "evidence_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+    "evidence_sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+    "fetched_at_ms": 1791173366032,
+    "file_mtime_ms": 1791176008347,
+    "file_saved_ms": 1791176008000,
+    "formal_pass_allowed": false,
+    "market": "um",
+    "max_qty": "1100000",
+    "min_notional": "5",
+    "min_qty": "1",
+    "onboard_ms": 1752570900000,
+    "order_type": "MARKET",
+    "price_precision": 7,
+    "price_step": "0.00001",
+    "qty_constraints": [
+      {
+        "applies": "always",
+        "filter": "LOT_SIZE",
+        "max": "3300000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "market_only",
+        "filter": "MARKET_LOT_SIZE",
+        "max": "1100000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "always",
+        "filter": "MIN_NOTIONAL",
+        "notional": "5"
+      }
+    ],
+    "qty_step": "1",
+    "quantity_precision": 0,
+    "request_fetched_ms": 1791173366032,
+    "snapshot_server_ms": 1790941589242,
+    "source_kind": "exchange_public_rest:exchangeInfo",
+    "source_url": "https://fapi.binance.com/fapi/v1/exchangeInfo",
+    "spec_effective_ms": null,
+    "symbol": "VELVETUSDT",
+    "venue": "binance",
+    "window_end_ms": 1791244800000,
+    "window_start_ms": 1788739200000
+  },
+  "precision": {
+    "audit": [
+      {
+        "is_buy": true,
+        "post_round_price": "0.06692",
+        "post_slip_price": "0.06691344",
+        "price_step": "0.00001",
+        "raw_price": "0.06688",
+        "round_delta": "0.00000656",
+        "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+        "slip_delta": "0.00003344",
+        "stage": "entry",
+        "symbol": "VELVETUSDT",
+        "timestamp": 1790954100000
+      }
+    ],
+    "audit_count": 1,
+    "invalid_reasons": [],
+    "price_steps": {
+      "VELVETUSDT": "0.00001"
+    },
+    "rejects": [],
+    "rejects_count": 0,
+    "run_valid": true,
+    "spec_status": "spec_applied",
+    "specs": {
+      "VELVETUSDT": {
+        "applicability": "unverified_historical",
+        "evidence_sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+        "market": "um",
+        "min_notional": "5",
+        "min_qty": "1",
+        "order_type": "MARKET",
+        "price_step": "0.00001",
+        "qty_step": "1",
+        "symbol": "VELVETUSDT",
+        "venue": "binance"
+      }
+    },
+    "unclosed_positions": []
+  },
+  "spec_status": "spec_applied"
+}

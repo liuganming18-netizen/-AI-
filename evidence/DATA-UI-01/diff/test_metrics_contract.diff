@@ -1,0 +1,425 @@
+diff --git "a/\346\241\206\346\236\266/backend/tests/test_metrics_contract.py" "b/\346\241\206\346\236\266/backend/tests/test_metrics_contract.py"
+new file mode 100644
+index 0000000..f6d24b0
+--- /dev/null
++++ "b/\346\241\206\346\236\266/backend/tests/test_metrics_contract.py"
+@@ -0,0 +1,419 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""DATA-UI-01 回归：指标字段矩阵的**口径纪律**（离线、零网络、不写正式库）。
++
++覆盖的判据（每条都对应一个曾经的真实坑）：
++  1. `num()` 把空串/None/NaN/inf 判成缺失 ⇒ **绝不返回 0**。
++     （欧易 K 线 `taker_buy_volume` 是空串，`float('')` 会抛错，`or 0` 会变成 0）
++  2. 欧易 `trade_count` 是**占位 0**（原生 K 线不提供），必须判缺失，不能显示「0 笔」。
++  3. 欧易持仓量原始列 `open_interest` 是**合约张数**，数量口径必须取 `oi_ccy`（基础币），
++     否则持仓量放大 100 倍。
++  4. 轮转窗口：有界、稳定序、`ceil(N/window)` 轮覆盖全部标的。
++  5. 轮转继承：本轮未取到的比率块沿用上一轮值，且**保留该块自己的 `fetched_at`**
++     （继承 ≠ 刷新，老值必须仍能显示为过期）。
++  6. 比例 / 百分比 / 笔数 三种单位格式化不同，不混用。
++  7. 加密池分母来自官方分类，INDEX 单列不并入。
++"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++BACKEND = os.path.dirname(HERE)
++FRAMEWORK = os.path.dirname(BACKEND)
++for _p in (BACKEND, FRAMEWORK):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++
++class NumParseTest(unittest.TestCase):
++    """判据 1：缺失一律 None，绝不用 0 冒充。"""
++
++    def test_blank_and_none_are_missing(self):
++        import metrics_api as m
++        for bad in (None, "", "   ", "abc", float("nan"), float("inf"), "-inf"):
++            self.assertIsNone(m.num(bad), f"{bad!r} 应判缺失，不得返回 0")
++
++    def test_real_zero_is_zero_not_missing(self):
++        """真实的 0 必须保留（不能把 0 也当缺失）——区分「缺失」与「值就是 0」。"""
++        import metrics_api as m
++        self.assertEqual(m.num("0"), 0.0)
++        self.assertEqual(m.num(0), 0.0)
++        self.assertEqual(m.num("0.0000"), 0.0)
++
++    def test_numeric_strings(self):
++        import metrics_api as m
++        self.assertAlmostEqual(m.num("1234.5678"), 1234.5678)
++        self.assertAlmostEqual(m.num(42), 42.0)
++        self.assertIsNone(m.num(True), "布尔不是数值")
++
++
++class ExchangeCapabilityTest(unittest.TestCase):
++    """判据 2/3：交易所能力门 + 占位值。"""
++
++    def test_okx_lacks_taker_and_trade_count(self):
++        import metrics_api as m
++        for key in ("taker_buy_volume", "taker_buy_quote_volume", "trade_count"):
++            self.assertFalse(m.field_supported("okx", key), f"欧易不应声称支持 {key}")
++        for key in ("taker_buy_volume", "taker_buy_quote_volume", "trade_count",
++                    "volume", "quote_volume"):
++            self.assertTrue(m.field_supported("binance", key), f"币安应支持 {key}")
++
++    def test_okx_trade_count_zero_is_not_reported(self):
++        """欧易 K 线 trade_count=0 是占位值：矩阵里必须判缺失，不能是 0 笔。"""
++        import metrics_api as m
++        try:
++            out = m.build_metrics("okx", "OKB-USDT-SWAP", {"period": ["1h"]})
++        except Exception as exc:                                  # noqa: BLE001
++            self.skipTest(f"离线环境无库/归档：{exc}")
++        rows = {r["key"]: r for r in out.get("fields") or []}
++        if not rows:
++            self.skipTest("无字段（库不可用）")
++        tc = rows.get("trade_count")
++        if tc is None:
++            self.skipTest("矩阵未产出 trade_count 行")
++        self.assertIsNone(tc["value"], "欧易占位 0 不得当真实成交笔数")
++        self.assertIn("上游不支持", tc["missing_reason"] or "")
++
++    def test_okx_oi_uses_base_currency_column(self):
++        """欧易持仓量必须取 oi_ccy（基础币），不能取 open_interest（合约张数）。"""
++        import metrics_api as m
++        try:
++            oi = m.oi_snapshot("okx", "OKB-USDT-SWAP")
++        except Exception as exc:                                  # noqa: BLE001
++            self.skipTest(f"离线环境无库：{exc}")
++        if not oi.get("available"):
++            self.skipTest("无欧易 OI 记录")
++        self.assertIsNotNone(oi.get("qty"))
++        self.assertIsNotNone(oi.get("qty_raw"))
++        # 张数口径与基础币口径相差 100 倍（ctVal=0.01）⇒ 二者不应相等
++        self.assertAlmostEqual(oi["qty_raw"] / oi["qty"], 100.0, delta=1.0,
++                               msg="欧易数量口径应为基础币（oi_ccy），不是合约张数")
++
++
++class RotationWindowTest(unittest.TestCase):
++    """判据 4：轮转窗口有界、稳定、全覆盖。"""
++
++    def test_window_is_bounded_and_stable(self):
++        import realtime_collector as rc
++        syms = [f"S{i}USDT" for i in range(60)]
++        w0 = rc.public_extras_ratio_window(syms, 0, n=12)
++        w0b = rc.public_extras_ratio_window(syms, 0, n=12)
++        self.assertEqual(w0, w0b, "同一轮必须稳定（不能随机）")
++        self.assertEqual(len(w0), 12, "窗口大小必须有界")
++        self.assertEqual(len(set(w0)), 12, "窗口内不得重复")
++
++    def test_rotation_covers_every_symbol_once(self):
++        import realtime_collector as rc
++        syms = [f"S{i}USDT" for i in range(60)]
++        n = 12
++        rounds = -(-len(syms) // n)
++        seen = []
++        for r in range(rounds):
++            seen.extend(rc.public_extras_ratio_window(syms, r, n=n))
++        self.assertEqual(sorted(seen), sorted(syms),
++                         f"{rounds} 轮应恰好覆盖全部标的各一次")
++        self.assertEqual(len(seen), len(set(seen)), "不得重复覆盖")
++
++    def test_zero_window_disables_rotation(self):
++        import realtime_collector as rc
++        self.assertEqual(rc.public_extras_ratio_window(["A", "B"], 0, n=0), [])
++        self.assertEqual(rc.public_extras_ratio_window([], 0, n=12), [])
++
++    def test_majors_come_first_in_rotation(self):
++        """主流标的必须排在第 0 轮窗口内，否则最常看的 BTC/ETH 要等好几轮。"""
++        import realtime_collector as rc
++        # 复刻真实顺序：字母序前 N ∪ 主流（主流被追加在末尾）
++        head = [f"S{i:03d}USDT" for i in range(48)]
++        syms = head + [m for m in rc.PUBLIC_EXTRAS_MAJORS if m not in head]
++        order = rc.public_extras_ratio_order(syms)
++        self.assertEqual(order[:len(rc.PUBLIC_EXTRAS_MAJORS)],
++                         list(rc.PUBLIC_EXTRAS_MAJORS)[:len(order[:len(rc.PUBLIC_EXTRAS_MAJORS)])],
++                         "主流标的应排在轮转队首")
++        w0 = rc.public_extras_ratio_window(syms, 0, n=12)
++        self.assertIn("BTCUSDT", w0, "第 0 轮窗口必须包含 BTCUSDT")
++        self.assertIn("ETHUSDT", w0, "第 0 轮窗口必须包含 ETHUSDT")
++        # 轮转仍须覆盖全部，且不重复
++        rounds = -(-len(syms) // 12)
++        seen = []
++        for r in range(rounds):
++            seen.extend(rc.public_extras_ratio_window(syms, r, n=12))
++        self.assertEqual(sorted(seen), sorted(syms))
++
++    def test_pending_symbols_take_front_of_window(self):
++        """上一轮没取齐的标的必须下一轮优先重试，否则要等满一整圈。"""
++        import realtime_collector as rc
++        syms = [f"S{i}USDT" for i in range(60)]
++        base = rc.public_extras_ratio_window(syms, 1, n=12)
++        pending = [syms[50], syms[55]]          # 不在 round=1 窗口内
++        w = rc.public_extras_ratio_window(syms, 1, n=12, pending=pending)
++        self.assertEqual(len(w), 12, "窗口大小仍须有界")
++        self.assertEqual(len(set(w)), 12, "窗口内不得重复")
++        self.assertEqual(w[:2], pending, "pending 必须占据窗口前位")
++        for s in base:
++            if len(w) < 12:
++                break
++        self.assertTrue(set(pending).issubset(set(w)))
++
++    def test_pending_bounded_by_window_size(self):
++        """pending 再多也不能把窗口撑大。"""
++        import realtime_collector as rc
++        syms = [f"S{i}USDT" for i in range(60)]
++        w = rc.public_extras_ratio_window(syms, 0, n=5, pending=syms[:20])
++        self.assertEqual(len(w), 5)
++        self.assertEqual(w, syms[:5], "pending 前 N 个正好填满窗口")
++
++    def test_pending_ignores_unknown_symbols(self):
++        import realtime_collector as rc
++        syms = ["AUSDT", "BUSDT"]
++        w = rc.public_extras_ratio_window(syms, 0, n=2, pending=["ZZZUSDT", "AUSDT"])
++        self.assertEqual(w[0], "AUSDT")
++        self.assertEqual(sorted(w), ["AUSDT", "BUSDT"])
++
++    def test_ratio_blocks_complete_requires_all_three(self):
++        """「处理过」不等于「取齐」：三块必须逐块**真有值**（不能只看 available）。"""
++        import public_market_read as pmr
++        blocks = pmr.RATIO_EXTRA_BLOCKS
++        full = {"long_short": {b: {"available": True, "value": "1.5"} for b in blocks}}
++        self.assertTrue(pmr._ratio_blocks_complete(full))
++        # available:true 但无值 ⇒ 不算取齐（空壳块）
++        shell = {"long_short": {b: {"available": True, "value": None} for b in blocks}}
++        self.assertFalse(pmr._ratio_blocks_complete(shell))
++        for b in blocks:
++            part = {"long_short": {x: {"available": x != b, "value": "1.5"}
++                                   for x in blocks}}
++            self.assertFalse(pmr._ratio_blocks_complete(part),
++                             f"缺 {b} 时不得判为取齐")
++        self.assertFalse(pmr._ratio_blocks_complete({}))
++        self.assertFalse(pmr._ratio_blocks_complete(None))
++
++
++class CarryOverTest(unittest.TestCase):
++    """判据 5：继承不等于刷新。"""
++
++    def setUp(self):
++        import public_snapshot
++        self.ps = public_snapshot
++        self.tmp = tempfile.mkdtemp(prefix="snap_test_")
++        self._orig = public_snapshot.SNAP_DIR
++        public_snapshot.SNAP_DIR = __import__("pathlib").Path(self.tmp)
++
++    def tearDown(self):
++        self.ps.SNAP_DIR = self._orig
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def _old_snapshot(self):
++        return {
++            "available": True,
++            "long_short": {
++                "period": "1h",
++                "top_position_long_short_ratio": {
++                    "available": True, "value": "1.5", "event_time": "2026-10-18T00:00:00Z",
++                    "fetched_at": "2026-10-18T00:05:00Z", "period": "1h"},
++                "top_account_long_short_ratio": {
++                    "available": True, "value": "1.9", "event_time": "2026-10-18T00:00:00Z",
++                    "fetched_at": "2026-10-18T00:05:00Z", "period": "1h"},
++                "global_account_long_short_ratio": {
++                    "available": True, "value": "1.7", "event_time": "2026-10-18T00:00:00Z",
++                    "fetched_at": "2026-10-18T00:05:00Z", "period": "1h"},
++                "taker_buy_sell_ratio": {
++                    "available": True, "value": "1.1", "event_time": "2026-10-18T00:00:00Z",
++                    "fetched_at": "2026-10-18T00:05:00Z", "period": "1h"},
++            },
++            "snapshot_refreshed_at": "2026-10-18T00:05:00Z",
++        }
++
++    def test_carry_over_keeps_old_blocks_and_their_timestamps(self):
++        import public_market_read as pmr
++        self.ps.write("binance", "TESTUSDT", self._old_snapshot())
++        skip = {"available": False, "reason": pmr.CORE_SKIP_REASON}
++        new_payload = {
++            "available": True,
++            "long_short": {
++                "period": "1h",
++                "top_position_long_short_ratio": {
++                    "available": True, "value": "1.6", "event_time": "2026-10-18T01:00:00Z",
++                    "fetched_at": "2026-10-18T01:05:00Z", "period": "1h"},
++                "top_account_long_short_ratio": dict(skip),
++                "global_account_long_short_ratio": dict(skip),
++                "taker_buy_sell_ratio": dict(skip),
++            },
++        }
++        merged = pmr._carry_over_ratio("binance", "TESTUSDT", new_payload)
++        ls = merged["long_short"]
++        # 旧值被继承
++        self.assertEqual(ls["top_account_long_short_ratio"]["value"], "1.9")
++        self.assertEqual(ls["global_account_long_short_ratio"]["value"], "1.7")
++        self.assertEqual(ls["taker_buy_sell_ratio"]["value"], "1.1")
++        # 继承块必须保留**自己原本的** fetched_at（继承≠刷新）
++        self.assertEqual(ls["top_account_long_short_ratio"]["fetched_at"],
++                         "2026-10-18T00:05:00Z")
++        self.assertTrue(ls["top_account_long_short_ratio"]["carried_over"])
++        self.assertEqual(sorted(ls["carried_over_blocks"]),
++                         sorted(pmr.RATIO_EXTRA_BLOCKS))
++        # 本轮真正刷新到的块**不得**被旧值覆盖
++        self.assertEqual(ls["top_position_long_short_ratio"]["value"], "1.6")
++        self.assertNotIn("carried_over", ls["top_position_long_short_ratio"])
++
++    def test_core_block_is_carried_when_deferred(self):
++        """核心块被预算推迟时，必须沿用上一轮值，不得把已有值冲成空。
++
++        实测来源：2026-10-18 round 1 首个请求被推迟，BTC 的
++        `top_position_long_short_ratio` 从 1.7772 变 null —— 就是这条缺失。
++        """
++        import public_market_read as pmr
++        self.ps.write("binance", "COREUSDT", self._old_snapshot())
++        skip = {"available": False, "reason": "DeferredRequest: 本地请求预算已用尽"}
++        new_payload = {"available": True, "long_short": {
++            "period": "1h",
++            "top_position_long_short_ratio": dict(skip),
++            "top_account_long_short_ratio": dict(skip),
++            "global_account_long_short_ratio": dict(skip),
++            "taker_buy_sell_ratio": dict(skip),
++        }}
++        ls = pmr._carry_over_ratio("binance", "COREUSDT", new_payload)["long_short"]
++        self.assertTrue(ls["top_position_long_short_ratio"]["available"],
++                        "核心块被推迟时必须继承旧值，不能变空")
++        self.assertEqual(ls["top_position_long_short_ratio"]["value"], "1.5")
++        self.assertEqual(ls["top_position_long_short_ratio"]["fetched_at"],
++                         "2026-10-18T00:05:00Z", "继承必须保留原时间戳")
++        self.assertTrue(ls["top_position_long_short_ratio"]["carried_over"])
++        self.assertIn("top_position_long_short_ratio", ls["carried_over_blocks"])
++
++    def test_oi_block_is_carried_when_empty_shell(self):
++        """持仓量块被写成「available:true 但 amount/usd 全空」时，必须继承旧值。
++
++        实测来源：2026-10-18 某轮 OI 请求被推迟，BTC 快照出现
++        `{"available": true, "amount": null, "usd": null}`，界面从有值变成「—」。
++        """
++        import public_market_read as pmr
++        old = self._old_snapshot()
++        old["open_interest"] = {"available": True, "amount": 93476.938,
++                                "usd": 7650526513.672,
++                                "amount_event_time": "2026-10-18T00:00:00Z",
++                                "fetched_at": "2026-10-18T00:05:00Z"}
++        self.ps.write("binance", "OIUSDT", old)
++        empty = {"available": True, "amount": None, "usd": None, "fetched_at": None}
++        payload = {"available": True, "long_short": {"period": "1h"},
++                   "open_interest": dict(empty)}
++        out = pmr._carry_over_ratio("binance", "OIUSDT", payload)
++        oi = out["open_interest"]
++        self.assertEqual(oi["amount"], 93476.938, "空壳块必须继承旧值")
++        self.assertEqual(oi["fetched_at"], "2026-10-18T00:05:00Z", "继承必须保留原时间戳")
++        self.assertTrue(oi["carried_over"])
++        self.assertTrue(out.get("open_interest_carried_over"))
++
++    def test_block_ok_rejects_empty_shell(self):
++        import public_market_read as pmr
++        self.assertFalse(pmr._block_ok({"available": True, "amount": None, "usd": None}))
++        self.assertFalse(pmr._block_ok({"available": True, "value": ""}))
++        self.assertFalse(pmr._block_ok({"available": False, "value": "1.5"}))
++        self.assertFalse(pmr._block_ok(None))
++        self.assertTrue(pmr._block_ok({"available": True, "value": "1.5"}))
++        self.assertTrue(pmr._block_ok({"available": True, "amount": 0.0}),
++                        "真实的 0 也是值")
++
++    def test_carry_over_no_previous_snapshot(self):
++        import public_market_read as pmr
++        payload = {"available": True, "long_short": {
++            "period": "1h",
++            "top_account_long_short_ratio": {"available": False, "reason": "未取"}}}
++        out = pmr._carry_over_ratio("binance", "NOSUCHUSDT", payload)
++        self.assertFalse(out["long_short"]["top_account_long_short_ratio"]["available"],
++                         "没有旧快照时不得凭空造值")
++
++    def test_fresh_blocks_are_not_overwritten(self):
++        import public_market_read as pmr
++        self.ps.write("binance", "TEST2USDT", self._old_snapshot())
++        fresh = {"available": True, "long_short": {
++            "period": "1h",
++            "top_account_long_short_ratio": {
++                "available": True, "value": "2.2", "fetched_at": "2026-10-18T01:05:00Z"},
++            "global_account_long_short_ratio": {
++                "available": True, "value": "2.3", "fetched_at": "2026-10-18T01:05:00Z"},
++            "taker_buy_sell_ratio": {
++                "available": True, "value": "1.4", "fetched_at": "2026-10-18T01:05:00Z"},
++        }}
++        out = pmr._carry_over_ratio("binance", "TEST2USDT", fresh)
++        self.assertEqual(out["long_short"]["top_account_long_short_ratio"]["value"], "2.2")
++        self.assertNotIn("carried_over", out["long_short"]["top_account_long_short_ratio"])
++
++
++class UnitFormatTest(unittest.TestCase):
++    """判据 6：比例 / 百分比 / 笔数 三种单位分别格式化。"""
++
++    def test_units_differ(self):
++        import metrics_api as m
++        self.assertEqual(m._fmt_unit(94971.0, "笔"), "94,971")
++        self.assertEqual(m._fmt_unit(1.4887263, "倍"), "1.4887")
++        self.assertEqual(m._fmt_unit(59.8188, "%"), "59.8188")
++        self.assertEqual(m._fmt_unit(0.006412, "%/期"), "0.006412")
++        self.assertIsNone(m._fmt_unit(None, "倍"))
++
++    def test_ratio_and_share_are_distinct_fields(self):
++        import metrics_api as m
++        specs = {s["key"]: s for s in m.FIELD_SPECS}
++        self.assertEqual(specs["taker_buy_sell_ratio"]["unit"], "倍")
++        self.assertEqual(specs["taker_buy_share"]["unit"], "%")
++        self.assertNotEqual(specs["taker_buy_sell_ratio"]["basis"],
++                            specs["taker_buy_share"]["basis"])
++
++    def test_funding_current_and_settled_are_separate(self):
++        import metrics_api as m
++        specs = {s["key"]: s for s in m.FIELD_SPECS}
++        self.assertIn("funding_rate_current", specs)
++        self.assertIn("funding_rate_settled", specs)
++        self.assertIn("未结算", specs["funding_rate_current"]["basis"])
++        self.assertIn("已结算", specs["funding_rate_settled"]["basis"])
++
++
++class PoolScopeTest(unittest.TestCase):
++    """判据 7：分母来自官方分类，INDEX 不并入。"""
++
++    def test_pool_scope_excludes_index_and_non_crypto(self):
++        import metrics_api as m
++        scope = m.pool_scope()
++        if scope.get("error"):
++            self.skipTest(f"分类表不可用：{scope['error']}")
++        self.assertIn("binance", scope)
++        excluded = scope["binance"]["excluded"]
++        self.assertIn("INDEX", excluded, "INDEX 必须单列在排除项里")
++        for label in excluded:
++            self.assertNotIn(label, ("COIN",), "被排除项不得计入分母")
++        self.assertGreater(scope["binance"]["total"], 0)
++        # 分母必须**由表算出**，不是写死的常数
++        self.assertEqual(scope["combined_total"],
++                         scope["binance"]["total"] + scope["okx"]["total"])
++
++
++class ContractTest(unittest.TestCase):
++    """机器可读字段契约的完整性。"""
++
++    def test_contract_covers_all_fields(self):
++        import metrics_api as m
++        c = m.field_contract()
++        keys = [f["key"] for f in c["fields"]]
++        self.assertEqual(sorted(keys), sorted(s["key"] for s in m.FIELD_SPECS))
++        for f in c["fields"]:
++            self.assertTrue(f["unit"], f"{f['key']} 必须有单位")
++            self.assertTrue(f["basis"], f"{f['key']} 必须有口径说明")
++            self.assertIn("missing_policy", f)
++        self.assertIn("ratio_vs_percent", c)
++        self.assertIn("funding_split", c)
++        self.assertIn("not_smart_money", c)
++        # 契约必须可 JSON 序列化（供离线研究直接读）
++        json.dumps(c, ensure_ascii=False)
++
++    def test_contract_marks_periods(self):
++        import metrics_api as m
++        c = m.field_contract()
++        self.assertEqual(c["periods"], list(m.PERIODS))
++        self.assertNotIn("8h", c["exchanges"]["okx"]["native_periods"],
++                         "欧易无原生 8h，不得声称支持")
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

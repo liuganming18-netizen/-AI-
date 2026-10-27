@@ -1,0 +1,139 @@
+{
+  "audit": "ENTRY-AUDIT-04",
+  "handoff_version": "ENTRY-AUDIT-04.handoff.v1",
+  "generated_utc": "2026-10-18 09:33:20",
+  "read_this": {
+    "primary": "evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.parquet",
+    "primary_csv_fallback": "evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.csv",
+    "meta": "evidence/ENTRY-AUDIT-04/handoff/handoff_meta.json",
+    "generation_split": "evidence/ENTRY-AUDIT-04/handoff/generation_split.json"
+  },
+  "do_not_read_for_costs": {
+    "path": "evidence/FACTOR-ENTRY-03/candidate_features_enriched.parquet",
+    "why": "该表的 total_fees / total_funding 两列是键名读错的产物，163 条全为 0；用它算费用会得出「零成本」的错误结论"
+  },
+  "files": [
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.csv",
+      "sha256": "4b3207b5c6fd63d2a74179a2be60f58e41e9e3be74ac9424d79193eb45eef71f",
+      "bytes": 356493,
+      "description": "主表（227 行，机器可读；UTF-8 BOM，Excel 直开）",
+      "usage": "FE07 必须读这个"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.parquet",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/ledger_handoff.parquet",
+      "sha256": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+      "bytes": 126475,
+      "description": "主表 parquet（dtype 保真）",
+      "usage": "FE07 优先读这个"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/signal_index.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/signal_index.csv",
+      "sha256": "ce5660a8beaa942e966ea9ef6584de33af05a1ff1b7cd127b20218a5241ad8f0",
+      "bytes": 36686,
+      "description": "226 个唯一信号索引",
+      "usage": "跨代际按唯一信号比对时用"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/coti_duplicate.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/coti_duplicate.csv",
+      "sha256": "5ca803697aa28aa0dae4f1248b8f29fd7a9ba4200389222d8786e9af59c8fdf1",
+      "bytes": 1219,
+      "description": "COTI 同快照两条逐项对比",
+      "usage": "处理重复信号时用"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/unfilled_22.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/unfilled_22.csv",
+      "sha256": "527b0d0fe7b6f75e3f4faf26a2cca597df4e5d3701aa329319091f664fe91d27",
+      "bytes": 11680,
+      "description": "22 条未成交 + 真实拒单原因",
+      "usage": "核对未成交口径时用"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/generation_split.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/generation_split.json",
+      "sha256": "95bcfbdae96784a725c127455b2b610dcf4a3c8af682b45bfc1d8c85b290cfff",
+      "bytes": 2428,
+      "description": "两代际分账 + 禁拼接声明",
+      "usage": "出指标前必须先读"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/field_dictionary.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/field_dictionary.csv",
+      "sha256": "8cd998b61e2b2f3d0d833f5bd47c2f3585ac6397dc5390fb8919b9bc848949d2",
+      "bytes": 3586,
+      "description": "原始字段名 ↔ 交接字段名",
+      "usage": "字段口径有疑问时查"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-04/handoff/handoff_meta.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-04/handoff/handoff_meta.json",
+      "sha256": "9872eca19a539378d7835cc3f357ac8e5343fe87ed90949479a09ff65df682aa",
+      "bytes": 22807,
+      "description": "符号约定 / 公式 / 三态 / PIT / 自检",
+      "usage": "口径唯一事实源"
+    }
+  ],
+  "upstream_evidence": [
+    {
+      "path": "evidence/ENTRY-AUDIT-03/03_identity_full.csv",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/03_identity_full.csv",
+      "sha256": "18e28dd85f7fb856b1c7d5eedeafe1552b4098f0c3e29220ef714782a0483f45",
+      "bytes": 226443,
+      "description": "身份映射原表（227 行 71 列）"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/02_replay_trades.jsonl",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/02_replay_trades.jsonl",
+      "sha256": "852bbbe073275a9671ebaf0dcadd7ebabe37b4d343a6683277b4dc30ec98d87c",
+      "bytes": 291558,
+      "description": "重放成交原值（213 条，引擎 trade rec 逐字）"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/02_replay_rejects.jsonl",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/02_replay_rejects.jsonl",
+      "sha256": "368414efc9dfc2be604a0e717747838cdabc2de355c1245e5ffcbf55574f167b",
+      "bytes": 16386,
+      "description": "原始拒单事件（48 条）"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/04_cost_reconcile.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/04_cost_reconcile.json",
+      "sha256": "5d0524b2c52d56aa79e448efa7aae0b39d18eb8122bfc6744066d840fc260f20",
+      "bytes": 6139,
+      "description": "费用对账结果（含账本探针）"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/00_freeze_manifest.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/00_freeze_manifest.json",
+      "sha256": "00ed327605676ffbc88068182d78422b4d43a55e3301f44563f4b4bd19f63d99",
+      "bytes": 1491614,
+      "description": "4139 个文件冻结清单"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/00_config_fingerprint.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/00_config_fingerprint.json",
+      "sha256": "347701d891744ba9e3433363770ad66eb890b2768f7bff7ab94149ca87f35b36",
+      "bytes": 4162,
+      "description": "配置指纹"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/00_window_plan.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/00_window_plan.json",
+      "sha256": "71b46aa5f3a039b2014e29858d227708d5c34a510afdc71514666cdb7aef9a52",
+      "bytes": 18039,
+      "description": "窗口计划"
+    },
+    {
+      "path": "evidence/ENTRY-AUDIT-03/runs/index.json",
+      "abs_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ENTRY-AUDIT-03/runs/index.json",
+      "sha256": "34fa8bfd58e2f2d95d7aefe7e721c38cceb77e364cbaf9134fcc760d9b3c6d82",
+      "bytes": 24874,
+      "description": "176 个独立 run 目录索引"
+    }
+  ]
+}

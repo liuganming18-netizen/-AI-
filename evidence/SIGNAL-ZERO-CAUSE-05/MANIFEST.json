@@ -1,0 +1,337 @@
+{
+ "work_order": "SIGNAL-ZERO-CAUSE-05",
+ "title": "零信号逐币归因与漏信号排查",
+ "generated_at_utc": "2026-10-25T05:06:05Z",
+ "project": "/Users/boos/Desktop/威科夫因子共振趋势",
+ "frozen_rule": {
+  "path": "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+  "sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+  "changed_by_this_work_order": false
+ },
+ "frozen_params_changed": false,
+ "real_trading_enabled": false,
+ "code_changed": [
+  {
+   "path": "框架/backend/unified_runtime.py",
+   "sha256_before": "d58f95fe9608335db88b811c65fe4b96a2318af2b27840c67b0bfa04df4f9e55",
+   "sha256_after": "3b3d6d2da7a12d4eecb319c2179a5ea181ad3f594b9408a83a7820f24e695d52",
+   "changes": [
+    "RealSignalEngine/MultiSymbolSignalEngine 新增 box_gate_mode（默认 atr_warmup）",
+    "process_market：建档闸门改用 atr_bars_seen（规范口径）",
+    "process_market：4h 取数下界前移 (box_bars_4h-1) 根，42 根可跨窗口起点",
+    "bootstrap：上下文 bar 一并交给 _MemWatcher",
+    "atr_caliber：暴露 box_gate_mode / gate_metric；box_gate_bars 降级为诊断量",
+    "idle_breakdown：ATR 改用 eng.last_atr（与决策同一个数）"
+   ]
+  },
+  {
+   "path": "策略/WyckoffMaster/event_trend_v0_1/tests/test_ft_low4h_parity_closure.py",
+   "sha256_after": "15c0ce94c297b2fe20ba9b462a4e9e95b363f9266058b89ed7f29090af306e21",
+   "changes": [
+    "补足 220 根 4h 预热数据（断言未改）；该用例修复前即失败"
+   ]
+  }
+ ],
+ "key_numbers": {
+  "effective_event_window_days_before": 15.0,
+  "effective_event_window_days_after": 41.33,
+  "lost_days": 26.33,
+  "worst_case_event_chain_days": 24.0,
+  "boxes_before": 1598,
+  "boxes_spec": 4257,
+  "candidates_before": 0,
+  "candidates_spec": 17,
+  "state_diff_before_60h": 32,
+  "state_diff_after_60h": 6,
+  "state_diff_after_same_length_60h": 0,
+  "parity_ok": 526,
+  "parity_mismatch": 0,
+  "prod_checks_pass": 17,
+  "prod_checks_total": 17,
+  "prod_history_boxes_after": 4262,
+  "prod_history_candidates_after": 18,
+  "prod_history_candidates_discarded": 18,
+  "current_state_distribution": {
+   "IDLE": 167,
+   "BOX": 320,
+   "RETEST": 34,
+   "SWEEP": 5
+  },
+  "current_blocked_by": {
+   "冷却": 139,
+   "等扫低(7天内)": 320,
+   "等突破(H+0.1A)": 34,
+   "等缩量回踩(72h内)": 5,
+   "无箱体": 28
+  },
+  "retest_gap_median_pct": 16.1582,
+  "candidates_all_checks_pass": 17,
+  "negative_cases": 28,
+  "negative_violations": 0,
+  "traceback_n_picked": 8,
+  "traceback_n_comparisons": 44,
+  "traceback_n_missing": 0,
+  "traceback_n_failed": 0,
+  "traceback_all_match": true,
+  "traceback_upto_utc": "2026-10-25T02:59:59Z",
+  "selfcheck_n_pass": 98,
+  "selfcheck_n_checks": 98,
+  "selfcheck_all_pass": true,
+  "new_bar_after_fix": {
+   "observed": true,
+   "watermark_from_utc": "2026-10-25T03:00:00Z",
+   "watermark_to_utc": "2026-10-25T04:00:00Z",
+   "n_samples": 105,
+   "lag_1h_max": 0,
+   "n_lag_1h_gt1": 0,
+   "aligned_1h": true,
+   "funnel_since_start": {
+    "BOX": 0,
+    "SWEEP": 0,
+    "RETEST": 0,
+    "CANDIDATE": 0,
+    "VOLUME_REJECTED": 0,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 0,
+    "EXPIRED": 0,
+    "MISSED_WITHOUT_RETEST": 0
+   },
+   "orders_routed_total": 0,
+   "open_positions": 0
+  }
+ },
+ "recompute": {
+  "01": "python code/01_spec_vs_impl.py",
+  "02": "python code/02_per_symbol_zero_signal.py",
+  "03": "python code/03_leak_three_scenarios.py",
+  "04": "python code/04_gate_isolated_ab.py",
+  "05": "python code/05_verify_fix_parity.py",
+  "06": "python code/06_prod_verify.py --phase pre | --restart | --wait-ready | --phase post | --compare",
+  "07": "python code/07_two_way_cases.py",
+  "11": "python code/11_traceback_sample.py（锚定 02 的 upto_utc，不取当前时刻）",
+  "14": "python code/14_gate_open_time.py（旧口径真跑，不手算开闸时刻）",
+  "10": "python code/10_selfcheck.py",
+  "06-watch": "python code/06_prod_verify.py --watch-min 65"
+ },
+ "files": {
+  "code": {
+   "code/00_common.py": {
+    "size": 8353,
+    "sha256": "5d0a51843b777cc842d754a047cf1d2d66b5207737880649488a0f939a87e0e4"
+   },
+   "code/01_spec_vs_impl.py": {
+    "size": 8080,
+    "sha256": "53ae6c28860e83f7de7e815b8fe281d5ae21d6f93f9939d7a64e594270fb2f7e"
+   },
+   "code/02_per_symbol_zero_signal.py": {
+    "size": 15294,
+    "sha256": "16028857cc93ff65eafabb9081a616678a4cc0f139fd4d847e2a6e29be9001d6"
+   },
+   "code/03_leak_three_scenarios.py": {
+    "size": 11493,
+    "sha256": "fd7ee735acce25b7e5f17651677aa22e42be67a87dc36e24b8237386b624a5dd"
+   },
+   "code/04_gate_isolated_ab.py": {
+    "size": 14474,
+    "sha256": "d238cc14fbcdf56f6e0d44d65fec09adfc1fe9459a2fc3d4f65e2559d30c727a"
+   },
+   "code/05_verify_fix_parity.py": {
+    "size": 7111,
+    "sha256": "86c42336c726efe3c6758504b1c502ea70507589788aa4a216425b3e14949e82"
+   },
+   "code/06_prod_verify.py": {
+    "size": 26077,
+    "sha256": "e10476618261831b3b26b607253b63c01873e972d35cc94d35605718769d7901"
+   },
+   "code/07_two_way_cases.py": {
+    "size": 12575,
+    "sha256": "32a800eca0e9cd5b8d5c3ea20be349b4d5aa20c9d8c494f46b3dfbccf63835bf"
+   },
+   "code/08_ui_evidence.mjs": {
+    "size": 6209,
+    "sha256": "9059e018f3291a2cd4c318dc5a5aa18d5d82eb07684921f8df54aba262fa5f09"
+   },
+   "code/10_selfcheck.py": {
+    "size": 17732,
+    "sha256": "ade720bc7aea3ba56f263ead96a82e08badc14e605554918bf90a0345c13304b"
+   },
+   "code/11_traceback_sample.py": {
+    "size": 9339,
+    "sha256": "ed3c462edfcf81b9465960881c6be164c41abffe5effcb7580d501a447ffb7a9"
+   },
+   "code/12_new_bar_effect.py": {
+    "size": 8838,
+    "sha256": "0101ef37b765d32457e7d957424f476ffd6db90ce0483ebb4e5c279aaaf84ade"
+   },
+   "code/14_gate_open_time.py": {
+    "size": 6184,
+    "sha256": "6e2d49eecf4c02a95b87a227c117cb397b031b807b1aecd46f459ab2b163708f"
+   },
+   "code/99_manifest.py": {
+    "size": 8628,
+    "sha256": "487a5f4d6a945f1b22c46263bff6000a56baef76c9b21f4bb77070e8f83cb477"
+   }
+  },
+  "out": {
+   "out/01_规范与实现对照.json": {
+    "size": 7080,
+    "sha256": "c4c21a3698b21135cc9c7a597775da91418f4955e5667787d0ce82669400df93"
+   },
+   "out/02_upto_new.log": {
+    "size": 1359,
+    "sha256": "bdbbf2f20658febc803f1ba0807cd6e19536580cb8628a99008445e36992146f"
+   },
+   "out/02_汇总.json": {
+    "size": 2130,
+    "sha256": "92045bbbdbc1790797931b8abe777239ff4ea9acd8eb7ab543fb6a964126b191"
+   },
+   "out/02_汇总_upto1792904399999.json": {
+    "size": 2131,
+    "sha256": "6e5e44cec1efc259a12de625c0e6be2b02dd7f44e9a9b91265952a2fd5274c9a"
+   },
+   "out/02_汇总_修复前.json": {
+    "size": 2135,
+    "sha256": "d98d3026ce4f290159a6b54c7a39b271c462e4a9c0362734d337b0360ddb7237"
+   },
+   "out/02_逐币归因.csv": {
+    "size": 259154,
+    "sha256": "ad3142aa2bbd95b5e9eccca674456cf75aa8031ec15b3075915956ca425d8905"
+   },
+   "out/02_逐币归因.json": {
+    "size": 6491157,
+    "sha256": "ec9e9c8b927d2b313a0dd4f64dc6ec610cdd190a126ae4336f341d6d0e79d210"
+   },
+   "out/02_逐币归因_upto1792904399999.csv": {
+    "size": 259139,
+    "sha256": "d7176c3a3c92469510f2e704799deaff7d8805d5a8b6da65dc99e503fe3956d2"
+   },
+   "out/02_逐币归因_upto1792904399999.json": {
+    "size": 6505435,
+    "sha256": "3e3de5b44704050c541c1935b2f3c6ae290086ddfc1b7eea2d3756b324ea186c"
+   },
+   "out/03_三场景对照.json": {
+    "size": 3463886,
+    "sha256": "7ae1554ae5bd8bfdd5f7b1d6ac5cef02fda380ae95443155dcf311c8a0497fff"
+   },
+   "out/03_三场景对照_修复前.json": {
+    "size": 2186200,
+    "sha256": "7507591868334d34e91cda500a89208d16db110857091b2be37fcd308a48a0c2"
+   },
+   "out/03_逐币三场景.csv": {
+    "size": 90737,
+    "sha256": "58bb39b196cb1ef6305b01f0af2c65cf07230f23b8ac2e335d493f6030486848"
+   },
+   "out/04_逐币闸门对照.csv": {
+    "size": 86328,
+    "sha256": "63183d22b42143bf06fa63b6c48dd8122469501c1d603934f6bb90263df13144"
+   },
+   "out/04_逐币闸门对照_修复前.csv": {
+    "size": 86350,
+    "sha256": "791fc002c6c43f30fe56aa47eab849635edd01ecfaa882cd7283dc1485a26921"
+   },
+   "out/04_闸门对照.json": {
+    "size": 378570,
+    "sha256": "7de4391950e4812ed07aa01f8d6662eb368d392ff6f6afc410e5d6d6bd8d5890"
+   },
+   "out/04_闸门对照_修复前.json": {
+    "size": 379917,
+    "sha256": "bed58ab0732665a8d366ee08502a82c0fd45fb37977201d690ce28bdd16a16eb"
+   },
+   "out/05_修复后parity.json": {
+    "size": 124418,
+    "sha256": "19e989ea6b67ede147a60653f91aae6b25bd75685d774e4a20add11971f8f5eb"
+   },
+   "out/05_逐币parity.csv": {
+    "size": 17680,
+    "sha256": "fd6753184ce6c3300105a30aceaf9bf7cdbb913144c5b7fd2f4f6a0482d7160c"
+   },
+   "out/06_watch.log": {
+    "size": 97,
+    "sha256": "3f0df819e844ce777b678dc7d802258e6abc478ebb7126ca3b5445bee4ebaa6a"
+   },
+   "out/06_新增K线观察.json": {
+    "size": 67972,
+    "sha256": "956dc9c8b6188936cc7455eb19b92dab929d88cf7ea147a6eaf4f5fee9843fa1"
+   },
+   "out/06_生产核验_post.json": {
+    "size": 58299,
+    "sha256": "c7e4311287e0280d17fbf16385278500eba58b06cacadfb2296be93e181c1f49"
+   },
+   "out/06_生产核验_pre.json": {
+    "size": 59806,
+    "sha256": "68c176bfbf5279c88154a2baa710be9a25d729ef45208ecefed4301aca6d6b60"
+   },
+   "out/06_生产核验_对比.json": {
+    "size": 9738,
+    "sha256": "6783e3111780fb2242e05b77d6af112079a7f4236a70ad8c221d5a2c6410a1d4"
+   },
+   "out/06_重启就绪.json": {
+    "size": 179,
+    "sha256": "ea814b0fc6a5ad2080663ab0d4db68f66500f41e660069cc7819b2bc53bd3a8b"
+   },
+   "out/06_重启记录.json": {
+    "size": 1174,
+    "sha256": "fecf17b380ec5509533e941ef58546210ff453656ed9b6e277bd51b5266383f0"
+   },
+   "out/07_不应触发核对.json": {
+    "size": 7390,
+    "sha256": "d751039ad3a5971d406ee5ea58ec6635e7de1fe5b5d00805da2a5af7160a3a19"
+   },
+   "out/07_应触发复算.json": {
+    "size": 17571,
+    "sha256": "51c399b30ee0da7d679ab5d5ac4496fd40c85138b251671213d54e185daeefcd"
+   },
+   "out/07_当前卡点.csv": {
+    "size": 45912,
+    "sha256": "9f0291bccf413b71aefdc89429f5927a0c5ef1eeea1e0ff0f7e583bf06caf076"
+   },
+   "out/07_当前卡点汇总.json": {
+    "size": 858,
+    "sha256": "595716329a3998bd38a2c8b1d361c8f9cb2ce52d3543bfb77d0701134bb6c818"
+   },
+   "out/08_用户入口.json": {
+    "size": 2915,
+    "sha256": "4831a75633712154120af7be76c8645bde71d551813b20c74d84facd2ec1e9ed"
+   },
+   "out/08_用户入口.png": {
+    "size": 422381,
+    "sha256": "5270a2e72044e3e07ed9252082ee9b1b8bc645dcfe898f9d547af3695f1f4bc0"
+   },
+   "out/08_用户入口_守护卡.png": {
+    "size": 60616,
+    "sha256": "f5b8cd6b06dbdc64f3af06c7a5451fb506c31c7849f3ed149da6c561e23857e8"
+   },
+   "out/10_报告数字自检.json": {
+    "size": 15484,
+    "sha256": "601edf6e17ebd8f7c10e936abe02d2e3d56078a45a96f3037997f233c40aa03b"
+   },
+   "out/11_回溯抽样.json": {
+    "size": 10217,
+    "sha256": "a292fb8efc89cc7f0815fcbfa2ad9a9654d1e7798521561d918bc34e674f78e9"
+   },
+   "out/12_新增K线效果.json": {
+    "size": 2034,
+    "sha256": "672df7fae10029955baddb4c8e78a46bca7a1ff1c2fd1c4f48095341871dffcb"
+   },
+   "out/13_测试_策略.txt": {
+    "size": 447,
+    "sha256": "e3c1f13f538103ec014a72fffb7c6176aadde772d9d3aaf853880cf945241d4a"
+   },
+   "out/14_开闸时刻实测.json": {
+    "size": 2567,
+    "sha256": "12d865817a4f58da45214fd6e10db3e6fcbdcd5d6d04c7c85fa4ede8f6fd1967"
+   },
+   "out/unified_runtime_before.py": {
+    "size": 112988,
+    "sha256": "d58f95fe9608335db88b811c65fe4b96a2318af2b27840c67b0bfa04df4f9e55"
+   }
+  },
+  "root": {
+   "SIGNAL-ZERO-CAUSE-05_主报告.md": {
+    "size": 21129,
+    "sha256": "c852cbcc7bdb12cb38cff7a433621ff25e1247c72d0c688465e5718a889ddd16"
+   }
+  }
+ }
+}

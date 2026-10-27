@@ -1,0 +1,524 @@
+{
+ "生成时刻": "2026-10-22T22:13:33+08:00",
+ "测试开始时刻": "2026-10-22T22:13:32+08:00",
+ "明细": {
+  "A_生产基线": {
+   "采样时刻": "2026-10-22T22:13:32+08:00",
+   "状态": {
+    "账本": {
+     "paper_3a.sqlite3": {
+      "sha256": "272cf9c3a1e78d16fb47fa2810bc1729dfa881c6e350bd082250a24cf169a48e",
+      "字节": 163840,
+      "mtime_ms": 1792676888970,
+      "mtime": "2026-10-22T21:48:08+08:00"
+     },
+     "paper_3b.sqlite3": {
+      "sha256": "c38b2cad7630ef6fe13166caf20cbb80507b7f3de2ac5d5ebcf2872cd684e27e",
+      "字节": 163840,
+      "mtime_ms": 1792676893979,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     },
+     "paper_3c.sqlite3": {
+      "sha256": "5edfa35e9ad259ea443fb56a2187d19f0fc249cbb11823416bbd74b613e19dcb",
+      "字节": 163840,
+      "mtime_ms": 1792676893984,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     },
+     "paper_3d.sqlite3": {
+      "sha256": "23446394d4a6cdbc37892685ac7b392cb885db660481200bb3ee92ebdad3a965",
+      "字节": 163840,
+      "mtime_ms": 1792676893988,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     }
+    },
+    "闸门": {
+     "存在": true,
+     "sha256": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+     "内容": {
+      "allow_new_entries": false,
+      "reason": "system_closeloop_02_paused_for_audit",
+      "gate_reason": "new_entry_blocked_pending_closure_review",
+      "set_by": "system_closeloop_02_safety_guard",
+      "since_ms": 1792671530204,
+      "scope": "server_side_new_entry_only",
+      "note": "SYSTEM-CLOSELOOP-02 整改保护：日常实例暂停新模拟开仓，保持行情采集、持仓管理和历史对账。"
+     }
+    },
+    "信号库": {
+     "存在": true,
+     "sha256": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+     "字节": 45056
+    }
+   },
+   "8787_pid": 27607,
+   "health": {
+    "status": 200,
+    "ok": true
+   }
+  },
+  "C_重启读回": {
+   "父进程持仓": [
+    {
+     "position_id": 1,
+     "symbol": "BTCUSDT",
+     "status": "closed",
+     "stop_price": 90.2
+    }
+   ],
+   "父进程账户": {
+    "account_id": "paper43_3a",
+    "cash": 4983.2729810683,
+    "realized_pnl": -16.727018931699995,
+    "fees_paid": 0.15848233170000003,
+    "funding_paid": 0.0,
+    "updated_at": 1792678409586
+   },
+   "父进程止损历史": {
+    "1": [
+     {
+      "reason": "ft_low4h_trail",
+      "old_stop": 85.10000000000001,
+      "new_stop": 90.2,
+      "effective_at": 1792670399999
+     },
+     {
+      "reason": "initial_stop",
+      "old_stop": null,
+      "new_stop": 85.10000000000001,
+      "effective_at": 1792679400000
+     }
+    ]
+   },
+   "父进程epoch": 1791939600000,
+   "子进程": {
+    "ok": true,
+    "data": {
+     "epoch": 1791939600000,
+     "arms": {
+      "3a": {
+       "positions": [],
+       "cash": 4983.272981,
+       "realized": -16.727019,
+       "n_closed": 1,
+       "equity": 4983.272981
+      },
+      "3b": {
+       "positions": [],
+       "cash": 5000.0,
+       "realized": 0.0,
+       "n_closed": 0,
+       "equity": 5000.0
+      },
+      "3c": {
+       "positions": [
+        {
+         "position_id": 1,
+         "symbol": "ETHUSDT",
+         "stop_price": 190.0,
+         "stop_history": [
+          {
+           "id": 1,
+           "account_id": "paper43_3c",
+           "position_id": 1,
+           "old_stop": null,
+           "new_stop": 85.05,
+           "reason": "initial_stop",
+           "ref_bar_open_ms": 1792679400000,
+           "available_at": 1792678500000,
+           "decision_at": 1792680300000,
+           "effective_at": 1792679400000,
+           "created_at": 1792678409698
+          },
+          {
+           "id": 2,
+           "account_id": "paper43_3c",
+           "position_id": 1,
+           "old_stop": 85.05,
+           "new_stop": 190.0,
+           "reason": "ft_low4h_trail",
+           "ref_bar_open_ms": 1793038500000,
+           "available_at": 1793052899999,
+           "decision_at": 1792678409917,
+           "effective_at": 1793052899999,
+           "created_at": 1792678409918
+          }
+         ]
+        }
+       ],
+       "cash": 5000.0,
+       "realized": 0.0,
+       "n_closed": 0,
+       "equity": 4999.9167
+      },
+      "3d": {
+       "positions": [],
+       "cash": 5000.0,
+       "realized": 0.0,
+       "n_closed": 0,
+       "equity": 5000.0
+      }
+     }
+    }
+   }
+  },
+  "D_自建持仓": {
+   "open": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 4,
+    "symbol": "DOGEUSDT",
+    "signal_uid": "audit03_d1",
+    "origin": "replay",
+    "requested_at": 1792678500000,
+    "first_request_ms": 1792678500000,
+    "order_request_ms": 1792678500000,
+    "earliest_fill_ms": 1792679400000,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792678500000,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "position_id": 1,
+   "stop": 85.05000000000001,
+   "历史行数": 1,
+   "advance": {
+    "rejected": [
+     {
+      "pending_id": 1,
+      "reason": "bar_after_attempt_clock_no_lookahead"
+     }
+    ],
+    "still_pending": 1,
+    "by_arm": {
+     "3a": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3b": {
+      "pending_total": 3,
+      "filled": 1,
+      "rejected": 1,
+      "still_pending": 1
+     },
+     "3c": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     },
+     "3d": {
+      "pending_total": 0,
+      "filled": 0,
+      "rejected": 0,
+      "still_pending": 0
+     }
+    }
+   }
+  },
+  "D_重复推进": {
+   "第一次": {
+    "ok": true,
+    "position_id": 1,
+    "symbol": "DOGEUSDT",
+    "entry_price": 100.05000000000001,
+    "old_stop": 85.05000000000001,
+    "candidate_stop": 90.25000000000001,
+    "effective_stop": 90.25000000000001,
+    "stop_updated": true,
+    "ref_candle_open_time": 1792656000000,
+    "ref_candle_close_time": 1792670399999,
+    "available_at": 1792670399999,
+    "decision_at": 1792678413176,
+    "effective_at": 1792670399999,
+    "exit_triggered": false,
+    "exit_result": null,
+    "rule": "FT-LOW4H",
+    "trail_d": 0.05
+   },
+   "第二次": {
+    "ok": true,
+    "position_id": 1,
+    "symbol": "DOGEUSDT",
+    "entry_price": 100.05000000000001,
+    "old_stop": 90.25000000000001,
+    "candidate_stop": 90.25000000000001,
+    "effective_stop": 90.25000000000001,
+    "stop_updated": false,
+    "ref_candle_open_time": 1792656000000,
+    "ref_candle_close_time": 1792670399999,
+    "available_at": 1792670399999,
+    "decision_at": 1792678413188,
+    "effective_at": 1792670399999,
+    "exit_triggered": false,
+    "exit_result": null,
+    "rule": "FT-LOW4H",
+    "trail_d": 0.05
+   },
+   "历史行数_前": 1,
+   "历史行数_后": 2,
+   "止损_前": 85.05000000000001,
+   "止损_后": 90.25000000000001
+  },
+  "D_重启后重复推进": {
+   "子进程ok": true,
+   "第三次": {
+    "ok": true,
+    "position_id": 1,
+    "symbol": "DOGEUSDT",
+    "entry_price": 100.05000000000001,
+    "old_stop": 90.25000000000001,
+    "candidate_stop": 90.25000000000001,
+    "effective_stop": 90.25000000000001,
+    "stop_updated": false,
+    "ref_candle_open_time": 1792656000000,
+    "ref_candle_close_time": 1792670399999,
+    "available_at": 1792670399999,
+    "decision_at": 1792678413266,
+    "effective_at": 1792670399999,
+    "exit_triggered": false,
+    "exit_result": null,
+    "rule": "FT-LOW4H",
+    "trail_d": 0.05
+   },
+   "历史行数": 2
+  },
+  "E_生产复测": {
+   "状态": {
+    "账本": {
+     "paper_3a.sqlite3": {
+      "sha256": "272cf9c3a1e78d16fb47fa2810bc1729dfa881c6e350bd082250a24cf169a48e",
+      "字节": 163840,
+      "mtime_ms": 1792676888970,
+      "mtime": "2026-10-22T21:48:08+08:00"
+     },
+     "paper_3b.sqlite3": {
+      "sha256": "c38b2cad7630ef6fe13166caf20cbb80507b7f3de2ac5d5ebcf2872cd684e27e",
+      "字节": 163840,
+      "mtime_ms": 1792676893979,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     },
+     "paper_3c.sqlite3": {
+      "sha256": "5edfa35e9ad259ea443fb56a2187d19f0fc249cbb11823416bbd74b613e19dcb",
+      "字节": 163840,
+      "mtime_ms": 1792676893984,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     },
+     "paper_3d.sqlite3": {
+      "sha256": "23446394d4a6cdbc37892685ac7b392cb885db660481200bb3ee92ebdad3a965",
+      "字节": 163840,
+      "mtime_ms": 1792676893988,
+      "mtime": "2026-10-22T21:48:13+08:00"
+     }
+    },
+    "闸门": {
+     "存在": true,
+     "sha256": "7ec45d78a016232b199e3fcdcb34ad32ebe5ea726258bf4896a2eaf3a556492c",
+     "内容": {
+      "allow_new_entries": false,
+      "reason": "system_closeloop_02_paused_for_audit",
+      "gate_reason": "new_entry_blocked_pending_closure_review",
+      "set_by": "system_closeloop_02_safety_guard",
+      "since_ms": 1792671530204,
+      "scope": "server_side_new_entry_only",
+      "note": "SYSTEM-CLOSELOOP-02 整改保护：日常实例暂停新模拟开仓，保持行情采集、持仓管理和历史对账。"
+     }
+    },
+    "信号库": {
+     "存在": true,
+     "sha256": "36851bb75ffcf3fd9bd08c751a89642f3a561342e2b9388451d4ad9cbe9f0a22",
+     "字节": 45056
+    }
+   },
+   "8787_pid": 27607,
+   "health": {
+    "status": 200,
+    "ok": true
+   }
+  }
+ },
+ "断言": [
+  {
+   "编号": "B1",
+   "检查项": "账本目录指向 /tmp（不是生产的 数据/paper）",
+   "预期": "/tmp/wx_audit03/paper",
+   "实际": "/tmp/wx_audit03/paper",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "B2",
+   "检查项": "行情库指向 /tmp 合成库",
+   "预期": "/tmp/wx_audit03/market.sqlite3",
+   "实际": "/tmp/wx_audit03/market.sqlite3",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "B3",
+   "检查项": "信号库指向 /tmp",
+   "预期": "/tmp/wx_audit03/live/live_signals.sqlite3",
+   "实际": "/tmp/wx_audit03/live/live_signals.sqlite3",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "B4",
+   "检查项": "闸门文件指向 /tmp（不是生产 gate）",
+   "预期": "/private/tmp/wx_audit03/gate.json",
+   "实际": "/private/tmp/wx_audit03/gate.json",
+   "判定": "通过",
+   "备注": "引擎对 GATE_FILE 做了 .resolve()（macOS 上 /tmp → /private/tmp），按解析后路径比"
+  },
+  {
+   "编号": "B5",
+   "检查项": "改隔离闸门 ⇒ 引擎只认隔离闸门（生产闸门文件内容不变）",
+   "预期": "隔离闸门 allow=False 且生产闸门字节不变",
+   "实际": "隔离 allow=False 生产闸门不变=True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C1",
+   "检查项": "新进程能读到隔离账本（重启后状态不丢）",
+   "预期": "True",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C2",
+   "检查项": "重启后 paper epoch 与重启前一致（只允许不降）",
+   "预期": "1791939600000",
+   "实际": "1791939600000",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "C3",
+   "检查项": "重启后未平仓持仓集合一致",
+   "预期": "[]",
+   "实际": "[]",
+   "判定": "通过",
+   "备注": "父进程 open=[] 子进程=[]"
+  },
+  {
+   "编号": "C4",
+   "检查项": "重启后账户现金/已实现与重启前一致（容差 1e-6，因落盘只保留 6 位）",
+   "预期": "(4983.272981, -16.727019)",
+   "实际": "(4983.272981, -16.727019)",
+   "判定": "通过",
+   "备注": "原始差：现金 -6.830e-08、已实现 -6.830e-08"
+  },
+  {
+   "编号": "C5",
+   "检查项": "重启后已平仓笔数与重启前一致",
+   "预期": "1",
+   "实际": "1",
+   "判定": "通过",
+   "备注": "空对空不算通过：用已平仓笔数做非空校验"
+  },
+  {
+   "编号": "D0",
+   "检查项": "自建一笔干净持仓用于幂等测试",
+   "预期": "1 笔且止损已落",
+   "实际": "1",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D1",
+   "检查项": "重复推进同一根 4H K 线 ⇒ 只上移一次",
+   "预期": "第一次 True、第二次 False",
+   "实际": "True / False",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D2",
+   "检查项": "止损历史只多一行",
+   "预期": "2",
+   "实际": "2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D3",
+   "检查项": "重启后重复推进仍不重复记录",
+   "预期": "False",
+   "实际": "False",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D4",
+   "检查项": "重启后历史行数仍为 +1（没有多记）",
+   "预期": "2",
+   "实际": "2",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "D5",
+   "检查项": "重启后同一 signal_uid 仍拒单（幂等跨进程有效）",
+   "预期": "duplicate_signal_uid",
+   "实际": "duplicate_signal_uid",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E1",
+   "检查项": "生产账本 4 个库的 SHA 前后一致",
+   "预期": "全部一致",
+   "实际": "一致",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E2",
+   "检查项": "生产账本文件 mtime 早于本轮测试开始时刻（一个字节都没写）",
+   "预期": "全部 < 2026-10-22T22:13:32+08:00",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E3",
+   "检查项": "生产闸门内容与 SHA 前后一致",
+   "预期": "一致",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E4",
+   "检查项": "生产信号库 SHA 前后一致",
+   "预期": "一致",
+   "实际": "True",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E5",
+   "检查项": "8787 生产实例 PID 未变（测试没有重启它）",
+   "预期": "27607",
+   "实际": "27607",
+   "判定": "通过",
+   "备注": ""
+  },
+  {
+   "编号": "E6",
+   "检查项": "8787 健康检查仍通",
+   "预期": "ok",
+   "实际": "200",
+   "判定": "通过",
+   "备注": ""
+  }
+ ],
+ "汇总": {
+  "总数": 22,
+  "通过": 22,
+  "不通过": 0,
+  "未验证": 0
+ }
+}

@@ -1,0 +1,142 @@
+{
+  "scope": {
+    "strategy": "Wyckoff_C1_S05_D05_Vs04_Z02",
+    "runs": 1,
+    "trades": 21,
+    "orders": 42
+  },
+  "order_identity": {
+    "order_columns_in_model": [
+      "id",
+      "ft_trade_id",
+      "ft_order_side",
+      "ft_pair",
+      "ft_is_open",
+      "ft_amount",
+      "ft_price",
+      "ft_cancel_reason",
+      "order_id",
+      "status",
+      "symbol",
+      "order_type",
+      "side",
+      "price",
+      "average",
+      "amount",
+      "filled",
+      "remaining",
+      "cost",
+      "stop_price",
+      "order_date",
+      "order_filled_date",
+      "order_update_date",
+      "funding_fee",
+      "ft_fee_base",
+      "ft_order_tag"
+    ],
+    "order_id_min": 1,
+    "order_id_max": 42,
+    "order_id_count": 42,
+    "order_id_unique": true,
+    "order_id_is_gapless_1_to_N": true,
+    "order_id_type": "字符串形态的整数（引擎 order_id_counter）"
+  },
+  "trade_identity": {
+    "engine_trade_id_min": 1,
+    "engine_trade_id_max": 21,
+    "engine_trade_id_count": 21,
+    "engine_trade_id_is_gapless_1_to_N": true,
+    "n_trades_in_memory": 21,
+    "ft_trade_id_values": {
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2,
+      "7": 2,
+      "8": 2,
+      "10": 2,
+      "9": 2,
+      "11": 2,
+      "13": 2,
+      "14": 2,
+      "12": 2,
+      "15": 2,
+      "16": 2,
+      "17": 2,
+      "18": 2,
+      "19": 2,
+      "20": 2,
+      "21": 2
+    },
+    "ft_trade_id_equals_engine_trade_id": 42,
+    "conclusion": "engine_trade_id 来自 LocalTrade.id（trade_id_counter），真实可用；旧导出把它裁掉了 ⇒ 旧 trade_id 只是派生秩"
+  },
+  "status_filled": {
+    "status_dist": {
+      "closed": 42
+    },
+    "is_open_dist": {
+      "False": 42
+    },
+    "order_type_dist": {
+      "limit": 42
+    },
+    "filled_eq_amount": 42,
+    "remaining_zero": 42,
+    "total": 42
+  },
+  "time_semantics": {
+    "order_date_eq_filled_date_eq_update_date": 42,
+    "order_date_eq_order_filled_timestamp": 42,
+    "total": 42,
+    "note": "回测里建单与成交在同一根 K 线、同一 current_time ⇒ 委托时间不可与成交时间区分"
+  },
+  "price_semantics": {
+    "price_eq_average_eq_safe_price_eq_ft_price": 42,
+    "total": 42,
+    "note": "市价/限价在回测中都按 propose_rate 建单且成交后不改 ⇒ 委托价 == 成交价"
+  },
+  "fees": {
+    "ft_fee_base_dist": {
+      "None": 42
+    },
+    "fee_open_cost_present": 21,
+    "fee_close_cost_present": 0,
+    "ft_cancel_reason_dist": {
+      "None": 42
+    },
+    "stop_price_dist": {
+      "None": 42
+    }
+  },
+  "funding": {
+    "per_order_present": 21,
+    "by_leg": {
+      "entry_null": 21,
+      "entry_zero": 0,
+      "entry_nonzero": 0,
+      "exit_null": 0,
+      "exit_zero": 1,
+      "exit_nonzero": 20
+    },
+    "sum_per_trade_eq_trade_funding": 21,
+    "trades_total": 21,
+    "note": "逐单 funding_fee 是引擎真实值（close_bt_order 结转 funding_fee_running 后清零），不是分摊；本次可给出真实归属"
+  },
+  "capability_boundary": {
+    "fill_id_like_columns": [],
+    "has_fill_id": false,
+    "orders_per_trade_dist": {
+      "2": 21
+    },
+    "nr_of_successful_entries_dist": {
+      "1": 21
+    },
+    "nr_of_successful_exits_dist": {
+      "1": 21
+    },
+    "conclusion": "引擎 Order 只有标量 filled/remaining，没有成交事件列表、没有 fill_id；回测不存在交易所回报 ⇒ 逐次成交在能力上不可得，任何 fill_id 都是伪造"
+  }
+}

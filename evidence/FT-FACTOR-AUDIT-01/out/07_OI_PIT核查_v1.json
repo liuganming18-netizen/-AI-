@@ -1,0 +1,822 @@
+{
+  "work_order": "FT-FACTOR-AUDIT-01",
+  "question": "5m OI 到 1h 决策时刻的映射、观测时间、发布时点，能否满足原策略要求",
+  "sampling": {
+    "method": "按 27 批每批随机 2 个标的（随机种子 20261020），只读 parquet 元数据与 ts/period/fetched_at 列",
+    "symbols_sampled": 54,
+    "files_checked": 186,
+    "no_oi_dir_symbols": [
+      "BONDUSDT",
+      "DGBUSDT",
+      "KLAYUSDT",
+      "OLUSDT",
+      "PONKEUSDT",
+      "QUICKUSDT",
+      "REEFUSDT",
+      "STGUSDT",
+      "YFIIUSDT",
+      "ZRCUSDT"
+    ]
+  },
+  "observation_time": {
+    "field": "ts",
+    "semantics": "5 分钟桶起点（官方 /futures/data/openInterestHist 与 metrics 一致）",
+    "ts_offgrid_5m_total": 1108,
+    "ts_aligned_to_5min": false,
+    "offgrid_files": [
+      {
+        "symbol": "AEVOUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 24,
+        "examples": "2026-10-15T15:09:04.000Z|2026-10-15T15:09:22.000Z|2026-10-15T15:09:34.000Z"
+      },
+      {
+        "symbol": "ALPINEUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 20,
+        "examples": "2026-10-15T13:22:06.000Z|2026-10-15T13:23:08.000Z|2026-10-15T13:26:43.000Z"
+      },
+      {
+        "symbol": "ARXUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 13,
+        "examples": "2026-10-15T13:05:13.000Z|2026-10-15T13:05:57.000Z|2026-10-15T13:06:15.000Z"
+      },
+      {
+        "symbol": "ASRUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 18,
+        "examples": "2026-10-15T15:11:28.000Z|2026-10-15T15:12:59.000Z|2026-10-15T15:13:13.000Z"
+      },
+      {
+        "symbol": "BANANAUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 32,
+        "examples": "2026-10-15T13:26:00.000Z|2026-10-15T13:28:01.000Z|2026-10-15T13:30:48.000Z"
+      },
+      {
+        "symbol": "BANUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 37,
+        "examples": "2026-10-15T14:07:07.000Z|2026-10-15T14:07:23.000Z|2026-10-15T14:07:26.000Z"
+      },
+      {
+        "symbol": "BILLUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 23,
+        "examples": "2026-10-15T14:04:52.000Z|2026-10-15T14:06:04.000Z|2026-10-15T14:07:55.000Z"
+      },
+      {
+        "symbol": "BNBUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 15,
+        "examples": "2026-10-15T13:45:28.000Z|2026-10-15T13:48:10.000Z|2026-10-15T13:51:38.000Z"
+      },
+      {
+        "symbol": "CARVUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 24,
+        "examples": "2026-10-15T13:17:13.000Z|2026-10-15T13:21:34.000Z|2026-10-15T13:24:17.000Z"
+      },
+      {
+        "symbol": "CGPTUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 25,
+        "examples": "2026-10-15T13:33:52.000Z|2026-10-15T13:37:10.000Z|2026-10-15T13:37:23.000Z"
+      },
+      {
+        "symbol": "CHRUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 31,
+        "examples": "2026-10-15T13:31:30.000Z|2026-10-15T13:31:33.000Z|2026-10-15T13:32:53.000Z"
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "2024.parquet",
+        "offgrid_rows": 18,
+        "examples": "2024-04-01T02:15:01.000Z|2024-04-17T02:30:02.000Z|2024-05-04T01:50:05.000Z"
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 30,
+        "examples": "2026-10-15T13:46:01.000Z|2026-10-15T13:46:58.000Z|2026-10-15T13:47:57.000Z"
+      },
+      {
+        "symbol": "DODOXUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 25,
+        "examples": "2026-10-15T12:23:00.000Z|2026-10-15T15:10:30.000Z|2026-10-15T15:10:41.000Z"
+      },
+      {
+        "symbol": "ELSAUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 21,
+        "examples": "2026-10-15T14:54:12.000Z|2026-10-15T14:55:34.000Z|2026-10-15T14:55:35.000Z"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 19,
+        "examples": "2026-10-15T15:03:35.000Z|2026-10-15T15:03:36.000Z|2026-10-15T15:03:42.000Z"
+      },
+      {
+        "symbol": "FILUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 10,
+        "examples": "2026-10-15T15:24:14.000Z|2026-10-15T15:24:18.000Z|2026-10-15T15:24:24.000Z"
+      },
+      {
+        "symbol": "GMXUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 28,
+        "examples": "2026-10-15T15:08:05.000Z|2026-10-15T15:08:08.000Z|2026-10-15T15:08:20.000Z"
+      },
+      {
+        "symbol": "GRAMUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 22,
+        "examples": "2026-10-15T14:23:05.000Z|2026-10-15T14:31:03.000Z|2026-10-15T14:45:58.000Z"
+      },
+      {
+        "symbol": "GUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 22,
+        "examples": "2026-10-15T14:48:57.000Z|2026-10-15T14:56:45.000Z|2026-10-15T14:57:34.000Z"
+      },
+      {
+        "symbol": "HBARUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 22,
+        "examples": "2026-10-15T13:40:43.000Z|2026-10-15T13:40:45.000Z|2026-10-15T13:42:22.000Z"
+      },
+      {
+        "symbol": "HYPERUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 22,
+        "examples": "2026-10-15T13:25:32.000Z|2026-10-15T13:27:43.000Z|2026-10-15T13:29:59.000Z"
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 22,
+        "examples": "2026-10-15T13:16:02.000Z|2026-10-15T13:19:25.000Z|2026-10-15T13:29:37.000Z"
+      },
+      {
+        "symbol": "LABUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 36,
+        "examples": "2026-10-15T14:17:53.000Z|2026-10-15T14:19:05.000Z|2026-10-15T14:20:50.000Z"
+      },
+      {
+        "symbol": "LINEAUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 27,
+        "examples": "2026-10-15T13:49:08.000Z|2026-10-15T13:49:56.000Z|2026-10-15T14:03:09.000Z"
+      },
+      {
+        "symbol": "LISTAUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 21,
+        "examples": "2026-10-15T12:46:16.000Z|2026-10-15T13:02:18.000Z|2026-10-15T13:04:05.000Z"
+      },
+      {
+        "symbol": "MAVUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 25,
+        "examples": "2026-10-15T12:41:59.000Z|2026-10-15T12:49:29.000Z|2026-10-15T12:57:10.000Z"
+      },
+      {
+        "symbol": "METUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 38,
+        "examples": "2026-10-15T14:17:49.000Z|2026-10-15T14:18:00.000Z|2026-10-15T14:18:19.000Z"
+      },
+      {
+        "symbol": "NAORISUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 23,
+        "examples": "2026-10-15T13:57:19.000Z|2026-10-15T14:14:21.000Z|2026-10-15T14:14:25.000Z"
+      },
+      {
+        "symbol": "NMRUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 32,
+        "examples": "2026-10-15T14:06:18.000Z|2026-10-15T14:08:14.000Z|2026-10-15T14:09:10.000Z"
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 35,
+        "examples": "2026-10-15T13:28:11.000Z|2026-10-15T13:33:37.000Z|2026-10-15T13:33:47.000Z"
+      },
+      {
+        "symbol": "PHAROSUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 26,
+        "examples": "2026-10-15T14:00:55.000Z|2026-10-15T14:00:58.000Z|2026-10-15T14:03:01.000Z"
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 11,
+        "examples": "2026-10-15T13:37:07.000Z|2026-10-15T13:37:20.000Z|2026-10-15T13:37:23.000Z"
+      },
+      {
+        "symbol": "SANTOSUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 26,
+        "examples": "2026-10-15T12:38:15.000Z|2026-10-15T12:52:05.000Z|2026-10-15T13:09:19.000Z"
+      },
+      {
+        "symbol": "SIRENUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 30,
+        "examples": "2026-10-15T14:27:09.000Z|2026-10-15T14:27:13.000Z|2026-10-15T14:27:17.000Z"
+      },
+      {
+        "symbol": "SKRUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 24,
+        "examples": "2026-10-15T14:07:11.000Z|2026-10-15T14:07:14.000Z|2026-10-15T14:07:25.000Z"
+      },
+      {
+        "symbol": "STABLEUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 30,
+        "examples": "2026-10-15T13:53:07.000Z|2026-10-15T13:54:13.000Z|2026-10-15T13:54:15.000Z"
+      },
+      {
+        "symbol": "TAKEUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 30,
+        "examples": "2026-10-15T13:41:03.000Z|2026-10-15T13:42:49.000Z|2026-10-15T13:44:36.000Z"
+      },
+      {
+        "symbol": "TRUSTUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 27,
+        "examples": "2026-10-15T14:10:02.000Z|2026-10-15T14:10:03.000Z|2026-10-15T14:10:37.000Z"
+      },
+      {
+        "symbol": "UAIUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 29,
+        "examples": "2026-10-15T13:45:41.000Z|2026-10-15T13:49:18.000Z|2026-10-15T13:52:44.000Z"
+      },
+      {
+        "symbol": "VETUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 23,
+        "examples": "2026-10-15T13:32:38.000Z|2026-10-15T13:32:44.000Z|2026-10-15T13:32:46.000Z"
+      },
+      {
+        "symbol": "WLDUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 17,
+        "examples": "2026-10-15T14:56:08.000Z|2026-10-15T14:56:11.000Z|2026-10-15T14:56:24.000Z"
+      },
+      {
+        "symbol": "WLFIUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 27,
+        "examples": "2026-10-15T13:57:42.000Z|2026-10-15T13:58:35.000Z|2026-10-15T13:59:38.000Z"
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "live.parquet",
+        "offgrid_rows": 19,
+        "examples": "2026-10-15T12:38:18.000Z|2026-10-15T12:50:41.000Z|2026-10-15T13:08:33.000Z"
+      },
+      {
+        "symbol": "龙虾USDT",
+        "file": "live.parquet",
+        "offgrid_rows": 29,
+        "examples": "2026-10-15T14:31:51.000Z|2026-10-15T14:36:51.000Z|2026-10-15T14:43:38.000Z"
+      }
+    ],
+    "offgrid_note": "live 分片的 ts 不是 5m 桶起点（实测如 2026-10-15T15:09:04Z 这类轮询瞬间），与历史归档分片的桶起点语义不一致；归档分片仅 CTKUSDT 2024 出现 18 行离网格。",
+    "period_values_seen": [
+      "5m"
+    ],
+    "conclusion": "观测时间 = 桶起点，可与 1h 决策时刻精确对齐；不存在'1h 聚合'步骤，原策略是按决策时刻取最近的 5m 观测（上限 15 分钟）。"
+  },
+  "zero_filled_oi": {
+    "files_with_nonpositive_rows": [
+      {
+        "symbol": "AEVOUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 24
+      },
+      {
+        "symbol": "AEVOUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 48
+      },
+      {
+        "symbol": "AEVOUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "ALPINEUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 10
+      },
+      {
+        "symbol": "ASRUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 10
+      },
+      {
+        "symbol": "ASRUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 5
+      },
+      {
+        "symbol": "BANANAUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "BANUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 48
+      },
+      {
+        "symbol": "BANUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 3
+      },
+      {
+        "symbol": "BILLUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "BNBUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "BNBUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 16
+      },
+      {
+        "symbol": "BNBUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 31
+      },
+      {
+        "symbol": "BNBUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 24
+      },
+      {
+        "symbol": "CARVUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 2
+      },
+      {
+        "symbol": "CARVUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 2
+      },
+      {
+        "symbol": "CGPTUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 45
+      },
+      {
+        "symbol": "CHRUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "CHRUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "CHRUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 9
+      },
+      {
+        "symbol": "CHRUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 43
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 719
+      },
+      {
+        "symbol": "CTKUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 10
+      },
+      {
+        "symbol": "DODOXUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 12
+      },
+      {
+        "symbol": "DODOXUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 6
+      },
+      {
+        "symbol": "DODOXUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "ETHUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "ETHUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 16
+      },
+      {
+        "symbol": "ETHUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 51
+      },
+      {
+        "symbol": "ETHUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 24
+      },
+      {
+        "symbol": "FILUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "FILUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "FILUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 7
+      },
+      {
+        "symbol": "FILUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 27
+      },
+      {
+        "symbol": "GMXUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "GMXUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 6
+      },
+      {
+        "symbol": "GMXUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "GUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 14
+      },
+      {
+        "symbol": "GUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 46
+      },
+      {
+        "symbol": "GUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "HBARUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 119
+      },
+      {
+        "symbol": "HBARUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "HBARUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 21
+      },
+      {
+        "symbol": "HBARUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 50
+      },
+      {
+        "symbol": "HYPERUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 10
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 118
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 18
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 22
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 47
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "LINEAUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 7
+      },
+      {
+        "symbol": "LISTAUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 11
+      },
+      {
+        "symbol": "LISTAUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 24
+      },
+      {
+        "symbol": "MAVUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 13
+      },
+      {
+        "symbol": "MAVUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 7
+      },
+      {
+        "symbol": "MAVUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "METUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 2
+      },
+      {
+        "symbol": "NMRUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 15
+      },
+      {
+        "symbol": "NMRUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 6
+      },
+      {
+        "symbol": "NMRUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 43
+      },
+      {
+        "symbol": "NMRUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 2
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 118
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 16
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 21
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 46
+      },
+      {
+        "symbol": "ONEUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2021.parquet",
+        "nonpositive_rows": 146
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 16
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 10
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 26
+      },
+      {
+        "symbol": "ROSEUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 2
+      },
+      {
+        "symbol": "SANTOSUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 46
+      },
+      {
+        "symbol": "SANTOSUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "SIRENUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 23
+      },
+      {
+        "symbol": "TRUSTUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 1
+      },
+      {
+        "symbol": "VETUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "VETUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 17
+      },
+      {
+        "symbol": "VETUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 9
+      },
+      {
+        "symbol": "VETUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 24
+      },
+      {
+        "symbol": "WLDUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 12
+      },
+      {
+        "symbol": "WLDUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 15
+      },
+      {
+        "symbol": "WLDUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "2022.parquet",
+        "nonpositive_rows": 117
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "2023.parquet",
+        "nonpositive_rows": 16
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "2024.parquet",
+        "nonpositive_rows": 5
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "2025.parquet",
+        "nonpositive_rows": 25
+      },
+      {
+        "symbol": "ZRXUSDT",
+        "file": "2026.parquet",
+        "nonpositive_rows": 10
+      }
+    ],
+    "note": "策略对非正 OI 判 oi_curr_non_positive 并拒用，不会把 0 当成真实值参与计算；但这些行本身不应存在于官方序列中，属需要单独定性的数据缺陷。"
+  },
+  "publication_time": {
+    "fetched_at_column_present": true,
+    "fetched_at_all_null": true,
+    "files_with_any_fetched_at": [],
+    "conclusion": "全部样本文件的 fetched_at 列存在但为空 ⇒ 没有采集时点、没有交易所响应时间、没有快照 serverTime，OI 的发布时点无任何直接证据。"
+  },
+  "mapping_under_strategy_rule": {
+    "rule_source": "策略/WyckoffMaster/event_trend_v0_1/features.py:102-136 + pit_bridge.py:65-100",
+    "rule": "available_at = ts + 300000ms（桶结束），当且仅当 available_at <= 决策时刻 才可取；取最近的合格观测；观测时刻距决策上限 15 分钟",
+    "pit_mode_default": "DECLARED：照用但把 assumed=True 写入结果，本次运行不具备正式资格",
+    "pit_mode_strict": "STRICT：整列 NaN，OI 因子直接不可用",
+    "examples": [
+      {
+        "decision_time_utc": "2023-06-15T08:00:00Z",
+        "usable_bucket_start_utc": "2023-06-15T07:55:00Z",
+        "bucket_end_equals_available_at_utc": "2023-06-15T08:00:00Z",
+        "distance_min": 5.0,
+        "within_max_distance_15min": true,
+        "naive_wrong_choice": "若把桶起点==决策时刻的桶当作可用，则该桶尚未收盘（桶结束 = 决策时刻+5min），构成 ≤5 分钟前视"
+      },
+      {
+        "decision_time_utc": "2023-06-15T09:00:00Z",
+        "usable_bucket_start_utc": "2023-06-15T08:55:00Z",
+        "bucket_end_equals_available_at_utc": "2023-06-15T09:00:00Z",
+        "distance_min": 5.0,
+        "within_max_distance_15min": true,
+        "naive_wrong_choice": "若把桶起点==决策时刻的桶当作可用，则该桶尚未收盘（桶结束 = 决策时刻+5min），构成 ≤5 分钟前视"
+      }
+    ],
+    "satisfies_original_strategy": "在 assumed 规则下可以运行（决策时刻 T 取 T-5min 起的桶）；但这是假设，不是证明，故只能作探索结果。"
+  },
+  "evidence_boundary": {
+    "supported_by_existing_evidence": [
+      "5m OI 观测时间（桶起点）存在且与 5 分钟网格对齐",
+      "5m 序列可按 available_at = ts+5min 的假设映射到任意 1h 决策时刻，映射本身无歧义",
+      "策略代码已实现 PIT 判定与 assumed 标记（不是把假设伪装成已证明）"
+    ],
+    "missing_evidence": [
+      "每个 5m 桶的真实发布/可读时刻（交易所响应时间或快照 serverTime）",
+      "采集器写入时刻（fetched_at 为空）",
+      "1h 决策时刻到 OI 可得的实测延迟分布"
+    ],
+    "cannot_be_recovered": [
+      "2021-2024 历史时点的发布延迟：REST 接口只返回当前值，历史响应时间不可回溯",
+      "已入库 parquet 的 fetched_at 为 null，无法从数据本身反推"
+    ],
+    "forward_only": "只能从当前时刻起，在采集器里落 fetched_at + 交易所 serverTime，才能为将来的数据建立正式 PIT 证据。"
+  },
+  "no_forbidden_actions": {
+    "timestamp_modified": false,
+    "zero_filled": false,
+    "post_hoc_visibility_disguised_as_realtime": false,
+    "new_collection_started": false,
+    "bulk_download": false
+  },
+  "code_fingerprints": {
+    "策略/WyckoffMaster/event_trend_v0_1/features.py": "163194b340e56b33b6a6666dbbcf3ffab58221a9d38f94686e689fcb6de7373d",
+    "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py": "de65fa08a2691ca07f9d6265804bc24f136363ba2212d036c9ba642c07a874c2",
+    "策略/WyckoffMaster/event_trend_v0_1/config.py": "29a42d98f7b7c5302b7adc0cef20b4ea832d76c41acdef2f2447ee234afc69ae",
+    "策略/WyckoffMaster/flow_oi/pit_features.py": "96c257fad0bb146a244582f92703d0e6f98b9dfeccef0f82765f3022c9141406"
+  },
+  "blocks_price_volume_research": false,
+  "blocks_price_volume_reason": "基础价量（1h/15m/4h）不依赖 OI 发布时点，OI 缺证只影响含 OI 的策略组，不阻塞价量因子交接。"
+}

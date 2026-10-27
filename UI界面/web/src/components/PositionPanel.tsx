@@ -10,6 +10,7 @@ import type {
   PaperAccountView,
   PaperPendingView,
   PaperPositionView,
+  ExecutionDaemonView,
 } from '../api/liveTrading';
 import {
   Wallet,
@@ -22,6 +23,10 @@ import {
   AlertCircle,
   Clock,
   Layers,
+  Play,
+  Pause,
+  X,
+  Cpu,
 } from 'lucide-react';
 
 interface PositionPanelProps {
@@ -63,6 +68,12 @@ interface PositionPanelProps {
   paperNewCore?: string | null;
   /** 已退役旧策略注册表键（`3a/3b/3c/3d/A/B`）。 */
   paperRetiredKeys?: string[];
+  /** 切换模拟实盘开始 / 暂停 */
+  onToggleGate?: (action?: 'toggle' | 'start' | 'pause') => Promise<boolean>;
+  /** 是否处于运行状态 */
+  isGateRunning?: boolean;
+  /** 执行守护与信号引擎状态 */
+  executionDaemon?: ExecutionDaemonView | null;
 }
 
 /** 数字格式化：null / 非有限值一律 '—'，不显示 0 冒充真实值。 */
@@ -97,7 +108,7 @@ const fmtCompactUtcMs = (ms: number | null | undefined): string => {
   return `${mo}-${da} ${hh}:${mm}Z`;
 };
 
-/** 开仓时间精确到秒：YYYY-MM-DD HH:mm:ss */
+/** 开仓时间精确到秒并明确标注时区：YYYY-MM-DD HH:mm:ss (UTC+8) */
 const fmtDateTimeSeconds = (ms: number | null | undefined): string => {
   if (ms === null || ms === undefined || !Number.isFinite(ms) || ms <= 0) return '—';
   const d = new Date(ms);
@@ -107,7 +118,28 @@ const fmtDateTimeSeconds = (ms: number | null | undefined): string => {
   const hh = String(d.getHours()).padStart(2, '0');
   const mm = String(d.getMinutes()).padStart(2, '0');
   const ss = String(d.getSeconds()).padStart(2, '0');
-  return `${y}-${mo}-${da} ${hh}:${mm}:${ss}`;
+  return `${y}-${mo}-${da} ${hh}:${mm}:${ss} (UTC+8)`;
+};
+
+/**
+ * 挂单状态码 → 中文文案（UI-PENDING-01）。
+ *
+ * **只做翻译，不改语义**：状态码原样保留在行内 `data-status` 与 `font-mono` 处，
+ * 便于与账本 `paper_pending.status` 逐条核对；未知状态码原样显示，不猜测。
+ * 契约里 `pending_orders()` 只取 `status='pending'`，其余三态属防御性映射。
+ */
+const PENDING_STATUS: Record<string, string> = {
+  pending: '等待成交',
+  filled: '已成交',
+  rejected: '已拒单',
+  expired: '已过期',
+};
+
+/** 挂单来源 → 文案（`origin` 为服务端字段，缺失即「未标注」，不推断）。 */
+const pendingOriginText = (origin: string | null): string => {
+  if (origin === 'signal') return '实时信号触发';
+  if (origin === 'manual') return '页面手动请求';
+  return origin ? origin : '未标注';
 };
 
 /** 实盘状态 → 展示文案与配色。**区分**「已连接但无持仓」与「未配置 / 鉴权失败 / 数据陈旧」。 */
@@ -142,19 +174,80 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
   paperNotConnected = false,
   paperNewCore = null,
   paperRetiredKeys = [],
+  onToggleGate,
+  isGateRunning = false,
+  executionDaemon = null,
 }) => {
   const [selectedArm, setSelectedArm] = useState<'ALL' | string>('ALL');
+  const [dismissedNotice, setDismissedNotice] = useState<string | null>(null);
+  const [expandedStops, setExpandedStops] = useState<Record<number, boolean>>({});
+  const [stopsHistory, setStopsHistory] = useState<Record<number, any[]>>({});
+  const [loadingStops, setLoadingStops] = useState<Record<number, boolean>>({});
+  const [stopsError, setStopsError] = useState<Record<number, string | null>>({});
+
+  const toggleStopHistory = async (posId: number, arm: string) => {
+    const nextState = !expandedStops[posId];
+    setExpandedStops(prev => ({ ...prev, [posId]: nextState }));
+    if (nextState) {
+      setLoadingStops(prev => ({ ...prev, [posId]: true }));
+      setStopsError(prev => ({ ...prev, [posId]: null }));
+      try {
+        const res = await fetch(`/api/v1/paper/stops/${posId}?arm=${arm}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => null);
+          const errMsg = errData?.missing_reason || `请求失败 (${res.status} ${res.statusText})`;
+          setStopsError(prev => ({ ...prev, [posId]: errMsg }));
+          setStopsHistory(prev => ({ ...prev, [posId]: [] }));
+          return;
+        }
+        const data = await res.json();
+        setStopsHistory(prev => ({ ...prev, [posId]: data?.items || [] }));
+      } catch (err: any) {
+        console.error('Fetch stops history failed', err);
+        setStopsError(prev => ({ ...prev, [posId]: err?.message || '网络连接失败' }));
+      } finally {
+        setLoadingStops(prev => ({ ...prev, [posId]: false }));
+      }
+    }
+  };
 
   const paperConnected = paperAccounts.length > 0 && !paperMissingReason;
+  const showNotice = orderNotice && orderNotice !== dismissedNotice;
 
   /** WORK-04：Paper 未接新核心 ⇒ 禁止新开仓 / 真实下单（按钮禁用 + 明确文案）。 */
-  const executionDisabled = paperNotConnected || !paperConnected;
+  const notConnected = paperNotConnected || !paperConnected;
+  /**
+   * 服务端新开仓总闸关闭 ⇒ 手工开仓同样会被拒。
+   *
+   * 后端 `paper_engine` 的闸门**同时覆盖自动 / 手工 / 挂单三条路径**（见
+   * `new_entry_gate()` 处注释），暂停时 `POST /paper/open` 一律返回 `gate_blocked`。
+   * 因此按钮必须跟着变灰 —— 否则界面写着「已暂停」，旁边却亮着一个能点的「开多」，
+   * 点下去才被服务端拒绝，等于把一次注定失败的请求伪装成可用操作。
+   */
+  const gateBlocked = !isGateRunning;
+  const executionDisabled = notConnected || gateBlocked;
+  /** 禁用原因（决定按钮悬停提示，避免三种原因都写同一句话）。 */
+  const disabledReason = notConnected
+    ? '模拟实盘 NOT_CONNECTED：已禁止新开仓与真实下单'
+    : '实盘模拟已暂停（服务端阻断新开仓）：先点上方「已暂停」启动，才允许开仓';
+
+  /** 共用本金口径（生产规则：`docs/单策略施工授权与待核对问题_2026-10-14.md` 第 7 行
+   *  「模拟实盘统一为一个账户，总资金 5,000 USDT」）。
+   *  3a–3d 是同一主策略的四种入场类型（Spring / 温和突破 / 过热突破后回踩），
+   *  **共用这一份本金**，不是四个各 5,000 的账户 ⇒ 本金只能算一次，
+   *  每个臂只贡献「相对本金的变动」。之前直接 reduce 求和，等于把 5,000 数了四遍。 */
+  const seedAll = paperAccounts.length > 0 ? paperAccounts[0].initialEquity : 0;
+  const deltaEquity = (x: (typeof paperAccounts)[number]) =>
+    (x.equity ?? x.initialEquity) - x.initialEquity;
+  const deltaCash = (x: (typeof paperAccounts)[number]) => x.cash - x.initialEquity;
 
   /** 全局四臂合计（始终挂在 data-cash / data-equity 等属性上，确保验收脚本兼容）。 */
   const totalEquityAll = paperConnected
-    ? paperAccounts.reduce((a, x) => a + (x.equity ?? 0), 0)
+    ? seedAll + paperAccounts.reduce((a, x) => a + deltaEquity(x), 0)
     : null;
-  const totalCashAll = paperConnected ? paperAccounts.reduce((a, x) => a + x.cash, 0) : null;
+  const totalCashAll = paperConnected
+    ? seedAll + paperAccounts.reduce((a, x) => a + deltaCash(x), 0)
+    : null;
   const allPendingList = paperPending ?? paperAccounts.flatMap((a) => a.pending);
 
   /** 当前选中视图下的账户集合（ALL = 全部 4 臂汇总，否则为指定单臂）。 */
@@ -200,9 +293,11 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
         paramsSource: null as string | null,
       };
     }
-    const initialEquity = scopedAccounts.reduce((s, a) => s + a.initialEquity, 0);
-    const equity = scopedAccounts.reduce((s, a) => s + (a.equity ?? 0), 0);
-    const cash = scopedAccounts.reduce((s, a) => s + a.cash, 0);
+    // 本金共用：只算一次（各臂是同一份 5,000 的不同入场类型，不是并列账户）。
+    const seed = scopedAccounts.length > 0 ? scopedAccounts[0].initialEquity : 0;
+    const initialEquity = seed;
+    const equity = seed + scopedAccounts.reduce((s, a) => s + deltaEquity(a), 0);
+    const cash = seed + scopedAccounts.reduce((s, a) => s + deltaCash(a), 0);
     const usedMargin = scopedAccounts.reduce((s, a) => s + a.usedMargin, 0);
     const grossNotional = scopedAccounts.reduce((s, a) => s + a.grossNotional, 0);
     const unrealizedPnl = scopedAccounts.reduce((s, a) => s + a.unrealizedPnl, 0);
@@ -257,9 +352,35 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
               <Wallet className="w-4 h-4 text-emerald-400" />
               <span>模拟实盘持仓</span>
             </h3>
-            <span className="text-xs font-mono text-neutral-400">
-              共 {paperPositions.length} 仓
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-neutral-400">
+                共 {paperPositions.length} 仓
+              </span>
+              {onToggleGate && (
+                <button
+                  type="button"
+                  onClick={() => onToggleGate()}
+                  aria-pressed={isGateRunning}
+                  title={isGateRunning ? "当前运行中：点击暂停（阻断新开仓，已有持仓继续盯市）" : "当前已暂停：点击启动（放开新开仓）"}
+                  /* 中性底 + 状态点。暂停时只把**描边**换成琥珀色 —— 这是设计规范
+                     第 3 条「层级靠结构与字重，不靠颜色」允许的强调手段：
+                     强调用描边，不用整块铺色（规范 01「不用色块堆叠」）。 */
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-[var(--ds-surface-2)] text-[var(--ds-text-2)] border transition-colors hover:bg-[var(--ds-surface-3)] hover:text-[var(--ds-text)] ${
+                    isGateRunning
+                      ? 'border-[var(--ds-border)]'
+                      : 'border-[var(--ds-warn)]'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 shrink-0 rounded-full ${
+                      isGateRunning ? 'bg-[var(--ds-pos)]' : 'bg-[var(--ds-warn)]'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span>{isGateRunning ? '运行中' : '已暂停'}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* WORK-04 退役：Paper 未接新共享核心 ⇒ NOT_CONNECTED（不回退旧 3a–3d 账本模型） */}
@@ -286,7 +407,203 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
             </div>
           )}
 
-          {/* Account Details Box —— 严格仅显示用户指定的8大核心指标，全单行横排，杜绝断字折行 */}
+          {paperMissingReason && (
+            <div
+              data-testid="paper-missing-error"
+              className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-300 flex items-center gap-2"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <span>持仓接口读取异常: {paperMissingReason}</span>
+            </div>
+          )}
+
+          {/* 执行守护与信号引擎状态（移入低干扰折叠详情，默认折叠，主界面不铺陈技术指标） */}
+          <details
+            className="p-2.5 rounded-lg bg-neutral-950/60 border border-neutral-850 text-xs font-mono text-neutral-400 group"
+            data-testid="execution-daemon-card"
+          >
+            <summary className="cursor-pointer select-none flex items-center justify-between text-[11px] text-neutral-400 hover:text-neutral-200">
+              <span className="flex items-center gap-1.5 font-sans">
+                <Cpu className="w-3.5 h-3.5 text-neutral-500 group-open:text-emerald-400" />
+                <span>执行守护详情</span>
+              </span>
+              <span className="text-[10px] text-neutral-500 group-open:hidden">点击展开</span>
+            </summary>
+            <div className="pt-2 mt-2 border-t border-neutral-800 space-y-2">
+              <div className="grid grid-cols-2 gap-1 text-[11px] text-neutral-400">
+                <div>守护 PID: <span className="text-neutral-200 font-semibold">{executionDaemon?.pid ?? '—'}</span></div>
+                <div>推进周期: <span className="text-neutral-200 font-semibold">{executionDaemon?.cycleCount ?? '—'} 次</span></div>
+                <div className="col-span-2 flex justify-between" data-testid="daemon-universe">
+                  <span>监控标的:</span>
+                  <span className="text-neutral-200 font-semibold">
+                    {executionDaemon?.universe != null ? `${executionDaemon.universe} 个` : '—'}
+                    {(() => {
+                      const sc = executionDaemon?.stateCounter;
+                      if (!sc) return '';
+                      const parts = [
+                        ['BOX', '箱体中'],
+                        ['SWEEP', '扫低'],
+                        ['RETEST', '回踩'],
+                        ['BREAKOUT', '突破'],
+                      ]
+                        .filter(([k]) => (sc[k] ?? 0) > 0)
+                        .map(([k, label]) => `${label} ${sc[k]}`);
+                      return parts.length ? ` · ${parts.join(' / ')}` : ' · 全部空闲';
+                    })()}
+                  </span>
+                </div>
+                {executionDaemon?.replayCandidates != null && (
+                  <div className="col-span-2 flex justify-between" data-testid="daemon-replay">
+                    <span>历史回放候选:</span>
+                    <span className="text-neutral-200 font-semibold">
+                      {executionDaemon.replayCandidates} 个
+                      <span className="text-neutral-500 font-normal">（历史不补开）</span>
+                    </span>
+                  </div>
+                )}
+                {executionDaemon?.atrCaliber != null && (
+                  <div className="col-span-2 flex justify-between" data-testid="daemon-atr-caliber">
+                    <span>ATR 口径:</span>
+                    <span className="text-neutral-200 font-semibold">
+                      {(() => {
+                        const a = executionDaemon.atrCaliber as Record<string, any>;
+                        const period = a.period ?? '—';
+                        const warm = a.warmup_bars ?? '—';
+                        const warmed = a.n_warmed ?? null;
+                        const total = a.n_engines ?? null;
+                        const notWarmed = a.n_not_warmed ?? 0;
+                        const skipped = a.last_box_skipped_warmup_utc;
+                        return (
+                          <>
+                            4h Wilder ATR({period}) 连续递推
+                            <span className="text-neutral-500 font-normal">
+                              {' '}· 预热 {warm} 根
+                              {warmed != null && total != null
+                                ? ` · 已达标 ${warmed}/${total}`
+                                : ''}
+                              {notWarmed > 0 ? ` · 未达标 ${notWarmed}` : ''}
+                              {skipped ? ` · 最近跳过建档 ${skipped}` : ''}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </span>
+                  </div>
+                )}
+                {executionDaemon?.atrCaliber != null && (
+                  <div className="col-span-2 flex justify-between" data-testid="daemon-box-gate">
+                    <span>建档口径:</span>
+                    <span className="text-neutral-200 font-semibold">
+                      {(() => {
+                        const a = executionDaemon.atrCaliber as Record<string, any>;
+                        const mode = a.box_gate_mode;
+                        const metric = a.gate_metric;
+                        const opened = a.n_box_gate_open;
+                        const total = a.n_engines;
+                        const label =
+                          mode === 'atr_warmup'
+                            ? '规范口径（ATR 预热满即建档）'
+                            : mode === 'window_bars'
+                              ? '旧口径（窗口内再等 200 根）'
+                              : '—';
+                        return (
+                          <>
+                            {label}
+                            <span className="text-neutral-500 font-normal">
+                              {' '}· 判据 {metric ?? '—'}
+                              {opened != null && total != null
+                                ? ` · 闸门已开 ${opened}/${total}`
+                                : ''}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </span>
+                  </div>
+                )}
+                {executionDaemon?.watermarkCheck != null && (
+                  <div className="col-span-2 flex justify-between" data-testid="daemon-watermark">
+                    <span>1h 水位:</span>
+                    <span className="text-neutral-200 font-semibold">
+                      {(() => {
+                        const w = executionDaemon.watermarkCheck as Record<string, any>;
+                        const lag = w.lag_1h_bars;
+                        const per = (w.per_symbol as Record<string, any>) || {};
+                        const nGt1 = per.n_lag_1h_gt1;
+                        const aligned = w.aligned_1h;
+                        const bad = typeof lag === 'number' && lag > 1;
+                        return (
+                          <>
+                            <span className={bad ? 'text-rose-400' : undefined}>
+                              {typeof lag === 'number' ? `落后 ${lag} 根` : '—'}
+                            </span>
+                            <span className="text-neutral-500 font-normal">
+                              {' '}
+                              · {aligned === true ? '已对齐' : aligned === false ? '未对齐' : '—'}
+                              {typeof nGt1 === 'number' ? ` · 逐币落后>1 根 ${nGt1} 个` : ''}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </span>
+                  </div>
+                )}
+                {executionDaemon?.dataQuality != null && (
+                  <div className="col-span-2 flex justify-between" data-testid="daemon-data-quality">
+                    <span>数据质量闸门:</span>
+                    <span className="text-neutral-200 font-semibold">
+                      {(() => {
+                        const dq = executionDaemon.dataQuality as Record<string, any>;
+                        const n = dq.blocked_n;
+                        const blocked = (dq.blocked as Record<string, any>) || {};
+                        const syms = Object.keys(blocked);
+                        const head = syms.slice(0, 2).join(', ');
+                        return (
+                          <>
+                            <span
+                              className={
+                                typeof n === 'number' && n > 0 ? 'text-amber-400' : undefined
+                              }
+                            >
+                              {typeof n === 'number' ? `禁止决策 ${n} 个` : '—'}
+                            </span>
+                            <span className="text-neutral-500 font-normal">
+                              {' '}· 交易所占位行（零成交+平价）
+                              {syms.length > 0 ? ` · ${head}${syms.length > 2 ? ' 等' : ''}` : ''}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-between items-center text-[10px] text-neutral-400">
+                <span>最近推进:</span>
+                <span className="text-neutral-300">
+                  {executionDaemon?.lastStepUtc
+                    ? fmtDateTimeSeconds(new Date(executionDaemon.lastStepUtc).getTime())
+                    : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-[10px] text-neutral-400">
+                <span>阻断原因:</span>
+                <span className={executionDaemon?.blockedReason ? 'text-rose-400 font-semibold' : 'text-neutral-400'}>
+                  {(() => {
+                    if (executionDaemon?.blockedReason) return executionDaemon.blockedReason;
+                    const isRunning = Boolean(
+                      executionDaemon?.running ||
+                      (executionDaemon?.status === 'running' && executionDaemon?.pid)
+                    );
+                    if (!isRunning) return '执行守护未运行 / 进程离线';
+                    return isGateRunning ? '无阻断 · 正常流转' : '新开仓已暂停';
+                  })()}
+                </span>
+              </div>
+            </div>
+          </details>
+
+          {/* Account Details Box —— 严格仅显示用户指定的5大核心指标，其余放折叠详情 */}
           <div
             className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs space-y-2 font-mono text-neutral-400"
             data-testid="paper-account-box"
@@ -295,106 +612,114 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
             data-n-positions={paperPositions.length}
             data-n-pending={allPendingList.length}
           >
+            {/* 1. 总资产 */}
             <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">总资金:</span>
+              <span className="text-neutral-400 whitespace-nowrap">总资产(盯市):</span>
               <span className="text-neutral-100 font-bold whitespace-nowrap text-sm">
                 {fmtUsd(viewStats.equity)}
               </span>
             </div>
+            {/* 2. 可用资金 */}
+            <div className="flex justify-between items-center">
+              <span className="text-neutral-400 whitespace-nowrap">可用资金:</span>
+              <span className="text-neutral-200 font-medium whitespace-nowrap">
+                {fmtUsd(viewStats.cash)}
+              </span>
+            </div>
+            {/* 3. 占用资金 */}
             <div className="flex justify-between items-center">
               <span className="text-neutral-400 whitespace-nowrap">占用资金:</span>
               <span className="text-neutral-200 font-medium whitespace-nowrap">
                 {fmtUsd(viewStats.usedMargin)}
               </span>
             </div>
+            {/* 4. 盈亏 */}
             <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">手续费:</span>
-              <span className="text-neutral-200 whitespace-nowrap">
-                {fmtUsd(viewStats.feesPaid)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">资金费:</span>
-              <span
-                className={`whitespace-nowrap font-medium ${
-                  viewStats.fundingPaid && viewStats.fundingPaid > 0
-                    ? 'text-amber-500'
-                    : 'text-neutral-200'
-                }`}
-              >
-                {fmtSignedUsd(viewStats.fundingPaid)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">参数来源:</span>
-              <span
-                className={`whitespace-nowrap ${
-                  viewStats.paramsSource && viewStats.paramsSource.includes('fallback')
-                    ? 'text-amber-400'
-                    : 'text-neutral-200'
-                }`}
-                title="服务端返回的生效参数来源；含 fallback 表示未走冻结视图"
-              >
-                {viewStats.paramsSource ?? '—'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">盈亏多少:</span>
+              <span className="text-neutral-400 whitespace-nowrap">盈亏(未实现/已实现):</span>
               <span className="whitespace-nowrap font-semibold">
                 <span
                   className={
-                    viewStats.unrealizedPnl !== null && viewStats.unrealizedPnl < 0
-                      ? 'text-rose-500'
-                      : 'text-emerald-500'
+                    viewStats.unrealizedPnl === null || viewStats.unrealizedPnl === 0
+                      ? 'text-[var(--ds-text-2)]'
+                      : viewStats.unrealizedPnl < 0
+                        ? 'text-[var(--ds-neg)]'
+                        : 'text-[var(--ds-pos)]'
                   }
                 >
                   {fmtSignedUsd(viewStats.unrealizedPnl)}
                 </span>
-                <span className="text-neutral-500 mx-1">/</span>
+                <span className="text-[var(--ds-text-4)] mx-1">/</span>
                 <span
                   className={
-                    viewStats.realizedPnl !== null && viewStats.realizedPnl < 0
-                      ? 'text-rose-500'
-                      : 'text-emerald-500'
+                    viewStats.realizedPnl === null || viewStats.realizedPnl === 0
+                      ? 'text-[var(--ds-text-2)]'
+                      : viewStats.realizedPnl < 0
+                        ? 'text-[var(--ds-neg)]'
+                        : 'text-[var(--ds-pos)]'
                   }
                 >
                   {fmtSignedUsd(viewStats.realizedPnl)}
                 </span>
               </span>
             </div>
+            {/* 5. 持仓数量 */}
             <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">最大回撤:</span>
+              <span className="text-neutral-400 whitespace-nowrap">持仓数量:</span>
               <span className="text-neutral-200 font-medium whitespace-nowrap">
-                {viewStats.maxDrawdownPct !== null ? `${fmt(viewStats.maxDrawdownPct, 2)}%` : '—'}
+                {scopedPositions.length} 仓在持 / {viewStats.nClosed ?? 0} 笔已平
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-neutral-400 whitespace-nowrap">开仓/平仓数:</span>
-              <span className="text-neutral-200 font-medium whitespace-nowrap">
-                {scopedPositions.length} 开 / {viewStats.nClosed ?? 0} 平
-              </span>
-            </div>
+
+            {/* 更多指标折叠层 */}
+            <details className="pt-2 border-t border-neutral-800/80 group">
+              <summary className="text-[10px] text-neutral-500 hover:text-neutral-300 cursor-pointer select-none flex items-center justify-between">
+                <span>账户详情 (手续费/资金费/回撤/参数)</span>
+                <span className="text-[9px] text-neutral-600 group-open:hidden">▼</span>
+                <span className="text-[9px] text-neutral-600 hidden group-open:inline">▲</span>
+              </summary>
+              <div className="pt-2 space-y-1.5 text-[11px] text-neutral-400">
+                <div className="flex justify-between items-center pb-1 border-b border-neutral-900 text-[10px]">
+                  <span className="text-neutral-500 whitespace-nowrap">账户/策略身份:</span>
+                  <span className="text-emerald-400 font-semibold whitespace-nowrap" title="模拟实盘服务端官方账本 · FT-LOW4H-EXP-V2.2">
+                    模拟账户(paper) · FT-LOW4H-EXP-V2.2
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 whitespace-nowrap">手续费:</span>
+                  <span className="text-neutral-200 whitespace-nowrap">{fmtUsd(viewStats.feesPaid)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 whitespace-nowrap">资金费:</span>
+                  <span
+                    className={`whitespace-nowrap font-medium ${
+                      viewStats.fundingPaid && viewStats.fundingPaid > 0
+                        ? 'text-amber-500'
+                        : 'text-neutral-200'
+                    }`}
+                  >
+                    {fmtSignedUsd(viewStats.fundingPaid)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 whitespace-nowrap">最大回撤:</span>
+                  <span className="text-neutral-200 font-medium whitespace-nowrap">
+                    {viewStats.maxDrawdownPct !== null ? `${fmt(viewStats.maxDrawdownPct, 2)}%` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2 min-w-0">
+                  <span className="text-[var(--ds-text-3)] whitespace-nowrap shrink-0">参数来源:</span>
+                  <span
+                    className="min-w-0 truncate text-[var(--ds-text-3)]"
+                    title={`服务端返回的生效参数来源；含 fallback 表示未走冻结视图｜${viewStats.paramsSource ?? '—'}`}
+                  >
+                    {viewStats.paramsSource ?? '—'}
+                  </span>
+                </div>
+              </div>
+            </details>
           </div>
 
-          {/* 服务端真实门禁 / 旧版账本 状态（来源：/paper/accounts 的 quality，非前端硬编码） */}
-          {paperConnected && newEntryGate && !newEntryGate.allowNewEntries && (
-            <div
-              className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-300 leading-relaxed flex gap-1.5"
-              data-testid="new-entry-gate"
-            >
-              <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <span className="break-all">
-                服务端已阻断全部新开仓（总闸 fail-closed；原因：{newEntryGate.reason ?? '未标注'}）
-                {newEntryGate.exitsFeesFundingHealthUnaffected ? '；退出/费用/资金费/健康采集不受影响' : ''}
-              </span>
-            </div>
-          )}
-          {paperConnected && legacyLedger && legacyLedger.excludedFromOfficial && (
-            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 leading-relaxed">
-              既有持仓为 <b>{legacyLedger.label ?? '旧版/未验收'}</b>，已排除正式策略表现
-              （原账本{legacyLedger.preserved ? '未修改' : '状态未知'}）。
-            </div>
-          )}
+
 
           {/* Quick Trade —— 按「当前选中信号」开仓（WORK-04：Paper NOT_CONNECTED 时一律禁用） */}
           <div className="flex gap-2">
@@ -403,13 +728,13 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
               disabled={orderBusy || executionDisabled}
               title={
                 executionDisabled
-                  ? '模拟实盘 NOT_CONNECTED：已禁止新开仓与真实下单'
+                  ? disabledReason
                   : '按当前选中信号在服务端账本开多仓'
               }
               className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${
                 orderBusy || executionDisabled
                   ? 'bg-neutral-800/60 text-neutral-500 border-neutral-700 cursor-not-allowed'
-                  : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-500 border-emerald-500/30'
+                  : 'bg-[var(--ds-pos-bg-soft)] text-[var(--ds-pos)] border-[var(--ds-border)] hover:border-[var(--ds-pos)]'
               }`}
             >
               <TrendingUp className="w-3.5 h-3.5" />
@@ -420,13 +745,13 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
               disabled={orderBusy || executionDisabled}
               title={
                 executionDisabled
-                  ? '模拟实盘 NOT_CONNECTED：已禁止新开仓与真实下单'
+                  ? disabledReason
                   : '按当前选中信号在服务端账本开空仓'
               }
               className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${
                 orderBusy || executionDisabled
                   ? 'bg-neutral-800/60 text-neutral-500 border-neutral-700 cursor-not-allowed'
-                  : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 border-rose-500/30'
+                  : 'bg-[var(--ds-neg-bg-soft)] text-[var(--ds-neg)] border-[var(--ds-border)] hover:border-[var(--ds-neg)]'
               }`}
             >
               <TrendingDown className="w-3.5 h-3.5" />
@@ -434,45 +759,39 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
             </button>
           </div>
 
-          {/* 服务端回执 / 拒绝原因：真实文案，不隐藏、不伪造 */}
-          {orderNotice && (
-            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 leading-relaxed flex gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <span className="break-all">{orderNotice}</span>
+          {/* 服务端提示 / 状态反馈：支持一键关闭 */}
+          {showNotice && (
+            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 leading-relaxed flex items-center justify-between gap-1.5">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="truncate">{orderNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDismissedNotice(orderNotice)}
+                className="text-amber-400/70 hover:text-amber-200 shrink-0 p-0.5 rounded"
+                title="关闭提示"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </div>
           )}
 
-          {/* Positions List Header —— 明确这是「实际成交」层（只能来自服务端账本） */}
+          {/* Positions List Header */}
           <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-0.5">
             <span className="flex items-center gap-1 font-medium text-neutral-300">
               <Layers className="w-3 h-3 text-emerald-400" />
-              {selectedArm === 'ALL'
-                ? `实际成交 · 在持仓位 (${scopedPositions.length})`
-                : `${selectedArm} 臂实际成交持仓 (${scopedPositions.length})`}
+              <span>实际持仓 ({scopedPositions.length})</span>
             </span>
-            <span className="font-mono text-neutral-500">账本口径 · 点击定位 K 线</span>
+            <span className="font-mono text-neutral-500">点击定位 K 线</span>
           </div>
 
-          {/* Positions List —— 服务端账本持仓（「已买入」标记只能来自此处） */}
+          {/* Positions List */}
           <div className="space-y-2">
             {scopedPositions.length === 0 ? (
-              <>
-                <div className="p-3 rounded-lg bg-neutral-950/60 border border-neutral-800 border-dashed text-center text-[11px] text-neutral-500">
-                  {paperConnected
-                    ? selectedArm === 'ALL'
-                      ? '当前无模拟持仓（无账本成交 ⇒ 不显示任何「已买入」标记）'
-                      : `策略臂 ${selectedArm} 当前无未平仓持仓`
-                    : paperNotConnected
-                      ? '模拟实盘 NOT_CONNECTED（未接新共享核心）⇒ 不展示旧 3a–3d 账户'
-                      : '账本未接通'}
-                </div>
-                {paperConnected && paperNote && selectedArm === 'ALL' && (
-                  <div className="p-2 rounded-lg bg-neutral-950/60 border border-neutral-800 text-[10px] text-neutral-500 leading-relaxed">
-                    <div className="text-neutral-400 font-medium mb-0.5">为什么现在没有自动持仓</div>
-                    <span className="break-all">{paperNote}</span>
-                  </div>
-                )}
-              </>
+              <div className="p-4 rounded-lg bg-neutral-950/60 border border-neutral-800 border-dashed text-center text-xs text-neutral-500">
+                {paperNotConnected ? '模拟实盘未连接' : '暂无持仓'}
+              </div>
             ) : (
               scopedPositions.map((pos) => {
                 const isLong = pos.direction === 'long';
@@ -591,8 +910,69 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
                       {/* 真实止损：只展示账本记录的 stop_price 与入场 ATR 基数（无前端推导） */}
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-400 whitespace-nowrap">账本止损价:</span>
-                        <span className="text-amber-500 font-medium whitespace-nowrap">{fmtPriceSmart(pos.stopPrice)}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-amber-500 font-medium whitespace-nowrap">{fmtPriceSmart(pos.stopPrice)}</span>
+                          <button
+                            type="button"
+                            data-testid={`btn-stop-trail-${pos.positionId}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleStopHistory(pos.positionId, pos.arm);
+                            }}
+                            className="text-[10px] text-emerald-400 hover:text-emerald-300 underline cursor-pointer"
+                          >
+                            {expandedStops[pos.positionId] ? '收起轨迹' : '止损轨迹'}
+                          </button>
+                        </div>
                       </div>
+                      {expandedStops[pos.positionId] && (
+                        <div data-testid={`stop-trail-panel-${pos.positionId}`} className="my-1 p-2 bg-neutral-900 rounded border border-neutral-800 text-[10px] space-y-1.5">
+                          <div className="text-neutral-400 font-semibold flex justify-between items-center border-b border-neutral-800 pb-1">
+                            <span>FT-LOW4H 止损上移轨迹</span>
+                            {loadingStops[pos.positionId] && <span className="text-amber-400 animate-pulse">加载中...</span>}
+                          </div>
+                          {stopsError[pos.positionId] ? (
+                            <div data-testid="stop-trail-error" className="text-rose-400 font-mono py-1">
+                              ⚠ {stopsError[pos.positionId]}
+                            </div>
+                          ) : loadingStops[pos.positionId] ? (
+                            <div className="text-neutral-500 py-1">正在读取账本止损事件...</div>
+                          ) : (stopsHistory[pos.positionId] || []).length === 0 ? (
+                            <div data-testid="stop-trail-empty" className="text-neutral-500 py-1">初始止损生效中，暂无上移记录</div>
+                          ) : (
+                            <div data-testid="stop-trail-records" className="space-y-1">
+                              {(stopsHistory[pos.positionId] || []).map((h: any, idx: number) => {
+                                const parseMs = (v: any) => {
+                                  if (!v) return null;
+                                  if (typeof v === 'number') return v;
+                                  const t = new Date(v).getTime();
+                                  return Number.isFinite(t) ? t : null;
+                                };
+                                const refTime = fmtDateTimeSeconds(parseMs(h.ref_bar_open_ms));
+                                const decTime = fmtDateTimeSeconds(parseMs(h.decision_at));
+                                const effTime = fmtDateTimeSeconds(parseMs(h.effective_at));
+                                return (
+                                  <div key={idx} className="bg-neutral-950/60 p-1.5 rounded border border-neutral-800/60 text-neutral-300">
+                                    <div className="flex justify-between font-mono">
+                                      <span className="text-neutral-400 font-sans">{h.reason === 'initial_stop' ? '初始建仓止损' : '4hK线触发上移'}</span>
+                                      <span className="text-amber-400 font-bold">
+                                        {h.old_stop ? `${fmtPriceSmart(h.old_stop)} → ` : ''}{fmtPriceSmart(h.new_stop)}
+                                      </span>
+                                    </div>
+                                    <div className="text-[9px] text-neutral-500 mt-1 space-y-0.5">
+                                      <div>引用4h: <span className="text-neutral-400">{refTime}</span></div>
+                                      <div className="flex justify-between">
+                                        <span>决策: {decTime}</span>
+                                        <span className="text-emerald-500/80">生效: {effTime}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-400 whitespace-nowrap">止损基数(ATR@入场):</span>
                         <span className="text-neutral-300 font-medium whitespace-nowrap">{fmtPriceSmart(pos.atrAtEntry)}</span>
@@ -618,60 +998,148 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
             )}
           </div>
 
-          {/* 未来待成交挂单（服务端登记）——**计划下单**层：未成交，不冒充已买入 */}
-          {paperConnected && scopedPending.length > 0 && (
-            <div className="space-y-1.5 pt-1" data-testid="paper-pending-block">
+          {/* 未来待成交挂单（服务端登记）——**计划下单**层：未成交，不冒充已买入。
+              三态必须可区分（UI-PENDING-01）：
+                · has_pending —— 账本读到且挂单表非空
+                · empty       —— 账本读到且挂单表为空（**这是「没有挂单」，不是「没读到」**）
+                · unreadable  —— 账本读取失败/未就绪（**不得渲染上一次缓存的挂单**，
+                                 也不得显示成「0 笔」，否则旧快照会被当成当前挂单） */}
+          {(paperConnected || paperMissingReason) && (
+            <div
+              className="space-y-1.5 pt-1"
+              data-testid="paper-pending-block"
+              data-state={
+                !paperConnected ? 'unreadable' : scopedPending.length > 0 ? 'has_pending' : 'empty'
+              }
+              data-n-pending={paperConnected ? scopedPending.length : -1}
+            >
               <div className="text-[10px] text-neutral-300 flex items-center justify-between">
                 <span className="flex items-center gap-1 font-medium">
                   <Clock className="w-3 h-3 text-amber-400" />
-                  <span>计划下单 · 待成交挂单 ({scopedPending.length} 笔)</span>
-                </span>
-                <span className="text-[9px] text-amber-400/80 font-mono">
-                  未成交 · 等真实 15m 闭合 · 防旧价回填
+                  <span data-testid="paper-pending-title">
+                    {!paperConnected
+                      ? '待成交订单（状态未知）'
+                      : `待成交订单 (${scopedPending.length})`}
+                  </span>
                 </span>
               </div>
-              {scopedPending.map((p) => (
+
+              {!paperConnected ? (
                 <div
-                  key={`${p.symbol}:${p.pendingId}`}
-                  className="p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5"
+                  data-testid="paper-pending-error"
+                  className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-300 leading-relaxed space-y-1"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-200 font-bold">{p.symbol}</span>
-                    <span className="text-amber-300">
-                      {p.origin === 'manual' ? '页面手动请求' : '实时信号触发'} · {p.status}
-                    </span>
+                  <div className="flex items-center gap-1.5 font-bold text-rose-200">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>挂单状态未知（账本读取失败）</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>最早可执行 15m:</span>
-                    <span className="text-amber-200">{fmtCompactUtcMs(p.earliestFillMs)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>请求锚点时刻:</span>
-                    <span className="text-neutral-300">{fmtCompactUtcMs(p.requestedAt)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>信号确认/可得:</span>
-                    <span className="text-neutral-400">
-                      {fmtCompactUtcMs(p.eventTime)} / {fmtCompactUtcMs(p.availableAt)}
-                    </span>
-                  </div>
+                  <div className="break-all">{paperMissingReason ?? '账本未就绪'}</div>
                 </div>
-              ))}
+              ) : scopedPending.length === 0 ? (
+                <div
+                  data-testid="paper-pending-empty"
+                  className="p-3 rounded-lg bg-neutral-950/60 border border-neutral-800 border-dashed text-center text-xs text-neutral-500"
+                >
+                  暂无待成交订单
+                </div>
+              ) : (
+                <>
+                  {scopedPending.map((p) => (
+                    <div
+                      key={`${p.arm ?? "unknown"}:${p.symbol}:${p.pendingId}`}
+                      className="p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5"
+                      data-testid="paper-pending-row"
+                      data-pending-id={p.pendingId}
+                      data-arm={p.arm ?? ""}
+                      data-symbol={p.symbol}
+                      data-origin={p.origin ?? ''}
+                      data-status={p.status}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-neutral-200 font-bold truncate">
+                          <span
+                            data-testid="paper-pending-id"
+                            className="text-[9px] text-neutral-500 mr-1"
+                            title="服务端账本 paper_pending.pending_id"
+                          >
+                            #{p.pendingId}
+                          </span>
+                          {p.symbol}
+                        </span>
+                        <span className="text-amber-300 shrink-0">
+                          <span data-testid="paper-pending-status">
+                            {PENDING_STATUS[p.status] ?? p.status}
+                          </span>
+                          <span className="text-[9px] text-amber-400/70"> · {p.status}</span>
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <span className="shrink-0">来源:</span>
+                        <span className="text-neutral-300 truncate" data-testid="paper-pending-origin">
+                          {pendingOriginText(p.origin)} · {p.arm ?? "来源臂未知"}
+                        </span>
+                      </div>
+                      <div data-testid="paper-pending-direction">方向: {p.direction === "long" ? "多" : p.direction === "short" ? "空" : "未提供"}</div>
+                      {/* 等待原因：`reason` 是契约字段；挂单在等时服务端通常留 null
+                          ⇒ 如实展示「结构性等待条件」，不用 0/— 冒充已有原因。 */}
+                      <div className="flex justify-between gap-2">
+                        <span className="shrink-0">等待原因:</span>
+                        <span
+                          className={p.reason ? 'text-amber-500 text-right' : 'text-neutral-400 text-right'}
+                          data-testid="paper-pending-reason"
+                        >
+                          {p.reason ?? '等待最早可成交 15m 闭合（服务端时钟推进）'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>最早可执行 15m:</span>
+                        <span className="text-amber-500" data-testid="paper-pending-earliest">
+                          {fmtCompactUtcMs(p.earliestFillMs)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>请求锚点时刻:</span>
+                        <span className="text-neutral-300">{fmtCompactUtcMs(p.requestedAt)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>信号确认/可得:</span>
+                        <span className="text-neutral-400">
+                          {fmtCompactUtcMs(p.eventTime)} / {fmtCompactUtcMs(p.availableAt)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <span className="shrink-0">信号身份:</span>
+                        <span
+                          className="text-neutral-400 truncate max-w-[62%]"
+                          title={p.signalUid ?? ''}
+                          data-testid="paper-pending-signal-uid"
+                        >
+                          {p.signalUid ?? '—'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {/* 契约缺口如实标注：不在此处用「预期方向/估算数量」补位（那是新增交易语义）。 */}
+                  <div className="text-[9px] text-neutral-500 leading-relaxed">
+                    数量与成交价待实际成交时确定。
+                  </div>
+                </>
+              )}
             </div>
           )}
 
           <div className="text-[10px] text-neutral-500 flex items-center justify-between pt-1">
             <span>持仓历史 → 回测复盘</span>
-            <span>{paperNotConnected ? 'NOT_CONNECTED · 未接新核心' : '四臂独立记账 · 守恒校验'}</span>
+            {paperNotConnected ? <span>NOT_CONNECTED · 未接新核心</span> : null}
           </div>
         </div>
 
-        {/* Section 2: 实盘仓位（只读）—— 真实状态，不硬编码「未连接API」 */}
+        {/* Section 2: 实盘持仓（只读） */}
         <div className="p-3.5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-neutral-100 flex items-center gap-1.5">
               <Shield className="w-4 h-4 text-neutral-400" />
-              <span>实盘仓位（只读）</span>
+              <span>实盘持仓（只读）</span>
             </h3>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-neutral-800 text-neutral-400 border border-neutral-700">
               {liveAccounts.length > 0 ? `${liveAccounts.length} 交易所` : '无快照'}
@@ -679,23 +1147,23 @@ export const PositionPanel: React.FC<PositionPanelProps> = ({
           </div>
 
           {liveAccounts.length === 0 ? (
-            <div className="p-4 rounded-lg bg-neutral-950/60 border border-neutral-800 border-dashed text-center space-y-2">
-              <div className="w-8 h-8 rounded-full bg-neutral-800/80 mx-auto flex items-center justify-center text-neutral-500">
-                <Lock className="w-4 h-4" />
+            <details className="group rounded-lg border border-neutral-850 bg-neutral-950/40 p-2.5">
+              <summary className="flex items-center justify-between cursor-pointer select-none text-xs text-neutral-400 hover:text-neutral-200">
+                <span className="flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-neutral-500" />
+                  <span>暂无实盘快照（仅读取，不交易）</span>
+                </span>
+                <span className="text-[10px] text-neutral-500 group-open:hidden">点击展开</span>
+              </summary>
+              <div className="mt-2.5 pt-2.5 border-t border-neutral-800/80 text-center space-y-1.5">
+                <div className="text-xs text-neutral-300 font-medium">
+                  {liveMissingReason ?? '尚无实盘账户快照'}
+                </div>
+                <p className="text-[11px] text-neutral-500 leading-relaxed">
+                  只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。
+                </p>
               </div>
-              <div className="text-xs text-neutral-300 font-medium">
-                {liveMissingReason ?? '尚无实盘账户快照'}
-              </div>
-              <p className="text-[11px] text-neutral-500 leading-relaxed">
-                只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。
-              </p>
-              <div className="text-[10px] font-mono text-neutral-600 pt-1 border-t border-neutral-850">
-                账户 / 连接状态：—<br />
-                权益 / 可用余额：—<br />
-                币种 / 方向 / 数量：—<br />
-                入场均价 / 标记价：—
-              </div>
-            </div>
+            </details>
           ) : (
             <div className="space-y-2">
               {liveAccounts.map((acc) => {

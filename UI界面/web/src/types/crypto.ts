@@ -70,10 +70,12 @@ export interface CryptoSignal {
   currentDirection?: SignalDirection | null;
   // ── 实时信号层（2026-10-13 信号与持仓接通）──────────────────────────────────
   /**
-   * 来源层：`live` = 实时增量生成；`historical_research` = 旧研究窗口导入的历史信号
-   * （**明确标注为历史，不冒充当前**）。库内 `signals` 表路径为 undefined。
+   * 来源层：`live` = 实时增量生成；`recovered` = 进程短暂停机后重启、仍在成交时效内
+   * 被恢复的真实候选（SIGNAL-UI-LINK-07 起与 `live` 同为当前区来源）；
+   * `historical_research` = 旧研究窗口导入的历史信号（**明确标注为历史，不冒充当前**）。
+   * 库内 `signals` 表路径为 undefined。
    */
-  origin?: 'live' | 'historical_research' | null;
+  origin?: 'live' | 'recovered' | 'historical_research' | null;
   /** 展示态（实时层恒 `displayable`）。展示与可执行**严格分列**。 */
   displayState?: string | null;
   /** 可执行态（后端判定，不适用 G01–G05 正式回测门禁） */

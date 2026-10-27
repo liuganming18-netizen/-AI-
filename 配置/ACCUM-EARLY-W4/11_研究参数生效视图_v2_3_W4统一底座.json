@@ -1,0 +1,65 @@
+{
+  "schema_version": "research_policy_2.3",
+  "spec_version": "F_WX_v2.3_W4_unified_account_base",
+  "strategy_version": "FT-LOW4H-EXP-V2.2",
+  "model_version": "FT-LOW4H-EXP-V2.2",
+  "purpose": "paper_isolated_execution",
+  "production_config": false,
+  "live_trading_authorized": false,
+  "research_policy_frozen": true,
+  "base_id": "W4-UNIFIED-BASE-v1",
+  "base_spec": "配置/ACCUM-EARLY-W4/账户底座_统一_v1.json",
+  "base_note": "工程收口口径（两套现存口径逐维取最严），非用户裁决结果；P-06/P-07/P-08 仍待决。",
+  "execution": {
+    "detail_timeframe": "15m",
+    "tracking_timeframe": "4h",
+    "signal_execution_delay_minutes": 15,
+    "signal_exit_delay_minutes": 15,
+    "fee_each_side": 0.0005,
+    "slippage_each_side": 0.0005,
+    "fill_price_basis": "下一根 15m 开盘价，按方向计入单边滑点",
+    "participation_basis": "上一根已闭合 15m quote_volume"
+  },
+  "stops": {
+    "rule": "FT-LOW4H",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "uniform": "actual_entry_minus_s_and_4h_low_minus_d",
+    "trailing_enabled": true,
+    "trailing_trigger_r": 0.0,
+    "trailing_lookback_4h_bars": 1,
+    "max_holding_hours": 240,
+    "max_holding_days": null,
+    "max_holding_note": "240 为视图字段（计入 view_sha256），FT-LOW4H 不执行到期强平，不得改为 null"
+  },
+  "risk": {
+    "initial_equity_USDT": 2000,
+    "risk_per_trade_equity_fraction": 0.005,
+    "leverage": 1,
+    "max_positions": 3,
+    "max_symbol_positions": 1,
+    "single_name_notional_equity_cap": 0.30,
+    "gross_long_notional_equity_cap": 0.80,
+    "cash_or_free_margin_reserve_fraction": 0.20,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "entry_participation_previous_15m_quote_cap": 0.001,
+    "maximum_account_drawdown_fraction": 0.20,
+    "short_enabled": false
+  },
+  "funding": {
+    "settlement_interval_source": "exchange_official_fundingIntervalHours",
+    "interval_values_observed": [1, 4, 8],
+    "forbidden_assumption": "no_uniform_8h_extrapolation",
+    "accounting": "per_settlement_event_no_interpolation",
+    "requires_cold_hot_merge": true,
+    "known_gap": "2026-09-02T20:00Z..2026-09-18T16:00Z",
+    "available_at_proven": false,
+    "same_bar_order": "unresolved"
+  },
+  "non_binding_caps": {
+    "single_name_notional_equity_cap": "实际恒为 10%（0.5%÷5%），30% 永不触发",
+    "gross_long_notional_equity_cap": "实际 ≤ 30%（3 仓 × 10%），80% 永不触发",
+    "cash_or_free_margin_reserve_fraction": "实际占用 ≤ 30%，20% 储备不影响",
+    "portfolio_initial_stop_risk_cap": "实际 ≤ 1.5%（3 × 0.5%），5% 永不触发"
+  }
+}

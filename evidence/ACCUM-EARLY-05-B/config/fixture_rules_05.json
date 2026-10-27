@@ -1,0 +1,97 @@
+{
+ "approval_ref": "工程自测配置（未经用户批准）：只用于验证接线与链路行为",
+ "approved": false,
+ "conflict_resolution": {
+  "participation_cap": "effective_view",
+  "risk_config": "effective_view",
+  "slippage_source": "effective_view"
+ },
+ "exit": {
+  "gap_model": "stop_price"
+ },
+ "kind": "fixture",
+ "schema_version": "accum-early-05/v1",
+ "schemes": {
+  "4a": {
+   "confirm": "close_above_resistance_first",
+   "enabled": true
+  },
+  "4b": {
+   "confirm": "next_close_holds_above_resistance",
+   "enabled": true
+  },
+  "4c": {
+   "confirm": "pullback_to_resistance_then_close_up",
+   "enabled": true,
+   "pullback": {
+    "deadline_hours": 48,
+    "zone_atr": 0.25
+   }
+  }
+ },
+ "shared": {
+  "armed_fail": {
+   "bars": 2,
+   "buffer_atr": 0.1
+  },
+  "confirm": {
+   "require_bull_close": true
+  },
+  "entry_gate": {
+   "entry_price_deviation_cap": 0.015,
+   "max_gap_up_atr": 0.5
+  },
+  "intrabar_break_cancel": {
+   "buffer_atr": 0.1,
+   "mode": "close_only"
+  },
+  "invalidate": {
+   "close_below_l_bars": 2,
+   "l_overshoot_atr": 0.5
+  },
+  "local_resistance": {
+   "lookback_bars": 48,
+   "mode": "swing_high_k3_lookback48",
+   "swing_k": 3,
+   "timeframe": "1h"
+  },
+  "local_resistance_confirm": {
+   "buffer_atr": 0.0,
+   "mode": "1h_close"
+  },
+  "observe_deadline_hours": 336,
+  "oi_role": "evidence_only",
+  "repeat_candidate_limit": {
+   "cooldown_hours": 0,
+   "per_event": 1
+  },
+  "resistance_qualify": {
+   "min_gap_atr": 0.5
+  },
+  "sell_pressure": {
+   "baseline": "v20_median",
+   "buy_ratio_mult": 1.0,
+   "n": 20,
+   "require": true,
+   "require_upper_half": true,
+   "sell_pressure_mult": 0.8
+  },
+  "sweep_max_overshoot_atr": 0.5,
+  "sweep_min_recovery_atr": 0.1,
+  "sweep_recovery_scope": {
+   "max_bars": 1,
+   "mode": "single_bar"
+  },
+  "sweep_reference": {
+   "mode": "prior_n_low",
+   "must_be_above_box_low": true,
+   "n": 24
+  }
+ },
+ "_fixture_notes": {
+  "为什么用 effective_view 作口径声明": "引擎生效视图实际是 5bps 滑点；声明 strategy_package（3bps）会与账本不符，本单不择一，只在 fixture 里指名一个能对上的口径。",
+  "为什么 sell_pressure_mult=0.8": "与冻结规则 retest_vol_multiplier=0.8 同倍数（04-A 推荐值）。",
+  "为什么 gap_model=stop_price": "引擎现行行为；另两档（bar_open / midpoint）属待决，只作敏感性。",
+  "为什么 cooldown_hours=0": "repeat_candidate_limit 未批准 ⇒ 冷却不生效，候选会比正式规则更密。"
+ }
+}

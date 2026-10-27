@@ -1,0 +1,123 @@
+{
+ "说明": "C 关：两套配置各跑一遍 信号→挂单→自动成交→上移→重启→退出→幂等→运行身份",
+ "统一入口核对": {
+  "启动脚本命中": {
+   "启动系统.command": [],
+   "框架/backend/start.sh": [],
+   "框架/backend/collector.sh": []
+  },
+  "结论": "不通过"
+ },
+ "用例": [
+  {
+   "标签": "A",
+   "配置": "exp1_config.json",
+   "标的": "BTCUSDT",
+   "生效参数": {
+    "source": "frozen_view_exp1_config",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "max_holding_hours": 240,
+    "risk_per_trade": 0.005,
+    "uniform_stop_atr_mult": 3.0,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP05-GROUP1",
+    "view_sha256": "c2aeddb3fa0a"
+   },
+   "挂单": [
+    {
+     "pending_id": 1,
+     "status": "pending",
+     "reason": null,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "config_fingerprint": "c2aeddb3fa0a",
+     "earliest_fill_ms": 1792687500000
+    }
+   ],
+   "成交判定": "不通过(成交数为 0 ⇒ 自动闭环失败)",
+   "成交": [],
+   "上移": null,
+   "上移判定": null,
+   "重启": null,
+   "退出": null,
+   "幂等": null,
+   "运行身份": {
+    "get_daemon_status": {
+     "arm": "3a",
+     "pid": 57158,
+     "status": "running",
+     "running": true,
+     "started_at": 1792691353664,
+     "last_cycle_ms": 1792691363821,
+     "cycle_count": 11,
+     "pending_matched_count": 0,
+     "trailing_checked_count": 0,
+     "stops_updated_count": 0,
+     "exits_triggered_count": 0,
+     "last_error": null,
+     "health": "healthy"
+    },
+    "worker_pid": 57158,
+    "worker存活": true,
+    "一致": true
+   },
+   "风险重算": null
+  },
+  {
+   "标签": "B",
+   "配置": "exp2_config.json",
+   "标的": "ETHUSDT",
+   "生效参数": {
+    "source": "frozen_view_exp2_config",
+    "stoploss_s": 0.03,
+    "trail_d": 0.08,
+    "max_holding_hours": 240,
+    "risk_per_trade": 0.005,
+    "uniform_stop_atr_mult": 3.0,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP05-GROUP2",
+    "view_sha256": "5f9cdfe9da6c"
+   },
+   "挂单": [
+    {
+     "pending_id": 1,
+     "status": "pending",
+     "reason": null,
+     "stoploss_s": 0.03,
+     "trail_d": 0.08,
+     "config_fingerprint": "5f9cdfe9da6c",
+     "earliest_fill_ms": 1792687500000
+    }
+   ],
+   "成交判定": "不通过(成交数为 0 ⇒ 自动闭环失败)",
+   "成交": [],
+   "上移": null,
+   "上移判定": null,
+   "重启": null,
+   "退出": null,
+   "幂等": null,
+   "运行身份": {
+    "get_daemon_status": {
+     "arm": "3a",
+     "pid": 57181,
+     "status": "running",
+     "running": true,
+     "started_at": 1792691364941,
+     "last_cycle_ms": 1792691375133,
+     "cycle_count": 11,
+     "pending_matched_count": 0,
+     "trailing_checked_count": 0,
+     "stops_updated_count": 0,
+     "exits_triggered_count": 0,
+     "last_error": null,
+     "health": "healthy"
+    },
+    "worker_pid": 57181,
+    "worker存活": true,
+    "一致": true
+   },
+   "风险重算": null
+  }
+ ]
+}

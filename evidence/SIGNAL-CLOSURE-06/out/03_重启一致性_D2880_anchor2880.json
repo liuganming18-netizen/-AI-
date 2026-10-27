@@ -1,0 +1,118 @@
+{
+ "generated_at_utc": "2026-10-25T08:23:09Z",
+ "upto_utc": "2026-10-25T07:59:59Z",
+ "depth_hours": 2880,
+ "depth_mode": "D2880_anchor2880",
+ "T0_utc": "2026-10-22T07:59:59Z",
+ "T1_utc": "2026-10-25T07:59:59Z",
+ "t0_hours": 72,
+ "restart_offsets_h": [
+  12,
+  6,
+  3,
+  1
+ ],
+ "genuine_two_phase": [
+  "R2x",
+  "R6h"
+ ],
+ "n_symbols": 526,
+ "n_ready": {
+  "C": 526,
+  "R12h": 526,
+  "R6h": 526,
+  "R3h": 526,
+  "R1h": 526,
+  "R2x": 526
+ },
+ "n_diff_vs_continuous": {
+  "R12h": 0,
+  "R6h": 0,
+  "R3h": 0,
+  "R1h": 0,
+  "R2x": 0
+ },
+ "n_candidate_log_diff": {
+  "R12h": 0,
+  "R6h": 0,
+  "R3h": 0,
+  "R1h": 0,
+  "R2x": 0
+ },
+ "candidate_log_note": "候选日志（candidate_ids）按构造随「有效重放深度」增长：C 的有效深度 = W + t0_hours，R{k}h = W + k。**它单独统计，不并入有效状态差异**；设了绝对锚点后两者深度完全相同，这一项也必须为 0。",
+ "anchor_utc": "2026-06-27T07:59:59Z",
+ "anchor_hours": 2880,
+ "restart_count_irrelevant": true,
+ "restart_state_change_at_Tr": {
+  "R6h": {
+   "n_symbols_compared": 526,
+   "n_diff_phase1_vs_direct": 0,
+   "n_1h_processed_min_continuous": 571,
+   "n_1h_processed_min_direct": 571,
+   "n_1h_equal": true
+  }
+ },
+ "total_candidates": {
+  "C": 51,
+  "R12h": 51,
+  "R6h": 51,
+  "R3h": 51,
+  "R1h": 51,
+  "R2x": 51
+ },
+ "state_distribution": {
+  "C": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  },
+  "R12h": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  },
+  "R6h": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  },
+  "R3h": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  },
+  "R1h": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  },
+  "R2x": {
+   "BOX": 326,
+   "IDLE": 167,
+   "RETEST": 28,
+   "SWEEP": 5
+  }
+ },
+ "elapsed_sec_per_scenario": {
+  "C": 104.1,
+  "R12h": 79.5,
+  "R6h": 257.8,
+  "R3h": 72.7,
+  "R1h": 73.7,
+  "R2x": 251.7
+ },
+ "diff_detail": {
+  "R12h": [],
+  "R6h": [],
+  "R3h": [],
+  "R1h": [],
+  "R2x": []
+ },
+ "runner": "MultiSymbolSignalEngine（生产类）via 00_common.prod_session",
+ "definition": "重启 = 丢弃内存状态，按 [重启时刻-W, 重启时刻] 重建后继续。C 与各 R 共用同一 T0、同一 T1，只改最后一次重启的时刻 —— 这是生产重启的真实方向（重启让已覆盖历史变短，而不是变长）。"
+}

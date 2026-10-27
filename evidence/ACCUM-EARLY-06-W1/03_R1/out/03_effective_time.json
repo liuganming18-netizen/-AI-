@@ -1,0 +1,308 @@
+{
+  "schema": "accum-early-06-w1-r1/effective-time/v1",
+  "checked_at_utc": "2026-10-27T01:18:29Z",
+  "inputs": {
+    "code": {
+      "file": "框架/backend/accum_early_entry.py",
+      "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017"
+    },
+    "paper_engine": {
+      "file": "框架/backend/paper_engine.py",
+      "sha256": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784"
+    }
+  },
+  "static": {
+    "formulas": [
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1803,
+        "target": "eff",
+        "expr": "c4 if legacy_4h_exit else (c4 // M15 + 1) * M15",
+        "has_grid": true,
+        "has_wallclock_max": false
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2457,
+        "target": "eff_ms",
+        "expr": "max(dec_ms, ref_close_ms)",
+        "has_grid": false,
+        "has_wallclock_max": true
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2583,
+        "target": "eff_ms",
+        "expr": "max(dec_ms, ref_close_ms)",
+        "has_grid": false,
+        "has_wallclock_max": true
+      }
+    ],
+    "call_sites": [
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2685,
+        "decision_at": "clk",
+        "now_ms": "clk",
+        "all_kwargs": {
+          "now_ms": "clk",
+          "decision_at": "clk",
+          "trail_d": "trail_d"
+        }
+      },
+      {
+        "file": "框架/backend/paper_loop.py",
+        "line": 177,
+        "decision_at": "now",
+        "now_ms": "now",
+        "all_kwargs": {
+          "now_ms": "now",
+          "decision_at": "now",
+          "trail_d": "trail_d"
+        }
+      },
+      {
+        "file": "框架/backend/unified_runtime.py",
+        "line": 2333,
+        "decision_at": "now_ms",
+        "now_ms": "now_ms",
+        "all_kwargs": {
+          "now_ms": "now_ms",
+          "decision_at": "now_ms"
+        }
+      }
+    ]
+  },
+  "runtime": {
+    "ledger_dir": "evidence/ACCUM-EARLY-06-W1/03_R1/runs/ledger_effective",
+    "candle": {
+      "open_time": 1791619200000,
+      "close_time": 1791633599999,
+      "close_time_utc": "2026-10-10T11:59:59Z",
+      "low": 74.0,
+      "high": 75.0,
+      "open": 74.61,
+      "close": 74.64
+    },
+    "probe_positions": [
+      {
+        "position_id": 1,
+        "stop_price": 70.0,
+        "purpose": "只上移（候选 70.3 > 70.0）"
+      },
+      {
+        "position_id": 2,
+        "stop_price": 75.0,
+        "purpose": "触发退出（4h 最低 74.0 ≤ 75.0）"
+      }
+    ],
+    "research_eff": 1791633600000,
+    "research_eff_utc": "2026-10-10T12:00:00Z",
+    "research_eff_expr": "c4 if legacy_4h_exit else (c4 // M15 + 1) * M15",
+    "grid_15m": 900000,
+    "stop_cases": [
+      {
+        "case": "挂钟=4h 收盘那一刻（11:59:59.999）",
+        "decision_at": 1791633599999,
+        "decision_at_utc": "2026-10-10T11:59:59Z",
+        "position": "只上移",
+        "ok": true,
+        "reason": null,
+        "candidate_stop": 70.3,
+        "effective_stop": 70.3,
+        "stop_updated": true,
+        "exit_triggered": false,
+        "effective_at": 1791633599999,
+        "effective_at_utc": "2026-10-10T11:59:59Z",
+        "on_15m_grid": false,
+        "equals_research_eff": false
+      },
+      {
+        "case": "挂钟=收盘+1ms（12:00:00.000，恰在网格）",
+        "decision_at": 1791633600000,
+        "decision_at_utc": "2026-10-10T12:00:00Z",
+        "position": "只上移",
+        "ok": true,
+        "reason": null,
+        "candidate_stop": 70.3,
+        "effective_stop": 70.3,
+        "stop_updated": false,
+        "exit_triggered": false,
+        "effective_at": 1791633600000,
+        "effective_at_utc": "2026-10-10T12:00:00Z",
+        "on_15m_grid": true,
+        "equals_research_eff": true
+      },
+      {
+        "case": "挂钟=收盘+3 分钟（12:02:59.999）",
+        "decision_at": 1791633779999,
+        "decision_at_utc": "2026-10-10T12:02:59Z",
+        "position": "只上移",
+        "ok": true,
+        "reason": null,
+        "candidate_stop": 70.3,
+        "effective_stop": 70.3,
+        "stop_updated": false,
+        "exit_triggered": false,
+        "effective_at": 1791633779999,
+        "effective_at_utc": "2026-10-10T12:02:59Z",
+        "on_15m_grid": false,
+        "equals_research_eff": false
+      },
+      {
+        "case": "挂钟=收盘+15 分钟+1ms（12:15:00.000，恰在网格）",
+        "decision_at": 1791634500000,
+        "decision_at_utc": "2026-10-10T12:15:00Z",
+        "position": "只上移",
+        "ok": true,
+        "reason": null,
+        "candidate_stop": 70.3,
+        "effective_stop": 70.3,
+        "stop_updated": false,
+        "exit_triggered": false,
+        "effective_at": 1791634500000,
+        "effective_at_utc": "2026-10-10T12:15:00Z",
+        "on_15m_grid": true,
+        "equals_research_eff": false
+      }
+    ],
+    "exit_case": {
+      "decision_at": 1791633779999,
+      "decision_at_utc": "2026-10-10T12:02:59Z",
+      "exit_triggered": true,
+      "effective_at": 1791633779999,
+      "effective_at_utc": "2026-10-10T12:02:59Z",
+      "exit_result_exit_ts": 1791633779999,
+      "exit_result_net_pnl": -0.08023054670000625,
+      "position_row": {
+        "position_id": 2,
+        "status": "closed",
+        "exit_ts": 1791633779999,
+        "exit_reason": "trailing_stop_loss"
+      },
+      "on_15m_grid": false,
+      "delta_vs_research_ms": 179999
+    },
+    "stop_history": [
+      {
+        "position_id": 1,
+        "effective_at": 1791633599999,
+        "decision_at": 1791633599999,
+        "new_stop": 70.3
+      }
+    ]
+  },
+  "impact": {
+    "hits_total": 67,
+    "unique_index_on_effective_at": [
+      "CREATE UNIQUE INDEX IF NOT EXISTS ix_paper_stop_hist_pos_eff"
+    ],
+    "funding_window_rule": [
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1761,
+        "text": "`exit_ts` = **经济出场时刻**…资金费计费窗 = `(entry_ts, exit_ts]`，因此 `exit_ts` 必须与 `entry_ts` **同一时间轴**（bar 时刻），否则会漏收/多收结算事件。"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2633,
+        "text": "bar_close_time=ref_close_ms, exit_ts=eff_ms,"
+      }
+    ],
+    "consumers": [
+      {
+        "what": "paper_stop_history.effective_at",
+        "role": "唯一索引 (position_id, effective_at) 的去重键 + 历史排序键"
+      },
+      {
+        "what": "paper_position.exit_ts",
+        "role": "资金费计费窗右端点 (entry_ts, exit_ts]；页面/接口展示"
+      },
+      {
+        "what": "close_at_price(exit_ts=)",
+        "role": "经济出场时刻"
+      },
+      {
+        "what": "返回值 effective_at",
+        "role": "调用方/接口透出"
+      }
+    ],
+    "not_affected": [
+      "止损候选价 low_4h×(1−d)",
+      "只上移判定 cand_stop > cur_stop",
+      "退出触发条件 low_4h <= cur_stop",
+      "滑点/手续费/取整"
+    ],
+    "hits_sample": [
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1444,
+        "text": "exit_ts             INTEGER,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1549,
+        "text": "scheme, position_id, symbol, entry_ts, exit_ts, exit_class, gap,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1555,
+        "text": "row.get(\"exit_ts\"), row.get(\"exit_class\"), 1 if row.get(\"gap\") else 0,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1673,
+        "text": "\"exit_ts,exit_reason,exit_price,stop_price,initial_stop_price,\""
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1683,
+        "text": "\"effective_at,available_at FROM paper_stop_history \""
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1685,
+        "text": "\"realized\": q(\"SELECT position_id,net_pnl,exit_reason,entry_ts,exit_ts \""
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1769,
+        "text": "exit_ts = int(bar[\"close_time\"])"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1771,
+        "text": "scheme, int(position_id), raw_price=float(raw), now_ms=exit_ts,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1773,
+        "text": "bar_close_time=int(bar[\"close_time\"]), exit_ts=exit_ts,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1777,
+        "text": "\"entry_ts\": entry_ts, \"exit_ts\": exit_ts, \"exit_class\": cls,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1817,
+        "text": "decision_at=c4, effective_at=eff,"
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1822,
+        "text": "\"new_stop\": cand_stop, \"effective_at\": eff,"
+      }
+    ]
+  },
+  "unverified": [
+    "未跑完整研究回放（drive_position_exit 需真实 15m 行情与持仓存储），研究侧只对源码表达式求值；因此「逐笔差异」未实测。",
+    "生产循环发现 4h 收盘的延迟上界未实测（示例取 3 分钟；实际取决于循环周期与负载）。",
+    "两进程并发推进同一持仓时的重复记录风险未测（顺序调用下第二次为 no-op，已实测）。",
+    "资金费在 (entry_ts, exit_ts] 边界上的逐笔差额未实测（只定位到机制：exit_ts 进入该窗口）。"
+  ],
+  "problems": [],
+  "verdict": "pass",
+  "statement": "研究侧生效时刻 = 4h 收盘后的下一个 15m 整点；生产侧 = max(挂钟, 4h 收盘)。两者只在挂钟恰好落在 15m 整点时相等。差异影响记录时刻、止损历史去重键与资金费计费窗右端点；不影响止损价、只上移判定与退出触发条件。本单不据此新增或修改任何规则。"
+}

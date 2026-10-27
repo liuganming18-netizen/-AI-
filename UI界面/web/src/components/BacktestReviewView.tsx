@@ -39,6 +39,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useEndpoint } from '../api/useEndpoint';
+import { exitReasonLabel } from '../utils/runMeta';
 
 type GateStatus = 'pass' | 'fail' | 'partial' | 'blocked' | 'not_tested';
 type ReviewTab = 'overview' | 'trades' | 'signals' | 'diagnostics';
@@ -253,7 +254,7 @@ export const BacktestReviewView: React.FC = () => {
         side: typeof t.direction === 'string' ? t.direction.toUpperCase() : '—',
         entry: `${fmtTime(t.entry_time_ms)} (${px(t.entry_price)})`,
         exit: `${fmtTime(t.exit_time_ms)} (${px(t.exit_price)})`,
-        reason: t.exit_reason ?? '—',
+        reason: exitReasonLabel(t.exit_reason),
         pnl: pnlNum,
         pnl_str: pnlNum !== null ? `${pnlNum >= 0 ? '+' : ''}$${pnlNum.toFixed(2)}` : '—',
         fees: t.fees,

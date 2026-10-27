@@ -1,0 +1,141 @@
+# -*- coding: utf-8 -*-
+"""FT-REPLAY-AUDIT-01 / 18：写跨工单台账页，并把本页哈希追加到台账清单。"""
+from __future__ import annotations
+
+import csv
+import datetime as dt
+import hashlib
+import json
+import os
+
+ROOT = "/Users/boos/Desktop/威科夫因子共振趋势"
+AUDIT = os.path.join(ROOT, "evidence/FT-REPLAY-AUDIT-01")
+OUT = os.path.join(AUDIT, "out")
+LEDGER = os.path.join(ROOT, "evidence/_统一执行台账")
+PAGE = os.path.join(LEDGER, "07_FT-REPLAY-AUDIT-01_验收结论.md")
+MANIFEST = os.path.join(LEDGER, "05_文件清单与哈希.csv")
+
+
+def sha256(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as fh:
+        for c in iter(lambda: fh.read(1 << 20), b""):
+            h.update(c)
+    return h.hexdigest()
+
+
+def main():
+    samp = json.load(open(os.path.join(OUT, "13_抽样摘要_v2.json"), encoding="utf-8"))
+    page = json.load(open(os.path.join(OUT, "15_页面摘要_v2.json"), encoding="utf-8"))
+    meta = json.load(open(os.path.join(OUT, "16_元数据摘要_v2.json"), encoding="utf-8"))
+    edge = json.load(open(os.path.join(OUT, "14_边界案例摘要_v2.json"), encoding="utf-8"))
+    rec = json.load(open(os.path.join(OUT, "17_登记回执.json"), encoding="utf-8"))
+    grp = json.load(open(os.path.join(OUT, "11_分组关系_v2.json"), encoding="utf-8"))
+
+    lines = []
+    a = lines.append
+    a("# FT-REPLAY-AUDIT-01｜系统复盘独立验收结论")
+    a("")
+    a("- 登记时间：%s" % dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    a("- 验收方：hharness（独立验收，不接管 Work 的 49 条区间核查）")
+    a("- 对象：反重力 FT-REPLAY-02 修正 + FT-REPLAY-01 R1 接入 + 系统当前运行态")
+    a("- 交付目录：`evidence/FT-REPLAY-AUDIT-01/`")
+    a("- 研究记录入口：`框架/backend/data/experiments/events.jsonl` 第 %s 条事件"
+      "（EV_OBSERVE，哈希 `%s…`）" % (rec["新事件"]["seq"], (rec["新事件"]["hash"] or "")[:16]))
+    a("")
+    a("## 结论：未通过（需修正后复验）")
+    a("")
+    a("14 项通过 / 4 项未通过 / 1 项部分未通过。系统主体可用（27 组 4,325 笔三方全等、"
+      "页面 81/81 字段一致、K 线真实），但有 4 处硬伤不能签收。")
+    a("")
+    a("## 通过的部分")
+    a("")
+    a("| 项 | 实测 |")
+    a("|---|---|")
+    a("| 27 组 / 4,325 笔 | 源账本、组级登记、币级登记三方笔数与净额逐组全等（27/27） |")
+    a("| 去重 | 组内重复 0、币级重复 0、合并表 4,325 与单表合计相等 |")
+    a("| 分组关系 | 27 组与 1,065 run 是同一批 4,325 笔的两种粒度，内容键并集 = 4,325 |")
+    a("| 抽样逐笔（币级链路） | 9 笔 78/78 字段一致（时间/价格/数量/P0/净额） |")
+    a("| 页面实机 | 9/9 打开、81/81 字段一致、点行触发 focus_ms 9/9 |")
+    a("| 时区 / 单位 | 4,325 笔 UTC 文本与毫秒 0 不一致；13 位毫秒；15m 对齐 0 异常 |")
+    a("| 研究状态 | 1,065 run 全 research_period，0 个带 ledger.sqlite3 |")
+    a("")
+    a("## 未通过的 4 项")
+    a("")
+    a("| # | 问题 | 实测 | 影响 |")
+    a("|---|---|---|---|")
+    a("| 1 | 页面「下单时间」= 成交时间 | 9 笔抽样两列完全相同；币级 `order_time_ms` 写死等于成交时间 | "
+      "直接违反「不得把成交时间冒充下单时间」 |")
+    a("| 2 | 组级登记信号时间取错字段 | 6/6 与确认表 `orig_signal_time_ms` 不等，差 7~135 小时；组级 P0 6/6 缺失 | "
+      "打开组级批次的 run 会看到错误的信号时刻与「未知」P0 |")
+    a("| 3 | 专用拒单接口读不出拒单 | `/rejected` 返回 0 条；1,065 个 run 写的是 `rejected.jsonl`，读取器找 `rejects.jsonl` | "
+      "561 个 run 的拒单在专用入口不可见（候选对照块仍可见 3,388 条） |")
+    a("| 4 | 缺 K 线不给提示 | 构造缺失标的返回 0 根、`missing_reason=null` | 与「缺数据必给明确说明」的承诺不符 |")
+    a("")
+    a("另有 1 项部分未通过：交易 ID 两套口径不兼容——币级 `ft_<策略>_<币种>_<入场毫秒>` 可重建 4,325/4,325，"
+      "组级全是 `trd_<策略>_0001` 序号、无法回溯源行，两套交集 0。")
+    a("")
+    a("## 边界三例")
+    a("")
+    a("| 类别 | 源状态 | 是否被伪造成交 | 系统可见性 |")
+    a("|---|---|---|---|")
+    a("| 拒单 | REJECTED / outside_retest_zone | 否 | 候选对照块可见；专用接口读不出 |")
+    a("| 确认失败 | CONFIRMED_NOT_FILLED | 否 | 候选对照块可见（22 条） |")
+    a("| 缺 K 线 | 本批无真实样本 | — | 构造缺失标的静默 0 根 |")
+    a("")
+    a("## 关键数字")
+    a("")
+    a("- 源账本：%d 笔 / %d 组 / %d 币，净额 %.6f"
+      % (grp["A_源账本"]["笔数"], grp["A_源账本"]["组数"], grp["A_源账本"]["币种数"], grp["A_源账本"]["净额"]))
+    a("- 组级登记：%d 笔 / %d run，净额 %.6f"
+      % (grp["B_组级登记"]["笔数"], grp["B_组级登记"]["run数"], grp["B_组级登记"]["净额"]))
+    a("- 币级登记：%d 笔 / %d run，净额 %.6f"
+      % (grp["C_币级登记"]["笔数"], grp["C_币级登记"]["run数"], grp["C_币级登记"]["净额"]))
+    a("- 抽样：%d 笔（C0/C1/C2 各 3），盈利 %d / 亏损 %d，%d 个币种，跨日 %d 笔"
+      % (samp["抽样数"], samp["盈利笔数"], samp["亏损笔数"], samp["不同币种数"], samp["跨日笔数"]))
+    a("- 页面：%d/%d 通过，字段 %s，focus_ms %d/%d"
+      % (page["页面全部通过数"], page["页面样本数"], page["总字段一致率"],
+         page["focus_ms请求命中数"], page["页面样本数"]))
+    a("- 候选对照矩阵：成交 %s / 拒单 %s / 未成交 %s"
+      % (edge.get("候选对照矩阵", {}).get("filled"), edge.get("候选对照矩阵", {}).get("rejected"),
+         edge.get("候选对照矩阵", {}).get("not_filled")))
+    a("")
+    a("## 证据")
+    a("")
+    a("| 文件 | 内容 |")
+    a("|---|---|")
+    for fn, desc in [
+        ("00_报告.md", "完整验收报告（逐项判定、差异、抽样明细、复现命令）"),
+        ("out/11_逐组三方对照_v2.csv", "27 组逐组三方笔数与净额"),
+        ("out/12_API核对_v2.csv", "12 项接口核对"),
+        ("out/13_逐笔核对明细_v2.csv", "9 笔 × 各环节逐字段"),
+        ("out/14_边界案例_v2.csv", "拒单 / 未成交 / 缺 K 线"),
+        ("out/15_页面逐字段核对_v2.csv", "页面实机取值（81 项）"),
+        ("out/16_元数据核对_v2.csv", "时区 / 单位 / ID / 研究状态 / 版本"),
+        ("screens/19_展开21列_下单时间与进场时间.png", "「下单时间 = 进场时间」的页面实证"),
+    ]:
+        a("| `%s` | %s |" % (fn, desc))
+    a("")
+    a("> 本轮未跑任何回测、未改任何代码与账本；发现的问题只记录不代修（验收方不修被测系统）。")
+
+    with open(PAGE, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
+
+    # 追加到台账清单（幂等：同路径先删后加）
+    rows = []
+    if os.path.isfile(MANIFEST):
+        with open(MANIFEST, encoding="utf-8-sig") as fh:
+            rows = [r for r in csv.DictReader(fh)]
+    name = os.path.basename(PAGE)
+    rows = [r for r in rows if r.get("相对路径") != name]
+    rows.append({"相对路径": name, "字节数": os.path.getsize(PAGE), "SHA256": sha256(PAGE)})
+    with open(MANIFEST, "w", newline="", encoding="utf-8-sig") as fh:
+        w = csv.DictWriter(fh, fieldnames=["相对路径", "字节数", "SHA256"])
+        w.writeheader()
+        w.writerows(rows)
+    print("台账页已写：%s（%d 字节，%d 行）" % (name, os.path.getsize(PAGE), len(lines)))
+    print("清单已追加，共 %d 行" % len(rows))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,33 @@
+{
+  "task": "FT-ENTRY-03",
+  "official_recursive_analysis": {
+    "status": "基线单币指标检查通过 (不能覆盖全部A入场逻辑)",
+    "returncode": 0,
+    "details": "日志证实 WyckoffBaseline 在 1000BONK/USDT:USDT 上的基础指标无递归公式方差且无指标前瞻偏置，但仅覆盖基线单币指标层，未覆盖 A 路线全部状态机入场规则",
+    "log_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-03/logs/official_recursive_analysis.log"
+  },
+  "official_lookahead_analysis": {
+    "status": "样本不足，未完成",
+    "returncode": 0,
+    "details": "捕获交易笔数少于官方门槛(10笔)，官方分析工具自动取消并在报告中提示 Test failed，严禁将退出码0视为PASS",
+    "export_csv": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-03/out/lookahead_analysis_result.csv",
+    "log_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-03/logs/official_lookahead_analysis.log"
+  },
+  "non_empty_prefix_consistency_check": {
+    "status": "局部前缀检查PASS (单币首个候选因果隔离无穿越，不等于全策略PASS)",
+    "tested_symbol": "1000BONK/USDT:USDT",
+    "symbol_candidate_total_count": 2,
+    "checked_candidate_count": 1,
+    "candidate_id": "cand_A_ev_FT_ENTRY_02_binance_BONKUSDT_1708718400000_1708984800000",
+    "snapshot_time_ms": 1708984800000,
+    "check_scope": "仅针对 1000BONK/USDT:USDT 首个候选点进行因果物理截断比对，未覆盖全池70币及全部候选点",
+    "diff_count": 0,
+    "diffs": {},
+    "is_identical": true,
+    "details": "截断未来数据后重新运行，首个候选快照各数值与全量运行时 100% 精确一致，无任何未来数据穿越"
+  },
+  "overall_evaluation": {
+    "status": "探索阶段 (官方工具未完全闭合，局部检查不等于全策略PASS)",
+    "explanation": "坚决取消‘退出码0即PASS’假象。lookahead 因单币低频样本不足 10 笔被官方取消，定性为‘样本不足，未完成’；recursive 基线单币指标检查通过，但不能覆盖全部 A 入场逻辑；前缀检查在 1000BONK 首个候选上比对完全一致，但属于单币局部切片验证（1/2 候选），不能写成全策略 PASS。结合全池 241 个 L1 候选的 L2 完整策略资格为 0，本轮所有回测仅作为探索性证据，不作为正式准入结论。原始日志保持不变。"
+  }
+}

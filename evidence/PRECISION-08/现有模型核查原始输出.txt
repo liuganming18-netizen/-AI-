@@ -1,0 +1,86 @@
+PRECISION-08 / 工具 10 · 现有成交模型核查（只读）
+==============================================================================
+
+① 取整方向（fill.py）
+   L81    def round_buy_price(px: float, step: float) -> float:
+   L93    def round_sell_price(px: float, step: float) -> float:
+   L90    rounding="ROUND_CEILING") * _dec(step, name="step"))
+   L127   post_round = (post_slip / step).to_integral_value(rounding="ROUND_CEILING") * step
+   L98    rounding="ROUND_FLOOR") * _dec(step, name="step"))
+   L105   rounding="ROUND_FLOOR") * _dec(step, name="step"))
+   L130   post_round = (post_slip / step).to_integral_value(rounding="ROUND_FLOOR") * step
+
+② 严格闸门（strict=True 时）
+   L199   1. 原价必须有限且 > 0，`price_step` 必须有限且 > 0 —— 否则 `FillRejected`；
+   L201   3. 取整后价格必须有限且 > 0 —— 否则 `FillRejected`（**这是 SPACE 零元卖出的直接防线**）。
+   生产路径 engine_adapter.py：
+   L438   strict=True,          # 价格非法/规格非法 ⇒ 拒绝成交（不再静默取整成 0）
+
+③ 协议是否收 K 线区间（R7 的落点问题）
+   L174   class FillAdapter(Protocol):
+   L179   def quote_entry(self, *, raw_price: float, direction: int, price_step: float,
+   L182   def quote_exit(self, *, target_px: float, direction: int,
+   L244   def quote_entry(self, *, raw_price: float, direction: int, price_step: float,
+   L272   def quote_exit(self, *, target_px: float, direction: int,
+   L333   def quote_entry(self, *, raw_price: float, direction: int, price_step: float,
+   L338   def quote_exit(self, *, target_px: float, direction: int,
+   协议内出现 bar_low/bar_high 的行数：0
+
+④ 引擎里的四个成交点
+   入场  L448   quote = self.adapter.quote_entry(
+   出场  L385   fill = self.adapter.quote_exit(target_px=dec.target_px,
+   入场被拒时**没有**写 invalid_reasons：
+   L453   # 入场价格非法/规格非法 ⇒ **不生成成交**
+   现有 invalid_reasons 只有三处（全是出场）：
+   L393   invalid_reasons.append(f"exit_gap_fill_rejected:{rej.reason}")
+   L665   invalid_reasons.append(f"exit_intrabar_fill_rejected:{rej.reason}")
+   L727   invalid_reasons.append(f"exit_eod_fill_rejected:{rej.reason}")
+
+⑤ 滑点参数
+   config.py L87    slippage_bps: float = 3.0                    # 3 bps (0.0003)
+   config.py L91    stress_slippage_bps: float = 6.0             # 6 bps (0.0006)
+
+==============================================================================
+62 条成交腿复算（Decimal，滑点 3bps，方向由「哪一侧能逐位复现记录价」反推）
+   总腿数                : 62
+   区间内 / 越界         : 35 / 27
+   ★ 参考价 raw 越出区间 : 0  []
+   只留取整（滑点=0）越界: 25
+   只留滑点（不取整）越界: 3
+   两者各自都越界        : 2
+   单独都不越界、叠加才越界: 1 ['CYBERUSDT/入场']
+   取整段/滑点段 倍数    : min=0.2439667612081405  median=228.67713643589323  max=49896.796231236025
+   越界但 step ≤ raw     : 23 （这些 R6 抓不到，只有 R7 能抓）
+   越界且取整后 ≤ 0      : 2（由 R5 拦）
+   记录价含 float 尾差   : 4 条（不影响取整结论）
+   复算与记录不一致      : 0
+
+逐腿（越界腿）：
+   标的            腿    方向           raw        fill         low        high         越界      取整/滑点
+   AIGENSYNUSDT  入场   买        0.02125        0.03     0.02095     0.02127    0.00873     1,372x
+   AIGENSYNUSDT  出场   卖   0.0189935129240769        0.01     0.01899     0.01964    0.00899     1,577x
+   COTIUSDT      入场   买        0.06228        0.07     0.06177     0.06265    0.00735       412x
+   COTIUSDT      出场   卖        0.08568        0.08     0.08525      0.0864    0.00525       220x
+   CYBERUSDT     入场   买         12.868       12.88      12.521      12.874      0.006         2x
+   EULUSDT       入场   买          1.034        1.04       1.009       1.038      0.002        18x
+   GRIFFAINUSDT  入场   买        0.08026        0.09     0.07975     0.08247    0.00753       404x
+   GRIFFAINUSDT  出场   卖        0.09662        0.09     0.09655     0.09899    0.00655       227x
+   GUSDT         入场   买        0.03543        0.04     0.03506     0.03555    0.00445       429x
+   GUSDT         出场   卖   0.0316220696809669        0.03     0.03156     0.03172    0.00156       170x
+   HAEDALUSDT    入场   买       0.170644        0.18     0.16951    0.173976   0.006024       182x
+   HAEDALUSDT    出场   卖   0.1260359975462624        0.12    0.122285      0.1275   0.002285       159x
+   LAYERUSDT     出场   卖         0.6576        0.65      0.6568      0.6594     0.0068        38x
+   MAGMAUSDT     入场   买        0.12162        0.13     0.12028      0.1217     0.0083       229x
+   MAGMAUSDT     出场   卖   0.094904077722069        0.09     0.09147     0.10063    0.00147       171x
+   MEGAUSDT      入场   买        0.06289        0.07     0.06188     0.06414    0.00586       376x
+   MEGAUSDT      出场   卖        0.05587        0.05     0.05579     0.05628    0.00579       349x
+   POLYXUSDT     入场   买         0.1726        0.18      0.1722      0.1776     0.0024       142x
+   PUMPBTCUSDT   入场   买        0.04225        0.05     0.04199     0.04322    0.00678       610x
+   SOONUSDT      入场   买        0.15557        0.16     0.15358     0.15557    0.00443        94x
+   SPACEUSDT     入场   买       0.009718        0.01    0.009391    0.009721   0.000279        96x
+   SPACEUSDT     出场   卖   0.0067796503899583         0.0    0.006617    0.007098   0.006617     3,332x
+   TAGUSDT       入场   买      0.0006262        0.01   0.0005959   0.0006351  0.0093649    49,897x
+   TAGUSDT       出场   卖   0.0005026414465905         0.0   0.0004968   0.0005105  0.0004968     3,332x
+   TRUTHUSDT     入场   买       0.015693        0.02    0.015398    0.016323   0.003677       914x
+   TRUTHUSDT     出场   卖   0.0124786036889291        0.01    0.011522    0.013449   0.001522       661x
+   XMRUSDT       出场   卖         133.98      133.93      133.98      134.36       0.05         0x

@@ -1,0 +1,14 @@
+﻿序号,类型,事项,事实,影响,归属,建议
+1,口径缺口,227 vs 237：10 候选 / 8 笔成交未进交接包,EA03 磁盘 run.json 合计 237 候选 / 213 成交；交接包 227 行 / 205 成交,所有下游（FE07/08/09、FLOW-OI-01、STEP1-C）的分母都是 227；少 8 笔真实成交会改变净盈亏与胜率,窗口①先定性；EA04 需补逐条说明,逐 run 列出被排除的 candidate_id 与原因（设计内筛选 or 漏取），并给出两套分母的指标对照
+2,数据缺口,OI 存在 <=0 的假观测,COTIUSDT 513164 行中 189 行 open_interest<=0；state_machine 判 oi_curr_non_positive ⇒ 事件终止,可能漏候选（fail-closed，不会造假）；全池比例 UNKNOWN,窗口①统计，STEP1-B 只登记,全池统计零值行数与被 OI_UNAVAILABLE 终止的事件邻接率
+3,未实现,PIT 未接入 event_trend,trading_core/pit.py 只被 oi_resonance_v1/core.py 调用；K 线 available_at 与 OI fetched_at 全为 None,PIT 状态只能 UNPROVEN；不能证明决策时刻能拿到这些值,研究层（本单不改）,声明 OI 发布延迟后接 annotate_oi_pit；在拿到延迟前不得宣称 PIT 通过
+4,未实现,R7 零容差区间校验 / R6 取整后区间校验,"62 腿中 8 条成交价越出当根 bar [low,high]；strict 只拦 1/8（被拦的全是零价）；R7 影响面无法影子测",入场向上取整撑大止损距离 ⇒ 实际亏损可超预算；当前无一笔被拦,PRECISION 系列（未整改）,按 PRECISION-08 方案落地 R6/R7 并同改 2 条既有用例；**禁止**裁剪成交价
+5,未实现,max_qty 从未校验,engine.py 只校验 step/minQty/minNotional；max_qty 未进任何闸门,大资金/低价币可能下出超交易所上限的量；回测不报错,执行核心（未整改）,统计全池 max_qty 覆盖率；在 check_quantity 增加 max_qty 分支并补用例
+6,未覆盖,预热根数 200 vs 220 无测试锁定,config.atr_warmup_bars=200；runner.py:290 实际取 220,改任一处都不会红；窗口首日 ATR/箱体可用性可能悄悄变,策略层,加一条断言 warmup_4h_bars_before_window==220 的用例，或把配置改成唯一事实源
+7,未覆盖,两条数据读取链从未逐值比对,回放直读 parquet；读接口走 sqlite 热层 + parquet 冷层（MarketDataRepository）,同标的两链若取值不同，页面与回测会各说各话,窗口①,选 3 标的做同窗口逐值比对（行数/首末/ sha256）
+8,缺陷,建单闸键名错配 ⇒ POST 恒 409,_runnable_gate 用 WX_OI_RESONANCE_V1 查注册表，注册表只认 WX_EVENT_TREND_V0_1,API 无法建单；所有 run 只能靠根目录脚本跑，无审计入口,框架层（本单不改）,对齐键名，并补一条 create_run 端到端用例（放行 + 拒绝各一）
+9,缺陷,_run_event_trend 窗口写死,backtest_runner.py:788-790 start_date='2024-01-01' end_date='2024-06-30',一旦建单闸放开，会用错误窗口产出 run（历史上已造成 83 个 run 图表窗口错）,框架层（本单不改）,改为读 spec 的窗口；补一条「请求窗口 == 产物窗口」用例
+10,未覆盖,实验列表接口恒空,list_experiments 只保留 WX_OI_RESONANCE_V1，而该根 0 个 run,若有人改用该接口，会看到空列表并误判「没有回测」,框架层,页面与接口二选一并写进文档；或把过滤键改为 registry 的当前键
+11,计划未做,5m 精细化流拆解 / 聪明钱历史 / 多空均价,STEP1-C 已登记：5m 仅覆盖 2025-10 起；聪明钱无历史；官方无历史均价,这三类特征无法进入 2021-2025 的回测,研究层,保持不做；若要做必须限定在 2025-10 之后的窗口，并与 227 样本分开
+12,证据缺口,策略侧无 103 项运行日志,当前收集 103 项；唯一日志是 93 项（早于代码改动）,「门禁全绿」对当前代码不成立,窗口①,重跑并留原始输出；本单不跑（避免越权与写入）
+13,证据缺口,FLOW-OI-01 一致性测试无日志,test_flow_oi_consistency.py 存在，报告未附运行输出,其「通过」不可复核；STEP1-C 已指出其漏检前视,窗口①,重跑并留日志；同时补 close_time<ts 的前视断言

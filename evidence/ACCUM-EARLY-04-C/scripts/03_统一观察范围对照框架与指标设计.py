@@ -1,0 +1,177 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-04-C｜03 统一观察范围对照框架与比较指标设计
+
+本脚本为隔离只读研究脚本，严禁修改共享工程或生产代码。
+核心目标：
+1. 建立统一观察范围下的四象限对照框架（两者都入场、仅原策略入场、仅新策略入场、都未入场）；
+2. 结构化定义全套比较指标（提前时长、价格变化、成交/拒绝、净收益、回撤、费用/资金费、假突破损失、机会成本、未成交/期末持仓）；
+3. 规范同口径比对约束，标记滑点、风险、参与率等口径冲突；
+4. 输出至 evidence/ACCUM-EARLY-04-C/out/03_统一对照框架与比较指标.json。
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path("/Users/boos/Desktop/威科夫因子共振趋势")
+OUT_DIR = ROOT / "evidence" / "ACCUM-EARLY-04-C" / "out"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def define_framework():
+    print(">>> 正在构建 ACCUM-EARLY-04-C 统一观察范围对照框架与指标体系...")
+
+    quadrants = {
+        "Q1_Both_Entered": {
+            "name": "两者都入场 (Both Entered)",
+            "condition": "原策略触发箱体突破确认，且新策略在吸筹区内满足提前入场条件",
+            "eval_focus": "核心回答：是否更早入场？提前了多久？入场成本更优还是更劣？最终总盈亏与回撤差异如何？",
+            "metrics_applicable": [
+                "lead_time_hours",
+                "lead_time_bars",
+                "entry_price_delta_pct",
+                "net_pnl_diff",
+                "max_drawdown_diff",
+                "fee_and_funding_diff",
+                "trailing_stop_behavior_diff"
+            ]
+        },
+        "Q2_Baseline_Only": {
+            "name": "仅原策略入场 (Baseline Only)",
+            "condition": "原策略突破入场，但新策略因卖压门槛/压制位未通过而未提前入场",
+            "eval_focus": "核心回答：新策略是否存在过严过滤导致的错失机会（机会成本）？",
+            "metrics_applicable": [
+                "missed_opportunity_pnl",
+                "avoided_loss_pnl",
+                "filter_rejection_reason"
+            ]
+        },
+        "Q3_Early_Only": {
+            "name": "仅新策略入场 (Early Only)",
+            "condition": "新策略在吸筹阶段提前入场，但行情未能突破箱体顶，原策略未入场",
+            "eval_focus": "核心回答：假突破（False Breakout）有多严重？承担了多大的额外试错损失？",
+            "metrics_applicable": [
+                "false_breakout_count",
+                "false_breakout_total_loss",
+                "false_breakout_loss_ratio",
+                "exit_reason_breakdown"
+            ]
+        },
+        "Q4_Neither_Entered": {
+            "name": "都未入场 (Neither Entered)",
+            "condition": "进入观察但价格在箱体内震荡破位或超时冷却，原策略和新策略均未入场",
+            "eval_focus": "核心回答：观察池的背景噪声过滤能力；证明观察池不仅限于已成候选",
+            "metrics_applicable": [
+                "noise_filtering_rate",
+                "observation_duration_hours"
+            ]
+        }
+    }
+
+    metrics_definitions = {
+        "lead_time": {
+            "name": "提前时长",
+            "unit": "小时 (hours) 与 15m K线根数 (bars)",
+            "formula": "lead_time_ms = baseline_entry_ms - early_entry_ms",
+            "interpretation": "正值表示新策略比原策略提前入场；越大代表提前窗口越宽"
+        },
+        "entry_price_delta": {
+            "name": "入场价格变化率",
+            "unit": "百分比 (%)",
+            "formula": "price_delta_pct = (early_entry_price - baseline_entry_price) / baseline_entry_price * 100%",
+            "interpretation": "负值表示新策略拿到了更低的成本；正值表示提前入场追高劣于突破确认价"
+        },
+        "order_and_fill_status": {
+            "name": "成交与拒绝统计",
+            "categories": ["fills_count", "rejections_count", "rejection_reasons"],
+            "constraints": "包含名义额下限检查、单名上限、总敞口上限、流动性参与率 0.1%/1% 截断或拒绝"
+        },
+        "net_realized_pnl": {
+            "name": "净收益",
+            "unit": "USDT 与 收益率 (%)",
+            "formula": "realized_net = gross_pnl - entry_fee - exit_fee - funding_cost",
+            "interpretation": "严格基于成交价算术，扣除双边滑点、双边手续费与已结算资金费"
+        },
+        "max_drawdown": {
+            "name": "最大回撤",
+            "unit": "USDT 与 峰值百分比 (%)",
+            "formula": "max_dd = max(peak_equity - current_equity)",
+            "interpretation": "评估提前入场是否因为更宽的止损空间或更早承受震荡而拉大账户回撤"
+        },
+        "fees_and_funding": {
+            "name": "交易费用与资金费",
+            "unit": "USDT",
+            "formula": "total_costs = entry_fee + exit_fee + funding_cost",
+            "interpretation": "提前入场意味着持仓时间变长，需量化资金费结算次数与长期持仓成本的变化"
+        },
+        "false_breakout_loss": {
+            "name": "假突破损失",
+            "unit": "USDT 与 笔数",
+            "formula": "Σ(realized_net for trades in Q3_Early_Only where realized_net < 0)",
+            "interpretation": "吸筹阶段假突破带来的净亏损总额，是提前入场策略的最核心代价"
+        },
+        "opportunity_cost": {
+            "name": "机会成本",
+            "unit": "USDT",
+            "formula": "Σ(baseline_realized_net for profitable trades in Q2_Baseline_Only)",
+            "interpretation": "原策略赚钱但新策略因为过滤规则没有入场的潜在收益损失"
+        },
+        "unfilled_and_open_positions": {
+            "name": "未成交与期末持仓",
+            "interpretation": "未成交订单不计入已实现；期末未平仓头寸单独列出未实现浮动盈亏，不混入已实现净额"
+        }
+    }
+
+    caliber_conflicts_matrix = {
+        "caliber_1_prod_view": {
+            "name": "生效视图_5bps",
+            "initial_equity": 5000.0,
+            "risk_per_trade": "0.5%",
+            "slippage": "5bps (0.05%)",
+            "fee": "5bps (0.05%)",
+            "single_name_cap": "10%",
+            "gross_cap": "80%",
+            "participation_cap": "1.0%",
+            "status": "待决项（无用户原始单据批准）"
+        },
+        "caliber_2_strat_pack": {
+            "name": "策略包_3bps",
+            "initial_equity": 2000.0,
+            "risk_per_trade": "1.5%",
+            "slippage": "3bps (0.03%)",
+            "fee": "5bps (0.05%)",
+            "single_name_cap": "30%",
+            "gross_cap": "90%",
+            "participation_cap": "0.1%",
+            "status": "待决项（无用户原始单据批准）"
+        },
+        "discipline_rule": "两套口径不相通。同一次对照必须完全在同一口径下执行，禁止拿 3bps 的收益去对比 5bps 的回撤。两套对照必须独立报告。"
+    }
+
+    output = {
+        "task": "ACCUM-EARLY-04-C",
+        "title": "统一观察范围下的原策略与提前入场对照框架与指标设计",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "quadrants_framework": quadrants,
+        "metrics_system": metrics_definitions,
+        "caliber_conflicts_matrix": caliber_conflicts_matrix,
+        "execution_readiness": {
+            "baseline_ready": True,
+            "metrics_framework_ready": True,
+            "early_strategy_params_ready": False,
+            "blocker_statement": "新策略入场阈值未获批准，严禁自行设阈值跑成绩。框架已完全就绪，等待用户批准配置。"
+        }
+    }
+
+    out_file = OUT_DIR / "03_统一对照框架与比较指标.json"
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    print(f"✔ 03 对照框架与比较指标设计完成，产物已落盘至: {out_file.relative_to(ROOT)}")
+
+
+if __name__ == "__main__":
+    define_framework()

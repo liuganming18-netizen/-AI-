@@ -1,0 +1,13 @@
+﻿编号,核对项,方法/依据,状态
+T1,三入口共用同一 C 路线 9 组参数网格（V_ratio×Zone）,config/策略类 diff：网格字段 c_vol_ratio_vs、c_retest_zone_atr 三组一致,等待
+T2,共用同一 pairlist 与 timerange（20211201-20241231，74 池）,config.json 与运行命令 diff,等待
+T3,共用同一数据目录与数据快照（FT-ENTRY-02/user_data/data）,数据文件 SHA-256 比对,等待
+T4,只改确认条件：阶段 B is_retest 区块代码 diff 仅涉收阳/二 bar 确认项,WyckoffParamExplorationBase.py 基类 diff（参照 02→04 的 3 hunk 先例）,等待
+T5,P0 不变：initial_stop=sweep_low_s-0.1A、initial_risk_r=close-p0 公式一致,第 264-266 行逐字节比对,等待
+T6,入场价格带不变：max_entry=close+0.5A、min_entry=L-0.2A,第 293-294 行逐字节比对,等待
+T7,执行最早时刻不变：close+15m，且未新增挂单/重试规则,第 268 行与 confirm_trade_entry diff,等待
+T8,OI 过滤不变：6h OI 增长≥0（enable_oi_filter）,第 255-262 行逐字节比对,等待
+T9,仓位与风险预算不变：equity×0.005、单仓上限 0.30×equity、流动性帽 0.001×QV,custom_stake_amount 第 707-746 行 diff,等待
+T10,止损/退出不变：2R 跟踪（4h L10）、240h 超时、无保本改动,custom_stoploss/custom_exit 第 748-807 行 diff,等待
+T11,并发上限不变：max_open_trades=3、dry_run_wallet=2000,config.json diff,等待
+T12,未追加参数网格/未打开留出期 timerange 不含 2025+,config 与逐笔 close_timestamp 最大值,等待

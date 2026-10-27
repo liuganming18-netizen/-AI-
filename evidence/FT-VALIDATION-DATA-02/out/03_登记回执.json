@@ -1,0 +1,40 @@
+{
+  "工单": "FT-VALIDATION-DATA-02",
+  "登记时间": "2026-10-21T14:30:46",
+  "入口": "框架/backend/experiment_registry.py::ExperimentRegistry.observe（EV_OBSERVE）",
+  "存储": "框架/backend/data/experiments/events.jsonl（append-only + 哈希链）",
+  "sample_set_id": "FT-VALIDATION-DATA-02/49条④区间-计算级接触",
+  "登记键数": 49,
+  "键样例": [
+    "1000000BOBUSDT|1785369600000",
+    "1000CATUSDT|1781568000000",
+    "1000CHEEMSUSDT|1782604800000"
+  ],
+  "链状态_登记前": {
+    "count": 9,
+    "last_hash": "ff31030656b89f149a1b91708e69cd8bcb0db2a9be6d5a9ecb997c51ab2a1c24"
+  },
+  "链状态_登记后": {
+    "count": 10,
+    "last_hash": "ad4ffbdc7dbb025ef9015c4ad96eac489fb57b83c3780e9cd75912dc63d47537"
+  },
+  "新事件": {
+    "seq": 9,
+    "type": "observe",
+    "at": "2026-10-21T06:30:46Z",
+    "by": "Work/FT-VALIDATION-DATA-02",
+    "rows": 49,
+    "purpose": "数据接触审计：计算级（4h ATR 预热），非事件级",
+    "hash": "ad4ffbdc7dbb025ef9015c4ad96eac489fb57b83c3780e9cd75912dc63d47537"
+  },
+  "链完整性复验": "通过（_require_intact 未抛 RegistryTampered）",
+  "证据文件": {
+    "out/02_逐条结论.csv": "03f02b0db1b99c8b19e8e2a7dbc35744bf22e0082f0edb68e1eaf4704126077f"
+  },
+  "登记的语义": "「已观察」= 该批样本此后不得被任何实验当作未见留出；不改变任何运行结果。",
+  "未做的事": [
+    "未修改任何历史事件",
+    "未新建表或系统",
+    "未跑策略、未算收益"
+  ]
+}

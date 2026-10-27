@@ -78,12 +78,32 @@ def read_jsonl(p: Path) -> List[dict]:
     return out
 
 
+from datetime import datetime, timezone
+
 def _int_or_none(v: Any) -> Optional[int]:
     try:
         if v is None:
             return None
         return int(v)
     except (TypeError, ValueError):
+        return None
+
+
+def _to_ms(v: Any) -> Optional[int]:
+    """将数字或 ISO 字符串转为毫秒时间戳。"""
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        return int(v)
+    s = str(v).strip()
+    if not s:
+        return None
+    if s.isdigit() or (s.startswith("-") and s[1:].isdigit()):
+        return int(s)
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        return int(dt.timestamp() * 1000)
+    except Exception:
         return None
 
 
@@ -101,6 +121,7 @@ class LedgerFacts:
 
         self.trades: List[dict] = read_jsonl(self.run_dir / "trades.jsonl")
         self.orders: List[dict] = read_jsonl(self.run_dir / "orders.jsonl")
+        self.fills: List[dict] = read_jsonl(self.run_dir / "fills.jsonl")
         self.funding: List[dict] = read_jsonl(self.run_dir / "funding.jsonl")
         self.positions: List[dict] = read_jsonl(self.run_dir / "positions.jsonl")
         self.candidates: List[dict] = read_jsonl(self.run_dir / "candidates.jsonl")
@@ -143,10 +164,19 @@ class LedgerFacts:
 
         # orders.jsonl：真实 order_id → 行
         self._order_by_id: Dict[str, dict] = {}
+        order_entry_by_tid: Dict[str, str] = {}
+        order_exit_by_tid: Dict[str, str] = {}
         for o in self.orders:
             oid = o.get("order_id")
             if oid:
                 self._order_by_id.setdefault(str(oid), o)
+                tid = o.get("trade_id")
+                if tid:
+                    is_ent = o.get("is_entry")
+                    if is_ent is True or o.get("side") == "buy":
+                        order_entry_by_tid.setdefault(str(tid), str(oid))
+                    elif is_ent is False or o.get("side") == "sell":
+                        order_exit_by_tid.setdefault(str(tid), str(oid))
 
         # ── 逐笔标注 ──────────────────────────────────────────────────────
         self.trade_rows: List[dict] = []
@@ -154,21 +184,64 @@ class LedgerFacts:
             row = dict(t)
             row.setdefault("run_id", self.run_id)
             sym = str(row.get("symbol") or "")
-            et = _int_or_none(row.get("entry_time") or row.get("entry_time_ms"))
-            xt = _int_or_none(row.get("exit_time") or row.get("exit_time_ms"))
+            entry_obj = row.get("entry") if isinstance(row.get("entry"), dict) else {}
+            exit_obj = row.get("exit") if isinstance(row.get("exit"), dict) else {}
+
+            # 当前引擎 JSONL 原生使用 entry_time / exit_time（毫秒）；保留兼容别名。
+            et = _to_ms(row.get("entry_time_ms") or entry_obj.get("t")
+                        or row.get("entry_time") or row.get("open_timestamp"))
+            xt = _to_ms(row.get("exit_time_ms") or exit_obj.get("t")
+                        or row.get("exit_time") or row.get("close_timestamp"))
             row["entry_time_ms"] = et
             row["exit_time_ms"] = xt
             row["symbol"] = sym or None
 
-            # ① trade_id：账本真值，唯一才给
-            tid = self._trade_id_by_exit.get((sym, xt)) if (sym and xt is not None) else None
-            row["trade_id"] = tid
-            row["trade_id_source"] = ("ledger:positions.POSITION_CLOSED" if tid
-                                      else "unresolved")
+            # 价格、数量与退出原因补全（优先保留原生一级字段，次取嵌套对象）
+            if row.get("entry_price") is None:
+                row["entry_price"] = entry_obj.get("price")
+            if row.get("exit_price") is None:
+                row["exit_price"] = exit_obj.get("price")
+            if row.get("qty") is None:
+                row["qty"] = entry_obj.get("qty")
+            if row.get("exit_reason") is None:
+                row["exit_reason"] = exit_obj.get("reason")
 
-            # ② 订单：真实 order_id / exit_order_id 直连
-            entry_oid = row.get("order_id")
-            exit_oid = row.get("exit_order_id")
+            # 初始止损兜底：只认**产物里已记录的**初始止损，绝不按入场价推算。
+            #   `initial_stop_P0` / `p0` / `P0` 是同一含义的三种写法（FT 系列产物用大写 `P0`，
+            #   值 = Lr−0.1A 的初始止损价）；`stop_trace[0]` 是引擎实况首点。
+            if row.get("initial_stop") is None:
+                row["initial_stop"] = (row.get("initial_stop_P0") or row.get("p0")
+                                       or row.get("P0"))
+                if row["initial_stop"] is not None:
+                    row["initial_stop_source"] = (
+                        "trades.jsonl.initial_stop_P0" if row.get("initial_stop_P0")
+                        else ("trades.jsonl.p0" if row.get("p0") else "trades.jsonl.P0"))
+            if row.get("initial_stop") is None:
+                _tr = row.get("stop_trace") or []
+                if _tr and isinstance(_tr[0], dict):
+                    row["initial_stop"] = _tr[0].get("stop")
+                    row["initial_stop_source"] = "trades.jsonl.stop_trace[0]"
+
+            # 下单时间：严格标明未记录，禁止用成交时间冒充
+            if "order_time_ms" not in row:
+                row["order_time_ms"] = None
+            if "order_time" not in row:
+                row["order_time"] = "未记录"
+
+            # ① trade_id：优先使用记录中已有的真实/重构标识，绝不随意置空
+            orig_tid = row.get("trade_id")
+            if orig_tid:
+                row["trade_id"] = orig_tid
+                row["trade_id_source"] = row.get("trade_id_source") or "trades.jsonl:trade_id"
+            else:
+                tid = self._trade_id_by_exit.get((sym, xt)) if (sym and xt is not None) else None
+                row["trade_id"] = tid
+                row["trade_id_source"] = ("ledger:positions.POSITION_CLOSED" if tid
+                                          else "unresolved")
+
+            # ② 订单：真实 order_id / exit_order_id 直连（或从 orders.jsonl 对齐）
+            entry_oid = row.get("order_id") or order_entry_by_tid.get(str(row.get("trade_id") or ""))
+            exit_oid = row.get("exit_order_id") or order_exit_by_tid.get(str(row.get("trade_id") or ""))
             # 交叉校验：POSITION_OPENED 的 order_id 必须一致，不一致则记为冲突（仍以 trades 为准并标注）
             po_oid = self._entry_order_by_entry.get((sym, et)) if (sym and et is not None) else None
             if po_oid and entry_oid and po_oid != entry_oid:
@@ -306,11 +379,11 @@ class LedgerFacts:
                     row.setdefault("run_id", self.run_id)
                     row["trade_id"] = trade_id
                     row["trade_link"] = "trades.order_id"
-                    row["ts_ms"] = _int_or_none(
+                    row["ts_ms"] = _to_ms(o.get("ts_ms")) or _to_ms(
                         o.get("created_at") or o.get("submitted_at")
-                        or o.get("filled_at") or o.get("ts_ms"))
-                    row.setdefault("price", o.get("fill_price"))
-                    row.setdefault("qty", o.get("quantity"))
+                        or o.get("filled_at"))
+                    row.setdefault("price", o.get("fill_price") or o.get("price"))
+                    row.setdefault("qty", o.get("quantity") or o.get("qty"))
                     out.append(row)
         return out
 
@@ -320,10 +393,8 @@ class LedgerFacts:
     def all_orders(self) -> List[dict]:
         """**全局**订单明细（真实 `order_id` + 真实归属 `trade_id`）。
 
-        `orders.jsonl` 本身不带 `trade_id`，也**不带 `ts_ms`**（真实时刻在
-        `created_at`/`submitted_at`/`filled_at`）。这里按真实 `order_id` 反查归属，
-        并补齐 `ts_ms`；关联不上 ⇒ `trade_id=None` + `trade_link="unlinked"`，
-        **绝不按顺序套用第 N 笔**。
+        按真实 `order_id` 反查归属或复用自带 `trade_id`，并补齐 `ts_ms`；关联不上 ⇒
+        `trade_id=None` + `trade_link="unlinked"`，**绝不按顺序套用第 N 笔**。
         """
         out: List[dict] = []
         for o in self.orders:
@@ -331,14 +402,47 @@ class LedgerFacts:
             row = dict(o)
             row.setdefault("run_id", self.run_id)
             tid = self._trade_by_order.get(str(oid)) if oid else None
+            if not tid and o.get("trade_id"):
+                tid = str(o.get("trade_id"))
             row["trade_id"] = tid
             row["trade_link"] = ("trades.order_id" if tid else "unlinked")
-            row["ts_ms"] = _int_or_none(
+            row["ts_ms"] = _to_ms(o.get("ts_ms")) or _to_ms(
                 o.get("created_at") or o.get("submitted_at")
-                or o.get("filled_at") or o.get("ts_ms"))
-            row.setdefault("price", o.get("fill_price"))
-            row.setdefault("qty", o.get("quantity"))
+                or o.get("filled_at"))
+            row.setdefault("price", o.get("fill_price") or o.get("price"))
+            row.setdefault("qty", o.get("quantity") or o.get("qty"))
             out.append(row)
+        return out
+
+    def all_fills(self) -> List[dict]:
+        """**全局**逐次成交明细（真实 fills.jsonl 事件；与 orders/trades 穿透）。
+
+        纪律：真实事件驱动，不编造 fill_id，不伪造成交价与数量。
+        """
+        out: List[dict] = []
+        for f in self.fills:
+            pl = f.get("payload") or {}
+            oid = pl.get("order_id")
+            tid = self._trade_by_order.get(str(oid)) if oid else None
+            t_ms = _int_or_none(f.get("event_time") or pl.get("filled_at") or pl.get("ts_ms"))
+            out.append({
+                "run_id": self.run_id,
+                "fill_id": f.get("event_id"),
+                "order_id": oid,
+                "trade_id": tid,
+                "trade_link": ("trades.order_id" if tid else "unlinked"),
+                "symbol": f.get("symbol"),
+                "strategy_key": f.get("strategy_key"),
+                "action": pl.get("action"),
+                "fill_price": pl.get("fill_price"),
+                "quantity": pl.get("quantity"),
+                "fee": pl.get("fee"),
+                "liquidity": pl.get("liquidity"),
+                "sequence": f.get("sequence"),
+                "event_time": t_ms,
+                "fill_time_ms": t_ms,
+                "detail": pl.get("detail") or {},
+            })
         return out
 
     def funding_cross_check(self, trade_id: str) -> dict:

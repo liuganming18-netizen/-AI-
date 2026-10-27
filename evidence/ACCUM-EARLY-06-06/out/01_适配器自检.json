@@ -1,0 +1,271 @@
+{
+ "task": "ACCUM-EARLY-06-06",
+ "probe": "01_适配器自检",
+ "generated_at_utc": "2026-10-26T18:26:18Z",
+ "adapter_version": "funding-adapter-06/v1",
+ "checks": [
+  {
+   "检查": "Q1a 冷档行原样喂入 ⇒ rate 被归一化为 None（列名 funding_rate 不认）",
+   "通过": true,
+   "证据": {
+    "归一化": [
+     {
+      "time_ms": 1788307200000,
+      "time_sec": 1788307200,
+      "rate": null,
+      "mark_price": 100.0
+     }
+    ],
+    "settle(已结算,缺口,成本)": [
+     0,
+     1,
+     0.0
+    ]
+   }
+  },
+  {
+   "检查": "Q1b 冷档行原样喂入 ⇒ 落 funding_gap、成本 0、**不报错**（静默）",
+   "通过": true,
+   "证据": {
+    "settle": [
+     0,
+     1,
+     0.0
+    ]
+   }
+  },
+  {
+   "检查": "Q1c 适配器映射后 ⇒ rate 有值、成本 = mark×qty×rate×dir = 1.0",
+   "通过": true,
+   "证据": {
+    "event.rate": 0.0001,
+    "settle": [
+     1,
+     0,
+     1.0
+    ],
+    "手算": 1.0
+   }
+  },
+  {
+   "检查": "Q1d 热库字符串值能被解析成 float（'0.0001'/'100.0' → 0.0001/100.0）",
+   "通过": true,
+   "证据": {
+    "rate": 0.0001,
+    "mark_price": 100.0
+   }
+  },
+  {
+   "检查": "Q2a differs：顶层 rate 置 None（fail-closed），两侧原值并列保留",
+   "通过": true,
+   "证据": {
+    "rate": null,
+    "rate_hot": 0.001,
+    "rate_cold": 0.002,
+    "status": "pending_conflict"
+   }
+  },
+  {
+   "检查": "Q2b differs：status=pending_conflict，冲突明细含 rate/differs 与 source/differs",
+   "通过": true,
+   "证据": {
+    "status": "pending_conflict",
+    "conflicts": [
+     [
+      "rate",
+      "differs"
+     ],
+     [
+      "source",
+      "differs"
+     ]
+    ]
+   }
+  },
+  {
+   "检查": "Q2c differs：喂进结算 ⇒ 落 gap 而不是拿 0.001 或 0.002 里任一个去算",
+   "通过": true,
+   "证据": {
+    "settle": [
+     0,
+     1,
+     0.0
+    ],
+    "若擅自取热值": 10.0,
+    "若擅自取冷值": 20.0,
+    "实际": 0.0
+   }
+  },
+  {
+   "检查": "Q2d one_sided(strict=False)：取非空值并标 resolved_single_side + 留 one_sided 痕迹",
+   "通过": true,
+   "证据": {
+    "mark": 123.0,
+    "status": "resolved_single_side",
+    "conflicts": [
+     [
+      "mark_price",
+      "one_sided",
+      "info"
+     ],
+     [
+      "source",
+      "differs",
+      "info"
+     ]
+    ]
+   }
+  },
+  {
+   "检查": "Q2e one_sided(strict=True)：降级为 pending_conflict，mark 置 None",
+   "通过": true,
+   "证据": {
+    "mark": null,
+    "status": "pending_conflict"
+   }
+  },
+  {
+   "检查": "Q2f none：两侧都缺 mark ⇒ status=pending_missing、rate 保留、结算落 gap",
+   "通过": true,
+   "证据": {
+    "status": "pending_missing",
+    "rate": 0.001,
+    "settle": [
+     0,
+     1,
+     0.0
+    ]
+   }
+  },
+  {
+   "检查": "Q2g agree：两侧一致 ⇒ resolved、无 blocking 冲突、可算成本",
+   "通过": true,
+   "证据": {
+    "status": "resolved",
+    "conflicts": [],
+    "settle": [
+     1,
+     0,
+     1.0
+    ]
+   }
+  },
+  {
+   "检查": "Q3a 不变式「泄漏行数 == cold_only 事件数」在母集 48 个标的上成立",
+   "通过": true,
+   "证据": {
+    "违反": [],
+    "样本数": 48
+   }
+  },
+  {
+   "检查": "Q3b 去重键在母集全部标的上唯一（无重复事件）",
+   "通过": true,
+   "证据": {
+    "违反": []
+   }
+  },
+  {
+   "检查": "Q3c 事件按 funding_time 严格升序",
+   "通过": true,
+   "证据": {
+    "违反": []
+   }
+  },
+  {
+   "检查": "Q3d 窗口内真实同键冲突普查（结果照实记录，空跑就写空跑）",
+   "通过": true,
+   "证据": {
+    "母集48_汇总计数": {
+     "events": 31811,
+     "observed_both": 24918,
+     "observed_hot_only": 3138,
+     "observed_cold_only": 3755,
+     "resolved": 31811,
+     "resolved_single_side": 0,
+     "pending_conflict": 0,
+     "pending_missing": 0,
+     "with_rate": 31811,
+     "with_mark": 31811,
+     "hot_rows_raw": 31811,
+     "cold_rows_raw": 28673,
+     "cold_rows_dedup": 28673,
+     "hot_rows_dedup": 28056,
+     "hot_path_leaked_cold": 3755,
+     "discriminator_conflict": 0,
+     "hot_dup": 0,
+     "cold_dup": 0
+    },
+    "冲突普查": {
+     "differs": 0,
+     "one_sided": 0,
+     "none": 0,
+     "source_differs": 333,
+     "rate_type_differs": 0
+    },
+    "说明": "differs/one_sided 若为 0，则这两条分支在真实数据上**未被走到**，只有合成用例覆盖；不得声称「已用真实数据验证冲突处理」"
+   }
+  },
+  {
+   "检查": "Q3e 真实 none 案例 CYBERUSDT 2023-08：两侧都缺 mark ⇒ pending_missing，不伪造",
+   "通过": true,
+   "证据": {
+    "pending_missing": 13,
+    "样例": 1692201600000
+   }
+  },
+  {
+   "检查": "Q3f 端到端：真实事件喂真结算内核 ⇒ 缺口数 == pending_missing 数（缺口可见而非静默）",
+   "通过": true,
+   "证据": {
+    "已结算": 30,
+    "缺口数": 13,
+    "事件数": 43,
+    "pending_missing": 13,
+    "成本合计": -11.470634
+   }
+  },
+  {
+   "检查": "Q3g 同输入两次读取 ⇒ 事件数与摘要逐位相同（无重复、无顺序漂移）",
+   "通过": true,
+   "证据": {
+    "events": 727,
+    "sha256": "90e9683afc4a9a136d8071206a882aa1ea0a9d7135d65c8e90fd9cf395a6c55e",
+    "second_sha256": "90e9683afc4a9a136d8071206a882aa1ea0a9d7135d65c8e90fd9cf395a6c55e"
+   }
+  }
+ ],
+ "summary": {
+  "total": 18,
+  "pass": 18,
+  "verdict": "通过"
+ },
+ "母集48_汇总": {
+  "events": 31811,
+  "observed_both": 24918,
+  "observed_hot_only": 3138,
+  "observed_cold_only": 3755,
+  "resolved": 31811,
+  "resolved_single_side": 0,
+  "pending_conflict": 0,
+  "pending_missing": 0,
+  "with_rate": 31811,
+  "with_mark": 31811,
+  "hot_rows_raw": 31811,
+  "cold_rows_raw": 28673,
+  "cold_rows_dedup": 28673,
+  "hot_rows_dedup": 28056,
+  "hot_path_leaked_cold": 3755,
+  "discriminator_conflict": 0,
+  "hot_dup": 0,
+  "cold_dup": 0
+ },
+ "真实冲突普查": {
+  "differs": 0,
+  "one_sided": 0,
+  "none": 0,
+  "source_differs": 333,
+  "rate_type_differs": 0
+ },
+ "elapsed_sec": 0.7
+}

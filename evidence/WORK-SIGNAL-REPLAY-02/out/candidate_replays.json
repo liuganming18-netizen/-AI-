@@ -1,0 +1,229 @@
+{
+  "title": "WORK-SIGNAL-REPLAY-02 四候选真实历史回测与因果追踪报告",
+  "generated_at_utc": "2026-10-24T07:19:55.241410+00:00",
+  "strategy": "WX_EVENT_TREND_V0_1",
+  "frozen_rule": "FT-LOW4H",
+  "execution_version": "FT-LOW4H-EXP-V2.2",
+  "candidates_total": 4,
+  "candidates": [
+    {
+      "symbol": "VELVETUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "signal_known_at": {
+        "timestamp_ms": 1790953200000,
+        "utc": "2026-10-02 15:00:00 UTC",
+        "breakout_close": 0.06737,
+        "box_high_h": 0.0666,
+        "box_low_l": 0.05388,
+        "box_atr_a": 0.0033620257158552837,
+        "initial_stop_price": 0.05427379742841447,
+        "volume_ratio": 6.211944086382844
+      },
+      "historical_backtest_execution": {
+        "run_id": "bt_20261024T120001Z_e1a10001",
+        "status": "FILLED_AND_CLOSED",
+        "orders_count": 2,
+        "fills_count": 2,
+        "entry": {
+          "order_id": "ord_af1ce46b242122be4dff48a9",
+          "submitted_at_ms": 1790954100000,
+          "submitted_at_utc": "2026-10-02 15:15:00 UTC",
+          "fill_id": "evt_2599eecae2003ae21592b1096ae0320b",
+          "fill_price": 0.06692,
+          "quantity": 7462.0,
+          "fee": 0.24967851999999996
+        },
+        "exit": {
+          "order_id": "ord_eec8efe1cbd2e0b57493fbae",
+          "submitted_at_ms": 1791004500000,
+          "submitted_at_utc": "2026-10-03 05:15:00 UTC",
+          "fill_id": "evt_c6fde1946624a22b2abc05244d683979",
+          "fill_price": 0.0697,
+          "exit_reason": "intrabar_stop",
+          "fee": 0.2600507
+        },
+        "pnl": {
+          "gross_pnl": 20.744360000000036,
+          "fees": 0.50972922,
+          "funding_fee": 0.501640634457144,
+          "net_pnl": 19.732990145542892,
+          "holding_hours": 14.0
+        }
+      },
+      "paper_simulation_gate_evaluation": {
+        "paper_epoch_ms": 1791939600000,
+        "paper_epoch_utc": "2026-10-14 01:00:00 UTC",
+        "is_before_paper_epoch": true,
+        "paper_action": "REJECTED_HISTORICAL_DISCARD",
+        "paper_reason": "候选产生时间 (2026-10-02 15:00:00 UTC) 早于模拟盘启用时刻 (2026-10-14 01:00:00 UTC)。根据防回填纪律，生产模拟盘拒绝为历史候选补发生产订单。这是生产门禁安全逻辑，与隔离历史回测是两个截然不同的口径。"
+      },
+      "time_rectification": {
+        "signal_time_ms": 1790953200000,
+        "signal_time_utc": "2026-10-02 15:00:00 UTC",
+        "previous_erroneous_claim": "2026-10-02 17:55:00 UTC",
+        "actual_ledger_entry_time_ms": 1790954100000,
+        "actual_ledger_entry_time_utc": "2026-10-02 15:15:00 UTC",
+        "explanation": "上一轮报告声称入场时间为 17:55 UTC，系未经核实账本的硬编码文字错误。真实引擎原始事件表明：信号于 2026-10-02 15:00:00 UTC（1790953200000）收盘发现，随后在次根 15m 开盘时刻 2026-10-02 15:15:00 UTC（1790954100000）市价成交开仓，平仓发生在 2026-10-03 05:15:00 UTC（1791004500000）。账本从未存在 17:55 时间戳，现已彻底纠正。"
+      }
+    },
+    {
+      "symbol": "SUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "signal_known_at": {
+        "timestamp_ms": 1791266400000,
+        "utc": "2026-10-06 06:00:00 UTC",
+        "breakout_close": 0.04433,
+        "box_high_h": 0.04385,
+        "box_low_l": 0.03677,
+        "box_atr_a": 0.0012915599102145514,
+        "initial_stop_price": 0.03703084400897854,
+        "volume_ratio": 5.6259425322210665
+      },
+      "historical_backtest_execution": {
+        "run_id": "bt_20261024T120002Z_e1a10002",
+        "status": "FILLED_AND_CLOSED",
+        "orders_count": 2,
+        "fills_count": 2,
+        "entry": {
+          "order_id": "ord_3fa8eb78a0c09c64b574b870",
+          "submitted_at_ms": 1791267300000,
+          "submitted_at_utc": "2026-10-06 06:15:00 UTC",
+          "fill_id": "evt_049081eec82a59d5884ee2e8853d05c3",
+          "fill_price": 0.04396,
+          "quantity": 11363.0,
+          "fee": 0.24975874
+        },
+        "exit": {
+          "order_id": "ord_1e0d7a161bdeaa3ffd06d7b9",
+          "submitted_at_ms": 1791338400000,
+          "submitted_at_utc": "2026-10-07 02:00:00 UTC",
+          "fill_id": "evt_a1fabbc4a73aacd60e3a6e560f2b50d5",
+          "fill_price": 0.04173,
+          "exit_reason": "intrabar_stop",
+          "fee": 0.23708899500000002
+        },
+        "pnl": {
+          "gross_pnl": -25.33948999999995,
+          "fees": 0.486847735,
+          "funding_fee": -0.064591434415739,
+          "net_pnl": -25.761746300584214,
+          "holding_hours": 19.75
+        }
+      },
+      "paper_simulation_gate_evaluation": {
+        "paper_epoch_ms": 1791939600000,
+        "paper_epoch_utc": "2026-10-14 01:00:00 UTC",
+        "is_before_paper_epoch": true,
+        "paper_action": "REJECTED_HISTORICAL_DISCARD",
+        "paper_reason": "候选产生时间 (2026-10-06 06:00:00 UTC) 早于模拟盘启用时刻 (2026-10-14 01:00:00 UTC)。根据防回填纪律，生产模拟盘拒绝为历史候选补发生产订单。这是生产门禁安全逻辑，与隔离历史回测是两个截然不同的口径。"
+      },
+      "time_rectification": null
+    },
+    {
+      "symbol": "WALUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+      "signal_known_at": {
+        "timestamp_ms": 1791630000000,
+        "utc": "2026-10-10 11:00:00 UTC",
+        "breakout_close": 0.04253,
+        "box_high_h": 0.03854,
+        "box_low_l": 0.03239,
+        "box_atr_a": 0.0011395725627846066,
+        "initial_stop_price": 0.032306042743721536,
+        "volume_ratio": 64.54017828388875
+      },
+      "historical_backtest_execution": {
+        "run_id": "bt_20261024T120003Z_e1a10003",
+        "status": "FILLED_AND_CLOSED",
+        "orders_count": 2,
+        "fills_count": 2,
+        "entry": {
+          "order_id": "ord_3512d9dd0f18fde1faa66d13",
+          "submitted_at_ms": 1791630900000,
+          "submitted_at_utc": "2026-10-10 11:15:00 UTC",
+          "fill_id": "evt_21dc4b2297a3fd092635fd0b75140571",
+          "fill_price": 0.03859,
+          "quantity": 12953.0,
+          "fee": 0.249928135
+        },
+        "exit": {
+          "order_id": "ord_ae809de94f749c326401fd32",
+          "submitted_at_ms": 1791633600000,
+          "submitted_at_utc": "2026-10-10 12:00:00 UTC",
+          "fill_id": "evt_d44941eca04bd8dd66af7c0d08c103fc",
+          "fill_price": 0.03664,
+          "exit_reason": "intrabar_stop",
+          "fee": 0.23729896
+        },
+        "pnl": {
+          "gross_pnl": -25.258350000000004,
+          "fees": 0.487227095,
+          "funding_fee": 0.0,
+          "net_pnl": -25.745577095000005,
+          "holding_hours": 0.75
+        }
+      },
+      "paper_simulation_gate_evaluation": {
+        "paper_epoch_ms": 1791939600000,
+        "paper_epoch_utc": "2026-10-14 01:00:00 UTC",
+        "is_before_paper_epoch": true,
+        "paper_action": "REJECTED_HISTORICAL_DISCARD",
+        "paper_reason": "候选产生时间 (2026-10-10 11:00:00 UTC) 早于模拟盘启用时刻 (2026-10-14 01:00:00 UTC)。根据防回填纪律，生产模拟盘拒绝为历史候选补发生产订单。这是生产门禁安全逻辑，与隔离历史回测是两个截然不同的口径。"
+      },
+      "time_rectification": null
+    },
+    {
+      "symbol": "BBUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "signal_known_at": {
+        "timestamp_ms": 1791702000000,
+        "utc": "2026-10-11 07:00:00 UTC",
+        "breakout_close": 0.010308,
+        "box_high_h": 0.0102,
+        "box_low_l": 0.008352,
+        "box_atr_a": 0.00033074888293230335,
+        "initial_stop_price": 0.00842492511170677,
+        "volume_ratio": 5.270717901815073
+      },
+      "historical_backtest_execution": {
+        "run_id": "bt_20261024T120004Z_e1a10004",
+        "status": "FILLED_AND_CLOSED",
+        "orders_count": 2,
+        "fills_count": 2,
+        "entry": {
+          "order_id": "ord_049bae36dd04106fa10f04d2",
+          "submitted_at_ms": 1791702900000,
+          "submitted_at_utc": "2026-10-11 07:15:00 UTC",
+          "fill_id": "evt_0fc66bb0c043ad6acf0da3d18ccfc626",
+          "fill_price": 0.010336,
+          "quantity": 48355.0,
+          "fee": 0.24989864
+        },
+        "exit": {
+          "order_id": "ord_375118f67e41d8d0e9e0d8dc",
+          "submitted_at_ms": 1791705600000,
+          "submitted_at_utc": "2026-10-11 08:00:00 UTC",
+          "fill_id": "evt_6537304dec014a1d74d7a8e27a87edaa",
+          "fill_price": 0.009814,
+          "exit_reason": "intrabar_stop",
+          "fee": 0.237277985
+        },
+        "pnl": {
+          "gross_pnl": -25.241309999999995,
+          "fees": 0.48717662500000003,
+          "funding_fee": 0.0039793447449,
+          "net_pnl": -25.732465969744894,
+          "holding_hours": 0.75
+        }
+      },
+      "paper_simulation_gate_evaluation": {
+        "paper_epoch_ms": 1791939600000,
+        "paper_epoch_utc": "2026-10-14 01:00:00 UTC",
+        "is_before_paper_epoch": true,
+        "paper_action": "REJECTED_HISTORICAL_DISCARD",
+        "paper_reason": "候选产生时间 (2026-10-11 07:00:00 UTC) 早于模拟盘启用时刻 (2026-10-14 01:00:00 UTC)。根据防回填纪律，生产模拟盘拒绝为历史候选补发生产订单。这是生产门禁安全逻辑，与隔离历史回测是两个截然不同的口径。"
+      },
+      "time_rectification": null
+    }
+  ]
+}

@@ -1,0 +1,1094 @@
+{
+  "generated_by": "ACCUM-EARLY-05-E::03_event_trace.py",
+  "warning": "测试配置仅用于工程行为核对，严禁作为正式策略绩效结论",
+  "cases_count": 7,
+  "cases": [
+    {
+      "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+      "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4a",
+      "symbol": "SOLUSDT",
+      "confirm_time_utc": "2026-08-02T02:59:59Z",
+      "entry_bar_utc": "2026-08-02T03:15:00Z",
+      "entry_ref_price": 73.1,
+      "resistance": 73.08,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 12,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 72.07,
+          "requirement": "< 72.26",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 72.07,
+          "requirement": ">= 71.80085671",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 72.62,
+          "requirement": ">= 72.35182866",
+          "result": "pass"
+        },
+        {
+          "name": "local_resistance",
+          "value": 73.08,
+          "requirement": {
+            "mode": "prior_n_high",
+            "n": 20,
+            "window_bars": 20
+          },
+          "result": "pass"
+        },
+        {
+          "name": "confirm_above_resistance",
+          "value": 73.1,
+          "requirement": "1h_close > 73.08",
+          "result": "pass"
+        },
+        {
+          "name": "sell_pressure",
+          "value": null,
+          "requirement": "require=false",
+          "result": "not_required"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 23.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-08-02T03:15:00Z",
+          "requirement": "存在 open_time>=2026-08-02T03:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-08-02T03:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": 0.0,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 cold，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 1,
+          "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1785556799999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 4,
+          "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1785635999999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 72.07, \"requirement\": \"< 72.26\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 72.07, \"requirement\": \">= 71.80085671\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 72.62, \"requirement\": \">= 72.35182866\", \"result\": \"pass\"}], \"detail\": {\"reference\": 72.26, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 72.07, \"close\": 72.62, \"overshoot_limit\": 71.80085670534163, \"recover_level\": 72.35182865893168}}"
+        },
+        {
+          "id": 7,
+          "event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1785639599999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 73.08}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 1,
+          "candidate_id": "cd_ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "scheme": "4a",
+          "symbol": "SOLUSDT",
+          "at_ms": 1785640499999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 1, \"order_id\": 1, \"qty\": 6.83, \"entry_price\": 73.14, \"raw_price\": 73.1, \"stop_price\": 69.48, \"initial_stop_price\": 69.48, \"stop_dist\": 3.6599999999999966, \"planned_risk\": 24.997799999999977, \"notional\": 499.5462, \"fee\": 0.2497731, \"slippage_cost\": 0.2732000000000427, \"bar_open_time\": 1785640500000, \"bar_close_time\": 1785641399999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4a_SOLUSDT_1785639599999\", \"origin\": \"replay\", \"event_time\": 1785639599999, \"available_at\": 1785639599999, \"requested_at\": 1785639599999, \"earliest_fill_ms\": 1785640499999, \"filled_at\": 1785640500000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven\", \"bar_provenance\": {\"layer\": \"cold\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 73.08，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+      "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4b",
+      "symbol": "SOLUSDT",
+      "confirm_time_utc": "2026-08-02T03:59:59Z",
+      "entry_bar_utc": "2026-08-02T04:15:00Z",
+      "entry_ref_price": 73.21,
+      "resistance": 73.08,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 10,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 72.07,
+          "requirement": "< 72.26",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 72.07,
+          "requirement": ">= 71.80085671",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 72.62,
+          "requirement": ">= 72.35182866",
+          "result": "pass"
+        },
+        {
+          "name": "next_close_holds_above_resistance",
+          "value": 73.17,
+          "requirement": "> 73.08",
+          "result": "pass"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 24.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-08-02T04:15:00Z",
+          "requirement": "存在 open_time>=2026-08-02T04:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-08-02T04:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": 0.000547,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 cold，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 2,
+          "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1785556799999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 5,
+          "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1785635999999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 72.07, \"requirement\": \"< 72.26\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 72.07, \"requirement\": \">= 71.80085671\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 72.62, \"requirement\": \">= 72.35182866\", \"result\": \"pass\"}], \"detail\": {\"reference\": 72.26, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 72.07, \"close\": 72.62, \"overshoot_limit\": 71.80085670534163, \"recover_level\": 72.35182865893168}}"
+        },
+        {
+          "id": 8,
+          "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": "RETEST",
+          "to_state": "RETEST",
+          "at_ms": 1785639599999,
+          "reason": "乙：已收上压制位，等下一根 1h 收盘守位",
+          "payload_json": "{\"conditions\": [{\"name\": \"local_resistance\", \"value\": 73.08, \"requirement\": {\"mode\": \"prior_n_high\", \"n\": 20, \"window_bars\": 20}, \"result\": \"pass\"}, {\"name\": \"confirm_above_resistance\", \"value\": 73.1, \"requirement\": \"1h_close > 73.08\", \"result\": \"pass\"}, {\"name\": \"sell_pressure\", \"value\": null, \"requirement\": \"require=false\", \"result\": \"not_required\"}], \"substage\": \"await_hold\"}"
+        },
+        {
+          "id": 10,
+          "event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1785643199999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 73.08}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 2,
+          "candidate_id": "cd_ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "scheme": "4b",
+          "symbol": "SOLUSDT",
+          "at_ms": 1785644099999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 1, \"order_id\": 1, \"qty\": 6.8100000000000005, \"entry_price\": 73.25, \"raw_price\": 73.21, \"stop_price\": 69.58, \"initial_stop_price\": 69.58, \"stop_dist\": 3.6700000000000017, \"planned_risk\": 24.992700000000013, \"notional\": 498.83250000000004, \"fee\": 0.24941625000000003, \"slippage_cost\": 0.2724000000000426, \"bar_open_time\": 1785644100000, \"bar_close_time\": 1785644999999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4b_SOLUSDT_1785643199999\", \"origin\": \"replay\", \"event_time\": 1785643199999, \"available_at\": 1785643199999, \"requested_at\": 1785643199999, \"earliest_fill_ms\": 1785644099999, \"filled_at\": 1785644100000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven\", \"bar_provenance\": {\"layer\": \"cold\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 73.08，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+      "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "scheme": "4c",
+      "symbol": "SOLUSDT",
+      "confirm_time_utc": "2026-08-02T03:59:59Z",
+      "entry_bar_utc": "2026-08-02T04:15:00Z",
+      "entry_ref_price": 73.21,
+      "resistance": 73.08,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 11,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 72.07,
+          "requirement": "< 72.26",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 72.07,
+          "requirement": ">= 71.80085671",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 72.62,
+          "requirement": ">= 72.35182866",
+          "result": "pass"
+        },
+        {
+          "name": "pullback_into_zone",
+          "value": 73.04,
+          "requirement": "<= 73.53914329",
+          "result": "pass"
+        },
+        {
+          "name": "pullback_close_turns_up",
+          "value": 73.17,
+          "requirement": ">= open(73.1) 且 > resistance(73.08)",
+          "result": "pass"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 24.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-08-02T04:15:00Z",
+          "requirement": "存在 open_time>=2026-08-02T04:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-08-02T04:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": 0.000547,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 cold，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 3,
+          "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1785556799999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 6,
+          "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1785635999999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 72.07, \"requirement\": \"< 72.26\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 72.07, \"requirement\": \">= 71.80085671\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 72.62, \"requirement\": \">= 72.35182866\", \"result\": \"pass\"}], \"detail\": {\"reference\": 72.26, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 72.07, \"close\": 72.62, \"overshoot_limit\": 71.80085670534163, \"recover_level\": 72.35182865893168}}"
+        },
+        {
+          "id": 9,
+          "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": null,
+          "from_state": "RETEST",
+          "to_state": "RETEST",
+          "at_ms": 1785639599999,
+          "reason": "丙：已收上压制位，等回抽到压制位附近后转强",
+          "payload_json": "{\"conditions\": [{\"name\": \"local_resistance\", \"value\": 73.08, \"requirement\": {\"mode\": \"prior_n_high\", \"n\": 20, \"window_bars\": 20}, \"result\": \"pass\"}, {\"name\": \"confirm_above_resistance\", \"value\": 73.1, \"requirement\": \"1h_close > 73.08\", \"result\": \"pass\"}, {\"name\": \"sell_pressure\", \"value\": null, \"requirement\": \"require=false\", \"result\": \"not_required\"}], \"substage\": \"await_pullback\", \"pullback_zone_atr\": 0.5, \"pullback_deadline_ms\": 1785898799999}"
+        },
+        {
+          "id": 11,
+          "event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+          "candidate_id": "cd_ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1785643199999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 73.08}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 3,
+          "candidate_id": "cd_ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999_s1",
+          "scheme": "4c",
+          "symbol": "SOLUSDT",
+          "at_ms": 1785644099999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 1, \"order_id\": 1, \"qty\": 6.8100000000000005, \"entry_price\": 73.25, \"raw_price\": 73.21, \"stop_price\": 69.58, \"initial_stop_price\": 69.58, \"stop_dist\": 3.6700000000000017, \"planned_risk\": 24.992700000000013, \"notional\": 498.83250000000004, \"fee\": 0.24941625000000003, \"slippage_cost\": 0.2724000000000426, \"bar_open_time\": 1785644100000, \"bar_close_time\": 1785644999999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4c_SOLUSDT_1785643199999\", \"origin\": \"replay\", \"event_time\": 1785643199999, \"available_at\": 1785643199999, \"requested_at\": 1785643199999, \"earliest_fill_ms\": 1785644099999, \"filled_at\": 1785644100000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven\", \"bar_provenance\": {\"layer\": \"cold\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 73.08，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+      "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "scheme": "4a",
+      "symbol": "AVAXUSDT",
+      "confirm_time_utc": "2026-09-14T11:59:59Z",
+      "entry_bar_utc": "2026-09-14T12:15:00Z",
+      "entry_ref_price": 7.47,
+      "resistance": 7.45,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 12,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 7.243,
+          "requirement": "< 7.27",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 7.243,
+          "requirement": ">= 7.1833374",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 7.318,
+          "requirement": ">= 7.28733252",
+          "result": "pass"
+        },
+        {
+          "name": "local_resistance",
+          "value": 7.45,
+          "requirement": {
+            "mode": "prior_n_high",
+            "n": 20,
+            "window_bars": 20
+          },
+          "result": "pass"
+        },
+        {
+          "name": "confirm_above_resistance",
+          "value": 7.457,
+          "requirement": "1h_close > 7.45",
+          "result": "pass"
+        },
+        {
+          "name": "sell_pressure",
+          "value": null,
+          "requirement": "require=false",
+          "result": "not_required"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 56.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-09-14T12:15:00Z",
+          "requirement": "存在 open_time>=2026-09-14T12:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-09-14T12:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": 0.001743,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 hot，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 18,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1789185599999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 21,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1789347599999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 7.243, \"requirement\": \"< 7.27\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 7.243, \"requirement\": \">= 7.1833374\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 7.318, \"requirement\": \">= 7.28733252\", \"result\": \"pass\"}], \"detail\": {\"reference\": 7.27, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 7.243, \"close\": 7.318, \"overshoot_limit\": 7.183337399853804, \"recover_level\": 7.2873325200292385}}"
+        },
+        {
+          "id": 24,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1789387199999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 7.45}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 4,
+          "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "scheme": "4a",
+          "symbol": "AVAXUSDT",
+          "at_ms": 1789388099999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 2, \"order_id\": 2, \"qty\": 69.0, \"entry_price\": 7.474, \"raw_price\": 7.47, \"stop_price\": 7.1000000000000005, \"initial_stop_price\": 7.1000000000000005, \"stop_dist\": 0.37399999999999967, \"planned_risk\": 25.805999999999976, \"notional\": 515.706, \"fee\": 0.257853, \"slippage_cost\": 0.2760000000000309, \"bar_open_time\": 1789388100000, \"bar_close_time\": 1789388999999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4a_AVAXUSDT_1789387199999\", \"origin\": \"replay\", \"event_time\": 1789387199999, \"available_at\": 1789387199999, \"requested_at\": 1789387199999, \"earliest_fill_ms\": 1789388099999, \"filled_at\": 1789388100000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven\", \"bar_provenance\": {\"layer\": \"hot\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 7.45，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+      "event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "scheme": "4b",
+      "symbol": "AVAXUSDT",
+      "confirm_time_utc": "2026-09-14T12:59:59Z",
+      "entry_bar_utc": "2026-09-14T13:15:00Z",
+      "entry_ref_price": 7.447,
+      "resistance": 7.45,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 10,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 7.243,
+          "requirement": "< 7.27",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 7.243,
+          "requirement": ">= 7.1833374",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 7.318,
+          "requirement": ">= 7.28733252",
+          "result": "pass"
+        },
+        {
+          "name": "next_close_holds_above_resistance",
+          "value": 7.451,
+          "requirement": "> 7.45",
+          "result": "pass"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 57.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-09-14T13:15:00Z",
+          "requirement": "存在 open_time>=2026-09-14T13:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-09-14T13:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": -0.000537,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 hot，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 19,
+          "event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1789185599999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 22,
+          "event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1789347599999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 7.243, \"requirement\": \"< 7.27\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 7.243, \"requirement\": \">= 7.1833374\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 7.318, \"requirement\": \">= 7.28733252\", \"result\": \"pass\"}], \"detail\": {\"reference\": 7.27, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 7.243, \"close\": 7.318, \"overshoot_limit\": 7.183337399853804, \"recover_level\": 7.2873325200292385}}"
+        },
+        {
+          "id": 25,
+          "event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": "RETEST",
+          "to_state": "RETEST",
+          "at_ms": 1789387199999,
+          "reason": "乙：已收上压制位，等下一根 1h 收盘守位",
+          "payload_json": "{\"conditions\": [{\"name\": \"local_resistance\", \"value\": 7.45, \"requirement\": {\"mode\": \"prior_n_high\", \"n\": 20, \"window_bars\": 20}, \"result\": \"pass\"}, {\"name\": \"confirm_above_resistance\", \"value\": 7.457, \"requirement\": \"1h_close > 7.45\", \"result\": \"pass\"}, {\"name\": \"sell_pressure\", \"value\": null, \"requirement\": \"require=false\", \"result\": \"not_required\"}], \"substage\": \"await_hold\"}"
+        },
+        {
+          "id": 27,
+          "event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1789390799999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 7.45}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 5,
+          "candidate_id": "cd_ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "scheme": "4b",
+          "symbol": "AVAXUSDT",
+          "at_ms": 1789391699999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 2, \"order_id\": 2, \"qty\": 69.0, \"entry_price\": 7.4510000000000005, \"raw_price\": 7.447, \"stop_price\": 7.078, \"initial_stop_price\": 7.078, \"stop_dist\": 0.3730000000000002, \"planned_risk\": 25.737000000000016, \"notional\": 514.119, \"fee\": 0.2570595, \"slippage_cost\": 0.2760000000000309, \"bar_open_time\": 1789391700000, \"bar_close_time\": 1789392599999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4b_AVAXUSDT_1789390799999\", \"origin\": \"replay\", \"event_time\": 1789390799999, \"available_at\": 1789390799999, \"requested_at\": 1789390799999, \"earliest_fill_ms\": 1789391699999, \"filled_at\": 1789391700000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven\", \"bar_provenance\": {\"layer\": \"hot\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 7.45，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+      "event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "scheme": "4c",
+      "symbol": "AVAXUSDT",
+      "confirm_time_utc": "2026-09-14T13:59:59Z",
+      "entry_bar_utc": "2026-09-14T14:15:00Z",
+      "entry_ref_price": 7.494,
+      "resistance": 7.45,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 11,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 7.243,
+          "requirement": "< 7.27",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 7.243,
+          "requirement": ">= 7.1833374",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 7.318,
+          "requirement": ">= 7.28733252",
+          "result": "pass"
+        },
+        {
+          "name": "pullback_into_zone",
+          "value": 7.402,
+          "requirement": "<= 7.5366626",
+          "result": "pass"
+        },
+        {
+          "name": "pullback_close_turns_up",
+          "value": 7.456,
+          "requirement": ">= open(7.45) 且 > resistance(7.45)",
+          "result": "pass"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 58.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-09-14T14:15:00Z",
+          "requirement": "存在 open_time>=2026-09-14T14:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-09-14T14:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": 0.005097,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 hot，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 20,
+          "event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1789185599999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 23,
+          "event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1789347599999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 7.243, \"requirement\": \"< 7.27\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 7.243, \"requirement\": \">= 7.1833374\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 7.318, \"requirement\": \">= 7.28733252\", \"result\": \"pass\"}], \"detail\": {\"reference\": 7.27, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 7.243, \"close\": 7.318, \"overshoot_limit\": 7.183337399853804, \"recover_level\": 7.2873325200292385}}"
+        },
+        {
+          "id": 26,
+          "event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": null,
+          "from_state": "RETEST",
+          "to_state": "RETEST",
+          "at_ms": 1789387199999,
+          "reason": "丙：已收上压制位，等回抽到压制位附近后转强",
+          "payload_json": "{\"conditions\": [{\"name\": \"local_resistance\", \"value\": 7.45, \"requirement\": {\"mode\": \"prior_n_high\", \"n\": 20, \"window_bars\": 20}, \"result\": \"pass\"}, {\"name\": \"confirm_above_resistance\", \"value\": 7.457, \"requirement\": \"1h_close > 7.45\", \"result\": \"pass\"}, {\"name\": \"sell_pressure\", \"value\": null, \"requirement\": \"require=false\", \"result\": \"not_required\"}], \"substage\": \"await_pullback\", \"pullback_zone_atr\": 0.5, \"pullback_deadline_ms\": 1789646399999}"
+        },
+        {
+          "id": 28,
+          "event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+          "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1789394399999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 7.45}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 6,
+          "candidate_id": "cd_ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999_s1",
+          "scheme": "4c",
+          "symbol": "AVAXUSDT",
+          "at_ms": 1789395299999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "opened",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": true, \"reason\": \"filled\", \"position_id\": 2, \"order_id\": 2, \"qty\": 69.0, \"entry_price\": 7.498, \"raw_price\": 7.494, \"stop_price\": 7.123, \"initial_stop_price\": 7.123, \"stop_dist\": 0.375, \"planned_risk\": 25.875, \"notional\": 517.362, \"fee\": 0.258681, \"slippage_cost\": 0.2760000000000309, \"bar_open_time\": 1789395300000, \"bar_close_time\": 1789396199999, \"model_version\": \"paper_exec_v1_derived_from_effective_view_20261013\", \"signal_uid\": \"accum04_4c_AVAXUSDT_1789394399999\", \"origin\": \"replay\", \"event_time\": 1789394399999, \"available_at\": 1789394399999, \"requested_at\": 1789394399999, \"earliest_fill_ms\": 1789395299999, \"filled_at\": 1789395300000, \"fill_lag_ms\": 0, \"market_source\": \"binance.um.candles_15m.is_closed.open|merged.hot|available_at_unproven\", \"bar_provenance\": {\"layer\": \"hot\", \"available_at\": null, \"available_at_proven\": false}}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 7.45，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    },
+    {
+      "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999_s1",
+      "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+      "scheme": "4a",
+      "symbol": "AVAXUSDT",
+      "confirm_time_utc": "2026-09-16T20:59:59Z",
+      "entry_bar_utc": "2026-09-16T21:15:00Z",
+      "entry_ref_price": 7.356,
+      "resistance": 7.359,
+      "status": "WAIT_ENTRY",
+      "status_reason": "条件成立，待委托",
+      "conditions_eval_count": 12,
+      "conditions_detail": [
+        {
+          "name": "sweep_lowest_below_reference",
+          "value": 7.208,
+          "requirement": "< 7.243",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_overshoot_within",
+          "value": 7.208,
+          "requirement": ">= 7.176187648",
+          "result": "pass"
+        },
+        {
+          "name": "sweep_recover_close",
+          "value": 7.274,
+          "requirement": ">= 7.25636247",
+          "result": "pass"
+        },
+        {
+          "name": "local_resistance",
+          "value": 7.359,
+          "requirement": {
+            "mode": "prior_n_high",
+            "n": 20,
+            "window_bars": 20
+          },
+          "result": "pass"
+        },
+        {
+          "name": "confirm_above_resistance",
+          "value": 7.377,
+          "requirement": "1h_close > 7.359",
+          "result": "pass"
+        },
+        {
+          "name": "sell_pressure",
+          "value": null,
+          "requirement": "require=false",
+          "result": "not_required"
+        },
+        {
+          "name": "observe_deadline_hours",
+          "value": 33.0,
+          "requirement": "<= 168",
+          "result": "pass"
+        },
+        {
+          "name": "entry_15m_bar_exists",
+          "value": "2026-09-16T21:15:00Z",
+          "requirement": "存在 open_time>=2026-09-16T21:14:59Z 的已闭合 15m bar",
+          "result": "pass"
+        },
+        {
+          "name": "entry_delay_respected",
+          "value": "2026-09-16T21:15:00Z",
+          "requirement": "bar_open >= confirm+15min",
+          "result": "pass"
+        },
+        {
+          "name": "entry_price_deviation",
+          "value": -0.002847,
+          "requirement": "|x| <= 0.02",
+          "result": "pass"
+        },
+        {
+          "name": "entry_bar_available_at_proven",
+          "value": null,
+          "requirement": "有值（否则只能声称计算不超前）",
+          "result": "not_proven",
+          "note": "成交 bar 来自 hot，该层没有 available_at 证据 ⇒ 只能声称「计算不超前」，不能证明「当时可得」（缺口已落 data_gap，不补造）"
+        },
+        {
+          "name": "oi_role",
+          "value": "evidence_only",
+          "requirement": "required ⇒ 必须通过；evidence_only ⇒ 只记录",
+          "result": "not_required",
+          "note": "本单未把 OI 接进入场门槛，角色由配置决定"
+        }
+      ],
+      "transitions": [
+        {
+          "id": 29,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+          "candidate_id": null,
+          "from_state": null,
+          "to_state": "BOX",
+          "at_ms": 1789473599999,
+          "reason": "事件建档（初始锚点冻结）",
+          "payload_json": "{\"data_quality\": \"ok\"}"
+        },
+        {
+          "id": 30,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+          "candidate_id": null,
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "at_ms": 1789513199999,
+          "reason": "扫低收回成立",
+          "payload_json": "{\"conditions\": [{\"name\": \"sweep_lowest_below_reference\", \"value\": 7.208, \"requirement\": \"< 7.243\", \"result\": \"pass\"}, {\"name\": \"sweep_overshoot_within\", \"value\": 7.208, \"requirement\": \">= 7.176187648\", \"result\": \"pass\"}, {\"name\": \"sweep_recover_close\", \"value\": 7.274, \"requirement\": \">= 7.25636247\", \"result\": \"pass\"}], \"detail\": {\"reference\": 7.243, \"reference_mode\": \"box_low\", \"scope\": \"single_bar\", \"max_bars\": 1, \"lowest_low\": 7.208, \"close\": 7.274, \"overshoot_limit\": 7.17618764769597, \"recover_level\": 7.2563624704608065}}"
+        },
+        {
+          "id": 31,
+          "event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+          "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999_s1",
+          "from_state": null,
+          "to_state": "WAIT_ENTRY",
+          "at_ms": 1789592399999,
+          "reason": "候选生成",
+          "payload_json": "{\"seq_in_event\": 1, \"local_support_price\": 7.359}"
+        }
+      ],
+      "open_attempts": [
+        {
+          "id": 7,
+          "candidate_id": "cd_ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999_s1",
+          "scheme": "4a",
+          "symbol": "AVAXUSDT",
+          "at_ms": 1789593299999,
+          "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+          "config_kind": "fixture",
+          "allowed": 1,
+          "reason": "rejected:position_already_open_no_add",
+          "missing_json": "[]",
+          "paper_result_json": "{\"ok\": false, \"reason\": \"position_already_open_no_add\", \"symbol\": \"AVAXUSDT\", \"signal_uid\": \"accum04_4a_AVAXUSDT_1789592399999\"}"
+        }
+      ],
+      "rule_discrepancy_analysis": [
+        {
+          "checkpoint": "扫低对象 s_loc > L 约束",
+          "04b_actual": "未校验 s_loc 是否高于箱底 L (仅取前20根最低值)",
+          "04a_rule": "必须 s_loc > box['L']，否则属于破L箱底扫低，不得计为提前入场"
+        },
+        {
+          "checkpoint": "局部压制位定义与合格性",
+          "04b_actual": "取 prior_20_high: 7.359，未检查离箱底箱顶空间",
+          "04a_rule": "要求 swing_high 摆动高点，且合格性 L + 0.5A <= R <= H - 0.5A"
+        },
+        {
+          "checkpoint": "承接与卖压指标时序",
+          "04b_actual": "在确认收上压制位时 (confirm) 检查 sell_pressure (当前测试配置为 require=false)",
+          "04a_rule": "必须在扫低根 (sweep) 检查承接主动买占比 tbr 与主动卖压 sell"
+        }
+      ]
+    }
+  ]
+}

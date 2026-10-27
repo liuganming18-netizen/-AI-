@@ -1,0 +1,67 @@
+{
+  "timestamp_utc": "2026-10-27T01:04:57Z",
+  "schema_version": "accum-early-05/v1",
+  "code_identity": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+    "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+    "expected_sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017",
+    "version_verified": true
+  },
+  "baseline_evidence_verification": {
+    "original_7_events": {
+      "source_evidence": "evidence/ACCUM-EARLY-06-W5/02/out/02_original_7_events_retest.json",
+      "evidence_code_hash_match": true,
+      "invalidated_count": 6,
+      "not_found_count": 1,
+      "candidates_produced": 0,
+      "status": "PASS_CLEAN_RECONCILED",
+      "scope_limitation": "原 7 笔事件零候选系输入行情结构破位或前序占位所致，仅反映特定历史输入下的工程行为，绝不等于策略在自然行情下有效或无效"
+    },
+    "absorption_timing": {
+      "source_evidence": "evidence/ACCUM-EARLY-06-W5/02/out/03_absorption_timing_retest.json",
+      "cases_count": 4,
+      "all_cases_passed": true,
+      "judged_bar_index": 60,
+      "status": "PASS_TIMING_FIXED_TO_SWEEP_BAR",
+      "scope_limitation": "扫低根吸筹已证实锁定在扫低发生根 i=60 求值，突破确认根只读结果，时序倒置缺陷已消除"
+    },
+    "approval_gate_and_economic_mismatch": {
+      "source_evidence": "evidence/ACCUM-EARLY-06-W5/02/out/04_gate_and_economic_mismatch.json",
+      "unapproved_missing_blocked": true,
+      "economic_mismatch_blocked": true,
+      "cooldown24_did_not_bypass": true,
+      "status": "PASS_GATE_ENFORCED",
+      "scope_limitation": "冷却 24 小时严格未被作为未经批准的通过条件"
+    },
+    "gap_and_rescan_idempotency": {
+      "source_evidence": "evidence/ACCUM-EARLY-06-W5/02/out/05_gap_and_scan_idempotency.json",
+      "orders_diff": 0,
+      "fills_diff": 0,
+      "positions_diff": 0,
+      "candidates_diff": 0,
+      "gaps_diff": 0,
+      "status": "PASS_ZERO_INCREASE_IDEMPOTENT"
+    },
+    "cross_process_and_physical_isolation": {
+      "source_evidence": "evidence/ACCUM-EARLY-06-W5/02/out/06_cross_process_and_isolation.json",
+      "process_a_pid": 52163,
+      "process_b_pid": 52175,
+      "confirmed_dead_between_procs": true,
+      "orders_increase": 0,
+      "isolation_violation_blocked": true,
+      "read_only_connection_enforced": true,
+      "status": "PASS_TRUE_CROSS_PROCESS_AND_ISOLATION_VERIFIED"
+    }
+  },
+  "layer_separation_audit": {
+    "engineering_behavior_verdict": "PASSED (代码修复、闸门、时序、跨进程恢复与隔离全部工程成立)",
+    "historical_zero_candidate_verdict": "REPORTED_HONESTLY (原 7 事件零候选为真实终态，6 笔破位失效 + 1 笔未建档)",
+    "upstream_funding_recalc_verdict": "BLOCKED_AWAITING_W4_R1 (窗口四工单A交付物缺失，资金费对账阻塞)",
+    "natural_market_and_strategy_verdict": "UNCOVERED_PENDING (正式策略参数全未批准，无自然行情成交，严禁声称通过)",
+    "unresolved_ambiguities": [
+      "多根扫低 (multi_bar) 语义尚未批准，代码中显式标记 multi_bar_scope_unverified=True",
+      "压制位空间合格性窗口与回踩阶段的语义未决",
+      "承接失败后的状态机终结路径（停在 SWEEP await_confirm 还是直接终结）列未决"
+    ]
+  }
+}

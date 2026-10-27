@@ -1,0 +1,27 @@
+# BT-UI-02 第二次加载：chart.json 窗口守卫（读接口）
+时间（UTC）：2026-10-18T08:51:30Z（stop/start 见下）
+
+## 加载动作（官方脚本，双重 fork 脱离会话）
+$ sh 框架/backend/stop.sh
+已停止 pid=14164（端口 8787 已释放）   退出码=0
+$ sh 框架/backend/start.sh
+已启动 pid=17744 port=8787 (监听 127.0.0.1 与 ::1)   退出码=0
+
+## 加载后：健康
+$ curl /api/health
+{"状态": "可用", "模式": "本机只读"}
+
+## 加载后：采集进程与持仓监控（应与加载前一致）
+$ curl /api/v1/live/health
+  quality.status = down
+  worker_status  = None
+  ledger_available = None None
+  strategy_version = F_WX_v2.2_project_closure_user_5000_shared
+$ curl /api/v1/paper/positions
+{"mode": "paper", "account_id": null, "run_id": null, "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared", "rule_version": "F_WX_v2.2_project_closure_user_5000_shared", "param_hash": null
+$ curl /api/v1/pool/status
+http=200
+
+## 采集心跳（pid 文件 + --health）
+  realtime.pid = 91617
+健康：pid=91617 存活=True；心跳=2026-10-18T08:52:01Z（11s 前）；新鲜=True；REST 通道正常：最近成功 0s 前；成功 13038/失败 2/本地节流 3555；binance.candles ok=297/fail=0/deferred=96；binance.funding_history ok=507/fail=0/deferred=271；binance.global_account_ratio ok=264/fail=0/deferred=49；binance.oi_hist ok=6040/fail=2/deferred=976；binance.premium_index ok=33/fail=0/deferred=13；binance.smart_money_overview ok=1785/fail=0/deferred=941；binance.smart_money_stats ok=1785/fail=0/deferred=864；binance.taker_ratio ok=264/fail=0/deferred=44；binance.ticker24h ok=35/fail=0/deferred=8；binance.top_account_ratio ok=264/fail=0/deferred=49；binance.top_posi

@@ -1,0 +1,812 @@
+{
+  "audit": "ENTRY-AUDIT-04",
+  "stage": "第一阶段 · 冻结可交接账本",
+  "handoff_version": "ENTRY-AUDIT-04.handoff.v1",
+  "generated_utc": "2026-10-18 09:33:20",
+  "derived_from": "evidence/ENTRY-AUDIT-03（不重跑回测、不改原账本）",
+  "row_semantics": {
+    "rows": 227,
+    "unique_signal_key": 226,
+    "filled": 205,
+    "unfilled": 22,
+    "why_227_not_226": "COTIUSDT 同一快照（1640228400000）被连续回放与窗口回放各记一条，结论相反；event_id 因窗口代际取 cand_exec_earliest_ms 而不同，所以按 event_id 数是 227、按 symbol+snapshot 数是 226"
+  },
+  "identity_key_rules": {
+    "candidate_id": "全表唯一（227 条各不相同）",
+    "event_id": "全表唯一（227），但窗口代际用的是 cand_exec_earliest_ms 而非快照时刻 ⇒ 不能当唯一信号键",
+    "signal_key": "= {symbol}_{snapshot_time_ms}，226 个唯一值 ⇒ 跨代际比对唯一信号用这个",
+    "order_id": "⚠ **不是全局唯一**：同一个候选在连续回放与窗口回放里会生成完全相同的 signal_id 与 order_id（两者都由「标的 + 箱体起止时刻」派生，与回放窗口无关）。引擎输出层 213 条成交记录里有 6 组重复（13 行）",
+    "unique_order_key": "必须用 (run_id, order_id) 复合键；单用 order_id 会跨代际串账",
+    "consequence": "按 order_id 单键关联会取到另一代际的那一笔（qty / 金额都不同，因为两代际起始权益与前序交易不同 ⇒ 手数不同），本交接包已按复合键生成",
+    "note_on_205": "映射到 205 个候选后重复行数为 0 —— 不是因为撞号消失，而是因为候选映射按 (group, symbol, snapshot) 选中的是同一 run 里的另一笔成交；撞号仍存在于引擎输出层",
+    "collision_stats": {
+      "trade_records": 213,
+      "dup_signal_groups": 6,
+      "dup_rows": 13
+    }
+  },
+  "sign_conventions": {
+    "gross_pnl": "多空统一为「平仓现金流 − 开仓现金流」的净额，正=赚",
+    "fees": "正=支出（手续费只可能是支出）",
+    "entry_fee": "正=支出（手续费只可能是支出）",
+    "exit_fee": "正=支出（手续费只可能是支出）",
+    "funding_fee": "正=支出（付出资金费），负=收入（收到资金费）",
+    "net_pnl": "胜负一律按这个（扣费后）判，不用 gross_pnl",
+    "ledger_FUNDING_FEE_payload_delta": "现金变动口径：支出为负、收入为正，与 funding_fee 符号相反",
+    "ledger_relation": "cum_funding_fee = −Σ(payload.delta)；跨层比对必须先取负"
+  },
+  "formulas": {
+    "net_pnl": "net_pnl = gross_pnl - fees - funding_fee",
+    "fees": "fees = entry_fee + exit_fee",
+    "slippage": "slippage_loss = slippage_loss_pure + rounding_loss",
+    "price_chain": "raw_price → post_slip_price（滑点）→ post_round_price（取整）= 成交价",
+    "slippage_not_double_counted": "滑点与取整已经写进 entry_price / exit_price（= post_round_price），所以 net_pnl 只再减 fees 与 funding_fee，不再单独减 slippage_loss；再减一次即重复扣减"
+  },
+  "three_state_flags": {
+    "spec_qualification": {
+      "meaning": "合约规格资格：这笔用的历史合约规格（tickSize / stepSize / minQty）能不能被证明",
+      "values": {
+        "unverified_historical": 212,
+        "contradicted": 13,
+        "not_listed": 2
+      },
+      "verified_requires": "①快照按 serverTime 夹住窗口 ②区间内每份逐一比较一致 ③spec_changes_*.json 变更证据覆盖整窗"
+    },
+    "exec_validity": {
+      "meaning": "执行有效性：这笔所在 run 的撮合是否有效",
+      "values": {
+        "valid": 227
+      }
+    },
+    "research_usability": {
+      "meaning": "研究可用性：能不能当研究样本用（与赚不赚钱无关）",
+      "values": {
+        "usable_with_caveat": 227
+      }
+    },
+    "formal_pass_allowed": {
+      "meaning": "是否允许正式回测/上线口径",
+      "values": {
+        "false": 227
+      }
+    }
+  },
+  "pit": {
+    "status": "UNPROVEN",
+    "limitation": "PIT（时点可得性）未证：候选特征与执行输入使用的是回放窗口内已闭合 K 线，但当时点真实可得的数据快照（含合约规格、资金费率、行情落盘时刻）无留痕，无法证明「在决策时刻就能拿到这些值」；且历史合约规格无变更证据 ⇒ 全池无 verified。因此本样本只能称「可信研究样本」，不能称「可正式回测 / 可上线」。"
+  },
+  "funding_gaps": {
+    "total": 11,
+    "reason": "funding_event_missing_fields:mark —— 资金费事件缺 mark_price，引擎记 gap 不补 0",
+    "consequence": "这些结算没有计入费用，方向未知；缺值不等于 0，不得当 0 处理"
+  },
+  "null_policy": "所有取不到的值为 None（CSV 里是空），**不是 0**；下游读到空必须报缺失，不得静默当 0",
+  "config_fingerprint": {
+    "config_sha256": "0faa5fc046f1841d3900508ddcfbbd6717dff8b0196a3dc17ae406efb455d7b0",
+    "strategy_name": "WX_EVENT_TREND_V0_1",
+    "strategy_version": "v0.1.0",
+    "engine_contract_version": "trading_engine_v1.0.0",
+    "taker_fee_bps": 5.0,
+    "slippage_bps": 3.0,
+    "initial_equity": 2000.0
+  },
+  "window_plan_ref": {
+    "file": "evidence/ENTRY-AUDIT-03/00_window_plan.json",
+    "generation_A": {
+      "label": "连续回放（cand_ev_*）",
+      "start": "2021-12-01",
+      "end": "2026-10-18",
+      "allow_auto_window": false,
+      "rows": 185,
+      "filled_rows": 163,
+      "unfilled_rows": 22,
+      "symbols": 133,
+      "source": "evidence/FACTOR-ENTRY-01/stage2_candidate_feature_pipeline.py（START_DATE/END_DATE）"
+    },
+    "generation_B": {
+      "label": "365 天窗口回放（old_cand_*）",
+      "rows": 42,
+      "symbols": 35,
+      "distinct_groups": [
+        39,
+        40,
+        60,
+        61,
+        63,
+        69,
+        70,
+        74,
+        75,
+        76,
+        78,
+        80,
+        83,
+        87,
+        102,
+        104,
+        114,
+        116,
+        117,
+        118,
+        129,
+        140,
+        147,
+        153,
+        154,
+        156,
+        157,
+        165,
+        166,
+        178,
+        182,
+        183,
+        189,
+        190,
+        191
+      ],
+      "distinct_group_symbol_pairs": 43,
+      "window_days": 365,
+      "allow_auto_window": false,
+      "source": "evidence/FULL_SWEEP_200x100/plan.json + trades_rich.jsonl(group)",
+      "per_record": [
+        {
+          "candidate_id": "old_cand_COTIUSDT_1640229300000",
+          "symbol": "COTIUSDT",
+          "entry_time_ms": 1640229300000,
+          "groups": [
+            39
+          ],
+          "windows": [
+            {
+              "group": 39,
+              "start": "2021-12-16",
+              "end": "2022-12-16"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ALICEUSDT_1640283300000",
+          "symbol": "ALICEUSDT",
+          "entry_time_ms": 1640283300000,
+          "groups": [
+            40
+          ],
+          "windows": [
+            {
+              "group": 40,
+              "start": "2021-12-18",
+              "end": "2022-12-18"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ONEUSDT_1642007700000",
+          "symbol": "ONEUSDT",
+          "entry_time_ms": 1642007700000,
+          "groups": [
+            39
+          ],
+          "windows": [
+            {
+              "group": 39,
+              "start": "2021-12-16",
+              "end": "2022-12-16"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_CELRUSDT_1656076500000",
+          "symbol": "CELRUSDT",
+          "entry_time_ms": 1656076500000,
+          "groups": [
+            60
+          ],
+          "windows": [
+            {
+              "group": 60,
+              "start": "2022-06-18",
+              "end": "2023-06-18"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_JASMYUSDT_1657163700000",
+          "symbol": "JASMYUSDT",
+          "entry_time_ms": 1657163700000,
+          "groups": [
+            61
+          ],
+          "windows": [
+            {
+              "group": 61,
+              "start": "2022-06-26",
+              "end": "2023-06-26"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_XRPUSDT_1659190500000",
+          "symbol": "XRPUSDT",
+          "entry_time_ms": 1659190500000,
+          "groups": [
+            63
+          ],
+          "windows": [
+            {
+              "group": 63,
+              "start": "2022-07-06",
+              "end": "2023-07-06"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ALGOUSDT_1663643700000",
+          "symbol": "ALGOUSDT",
+          "entry_time_ms": 1663643700000,
+          "groups": [
+            69,
+            70
+          ],
+          "windows": [
+            {
+              "group": 69,
+              "start": "2022-09-02",
+              "end": "2023-09-02"
+            },
+            {
+              "group": 70,
+              "start": "2022-09-08",
+              "end": "2023-09-08"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_FLOWUSDT_1667456100000",
+          "symbol": "FLOWUSDT",
+          "entry_time_ms": 1667456100000,
+          "groups": [
+            75
+          ],
+          "windows": [
+            {
+              "group": 75,
+              "start": "2022-10-19",
+              "end": "2023-10-19"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_FILUSDT_1667459700000",
+          "symbol": "FILUSDT",
+          "entry_time_ms": 1667459700000,
+          "groups": [
+            74
+          ],
+          "windows": [
+            {
+              "group": 74,
+              "start": "2022-10-17",
+              "end": "2023-10-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_BELUSDT_1667466900000",
+          "symbol": "BELUSDT",
+          "entry_time_ms": 1667466900000,
+          "groups": [
+            74
+          ],
+          "windows": [
+            {
+              "group": 74,
+              "start": "2022-10-17",
+              "end": "2023-10-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_DUSKUSDT_1667466900000",
+          "symbol": "DUSKUSDT",
+          "entry_time_ms": 1667466900000,
+          "groups": [
+            74
+          ],
+          "windows": [
+            {
+              "group": 74,
+              "start": "2022-10-17",
+              "end": "2023-10-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_NEARUSDT_1667538900000",
+          "symbol": "NEARUSDT",
+          "entry_time_ms": 1667538900000,
+          "groups": [
+            76
+          ],
+          "windows": [
+            {
+              "group": 76,
+              "start": "2022-10-30",
+              "end": "2023-10-30"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_MANAUSDT_1667618100000",
+          "symbol": "MANAUSDT",
+          "entry_time_ms": 1667618100000,
+          "groups": [
+            74
+          ],
+          "windows": [
+            {
+              "group": 74,
+              "start": "2022-10-17",
+              "end": "2023-10-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_APEUSDT_1670786100000",
+          "symbol": "APEUSDT",
+          "entry_time_ms": 1670786100000,
+          "groups": [
+            80
+          ],
+          "windows": [
+            {
+              "group": 80,
+              "start": "2022-12-08",
+              "end": "2023-12-08"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_CHRUSDT_1671005700000",
+          "symbol": "CHRUSDT",
+          "entry_time_ms": 1671005700000,
+          "groups": [
+            78
+          ],
+          "windows": [
+            {
+              "group": 78,
+              "start": "2022-11-23",
+              "end": "2023-11-23"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ALGOUSDT_1672496100000",
+          "symbol": "ALGOUSDT",
+          "entry_time_ms": 1672496100000,
+          "groups": [
+            83
+          ],
+          "windows": [
+            {
+              "group": 83,
+              "start": "2022-12-30",
+              "end": "2023-12-30"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_VETUSDT_1676657700000",
+          "symbol": "VETUSDT",
+          "entry_time_ms": 1676657700000,
+          "groups": [
+            87
+          ],
+          "windows": [
+            {
+              "group": 87,
+              "start": "2023-02-08",
+              "end": "2024-02-08"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_IOTXUSDT_1689275700000",
+          "symbol": "IOTXUSDT",
+          "entry_time_ms": 1689275700000,
+          "groups": [
+            102
+          ],
+          "windows": [
+            {
+              "group": 102,
+              "start": "2023-06-20",
+              "end": "2024-06-19"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_DYDXUSDT_1689351300000",
+          "symbol": "DYDXUSDT",
+          "entry_time_ms": 1689351300000,
+          "groups": [
+            102
+          ],
+          "windows": [
+            {
+              "group": 102,
+              "start": "2023-06-20",
+              "end": "2024-06-19"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_1000SHIBUSDT_1690553700000",
+          "symbol": "1000SHIBUSDT",
+          "entry_time_ms": 1690553700000,
+          "groups": [
+            104
+          ],
+          "windows": [
+            {
+              "group": 104,
+              "start": "2023-07-07",
+              "end": "2024-07-06"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_INJUSDT_1697606100000",
+          "symbol": "INJUSDT",
+          "entry_time_ms": 1697606100000,
+          "groups": [
+            114
+          ],
+          "windows": [
+            {
+              "group": 114,
+              "start": "2023-10-02",
+              "end": "2024-10-01"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_CELRUSDT_1698898500000",
+          "symbol": "CELRUSDT",
+          "entry_time_ms": 1698898500000,
+          "groups": [
+            118
+          ],
+          "windows": [
+            {
+              "group": 118,
+              "start": "2023-10-31",
+              "end": "2024-10-30"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_BNTUSDT_1699456500000",
+          "symbol": "BNTUSDT",
+          "entry_time_ms": 1699456500000,
+          "groups": [
+            117
+          ],
+          "windows": [
+            {
+              "group": 117,
+              "start": "2023-10-29",
+              "end": "2024-10-28"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_BLURUSDT_1700648100000",
+          "symbol": "BLURUSDT",
+          "entry_time_ms": 1700648100000,
+          "groups": [
+            117
+          ],
+          "windows": [
+            {
+              "group": 117,
+              "start": "2023-10-29",
+              "end": "2024-10-28"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_KSMUSDT_1703193300000",
+          "symbol": "KSMUSDT",
+          "entry_time_ms": 1703193300000,
+          "groups": [
+            118
+          ],
+          "windows": [
+            {
+              "group": 118,
+              "start": "2023-10-31",
+              "end": "2024-10-30"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_MANAUSDT_1703445300000",
+          "symbol": "MANAUSDT",
+          "entry_time_ms": 1703445300000,
+          "groups": [
+            116
+          ],
+          "windows": [
+            {
+              "group": 116,
+              "start": "2023-10-18",
+              "end": "2024-10-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ETHWUSDT_1708485300000",
+          "symbol": "ETHWUSDT",
+          "entry_time_ms": 1708485300000,
+          "groups": [
+            129
+          ],
+          "windows": [
+            {
+              "group": 129,
+              "start": "2024-02-12",
+              "end": "2025-02-11"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ETCUSDT_1716236100000",
+          "symbol": "ETCUSDT",
+          "entry_time_ms": 1716236100000,
+          "groups": [
+            140
+          ],
+          "windows": [
+            {
+              "group": 140,
+              "start": "2024-05-14",
+              "end": "2025-05-14"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_TIAUSDT_1721610900000",
+          "symbol": "TIAUSDT",
+          "entry_time_ms": 1721610900000,
+          "groups": [
+            147
+          ],
+          "windows": [
+            {
+              "group": 147,
+              "start": "2024-07-17",
+              "end": "2025-07-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_BANANAUSDT_1726719300000",
+          "symbol": "BANANAUSDT",
+          "entry_time_ms": 1726719300000,
+          "groups": [
+            153
+          ],
+          "windows": [
+            {
+              "group": 153,
+              "start": "2024-09-07",
+              "end": "2025-09-07"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ETCUSDT_1726766100000",
+          "symbol": "ETCUSDT",
+          "entry_time_ms": 1726766100000,
+          "groups": [
+            154
+          ],
+          "windows": [
+            {
+              "group": 154,
+              "start": "2024-09-10",
+              "end": "2025-09-10"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_MEWUSDT_1728314100000",
+          "symbol": "MEWUSDT",
+          "entry_time_ms": 1728314100000,
+          "groups": [
+            156
+          ],
+          "windows": [
+            {
+              "group": 156,
+              "start": "2024-09-30",
+              "end": "2025-09-30"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_GTCUSDT_1729408500000",
+          "symbol": "GTCUSDT",
+          "entry_time_ms": 1729408500000,
+          "groups": [
+            157
+          ],
+          "windows": [
+            {
+              "group": 157,
+              "start": "2024-10-12",
+              "end": "2025-10-12"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_XMRUSDT_1735892100000",
+          "symbol": "XMRUSDT",
+          "entry_time_ms": 1735892100000,
+          "groups": [
+            165
+          ],
+          "windows": [
+            {
+              "group": 165,
+              "start": "2024-12-22",
+              "end": "2025-12-22"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_DOGEUSDT_1737105300000",
+          "symbol": "DOGEUSDT",
+          "entry_time_ms": 1737105300000,
+          "groups": [
+            166
+          ],
+          "windows": [
+            {
+              "group": 166,
+              "start": "2025-01-01",
+              "end": "2026-01-01"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_NEARUSDT_1746738900000",
+          "symbol": "NEARUSDT",
+          "entry_time_ms": 1746738900000,
+          "groups": [
+            178
+          ],
+          "windows": [
+            {
+              "group": 178,
+              "start": "2025-04-14",
+              "end": "2026-04-14"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_HAEDALUSDT_1747829700000",
+          "symbol": "HAEDALUSDT",
+          "entry_time_ms": 1747829700000,
+          "groups": [
+            182
+          ],
+          "windows": [
+            {
+              "group": 182,
+              "start": "2025-05-17",
+              "end": "2026-05-17"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ATHUSDT_1748319300000",
+          "symbol": "ATHUSDT",
+          "entry_time_ms": 1748319300000,
+          "groups": [
+            178
+          ],
+          "windows": [
+            {
+              "group": 178,
+              "start": "2025-04-14",
+              "end": "2026-04-14"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_BANANAUSDT_1748452500000",
+          "symbol": "BANANAUSDT",
+          "entry_time_ms": 1748452500000,
+          "groups": [
+            183
+          ],
+          "windows": [
+            {
+              "group": 183,
+              "start": "2025-05-22",
+              "end": "2026-05-22"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ALPINEUSDT_1753622100000",
+          "symbol": "ALPINEUSDT",
+          "entry_time_ms": 1753622100000,
+          "groups": [
+            189
+          ],
+          "windows": [
+            {
+              "group": 189,
+              "start": "2025-07-14",
+              "end": "2026-07-14"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_ETHUSDT_1754662500000",
+          "symbol": "ETHUSDT",
+          "entry_time_ms": 1754662500000,
+          "groups": [
+            190
+          ],
+          "windows": [
+            {
+              "group": 190,
+              "start": "2025-07-29",
+              "end": "2026-07-29"
+            }
+          ]
+        },
+        {
+          "candidate_id": "old_cand_CHRUSDT_1755360900000",
+          "symbol": "CHRUSDT",
+          "entry_time_ms": 1755360900000,
+          "groups": [
+            191
+          ],
+          "windows": [
+            {
+              "group": 191,
+              "start": "2025-08-07",
+              "end": "2026-08-07"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "self_checks": {
+    "rows_227": true,
+    "executed_205": true,
+    "unfilled_22": true,
+    "unique_signal_key_226": true,
+    "generation_split": true,
+    "filled_fields_missing_0": true,
+    "net_identity_205": true,
+    "fee_eq_entry_plus_exit_205": true,
+    "unfilled_all_have_reason": true,
+    "filled_no_cancel_reason": true,
+    "cancel_reason_equals_raw_event": true,
+    "formal_pass_all_false": true,
+    "pit_all_unproven": true,
+    "no_generation_silently_merged": true,
+    "run_order_key_unique": true,
+    "sum_net_matches_03": true,
+    "sum_fee_matches_03": true,
+    "sum_funding_matches_03": true
+  },
+  "checks_failed": []
+}

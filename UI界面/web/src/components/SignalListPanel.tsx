@@ -6,7 +6,18 @@
 import React, { useMemo, useState } from 'react';
 import { CryptoSignal, SignalArm, TokenMarketItem } from '../types/crypto';
 import { TokenIcon } from './TokenIcon';
-import type { PaperPendingView, PaperPositionView } from '../api/liveTrading';
+import type {
+  ExecutionDaemonView,
+  ObserveView,
+  PaperPendingView,
+  PaperPositionView,
+} from '../api/liveTrading';
+import ObservePanel from './ObservePanel';
+import {
+  SIGNALS_FAULT_TEXT,
+  signalsStateKey,
+  type SignalsState,
+} from '../api/signalsState';
 import {
   Target,
   ArrowRight,
@@ -15,10 +26,14 @@ import {
   Layers,
   Activity,
   Clock,
+  Play,
+  Pause,
+  Trash2,
 } from 'lucide-react';
 
 interface SignalListPanelProps {
   signals: CryptoSignal[];
+  signalsError?: string | null;
   tokens?: TokenMarketItem[];
   selectedSignalId: string | null;
   onSelectSignal: (signal: CryptoSignal) => void;
@@ -38,6 +53,48 @@ interface SignalListPanelProps {
   paperNotConnected?: boolean;
   /** 新共享核心策略 id（用于文案：为什么当前没有可执行入口）。 */
   paperNewCore?: string | null;
+  /** 切换模拟实盘开始 / 暂停 */
+  onToggleGate?: (action?: 'toggle' | 'start' | 'pause') => Promise<boolean>;
+  /** 清理信号库 */
+  onClearSignals?: (scope?: 'all' | 'expired' | 'current') => Promise<number>;
+  /** 是否处于运行状态 */
+  isGateRunning?: boolean;
+  /**
+   * 信号引擎逐币诊断（`/paper/status` → `signal_engine`）。
+   *
+   * **为什么需要它**（SIGNAL-UI-LINK-07）：没有它时，空列表只能显示一句
+   * 「暂无实时信号」——用户无法区分「策略还在等条件」「候选产生了但过期/被门禁拒」
+   * 「接口挂了」三种完全不同的情况。三种情况显示成一句话，等于把信息删掉。
+   */
+  diagnostics?: ExecutionDaemonView | null;
+  /**
+   * 实时信号区的**三态**（SIGNAL-UI-LINK-07-R1）：`loading` / `ok`（含正常 0 条）/ `fault`。
+   *
+   * **为什么必须传它而不是只传一句错误文案**：一句文案分不清「业务异常 200」和
+   * 「HTTP 500」和「连不上」，也无法表达「还没加载」。传三态，页面才能把
+   * 正常空列表 / 加载中 / 接口异常**三种情况显示成三种不同的东西**。
+   */
+  signalsState?: SignalsState | null;
+  /**
+   * 逐币诊断**是否仍在读取中**（SIGNAL-UI-LINK-07）。
+   *
+   * 为什么必须区分：`diagnostics === null` 有两种完全不同的含义 ——
+   *   ① 第一次拉取还没回来（实测首次约 13 秒，因为要排在账本/实盘只读之后）；
+   *   ② 拉取失败了。
+   * 旧写法把两者都写成「守护状态接口未返回」，等于把「加载中」诬告成「故障」。
+   * 有 `pending` 时先说「正在读取」，只有 `pending === false` 且仍为 null 才说「未取到」。
+   */
+  diagnosticsPending?: boolean;
+  /**
+   * 观察区（SIGNAL-OBSERVE-FIX-12）：处于观察状态的事件（BOX/SWEEP/RETEST）逐条明细。
+   *
+   * **为什么单独一条通道**：状态文件每 2 秒全量重写，塞 346 条明细约每天 10 GB 写盘，
+   * 所以明细走独立低频接口 `/signals/observe`。观察区**与信号区并列常显**，
+   * 不放在折叠诊断里 —— 用户明确要求「没有满足入场条件，不应导致观察区没有反应」。
+   */
+  observe?: ObserveView | null;
+  /** 观察区是否仍在首次读取中（区分「加载中」与「真的没有」）。 */
+  observePending?: boolean;
 }
 
 /** 数字格式化：null / 非有限值一律 '—'，绝不用 0 冒充真实值。 */
@@ -101,7 +158,7 @@ const kindBadge = (
   if (k) {
     return {
       label: k,
-      cls: 'text-gray-600 bg-gray-50 border-gray-200',
+      cls: 'text-neutral-400 bg-neutral-850 border-neutral-800',
     };
   }
   return null;
@@ -184,6 +241,8 @@ const resolveReason = (signal: CryptoSignal): string | null => {
  */
 export const SignalListPanel: React.FC<SignalListPanelProps> = ({
   signals,
+  signalsError = null,
+  signalsState = null,
   tokens = [],
   selectedSignalId,
   onSelectSignal,
@@ -192,6 +251,13 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
   newEntryGate = null,
   paperNotConnected = false,
   paperNewCore = null,
+  onToggleGate,
+  onClearSignals,
+  isGateRunning = false,
+  diagnostics = null,
+  diagnosticsPending = false,
+  observe = null,
+  observePending = false,
 }) => {
   /**
    * **WORK-04 退役**：旧策略臂（3a–3d）筛选入口已下线。
@@ -202,12 +268,13 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
 
   /**
    * 当前有效信号判定（与后端 `scope=current` 同一口径，客户端复算一遍作防线）：
-   *   ① origin='live'                     —— 非历史研究
+   *   ① origin ∈ {live, recovered}      —— 非历史研究；recovered = 重启后仍在成交时效内
+   *                                         被恢复的真实候选（SIGNAL-UI-LINK-07 起算当前）
    *   ② executableState='enterable'       —— 非仅展示 / 非本臂结构 / 非阻断
    *   ③ role='enterable_arm_entry'        —— **真实策略臂入场事件**（结构证据提示不算）
    */
   const isCurrentSignal = (s: CryptoSignal): boolean =>
-    s.origin === 'live' &&
+    (s.origin === 'live' || s.origin === 'recovered') &&
     s.executableState === 'enterable' &&
     s.role === 'enterable_arm_entry';
 
@@ -399,42 +466,94 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
 
   const gateBlocked = !!newEntryGate && !newEntryGate.allowNewEntries;
 
+  /**
+   * 有效三态（SIGNAL-UI-LINK-07-R1）。
+   *
+   * 优先用 `signalsState`；调用方只给了旧的 `signalsError` 字符串时，按
+   * 「未知类型故障」降级 —— 至少不会再把错误当空列表。
+   * **`null` 表示「调用方没提供状态」**（老用法），此时按 `ok` 处理以保持向后兼容。
+   */
+  const effSignalsState: SignalsState | null =
+    signalsState ??
+    (signalsError
+      ? { kind: 'fault', fault: 'error', message: signalsError, status: null, detail: null }
+      : null);
+
   return (
     <div
-      className="workbench-side-panel workbench-signal-panel bg-white border-r border-gray-200 flex flex-col justify-between shrink-0 select-none overflow-hidden"
+      className="workbench-side-panel workbench-signal-panel bg-neutral-900 border-r border-neutral-800 flex flex-col justify-between shrink-0 select-none overflow-hidden"
       data-testid="signal-panel"
       data-signal-count={currentSignals.length}
       data-signal-scope="current"
+      data-signals-state={signalsStateKey(effSignalsState)}
     >
       <div className="workbench-signal-content flex flex-col flex-1 overflow-hidden">
         {/* Header + 极简搜索区（白底无特效） */}
-        <div className="p-3 border-b border-gray-200 space-y-2 bg-white">
+        <div className="p-3 border-b border-neutral-800 space-y-2 bg-neutral-900">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-gray-900 flex items-center gap-1.5 uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <h3 className="text-xs font-bold text-neutral-100 flex items-center gap-1.5 uppercase tracking-wider">
               <span>交易信号</span>
             </h3>
-            <span className="text-[10px] text-gray-500 font-mono">
-              {filteredSignals.length} 笔信号
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-neutral-400 font-mono">
+                {filteredSignals.length} 笔
+              </span>
+              {/* 实盘模拟总闸（与右栏「模拟实盘持仓」旁那颗是**同一个开关**，同一份状态）。
+                  只表达「现在是什么状态」，不表达「点下去会怎样」——后者由 title 说明。
+                  配色只给中性：整块铺绿/铺琥珀会让一个开关的视觉权重压过旁边的信号列表，
+                  而状态是二值的，一颗 6px 的点就够了。动作留给鼠标悬停和 title。 */}
+              {onToggleGate && (
+                <button
+                  type="button"
+                  onClick={() => onToggleGate()}
+                  aria-pressed={isGateRunning}
+                  title={isGateRunning ? "当前运行中：点击暂停（阻断新开仓，已有持仓继续盯市）" : "当前已暂停：点击启动（放开新开仓）"}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-[var(--ds-surface-2)] text-[var(--ds-text-2)] border transition-colors hover:bg-[var(--ds-surface-3)] hover:text-[var(--ds-text)] ${
+                    isGateRunning ? 'border-[var(--ds-border)]' : 'border-[var(--ds-warn)]'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 shrink-0 rounded-full ${isGateRunning ? 'bg-[var(--ds-pos)]' : 'bg-[var(--ds-warn)]'}`}
+                    aria-hidden="true"
+                  />
+                  <span>{isGateRunning ? '运行中' : '已暂停'}</span>
+                </button>
+              )}
+              {/* 清理信号选项按键 */}
+              {onClearSignals && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm("确定要清理当前所有历史信号记录吗？")) {
+                      void onClearSignals('all');
+                    }
+                  }}
+                  title="清理历史信号数据"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border border-neutral-700 bg-neutral-800 text-neutral-400 hover:text-rose-300 hover:border-rose-900 hover:bg-rose-950/40 transition-colors"
+                >
+                  <Trash2 className="w-2.5 h-2.5" />
+                  <span>清理</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* 币种搜索 + 结构类型快筛 */}
           <div className="flex items-center gap-1.5">
             <div className="relative flex-1">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="搜索代币..."
-                className="w-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-300 rounded pl-7 pr-2 py-1 text-[11px] text-gray-800 placeholder-gray-400 outline-none font-mono"
+                className="w-full bg-neutral-850 border border-neutral-800 focus:bg-neutral-900 focus:border-neutral-700 rounded pl-7 pr-2 py-1 text-[11px] text-neutral-300 placeholder-neutral-500 outline-none font-mono"
               />
             </div>
             <select
               value={kindFilter}
               onChange={(e) => setKindFilter(e.target.value as 'ALL' | 'base' | 'spring' | 'sc')}
-              className="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-[11px] text-gray-700 outline-none cursor-pointer"
+              className="bg-neutral-850 border border-neutral-800 rounded px-2 py-1 text-[11px] text-neutral-300 outline-none cursor-pointer"
             >
               <option value="ALL">全部形态</option>
               <option value="base">突破</option>
@@ -448,43 +567,38 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
         {paperNotConnected && (
           <div
             data-testid="signal-not-connected"
-            className="mx-2.5 mt-2 p-2 rounded-lg border border-amber-300 bg-amber-50 text-[10px] leading-relaxed text-amber-800 flex gap-1.5"
+            className="mx-2 mt-1.5 px-2 py-1 rounded border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300 flex items-center justify-between"
           >
-            <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
-            <span className="break-all">
-              模拟实盘 <b>NOT_CONNECTED</b>
-              {paperNewCore ? `（新策略 ${paperNewCore} 未接 Paper）` : ''}：信号仅供研究展示，
-              <b>禁止新开仓与真实下单</b>，不回退旧执行通道；旧策略臂 3a–3d / A / B 已退役。
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+              <span>模拟实盘未连接 · 信号仅供展示（禁止开仓）</span>
             </span>
           </div>
         )}
 
+        {/* 观察区（SIGNAL-OBSERVE-FIX-12）：与信号区**并列常显**，不在折叠诊断里。
+            观察与执行分开判定：这里只展示「正在等入场条件」的标的，不构成下单。 */}
+        <ObservePanel view={observe} pending={observePending} />
+
         {/* Signals List */}
-        <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 bg-gray-50/50">
-          {currentSignals.length === 0 ? (
+        <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 bg-neutral-850/50">
+          {effSignalsState?.kind === 'fault' ? (
+            <SignalsFaultBox state={effSignalsState} />
+          ) : effSignalsState?.kind === 'loading' ? (
             <div
-              data-testid="signal-empty"
-              className="mt-6 mx-1 p-4 rounded-lg border border-dashed border-gray-200 bg-white text-center space-y-1.5"
+              data-testid="signal-loading"
+              className="mt-6 mx-1 p-5 rounded-lg border border-neutral-800 bg-neutral-900 text-center space-y-2"
             >
-              <p className="text-[12px] font-medium text-gray-700">暂无符合规则的实时信号</p>
-              <p className="text-[10px] leading-relaxed text-gray-400">
-                当前交易信号区只显示实时真实入场的信号，不使用任何演示/兜底样本。
-              </p>
-              {gateBlocked && (
-                <p className="text-[10px] leading-relaxed text-amber-600">
-                  服务端已阻断全部新开仓（总闸 fail-closed；原因：{newEntryGate?.reason ?? '未标注'}）；
-                  退出/费用/资金费照常处理。
-                </p>
-              )}
-              {paperNotConnected && (
-                <p className="text-[10px] leading-relaxed text-amber-600">
-                  模拟实盘 NOT_CONNECTED：信号仅展示，禁止新开仓与真实下单。
-                </p>
-              )}
+              <div className="text-xs font-semibold text-neutral-300">正在读取实时信号…</div>
+              <div className="text-[10px] text-neutral-500">
+                首次响应回来之前不显示「暂无信号」—— 未取到不等于没有。
+              </div>
             </div>
+          ) : currentSignals.length === 0 ? (
+            <EmptyStateWithDiagnostics diagnostics={diagnostics} pending={diagnosticsPending} />
           ) : filteredSignals.length === 0 ? (
-            <div className="mt-6 mx-1 p-4 rounded-lg border border-dashed border-gray-200 bg-white text-center space-y-1.5">
-              <p className="text-[11px] text-gray-500">当前筛选条件下无匹配信号</p>
+            <div className="mt-6 mx-1 p-4 rounded-lg border border-dashed border-neutral-800 bg-neutral-900 text-center space-y-1.5">
+              <p className="text-[11px] text-neutral-400">当前筛选条件下无匹配信号</p>
               <button
                 type="button"
                 onClick={() => {
@@ -525,18 +639,20 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
                   data-executable-state={signal.executableState ?? ''}
                   data-symbol={signal.tokenSymbol}
                   data-signal-uid={signal.id}
+                  data-direction={signal.direction ?? ''}
+                  data-confirmed-at={signal.confirmedAt ?? ''}
                   data-filled={filled ? '1' : '0'}
                   className={`p-3 rounded-lg border cursor-pointer transition-colors space-y-2.5 ${
                     isSelected
                       ? 'bg-emerald-50/20 border-2 border-emerald-600'
-                      : 'bg-white border border-gray-200 hover:border-gray-300'
+                      : 'bg-neutral-900 border border-neutral-800 hover:border-neutral-700'
                   }`}
                 >
                   {/* 第 1 行：纯粹代币图标 + 代币名称，右侧「已买入（账本）」+ 做多标签 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
                       <TokenIcon symbol={signal.tokenSymbol} size="sm" />
-                      <span className="font-bold text-gray-900 text-[14px] font-mono tracking-tight shrink-0">
+                      <span className="font-bold text-neutral-100 text-[14px] font-mono tracking-tight shrink-0">
                         {signal.tokenSymbol}
                       </span>
                       {/* 「已买入」只能来自服务端账本成交；无成交不显示 */}
@@ -555,15 +671,33 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
                           ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
                           : isShort
                             ? 'text-rose-700 bg-rose-50 border-rose-200'
-                            : 'text-gray-600 bg-gray-100 border-gray-200'
+                            : 'text-neutral-400 bg-neutral-800 border-neutral-800'
                       }`}
                     >
                       {isLong ? '做多' : isShort ? '做空' : '观望'}
                     </span>
                   </div>
 
+                  {/* 可复制 signal_id 标识行（SYSTEM-CLOSELOOP-02 X3b 修复） */}
+                  <div className="flex items-center justify-between text-[10px] font-mono bg-neutral-950/90 px-2 py-1 rounded border border-neutral-800 text-neutral-400">
+                    <span className="truncate max-w-[210px]" title={signal.id}>
+                      ID: {signal.id}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void navigator.clipboard?.writeText(signal.id);
+                      }}
+                      className="text-neutral-400 hover:text-emerald-400 px-1 py-0.5 rounded border border-neutral-800 hover:border-emerald-500/40 text-[9px] shrink-0 ml-1 transition-colors"
+                      title="复制完整 signal_id"
+                    >
+                      复制
+                    </button>
+                  </div>
+
                   {/* 第 2 行：无年份时间 + 周期，右侧精简形态标签 */}
-                  <div className="flex items-center justify-between text-[11px] font-mono text-gray-500">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
                     <span>{timeDisplay}</span>
                     {kBadge && (
                       <span
@@ -575,57 +709,57 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
                   </div>
 
                   {/* 第 3 行：理由（只透出后端结构化证据；缺失即未知，不编造） */}
-                  <div className="text-[11px] leading-relaxed text-gray-700 bg-gray-50 p-2 rounded border border-gray-100 font-sans">
-                    <span className="text-gray-500 font-semibold mr-1">理由：</span>
-                    <span className={reasonText ? '' : 'text-gray-400'}>
+                  <div className="text-[11px] leading-relaxed text-neutral-300 bg-neutral-850 p-2 rounded border border-neutral-800 font-sans">
+                    <span className="text-neutral-400 font-semibold mr-1">理由：</span>
+                    <span className={reasonText ? '' : 'text-neutral-500'}>
                       {reasonText ?? '—（无结构化理由，缺失即未知）'}
                     </span>
                   </div>
 
                   {/* 第 3.5 行：四阶段事件链（结构发现 → 信号确认 → 计划下单 → 实际成交） */}
-                  <div className="text-[10px] bg-gray-50/70 rounded border border-gray-100 p-1.5 space-y-0.5 font-sans">
+                  <div className="text-[10px] bg-neutral-850/70 rounded border border-neutral-800 p-1.5 space-y-0.5 font-sans">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400">① 结构发现</span>
-                      <span className="text-gray-700 truncate max-w-[68%] text-right">{chain.structure.text}</span>
+                      <span className="text-neutral-500">① 结构发现</span>
+                      <span className="text-neutral-300 truncate max-w-[68%] text-right">{chain.structure.text}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400">② 信号确认</span>
-                      <span className="text-gray-700">{chain.confirm.status}{chain.confirm.text ? ` · ${chain.confirm.text.replace('T', ' ').replace('Z', '')}` : ''}</span>
+                      <span className="text-neutral-500">② 信号确认</span>
+                      <span className="text-neutral-300">{chain.confirm.status}{chain.confirm.text ? ` · ${chain.confirm.text.replace('T', ' ').replace('Z', '')}` : ''}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400">③ 计划下单</span>
-                      <span className={chain.plan.filled ? 'text-sky-700' : 'text-gray-400'}>{chain.plan.text}{chain.plan.ids ? ` ${chain.plan.ids}` : ''}</span>
+                      <span className="text-neutral-500">③ 计划下单</span>
+                      <span className={chain.plan.filled ? 'text-sky-700' : 'text-neutral-500'}>{chain.plan.text}{chain.plan.ids ? ` ${chain.plan.ids}` : ''}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400">④ 实际成交</span>
-                      <span className={chain.fill.filled ? 'text-emerald-700 font-bold' : 'text-gray-400'}>{chain.fill.text}{chain.fill.ids ? ` ${chain.fill.ids}` : ''}</span>
+                      <span className="text-neutral-500">④ 实际成交</span>
+                      <span className={chain.fill.filled ? 'text-emerald-700 font-bold' : 'text-neutral-500'}>{chain.fill.text}{chain.fill.ids ? ` ${chain.fill.ids}` : ''}</span>
                     </div>
                   </div>
 
                   {/* 第 4 行：触发价 现价 止损价 目标价
                       —— 仅展示信号自带真实字段；缺失显示 `—`。
                       **入场/成交价不在此展示**（只由服务端账本 fill 产生，杜绝现价冒充入场价）。 */}
-                  <div className="grid grid-cols-4 gap-1.5 pt-1.5 text-[11px] font-mono border-t border-gray-100">
+                  <div className="grid grid-cols-4 gap-1.5 pt-1.5 text-[11px] font-mono border-t border-neutral-800">
                     <div>
-                      <div className="text-[10px] text-gray-400 font-sans">触发价</div>
-                      <div className="text-gray-800 font-medium mt-0.5">
+                      <div className="text-[10px] text-neutral-500 font-sans">触发价</div>
+                      <div className="text-neutral-300 font-medium mt-0.5">
                         {fmtPrice(prices.triggerPrice)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-gray-400 font-sans">现价</div>
+                      <div className="text-[10px] text-neutral-500 font-sans">现价</div>
                       <div className="text-emerald-600 font-bold mt-0.5">
                         {fmtPrice(prices.currentPrice)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-gray-400 font-sans">止损价</div>
+                      <div className="text-[10px] text-neutral-500 font-sans">止损价</div>
                       <div className="text-rose-600 font-medium mt-0.5">
                         {fmtPrice(prices.stopLossPrice)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-gray-400 font-sans">目标价</div>
+                      <div className="text-[10px] text-neutral-500 font-sans">目标价</div>
                       <div className="text-sky-600 font-medium mt-0.5">
                         {fmtPrice(prices.targetPrice)}
                       </div>
@@ -639,13 +773,275 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
       </div>
 
       {/* 底部紧凑状态 */}
-      <div className="px-3 py-2 border-t border-gray-200 bg-white text-[10px] text-gray-500 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-gray-600">
+      <div className="px-3 py-2 border-t border-neutral-800 bg-neutral-900 text-[10px] text-neutral-400 flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-neutral-400">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>{paperNotConnected ? '信号仅展示 · 执行入口已关闭' : '点击信号联动定位行情与开仓'}</span>
         </span>
-        <span className="font-mono text-gray-400">实时推送</span>
+        <span className="font-mono text-neutral-500">实时推送</span>
       </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 空态诊断（SIGNAL-UI-LINK-07）
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * 「没有可执行信号」时**必须说清是哪一种没有**。
+ *
+ * 三种情况在旧版里全显示成一句「暂无实时信号」，等于把信息删掉：
+ *   ① 引擎在正常等待（箱体没成形 / 冷却中 / 等下一根 4h）；
+ *   ② 候选产生过，但过期或早于启用时点 ⇒ 按纪律不补开；
+ *   ③ 接口失败（这一种由 `signalsError` 分支单独表达，不会落到本组件）。
+ *
+ * 数据全部来自 `/paper/status` 的 `signal_engine`，**不在前端重算任何判据**；
+ * 字段缺失时显式写「未提供」，不拿 0 或「无」冒充。
+ */
+const STAGE_CN: Record<string, string> = {
+  IDLE: '空转',
+  BOX: '箱体观察',
+  SWEEP: '已扫低',
+  RETEST: '待突破',
+  BREAKOUT_EVAL: '突破评估',
+  CANDIDATE: '候选',
+};
+
+const IDLE_CN: Record<string, string> = {
+  IDLE_COOLING: '冷却中（距上次事件不足 24h）',
+  IDLE_WAIT_BOX: '箱体条件未满足（宽度或 ER 超阈）',
+  IDLE_READY_BOX: '条件已满足，等下一根 4h 收盘建档',
+  IDLE_DEAD_BARS: '数据坏死（连续零成交平价 bar）',
+  IDLE_ATR_INVALID: 'ATR 无效（无法定价）',
+};
+
+const DISCARD_CN: Record<string, string> = {
+  before_paper_epoch_no_backfill: '早于模拟盘启用时点（按纪律不补开）',
+  missed_fill_moment_no_backfill: '已错过成交时点（超出 1h 成交时效）',
+};
+
+const DiagRow: React.FC<{ label: string; value: React.ReactNode; mono?: boolean }> = ({
+  label,
+  value,
+  mono = true,
+}) => (
+  <div className="flex items-start justify-between gap-2">
+    <span className="text-neutral-500 shrink-0">{label}</span>
+    <span className={`text-right text-neutral-300 break-all ${mono ? 'font-mono' : ''}`}>{value}</span>
+  </div>
+);
+
+const EmptyStateWithDiagnostics: React.FC<{
+  diagnostics: ExecutionDaemonView | null;
+  pending?: boolean;
+}> = ({ diagnostics, pending = false }) => {
+  const [showDiscarded, setShowDiscarded] = useState(false);
+  const d = diagnostics;
+
+  const funnel = (d?.funnel ?? null) as {
+    since_start?: Record<string, number>;
+    history?: Record<string, number>;
+    last_candidate_utc?: string | null;
+  } | null;
+  const idle = (d?.idleBreakdown ?? null) as {
+    counts?: Record<string, number>;
+    sample?: Record<string, { reason?: string; actual?: string; threshold?: string }>;
+  } | null;
+
+  const ss = funnel?.since_start ?? null;
+  const hi = funnel?.history ?? null;
+  const num = (v: unknown): string => (typeof v === 'number' ? String(v) : '—');
+
+  const stageText = d?.stateCounter
+    ? Object.entries(d.stateCounter)
+        .filter(([, n]) => typeof n === 'number' && n > 0)
+        .sort((a, b) => (b[1] as number) - (a[1] as number))
+        .map(([k, n]) => `${STAGE_CN[k] ?? k} ${n}`)
+        .join(' · ')
+    : '未提供';
+
+  const idleText = idle?.counts
+    ? Object.entries(idle.counts)
+        .filter(([, n]) => typeof n === 'number' && n > 0)
+        .map(([k, n]) => `${IDLE_CN[k] ?? k} ${n}`)
+        .join('；')
+    : '未提供';
+
+  const sampleEntry = idle?.sample ? Object.entries(idle.sample)[0] : undefined;
+  const discarded = d?.discardedCandidates ?? [];
+
+  return (
+    <div
+      data-testid="signal-empty"
+      className="mt-6 mx-1 p-6 rounded-lg border border-dashed border-neutral-800 bg-neutral-900/60 text-center"
+    >
+      <div className="text-xs font-medium text-neutral-300">暂无交易信号</div>
+
+      <details className="mt-3 group text-left">
+        <summary className="text-[10px] text-neutral-500 hover:text-neutral-300 cursor-pointer select-none inline-flex items-center gap-1">
+          <span>查看诊断与历史候选明细</span>
+          <span className="text-[9px] text-neutral-600 group-open:hidden">▼</span>
+          <span className="text-[9px] text-neutral-600 hidden group-open:inline">▲</span>
+        </summary>
+
+        <div className="mt-2.5 pt-2.5 border-t border-neutral-800/80">
+          <div className="text-[10px] text-neutral-500 mb-2 leading-relaxed">
+            诊断说明：展示引擎处理进度与未触发原因。历史候选均已丢弃不可执行，不混入当前有效信号。
+          </div>
+
+          {!d ? (
+            pending ? (
+              <div
+                className="py-1 text-[10px] text-neutral-400 leading-relaxed"
+                data-testid="signal-empty-pending"
+              >
+                正在读取逐币诊断（守护状态接口首次返回较慢）…
+              </div>
+            ) : (
+              <div
+                className="py-1 text-[10px] text-amber-400 leading-relaxed"
+                data-testid="signal-empty-nodiag"
+              >
+                逐币诊断未取到（解释暂时缺失，不代表接口故障）。
+              </div>
+            )
+          ) : (
+            <div className="space-y-1.5 text-[10px]" data-testid="signal-empty-diagnostics">
+              <DiagRow
+                label="最近处理到"
+                value={`1h ${fmtCompactUtc(d.watermark?.h1Utc)} · 4h ${fmtCompactUtc(d.watermark?.h4Utc)}`}
+              />
+              <DiagRow
+                label="行情最新"
+                value={`1h ${fmtCompactUtc(d.marketLatest?.close1hUtc)} · 4h ${fmtCompactUtc(
+                  d.marketLatest?.close4hUtc,
+                )}`}
+              />
+              <DiagRow label="当前阶段" value={stageText} mono={false} />
+              <DiagRow
+                label="本进程漏斗"
+                value={`箱体 ${num(ss?.BOX)} → 扫低 ${num(ss?.SWEEP)} → 回踩 ${num(
+                  ss?.RETEST,
+                )} → 候选 ${num(ss?.CANDIDATE)}`}
+              />
+              <DiagRow
+                label="历史回放"
+                value={`箱体 ${num(hi?.BOX)} → 扫低 ${num(hi?.SWEEP)} → 回踩 ${num(
+                  hi?.RETEST,
+                )} → 候选 ${num(hi?.CANDIDATE)}（丢弃 ${num(d.replayCandidates)} · 恢复 ${num(
+                  d.recoveredCandidates,
+                )}）`}
+              />
+              <DiagRow
+                label="最近候选"
+                value={
+                  d.lastCandidateUtc
+                    ? `${fmtCompactUtc(d.lastCandidateUtc)}`
+                    : '本次启动后没有产生候选'
+                }
+              />
+              <DiagRow label="空转原因" value={idleText} mono={false} />
+              {sampleEntry ? (
+                <DiagRow
+                  label="样例"
+                  value={`${sampleEntry[0]}：${IDLE_CN[sampleEntry[1]?.reason ?? ''] ?? sampleEntry[1]?.reason ?? '—'}（实际 ${
+                    sampleEntry[1]?.actual ?? '—'
+                  } / 阈值 ${sampleEntry[1]?.threshold ?? '—'}）`}
+                  mono={false}
+                />
+              ) : null}
+
+              {discarded.length > 0 ? (
+                <div className="pt-1.5 border-t border-neutral-800">
+                  <button
+                    type="button"
+                    data-testid="signal-discarded-toggle"
+                    onClick={() => setShowDiscarded((v) => !v)}
+                    className="text-[10px] text-sky-400 hover:text-sky-300 hover:underline"
+                  >
+                    {showDiscarded ? '收起' : '展开'}历史回放候选明细（{discarded.length} 条，均不可执行）
+                  </button>
+                  {showDiscarded ? (
+                    <div className="mt-1.5 max-h-56 overflow-y-auto space-y-1" data-testid="signal-discarded-list">
+                      {discarded.map((c) => (
+                        <div
+                          key={c.candidateId}
+                          data-testid="signal-discarded-row"
+                          data-candidate-id={c.candidateId}
+                          className="rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-[9px] text-neutral-400 space-y-0.5"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-neutral-200">{c.symbol}</span>
+                            <span>{fmtCompactUtc(c.snapshotUtc)}</span>
+                          </div>
+                          <div className="text-neutral-500 break-all">{c.candidateId}</div>
+                          <div className="text-rose-400/80 font-sans">
+                            {c.discardReasons.length > 0
+                              ? c.discardReasons.map((r) => DISCARD_CN[r] ?? r).join('；')
+                              : '原因未提供'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </details>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 故障块（SIGNAL-UI-LINK-07-R1）
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * 接口出问题时**必须说清是哪一种问题**。
+ *
+ * 旧实现把所有异常压成一句「实时信号接口读取异常」，而业务异常（HTTP 200 +
+ * `quality.status=no_watermark`）连这句都没有 —— 直接被当成空列表。
+ *
+ * 六种故障各有独立标题与「这不是什么」提示，`data-error-kind` 供验收脚本确定性读取。
+ */
+const SignalsFaultBox: React.FC<{ state: Extract<SignalsState, { kind: 'fault' }> }> = ({
+  state,
+}) => {
+  const t = SIGNALS_FAULT_TEXT[state.fault];
+  return (
+    <div
+      data-testid="signal-error"
+      data-error-kind={state.fault}
+      data-error-status={state.status ?? ''}
+      className="mt-4 mx-1 p-3 rounded-lg border border-rose-500/30 bg-rose-950/20 text-center space-y-1.5"
+    >
+      <div className="flex items-center justify-center gap-2 text-xs font-semibold text-rose-400">
+        <span>信号读取失败</span>
+        <span className="text-rose-500/50">·</span>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="text-rose-300 hover:underline cursor-pointer"
+        >
+          重试
+        </button>
+      </div>
+      <details className="text-left group pt-1 border-t border-rose-900/30">
+        <summary className="text-[10px] text-neutral-400 hover:text-neutral-200 cursor-pointer select-none inline-flex items-center gap-1">
+          <span>错误详情 ({t.title})</span>
+          <span className="text-[9px] text-neutral-500">▼</span>
+        </summary>
+        <div className="mt-1.5 space-y-1 text-[10px] text-neutral-400 font-mono">
+          <div className="break-all">{state.message}</div>
+          <div className="text-neutral-500 font-sans">{t.hint}</div>
+          {state.detail && state.detail !== state.message ? (
+            <div className="text-neutral-500 break-all text-[9px] pt-1">
+              接口原文: {state.detail}
+            </div>
+          ) : null}
+        </div>
+      </details>
     </div>
   );
 };

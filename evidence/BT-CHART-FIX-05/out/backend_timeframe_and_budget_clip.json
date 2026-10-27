@@ -1,0 +1,359 @@
+{
+  "task": "BT-CHART-FIX-05",
+  "section": "backend_timeframe_and_budget_clip",
+  "checks": [
+    {
+      "id": "CHART_TF_WHITELIST",
+      "name": "周期白名单包含 30m，支持 15m/30m/1h/4h 四个周期",
+      "pass": true,
+      "detail": {
+        "allowed_tfs": [
+          "4h",
+          "1h",
+          "30m",
+          "15m"
+        ]
+      }
+    },
+    {
+      "id": "TF_STEP_BCH_15m",
+      "name": "标的 BCH 在周期 15m 下时间戳步长严格为 900000ms (15分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "BCH",
+        "tf": "15m",
+        "status_code": 200,
+        "candles_count": 737,
+        "expected_step_ms": 900000,
+        "first_diffs_ms": [
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000
+        ],
+        "display_timeframe": "15m",
+        "candles_timeframe": "15m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_BCH_30m",
+      "name": "标的 BCH 在周期 30m 下时间戳步长严格为 1800000ms (30分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "BCH",
+        "tf": "30m",
+        "status_code": 200,
+        "candles_count": 368,
+        "expected_step_ms": 1800000,
+        "first_diffs_ms": [
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000
+        ],
+        "display_timeframe": "30m",
+        "candles_timeframe": "30m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_BCH_1h",
+      "name": "标的 BCH 在周期 1h 下时间戳步长严格为 3600000ms (60分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "BCH",
+        "tf": "1h",
+        "status_code": 200,
+        "candles_count": 184,
+        "expected_step_ms": 3600000,
+        "first_diffs_ms": [
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000
+        ],
+        "display_timeframe": "1h",
+        "candles_timeframe": "1h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_BCH_4h",
+      "name": "标的 BCH 在周期 4h 下时间戳步长严格为 14400000ms (240分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "BCH",
+        "tf": "4h",
+        "status_code": 200,
+        "candles_count": 46,
+        "expected_step_ms": 14400000,
+        "first_diffs_ms": [
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000
+        ],
+        "display_timeframe": "4h",
+        "candles_timeframe": "4h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_COMP_15m",
+      "name": "标的 COMP 在周期 15m 下时间戳步长严格为 900000ms (15分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "COMP",
+        "tf": "15m",
+        "status_code": 200,
+        "candles_count": 20000,
+        "expected_step_ms": 900000,
+        "first_diffs_ms": [
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000
+        ],
+        "display_timeframe": "15m",
+        "candles_timeframe": "15m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_COMP_30m",
+      "name": "标的 COMP 在周期 30m 下时间戳步长严格为 1800000ms (30分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "COMP",
+        "tf": "30m",
+        "status_code": 200,
+        "candles_count": 20000,
+        "expected_step_ms": 1800000,
+        "first_diffs_ms": [
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000
+        ],
+        "display_timeframe": "30m",
+        "candles_timeframe": "30m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_COMP_1h",
+      "name": "标的 COMP 在周期 1h 下时间戳步长严格为 3600000ms (60分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "COMP",
+        "tf": "1h",
+        "status_code": 200,
+        "candles_count": 15385,
+        "expected_step_ms": 3600000,
+        "first_diffs_ms": [
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000
+        ],
+        "display_timeframe": "1h",
+        "candles_timeframe": "1h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_COMP_4h",
+      "name": "标的 COMP 在周期 4h 下时间戳步长严格为 14400000ms (240分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "COMP",
+        "tf": "4h",
+        "status_code": 200,
+        "candles_count": 3846,
+        "expected_step_ms": 14400000,
+        "first_diffs_ms": [
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000
+        ],
+        "display_timeframe": "4h",
+        "candles_timeframe": "4h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_CHZ_15m",
+      "name": "标的 CHZ 在周期 15m 下时间戳步长严格为 900000ms (15分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "CHZ",
+        "tf": "15m",
+        "status_code": 200,
+        "candles_count": 20000,
+        "expected_step_ms": 900000,
+        "first_diffs_ms": [
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000,
+          900000
+        ],
+        "display_timeframe": "15m",
+        "candles_timeframe": "15m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_CHZ_30m",
+      "name": "标的 CHZ 在周期 30m 下时间戳步长严格为 1800000ms (30分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "CHZ",
+        "tf": "30m",
+        "status_code": 200,
+        "candles_count": 20000,
+        "expected_step_ms": 1800000,
+        "first_diffs_ms": [
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000,
+          1800000
+        ],
+        "display_timeframe": "30m",
+        "candles_timeframe": "30m",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_CHZ_1h",
+      "name": "标的 CHZ 在周期 1h 下时间戳步长严格为 3600000ms (60分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "CHZ",
+        "tf": "1h",
+        "status_code": 200,
+        "candles_count": 20000,
+        "expected_step_ms": 3600000,
+        "first_diffs_ms": [
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000,
+          3600000
+        ],
+        "display_timeframe": "1h",
+        "candles_timeframe": "1h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "TF_STEP_CHZ_4h",
+      "name": "标的 CHZ 在周期 4h 下时间戳步长严格为 14400000ms (240分钟)",
+      "pass": true,
+      "detail": {
+        "symbol": "CHZ",
+        "tf": "4h",
+        "status_code": 200,
+        "candles_count": 5832,
+        "expected_step_ms": 14400000,
+        "first_diffs_ms": [
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000,
+          14400000
+        ],
+        "display_timeframe": "4h",
+        "candles_timeframe": "4h",
+        "candles_scope": "market_continuous"
+      }
+    },
+    {
+      "id": "BUDGET_CLIP_LOGIC_PASS",
+      "name": "预算裁剪分支严格从离 run 最远端开始裁剪，run 区间完整保全",
+      "pass": true,
+      "detail": {
+        "initial_candidates": 200,
+        "target_budget": 60,
+        "clipped_pre_len": 30,
+        "clipped_post_len": 30,
+        "run_bars_count": 50,
+        "run_bars_fully_preserved": true,
+        "pre_cut_from_farthest": true,
+        "post_cut_from_farthest": true
+      }
+    }
+  ],
+  "all_passed": true
+}

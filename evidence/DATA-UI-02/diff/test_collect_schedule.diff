@@ -1,0 +1,279 @@
+diff --git "a/\346\241\206\346\236\266/backend/tests/test_collect_schedule.py" "b/\346\241\206\346\236\266/backend/tests/test_collect_schedule.py"
+new file mode 100644
+index 0000000..366935b
+--- /dev/null
++++ "b/\346\241\206\346\236\266/backend/tests/test_collect_schedule.py"
+@@ -0,0 +1,273 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""DATA-UI-02：采集端的两处订正 —— 标的选取依据、OI 节流（试过并回退）。
++
++判据：
++  · 标的选取按 **24h 成交额**降序，不再按 ASCII 升序（原来取到的是 0-9/A 开头的冷门币）；
++  · 成交额是滚动值 ⇒ 必须同时要求价格流仍在更新，否则下市标的会凭旧成交额长期占名额；
++  · 行情表缺失/为空时**回退字母序**，不能让采集停摆；
++  · 主流清单必须并入且去重；
++  · OI 节流**已回退**：它从未触发、且会把 OI 占空比抬高，不得再加回来。
++"""
++import os
++import sqlite3
++import sys
++import tempfile
++import unittest
++from pathlib import Path
++
++BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++FRAMEWORK = os.path.dirname(BACKEND)
++for p in (BACKEND, FRAMEWORK):
++    if p not in sys.path:
++        sys.path.insert(0, p)
++
++
++def _make_quotes_db(path, rows, with_price_time=True):
++    """rows = (symbol, quote_volume_24h[, price_age_ms])；age 省略视为刚更新。"""
++    con = sqlite3.connect(path)
++    try:
++        cols = "exchange TEXT, symbol TEXT, quote_volume_24h TEXT"
++        if with_price_time:
++            cols += ", price_event_time TEXT"
++        con.execute(f"CREATE TABLE realtime_quotes ({cols})")
++        newest = 1_792_297_000_000
++        out = []
++        for item in rows:
++            sym, vol = item[0], item[1]
++            age = item[2] if len(item) > 2 else 0
++            if with_price_time:
++                out.append(("binance", sym, str(vol), str(newest - age)))
++            else:
++                out.append(("binance", sym, str(vol)))
++        ph = "?" * (4 if with_price_time else 3)
++        con.executemany(
++            f"INSERT INTO realtime_quotes VALUES ({','.join(ph)})", out)
++        con.commit()
++    finally:
++        con.close()
++
++
++class LiquiditySelectionTest(unittest.TestCase):
++    """判据 1：标的必须按流动性选，不按字母序。"""
++
++    def setUp(self):
++        import realtime_collector as rc
++        self.rc = rc
++        self.tmp = tempfile.mkdtemp(prefix="ui02_db_")
++        self.db = os.path.join(self.tmp, "market_v2.sqlite3")
++        _make_quotes_db(self.db, [
++            ("0GUSDT", 2_456_887),          # 字母序最前，但成交额极小
++            ("1000CATUSDT", 318_428),
++            ("AGTUSDT", 737_682_322),
++            ("BTCUSDT", 4_303_811_323),
++            ("ETHUSDT", 4_527_136_550),
++            ("ZECUSDT", 1_187_101_327),
++            ("AAAUSDT", 0),                 # 成交额为 0 ⇒ 不参与排序
++            ("BBBUSDT", None),
++        ])
++        self._orig_db = rc.DB
++        rc.DB = self.db
++
++    def tearDown(self):
++        self.rc.DB = self._orig_db
++        import shutil
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def test_ranked_by_quote_volume_desc(self):
++        got = self.rc._liquidity_ranked_symbols(3)
++        self.assertEqual(got, ["ETHUSDT", "BTCUSDT", "ZECUSDT"],
++                         "必须按 24h 成交额降序")
++
++    def test_zero_and_null_volume_excluded(self):
++        got = self.rc._liquidity_ranked_symbols(10)
++        self.assertNotIn("AAAUSDT", got, "成交额为 0 的不得入选")
++        self.assertNotIn("BBBUSDT", got, "成交额为空/非数字的不得入选")
++
++    def test_head_symbols_prefer_liquidity(self):
++        universe = {"binance_coins": ["0GUSDT", "1000CATUSDT", "AGTUSDT",
++                                      "BTCUSDT", "ETHUSDT", "ZECUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=3)
++        self.assertEqual(got[:3], ["ETHUSDT", "BTCUSDT", "ZECUSDT"],
++                         "前 N 个必须是成交额最大的")
++        self.assertNotIn("0GUSDT", got, "冷门币不得因字母序靠前而入选")
++
++    def test_head_symbols_include_majors_without_duplicates(self):
++        universe = {"binance_coins": ["BTCUSDT", "ETHUSDT", "AGTUSDT", "ZECUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=2)
++        self.assertEqual(len(got), len(set(got)), "不得重复")
++        self.assertIn("ETHUSDT", got)
++        self.assertIn("BTCUSDT", got, "主流清单必须并入")
++
++    def test_fallback_to_alphabetical_when_db_missing(self):
++        self.rc.DB = os.path.join(self.tmp, "nope.sqlite3")
++        universe = {"binance_coins": ["BUSDT", "AUSDT", "CUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=2)
++        self.assertEqual(got[:2], ["AUSDT", "BUSDT"],
++                         "行情表不可用时必须回退字母序，不能返回空")
++
++    def test_fallback_when_table_absent(self):
++        p = os.path.join(self.tmp, "empty.sqlite3")
++        sqlite3.connect(p).close()
++        self.rc.DB = p
++        universe = {"binance_coins": ["BUSDT", "AUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=2)
++        self.assertEqual(got, ["AUSDT", "BUSDT"], "无表时必须回退字母序")
++
++    def test_ranked_excludes_non_universe(self):
++        """行情表里的标的可能多于 universe（含指数等），必须按 universe 过滤。"""
++        universe = {"binance_coins": ["BTCUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=5)
++        for s in got:
++            self.assertIn(s, universe["binance_coins"] + list(self.rc.PUBLIC_EXTRAS_MAJORS))
++
++    def test_pinned_symbols_always_present(self):
++        """流动性不高但必须长期可观测的标的（验收/界面快捷按钮）不能被挤出。"""
++        # 1000CAT 成交额极低，按流动性进不了前 3
++        universe = {"binance_coins": ["1000CATUSDT", "BTCUSDT", "ETHUSDT", "ZECUSDT"]}
++        got = self.rc.public_extras_head_symbols(universe, n=3)
++        self.assertIn("1000CATUSDT", got, "固定观测清单必须并入")
++        self.assertEqual(len(got), len(set(got)), "不得重复")
++
++    def test_pinned_come_right_after_majors_in_rotation(self):
++        """轮转队首：主流 → 固定观测 → 其余。"""
++        syms = list(self.rc.PUBLIC_EXTRAS_MAJORS) + ["1000CATUSDT", "ZZZUSDT"]
++        order = self.rc.public_extras_ratio_order(syms)
++        self.assertEqual(order[:len(self.rc.PUBLIC_EXTRAS_MAJORS)],
++                         list(self.rc.PUBLIC_EXTRAS_MAJORS))
++        self.assertEqual(order[len(self.rc.PUBLIC_EXTRAS_MAJORS)], "1000CATUSDT")
++
++
++class LiquidityLivenessTest(unittest.TestCase):
++    """判据 1b：成交额是滚动值，下市/停更的标的不能凭旧成交额一直占着名额。
++
++    现场（2026-10-18 实测）：`PUMPBTCUSDT`、`1000000BOBUSDT`、`PROMPTUSDT`
++    价格时间停在 2026-10-05，成交额仍是 1 亿以上，按成交额排序稳定进前 60，
++    但它们没有 K 线 ⇒ 指标永远缺。
++    """
++
++    def setUp(self):
++        import realtime_collector as rc
++        self.rc = rc
++        self.tmp = tempfile.mkdtemp(prefix="ui02_live_")
++        self.db = os.path.join(self.tmp, "market_v2.sqlite3")
++        self._orig_db = rc.DB
++
++    def tearDown(self):
++        self.rc.DB = self._orig_db
++        import shutil
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def test_delisted_with_stale_price_excluded(self):
++        _make_quotes_db(self.db, [
++            ("BTCUSDT", 4_303_811_323),
++            ("ETHUSDT", 4_527_136_550),
++            # 成交额很大，但价格时间停在 13 天前 ⇒ 已停更
++            ("PUMPBTCUSDT", 132_534_292, 13 * 24 * 3600 * 1000),
++            ("1000000BOBUSDT", 106_332_023, 13 * 24 * 3600 * 1000),
++        ])
++        self.rc.DB = self.db
++        got = self.rc._liquidity_ranked_symbols(10)
++        self.assertEqual(got, ["ETHUSDT", "BTCUSDT"], "停更标的必须排除")
++        self.assertNotIn("PUMPBTCUSDT", got)
++
++    def test_fresh_symbol_with_lower_volume_kept(self):
++        """排除只看「活不活」，不看金额大小：活着的低额标的照常入选。"""
++        _make_quotes_db(self.db, [
++            ("BTCUSDT", 4_303_811_323),
++            ("1000CATUSDT", 318_428),
++            ("DEADUSDT", 900_000_000, 3 * 24 * 3600 * 1000),
++        ])
++        self.rc.DB = self.db
++        got = self.rc._liquidity_ranked_symbols(10)
++        self.assertIn("1000CATUSDT", got)
++        self.assertNotIn("DEADUSDT", got)
++
++    def test_old_schema_without_price_column_still_ranks(self):
++        """老库没有 price_event_time 列 ⇒ 退回只按成交额排，不能返回空。"""
++        _make_quotes_db(self.db, [
++            ("BTCUSDT", 4_303_811_323),
++            ("ETHUSDT", 4_527_136_550),
++        ], with_price_time=False)
++        self.rc.DB = self.db
++        self.assertEqual(self.rc._liquidity_ranked_symbols(2),
++                         ["ETHUSDT", "BTCUSDT"])
++
++
++class OiPacingRevertedTest(unittest.TestCase):
++    """判据 2：OI 节流**已回退** —— 别再把它加回来。
++
++    实测（DATA-UI-02）：把一轮摊到 interval 的 65% 内（目标 390s）从未触发，
++    因为 528 个请求实际要 ~545s；而把周期改成「按本轮开始计时」会让 OI 从
++    「一轮 + 空闲 600 秒」变成几乎不间断，更久地占住网关。所以保持原样。
++    """
++
++    def test_oi_sweep_takes_no_pacing_params(self):
++        import inspect
++        import realtime_collector as rc
++        sig = inspect.signature(rc.oi_sweep)
++        self.assertEqual(list(sig.parameters), ["gw", "universe"],
++                         "oi_sweep 不得再带 stop/interval_s 之类的节流参数")
++
++    def test_oi_loop_waits_full_interval_after_sweep(self):
++        import inspect
++        import realtime_collector as rc
++        src = inspect.getsource(rc.oi_loop)
++        self.assertIn("stop.wait(interval_s)", src,
++                      "必须跑完再等满 interval_s")
++        self.assertNotIn("interval_s - (time.monotonic() - t0)", src,
++                         "不得改成按本轮开始计时（会抬高 OI 占空比）")
++
++
++class TargetSetMergeTest(unittest.TestCase):
++    """判据 1c：每轮重算目标集合时，**轮转序必须稳定**。
++
++    现场（DATA-UI-02 实测）：`public_extras_head_symbols` 按 24h 成交额降序，
++    排名每轮都在漂。把 `symbols` 直接换成最新排名列表，会让环形游标的窗口在轮次间
++    错位 —— `PENGUUSDT` 在 6 轮（一个完整周期）里一次都没轮到，最后成功时间
++    停在上一代进程。所以只并入**增减**：存活项保持原相对顺序，新增追加末尾。
++    """
++
++    def setUp(self):
++        import realtime_collector as rc
++        self.rc = rc
++
++    def test_order_drift_does_not_change_rotation_order(self):
++        """集合相同、排名顺序变了 ⇒ 轮转序原样不动（否则窗口会错位）。"""
++        cur = ["A", "B", "C", "D"]
++        merged, added, dropped = self.rc.merge_target_symbols(cur, ["D", "A", "C", "B"])
++        self.assertEqual(merged, cur)
++        self.assertEqual((added, dropped), ([], []))
++
++    def test_new_symbols_appended_at_tail(self):
++        """新进入前 N 的标的追加末尾，不打乱已排好的顺序。"""
++        merged, added, dropped = self.rc.merge_target_symbols(
++            ["A", "B"], ["B", "NEW", "A"])
++        self.assertEqual(merged, ["A", "B", "NEW"])
++        self.assertEqual(added, ["NEW"])
++        self.assertEqual(dropped, [])
++
++    def test_dropped_symbol_removed_keeping_relative_order(self):
++        merged, added, dropped = self.rc.merge_target_symbols(
++            ["A", "B", "C"], ["C", "A"])
++        self.assertEqual(merged, ["A", "C"])
++        self.assertEqual(added, [])
++        self.assertEqual(dropped, ["B"])
++
++    def test_empty_fresh_keeps_current(self):
++        """上游给空集时不能把采集停掉（保持现有目标）。"""
++        merged, added, dropped = self.rc.merge_target_symbols(["A", "B"], [])
++        self.assertEqual(merged, ["A", "B"])
++        self.assertEqual((added, dropped), ([], []))
++
++    def test_full_cycle_covers_every_symbol(self):
++        """合并后固定序列 + 环形切片 ⇒ `ceil(N/12)` 轮覆盖全部，一个不漏。"""
++        syms = ["S%02d" % i for i in range(62)]
++        seen = set()
++        for r in range(6):
++            seen.update(self.rc.public_extras_ratio_window(syms, r, n=12))
++        self.assertEqual(seen, set(syms), "6 轮（每轮 12）必须覆盖全部 62 个")
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

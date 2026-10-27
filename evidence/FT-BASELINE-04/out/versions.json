@@ -1,0 +1,76 @@
+{
+    "work_order": "FT-BASELINE-04",
+    "title": "P0与资金费最小收尾",
+    "engine": "Freqtrade 2026.9",
+    "python_version": "Python 3.11.16",
+    "input_dataset_version": "WX-FT-IN-1.0 (evidence/FT-DATA-01)",
+    "symbols": [
+        "AR/USDT:USDT",
+        "BANANA/USDT:USDT",
+        "BAT/USDT:USDT",
+        "CTSI/USDT:USDT",
+        "PUMPBTC/USDT:USDT"
+    ],
+    "timerange": "20250801-20251231",
+    "review_status": "待Codex审核",
+    "closure_items": {
+        "p0_candidate_binding": "已彻底废除 actual_entry * 0.90 假止损；实现开仓前拒单与持仓异常报错；5 笔交易 100% 绑定真实 P0",
+        "funding_fee_audit": "完成 5 笔真实持仓 168 次资金费事件逐笔对账；彻底厘清 110次 vs 168次 历史成因与 Freqtrade 现金流符号定义",
+        "metrics_report_responsibility": "指标报告统一移交 Work 生成，本交付包不再维护另一套双口径指标",
+        "future_data_bias_check": "recursive-analysis 完全通过；lookahead-analysis 样本不足 10 笔，明确保留为【未完成】"
+    },
+    "files": {
+        "evidence/FT-BASELINE-04/user_data/strategies/WyckoffEventTrendBaseline.py": {
+            "size_bytes": 19614,
+            "sha256": "a67ccb659ac674e5a96b31222ac473f05b358165d42033dad622f3b08b628407"
+        },
+        "evidence/FT-BASELINE-04/user_data/config.json": {
+            "size_bytes": 1490,
+            "sha256": "a356a3cc8055cb7880ea7e89380ce92e5a40b85de73cc1609d57f999cc5eef8d"
+        },
+        "evidence/FT-BASELINE-04/user_data/config_smoke.json": {
+            "size_bytes": 1363,
+            "sha256": "00dc9e6925b67331a834118130778c7639409f4bd356c7488d26d55966bae6b3"
+        },
+        "evidence/FT-BASELINE-04/code/01_test_p0_and_stoploss_unit.py": {
+            "size_bytes": 7090,
+            "sha256": "c9f107b739089e03ca13112cba313916c9737c48c57f4e49a3350904acd8cbb6"
+        },
+        "evidence/FT-BASELINE-04/code/02_build_audit_tables.py": {
+            "size_bytes": 13070,
+            "sha256": "d3c3c1ba8607e617be4142879d91f09f58851140bed67f4fb3a91d27c5f6d450"
+        },
+        "evidence/FT-BASELINE-04/out/01_P0候选绑定与止损核对表.csv": {
+            "size_bytes": 2036,
+            "sha256": "b9a8af490313ab77e2bbb5a0705d1999ec929128d9650262a4df6a9fa778503c"
+        },
+        "evidence/FT-BASELINE-04/out/02_资金费逐事件核对表.csv": {
+            "size_bytes": 37366,
+            "sha256": "b6f9b9219249b367d04e43081a0853b4ff38534b0bebce40a4aee73dc5e3da68"
+        },
+        "evidence/FT-BASELINE-04/out/03_资金费按笔汇总对账表.csv": {
+            "size_bytes": 1950,
+            "sha256": "76b059ba4d18c7d0ed55f0c32bb7f06da752ece352b2ab3532b4556a6cb4ed1e"
+        },
+        "evidence/FT-BASELINE-04/out/04_freqtrade_trades.csv": {
+            "size_bytes": 4387,
+            "sha256": "1c0944687ef596a326d67f81eb22505d38d11a8e35404e4b65e59d8583b945b8"
+        },
+        "evidence/FT-BASELINE-04/logs/freqtrade_backtest_5symbols.log": {
+            "size_bytes": 37988,
+            "sha256": "747014d9448bee18156964f6f793dabadc31cb5ea7e3e10ac17fd402a93aae3a"
+        },
+        "evidence/FT-BASELINE-04/logs/recursive_analysis.log": {
+            "size_bytes": 22654,
+            "sha256": "89ac1fabeb247d0c39fe1b11231715a349574946cf1f9b49eefe4d5cdabd8a92"
+        },
+        "evidence/FT-BASELINE-04/logs/lookahead_analysis.log": {
+            "size_bytes": 18674,
+            "sha256": "06afa5f3841c0517b511620bd1c90ff9d94e9fca1bbb344ae202cdb6c14a1e17"
+        },
+        "evidence/FT-BASELINE-04/00_收尾报告.md": {
+            "size_bytes": 15800,
+            "sha256": "7ef3e387ca389dea7ec3bc8303affe6244ccf5526794861a7b3c0483f0d9d5a5"
+        }
+    }
+}

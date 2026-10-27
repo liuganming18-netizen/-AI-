@@ -1,0 +1,17 @@
+编号,视图名称,所属组件与路由,测试执行操作与断言,截图文件,截图SHA256(前16位),判定结果
+View 01,顶栏状态条,TopStatusBar.tsx (/),断言只读与UTC时钟，核对BTC/ETH行情API,view_01_top_status_bar.png,709a2ee41d320a77,通过
+View 02,实时信号流面板,SignalListPanel.tsx (/),断言渲染3张信号卡片，核对Spring/做多标签,view_02_signal_list_panel.png,8d0951525d49fe00,通过
+View 03,行情代币表9列,TokenTable.tsx (/),按页面首标的键匹配同次API响应，9列逐列比对,view_03_token_table.png,952eab863a8b1eeb,通过
+View 04,行内展开K线,InlineExpandedChart.tsx (/),展开K线，执行4h/1h切换并断言data-active,view_04_inline_expanded_chart.png,df3dbcdb3fbf1724,通过
+View 05,模拟持仓与守护,PositionPanel.tsx (/),读取沙盒账本1仓在持与真实守护PID,view_05_position_panel_and_daemon.png,d7ccc274a0f9d1cc,通过
+View 06,FT-LOW4H止损轨迹,PositionPanel.tsx (/),展开持仓止损面板，核对90500→93500轨迹记录,view_06_stop_trail.png,0936f38dfb06d250,通过
+View 07,门禁开关与挂单,PositionPanel.tsx (/),门禁暂停与恢复切换；挂单队列如实标注未验证,view_07_gate_and_pending.png,0936f38dfb06d250,部分通过(挂单队列未验证)
+View 08,数据中心概览,DataCenterView.tsx (/datacenter),核对17大维度与15正常2报错真实健康度,view_08_datacenter_overview.png,7a7b8f75ecaeab0e,通过
+View 09,全资产协同矩阵,DataCenterView.tsx (/datacenter),动态提取158多维标的/814全池/549在线真实数字,view_09_datacenter_matrix.png,7b83356eb301213d,通过
+View 10,待补数据清单,DataCenterView.tsx (/datacenter),核对白名单段数与0真实待补缺口,view_10_datacenter_gaps.png,3e16a2ef0d189c11,通过
+View 11,策略管理列表,StrategyManagementView.tsx (/strategy),独立切换至策略列表页签，断言生产策略卡片,view_11_strategy_list.png,bd3f4a9e7014f3b5,通过
+View 12,规则说明第02阶段,StrategyManagementView.tsx (/strategy),切换规则说明，精准点击第02阶段放量突破确认,view_12_strategy_rules.png,2a95de9d57ec4532,通过
+View 13,数据依赖清单,StrategyManagementView.tsx (/strategy),切换数据依赖页签，核对6类真实数据源卡片,view_13_strategy_deps.png,77abc71938678a01,通过
+View 14,版本对比矩阵,StrategyManagementView.tsx (/strategy),切换版本对比页签，核对当前策略与历史版本差异,view_14_strategy_versions.png,4163a89dabb93920,通过
+View 15,回测复盘工作台,BacktestWorkbench.tsx (/backtest),读取DOM展示run，与磁盘源产物逐字段对账,view_15_backtest_runs.png,085f4b73ed2cafdb,通过
+View 16,验收复盘Gate,BacktestReviewView.tsx (/backtest),如实记录Gate 4/6 PASS与未达M4正式放行声明,view_16_acceptance_review.png,ead3fd8b3f528285,通过

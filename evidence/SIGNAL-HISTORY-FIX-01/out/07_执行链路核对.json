@@ -1,0 +1,1204 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-01",
+  "stage": "ledger_audit",
+  "generated_at_utc": "2026-10-24T13:44:38Z",
+  "arm": "3a",
+  "ledger_dir": "None",
+  "ledger_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+  "tables": {
+    "live_signal": {
+      "exists": false,
+      "n": 0
+    },
+    "paper_pending": {
+      "exists": true,
+      "n": 3
+    },
+    "paper_order": {
+      "exists": true,
+      "n": 13
+    },
+    "paper_position": {
+      "exists": true,
+      "n": 3
+    },
+    "paper_fill": {
+      "exists": true,
+      "n": 6
+    },
+    "paper_realized": {
+      "exists": true,
+      "n": 3
+    },
+    "paper_blocked": {
+      "exists": true,
+      "n": 12
+    },
+    "paper_processed": {
+      "exists": true,
+      "n": 3
+    },
+    "paper_request_anchor": {
+      "exists": true,
+      "n": 7
+    },
+    "paper_stop_history": {
+      "exists": true,
+      "n": 0
+    },
+    "paper_equity": {
+      "exists": true,
+      "n": 6
+    }
+  },
+  "rows": [
+    {
+      "pending_id": 1,
+      "signal_uid": "sig_test_closeloop_01",
+      "symbol": "BTCUSDT",
+      "status": "rejected",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "earliest_fill_ms": 1792669319751,
+      "created_at": 1792668419754,
+      "_table": "paper_pending",
+      "_uid": "sig_test_closeloop_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "pending_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "reason",
+        "earliest_fill_ms",
+        "created_at"
+      ]
+    },
+    {
+      "pending_id": 2,
+      "signal_uid": "sig_closeloop_btc_1792668513",
+      "symbol": "BTCUSDT",
+      "status": "rejected",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "earliest_fill_ms": 1792669413352,
+      "created_at": 1792668513354,
+      "_table": "paper_pending",
+      "_uid": "sig_closeloop_btc_1792668513",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "pending_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "reason",
+        "earliest_fill_ms",
+        "created_at"
+      ]
+    },
+    {
+      "pending_id": 3,
+      "signal_uid": "sig_ui_test_1792668631241",
+      "symbol": "BTCUSDT",
+      "status": "rejected",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "earliest_fill_ms": 1792669531263,
+      "created_at": 1792668631270,
+      "_table": "paper_pending",
+      "_uid": "sig_ui_test_1792668631241",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "pending_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "reason",
+        "earliest_fill_ms",
+        "created_at"
+      ]
+    },
+    {
+      "order_id": 1,
+      "event_uid": "sig_closeloop_btc_1792668586",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "event_time": 1792665900000,
+      "first_request_ms": 1792665900000,
+      "_table": "paper_order",
+      "_uid": "sig_closeloop_btc_1792668586",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 2,
+      "event_uid": "sig_closeloop_btc_1792668605",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "event_time": 1792666800000,
+      "first_request_ms": 1792666800000,
+      "_table": "paper_order",
+      "_uid": "sig_closeloop_btc_1792668605",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 3,
+      "event_uid": "sig_ui_test_1792668684487",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "filled",
+      "reject_reason": null,
+      "event_time": 1792666800000,
+      "first_request_ms": 1792666800000,
+      "_table": "paper_order",
+      "_uid": "sig_ui_test_1792668684487",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 4,
+      "event_uid": "sig_test_closeloop_01",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_test_closeloop_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 5,
+      "event_uid": "sig_closeloop_btc_1792668513",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_closeloop_btc_1792668513",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 6,
+      "event_uid": "sig_ui_test_1792668631241",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_ui_test_1792668631241",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 7,
+      "event_uid": "sig_test_miss",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_test_miss",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 8,
+      "event_uid": "s1",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "s1",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 10,
+      "event_uid": "sig_test_bad",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_test_bad",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 11,
+      "event_uid": "sig_wrong_fp",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_wrong_fp",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 12,
+      "event_uid": "sig_override",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_override",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 17,
+      "event_uid": "sig_no_bar_001",
+      "symbol": "BTCUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "new_entry_blocked_pending_closure_review",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "sig_no_bar_001",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "order_id": 18,
+      "event_uid": "cand_20261002_velvet_01",
+      "symbol": "VELVETUSDT",
+      "side": "buy",
+      "status": "rejected",
+      "reject_reason": "before_paper_epoch_no_backfill",
+      "event_time": null,
+      "first_request_ms": null,
+      "_table": "paper_order",
+      "_uid": "cand_20261002_velvet_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "order_id",
+        "event_uid",
+        "symbol",
+        "side",
+        "status",
+        "reject_reason",
+        "event_time",
+        "first_request_ms"
+      ]
+    },
+    {
+      "position_id": 1,
+      "signal_uid": "sig_closeloop_btc_1792668586",
+      "symbol": "BTCUSDT",
+      "status": "closed",
+      "exit_reason": "manual_closeloop_test",
+      "entry_ts": 1792666800000,
+      "exit_ts": 1792667699999,
+      "_table": "paper_position",
+      "_uid": "sig_closeloop_btc_1792668586",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "exit_reason",
+        "entry_ts",
+        "exit_ts"
+      ]
+    },
+    {
+      "position_id": 2,
+      "signal_uid": "sig_closeloop_btc_1792668605",
+      "symbol": "BTCUSDT",
+      "status": "closed",
+      "exit_reason": "manual_closeloop_test",
+      "entry_ts": 1792667700000,
+      "exit_ts": 1792668599999,
+      "_table": "paper_position",
+      "_uid": "sig_closeloop_btc_1792668605",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "exit_reason",
+        "entry_ts",
+        "exit_ts"
+      ]
+    },
+    {
+      "position_id": 3,
+      "signal_uid": "sig_ui_test_1792668684487",
+      "symbol": "BTCUSDT",
+      "status": "closed",
+      "exit_reason": "ui_closeloop_verification",
+      "entry_ts": 1792667700000,
+      "exit_ts": 1792668599999,
+      "_table": "paper_position",
+      "_uid": "sig_ui_test_1792668684487",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "status",
+        "exit_reason",
+        "entry_ts",
+        "exit_ts"
+      ]
+    },
+    {
+      "fill_id": 1,
+      "order_id": 1,
+      "position_id": 1,
+      "signal_uid": "sig_closeloop_btc_1792668586",
+      "symbol": "BTCUSDT",
+      "action": "open",
+      "fill_price": 82033.1,
+      "qty": 0.006,
+      "fill_ts": 1792666860000,
+      "available_at": 1792665900000,
+      "_table": "paper_fill",
+      "_uid": "sig_closeloop_btc_1792668586",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "fill_id": 2,
+      "order_id": null,
+      "position_id": 1,
+      "signal_uid": "sig_closeloop_btc_1792668586",
+      "symbol": "BTCUSDT",
+      "action": "close",
+      "fill_price": 81888.0355,
+      "qty": 0.006,
+      "fill_ts": 1792668586661,
+      "available_at": 1792665900000,
+      "_table": "paper_fill",
+      "_uid": "sig_closeloop_btc_1792668586",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "fill_id": 3,
+      "order_id": 2,
+      "position_id": 2,
+      "signal_uid": "sig_closeloop_btc_1792668605",
+      "symbol": "BTCUSDT",
+      "action": "open",
+      "fill_price": 81970.0,
+      "qty": 0.006,
+      "fill_ts": 1792667760000,
+      "available_at": 1792666800000,
+      "_table": "paper_fill",
+      "_uid": "sig_closeloop_btc_1792668605",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "fill_id": 4,
+      "order_id": null,
+      "position_id": 2,
+      "signal_uid": "sig_closeloop_btc_1792668605",
+      "symbol": "BTCUSDT",
+      "action": "close",
+      "fill_price": 81803.2779,
+      "qty": 0.006,
+      "fill_ts": 1792668606013,
+      "available_at": 1792666800000,
+      "_table": "paper_fill",
+      "_uid": "sig_closeloop_btc_1792668605",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "fill_id": 5,
+      "order_id": 3,
+      "position_id": 3,
+      "signal_uid": "sig_ui_test_1792668684487",
+      "symbol": "BTCUSDT",
+      "action": "open",
+      "fill_price": 81970.0,
+      "qty": 0.006,
+      "fill_ts": 1792667760000,
+      "available_at": 1792666800000,
+      "_table": "paper_fill",
+      "_uid": "sig_ui_test_1792668684487",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "fill_id": 6,
+      "order_id": null,
+      "position_id": 3,
+      "signal_uid": "sig_ui_test_1792668684487",
+      "symbol": "BTCUSDT",
+      "action": "close",
+      "fill_price": 81803.2779,
+      "qty": 0.006,
+      "fill_ts": 1792668687677,
+      "available_at": 1792666800000,
+      "_table": "paper_fill",
+      "_uid": "sig_ui_test_1792668684487",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "fill_id",
+        "order_id",
+        "position_id",
+        "signal_uid",
+        "symbol",
+        "action",
+        "fill_price",
+        "qty",
+        "fill_ts",
+        "available_at"
+      ]
+    },
+    {
+      "position_id": 1,
+      "symbol": "BTCUSDT",
+      "_table": "paper_realized",
+      "_uid": "",
+      "_uid_kind": "empty",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "symbol"
+      ]
+    },
+    {
+      "position_id": 2,
+      "symbol": "BTCUSDT",
+      "_table": "paper_realized",
+      "_uid": "",
+      "_uid_kind": "empty",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "symbol"
+      ]
+    },
+    {
+      "position_id": 3,
+      "symbol": "BTCUSDT",
+      "_table": "paper_realized",
+      "_uid": "",
+      "_uid_kind": "empty",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "position_id",
+        "symbol"
+      ]
+    },
+    {
+      "id": 1,
+      "event_uid": "sig_test_closeloop_01",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792681842182,
+      "_table": "paper_blocked",
+      "_uid": "sig_test_closeloop_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 2,
+      "event_uid": "sig_closeloop_btc_1792668513",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792681842185,
+      "_table": "paper_blocked",
+      "_uid": "sig_closeloop_btc_1792668513",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 3,
+      "event_uid": "sig_ui_test_1792668631241",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792681842188,
+      "_table": "paper_blocked",
+      "_uid": "sig_ui_test_1792668631241",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 4,
+      "event_uid": "sig_test_miss",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792690764682,
+      "_table": "paper_blocked",
+      "_uid": "sig_test_miss",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 5,
+      "event_uid": "s1",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792690768323,
+      "_table": "paper_blocked",
+      "_uid": "s1",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 6,
+      "event_uid": "sig_test_miss",
+      "symbol": "BTCUSDT",
+      "reason": "rejected_by_config_contract: config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_contract_test/configs/non_existent_view.json",
+      "ts": 1792690819546,
+      "_table": "paper_blocked",
+      "_uid": "sig_test_miss",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 7,
+      "event_uid": "sig_test_bad",
+      "symbol": "BTCUSDT",
+      "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+      "ts": 1792690819565,
+      "_table": "paper_blocked",
+      "_uid": "sig_test_bad",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 8,
+      "event_uid": "sig_wrong_fp",
+      "symbol": "BTCUSDT",
+      "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+      "ts": 1792690819568,
+      "_table": "paper_blocked",
+      "_uid": "sig_wrong_fp",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 9,
+      "event_uid": "sig_override",
+      "symbol": "BTCUSDT",
+      "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+      "ts": 1792690819571,
+      "_table": "paper_blocked",
+      "_uid": "sig_override",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 10,
+      "event_uid": "sig_no_bar_001",
+      "symbol": "BTCUSDT",
+      "reason": "new_entry_blocked_pending_closure_review",
+      "ts": 1792724063839,
+      "_table": "paper_blocked",
+      "_uid": "sig_no_bar_001",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 11,
+      "event_uid": "cand_20261002_velvet_01",
+      "symbol": "VELVETUSDT",
+      "reason": "before_paper_epoch_no_backfill",
+      "ts": 1792831256684,
+      "_table": "paper_blocked",
+      "_uid": "cand_20261002_velvet_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    },
+    {
+      "id": 12,
+      "event_uid": "cand_20261002_velvet_01",
+      "symbol": "VELVETUSDT",
+      "reason": "bar_after_attempt_clock_no_lookahead",
+      "ts": 1792831268882,
+      "_table": "paper_blocked",
+      "_uid": "cand_20261002_velvet_01",
+      "_uid_kind": "test_or_other",
+      "_uid_is_real_candidate": false,
+      "_cols_used": [
+        "id",
+        "event_uid",
+        "symbol",
+        "reason",
+        "ts"
+      ]
+    }
+  ],
+  "schemas": {
+    "paper_pending": [
+      "pending_id",
+      "account_id",
+      "arm",
+      "symbol",
+      "direction",
+      "signal_uid",
+      "origin",
+      "atr",
+      "stop_price",
+      "event_time",
+      "available_at",
+      "requested_at",
+      "earliest_fill_ms",
+      "status",
+      "reason",
+      "created_at",
+      "resolved_at",
+      "fill_position_id",
+      "market_source",
+      "first_request_ms",
+      "epoch_ms",
+      "voided",
+      "void_reason",
+      "stoploss_s",
+      "trail_d",
+      "model_version",
+      "config_fingerprint",
+      "initial_stop_price"
+    ],
+    "paper_order": [
+      "order_id",
+      "account_id",
+      "event_uid",
+      "symbol",
+      "side",
+      "qty",
+      "price",
+      "fee",
+      "ts",
+      "status",
+      "reject_reason",
+      "fill_price",
+      "notional",
+      "bar_open_time",
+      "model_version",
+      "event_time",
+      "requested_at",
+      "market_source",
+      "first_request_ms",
+      "epoch_ms",
+      "voided",
+      "void_reason",
+      "stoploss_s",
+      "trail_d",
+      "config_fingerprint",
+      "config_source",
+      "initial_stop_price",
+      "planned_risk"
+    ],
+    "paper_position": [
+      "position_id",
+      "account_id",
+      "symbol",
+      "qty",
+      "entry_price",
+      "entry_ts",
+      "exit_ts",
+      "exit_reason",
+      "status",
+      "exit_price",
+      "entry_fee",
+      "exit_fee",
+      "funding_paid",
+      "signal_uid",
+      "arm",
+      "stop_price",
+      "atr_at_entry",
+      "model_version",
+      "event_time",
+      "available_at",
+      "requested_at",
+      "earliest_fill_ms",
+      "market_source",
+      "origin",
+      "first_request_ms",
+      "epoch_ms",
+      "voided",
+      "void_reason",
+      "stoploss_s",
+      "trail_d",
+      "config_fingerprint",
+      "initial_stop_price",
+      "planned_risk"
+    ],
+    "paper_fill": [
+      "fill_id",
+      "account_id",
+      "order_id",
+      "position_id",
+      "signal_uid",
+      "symbol",
+      "action",
+      "qty",
+      "raw_price",
+      "fill_price",
+      "notional",
+      "fee",
+      "slippage_cost",
+      "bar_open_time",
+      "bar_close_time",
+      "fill_ts",
+      "model_version",
+      "event_time",
+      "available_at",
+      "requested_at",
+      "market_source",
+      "first_request_ms",
+      "epoch_ms",
+      "voided",
+      "void_reason",
+      "stoploss_s",
+      "trail_d",
+      "config_fingerprint",
+      "initial_stop_price",
+      "planned_risk"
+    ],
+    "paper_realized": [
+      "id",
+      "account_id",
+      "position_id",
+      "symbol",
+      "qty",
+      "entry_price",
+      "exit_price",
+      "gross_pnl",
+      "entry_fee",
+      "exit_fee",
+      "funding_paid",
+      "net_pnl",
+      "entry_ts",
+      "exit_ts",
+      "exit_reason",
+      "ts",
+      "voided",
+      "void_reason"
+    ],
+    "paper_blocked": [
+      "id",
+      "account_id",
+      "event_uid",
+      "symbol",
+      "reason",
+      "ts"
+    ],
+    "paper_processed": [
+      "signal_uid",
+      "arm",
+      "action",
+      "detail",
+      "ts"
+    ],
+    "paper_request_anchor": [
+      "account_id",
+      "event_uid",
+      "first_request_ms",
+      "created_at"
+    ],
+    "paper_stop_history": [
+      "id",
+      "account_id",
+      "position_id",
+      "old_stop",
+      "new_stop",
+      "reason",
+      "ref_bar_open_ms",
+      "available_at",
+      "decision_at",
+      "effective_at",
+      "created_at"
+    ],
+    "paper_equity": [
+      "ts",
+      "account_id",
+      "cash",
+      "unrealized",
+      "equity",
+      "voided"
+    ]
+  },
+  "per_table_source": {
+    "paper_pending": {
+      "rows": 3,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 3,
+      "empty": 0
+    },
+    "paper_order": {
+      "rows": 13,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 13,
+      "empty": 0
+    },
+    "paper_position": {
+      "rows": 3,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 3,
+      "empty": 0
+    },
+    "paper_fill": {
+      "rows": 6,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 6,
+      "empty": 0
+    },
+    "paper_realized": {
+      "rows": 3,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 0,
+      "empty": 3
+    },
+    "paper_blocked": {
+      "rows": 12,
+      "real_candidate": 0,
+      "real_event": 0,
+      "test_or_other": 12,
+      "empty": 0
+    }
+  },
+  "distributions": {
+    "paper_pending.status": {
+      "rejected": 3
+    },
+    "paper_pending.reason": {
+      "new_entry_blocked_pending_closure_review": 3
+    },
+    "paper_order.status": {
+      "filled": 3,
+      "rejected": 10
+    },
+    "paper_order.reject_reason": {
+      "None": 3,
+      "new_entry_blocked_pending_closure_review": 6,
+      "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)": 1,
+      "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配": 1,
+      "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)": 1,
+      "before_paper_epoch_no_backfill": 1
+    },
+    "paper_position.status": {
+      "closed": 3
+    },
+    "paper_position.exit_reason": {
+      "manual_closeloop_test": 2,
+      "ui_closeloop_verification": 1
+    },
+    "paper_blocked.reason": {
+      "new_entry_blocked_pending_closure_review": 6,
+      "rejected_by_config_contract: config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_contract_test/configs/non_existent_view.json": 1,
+      "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)": 1,
+      "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配": 1,
+      "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)": 1,
+      "before_paper_epoch_no_backfill": 1,
+      "bar_after_attempt_clock_no_lookahead": 1
+    },
+    "paper_fill.action": {
+      "open": 3,
+      "close": 3
+    }
+  },
+  "verdict": {
+    "real_candidate_signals_in_ledger": 0,
+    "rows_attributable_to_real_candidate_anywhere": 0,
+    "rows_attributable_to_real_event_only": 0,
+    "fills_total": 6,
+    "conclusion": "账本内没有任何一行由**引擎真实候选**驱动",
+    "identity_gap": "`paper_order` / `paper_blocked` 只有 `event_uid`（事件级），没有 `signal_uid`（候选级）⇒ 即使有真实候选，订单表也无法按候选逐条对账；逐次成交事件只在 `paper_fill` 里，两者不可互相代替。",
+    "discipline": "订单级记录（paper_order）与逐次成交事件（paper_fill）分开计数；`paper_position` 全部为测试驱动时，不得表述为「成交链路已打通」。"
+  }
+}

@@ -1,0 +1,24 @@
+# 2026-10-21 CODE-REVIEW-02 · 后端重启后 API 实测（修复前/后对照）
+
+## GET /api/v1/backtests?limit=3（修复后）
+run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107
+  status: succeeded | registered: False
+  created_at: 2026-10-18T19:01:47Z （修复前恒等于读取时刻；现在取 inputs.json 真实值）
+  status_basis: manifest.json（引擎原子提交标记）+ summary.json 结果块均在 ⇒ 有完成证据
+bt_20261018T190145Z_b958c838
+  status: succeeded | registered: None
+  created_at: 2026-10-18T19:01:45Z （修复前恒等于读取时刻；现在取 inputs.json 真实值）
+  status_basis: None
+run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350049
+  status: succeeded | registered: False
+  created_at: 2026-10-18T19:00:49Z （修复前恒等于读取时刻；现在取 inputs.json 真实值）
+  status_basis: manifest.json（引擎原子提交标记）+ summary.json 结果块均在 ⇒ 有完成证据
+
+## GET /api/v1/backtests/{run_WX_EVENT_TREND_V0_1_TRXUSDT_1792274256}（修复后）
+  status: succeeded | registered: False | created_at: 2026-10-17T21:57:36Z
+  actual_config: {'initial_equity': 2000.0, 'risk_budget_per_trade': None, 'fee_rate': None, 'slippage_bps': None} （fee/slippage/risk 未落盘 ⇒ null，不再冒充 0.0005/3.0/0.005）
+  quality: {'status': 'ok', 'age_seconds': None, 'note': None}
+
+## GET .../chart（读时重建兜底，缺字段 null 不再填 0.0）
+  trade[0]: {"trade_id": "trd_1a1f17e7b4390d39baa8dd3f", "symbol": "TRXUSDT", "direction": "long", "signal_type": 1, "entry": {"t": 1705140900000, "price": 0.11288, "qty": 869.0}, "exit": {"t": 1706004900000, "price": 0.10713, "reason": "max_holding_expired"}, "net_pnl": -5.2844897566429685, "initial_stop": 0.10152014068418644, "stop_trace": [{"t": 1705140900000, "stop": 0.10152014068418644, "reason": "init"}], "initial_stop_source": "ledger:trades.jsonl.stop_trace[0]"}
+  derived_from: chart.json 缺失 ⇒ 读时重建：标的取 summary.json，窗口取 inputs.json(data_summary.time_range_1h

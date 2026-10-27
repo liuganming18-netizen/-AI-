@@ -1,0 +1,279 @@
+{
+  "schema": "accum-early-06-w1-r1/approval-evidence-correction/v1",
+  "order": "ACCUM-EARLY-06-W1-R1（工单 D：批准证据与冲突表措辞校正）",
+  "generated_at_utc": "2026-10-27T01:12:00Z",
+  "scope": {
+    "writes_only_here": "evidence/ACCUM-EARLY-06-W1/03_R1/",
+    "read_only": ["evidence/ACCUM-EARLY-06-W1/01/", "evidence/ACCUM-EARLY-06-W1/02/", "docs/用户约定/", "框架/backend/"],
+    "no_production_change": true,
+    "no_new_approval_request": true,
+    "no_scope_expansion": true
+  },
+  "why_this_file": "06-01/06-02 把「统一记录没写」「本轮没找到」「用户明确未批准」三种状态合并成一种标签（未批准／无来源），据此把在效的沿用值写成了被撤销。本文件把它们拆成两轴：证据等级（E1/E2/E3）× 行为效力（继续／不得实施／待修）。",
+
+  "evidence_levels": {
+    "E1": {
+      "name": "用户明确决定（统一记录有原话，语义覆盖该项）",
+      "test": "在 docs/用户约定/用户要求与决策.md 能读到原话，且原话语义覆盖该字段",
+      "allowed_wording": ["用户已定（原话见 <文件>:<行>）"],
+      "forbidden_wording": ["待确认", "未批准", "建议沿用"],
+      "effect_on_behavior": "继续执行，且不再向用户重复询问"
+    },
+    "E2": {
+      "name": "用户明确未批准（统一记录有否定性原话）",
+      "test": "统一记录有明确的否定表述：点名该项，或点名其所属类别且映射明确",
+      "allowed_wording": ["用户明确未批准（原话：<引文>）"],
+      "forbidden_wording": ["未找到批准证据", "无来源", "统一记录没写"],
+      "effect_on_behavior": "不得实施为正式规则；但也不得反推未点名的项已批准"
+    },
+    "E3": {
+      "name": "统一记录未载 + 本轮未取证（批准证据缺口）",
+      "test": "统一记录无原话（关键词命中 0 行），且本轮未读取原始聊天消息",
+      "allowed_wording": ["统一记录未载；本轮未找到批准证据（原始消息未取证）"],
+      "forbidden_wording": ["用户未批准", "谁都没批过", "无来源", "已撤销", "用户否决"],
+      "effect_on_behavior": "既有行为不因缺证而撤销：沿用值继续生效，只在用户主动要求改动时再问"
+    }
+  },
+
+  "two_axis_rule": {
+    "statement": "证据等级回答「能不能说已批准」；行为效力回答「现在是否继续执行」。两者独立：E3 不等于停用，E2 不等于已经改了代码。",
+    "consequence": "任何一行都不得只写一个标签；必须同时写 evidence_level 与 behavior_in_force。"
+  },
+
+  "record_scan": {
+    "file": "docs/用户约定/用户要求与决策.md",
+    "method": "逐关键词全文命中行号统计（脚本 01 复核）；命中 0 行 = 统一记录未载该主题",
+    "must_be_zero": ["承接", "扫低", "压制", "箱体", "主动买", "卖压", "倍率", "中位数", "1h", "延迟", "手续费", "冷却", "滑点", "本金", "参与率", "跳空", "观察期", "失效", "2R", "资金费", "24 小时"],
+    "expected_hits": {
+      "止损": [23, 25, 26, 27, 28],
+      "15 分钟": [27],
+      "10 天": [27],
+      "仓": [20, 27, 32],
+      "持仓量": [20],
+      "门槛": [20, 33],
+      "批准": [5, 30, 32, 35, 39]
+    }
+  },
+
+  "rows": [
+    {"id": "SW-01", "kind": "entry", "item": "承接判定所读 bar = 扫低发生根", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现（06-03），非待决", "canonical": null,
+     "old_label": "无（用户明确决定一栏为空）", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["承接", "扫低"], "note": "方案文本依据充分，不因缺用户原话而停用。"},
+
+    {"id": "SW-02", "kind": "entry", "item": "承接基准窗口 = 扫低根之前 20 根 1h", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现（06-03），非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["承接", "中位数"], "note": "窗口长度 20 属参数，见 P-03。"},
+
+    {"id": "SW-03", "kind": "entry", "item": "承接门槛不满足时停在哪一步（ARMED / SWEEP）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待证据（两处文本互斥，本窗不代选）", "canonical": "E-02",
+     "old_label": "冲突 C-02", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["承接"], "note": "现状 = 不进 SWEEP；04-A 文本写不进 ARMED。互斥双方都不是用户原话。"},
+
+    {"id": "SW-04", "kind": "entry", "item": "突破确认不得复用另一根的承接结果", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现（06-03），非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["承接"], "note": "派工单 06-03 第 2 条明文要求，属任务约束而非用户参数批准。"},
+
+    {"id": "SW-05", "kind": "entry", "item": "扫低与收回同根（single_bar）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现，非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["扫低"], "note": "双根档未做对照，见 E-03。"},
+
+    {"id": "SW-06", "kind": "entry", "item": "multi_bar 时「扫低根」取哪一根", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待证据（原文无定义；代码自定最低价并自标未验证）", "canonical": "E-03",
+     "old_label": "冲突 C-03", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["扫低"], "note": "没有任何文档给出 multi_bar 的扫低根定义，故不是「用户没批」，而是「无候选定义可批」。"},
+
+    {"id": "SW-07", "kind": "entry", "item": "局部压制位窗口 = 扫低根之前 48 根", "level": "E3", "explicit": "none",
+     "behavior_in_force": false, "disposition": "待工程修正（代码传确认根，与方案文本不符）", "canonical": "G-01",
+     "old_label": "冲突 C-04", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["压制"], "note": "有方案文本依据（04-A/README:52），属明确缺陷；本单只登记不修。"},
+
+    {"id": "AB-01", "kind": "entry", "item": "主动买占比 = taker_buy_quote_volume / quote_volume", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现，非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["主动买"], "note": ""},
+
+    {"id": "AB-02", "kind": "entry", "item": "主动卖出额 = quote_volume − taker_buy_quote_volume（推导量）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现，非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["卖压"], "note": ""},
+
+    {"id": "AB-03", "kind": "entry", "item": "承接基准 = 前 20 根中位数", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数）", "canonical": "P-03",
+     "old_label": "执行方建议（未批准）", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["中位数", "倍率"], "note": "fixture 现用 v20_median；未获批准，不得写成已定。"},
+
+    {"id": "AB-04", "kind": "entry", "item": "承接倍率 buy_ratio_mult = 1.0", "level": "E3", "explicit": "none",
+     "class_covered": {"class": "新增门槛", "level": "E2", "ref": {"file": "docs/用户约定/用户要求与决策.md", "line": 33, "must_contain": "新增门槛均为提案/研究项"},
+                        "scope": "只覆盖「承接是否作为开仓硬门槛」这一结构，不覆盖倍率数值 1.0"},
+     "behavior_in_force": true, "disposition": "不得实施为正式（仅 fixture 存在）", "canonical": "P-03",
+     "old_label": "未批准，阻塞", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["倍率"], "note": "倍率数值本身无任何原话；门槛结构受决策:33 类级否定覆盖。"},
+
+    {"id": "AB-05", "kind": "entry", "item": "卖压倍率 sell_pressure_mult = 0.8", "level": "E3", "explicit": "none",
+     "class_covered": {"class": "新增门槛", "level": "E2", "ref": {"file": "docs/用户约定/用户要求与决策.md", "line": 33, "must_contain": "新增门槛均为提案/研究项"},
+                        "scope": "同 AB-04，只覆盖门槛结构，不覆盖倍率数值 0.8"},
+     "behavior_in_force": true, "disposition": "不得实施为正式（仅 fixture 存在）", "canonical": "P-03",
+     "old_label": "未批准，阻塞", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["卖压", "倍率"], "note": "同上；0.8 从未做过与 1.0 的对照。"},
+
+    {"id": "AB-06", "kind": "entry", "item": "收盘位于当根振幅上半区", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现，非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["承接"], "note": ""},
+
+    {"id": "AB-07", "kind": "entry", "item": "数据源：K 线主动买卖额，而非 metrics parquet", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已按方案文本实现，非待决", "canonical": null,
+     "old_label": "无", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["主动买"], "note": ""},
+
+    {"id": "TS-01", "kind": "entry", "item": "初始止损 = 实际成交价 × 95%", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:25）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 25, "must_contain": "实际成交价 × 95%"},
+              {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "初始止损为实际成交价×95%"}],
+     "note": "本轮总单第 4 条同口径复述；不因任何缺证而变。"},
+
+    {"id": "TS-02", "kind": "entry", "item": "跟踪候选止损 = 新收盘 4h 最低价 × 95%", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:26）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 26, "must_contain": "候选止损＝该根最低价 × 95%"},
+              {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "新收盘4h线最低价×95%只上移"}],
+     "note": ""},
+
+    {"id": "TS-03", "kind": "entry", "item": "只上移、不下移、不得追溯此前行情", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:27）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "不得用新止损追溯此前行情"},
+              {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "不得追溯生效"}],
+     "note": "「不追溯」是用户原话；「4h 收盘后下一根 15m 生效」不是，见 TS-04。"},
+
+    {"id": "TS-04", "kind": "entry", "item": "新止损生效时刻 = 4h 收盘后下一根 15m（研究侧）/ max(挂钟,4h收盘)（生产侧）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待工程修正（两套公式，未证明等价）", "canonical": "G-02",
+     "old_label": "冲突 C-05，阻塞该结论", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["生效", "下一根"], "note": "用户原话只覆盖「确认→成交 12:15」与「不追溯」；4h 收盘→止损生效的公式是实现选择，不是用户规则。本行只登记工程差异，不新增参数审批。"},
+
+    {"id": "TS-05", "kind": "entry", "item": "入场当根 4h 线在入场后收盘可用于未来止损", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:28）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 28, "must_contain": "可以用于未来止损"},
+              {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "入场当根4h线在入场后收盘也可用于未来止损"}],
+     "note": ""},
+
+    {"id": "TS-06", "kind": "entry", "item": "不设 2R 启动门槛、不设 10 天强平", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:27）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "不设持仓 10 天自动平仓"},
+              {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "must_contain": "不设2R激活或10天强平"}],
+     "note": "「不设」是用户原话，故 `check_fixed_rules` 里 trailing_trigger_r / max_holding_days 两行恒真不改变结论，只影响「逐项对撞」这句结论的资格（见 G-03）。"},
+
+    {"id": "FX-01", "kind": "entry", "item": "确认周期 = 1h", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待证据（归因错误；行为沿用冻结包）", "canonical": "E-01",
+     "old_label": "冲突 C-01，归因错误", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["1h"], "note": "撤销的是 04-A/05-A-R1 那句「用户已确认」的标注资格，不是 1h 这个行为；1h 继续作为沿用值执行。"},
+
+    {"id": "FX-02", "kind": "entry", "item": "执行周期 = 15m", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:27）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "按既有 15 分钟执行规则"}],
+     "note": ""},
+
+    {"id": "FX-03", "kind": "entry", "item": "确认→成交延迟 15 分钟，不回填", "level": "E1", "explicit": "none",
+     "behavior_in_force": true, "disposition": "已确认，不再询问", "canonical": null,
+     "old_label": "用户已定", "new_label": "用户已定（原话见 docs/用户约定/用户要求与决策.md:27）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 27, "must_contain": "最早 12:15，不回填 12:00"}],
+     "note": "注意：本条覆盖的是「确认→成交」，不覆盖「4h 收盘→止损生效」（TS-04）。"},
+
+    {"id": "FX-04", "kind": "entry", "item": "手续费 5bps（单边）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数；改需改代码）", "canonical": "P-07",
+     "old_label": "冲突 C-07", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["手续费"], "note": "两套文件一致 ≠ 批准；5bps 为硬编码基线，无配置字段。"},
+
+    {"id": "FX-05", "kind": "entry", "item": "重复候选冷却 24 小时", "level": "E3", "explicit": "none",
+     "behavior_in_force": false, "disposition": "待用户裁决（建议值，不代选；当前未生效）", "canonical": "P-09",
+     "old_label": "沿用（未批准），不生效", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["冷却", "24 小时"], "note": "本轮总单第 4 条明文：24 小时冷却是建议沿用值，不能写成用户批准。本窗不代选。"},
+
+    {"id": "FX-06", "kind": "entry", "item": "滑点 3bps / 5bps（两套并列）", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数）", "canonical": "P-07",
+     "old_label": "冲突 C-08", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["滑点"], "note": "引擎生效 5bps；策略包写 3bps。"},
+
+    {"id": "FX-07", "kind": "entry", "item": "本金与仓位（2000/3仓/30% vs 5000/10仓/10%）", "level": "E2", "explicit": "item",
+     "behavior_in_force": true, "disposition": "不得当批准；引擎现状 5000/10 仓继续跑，但不称已批准", "canonical": "P-06",
+     "old_label": "冲突 C-08", "new_label": "用户明确未批准（原话：3／10 冲突未查清前不得当成用户批准，不得推定新 8 仓）",
+     "refs": [{"file": "docs/用户约定/用户要求与决策.md", "line": 32, "must_contain": "均不得当成用户批准，不得推定新 8 仓"}],
+     "record_keywords": ["本金"], "note": "这是全表唯一「逐项点名」的未批准项；且是「查清来源前暂不批准」，不是永久否决。"},
+
+    {"id": "FX-08", "kind": "entry", "item": "参与率上限 0.1% / 1.0%", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数）", "canonical": "P-08",
+     "old_label": "冲突 C-08", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["参与率"], "note": "引擎生效 1.0%；策略包写 0.1%。"},
+
+    {"id": "FX-09", "kind": "entry", "item": "跳空止损成交模型 stop_price / bar_open / midpoint", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数）", "canonical": "P-10",
+     "old_label": "未批准，阻塞", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["跳空"], "note": "fixture 现用 stop_price；三档已实现。"},
+
+    {"id": "FX-10", "kind": "entry", "item": "观察期 336h / 结构失效 2 根与 0.5A", "level": "E3", "explicit": "none",
+     "behavior_in_force": true, "disposition": "待用户裁决（参数）", "canonical": "P-04",
+     "old_label": "沿用（未批准）", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": ["观察期", "失效"], "note": ""},
+
+    {"id": "FX-11", "kind": "entry", "item": "「9 项已确定语义逐项对撞」这一结论", "level": "E3", "explicit": "none",
+     "behavior_in_force": false, "disposition": "待工程修正（9 行里 5 行恒真）", "canonical": "G-03",
+     "old_label": "冲突 C-06", "new_label": "统一记录未载；本轮未找到批准证据（原始消息未取证）",
+     "record_keywords": [], "note": "这条不是规则，是验收结论；校正对象是「结论资格」，不是参数。"}
+  ],
+
+  "question_map": [
+    {"q": "Q1", "item": "扫低对象", "canonical": "P-01", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；批准证据：统一记录未载·本轮未取证"},
+    {"q": "Q2", "item": "局部压制位定义", "canonical": "P-02", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；批准证据：统一记录未载·本轮未取证"},
+    {"q": "Q3", "item": "承接与卖压倍率、基准", "canonical": "P-03", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；其中「作硬门槛」受决策:33「新增门槛」类级未批准约束"},
+    {"q": "Q4", "item": "确认/失效/观察期/盘中破位", "canonical": "P-04", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；「盘中破位提前取消」受决策:33「提前退出」类级约束"},
+    {"q": "Q5", "item": "三组是否并行", "canonical": "P-05", "old_label": "建议未批准", "new_label": "待用户裁决（参数）"},
+    {"q": "Q6", "item": "风控口径取哪一套", "canonical": "P-06", "old_label": "无来源（谁都没批过）", "new_label": "用户明确未批准（原话点名 3／10 冲突）；不等于用户选定了某一套"},
+    {"q": "Q7", "item": "滑点/手续费", "canonical": "P-07", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；手续费无配置字段，改则须改代码"},
+    {"q": "Q8", "item": "参与率上限", "canonical": "P-08", "old_label": "无来源（谁都没批过）", "new_label": "待用户裁决（参数）；批准证据：统一记录未载·本轮未取证"},
+    {"q": "Q9", "item": "重复候选与冷却", "canonical": "P-09", "old_label": "沿用未批准", "new_label": "待用户裁决（参数）；24h 只是建议沿用值，不代选"},
+    {"q": "Q10", "item": "跳空成交模型", "canonical": "P-10", "old_label": "建议未批准", "new_label": "待用户裁决（参数）"},
+    {"q": "Q11", "item": "资金费同刻顺序", "canonical": "P-11", "old_label": "无来源（谁都没批过）", "new_label": "待用户裁决（参数，但无配置字段）；批准证据：统一记录未载·本轮未取证"},
+    {"q": "Q12", "item": "OI 角色", "canonical": "P-12", "old_label": "建议未批准", "new_label": "待用户裁决（参数）；「作硬门槛」受决策:33「新增门槛」类级约束；决策:20 另有「不要求每个指标都成为硬门槛」的相关表述"}
+  ],
+
+  "conflict_map": [
+    {"c": "C-01", "entries": ["FX-01"], "canonical": "E-01", "correction": "「撤销」只针对标注资格；1h 行为继续沿用"},
+    {"c": "C-02", "entries": ["SW-03"], "canonical": "E-02", "correction": "互斥双方都非用户原话；不代选，也不阻塞其他项"},
+    {"c": "C-03", "entries": ["SW-06"], "canonical": "E-03", "correction": "不是「用户没批」，是「没有候选定义」"},
+    {"c": "C-04", "entries": ["SW-07"], "canonical": "G-01", "correction": "有方案文本依据的明确缺陷，转工程问题"},
+    {"c": "C-05", "entries": ["TS-04"], "canonical": "G-02", "correction": "阻塞的是「全链同一生效口径」这一结论，不是已确认的止损规则"},
+    {"c": "C-06", "entries": ["FX-11"], "canonical": "G-03", "correction": "转工程问题（验收脚本自证），不影响「不设 2R/10 天」的用户决定"},
+    {"c": "C-07", "entries": ["FX-04"], "canonical": "P-07", "correction": "并入摩擦成本参数项，不再单列冲突"},
+    {"c": "C-08", "entries": ["FX-06", "FX-07", "FX-08"], "canonical": "P-06/P-07/P-08", "correction": "拆成三项独立参数，避免「一套口径」被当成一个决策"}
+  ],
+
+  "wording_fixes": [
+    {"file": "evidence/ACCUM-EARLY-06-W1/01/规则来源矩阵.md", "line": 13,
+     "old": "「1h 确认」「承接倍率」「冷却 24 小时」「手续费 5bps」都没有用户批准来源。",
+     "why_wrong": "把「统一记录没写」写成了「没有来源」，读者会理解为用户否决；本轮并未检索原始消息。",
+     "new": "这四项在统一记录里关键词命中 0 行；本轮未检索原始聊天消息 ⇒ 只能写「批准证据缺口」，不得写「用户未批准」。四项的现有行为不因缺证而撤销。"},
+    {"file": "evidence/ACCUM-EARLY-06-W1/02/待用户裁决.md", "line": 56,
+     "old": "⇒ **49 个字段中真正有用户原话依据的是 0 项**",
+     "why_wrong": "「真正……是 0 项」把二手稿缺省当成了事实全称判断，读作「用户一项都没批」。",
+     "new": "⇒ 在统一记录中找不到原话依据的字段 = 49（二手依据 0）；本轮未取证原始消息，故该数不表示「用户否决 49 项」。"},
+    {"file": "evidence/ACCUM-EARLY-06-W1/02/待用户裁决.md", "line": 216,
+     "old": "| 无来源 | 谁都没批过 | Q6/Q8/Q11 的「无」 |",
+     "why_wrong": "「谁都没批过」是不可证的全称否定；Q6 实际有用户否定性原话（决策:32），被降成了「无来源」。",
+     "new": "| 证据缺口 | 统一记录未载且本轮未取证（≠否决） | Q8/Q11 |　| 用户明确未批准 | 有否定性原话点名 | Q6 |"}
+  ],
+
+  "umbrella_limits": [
+    "本轮未读取主聊天（01a17396-e343-7202-908d-d01292e46af7）原始消息，故所有「未找到」都带这一限定。",
+    "统一记录（用户要求与决策.md）本身是 2026-10-26 的二手整理稿，不是聊天原文。",
+    "E3 行的正确读法：二手稿未载 + 本轮未取证；不能读成用户否决，也不能读成用户已批准。",
+    "若日后取得原始消息，先改本表与 06-01/06-02 的对应行，再改任何行为。"
+  ]
+}

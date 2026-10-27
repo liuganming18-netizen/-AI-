@@ -1,0 +1,45 @@
+{
+ "snapshot_utc": "2026-10-25T09:11:46Z",
+ "script": "code/28_process_identity.py",
+ "note": "进程身份只在当次运行有效；本快照用于证明 5.1 节四个 pid 至今未变、启动时刻一致，不是报告撰写那一刻的快照。",
+ "self_pid": 19299,
+ "processes": [
+  {
+   "pid": 7171,
+   "role": "接口服务",
+   "expected_script": "adapter.py",
+   "alive": true,
+   "started_utc": "2026-10-25T07:17:25Z",
+   "cmdline_tail": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+   "script_matches": true
+  },
+  {
+   "pid": 7174,
+   "role": "回测 Worker",
+   "expected_script": "backtest_worker.py",
+   "alive": true,
+   "started_utc": "2026-10-25T07:17:25Z",
+   "cmdline_tail": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787",
+   "script_matches": true
+  },
+  {
+   "pid": 7178,
+   "role": "交易链运行时",
+   "expected_script": "unified_runtime.py",
+   "alive": true,
+   "started_utc": "2026-10-25T07:17:27Z",
+   "cmdline_tail": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0",
+   "script_matches": true
+  },
+  {
+   "pid": 42278,
+   "role": "实时采集器",
+   "expected_script": "realtime_collector.py",
+   "alive": true,
+   "started_utc": "2026-10-23T09:00:16Z",
+   "cmdline_tail": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+   "script_matches": true
+  }
+ ],
+ "all_alive_and_matching": true
+}

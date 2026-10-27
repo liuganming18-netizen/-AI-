@@ -1,0 +1,103 @@
+{
+  "ticket": "UI-PENDING-01",
+  "kind": "screenshots",
+  "target": "tests_pending/harness.html（真实组件 + TEST FIXTURE 入参）",
+  "viewport": {
+    "width": 520,
+    "height": 1200,
+    "device_scale_factor": 2
+  },
+  "note": "截图只证明「给定夹具输入下的渲染结果」，不构成真实接口联调或真实成交闭环证据",
+  "generated_at_utc": "2026-10-23T08:16:28.144Z",
+  "facts": [
+    {
+      "name": "01_has_pending",
+      "state": "has_pending",
+      "harness_state": "has_pending",
+      "panel_present": true,
+      "block_present": true,
+      "block_state": "has_pending",
+      "block_n_pending": "2",
+      "row_count": 2,
+      "row_ids": [
+        "9001",
+        "9002"
+      ],
+      "row_symbols": [
+        "TESTFIXUSDT",
+        "TESTFIX2USDT"
+      ],
+      "row_status": [
+        "pending",
+        "pending"
+      ],
+      "block_text": "计划下单 · 待成交挂单 (2 笔) 未成交 · 防旧价回填 #9001TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 #9002TESTFIX2USDT 等待成交 · pending 来源: 页面手动请求 等待原因: test_fixture_reason_visible 最早可执行 15m: 10-24 01:30Z 请求锚点时刻: 10-24 01:15Z 信号确认/可得: 10-24 01:00Z / 10-24 01:01Z 信号身份: — 方向 / 数量 / 预计成交价：服务端挂单接口未提供 ⇒ 本页不推断（见 UI-PENDING-01 接口缺口）",
+      "contains_stale_symbol": true,
+      "banner_text": "TEST FIXTURE · 人工构造的挂单数据 · 非真实账本\nstate = has_pending · 标的一律 TESTFIX 前缀 · 时间戳固定 2026-10-24 UTC",
+      "shots": {
+        "block": "01_has_pending_block.png",
+        "full": "01_has_pending_full.png"
+      }
+    },
+    {
+      "name": "02_empty",
+      "state": "empty",
+      "harness_state": "empty",
+      "panel_present": true,
+      "block_present": true,
+      "block_state": "empty",
+      "block_n_pending": "0",
+      "row_count": 0,
+      "row_ids": [],
+      "row_symbols": [],
+      "row_status": [],
+      "block_text": "计划下单 · 待成交挂单 (0 笔) 未成交 · 防旧价回填 当前无待成交挂单（账本已读到，挂单表为空）",
+      "contains_stale_symbol": false,
+      "banner_text": "TEST FIXTURE · 人工构造的挂单数据 · 非真实账本\nstate = empty · 标的一律 TESTFIX 前缀 · 时间戳固定 2026-10-24 UTC",
+      "shots": {
+        "block": "02_empty_block.png",
+        "full": "02_empty_full.png"
+      }
+    },
+    {
+      "name": "03_unreadable",
+      "state": "unreadable",
+      "harness_state": "unreadable",
+      "panel_present": true,
+      "block_present": true,
+      "block_state": "unreadable",
+      "block_n_pending": "-1",
+      "row_count": 0,
+      "row_ids": [],
+      "row_symbols": [],
+      "row_status": [],
+      "block_text": "计划下单 · 待成交挂单（状态未知） 账本未读到 · 不等于 0 笔 挂单状态未知（账本读取失败） TEST FIXTURE：纸面账本读取失败（后端不可达或未初始化） 不展示上一次缓存的挂单：旧快照可能已成交或被拒，展示它等于伪造当前状态。",
+      "contains_stale_symbol": false,
+      "banner_text": "TEST FIXTURE · 人工构造的挂单数据 · 非真实账本\nstate = unreadable · 标的一律 TESTFIX 前缀 · 时间戳固定 2026-10-24 UTC",
+      "shots": {
+        "block": "03_unreadable_block.png",
+        "full": "03_unreadable_full.png"
+      }
+    },
+    {
+      "name": "04_not_connected",
+      "state": "not_connected",
+      "harness_state": "not_connected",
+      "panel_present": true,
+      "block_present": false,
+      "block_state": null,
+      "block_n_pending": null,
+      "row_count": 0,
+      "row_ids": [],
+      "row_symbols": [],
+      "row_status": [],
+      "block_text": null,
+      "contains_stale_symbol": false,
+      "banner_text": "TEST FIXTURE · 人工构造的挂单数据 · 非真实账本\nstate = not_connected · 标的一律 TESTFIX 前缀 · 时间戳固定 2026-10-24 UTC",
+      "shots": {
+        "block": null,
+        "full": "04_not_connected_full.png"
+      }
+    }
+  ]
+}

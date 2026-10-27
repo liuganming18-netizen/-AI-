@@ -1,0 +1,101 @@
+{
+  "timestamp_utc": "2026-10-26T18:08:51Z",
+  "schema_version": "accum-early-05/v1",
+  "cross_process_recovery": {
+    "process_a": {
+      "pid": 52163,
+      "start_time_utc": "2026-10-26T18:08:51Z",
+      "end_time_utc": "2026-10-26T18:08:51Z",
+      "duration_sec": 0.605,
+      "exit_code": 0,
+      "open_ok": true,
+      "confirmed_dead_before_b": true,
+      "snapshot": {
+        "orders_count": 1,
+        "fills_count": 1,
+        "positions_count": 1,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "SOLUSDT",
+            "status": "open",
+            "qty": 6.84,
+            "entry_price": 72.99,
+            "entry_ts": 1785554100000,
+            "exit_ts": null,
+            "exit_reason": null,
+            "exit_price": null,
+            "stop_price": 69.34,
+            "initial_stop_price": 69.34,
+            "entry_fee": 0.24962579999999998,
+            "exit_fee": null,
+            "funding_paid": 0.0,
+            "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+            "stoploss_s": 0.05,
+            "trail_d": 0.05
+          }
+        ]
+      }
+    },
+    "process_b": {
+      "pid": 52175,
+      "start_time_utc": "2026-10-26T18:08:51Z",
+      "end_time_utc": "2026-10-26T18:08:51Z",
+      "duration_sec": 0.0186,
+      "exit_code": 0,
+      "different_pid": true,
+      "open_ok": false,
+      "rejection_reason": "duplicate_signal_uid",
+      "snapshot": {
+        "orders_count": 1,
+        "fills_count": 1,
+        "positions_count": 1,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "SOLUSDT",
+            "status": "open",
+            "qty": 6.84,
+            "entry_price": 72.99,
+            "entry_ts": 1785554100000,
+            "exit_ts": null,
+            "exit_reason": null,
+            "exit_price": null,
+            "stop_price": 69.34,
+            "initial_stop_price": 69.34,
+            "entry_fee": 0.24962579999999998,
+            "exit_fee": null,
+            "funding_paid": 0.0,
+            "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+            "stoploss_s": 0.05,
+            "trail_d": 0.05
+          }
+        ]
+      }
+    },
+    "idempotency_comparison": {
+      "orders_increase": 0,
+      "fills_increase": 0,
+      "positions_increase": 0,
+      "idempotent": true
+    },
+    "pass": true,
+    "verdict": "PASS_TRUE_CROSS_PROCESS_RECOVERY_VERIFIED"
+  },
+  "production_cross_boundary_isolation": {
+    "target_production_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "try_open_ok": false,
+    "called_paper_engine": false,
+    "reason": "isolation_violation",
+    "production_files_created": 0,
+    "pass": true,
+    "verdict": "PASS_ISOLATION_VIOLATION_BLOCKED"
+  },
+  "read_only_connection_check": {
+    "db_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "read_successful": true,
+    "write_strictly_blocked": true,
+    "pass": true,
+    "verdict": "PASS_READ_ONLY_ENFORCED"
+  }
+}

@@ -1,0 +1,105 @@
+{
+ "audit": "FRAME-FIT-01",
+ "label_span": {
+  "measured_distribution": {
+   "n": 205,
+   "min_h": 20.0,
+   "p50_h": 240.0,
+   "p90_h": 240.0,
+   "p99_h": 240.0,
+   "max_h": 240.0,
+   "share_at_config_cap": 0.561
+  },
+  "config_cap_hours": 240,
+  "config_cap_source": "EventTrendConfig.max_holding_days = 10 天",
+  "isolation_from_measurement_h": 240,
+  "isolation_adopted_h": 240,
+  "basis": "取实测最大跨度与配置上界二者较大值。实测 205 笔成交中 56.1% 恰好顶在 240h （中位数也是 240.0h）⇒ 标签最长观察窗口就是 10 天。相邻分组之间至少让出这么多天，否则训练段末尾样本的标签会用到验证段开头的行情。",
+  "why_not_arbitrary": "没有写死「留 10 天/30 天」；数值来自实测分布，跨度变了隔离长度会跟着变。"
+ },
+ "coverage": {
+  "start": "2021-12-01",
+  "end": "2026-10-18",
+  "source": "交接包 window_start 最小 / window_end 最大"
+ },
+ "candidates": [
+  {
+   "name": "候选甲 60/20/20",
+   "ratios": [
+    0.6,
+    0.2,
+    0.2
+   ],
+   "split": {
+    "train": [
+     "2021-12-01",
+     "2024-11-04"
+    ],
+    "valid": [
+     "2024-11-14",
+     "2025-11-05"
+    ],
+    "holdout": [
+     "2025-11-15",
+     "2026-10-18"
+    ],
+    "isolation_hours": 240,
+    "label_span_source": "由实测标签跨度推出：240h（见 required_isolation_hours）",
+    "split_method": "chronological",
+    "note": "候选划分（按比例 + 隔离带自动算出，未经人工批准前不得用于正式实验）",
+    "configured": true,
+    "problems": []
+   },
+   "configured": true,
+   "problems": [],
+   "observed_sample_distribution": {
+    "train": 112,
+    "valid": 50,
+    "holdout": 57,
+    "gap_or_outside": 8
+   },
+   "holdout_contaminated": true,
+   "note": "候选，未经人工批准；不得直接用于正式实验"
+  },
+  {
+   "name": "候选乙 70/15/15",
+   "ratios": [
+    0.7,
+    0.15,
+    0.15
+   ],
+   "split": {
+    "train": [
+     "2021-12-01",
+     "2025-05-01"
+    ],
+    "valid": [
+     "2025-05-11",
+     "2026-02-02"
+    ],
+    "holdout": [
+     "2026-02-12",
+     "2026-10-18"
+    ],
+    "isolation_hours": 240,
+    "label_span_source": "由实测标签跨度推出：240h（见 required_isolation_hours）",
+    "split_method": "chronological",
+    "note": "候选划分（按比例 + 隔离带自动算出，未经人工批准前不得用于正式实验）",
+    "configured": true,
+    "problems": []
+   },
+   "configured": true,
+   "problems": [],
+   "observed_sample_distribution": {
+    "train": 127,
+    "valid": 52,
+    "holdout": 43,
+    "gap_or_outside": 5
+   },
+   "holdout_contaminated": true,
+   "note": "候选，未经人工批准；不得直接用于正式实验"
+  }
+ ],
+ "status": "UNCONFIGURED",
+ "blocking_reason": "正式划分日期未经批准。框架只提供候选与依据，不替人决定用哪一天切分。"
+}

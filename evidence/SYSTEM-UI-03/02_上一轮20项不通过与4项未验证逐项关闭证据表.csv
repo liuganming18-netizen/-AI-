@@ -1,0 +1,25 @@
+编号,原复审项,严重度,UI-02 原缺陷,SYSTEM-UI-03 修复与闭环手段,本轮判定,关键凭证
+R-1,账本隔离失效,高,未设PAPER_LEDGER_DIR读生产账本,显式注入PAPER_LEDGER_DIR/LOCK_DIR指向/tmp沙盒，生产账本哈希0变动,已关闭·真实通过,07_守护进程真实运行与隔离证据.json
+R-2,生产locks污染,高,向生产locks写死PID假状态,清理旧残留，守护仅写隔离locks目录，测试前后生产locks零触碰,已关闭·真实通过,07_守护进程真实运行与隔离证据.json
+R-3,止损轨迹三态同图,高,normal/failed/view06同一字节,沙盒库构建真实历史；失败态注入500捕获异常；三态像素差异大且哈希独立,已关闭·真实通过,06_信号持仓止损三状态覆盖证据表.csv
+R-4,信号失败态冒充空态,高,接口报错直接转成空列表,前端增加signal-error告警框，注入500时展示错误横幅，不冒充空态,已关闭·真实通过,state_signal_failed.png
+R-5,对账run张冠李戴,高,页面显示1000XEC代填BRETT,页面显示哪个run就核对哪个源产物，DOM提取值与对应磁盘产物逐字段对齐,已关闭·真实通过,04_回测run详情与summary逐字段对账表.csv
+R-6,对账表无机器来源,高,机器JSON为空，CSV含shell残骸,对账表100%由Python在运行时从DOM和API提取写入，无shell残骸,已关闭·真实通过,audit_ui_verification.json
+R-7,虚构产物哈希,高,哈希6ff40154在run目录0命中,产物哈希从真实的manifest.json提取，逐文件比对,已关闭·真实通过,04_回测run详情与summary逐字段对账表.csv
+R-8,信号正常态未渲染,中,库有3行信号页面显示0笔,信号补齐executable_state='enterable'与role='enterable_arm_entry'，3卡片完整渲染,已关闭·真实通过,state_signal_normal.png
+R-9,View 09数字虚报,中,声称13155/150实际158/814,从页面DOM动态正则提取158多维标的/814全池/549在线，如实断言,已关闭·真实通过,view_09_datacenter_matrix.png
+R-10,View 13依赖虚报,中,声称17项依赖实际6类卡片,DOM提取实际6类数据源卡片并断言，如实记录6类，不虚报17项,已关闭·真实通过,view_13_strategy_deps.png
+R-11,CSV 05状态全填正常,中,页面显示15正常2报错,按数据中心页面实际呈现如实记录15正常2报错,已关闭·真实通过,05_数据源17维映射完整对照表.csv
+R-12,View 11页签截错,中,截的是规则说明而非列表,StrategyManagementView新增独立list页签，截取完整的策略列表,已关闭·真实通过,view_11_strategy_list.png
+R-13,win_rate将null充0,中,文件为null在表里填0.0,文件为null时如实记录为null/样本不足，杜绝伪造0胜率,已关闭·真实通过,04_回测run详情与summary逐字段对账表.csv
+R-14,工作区脏致版本失效,中,仅报commit但代码处于修改,全量输出核心源码与产物的SHA-256哈希清单绑定权威版本,已关闭·真实通过,08_文件清单与哈希.csv
+R-15,10个视图零断言,中,点完直接写PASS常量,16个视图逐一添加locator提取、可见性断言及文本断言，断言通过才记PASS,已关闭·真实通过,01_全页面与16视图操作覆盖矩阵.csv
+R-16,View 16虚报通过,中,4/6 PASS冒充门禁通过,如实记录Gate 4/6 PASS、覆盖范围MISSING、PIT未声明，明确未达正式M4放行,已关闭·真实通过,view_16_acceptance_review.png
+R-17,View 04周期未切换,低,展开K线未执行4h/1h切换,精准定位[data-testid='tf-btn-4h/1h']点击并断言data-active属性,已关闭·真实通过,view_04_inline_expanded_chart.png
+R-18,View 07挂单无数据,低,无pending数据却记通过,按实际情况说明无挂单数据，明确保留未验证，杜绝造假,已保留·诚实未验证,01_全页面与16视图操作覆盖矩阵.csv
+R-19,View 11/B1未取证,低,未单独取证列表与批次,独立对策略列表页签和回测批次切换取证,已关闭·真实通过,view_11_strategy_list.png
+R-20,View 12点击错位,低,点02阶段实际展开第04阶段,使用[data-testid='stage-step-02']精准点击第02阶段放量突破确认,已关闭·真实通过,view_12_strategy_rules.png
+UV-1,View 04 周期切换,未验证,上一轮未实际切换,本轮成功执行 4h 与 1h 两次点击切换并断言激活状态,已关闭·真实通过,view_04_inline_expanded_chart.png
+UV-2,View 07 挂单队列,未验证,上一轮无数据,当前模拟环境仍无真实挂单排队数据，按工单要求诚实保留未验证,保留未验证,view_07_gate_and_pending.png
+UV-3,View 11 策略列表,未验证,上一轮未单独截取列表,本轮独立切换至 list 页签并断言策略列表表格,已关闭·真实通过,view_11_strategy_list.png
+UV-4,B1 回测批次卡片,未验证,上一轮未单独核对批次,本轮在回测工作台中核对批次下拉与卡片数据,已关闭·真实通过,view_15_backtest_runs.png

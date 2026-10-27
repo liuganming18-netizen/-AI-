@@ -1,0 +1,1017 @@
+{
+ "phase": "resume",
+ "env": {
+  "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/paper",
+  "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/live_signals.sqlite3",
+  "PAPER_GATE_FILE": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/runs/04_chain/run_cold/gate.json",
+  "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "WX_MARKET_MERGE": "1",
+  "ACCUM04_CONFIG": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json"
+ },
+ "market_mode": {
+  "merge_enabled": true,
+  "env_flag": "WX_MARKET_MERGE",
+  "hot_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+  "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+  "default_off_note": "不设 WX_MARKET_MERGE ⇒ 走热库，行为与改前一致"
+ },
+ "errors": [],
+ "steps": [],
+ "rescan": [
+  {
+   "scheme": "4a",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4a",
+   "orders_before": 2,
+   "orders_after": 2,
+   "fills_before": 2,
+   "fills_after": 2
+  },
+  {
+   "scheme": "4b",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4b",
+   "orders_before": 2,
+   "orders_after": 2,
+   "fills_before": 2,
+   "fills_after": 2
+  },
+  {
+   "scheme": "4c",
+   "position_id": 1,
+   "skipped": "position_not_open"
+  },
+  {
+   "scheme": "4c",
+   "orders_before": 2,
+   "orders_after": 2,
+   "fills_before": 2,
+   "fills_after": 2
+  }
+ ],
+ "duplicate_attempt": [
+  {
+   "scheme": "4a",
+   "signal_uid": "accum04_4a_SOLUSDT_1785639599999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  },
+  {
+   "scheme": "4b",
+   "signal_uid": "accum04_4b_SOLUSDT_1785643199999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  },
+  {
+   "scheme": "4c",
+   "signal_uid": "accum04_4c_SOLUSDT_1785643199999",
+   "ok": false,
+   "reason": "duplicate_signal_uid"
+  }
+ ],
+ "ledgers": {
+  "4a": {
+   "account_id": "paper43_4a",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "status": "closed",
+     "qty": 6.83,
+     "entry_price": 73.14,
+     "entry_ts": 1785640500000,
+     "exit_ts": 1787375699999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 88.14,
+     "stop_price": 88.19,
+     "initial_stop_price": 69.48,
+     "entry_fee": 0.2497731,
+     "exit_fee": 0.30099810000000005,
+     "funding_paid": 1.3688013860453014,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4a_SOLUSDT_1785639599999",
+     "symbol": "SOLUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 73.14,
+     "bar_open_time": 1785640500000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "exit:4a:1:1787375699999",
+     "symbol": "SOLUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 88.14,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 73.14,
+     "raw_price": 73.1,
+     "qty": 6.83,
+     "notional": 499.5462,
+     "fee": 0.2497731,
+     "bar_open_time": 1785640500000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 2,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 88.14,
+     "raw_price": 88.19,
+     "qty": 6.83,
+     "notional": 601.9962,
+     "fee": 0.30099810000000005,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 69.48,
+     "reason": "initial_stop",
+     "effective_at": 1785640500000,
+     "available_at": 1785639599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.48,
+     "new_stop": 69.51,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785657599999,
+     "available_at": 1785657599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.51,
+     "new_stop": 69.74,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785715199999,
+     "available_at": 1785715199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.74,
+     "new_stop": 69.88,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785873599999,
+     "available_at": 1785873599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.88,
+     "new_stop": 70.0,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785887999999,
+     "available_at": 1785887999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.0,
+     "new_stop": 70.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785959999999,
+     "available_at": 1785959999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.2,
+     "new_stop": 70.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786175999999,
+     "available_at": 1786175999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.72,
+     "new_stop": 70.92,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786190399999,
+     "available_at": 1786190399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.92,
+     "new_stop": 71.56,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786204799999,
+     "available_at": 1786204799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 71.56,
+     "new_stop": 72.14,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786219199999,
+     "available_at": 1786219199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.14,
+     "new_stop": 72.27,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786276799999,
+     "available_at": 1786276799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.27,
+     "new_stop": 72.45,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786291199999,
+     "available_at": 1786291199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.45,
+     "new_stop": 73.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786305599999,
+     "available_at": 1786305599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.2,
+     "new_stop": 73.52,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787155199999,
+     "available_at": 1787155199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.52,
+     "new_stop": 76.91,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787169599999,
+     "available_at": 1787169599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 76.91,
+     "new_stop": 78.13,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787183999999,
+     "available_at": 1787183999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 78.13,
+     "new_stop": 79.77,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787198399999,
+     "available_at": 1787198399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 79.77,
+     "new_stop": 80.18,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787212799999,
+     "available_at": 1787212799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 80.18,
+     "new_stop": 81.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787227199999,
+     "available_at": 1787227199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.72,
+     "new_stop": 81.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787241599999,
+     "available_at": 1787241599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.82000000000001,
+     "new_stop": 82.29,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787255999999,
+     "available_at": 1787255999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.29,
+     "new_stop": 82.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787270399999,
+     "available_at": 1787270399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.82000000000001,
+     "new_stop": 83.17,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787284799999,
+     "available_at": 1787284799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 83.17,
+     "new_stop": 84.41,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787299199999,
+     "available_at": 1787299199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 84.41,
+     "new_stop": 85.31,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787313599999,
+     "available_at": 1787313599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 85.31,
+     "new_stop": 86.21000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787342399999,
+     "available_at": 1787342399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 86.21000000000001,
+     "new_stop": 88.19,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787371199999,
+     "available_at": 1787371199999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": 100.5304274139547,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 5100.530427413954,
+     "realized_pnl": 100.5304274139547,
+     "fees_paid": 0.5507712,
+     "funding_paid": 1.3688013860453012
+    }
+   ],
+   "pending": [],
+   "blocked": []
+  },
+  "4b": {
+   "account_id": "paper43_4b",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "status": "closed",
+     "qty": 6.8100000000000005,
+     "entry_price": 73.25,
+     "entry_ts": 1785644100000,
+     "exit_ts": 1787375699999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 88.14,
+     "stop_price": 88.19,
+     "initial_stop_price": 69.58,
+     "entry_fee": 0.24941625000000003,
+     "exit_fee": 0.30011670000000007,
+     "funding_paid": 1.364793182865081,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4b_SOLUSDT_1785643199999",
+     "symbol": "SOLUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 73.25,
+     "bar_open_time": 1785644100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "exit:4b:1:1787375699999",
+     "symbol": "SOLUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 88.14,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 73.25,
+     "raw_price": 73.21,
+     "qty": 6.8100000000000005,
+     "notional": 498.83250000000004,
+     "fee": 0.24941625000000003,
+     "bar_open_time": 1785644100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 2,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 88.14,
+     "raw_price": 88.19,
+     "qty": 6.8100000000000005,
+     "notional": 600.2334000000001,
+     "fee": 0.30011670000000007,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 69.58,
+     "reason": "initial_stop",
+     "effective_at": 1785644100000,
+     "available_at": 1785643199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.58,
+     "new_stop": 69.74,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785715199999,
+     "available_at": 1785715199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.74,
+     "new_stop": 69.88,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785873599999,
+     "available_at": 1785873599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.88,
+     "new_stop": 70.0,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785887999999,
+     "available_at": 1785887999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.0,
+     "new_stop": 70.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785959999999,
+     "available_at": 1785959999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.2,
+     "new_stop": 70.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786175999999,
+     "available_at": 1786175999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.72,
+     "new_stop": 70.92,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786190399999,
+     "available_at": 1786190399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.92,
+     "new_stop": 71.56,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786204799999,
+     "available_at": 1786204799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 71.56,
+     "new_stop": 72.14,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786219199999,
+     "available_at": 1786219199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.14,
+     "new_stop": 72.27,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786276799999,
+     "available_at": 1786276799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.27,
+     "new_stop": 72.45,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786291199999,
+     "available_at": 1786291199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.45,
+     "new_stop": 73.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786305599999,
+     "available_at": 1786305599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.2,
+     "new_stop": 73.52,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787155199999,
+     "available_at": 1787155199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.52,
+     "new_stop": 76.91,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787169599999,
+     "available_at": 1787169599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 76.91,
+     "new_stop": 78.13,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787183999999,
+     "available_at": 1787183999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 78.13,
+     "new_stop": 79.77,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787198399999,
+     "available_at": 1787198399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 79.77,
+     "new_stop": 80.18,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787212799999,
+     "available_at": 1787212799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 80.18,
+     "new_stop": 81.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787227199999,
+     "available_at": 1787227199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.72,
+     "new_stop": 81.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787241599999,
+     "available_at": 1787241599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.82000000000001,
+     "new_stop": 82.29,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787255999999,
+     "available_at": 1787255999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.29,
+     "new_stop": 82.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787270399999,
+     "available_at": 1787270399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.82000000000001,
+     "new_stop": 83.17,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787284799999,
+     "available_at": 1787284799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 83.17,
+     "new_stop": 84.41,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787299199999,
+     "available_at": 1787299199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 84.41,
+     "new_stop": 85.31,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787313599999,
+     "available_at": 1787313599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 85.31,
+     "new_stop": 86.21000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787342399999,
+     "available_at": 1787342399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 86.21000000000001,
+     "new_stop": 88.19,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787371199999,
+     "available_at": 1787371199999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": 99.48657386713492,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 5099.486573867135,
+     "realized_pnl": 99.48657386713492,
+     "fees_paid": 0.5495329500000001,
+     "funding_paid": 1.3647931828650808
+    }
+   ],
+   "pending": [],
+   "blocked": []
+  },
+  "4c": {
+   "account_id": "paper43_4c",
+   "positions": [
+    {
+     "position_id": 1,
+     "symbol": "SOLUSDT",
+     "status": "closed",
+     "qty": 6.8100000000000005,
+     "entry_price": 73.25,
+     "entry_ts": 1785644100000,
+     "exit_ts": 1787375699999,
+     "exit_reason": "trailing_stop_loss",
+     "exit_price": 88.14,
+     "stop_price": 88.19,
+     "initial_stop_price": 69.58,
+     "entry_fee": 0.24941625000000003,
+     "exit_fee": 0.30011670000000007,
+     "funding_paid": 1.364793182865081,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05
+    }
+   ],
+   "orders": [
+    {
+     "order_id": 1,
+     "event_uid": "accum04_4c_SOLUSDT_1785643199999",
+     "symbol": "SOLUSDT",
+     "side": "buy",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 73.25,
+     "bar_open_time": 1785644100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "order_id": 2,
+     "event_uid": "exit:4c:1:1787375699999",
+     "symbol": "SOLUSDT",
+     "side": "sell",
+     "status": "filled",
+     "reject_reason": null,
+     "fill_price": 88.14,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "fills": [
+    {
+     "fill_id": 1,
+     "order_id": 1,
+     "position_id": 1,
+     "action": "open",
+     "fill_price": 73.25,
+     "raw_price": 73.21,
+     "qty": 6.8100000000000005,
+     "notional": 498.83250000000004,
+     "fee": 0.24941625000000003,
+     "bar_open_time": 1785644100000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    },
+    {
+     "fill_id": 2,
+     "order_id": 2,
+     "position_id": 1,
+     "action": "close",
+     "fill_price": 88.14,
+     "raw_price": 88.19,
+     "qty": 6.8100000000000005,
+     "notional": 600.2334000000001,
+     "fee": 0.30011670000000007,
+     "bar_open_time": 1787374800000,
+     "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven"
+    }
+   ],
+   "stop_history": [
+    {
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 69.58,
+     "reason": "initial_stop",
+     "effective_at": 1785644100000,
+     "available_at": 1785643199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.58,
+     "new_stop": 69.74,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785715199999,
+     "available_at": 1785715199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.74,
+     "new_stop": 69.88,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785873599999,
+     "available_at": 1785873599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 69.88,
+     "new_stop": 70.0,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785887999999,
+     "available_at": 1785887999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.0,
+     "new_stop": 70.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1785959999999,
+     "available_at": 1785959999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.2,
+     "new_stop": 70.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786175999999,
+     "available_at": 1786175999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.72,
+     "new_stop": 70.92,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786190399999,
+     "available_at": 1786190399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 70.92,
+     "new_stop": 71.56,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786204799999,
+     "available_at": 1786204799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 71.56,
+     "new_stop": 72.14,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786219199999,
+     "available_at": 1786219199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.14,
+     "new_stop": 72.27,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786276799999,
+     "available_at": 1786276799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.27,
+     "new_stop": 72.45,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786291199999,
+     "available_at": 1786291199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 72.45,
+     "new_stop": 73.2,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1786305599999,
+     "available_at": 1786305599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.2,
+     "new_stop": 73.52,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787155199999,
+     "available_at": 1787155199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 73.52,
+     "new_stop": 76.91,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787169599999,
+     "available_at": 1787169599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 76.91,
+     "new_stop": 78.13,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787183999999,
+     "available_at": 1787183999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 78.13,
+     "new_stop": 79.77,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787198399999,
+     "available_at": 1787198399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 79.77,
+     "new_stop": 80.18,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787212799999,
+     "available_at": 1787212799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 80.18,
+     "new_stop": 81.72,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787227199999,
+     "available_at": 1787227199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.72,
+     "new_stop": 81.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787241599999,
+     "available_at": 1787241599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 81.82000000000001,
+     "new_stop": 82.29,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787255999999,
+     "available_at": 1787255999999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.29,
+     "new_stop": 82.82000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787270399999,
+     "available_at": 1787270399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 82.82000000000001,
+     "new_stop": 83.17,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787284799999,
+     "available_at": 1787284799999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 83.17,
+     "new_stop": 84.41,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787299199999,
+     "available_at": 1787299199999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 84.41,
+     "new_stop": 85.31,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787313599999,
+     "available_at": 1787313599999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 85.31,
+     "new_stop": 86.21000000000001,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787342399999,
+     "available_at": 1787342399999
+    },
+    {
+     "position_id": 1,
+     "old_stop": 86.21000000000001,
+     "new_stop": 88.19,
+     "reason": "ft_low4h_trail",
+     "effective_at": 1787371199999,
+     "available_at": 1787371199999
+    }
+   ],
+   "realized": [
+    {
+     "position_id": 1,
+     "net_pnl": 99.48657386713492,
+     "exit_reason": "trailing_stop_loss"
+    }
+   ],
+   "state": [
+    {
+     "cash": 5099.486573867135,
+     "realized_pnl": 99.48657386713492,
+     "fees_paid": 0.5495329500000001,
+     "funding_paid": 1.3647931828650808
+    }
+   ],
+   "pending": [],
+   "blocked": []
+  }
+ },
+ "connections": [],
+ "config": {
+  "schema_version": "accum-early-04/v1",
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-04-B/fixture/fixture_rules.json",
+  "present": true,
+  "parse_ok": true,
+  "config_sha256": "c15249589235592195f89b1ebe6d71aa540e634a4960fbfda8813b03ea2ff706",
+  "kind": "fixture",
+  "approved": false,
+  "approval_ref": "NOT-APPROVED / fixture-for-wiring-selfcheck-only",
+  "missing": [],
+  "unsupported": [],
+  "fixture": true,
+  "ready": true,
+  "open_allowed": true,
+  "blocked_by": [],
+  "doc_sha256_declared": null,
+  "open_scope": "fixture_chain_selfcheck",
+  "reason": "允许开仓（fixture_chain_selfcheck）"
+ }
+}

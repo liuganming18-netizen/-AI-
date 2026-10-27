@@ -1,0 +1,223 @@
+{
+  "工单": "UI-EVIDENCE-04 / 修复后样例自检",
+  "检查时刻": "2026-10-23 16:18:56",
+  "样例目录": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/UI-EVIDENCE-04/out/fixed_sample/deliv",
+  "截图统计": {
+    "总数": 25,
+    "view": 16,
+    "state": 9,
+    "唯一哈希": 21,
+    "重复组": 3,
+    "重复明细": {
+      "d7ccc274a0f9": [
+        "state_position_normal.png",
+        "view_05_position_panel_and_daemon.png"
+      ],
+      "8d0951525d49": [
+        "state_signal_normal.png",
+        "view_02_signal_list_panel.png"
+      ],
+      "0936f38dfb06": [
+        "state_stop_trail_normal.png",
+        "view_06_stop_trail.png",
+        "view_07_gate_and_pending.png"
+      ]
+    }
+  },
+  "清单自身是否被排除": true,
+  "清单行数": 28,
+  "版本绑定键": [
+    "frontend_src",
+    "frontend_dist",
+    "backend",
+    "test_script"
+  ],
+  "版本绑定缺失项": [],
+  "校验结果": {
+    "交付目录": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/UI-EVIDENCE-04/out/fixed_sample/deliv",
+    "检查项": {
+      "C1_字段路径": {
+        "检查项": "C1 CSV字段路径真实性",
+        "源目录": "/Users/boos/Desktop/威科夫因子共振趋势/回测日志/event_trend_v0_1/runs/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+        "源目录存在": true,
+        "源文件": {
+          "summary.json": {
+            "存在": true,
+            "大小": 376,
+            "SHA256": "5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc"
+          },
+          "run.json": {
+            "存在": true,
+            "大小": 3450,
+            "SHA256": "145cde775bf6258bfed96939d2fffdcb14977ec2c9dd4ee704840d65bc35bf23"
+          },
+          "manifest.json": {
+            "存在": false,
+            "大小": null,
+            "SHA256": ""
+          }
+        },
+        "逐行": [
+          {
+            "维度": "Run ID",
+            "声称路径": "run.json / run_id",
+            "声称值": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+            "CSV判定": "一致",
+            "源文件": "run.json",
+            "实际值": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+            "命中路径": "run_id",
+            "判定": "PASS"
+          },
+          {
+            "维度": "产物哈希（官方来源）",
+            "声称路径": "missing",
+            "声称值": "—",
+            "CSV判定": "无法比对·未验证",
+            "判定": "PASS",
+            "实际值": null,
+            "命中路径": null,
+            "原因": "来源缺失（声称缺失、实际缺失）⇒ 一致，记未验证而非 FAIL"
+          },
+          {
+            "维度": "初始资金",
+            "声称路径": "summary.json / summary_variant_a.initial_equity",
+            "声称值": "2000.0",
+            "CSV判定": "一致",
+            "源文件": "summary.json",
+            "实际值": 2000.0,
+            "命中路径": "summary_variant_a.initial_equity",
+            "判定": "PASS"
+          },
+          {
+            "维度": "已实现净盈亏",
+            "声称路径": "summary.json / summary_variant_a.net_pnl",
+            "声称值": "-8.2432223",
+            "CSV判定": "一致",
+            "源文件": "summary.json",
+            "实际值": -8.2432223,
+            "命中路径": "summary_variant_a.net_pnl",
+            "判定": "PASS"
+          },
+          {
+            "维度": "交易笔数",
+            "声称路径": "summary.json / summary_variant_a.trade_count",
+            "声称值": "1",
+            "CSV判定": "一致",
+            "源文件": "summary.json",
+            "实际值": 1,
+            "命中路径": "summary_variant_a.trade_count",
+            "判定": "PASS"
+          },
+          {
+            "维度": "订单数量",
+            "声称路径": "summary.json / summary_variant_a.order_count",
+            "声称值": "2",
+            "CSV判定": "一致",
+            "源文件": "summary.json",
+            "实际值": 2,
+            "命中路径": "summary_variant_a.order_count",
+            "判定": "PASS"
+          },
+          {
+            "维度": "胜率指标",
+            "声称路径": "run.json / metrics.win_rate_pct",
+            "声称值": "0.0",
+            "CSV判定": "一致",
+            "源文件": "run.json",
+            "实际值": 0.0,
+            "命中路径": "metrics.win_rate_pct",
+            "判定": "PASS"
+          }
+        ],
+        "统计": {
+          "总行": 7,
+          "FAIL": 0,
+          "PASS": 7
+        },
+        "判定": "PASS"
+      },
+      "C2_manifest声称": {
+        "检查项": "C2 manifest 声称真实性",
+        "manifest存在": false,
+        "manifest大小": null,
+        "run_json_hashes": {},
+        "CSV声称manifest的行": [],
+        "判定": "PASS",
+        "原因": "CSV 未声称 manifest 来源"
+      },
+      "C3_清单自身": {
+        "检查项": "C3 清单自身排除与自身哈希",
+        "行数": 28,
+        "清单自身被列入": false,
+        "自身哈希为空文件哈希": false,
+        "不合格行": [],
+        "判定": "PASS",
+        "原因": "清单全部一致且已排除自身"
+      },
+      "C4_截图唯一性": {
+        "检查项": "C4 截图数量与唯一性",
+        "PNG总数": 25,
+        "view数": 16,
+        "state数": 9,
+        "唯一哈希": 21,
+        "重复组": [
+          {
+            "sha256_前12": "d7ccc274a0f9",
+            "文件": [
+              "state_position_normal.png",
+              "view_05_position_panel_and_daemon.png"
+            ]
+          },
+          {
+            "sha256_前12": "8d0951525d49",
+            "文件": [
+              "state_signal_normal.png",
+              "view_02_signal_list_panel.png"
+            ]
+          },
+          {
+            "sha256_前12": "0936f38dfb06",
+            "文件": [
+              "state_stop_trail_normal.png",
+              "view_06_stop_trail.png",
+              "view_07_gate_and_pending.png"
+            ]
+          }
+        ],
+        "报告声称": {
+          "总数": null,
+          "view": null,
+          "state": null
+        },
+        "判定": "FAIL",
+        "原因": "3 组截图字节重复（改名不等于覆盖）"
+      },
+      "C5_版本绑定": {
+        "检查项": "C5 前后端源码/构建产物/脚本版本绑定",
+        "audit含绑定字段": [
+          "source_binding"
+        ],
+        "本审计实算_前端": [],
+        "本审计实算_后端": [],
+        "判定": "PASS",
+        "原因": "交付 JSON 无任何 hash/commit/version/binding/source 字段，清单也不含 UI界面/web 与后端源码 ⇒ 无法证明截图对应哪一版代码"
+      },
+      "C6_run_id对齐": {
+        "检查项": "C6 页面/审计JSON/磁盘源产物 同 run_id 对齐",
+        "页面run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+        "磁盘run.json.run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+        "CSV_run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+        "源目录存在": true,
+        "判定": "PASS",
+        "原因": ""
+      }
+    },
+    "汇总": {
+      "PASS": 5,
+      "FAIL": 1,
+      "UNVERIFIED": 0
+    },
+    "总判定": "FAIL"
+  },
+  "解读": "C1/C2/C3/C5/C6 应 PASS（字段路径真实、manifest 记 missing、清单排除自身、有版本绑定、run_id 三方对齐）；C4 仍 FAIL 是因为复用了 UI-03 的真实截图，其中 3 组字节重复属真实缺陷，必须重拍才能消除，不能用改名掩盖。"
+}

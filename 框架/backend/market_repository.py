@@ -125,6 +125,10 @@ class MarketDataRepository:
         return sorted(d.glob("*.parquet")) if d.is_dir() else []
 
     def _flat_shards(self, exchange, market, symbol, metric):
+        # 兼容平铺单文件：.../metric/exchange/market/<symbol>.parquet（如资金费）
+        flat_file = self.archive_root / metric / exchange / market / f"{symbol}.parquet"
+        if flat_file.is_file():
+            return [flat_file]
         d = self.archive_root / metric / exchange / market / symbol
         return sorted(d.glob("*.parquet")) if d.is_dir() else []
 
@@ -249,8 +253,19 @@ class MarketDataRepository:
                     f"SELECT * FROM funding_history WHERE {where} ORDER BY funding_time DESC LIMIT ?",
                     params + [limit])]
         if prefer == "cold" or len(hot) < limit:
-            cold = self._cold_flat(exchange, market, symbol, "funding", where, params, limit,
+            # 冷档 funding 平铺文件仅含 funding_time/funding_rate 等列，不含 exchange/market/symbol
+            cold_where = "1=1"
+            cold_params = []
+            if start is not None:
+                cold_where += " AND funding_time>=?"; cold_params.append(start)
+            if end is not None:
+                cold_where += " AND funding_time<=?"; cold_params.append(end)
+            cold = self._cold_flat(exchange, market, symbol, "funding", cold_where, cold_params, limit,
                                    order_by="funding_time DESC")
+            for r in cold:
+                r.setdefault("exchange", exchange)
+                r.setdefault("market", market)
+                r.setdefault("symbol", symbol)
             hot = self._merge_dedup(hot, cold, key=("funding_time",), limit=limit)
         return list(reversed(hot))
 

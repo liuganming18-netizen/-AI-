@@ -1,0 +1,9 @@
+对账维度,前端页面DOM渲染值,服务端真实文件落盘值,服务端文件真实字段路径,核对判定,说明
+Run ID,run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT,run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT,summary.json / run_id,一致,页面显示哪个run核对哪个源产物
+产物哈希,5f42d2550282aa16...,5f42d2550282aa16908e6ace4b7f310576bdf476594409cf617d2c25571101dc,manifest.json / files.summary.json.sha256,一致,真实文件SHA256核验
+初始资金,"$2,000.00",2000.0,summary.json / trading_summary.initial_equity,一致,字段路径修正，杜绝trades.*
+已实现净盈亏,$-8.24,-8.2432223,summary.json / trading_summary.net_pnl,一致,真实净盈亏对账
+交易笔数,1,1,summary.json / trading_summary.trade_count,一致,真实闭合交易数
+订单数量,2,2,summary.json / trading_summary.order_count,一致,真实订单数
+胜率指标,— (样本过少),null,run.json / metrics.win_rate_pct,一致,如实保留null，不擅自充0.0
+质量门禁,False (候选研究),False,summary.json / formal_pass_allowed,一致,如实记录未达正式放行标准

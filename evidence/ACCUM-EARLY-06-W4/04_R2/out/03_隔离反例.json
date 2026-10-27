@@ -1,0 +1,486 @@
+{
+ "工单": "ACCUM-EARLY-06-W4-R2",
+ "性质": "隔离反例（合成），与 04_真实记录核对 严格分开",
+ "R1 判据来源": "import 03_R1 脚本原函数，仅替换其数据源",
+ "cases": [
+  {
+   "id": "S1",
+   "title": "规律缺失导致周期误判（有官方证据）",
+   "synthetic_series": {
+    "n": 90,
+    "first_utc": "2026-06-01T00:00:00Z",
+    "last_utc": "2026-06-30T16:00:00Z"
+   },
+   "entry_utc": "2026-06-11T00:15:00Z",
+   "exit_utc": "2026-06-12T06:15:00Z",
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1772496000000,
+    "update_utc": "2026-03-03T00:00:00Z",
+    "disclaimer": false
+   },
+   "r1": {
+    "period_status": "proven_regular_8h",
+    "step_h": 8.0,
+    "distinct_intervals": [
+     8.0
+    ],
+    "expected": 3,
+    "actual": 3,
+    "missing": 0,
+    "gap_classification": "NO_GAP_COMPLETE",
+    "usability": "USABLE_BASELINE_REFERENCE"
+   },
+   "r2": {
+    "interval_basis": "official_snapshot",
+    "step_h": 4.0,
+    "phase_h": 0,
+    "expected": 7,
+    "actual": 3,
+    "missing": 4,
+    "boundary_dependent": 0,
+    "completeness": "MISSING_DEMONSTRATED",
+    "claim": "REFUTED",
+    "reason": "官方周期覆盖持仓且相位一致，网格内确有缺失 ⇒ 完整性被否证"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "R1 判 proven_8h 且完整；R2 用官方 4h 判出缺一半",
+   "说明": "观测间隔被「缺失」改写成 8h；只有官方证据能纠正"
+  },
+  {
+   "id": "S1b",
+   "title": "同一份数据但没有官方证据",
+   "synthetic_series": {
+    "n": 90,
+    "first_utc": "2026-06-01T00:00:00Z",
+    "last_utc": "2026-06-30T16:00:00Z"
+   },
+   "entry_utc": "2026-06-11T00:15:00Z",
+   "exit_utc": "2026-06-12T06:15:00Z",
+   "official": null,
+   "r1": {
+    "period_status": "proven_regular_8h",
+    "step_h": 8.0,
+    "distinct_intervals": [
+     8.0
+    ],
+    "expected": 3,
+    "actual": 3,
+    "missing": 0,
+    "gap_classification": "NO_GAP_COMPLETE",
+    "usability": "USABLE_BASELINE_REFERENCE"
+   },
+   "r2": {
+    "interval_basis": "inferred_uniform",
+    "step_h": 8.0,
+    "phase_h": 0,
+    "expected": 3,
+    "actual": 3,
+    "missing": 0,
+    "boundary_dependent": 0,
+    "completeness": "NO_GAP_DETECTED",
+    "claim": "NOT_PROVEN",
+    "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "R1 宣称 proven_8h 完整；R2 只能给 NOT_PROVEN（观测法不可区分）",
+   "说明": "没有官方证据时，「缺一半」与「本来就是 8h」在观测上等价 ⇒ 只能说未证明"
+  },
+  {
+   "id": "S2",
+   "title": "非零结算但仍漏事件（12h 应结算 3 次，只记录 1 次）",
+   "synthetic_series": {
+    "n": 178,
+    "first_utc": "2026-06-01T00:00:00Z",
+    "last_utc": "2026-06-30T20:00:00Z"
+   },
+   "entry_utc": "2026-06-07T16:15:00Z",
+   "exit_utc": "2026-06-08T04:15:00Z",
+   "official": null,
+   "r1": {
+    "period_status": "proven_regular_4h_with_gaps",
+    "step_h": 4.0,
+    "distinct_intervals": [
+     4.0,
+     12.0
+    ],
+    "expected": 3,
+    "actual": 1,
+    "missing": 2,
+    "gap_classification": "GAP_PARTIAL_MISSING",
+    "usability": "HOLD_PENDING_POLICY"
+   },
+   "r2": {
+    "interval_basis": "inferred_with_multiples",
+    "step_h": 4.0,
+    "phase_h": 0,
+    "expected": 3,
+    "actual": 1,
+    "missing": 2,
+    "boundary_dependent": 0,
+    "completeness": "INCONSISTENT_INFERRED",
+    "claim": "NOT_PROVEN",
+    "reason": "仅推断周期，网格内出现缺口；既可能是记录缺失，也可能是周期/相位变化，不能叫「已证明缺失」，更不能叫「完整」"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "旧 8h 零事件判据判「完整」（因为 >0 次）；R1/R2 都能判出缺 2 次",
+   "说明": "「结算次数 > 0」不能推出完整；持仓 12h 只结算 1 次就是漏"
+  },
+  {
+   "id": "S3",
+   "title": "周期切换（8h→4h）落在持仓内",
+   "synthetic_series": {
+    "n": 361,
+    "first_utc": "2026-06-01T00:00:00Z",
+    "last_utc": "2026-08-30T00:00:00Z"
+   },
+   "entry_utc": "2026-07-30T14:00:00Z",
+   "exit_utc": "2026-07-31T14:00:00Z",
+   "official": null,
+   "r1": {
+    "period_status": "proven_regular_4h_with_gaps",
+    "step_h": 4.0,
+    "distinct_intervals": [
+     4.0,
+     8.0
+    ],
+    "expected": 6,
+    "actual": 5,
+    "missing": 1,
+    "gap_classification": "GAP_PARTIAL_MISSING",
+    "usability": "HOLD_PENDING_POLICY"
+   },
+   "r2": {
+    "interval_basis": "switch_detected",
+    "step_h": 4.0,
+    "phase_h": 0,
+    "expected": 6,
+    "actual": 5,
+    "missing": 1,
+    "boundary_dependent": 0,
+    "completeness": "UNDETERMINED",
+    "claim": "UNKNOWN",
+    "reason": "持仓区间内观测到周期切换，单一周期网格不成立；无官方证据界定切换时刻"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "R1 把混合间隔当成「4h 有缺口」，按 4h 铺满整个持仓；R2 判 UNDETERMINED",
+   "说明": "切换前后步长不同，任何单一周期网格都会算错"
+  },
+  {
+   "id": "S4",
+   "title": "相位不一致（4h 周期但结算在 01/05/09 点）",
+   "synthetic_series": {
+    "n": 180,
+    "first_utc": "2026-06-01T01:00:00Z",
+    "last_utc": "2026-06-30T21:00:00Z"
+   },
+   "entry_utc": "2026-06-07T16:30:00Z",
+   "exit_utc": "2026-06-08T04:30:00Z",
+   "official": null,
+   "r1": {
+    "period_status": "proven_regular_4h",
+    "step_h": 4.0,
+    "distinct_intervals": [
+     4.0
+    ],
+    "expected": 3,
+    "actual": 3,
+    "missing": 3,
+    "gap_classification": "GAP_PARTIAL_MISSING",
+    "usability": "HOLD_PENDING_POLICY"
+   },
+   "r2": {
+    "interval_basis": "inferred_uniform",
+    "step_h": 4.0,
+    "phase_h": 1,
+    "expected": 3,
+    "actual": 3,
+    "missing": 0,
+    "boundary_dependent": 0,
+    "completeness": "NO_GAP_DETECTED",
+    "claim": "NOT_PROVEN",
+    "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "R1 按相位 0 生成预期 ⇒ 全部落空；R2 用观测相位 1h ⇒ 全部匹配",
+   "说明": "周期长度相同但相位不同，不能只凭长度默认 00/04/08"
+  },
+  {
+   "id": "S5",
+   "title": "端点抖动（结算记录比退出晚 4ms）",
+   "synthetic_series": {
+    "n": 180,
+    "first_utc": "2026-06-01T00:00:00Z",
+    "last_utc": "2026-06-30T20:00:00Z"
+   },
+   "entry_utc": "2026-06-07T16:15:00Z",
+   "exit_utc": "2026-06-08T04:00:00Z",
+   "official": null,
+   "r1": {
+    "period_status": "proven_regular_4h",
+    "step_h": 4.0,
+    "distinct_intervals": [
+     4.0
+    ],
+    "expected": 3,
+    "actual": 2,
+    "missing": 1,
+    "gap_classification": "GAP_PARTIAL_MISSING",
+    "usability": "HOLD_PENDING_POLICY"
+   },
+   "r2": {
+    "interval_basis": "inferred_uniform",
+    "step_h": 4.0,
+    "phase_h": 0,
+    "expected": 3,
+    "actual": 2,
+    "missing": 0,
+    "boundary_dependent": 1,
+    "completeness": "NO_GAP_DETECTED",
+    "claim": "NOT_PROVEN",
+    "reason": "网格内无缺失，但 1 个预期时刻只由「端点毫秒抖动」事件满足（严格判据本不纳入）⇒ 退出同刻有歧义，不能声称已证明完整"
+   },
+   "old_8h_rule": {
+    "would_flag_gap": false,
+    "verdict": "NO_GAP_COMPLETE",
+    "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+   },
+   "预期结论": "R1 严格 `<=` 把它判成不存在；R2 容差匹配并标 boundary_dependent",
+   "说明": "毫秒级记录抖动会让「退出同刻的那次结算」凭空消失或多出来"
+  }
+ ],
+ "checks": [
+  {
+   "检查": "X1 S1：R1 把「缺一半」读成 8h 周期，R2 用官方 4h 判出缺失",
+   "通过": true,
+   "证据": {
+    "r1": {
+     "period_status": "proven_regular_8h",
+     "step_h": 8.0,
+     "distinct_intervals": [
+      8.0
+     ],
+     "expected": 3,
+     "actual": 3,
+     "missing": 0,
+     "gap_classification": "NO_GAP_COMPLETE",
+     "usability": "USABLE_BASELINE_REFERENCE"
+    },
+    "r2": {
+     "interval_basis": "official_snapshot",
+     "step_h": 4.0,
+     "phase_h": 0,
+     "expected": 7,
+     "actual": 3,
+     "missing": 4,
+     "boundary_dependent": 0,
+     "completeness": "MISSING_DEMONSTRATED",
+     "claim": "REFUTED",
+     "reason": "官方周期覆盖持仓且相位一致，网格内确有缺失 ⇒ 完整性被否证"
+    }
+   }
+  },
+  {
+   "检查": "X2 S1b：无官方证据时 R2 不给「已证明」，R1 给「proven + 完整」",
+   "通过": true,
+   "证据": {
+    "r1": {
+     "period_status": "proven_regular_8h",
+     "step_h": 8.0,
+     "distinct_intervals": [
+      8.0
+     ],
+     "expected": 3,
+     "actual": 3,
+     "missing": 0,
+     "gap_classification": "NO_GAP_COMPLETE",
+     "usability": "USABLE_BASELINE_REFERENCE"
+    },
+    "r2": {
+     "interval_basis": "inferred_uniform",
+     "step_h": 8.0,
+     "phase_h": 0,
+     "expected": 3,
+     "actual": 3,
+     "missing": 0,
+     "boundary_dependent": 0,
+     "completeness": "NO_GAP_DETECTED",
+     "claim": "NOT_PROVEN",
+     "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整"
+    }
+   }
+  },
+  {
+   "检查": "X3 S2：有非零结算但 R2 仍判出缺失；旧 8h 零事件判据看不见",
+   "通过": true,
+   "证据": {
+    "old_8h_rule": {
+     "would_flag_gap": false,
+     "verdict": "NO_GAP_COMPLETE",
+     "说明": "只看「持仓>8h 且 0 结算」，有任意一次结算就判完整"
+    },
+    "r1": {
+     "period_status": "proven_regular_4h_with_gaps",
+     "step_h": 4.0,
+     "distinct_intervals": [
+      4.0,
+      12.0
+     ],
+     "expected": 3,
+     "actual": 1,
+     "missing": 2,
+     "gap_classification": "GAP_PARTIAL_MISSING",
+     "usability": "HOLD_PENDING_POLICY"
+    },
+    "r2": {
+     "interval_basis": "inferred_with_multiples",
+     "step_h": 4.0,
+     "phase_h": 0,
+     "expected": 3,
+     "actual": 1,
+     "missing": 2,
+     "boundary_dependent": 0,
+     "completeness": "INCONSISTENT_INFERRED",
+     "claim": "NOT_PROVEN",
+     "reason": "仅推断周期，网格内出现缺口；既可能是记录缺失，也可能是周期/相位变化，不能叫「已证明缺失」，更不能叫「完整」"
+    }
+   }
+  },
+  {
+   "检查": "X4 S3：持仓内周期切换，R2 判 UNDETERMINED，R1 仍给确定步长",
+   "通过": true,
+   "证据": {
+    "r1": {
+     "period_status": "proven_regular_4h_with_gaps",
+     "step_h": 4.0,
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "expected": 6,
+     "actual": 5,
+     "missing": 1,
+     "gap_classification": "GAP_PARTIAL_MISSING",
+     "usability": "HOLD_PENDING_POLICY"
+    },
+    "r2": {
+     "interval_basis": "switch_detected",
+     "step_h": 4.0,
+     "phase_h": 0,
+     "expected": 6,
+     "actual": 5,
+     "missing": 1,
+     "boundary_dependent": 0,
+     "completeness": "UNDETERMINED",
+     "claim": "UNKNOWN",
+     "reason": "持仓区间内观测到周期切换，单一周期网格不成立；无官方证据界定切换时刻"
+    }
+   }
+  },
+  {
+   "检查": "X5 S4：相位不是 0 时 R1 的预期时刻全部落空，R2 全部匹配",
+   "通过": true,
+   "证据": {
+    "r1": {
+     "period_status": "proven_regular_4h",
+     "step_h": 4.0,
+     "distinct_intervals": [
+      4.0
+     ],
+     "expected": 3,
+     "actual": 3,
+     "missing": 3,
+     "gap_classification": "GAP_PARTIAL_MISSING",
+     "usability": "HOLD_PENDING_POLICY"
+    },
+    "r2": {
+     "interval_basis": "inferred_uniform",
+     "step_h": 4.0,
+     "phase_h": 1,
+     "expected": 3,
+     "actual": 3,
+     "missing": 0,
+     "boundary_dependent": 0,
+     "completeness": "NO_GAP_DETECTED",
+     "claim": "NOT_PROVEN",
+     "reason": "未发现缺失，但周期只有推断证据 ⇒ 不能声称已证明完整"
+    }
+   }
+  },
+  {
+   "检查": "X6 S5：端点 4ms 抖动，R1 判缺失，R2 标 boundary_dependent 且不给 PROVEN",
+   "通过": true,
+   "证据": {
+    "r1": {
+     "period_status": "proven_regular_4h",
+     "step_h": 4.0,
+     "distinct_intervals": [
+      4.0
+     ],
+     "expected": 3,
+     "actual": 2,
+     "missing": 1,
+     "gap_classification": "GAP_PARTIAL_MISSING",
+     "usability": "HOLD_PENDING_POLICY"
+    },
+    "r2": {
+     "interval_basis": "inferred_uniform",
+     "step_h": 4.0,
+     "phase_h": 0,
+     "expected": 3,
+     "actual": 2,
+     "missing": 0,
+     "boundary_dependent": 1,
+     "completeness": "NO_GAP_DETECTED",
+     "claim": "NOT_PROVEN",
+     "reason": "网格内无缺失，但 1 个预期时刻只由「端点毫秒抖动」事件满足（严格判据本不纳入）⇒ 退出同刻有歧义，不能声称已证明完整"
+    }
+   }
+  },
+  {
+   "检查": "X7 反例全部为合成数据，未读生产库、未写生产库",
+   "通过": true,
+   "证据": {
+    "cases": [
+     "S1",
+     "S1b",
+     "S2",
+     "S3",
+     "S4",
+     "S5"
+    ],
+    "series_range": [
+     [
+      "2026-06-01T00:00:00Z",
+      "2026-06-30T16:00:00Z"
+     ],
+     [
+      "2026-06-01T00:00:00Z",
+      "2026-06-30T16:00:00Z"
+     ]
+    ],
+    "数据来源": "本脚本内 off_series() 生成，不调用适配器读真实库"
+   }
+  }
+ ]
+}

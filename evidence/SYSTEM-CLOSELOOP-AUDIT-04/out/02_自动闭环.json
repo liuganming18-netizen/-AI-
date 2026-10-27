@@ -1,0 +1,437 @@
+{
+ "生成时刻": "2026-10-23T00:39:48+08:00",
+ "入口": "workers/paper_execution_worker.py --arm 3a --interval 1",
+ "隔离根": "/tmp/wx_audit04",
+ "base": 1792686600000,
+ "T_sig": 1792683900000,
+ "步骤1_信号登记": {
+  "ok": false,
+  "reason": "pending_future_fill",
+  "pending_id": 1
+ },
+ "账本_启动前": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "pending",
+    "reason": null,
+    "requested_at": 1792683900000,
+    "first_request_ms": 1792683900000,
+    "earliest_fill_ms": 1792684800000,
+    "event_time": 1792683900000
+   }
+  ],
+  "orders": [],
+  "positions": [],
+  "fills": [],
+  "stops": [],
+  "blocked": []
+ },
+ "账本_守护首轮后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "pending",
+    "reason": null,
+    "requested_at": 1792683900000,
+    "first_request_ms": 1792683900000,
+    "earliest_fill_ms": 1792684800000,
+    "event_time": 1792683900000
+   }
+  ],
+  "orders": [],
+  "positions": [],
+  "fills": [],
+  "stops": [],
+  "blocked": []
+ },
+ "账本_行情到达后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "filled",
+    "reason": null,
+    "requested_at": 1792683900000,
+    "first_request_ms": 1792683900000,
+    "earliest_fill_ms": 1792684800000,
+    "event_time": 1792683900000
+   }
+  ],
+  "orders": [
+   {
+    "order_id": 1,
+    "event_uid": "sig_auto04_01",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 4.995,
+    "price": 100.10000000000001,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687193594,
+    "fill_price": 100.10000000000001
+   }
+  ],
+  "positions": [
+   {
+    "position_id": 1,
+    "symbol": "BTCUSDT",
+    "qty": 4.995,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792684800000,
+    "stop_price": 95.0,
+    "status": "open",
+    "exit_ts": null,
+    "exit_reason": null,
+    "entry_fee": 0.24999975000000005
+   }
+  ],
+  "fills": [
+   {
+    "fill_id": 1,
+    "position_id": 1,
+    "order_id": 1,
+    "symbol": "BTCUSDT",
+    "action": "open",
+    "qty": 4.995,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005,
+    "fill_ts": 1792687193594
+   }
+  ],
+  "stops": [
+   {
+    "id": 1,
+    "account_id": "paper43_3a",
+    "position_id": 1,
+    "old_stop": null,
+    "new_stop": 95.0,
+    "reason": "initial_stop",
+    "ref_bar_open_ms": 1792684800000,
+    "available_at": 1792683900000,
+    "decision_at": 1792687193594,
+    "effective_at": 1792684800000,
+    "created_at": 1792687193597
+   }
+  ],
+  "blocked": []
+ },
+ "自动成交": true,
+ "未成交原因": null,
+ "账本_退出后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "filled",
+    "reason": null,
+    "requested_at": 1792683900000,
+    "first_request_ms": 1792683900000,
+    "earliest_fill_ms": 1792684800000,
+    "event_time": 1792683900000
+   }
+  ],
+  "orders": [
+   {
+    "order_id": 1,
+    "event_uid": "sig_auto04_01",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 4.995,
+    "price": 100.10000000000001,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687193594,
+    "fill_price": 100.10000000000001
+   },
+   {
+    "order_id": 2,
+    "event_uid": "exit:3a:1:1792687208037",
+    "symbol": "BTCUSDT",
+    "side": "sell",
+    "qty": 4.995,
+    "price": 95.0,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687208037,
+    "fill_price": 94.9525
+   }
+  ],
+  "positions": [
+   {
+    "position_id": 1,
+    "symbol": "BTCUSDT",
+    "qty": 4.995,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792684800000,
+    "stop_price": 95.0,
+    "status": "closed",
+    "exit_ts": 1792687208037,
+    "exit_reason": "trailing_stop_loss",
+    "entry_fee": 0.24999975000000005
+   }
+  ],
+  "fills": [
+   {
+    "fill_id": 1,
+    "position_id": 1,
+    "order_id": 1,
+    "symbol": "BTCUSDT",
+    "action": "open",
+    "qty": 4.995,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005,
+    "fill_ts": 1792687193594
+   },
+   {
+    "fill_id": 2,
+    "position_id": 1,
+    "order_id": 2,
+    "symbol": "BTCUSDT",
+    "action": "close",
+    "qty": 4.995,
+    "fill_price": 94.9525,
+    "fee": 0.23714386875000001,
+    "fill_ts": 1792687208037
+   }
+  ],
+  "stops": [
+   {
+    "id": 1,
+    "account_id": "paper43_3a",
+    "position_id": 1,
+    "old_stop": null,
+    "new_stop": 95.0,
+    "reason": "initial_stop",
+    "ref_bar_open_ms": 1792684800000,
+    "available_at": 1792683900000,
+    "decision_at": 1792687193594,
+    "effective_at": 1792684800000,
+    "created_at": 1792687193597
+   }
+  ],
+  "blocked": []
+ },
+ "步骤4": {
+  "止损上移": {
+   "止损价": [
+    95.0
+   ],
+   "轨迹": [
+    {
+     "id": 1,
+     "account_id": "paper43_3a",
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 95.0,
+     "reason": "initial_stop",
+     "ref_bar_open_ms": 1792684800000,
+     "available_at": 1792683900000,
+     "decision_at": 1792687193594,
+     "effective_at": 1792684800000,
+     "created_at": 1792687193597
+    }
+   ]
+  },
+  "自动退出": {
+   "持仓": [
+    {
+     "position_id": 1,
+     "symbol": "BTCUSDT",
+     "qty": 4.995,
+     "entry_price": 100.10000000000001,
+     "entry_ts": 1792684800000,
+     "stop_price": 95.0,
+     "status": "closed",
+     "exit_ts": 1792687208037,
+     "exit_reason": "trailing_stop_loss",
+     "entry_fee": 0.24999975000000005
+    }
+   ],
+   "成交": [
+    {
+     "fill_id": 1,
+     "position_id": 1,
+     "order_id": 1,
+     "symbol": "BTCUSDT",
+     "action": "open",
+     "qty": 4.995,
+     "fill_price": 100.10000000000001,
+     "fee": 0.24999975000000005,
+     "fill_ts": 1792687193594
+    },
+    {
+     "fill_id": 2,
+     "position_id": 1,
+     "order_id": 2,
+     "symbol": "BTCUSDT",
+     "action": "close",
+     "qty": 4.995,
+     "fill_price": 94.9525,
+     "fee": 0.23714386875000001,
+     "fill_ts": 1792687208037
+    }
+   ],
+   "轨迹": [
+    {
+     "id": 1,
+     "account_id": "paper43_3a",
+     "position_id": 1,
+     "old_stop": null,
+     "new_stop": 95.0,
+     "reason": "initial_stop",
+     "ref_bar_open_ms": 1792684800000,
+     "available_at": 1792683900000,
+     "decision_at": 1792687193594,
+     "effective_at": 1792684800000,
+     "created_at": 1792687193597
+    }
+   ]
+  }
+ },
+ "单实例锁": {
+  "第二实例仍在运行": false,
+  "退出码": 1,
+  "日志尾部": [
+   "[!] Worker failed: Daemon for arm 3a already running on this machine (file lock occupied: /tmp/wx_audit04/locks/paper_exec_3a.lock)",
+   "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+  ]
+ },
+ "重启恢复": {
+  "成交数_重启前": 2,
+  "成交数_重启后": 2,
+  "止损轨迹_重启前": 1,
+  "止损轨迹_重启后": 1,
+  "持仓数_重启前": 1,
+  "持仓数_重启后": 1
+ },
+ "重启后无重复": true,
+ "守护日志_w1尾部": [],
+ "时间线": [
+  {
+   "时刻": "2026-10-23T00:39:48+08:00",
+   "步骤": "撤掉尚未到达的 15m bar（制造挂单窗口）",
+   "详情": {
+    "删除根数": 2,
+    "自": 1792684800000
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:39:48+08:00",
+   "步骤": "信号到达（引擎 open_position，origin=replay 指定信号时钟）",
+   "详情": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "earliest_fill_ms": 1792684800000
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:39:48+08:00",
+   "步骤": "启动执行守护（运行入口）",
+   "详情": {
+    "pid": 49210,
+    "日志": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-AUDIT-04/out/02_worker_w1.log"
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:39:53+08:00",
+   "步骤": "守护跑 5 秒后账本",
+   "详情": {
+    "pending状态": [
+     "pending"
+    ],
+    "持仓数": 0
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:39:53+08:00",
+   "步骤": "行情到达：插入成交 bar",
+   "详情": {
+    "open_time": 1792684800000,
+    "close_time": 1792685699999
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:40:01+08:00",
+   "步骤": "行情到达 8 秒后账本",
+   "详情": {
+    "pending": [
+     [
+      "filled",
+      null
+     ]
+    ],
+    "订单": [
+     [
+      "buy",
+      "filled",
+      null
+     ]
+    ],
+    "持仓数": 1,
+    "成交数": 1,
+    "止损轨迹数": 1
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:40:07+08:00",
+   "步骤": "插入 4h bar 后账本",
+   "详情": {
+    "止损价": [
+     95.0
+    ],
+    "止损轨迹数": 1
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:40:13+08:00",
+   "步骤": "插入跌破 bar 后账本",
+   "详情": {
+    "持仓状态": [
+     [
+      1,
+      "closed",
+      "trailing_stop_loss"
+     ]
+    ],
+    "成交数": 2,
+    "止损轨迹数": 1
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:40:17+08:00",
+   "步骤": "并发起第二个守护",
+   "详情": {
+    "仍在运行": false,
+    "退出码": 1,
+    "日志尾部": [
+     "[!] Worker failed: Daemon for arm 3a already running on this machine (file lock occupied: /tmp/wx_audit04/locks/paper_exec_3a.lock)",
+     "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+    ]
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:40:24+08:00",
+   "步骤": "重启恢复",
+   "详情": {
+    "成交数_重启前": 2,
+    "成交数_重启后": 2,
+    "止损轨迹_重启前": 1,
+    "止损轨迹_重启后": 1,
+    "持仓数_重启前": 1,
+    "持仓数_重启后": 1
+   }
+  }
+ ],
+ "判定": {
+  "①挂单": "通过",
+  "②成交": "通过",
+  "③止损自动上移": "不通过",
+  "④自动退出": "通过",
+  "⑤单实例锁": "通过",
+  "⑥重启恢复": "通过"
+ }
+}

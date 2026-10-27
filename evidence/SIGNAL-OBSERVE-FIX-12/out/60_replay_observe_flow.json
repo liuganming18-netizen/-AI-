@@ -1,0 +1,170 @@
+{
+ "probe": "SIGNAL-OBSERVE-FIX-12/replay",
+ "isolated_dir": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/observe_replay_290q_ald",
+ "window": {
+  "start_utc": "2026-10-01T07:00:00Z",
+  "end_utc": "2026-10-13T07:00:00Z",
+  "step_minutes": 60,
+  "steps": 289
+ },
+ "targets": [
+  {
+   "symbol": "BBUSDT",
+   "candidate_utc": "2026-10-11T07:00:00Z",
+   "cand_ms": 1791702000000,
+   "box_h": 0.0102,
+   "box_l": 0.008352
+  },
+  {
+   "symbol": "BNBUSDT",
+   "candidate_utc": "2026-10-05T03:00:00Z",
+   "cand_ms": 1791169200000,
+   "box_h": 799.98,
+   "box_l": 753.72
+  },
+  {
+   "symbol": "CHZUSDT",
+   "candidate_utc": "2026-10-03T04:00:00Z",
+   "cand_ms": 1791000000000,
+   "box_h": 0.01738,
+   "box_l": 0.01525
+  }
+ ],
+ "symbols": [
+  "BBUSDT",
+  "BNBUSDT",
+  "CHZUSDT"
+ ],
+ "funnel_since_start": {
+  "BOX": 0,
+  "SWEEP": 0,
+  "RETEST": 0,
+  "CANDIDATE": 0,
+  "VOLUME_REJECTED": 0,
+  "OI_UNAVAILABLE": 0,
+  "OI_REJECTED": 0,
+  "INVALIDATED": 0,
+  "EXPIRED": 0,
+  "MISSED_WITHOUT_RETEST": 0
+ },
+ "entered_observe": {},
+ "left_observe": {},
+ "order_events": [],
+ "violations": [],
+ "final_ledger": {
+  "orders": {},
+  "positions": {}
+ },
+ "checks": [
+  {
+   "name": "① 有标的进入过观察区",
+   "ok": false,
+   "detail": "0 个：[]"
+  },
+  {
+   "name": "② 观察期间账本无该标的订单/持仓（不提前下单）",
+   "ok": true,
+   "detail": "违规 0 条"
+  },
+  {
+   "name": "③ 有标的离开观察区（观察不是永久挂着）",
+   "ok": false,
+   "detail": "0 个：{}"
+  },
+  {
+   "name": "④ 离开原因包含「候选」或「失效/过期」",
+   "ok": false,
+   "detail": "结束状态集合=[]"
+  },
+  {
+   "name": "⑤ 隔离账本产生了订单（模拟执行确实跑起来）",
+   "ok": false,
+   "detail": "订单={}"
+  },
+  {
+   "name": "⑥ 回放全程无 step 异常",
+   "ok": true,
+   "detail": "异常步数=0"
+  },
+  {
+   "name": "⑧ 升为候选时观察期尚未到期（不必等观察期结束）",
+   "ok": false,
+   "detail": "候选退出={}"
+  },
+  {
+   "name": "⑦ 观察数量随回放推进而变动（不是常量）",
+   "ok": false,
+   "detail": "观察数取值集合=[0]..."
+  }
+ ],
+ "timeline_head": [
+  {
+   "utc": "2026-10-01T07:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  },
+  {
+   "utc": "2026-10-01T08:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  },
+  {
+   "utc": "2026-10-01T09:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  }
+ ],
+ "timeline_tail": [
+  {
+   "utc": "2026-10-13T05:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  },
+  {
+   "utc": "2026-10-13T06:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  },
+  {
+   "utc": "2026-10-13T07:00:00Z",
+   "observing": 0,
+   "states": {},
+   "orders_total": 0,
+   "positions_total": 0,
+   "new_signals": 0,
+   "routed": 0,
+   "matched": 0,
+   "errors": []
+  }
+ ]
+}

@@ -1,0 +1,641 @@
+{
+ "生成时刻": "2026-10-23T00:50:41+08:00",
+ "隔离根": "/tmp/wx_audit05",
+ "base": 1792687500000,
+ "T_sig": 1792684800000,
+ "入口": "workers/paper_execution_worker.py --arm 3a --interval 1",
+ "加速回放声明": "信号与行情用回放时钟压缩；推进全部由守护按真实挂钟完成；本结果为工程测试，不计策略成绩",
+ "A_参数_正式视图": {
+  "路径": "/Users/boos/Desktop/威科夫因子共振趋势/数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+  "存在": true,
+  "键数": 27,
+  "source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+  "stoploss_s": 0.05,
+  "trail_d": 0.05,
+  "max_holding_hours": 240,
+  "view_sha256": "82dec362c18230e1"
+ },
+ "A_参数_第二配置": {
+  "A": {
+   "s": 0.05,
+   "d": 0.05
+  },
+  "B": {
+   "s": 0.08,
+   "d": 0.12
+  },
+  "两套生效参数是否相同": false
+ },
+ "A_判定": {
+  "正式视图含 s/d": true,
+  "两套配置产生区别": true,
+  "结论": "参数贯通：s/d 来自配置文件，且两套配置产生预期区别"
+ },
+ "B_缺配置": {
+  "尝试": [
+   {
+    "第几次": 1,
+    "退出码": null,
+    "存活": true,
+    "日志尾部": [
+     "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+    ]
+   }
+  ],
+  "守护是否照常启动": true,
+  "退出原因是否锁冲突": false,
+  "缺配置下的信号结果": {
+   "ok": true,
+   "reason": "filled"
+  },
+  "启动检查": "不通过（无启动自检，缺配置时守护照常运行）",
+  "缺配置是否静默兜底": "是（配置缺失仍按 FALLBACK 开仓，且账本未标注 fallback 来源）"
+ },
+ "C_撤bar": {
+  "删除根数": 2,
+  "自": 1792685700000
+ },
+ "C_信号登记": {
+  "ok": false,
+  "reason": "pending_future_fill",
+  "pending_id": 1,
+  "earliest_fill_ms": 1792685700000
+ },
+ "C_账本_信号后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "pending",
+    "reason": null,
+    "requested_at": 1792684800000,
+    "earliest_fill_ms": 1792685700000,
+    "event_time": 1792684800000,
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "config_fingerprint": "98eeeefd38783dbbea8803720de50acb1e72e73ac99f1b50e73c35cfc8b4f1af"
+   }
+  ],
+  "orders": [],
+  "positions": [],
+  "fills": [],
+  "stops": [],
+  "state": [
+   {
+    "account_id": "paper43_3a",
+    "cash": 4999.75000025,
+    "realized_pnl": 0.0,
+    "fees_paid": 0.24999975000000005,
+    "funding_paid": 0.0
+   }
+  ],
+  "blocked": []
+ },
+ "C_守护启动": {
+  "pid": 50650,
+  "存活": true,
+  "日志": [
+   "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+  ]
+ },
+ "C_账本_行情到达后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "filled",
+    "reason": null,
+    "requested_at": 1792684800000,
+    "earliest_fill_ms": 1792685700000,
+    "event_time": 1792684800000,
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "config_fingerprint": "98eeeefd38783dbbea8803720de50acb1e72e73ac99f1b50e73c35cfc8b4f1af"
+   }
+  ],
+  "orders": [
+   {
+    "order_id": 2,
+    "event_uid": "sig_auto05_01",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 4.995,
+    "price": 100.10000000000001,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687849540,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005
+   }
+  ],
+  "positions": [
+   {
+    "position_id": 2,
+    "symbol": "BTCUSDT",
+    "qty": 4.995,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792685700000,
+    "stop_price": 95.0,
+    "status": "open",
+    "exit_ts": null,
+    "exit_reason": null,
+    "exit_price": null,
+    "entry_fee": 0.24999975000000005,
+    "exit_fee": null,
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "config_fingerprint": "98eeeefd38783dbbea8803720de50acb1e72e73ac99f1b50e73c35cfc8b4f1af"
+   }
+  ],
+  "fills": [
+   {
+    "fill_id": 2,
+    "position_id": 2,
+    "order_id": 2,
+    "symbol": "BTCUSDT",
+    "action": "open",
+    "qty": 4.995,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005,
+    "fill_ts": 1792687849540
+   }
+  ],
+  "stops": [
+   {
+    "position_id": 2,
+    "reason": "initial_stop",
+    "old_stop": null,
+    "new_stop": 95.0,
+    "ref_bar_open_ms": 1792685700000,
+    "available_at": 1792684800000,
+    "decision_at": 1792687849540,
+    "effective_at": 1792685700000
+   }
+  ],
+  "state": [
+   {
+    "account_id": "paper43_3a",
+    "cash": 4999.5000005,
+    "realized_pnl": 0.0,
+    "fees_paid": 0.4999995000000001,
+    "funding_paid": 0.0
+   }
+  ],
+  "blocked": []
+ },
+ "C_判定": {
+  "①挂单": "通过",
+  "②自动成交": "通过",
+  "成交价": [
+   100.10000000000001
+  ],
+  "初始止损": [
+   95.0
+  ],
+  "订单": [
+   [
+    "buy",
+    "filled",
+    100.10000000000001,
+    0.24999975000000005
+   ]
+  ],
+  "成交条数": 1,
+  "止损轨迹数": 1,
+  "挂单最终状态": [
+   [
+    1,
+    "filled",
+    null
+   ]
+  ]
+ },
+ "D_判定": {
+  "上移次数（不同止损价）": 4,
+  "轨迹明细": [
+   {
+    "轮次": 1,
+    "4h_low": 102.0,
+    "止损价": 96.9,
+    "轨迹条数": 2
+   },
+   {
+    "轮次": 2,
+    "4h_low": 104.0,
+    "止损价": 98.80000000000001,
+    "轨迹条数": 3
+   },
+   {
+    "轮次": 3,
+    "4h_low": 106.0,
+    "止损价": 100.7,
+    "轨迹条数": 4
+   }
+  ],
+  "重启": {
+   "重启前止损": [
+    98.80000000000001
+   ],
+   "重启后止损": [
+    98.80000000000001
+   ],
+   "重启前成交数": 1,
+   "重启后成交数": 1,
+   "重启前轨迹数": 3,
+   "重启后轨迹数": 3,
+   "重启前持仓状态": [
+    "open"
+   ],
+   "重启后持仓状态": [
+    "open"
+   ]
+  },
+  "判定": "通过"
+ },
+ "E_账本_退出后": {
+  "pending": [
+   {
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "status": "filled",
+    "reason": null,
+    "requested_at": 1792684800000,
+    "earliest_fill_ms": 1792685700000,
+    "event_time": 1792684800000,
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "config_fingerprint": "98eeeefd38783dbbea8803720de50acb1e72e73ac99f1b50e73c35cfc8b4f1af"
+   }
+  ],
+  "orders": [
+   {
+    "order_id": 2,
+    "event_uid": "sig_auto05_01",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 4.995,
+    "price": 100.10000000000001,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687849540,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005
+   },
+   {
+    "order_id": 3,
+    "event_uid": "exit:3a:2:1792687880012",
+    "symbol": "BTCUSDT",
+    "side": "sell",
+    "qty": 4.995,
+    "price": 100.7,
+    "status": "filled",
+    "reject_reason": null,
+    "ts": 1792687880012,
+    "fill_price": 100.64965000000001,
+    "fee": 0.251372500875
+   }
+  ],
+  "positions": [
+   {
+    "position_id": 2,
+    "symbol": "BTCUSDT",
+    "qty": 4.995,
+    "entry_price": 100.10000000000001,
+    "entry_ts": 1792685700000,
+    "stop_price": 100.7,
+    "status": "closed",
+    "exit_ts": 1792687880012,
+    "exit_reason": "trailing_stop_loss",
+    "exit_price": 100.64965000000001,
+    "entry_fee": 0.24999975000000005,
+    "exit_fee": 0.251372500875,
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "config_fingerprint": "98eeeefd38783dbbea8803720de50acb1e72e73ac99f1b50e73c35cfc8b4f1af"
+   }
+  ],
+  "fills": [
+   {
+    "fill_id": 2,
+    "position_id": 2,
+    "order_id": 2,
+    "symbol": "BTCUSDT",
+    "action": "open",
+    "qty": 4.995,
+    "fill_price": 100.10000000000001,
+    "fee": 0.24999975000000005,
+    "fill_ts": 1792687849540
+   },
+   {
+    "fill_id": 3,
+    "position_id": 2,
+    "order_id": 3,
+    "symbol": "BTCUSDT",
+    "action": "close",
+    "qty": 4.995,
+    "fill_price": 100.64965000000001,
+    "fee": 0.251372500875,
+    "fill_ts": 1792687880012
+   }
+  ],
+  "stops": [
+   {
+    "position_id": 2,
+    "reason": "initial_stop",
+    "old_stop": null,
+    "new_stop": 95.0,
+    "ref_bar_open_ms": 1792685700000,
+    "available_at": 1792684800000,
+    "decision_at": 1792687849540,
+    "effective_at": 1792685700000
+   },
+   {
+    "position_id": 2,
+    "reason": "ft_low4h_trail",
+    "old_stop": 95.0,
+    "new_stop": 96.9,
+    "ref_bar_open_ms": 1792670700000,
+    "available_at": 1792685099999,
+    "decision_at": 1792687857873,
+    "effective_at": 1792687857873
+   },
+   {
+    "position_id": 2,
+    "reason": "ft_low4h_trail",
+    "old_stop": 96.9,
+    "new_stop": 98.80000000000001,
+    "ref_bar_open_ms": 1792671000000,
+    "available_at": 1792685399999,
+    "decision_at": 1792687862924,
+    "effective_at": 1792687862924
+   },
+   {
+    "position_id": 2,
+    "reason": "ft_low4h_trail",
+    "old_stop": 98.80000000000001,
+    "new_stop": 100.7,
+    "ref_bar_open_ms": 1792671300000,
+    "available_at": 1792685699999,
+    "decision_at": 1792687874950,
+    "effective_at": 1792687874950
+   }
+  ],
+  "state": [
+   {
+    "account_id": "paper43_3a",
+    "cash": 5001.994129749125,
+    "realized_pnl": 2.2441294991249987,
+    "fees_paid": 0.7513720008750001,
+    "funding_paid": 0.0
+   }
+  ],
+  "blocked": []
+ },
+ "E_判定": {
+  "退出": "通过",
+  "退出原因": [
+   "trailing_stop_loss"
+  ],
+  "退出价": [
+   100.64965000000001
+  ],
+  "订单": [
+   [
+    "buy",
+    "filled",
+    100.10000000000001,
+    0.24999975000000005
+   ],
+   [
+    "sell",
+    "filled",
+    100.64965000000001,
+    0.251372500875
+   ]
+  ],
+  "成交": [
+   [
+    "open",
+    100.10000000000001,
+    0.24999975000000005
+   ],
+   [
+    "close",
+    100.64965000000001,
+    0.251372500875
+   ]
+  ],
+  "entry_fee": 0.24999975000000005,
+  "exit_fee": 0.251372500875,
+  "成交费合计": 0.5013722509,
+  "账本现金": 5001.994129749125,
+  "费用是否自洽": true,
+  "现金是否为正": true,
+  "判定": "通过"
+ },
+ "E_幂等": {
+  "成交数_前": 2,
+  "成交数_后": 2,
+  "持仓数_前": 1,
+  "持仓数_后": 1,
+  "判定": "通过"
+ },
+ "F_重试": {
+  "订单行数_前": 2,
+  "订单行数_后": 2,
+  "成交数_前": 2,
+  "成交数_后": 2,
+  "持仓数_前": 1,
+  "持仓数_后": 1,
+  "判定": "通过",
+  "说明": "成交数为 0 时不得判「幂等通过」；只能记未执行"
+ },
+ "G_第二配置": {
+  "配置": {
+   "s": 0.08,
+   "d": 0.12
+  },
+  "清账后行数": {
+   "paper_position": 0,
+   "paper_fill": 0,
+   "paper_order": 0,
+   "paper_stop_history": 0
+  },
+  "wB存活": true,
+  "wB日志": [
+   "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+  ],
+  "信号结果": {
+   "ok": false,
+   "reason": "pending_future_fill"
+  },
+  "挂单记录的身份": [
+   {
+    "stoploss_s": 0.08,
+    "trail_d": 0.12,
+    "config_fingerprint": "8b63b7311f8b"
+   }
+  ],
+  "持仓记录的身份": [
+   {
+    "stoploss_s": 0.08,
+    "trail_d": 0.12,
+    "config_fingerprint": "8b63b7311f8b"
+   }
+  ],
+  "成交价": 100.10000000000001,
+  "初始止损(轨迹首行)": 92.0,
+  "跟踪轨迹": [
+   {
+    "old": 92.0,
+    "new": 93.2,
+    "reason": "ft_low4h_trail"
+   }
+  ],
+  "理论初始止损": 92.092,
+  "被采用的4h": {
+   "open_time": 1792671300000,
+   "close_time": 1792685699999,
+   "low": "106.00"
+  },
+  "跟踪后止损": [
+   93.2
+  ],
+  "理论跟踪候选(d=0.12)": 93.28,
+  "若误用 d=0.05 会是": 100.7,
+  "判定": "通过"
+ },
+ "守护日志_w1尾部": [
+  "[*] Starting Paper Execution Worker for arm 3a (interval=1.0s)..."
+ ],
+ "时间线": [
+  {
+   "时刻": "2026-10-23T00:50:41+08:00",
+   "步骤": "A 参数贯通",
+   "详情": {
+    "正式视图含 s/d": true,
+    "两套配置产生区别": true,
+    "结论": "参数贯通：s/d 来自配置文件，且两套配置产生预期区别"
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:50:46+08:00",
+   "步骤": "B 缺配置",
+   "详情": {
+    "存活": true,
+    "锁冲突": false,
+    "信号": {
+     "ok": true,
+     "reason": "filled"
+    }
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:50:46+08:00",
+   "步骤": "撤掉尚未到达的 15m bar（制造真实挂单窗口）",
+   "详情": {
+    "删除根数": 2,
+    "自": 1792685700000
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:50:46+08:00",
+   "步骤": "C 信号到达（引擎 open_position，回放时钟）",
+   "详情": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "earliest_fill_ms": 1792685700000
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:50:49+08:00",
+   "步骤": "C 行情到达：插入已闭合成交 bar",
+   "详情": {
+    "open_time": 1792685700000,
+    "close_time": 1792686599999
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:50:57+08:00",
+   "步骤": "C 自动成交判定",
+   "详情": {
+    "①挂单": "通过",
+    "②自动成交": "通过",
+    "成交价": [
+     100.10000000000001
+    ],
+    "初始止损": [
+     95.0
+    ],
+    "订单": [
+     [
+      "buy",
+      "filled",
+      100.10000000000001,
+      0.24999975000000005
+     ]
+    ],
+    "成交条数": 1,
+    "止损轨迹数": 1,
+    "挂单最终状态": [
+     [
+      1,
+      "filled",
+      null
+     ]
+    ]
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:51:19+08:00",
+   "步骤": "E 行情到达：插入跌破止损的 15m bar",
+   "详情": {
+    "low": 98.7,
+    "生效止损": 100.7,
+    "close_time": 1792687499999
+   }
+  },
+  {
+   "时刻": "2026-10-23T00:51:58+08:00",
+   "步骤": "G 第二配置",
+   "详情": {
+    "挂单记录的身份": [
+     {
+      "stoploss_s": 0.08,
+      "trail_d": 0.12,
+      "config_fingerprint": "8b63b7311f8b"
+     }
+    ],
+    "持仓记录的身份": [
+     {
+      "stoploss_s": 0.08,
+      "trail_d": 0.12,
+      "config_fingerprint": "8b63b7311f8b"
+     }
+    ],
+    "初始止损(轨迹首行)": 92.0,
+    "理论初始止损": 92.092,
+    "被采用的4h": {
+     "open_time": 1792671300000,
+     "close_time": 1792685699999,
+     "low": "106.00"
+    },
+    "跟踪后止损": [
+     93.2
+    ],
+    "判定": "通过"
+   }
+  }
+ ],
+ "快照SQL错误": [],
+ "总判定": {
+  "第2项_缺配置启动检查": "不通过（无启动自检，缺配置时守护照常运行）",
+  "第2项_完整配置自动成交": "通过",
+  "第3项_止损上移≥2次含重启": "通过",
+  "第4项_自动退出闭合": "通过",
+  "第4项_退出幂等": "通过",
+  "第6项_重试不重复记账": "通过",
+  "第6项_第二配置参数贯通": "通过"
+ }
+}

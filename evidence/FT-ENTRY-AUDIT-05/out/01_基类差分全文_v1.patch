@@ -1,0 +1,99 @@
+--- FT-ENTRY-03
++++ FT-ENTRY-04
+@@ -516,12 +516,42 @@
+ 
+     def __init__(self, config: dict) -> None:
+         super().__init__(config)
+-        self.user_dir = config.get("user_data_dir", os.path.join(BASE_DIR, "evidence/FT-ENTRY-02/user_data"))
++        self.user_dir = config.get("user_data_dir", os.path.join(BASE_DIR, "evidence/FT-ENTRY-04/user_data"))
+         self.data_dir = config.get("datadir", os.path.join(self.user_dir, "data/binance"))
+         self.pair_candidates: Dict[str, list] = {}
+         self.pair_4h_df: Dict[str, pd.DataFrame] = {}
+         self.quote_volume_cache: Dict[str, pd.Series] = {}
+         self.active_trade_stop_state: Dict[int, dict] = {}
++        # FT-ENTRY-04: 成交前价格约束审计记录与防重试集合
++        self.evaluated_candidates: set = set()
++        self.execution_audit_records: List[dict] = []
++        out_dir = os.path.join(BASE_DIR, "evidence/FT-ENTRY-04/out")
++        os.makedirs(out_dir, exist_ok=True)
++        self.audit_log_path = os.path.join(out_dir, f"audit_orders_{self.__class__.__name__}.csv")
++
++    def _record_order_audit(self, cand, pair: str, current_time: datetime, rate: float, frozen_H: float,
++                            decision: str, reason: str) -> None:
++        rec = {
++            "strategy": self.__class__.__name__,
++            "pair": pair,
++            "candidate_id": cand.candidate_id,
++            "signal_time_ms": cand.snapshot_time_ms,
++            "signal_time": datetime.fromtimestamp(cand.snapshot_time_ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S%z"),
++            "frozen_H": frozen_H,
++            "planned_execution_time": current_time.strftime("%Y-%m-%d %H:%M:%S%z"),
++            "planned_execution_time_ms": _to_timestamp_ms(current_time),
++            "fill_price": rate,
++            "price_minus_h": rate - frozen_H,
++            "decision": decision,
++            "reason": reason
++        }
++        self.execution_audit_records.append(rec)
++        try:
++            df_rec = pd.DataFrame([rec])
++            hdr = not os.path.exists(self.audit_log_path)
++            df_rec.to_csv(self.audit_log_path, mode="a", header=hdr, index=False)
++        except Exception as e:
++            logger.warning(f"写入订单审计日志失败: {e}")
+ 
+     def informative_pairs(self):
+         pairs = self.config["exchange"]["pair_whitelist"]
+@@ -699,6 +729,52 @@
+         if cand.initial_stop_price is None or math.isnan(cand.initial_stop_price) or cand.initial_stop_price <= 0:
+             return False
+ 
++        # FT-ENTRY-04: A 路线严格突破前真实成交约束
++        if self.timing_mode == "A":
++            frozen_H = float(cand.box_high_h)
++            fill_price = float(rate)
++
++            # 规则 3: 不自动挂单等回落，不新增重试规则
++            # 同一候选在执行时刻只能评估一次，被拒绝后绝不允许后续 K 线重试
++            if cand.candidate_id in self.evaluated_candidates:
++                self._record_order_audit(
++                    cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=frozen_H,
++                    decision="REJECTED", reason="retry_prohibited_already_evaluated"
++                )
++                logger.info(f"[FT-ENTRY-04][RETRY-REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price} H={frozen_H}")
++                return False
++
++            self.evaluated_candidates.add(cand.candidate_id)
++
++            # 规则 2 & 3: 只有按现有成交模型得到的实际执行价格 严格低于 H 才允许开仓
++            # 执行价格达到或超过 H，拒绝本次订单并记录原因
++            if fill_price >= frozen_H:
++                reason = "fill_price_ge_frozen_h_equal" if fill_price == frozen_H else "fill_price_ge_frozen_h_greater"
++                self._record_order_audit(
++                    cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=frozen_H,
++                    decision="REJECTED", reason=reason
++                )
++                logger.info(f"[FT-ENTRY-04][REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price} >= frozen_H={frozen_H} ({reason})")
++                return False
++
++            # 原有基本边界检查
++            if fill_price < cand.min_entry_price or fill_price > cand.max_entry_price:
++                self._record_order_audit(
++                    cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=frozen_H,
++                    decision="REJECTED", reason="outside_min_max_bounds"
++                )
++                logger.info(f"[FT-ENTRY-04][REJECT] {pair} cand={cand.candidate_id} fill_price={fill_price} outside [{cand.min_entry_price}, {cand.max_entry_price}]")
++                return False
++
++            # 规则 5 满足：严格低于 frozen_H，放行
++            self._record_order_audit(
++                cand=cand, pair=pair, current_time=current_time, rate=fill_price, frozen_H=frozen_H,
++                decision="PASSED", reason="fill_price_lt_frozen_h"
++            )
++            logger.info(f"[FT-ENTRY-04][PASS] {pair} cand={cand.candidate_id} fill_price={fill_price} < frozen_H={frozen_H}")
++            return True
++
++        # Baseline 保持原有边界规则
+         if rate < cand.min_entry_price or rate > cand.max_entry_price:
+             return False
+ 

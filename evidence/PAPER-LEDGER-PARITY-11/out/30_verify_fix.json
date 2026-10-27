@@ -1,0 +1,134 @@
+{
+ "probe": "PAPER-LEDGER-PARITY-11/verify_fix",
+ "generated_utc": "2026-10-25T15:04:11Z",
+ "总断言": 9,
+ "通过": 9,
+ "失败": 0,
+ "结论": "全过",
+ "断言明细": [
+  {
+   "检查": "1 paper_state.cash 四臂都等于初始权益",
+   "通过": true,
+   "说明": "{'3a': 5000.0, '3b': 5000.0, '3c': 5000.0, '3d': 5000.0}"
+  },
+  {
+   "检查": "2 account_view 默认口径 == paper_state.cash（四臂）",
+   "通过": true,
+   "说明": "{'3a': 0.0, '3b': 0.0, '3c': 0.0, '3d': 0.0}"
+  },
+  {
+   "检查": "3 recover_report 四臂 cash_equals_init_plus_net 全 True",
+   "通过": true,
+   "说明": "{'3a': True, '3b': True, '3c': True, '3d': True}"
+  },
+  {
+   "检查": "4 审计行未被删：3a 的 paper_realized 仍 3 行且全为 voided=1",
+   "通过": true,
+   "说明": "n_realized=3 n_voided=3"
+  },
+  {
+   "检查": "5 修正留痕在：paper_correction 3a 有 1 条 voided_pnl_rollback",
+   "通过": true,
+   "说明": "corrections=[{'kind': 'voided_pnl_rollback', 'field': 'paper_state', 'delta': 4.3454552739, 'reason': 'voided_synthetic_test_pnl_not_rolled_back'}]"
+  },
+  {
+   "检查": "6 接口 equity == 账本 cash（四臂）且 status=ok",
+   "通过": true,
+   "说明": "差异=[] status=ok missing_reason=None"
+  },
+  {
+   "检查": "7 备份文件存在且非空",
+   "通过": true,
+   "说明": "backup_paper_3a_20261025T150127Z.sqlite3 163840 bytes"
+  },
+  {
+   "检查": "8 代码静态检查：recover_report 的 net 查询带 voided 过滤",
+   "通过": true,
+   "说明": "                 \"SELECT COALESCE(SUM(net_pnl),0) FROM paper_realized \"                 \"WHERE account_id=? AND COALESCE(voided,0)=0\",                 (f\"paper4"
+  },
+  {
+   "检查": "9 分叉探针结论 = 两套账已一致",
+   "通过": true,
+   "说明": "两套账已一致（差额 0，模拟真实交易后仍为 0）：作废亏损不再留在账本底座里"
+  }
+ ],
+ "账本快照": {
+  "3a": {
+   "state_cash": 5000.0,
+   "view_cash": 5000.0,
+   "n_realized": 3,
+   "n_voided": 3,
+   "n_correction": 1,
+   "n_open_positions": 0
+  },
+  "3b": {
+   "state_cash": 5000.0,
+   "view_cash": 5000.0,
+   "n_realized": 0,
+   "n_voided": 0,
+   "n_correction": 0,
+   "n_open_positions": 0
+  },
+  "3c": {
+   "state_cash": 5000.0,
+   "view_cash": 5000.0,
+   "n_realized": 0,
+   "n_voided": 0,
+   "n_correction": 0,
+   "n_open_positions": 0
+  },
+  "3d": {
+   "state_cash": 5000.0,
+   "view_cash": 5000.0,
+   "n_realized": 0,
+   "n_voided": 0,
+   "n_correction": 0,
+   "n_open_positions": 0
+  }
+ },
+ "recover_report": {
+  "3a": {
+   "cash": 5000.0,
+   "realized_net_sum": 0.0,
+   "expected_cash": 5000.0,
+   "cash_equals_init_plus_net": true
+  },
+  "3b": {
+   "cash": 5000.0,
+   "realized_net_sum": 0.0,
+   "expected_cash": 5000.0,
+   "cash_equals_init_plus_net": true
+  },
+  "3c": {
+   "cash": 5000.0,
+   "realized_net_sum": 0.0,
+   "expected_cash": 5000.0,
+   "cash_equals_init_plus_net": true
+  },
+  "3d": {
+   "cash": 5000.0,
+   "realized_net_sum": 0.0,
+   "expected_cash": 5000.0,
+   "cash_equals_init_plus_net": true
+  }
+ },
+ "接口": {
+  "3a": {
+   "equity": 5000.0,
+   "cash": 5000.0
+  },
+  "3b": {
+   "equity": 5000.0,
+   "cash": 5000.0
+  },
+  "3c": {
+   "equity": 5000.0,
+   "cash": 5000.0
+  },
+  "3d": {
+   "equity": 5000.0,
+   "cash": 5000.0
+  }
+ },
+ "备份": "backup_paper_3a_20261025T150127Z.sqlite3"
+}

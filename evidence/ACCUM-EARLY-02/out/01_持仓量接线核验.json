@@ -1,0 +1,777 @@
+{
+ "probe": "01_持仓量接线核验",
+ "generated_at_utc": "2026-10-26T10:39:22Z",
+ "工单": "ACCUM-EARLY-02 第一部分第 1/3/5 条",
+ "errors": [],
+ "A_源码身份": {
+  "checked_at_utc": "2026-10-26T10:39:23Z",
+  "说明": "baseline/ 是改动前的原样副本；changed=False 表示本次没动它",
+  "files": [
+   {
+    "file": "oi_feed.py",
+    "baseline_sha256": "9bcdecf445c0a907f7328c296f77daca7378a371982e79f0e222269eb16fbd81",
+    "current_sha256": "68d3e27d4d1a19ebfa0d61395cc11459f97605d2e5eaf5e38d4d9c428d9425a5",
+    "changed": true,
+    "baseline_path": "evidence/ACCUM-EARLY-02/baseline/oi_feed.py.before",
+    "current_path": "框架/backend/oi_feed.py"
+   },
+   {
+    "file": "unified_runtime.py",
+    "baseline_sha256": "bd577c518823ac0852948987825efa9509fb3ab46413cea8758f99bd67e7b140",
+    "current_sha256": "4a00b788f4b1ab68252e1c370b43afdbf039f0e846a5390664b177715f0b820e",
+    "changed": true,
+    "baseline_path": "evidence/ACCUM-EARLY-02/baseline/unified_runtime.py.before",
+    "current_path": "框架/backend/unified_runtime.py"
+   },
+   {
+    "file": "state_machine.py",
+    "baseline_sha256": "40ae81e2cdb0ed10d97610fb7ad90badc85a80789370dc52defb0890a4fd9ee9",
+    "current_sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+    "changed": true,
+    "baseline_path": "evidence/ACCUM-EARLY-02/baseline/state_machine.py.before",
+    "current_path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py"
+   },
+   {
+    "file": "pit_bridge.py",
+    "baseline_sha256": "de65fa08a2691ca07f9d6265804bc24f136363ba2212d036c9ba642c07a874c2",
+    "current_sha256": "5ea657faeafe1f253a903225980dd728c60c41022c2cb5d56c9d9d87b6fee79f",
+    "changed": true,
+    "baseline_path": "evidence/ACCUM-EARLY-02/baseline/pit_bridge.py.before",
+    "current_path": "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py"
+   },
+   {
+    "file": "pit_guard.py",
+    "baseline_sha256": null,
+    "current_sha256": "4b0b4f34c61dd99c92d768cab5e08794038aed121839c6f9ec57fd070cc2fd29",
+    "changed": false,
+    "baseline_path": null,
+    "current_path": "策略/WyckoffMaster/trading_core/pit_guard.py"
+   },
+   {
+    "file": "observe_store.py",
+    "baseline_sha256": "280210b32e906f4119682fb669f4721242e99a7cb50a12b25134a92c25573011",
+    "current_sha256": "280210b32e906f4119682fb669f4721242e99a7cb50a12b25134a92c25573011",
+    "changed": false,
+    "baseline_path": "evidence/ACCUM-EARLY-02/baseline/observe_store.py.before",
+    "current_path": "框架/backend/observe_store.py"
+   }
+  ],
+  "关键行差异": {
+   "注册守卫（state_machine.py）": {
+    "改前": [
+     "if self.pit.oi_available_at is None:"
+    ],
+    "改后": [
+     "if _oi_n > 0 or self.pit.oi_available_at is None:"
+    ]
+   },
+   "喂参（unified_runtime.py）": {
+    "改前": [
+     "oi_timestamps=np.array([], dtype=np.int64),"
+    ],
+    "改后": [
+     "oi_timestamps=oi_ts, oi_values=oi_val,"
+    ]
+   },
+   "可得性判据（oi_feed.py）": {
+    "改前": [
+     "`fetched_at` 为空表示「不知道何时抓到」，此时 `available_at_proven=False`。",
+     "\"available_at_proven\": (no_fetch == 0),",
+     "\"available_at_proven\": r[6] is not None,"
+    ],
+    "改后": [
+     "\"available_at_proven\": False,",
+     "\"available_at_proven\": bool(n > 0 and proven == n and counts[AVAIL_FUTURE] == 0),",
+     "\"available_at_proven\": status in (AVAIL_PROVEN, AVAIL_LATE),"
+    ]
+   }
+  }
+ },
+ "0_真实链定位": {
+  "symbol": "METISUSDT",
+  "warmup_bars_4h": 500,
+  "候选数": 1,
+  "首个候选_utc": "2026-10-11T20:00:00Z",
+  "候选ID": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+  "说明": "用生产路径（RealSignalEngine.process_market）跑出来的真实候选，不是手工构造；先关 OI 门槛只为定位突破时刻"
+ },
+ "B_真实突破": {
+  "symbol": "METISUSDT",
+  "warmup_bars_4h": 500,
+  "candidate_from_B_group_utc": "2026-10-11T20:00:00Z",
+  "A组_开OI门槛": {
+   "候选数": 0,
+   "last_oi_read": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_curr_too_far_3000000ms",
+    "assumed": false,
+    "curr_event_ms": 1791745800000,
+    "curr_available_ms": 1791748775605,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1791748800000,
+    "bucket_ms": 300000,
+    "detail": "最近可得观测的**观测时刻**距决策 3000000ms > 上限 900000ms"
+   },
+   "事件状态": null,
+   "终止原因": null,
+   "runtime_oi_diag": {
+    "enabled": true,
+    "windows_loaded": 1,
+    "rows_loaded": 8592,
+    "rows_duplicate_ts": 0,
+    "rows_invalid_value": 0,
+    "rows_unknown_availability": 7488,
+    "decisions_with_oi": 35,
+    "decisions_without_oi": 1614,
+    "last_window_utc": {
+     "from": "2026-08-03T20:50:00Z",
+     "to": "2026-10-11T20:00:00Z"
+    },
+    "last_reason": null,
+    "errors": []
+   }
+  },
+  "B组_关OI门槛": {
+   "候选数": 1,
+   "候选": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "snapshot_utc": "2026-10-11T20:00:00Z",
+     "oi_breakout": null,
+     "oi_6h_ago": null,
+     "oi_growth_6h": null,
+     "pit_proven": false
+    }
+   ],
+   "last_oi_read": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_curr_too_far_3000000ms",
+    "assumed": false,
+    "curr_event_ms": 1791745800000,
+    "curr_available_ms": 1791748775605,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1791748800000,
+    "bucket_ms": 300000,
+    "detail": "最近可得观测的**观测时刻**距决策 3000000ms > 上限 900000ms"
+   }
+  }
+ },
+ "C_对撞": {
+  "decision_utc": "2026-10-11T20:00:00Z",
+  "lookback_hours": 6,
+  "口径": "两边都是「fetched_at <= 决策 且 ts+5min <= 决策 且 ts >= 决策-6h-24h」",
+  "读取器": {
+   "窗口原始行": 362,
+   "可得性四态": {
+    "proven": 0,
+    "late": 353,
+    "unknown": 0,
+    "future": 9
+   },
+   "切片行数": 351,
+   "首行_utc": "2026-10-10T14:00:00Z",
+   "末行_utc": "2026-10-11T19:10:00Z",
+   "单位": "币本位数量（base asset）",
+   "单位证据": "open_interest_value / open_interest ≈ 同期 5m 收盘价（BTC/ETH/SOL/METIS 实测 1.000281/0.999705/0.999311/1.004334）⇒ open_interest 是币数、open_interest_value 是 USDT 名义额"
+  },
+  "状态机实际切片": {
+   "行数": 351,
+   "首行_utc": "2026-10-10T14:00:00Z",
+   "末行_utc": "2026-10-11T19:10:00Z"
+  },
+  "对撞": {
+   "行数一致": true,
+   "时间戳逐位一致": true,
+   "可得时点逐位一致": true,
+   "数值逐位一致": true
+  },
+  "独立复算_6h增幅": {
+   "status": "ok",
+   "growth": 0.1834100091395236,
+   "oi_curr": 774164.0,
+   "oi_past": 654180.71,
+   "curr_utc": "2026-10-11T19:10:00Z",
+   "past_utc": "2026-10-11T13:10:00Z",
+   "gap_sec": 21600.0
+  },
+  "候选快照里的OI": {
+   "oi_breakout": null,
+   "oi_6h_ago": null,
+   "oi_growth_6h": null,
+   "说明": "B 组虽然关了 OI 门槛，突破时仍会先读一次 OI（状态机读在前、闸门在后）；读不到就如实写 null，不填 0"
+  },
+  "最新可得观测距决策_秒": 3000.0,
+  "新鲜度上限_秒": 900,
+  "是否满足新鲜度": false
+ },
+ "E_守卫对照": {
+  "breakout_decision_utc": "2026-10-11T20:00:00Z",
+  "breakout_bar": {
+   "open_utc": "2026-10-11T19:00:00Z",
+   "close_utc": "2026-10-11T19:59:59Z",
+   "open": 3.761,
+   "high": 3.877,
+   "low": 3.74,
+   "close": 3.856,
+   "volume": 431663.23
+  },
+  "oi_slice": {
+   "rows": 351,
+   "last_utc": "2026-10-11T19:10:00Z",
+   "可得性四态": {
+    "proven": 0,
+    "late": 353,
+    "unknown": 0,
+    "future": 9
+   }
+  },
+  "E1_复刻旧守卫_喂空OI": {
+   "突破前状态": "EventState.RETEST",
+   "候选": null,
+   "候选oi_growth_6h": null,
+   "事件状态": "已终结(active_event 清空)",
+   "最后迁移": {
+    "from": "RETEST",
+    "to": "OI_UNAVAILABLE",
+    "reason": "OI数据缺失或不可用(oi_empty)",
+    "at_utc": "2026-10-11T20:00:00Z"
+   },
+   "last_oi_read": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_empty",
+    "assumed": false,
+    "curr_event_ms": null,
+    "curr_available_ms": null,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1791748800000,
+    "bucket_ms": 300000,
+    "detail": "无 OI 观测行"
+   },
+   "注册后数组行数": 0,
+   "旧守卫为何不更新": "`np.array([]) is not None` 为真 ⇒ 旧代码永不再注册"
+  },
+  "E2_新守卫_喂真实OI": {
+   "突破前状态": "EventState.RETEST",
+   "候选": null,
+   "候选oi_growth_6h": null,
+   "事件状态": "已终结(active_event 清空)",
+   "最后迁移": {
+    "from": "RETEST",
+    "to": "OI_UNAVAILABLE",
+    "reason": "OI数据缺失或不可用(oi_curr_too_far_3000000ms)",
+    "at_utc": "2026-10-11T20:00:00Z"
+   },
+   "last_oi_read": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_curr_too_far_3000000ms",
+    "assumed": false,
+    "curr_event_ms": 1791745800000,
+    "curr_available_ms": 1791748775605,
+    "past_event_ms": null,
+    "past_available_ms": null,
+    "decision_time_ms": 1791748800000,
+    "bucket_ms": 300000,
+    "detail": "最近可得观测的**观测时刻**距决策 3000000ms > 上限 900000ms"
+   },
+   "注册后数组行数": 351
+  },
+  "E3_首次为空后续到达": {
+   "注册空序列后行数": 0,
+   "再注册真实序列后行数": 351,
+   "已更新": true
+  },
+  "E_归因": {
+   "同一根 bar": true,
+   "同一决策时刻": "2026-10-11T20:00:00Z",
+   "唯一差别": "突破时 pit 里有没有真实 OI 序列（旧守卫不注册 vs 新守卫注册）"
+  }
+ },
+ "F_序列与反例": {
+  "F1_连续决策序列": {
+   "决策点数": 24,
+   "每个决策点都有可用观测": false,
+   "最新观测时刻单调不减": true,
+   "最新观测倒退次数": 0,
+   "未来行泄漏总条数": 0,
+   "无未来泄漏": true,
+   "序列_首6": [
+    {
+     "decision_utc": "2026-10-10T21:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-10T22:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-10T23:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T00:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T01:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T02:00:00Z",
+     "rows": 0,
+     "last_obs_utc": null,
+     "未来行泄漏": 0
+    }
+   ],
+   "序列_末6": [
+    {
+     "decision_utc": "2026-10-11T15:00:00Z",
+     "rows": 353,
+     "last_obs_utc": "2026-10-11T14:20:00Z",
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T16:00:00Z",
+     "rows": 349,
+     "last_obs_utc": "2026-10-11T15:00:00Z",
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T17:00:00Z",
+     "rows": 351,
+     "last_obs_utc": "2026-10-11T16:10:00Z",
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T18:00:00Z",
+     "rows": 352,
+     "last_obs_utc": "2026-10-11T17:15:00Z",
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T19:00:00Z",
+     "rows": 350,
+     "last_obs_utc": "2026-10-11T18:05:00Z",
+     "未来行泄漏": 0
+    },
+    {
+     "decision_utc": "2026-10-11T20:00:00Z",
+     "rows": 351,
+     "last_obs_utc": "2026-10-11T19:10:00Z",
+     "未来行泄漏": 0
+    }
+   ],
+   "口径": "d 只用 fetched_at<=d 且 ts+5min<=d 且 ts>=d-6h-24h 的行；「行数」随窗口滑动可增可减（下界也在前移），真正的单调量是「最新观测时刻」——它只能前进不能倒退"
+  },
+  "F2_两条通道同口径": {
+   "生产切片行数": 351,
+   "读取器切片行数": 351,
+   "时间戳逐位一致": true
+  },
+  "F3_反例": {
+   "基准行": {
+    "观测时刻_utc": "2026-10-11T19:10:00Z",
+    "抓取时刻_utc": "2026-10-11T19:59:35Z",
+    "open_interest": 774164.0,
+    "source": "binance.fapi.openInterestHist"
+   },
+   "cases": [
+    {
+     "情形": "正常",
+     "构造说明": "原始行，不做任何改动",
+     "观测时刻_utc": "2026-10-11T19:10:00Z",
+     "抓取时刻_utc": "2026-10-11T19:59:35Z",
+     "可得性判定": "late",
+     "可得时点_utc": "2026-10-11T19:59:35Z",
+     "可得性通过（这一行当时读得到）": true,
+     "桥接层status": "oi_curr_too_far_3000000ms",
+     "桥接层growth": null,
+     "新鲜度通过（≤15分钟）": false
+    },
+    {
+     "情形": "晚到",
+     "构造说明": "把抓取时刻改成决策后 1 小时 ⇒ 决策当时还没抓到",
+     "观测时刻_utc": "2026-10-11T19:10:00Z",
+     "抓取时刻_utc": "2026-10-11T21:00:00Z",
+     "可得性判定": "future",
+     "可得时点_utc": null,
+     "可得性通过（这一行当时读得到）": false,
+     "桥接层status": "oi_curr_missing_before_start",
+     "桥接层growth": null,
+     "新鲜度通过（≤15分钟）": false
+    },
+    {
+     "情形": "缺失",
+     "构造说明": "把抓取时刻置空 ⇒ 无任何可得性证据",
+     "观测时刻_utc": "2026-10-11T19:10:00Z",
+     "抓取时刻_utc": null,
+     "可得性判定": "unknown",
+     "可得时点_utc": null,
+     "可得性通过（这一行当时读得到）": false,
+     "桥接层status": "oi_curr_missing_before_start",
+     "桥接层growth": null,
+     "新鲜度通过（≤15分钟）": false
+    },
+    {
+     "情形": "恢复",
+     "构造说明": "恢复原始抓取时刻 ⇒ 可用性恢复",
+     "观测时刻_utc": "2026-10-11T19:10:00Z",
+     "抓取时刻_utc": "2026-10-11T19:59:35Z",
+     "可得性判定": "late",
+     "可得时点_utc": "2026-10-11T19:59:35Z",
+     "可得性通过（这一行当时读得到）": true,
+     "桥接层status": "oi_curr_too_far_3000000ms",
+     "桥接层growth": null,
+     "新鲜度通过（≤15分钟）": false
+    }
+   ],
+   "两个闸门必须分开说": "① **可得性**：这一行当时读不读得到（看 fetched_at）；② **新鲜度**：读到的观测离决策多近（看 oi_max_time_distance_sec=900s）。本段只验①；②在 B/C 段单独给出。两件事混在一起讲会把「读不到」误当成「数据没有」。",
+   "判据": "只有 fetched_at <= 决策时刻 才算当时读得到；无 fetched_at 一律 unknown"
+  }
+ },
+ "D_成功读取样本": {
+  "找法": "在 OI 可得性已证实的窗口（2026-10-05 之后）逐标的逐整点检查：决策时刻 d 的最新可得观测 ts 满足 d - ts <= 900 秒",
+  "扫描": [
+   {
+    "symbol": "BTCUSDT",
+    "rows": 2919,
+    "满足15分钟的决策点": 4,
+    "总决策点": 312
+   },
+   {
+    "symbol": "ETHUSDT",
+    "rows": 2907,
+    "满足15分钟的决策点": 3,
+    "总决策点": 312
+   },
+   {
+    "symbol": "SOLUSDT",
+    "rows": 2910,
+    "满足15分钟的决策点": 1,
+    "总决策点": 312
+   },
+   {
+    "symbol": "METISUSDT",
+    "rows": 2929,
+    "满足15分钟的决策点": 1,
+    "总决策点": 312
+   },
+   {
+    "symbol": "DOGEUSDT",
+    "rows": 2927,
+    "满足15分钟的决策点": 3,
+    "总决策点": 312
+   },
+   {
+    "symbol": "XRPUSDT",
+    "rows": 2916,
+    "满足15分钟的决策点": 2,
+    "总决策点": 312
+   }
+  ],
+  "扫描合计": {
+   "决策点": 1872,
+   "满足新鲜度": 14,
+   "满足率": 0.007479
+  },
+  "成功样本": {
+   "symbol": "BTCUSDT",
+   "decision_utc": "2026-10-13T09:00:00Z",
+   "最新可得观测_utc": "2026-10-13T08:50:00Z",
+   "距决策_秒": 600.0,
+   "喂入行数": 359,
+   "状态机读取结果": {
+    "oi_curr": null,
+    "oi_past": null,
+    "growth": null,
+    "status": "oi_past_too_far_3600000ms",
+    "assumed": false,
+    "curr_event_ms": 1791881400000,
+    "curr_available_ms": 1791881745215,
+    "past_event_ms": 1791856800000,
+    "past_available_ms": 1791859708223,
+    "decision_time_ms": 1791882000000,
+    "bucket_ms": 300000,
+    "detail": "回看点最近可得观测距回看点 3600000ms > 上限 900000ms"
+   },
+   "读取器独立复算": {
+    "status": "ok",
+    "growth": 0.007730729180944711,
+    "oi_curr": 93811.403,
+    "oi_past": 93091.736,
+    "curr_utc": "2026-10-13T08:50:00Z",
+    "past_utc": "2026-10-13T02:50:00Z",
+    "gap_sec": 21600.0
+   },
+   "PIT审计": {
+    "pit_guard_version": "pit_guard_v1.0.0",
+    "symbol": "BTCUSDT",
+    "mode": "declared_assumption",
+    "qualified": true,
+    "unproven_sources": [],
+    "assumptions": [],
+    "refusal_count": 0,
+    "refusal_reason_counts": {},
+    "sources": {
+     "oi_5m": {
+      "name": "oi_5m",
+      "event_col": "ts",
+      "close_col": null,
+      "bucket_ms": 300000,
+      "status": "observed_fetch",
+      "declared_lag_ms": null,
+      "evidence": "逐行可得时点由调用方提供：fetched_at = 网关收到响应体的时刻；无 fetched_at 的行标 NaN 并拒用，不回退成桶结束",
+      "note": "SourceRule.available_at 对本状态返回全 NaN；实际可得时刻见 PitBridge._oi_available_at",
+      "rows": 359,
+      "proven": true,
+      "event_time_min": 1791774000000,
+      "event_time_max": 1791881400000,
+      "available_at_rows": 0,
+      "available_at_min": null,
+      "available_at_max": null
+     }
+    },
+    "bridge": "event_trend_v0_1.pit_bridge",
+    "oi_bucket_ms": 300000,
+    "oi_declared_lag_ms": null,
+    "oi_available_at_rows": 359,
+    "oi_available_at_assumed": false,
+    "oi_reads": 1,
+    "oi_assumed_reads": 0,
+    "oi_refused_reads": 1,
+    "candles_checked": 0,
+    "candle_violations": 0,
+    "decision_clock_rule": "decision_time = bar_open + bar_period；close_time = bar_open + bar_period - 1ms；available_at <= decision_time 才可读",
+    "decision_time_first_ms": null,
+    "decision_time_last_ms": null,
+    "qualification_failures": []
+   },
+   "审计里 qualified": true,
+   "资格不通过原因": [],
+   "两条通道增长率一致": null
+  }
+ },
+ "G_真实覆盖": {
+  "判据": "只数 fetched_at 非空的 5m 行（有抓取时点 = 能证明当时读得到）",
+  "单标的每日实时行数": [
+   {
+    "date": "2026-10-08",
+    "rows": 287,
+    "应有": 288,
+    "覆盖率": 0.9965
+   },
+   {
+    "date": "2026-10-09",
+    "rows": 83,
+    "应有": 288,
+    "覆盖率": 0.2882
+   },
+   {
+    "date": "2026-10-11",
+    "rows": 120,
+    "应有": 288,
+    "覆盖率": 0.4167
+   },
+   {
+    "date": "2026-10-12",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-13",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-14",
+    "rows": 265,
+    "应有": 288,
+    "覆盖率": 0.9201
+   },
+   {
+    "date": "2026-10-15",
+    "rows": 274,
+    "应有": 288,
+    "覆盖率": 0.9514
+   },
+   {
+    "date": "2026-10-16",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-17",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-18",
+    "rows": 147,
+    "应有": 288,
+    "覆盖率": 0.5104
+   },
+   {
+    "date": "2026-10-21",
+    "rows": 232,
+    "应有": 288,
+    "覆盖率": 0.8056
+   },
+   {
+    "date": "2026-10-22",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-23",
+    "rows": 210,
+    "应有": 288,
+    "覆盖率": 0.7292
+   },
+   {
+    "date": "2026-10-24",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-25",
+    "rows": 288,
+    "应有": 288,
+    "覆盖率": 1.0
+   },
+   {
+    "date": "2026-10-26",
+    "rows": 126,
+    "应有": 288,
+    "覆盖率": 0.4375
+   }
+  ],
+  "单标的合计": {
+   "实时行": 3760,
+   "日历天数": 16,
+   "应有": 4608,
+   "覆盖率": 0.816
+  },
+  "全池每日有实时行的标的数": [
+   {
+    "date": "2026-10-08",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-09",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-10",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-11",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-12",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-13",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-14",
+    "symbols_with_realtime": 525,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-15",
+    "symbols_with_realtime": 528,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-16",
+    "symbols_with_realtime": 525,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-17",
+    "symbols_with_realtime": 525,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-18",
+    "symbols_with_realtime": 525,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-20",
+    "symbols_with_realtime": 1,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-21",
+    "symbols_with_realtime": 524,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-22",
+    "symbols_with_realtime": 524,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-23",
+    "symbols_with_realtime": 524,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-24",
+    "symbols_with_realtime": 522,
+    "universe": 528
+   },
+   {
+    "date": "2026-10-25",
+    "symbols_with_realtime": 522,
+    "universe": 528
+   }
+  ],
+  "时间戳语义": {
+   "对齐5分钟的行": 6231889,
+   "非对齐的行": 13456,
+   "总行": 6245345,
+   "结论": "ts 对齐 300000 的占绝大多数 ⇒ ts 是 5 分钟桶的**起点**，桶收盘 = ts + 5min"
+  },
+  "抓取早于桶收盘的脏行": 119,
+  "脏行处理": "决策切片额外要求 ts + 5min <= 决策时刻，这类行一律进不了决策"
+ },
+ "elapsed_sec": 53.1
+}

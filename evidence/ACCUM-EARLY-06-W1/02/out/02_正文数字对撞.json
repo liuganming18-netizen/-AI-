@@ -1,0 +1,112 @@
+{
+  "schema": "accum-early-06-w1/pending-text-collision/v1",
+  "checked_at_utc": "2026-10-26T18:15:46Z",
+  "checks": [
+    {
+      "name": "必填总数",
+      "needle": "| **49** | 05 版配置的**必填字段**数",
+      "found": true,
+      "expect": 49
+    },
+    {
+      "name": "空白 null",
+      "needle": "49 叶子 / 48 null / 1 预填",
+      "found": true,
+      "expect": 48
+    },
+    {
+      "name": "待决键→字段",
+      "needle": "13 键 → **21 字段**",
+      "found": true,
+      "expect": 21
+    },
+    {
+      "name": "49 分解和",
+      "needle": "4+21+1+23=49",
+      "found": true,
+      "expect": 49
+    },
+    {
+      "name": "04-A 四类",
+      "needle": "8 已定 + 9 沿用 + 23 推荐未批准 + 3 待决",
+      "found": true,
+      "expect": 23
+    },
+    {
+      "name": "05-A-R1 逐行未批准",
+      "needle": "34 建议未批准 + 5 待确认 + 4 建议沿用",
+      "found": true,
+      "expect": 43
+    },
+    {
+      "name": "5 项决策",
+      "needle": "| **5** | 05-A-R1 给用户的**核心决策**数",
+      "found": true,
+      "expect": 5
+    },
+    {
+      "name": "问题数",
+      "needle": "**12 个问题**",
+      "found": true,
+      "expect": 12
+    },
+    {
+      "name": "覆盖缺口",
+      "needle": "共 **43** 个；其中进入 13 项待决入口的只有 **21** 个 ⇒ **22 个没进**",
+      "found": true,
+      "expect": 22
+    },
+    {
+      "name": "引用数",
+      "needle": "脚本 42/42 读回通过",
+      "found": true,
+      "expect": 42
+    },
+    {
+      "name": "不问项数",
+      "needle": "## 3 已经定过，不再问（8 项）",
+      "found": true,
+      "expect": 8
+    },
+    {
+      "name": "总览vs逐行:用户已定",
+      "needle": "| 用户已定 | 4 | **2** |",
+      "found": true,
+      "expect": [
+        4,
+        2
+      ]
+    },
+    {
+      "name": "总览vs逐行:建议未批准",
+      "needle": "| 建议未批准 | 30 | **34** |",
+      "found": true,
+      "expect": [
+        30,
+        34
+      ]
+    },
+    {
+      "name": "总览vs逐行:待确认",
+      "needle": "| 待确认 | 6 | **5** |",
+      "found": true,
+      "expect": [
+        6,
+        5
+      ]
+    },
+    {
+      "name": "总览vs逐行:格式/身份",
+      "needle": "| 格式/身份 | 9 | **4** |",
+      "found": true,
+      "expect": [
+        9,
+        4
+      ]
+    }
+  ],
+  "total": 15,
+  "pass": 15,
+  "fail": 0,
+  "verdict": "pass"
+}

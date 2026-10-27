@@ -1,0 +1,114 @@
+{
+  "schema": "accum-early-06-w1/provenance-collision/v1",
+  "checked_at_utc": "2026-10-27T03:02:02Z",
+  "map_file": "evidence/ACCUM-EARLY-06-W1/01/规则来源映射.json",
+  "references": {
+    "total": 104,
+    "pass": 104,
+    "fail": 0
+  },
+  "failures": [],
+  "line_search_resolved": [
+    {
+      "entry_id": "AB-04",
+      "file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+      "line_resolved": 73,
+      "must_contain": "\"buy_ratio_mult\": 1.0"
+    },
+    {
+      "entry_id": "AB-05",
+      "file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+      "line_resolved": 77,
+      "must_contain": "\"sell_pressure_mult\": 0.8"
+    },
+    {
+      "entry_id": "FX-05",
+      "file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+      "line_resolved": 65,
+      "must_contain": "\"cooldown_hours\": 0"
+    },
+    {
+      "entry_id": "FX-09",
+      "file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+      "line_resolved": 10,
+      "must_contain": "\"gap_model\": \"stop_price\""
+    }
+  ],
+  "fixed_rules_audit": {
+    "found": true,
+    "rows": 9,
+    "real_crosscheck": [
+      {
+        "label": "entry_delay_minutes",
+        "line": 117,
+        "expected_src": "15",
+        "actual_src": "p.get('signal_execution_delay_minutes')",
+        "tautology": false
+      },
+      {
+        "label": "initial_stop_pct",
+        "line": 120,
+        "expected_src": "0.05",
+        "actual_src": "p.get('stoploss_s')",
+        "tautology": false
+      },
+      {
+        "label": "trailing_low_pct",
+        "line": 121,
+        "expected_src": "0.05",
+        "actual_src": "p.get('trail_d')",
+        "tautology": false
+      },
+      {
+        "label": "taker_fee_bps",
+        "line": 122,
+        "expected_src": "5.0",
+        "actual_src": "None if p.get('fee_each_side') is None else round(float(p['fee_each_side']) * 10000, 6)",
+        "tautology": false
+      }
+    ],
+    "tautology": [
+      {
+        "label": "confirm_timeframe",
+        "line": 115,
+        "expected_src": "'1h'",
+        "actual_src": "'1h'",
+        "tautology": true
+      },
+      {
+        "label": "execution_timeframe",
+        "line": 116,
+        "expected_src": "'15m'",
+        "actual_src": "'15m'",
+        "tautology": true
+      },
+      {
+        "label": "trailing_trigger_r",
+        "line": 125,
+        "expected_src": "0.0",
+        "actual_src": "0.0",
+        "tautology": true
+      },
+      {
+        "label": "max_holding_days",
+        "line": 126,
+        "expected_src": "None",
+        "actual_src": "None",
+        "tautology": true
+      },
+      {
+        "label": "trail_effective_mode",
+        "line": 127,
+        "expected_src": "TRAIL_EFFECTIVE_MODE",
+        "actual_src": "TRAIL_EFFECTIVE_MODE",
+        "tautology": true
+      }
+    ],
+    "real_count": 4,
+    "tautology_count": 5,
+    "all_ok": false
+  },
+  "entries_total": 31,
+  "conflicts_total": 8,
+  "verdict": "pass"
+}

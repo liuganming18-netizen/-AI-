@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "ticket": "FACTOR-ENTRY-01",
+  "timestamp_iso": "2026-10-18T10:48:00+08:00",
+  "staleness_policy": {
+    "metrics_max_staleness_ms": 1800000,
+    "funding_max_staleness_ms": 43200000,
+    "candles_max_staleness_ms": 3600000,
+    "allow_forward_fill_future": false,
+    "allow_nearest_future_neighbor": false,
+    "missing_value_action": "NaN_DO_NOT_FILL_ZERO",
+    "pit_delay_assumption": "K线结束即已知(PIT=close_time+1)，metrics按记录ts已知。因历史无available_at毫秒级日志，假设API无额外超长发布延迟，实盘可能存在10~60s延迟需在风控中留意。"
+  },
+  "features": {
+    "taker_buy_volume": {
+      "source": "candles/binance/um/{symbol}/{tf}/*.parquet",
+      "unit": "base_asset",
+      "description": "周期内主动买入量 (Taker 作为买方的成交量)"
+    },
+    "taker_buy_quote_volume": {
+      "source": "candles/binance/um/{symbol}/{tf}/*.parquet",
+      "unit": "USDT",
+      "description": "周期内主动买入金额 (USDT)"
+    },
+    "taker_buy_ratio": {
+      "source": "derived",
+      "formula": "taker_buy_volume / volume",
+      "unit": "ratio [0, 1]",
+      "description": "主动买入量占比，衡量突破 K 线多头真实吃单驱动力"
+    },
+    "taker_ls_ratio": {
+      "source": "derived",
+      "formula": "taker_buy_volume / max(volume - taker_buy_volume, 1e-8)",
+      "unit": "ratio",
+      "description": "主动买卖成交量之比"
+    },
+    "upper_shadow_ratio": {
+      "source": "derived",
+      "formula": "(high - max(open, close)) / max(high - low, 1e-8)",
+      "unit": "ratio [0, 1]",
+      "description": "K 线上影线占比，衡量冲高受阻回落幅度"
+    },
+    "breakout_atr_dist": {
+      "source": "derived",
+      "formula": "(close - box_high) / atr_4h",
+      "unit": "ATR multiples",
+      "description": "突破收盘价距箱体上沿的 4h ATR 距离"
+    },
+    "count_long_short_ratio": {
+      "source": "metrics/binance/um/{symbol}/*.parquet",
+      "unit": "ratio",
+      "description": "全市场多空账户人数比 (多头账户数 / 空头账户数)。反映散户情绪偏向，不代表资金体量。"
+    },
+    "top_position_ls_ratio": {
+      "source": "metrics/binance/um/{symbol}/*.parquet",
+      "alias": "sum_toptrader_long_short_ratio",
+      "unit": "ratio",
+      "description": "大户持仓多空比 (持仓前20%账户的净多仓总量 / 净空仓总量)。注意：大户互相对冲，不是单一聪明钱身份或均价！"
+    },
+    "count_toptrader_long_short_ratio": {
+      "source": "metrics/binance/um/{symbol}/*.parquet",
+      "unit": "ratio",
+      "description": "大户多空人数比 (大户账户数多/空比)"
+    },
+    "sum_taker_long_short_vol_ratio": {
+      "source": "metrics/binance/um/{symbol}/*.parquet",
+      "unit": "ratio",
+      "description": "5m 周期内 Taker 主动买量 / 主动卖量比"
+    },
+    "funding_rate": {
+      "source": "funding/binance/um/{symbol}.parquet",
+      "unit": "rate",
+      "description": "最近一期已结算资金费率 (settled funding rate)。严格区分预测与已结算，历史只用已知结算费率。"
+    }
+  }
+}

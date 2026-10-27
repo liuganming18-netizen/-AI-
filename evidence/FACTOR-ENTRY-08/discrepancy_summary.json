@@ -1,0 +1,81 @@
+{
+  "audit_ticket": "FACTOR-ENTRY-08",
+  "handoff_source_used": "ENTRY-AUDIT-04.handoff.v1",
+  "generated_at_utc": "2026-10-18T10:07:45.686799+00:00",
+  "input_ea04_hashes": {
+    "ledger_handoff.parquet": "93abe58a9b25b95060e30ecc2d4d684f5500e67acc9772201230b3149cee5054",
+    "ledger_handoff.csv": "4b3207b5c6fd63d2a74179a2be60f58e41e9e3be74ac9424d79193eb45eef71f",
+    "handoff_meta.json": "9872eca19a539378d7835cc3f357ac8e5343fe87ed90949479a09ff65df682aa",
+    "generation_split.json": "95bcfbdae96784a725c127455b2b610dcf4a3c8af682b45bfc1d8c85b290cfff",
+    "field_dictionary.csv": "8cd998b61e2b2f3d0d833f5bd47c2f3585ac6397dc5390fb8919b9bc848949d2",
+    "unfilled_22.csv": "527b0d0fe7b6f75e3f4faf26a2cca597df4e5d3701aa329319091f664fe91d27",
+    "coti_duplicate.csv": "5ca803697aa28aa0dae4f1248b8f29fd7a9ba4200389222d8786e9af59c8fdf1"
+  },
+  "sample_counts": {
+    "total_rows": 227,
+    "filled_trades": 205,
+    "unfilled_candidates": 22,
+    "continuous_cand_ev": {
+      "total": 185,
+      "filled": 163,
+      "unfilled": 22,
+      "net_pnl_sum": 144.10596,
+      "fee_paid_sum": 10.308546,
+      "funding_cost_sum": 5.209154,
+      "gross_pnl_sum": 159.62366
+    },
+    "window_old_cand": {
+      "total": 42,
+      "filled": 42,
+      "unfilled": 0,
+      "net_pnl_sum": -42.573989,
+      "fee_paid_sum": 2.817325,
+      "funding_cost_sum": 1.768352,
+      "gross_pnl_sum": -37.988312
+    },
+    "combined_205_filled": {
+      "net_pnl_sum": 101.531971,
+      "fee_paid_sum": 13.125871,
+      "funding_cost_sum": 6.977506,
+      "gross_pnl_sum": 121.635348,
+      "identity_equation_verified": true,
+      "max_identity_residual": 2.842170943040401e-14
+    }
+  },
+  "classification_results": {
+    "standard_mixed_category": {
+      "CHOPPY_OR_OTHER": 94,
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 36,
+      "UNFILLED": 22,
+      "MFE_PULLBACK": 8
+    },
+    "pure_atr_4h_category": {
+      "CHOPPY_OR_OTHER": 79,
+      "EARLY_WEAKNESS": 67,
+      "MFE_PULLBACK": 39,
+      "UNFILLED": 22,
+      "SUSTAINED_TREND": 20
+    },
+    "pure_atr_full_category": {
+      "EARLY_WEAKNESS": 67,
+      "SUSTAINED_TREND": 64,
+      "MFE_PULLBACK": 47,
+      "CHOPPY_OR_OTHER": 27,
+      "UNFILLED": 22
+    },
+    "labels_changed_vs_fe07": 0,
+    "numeric_diff_vs_fe07_max": 0.0
+  },
+  "handoff_equivalence_verdict": {
+    "status": "PASS: 来源缺口已彻底修复",
+    "detail": "本轮已彻底将交接输入切换为 ENTRY-AUDIT-04 冻结交接包（ledger_handoff.parquet）；全量 227 行在金额、微观指标与分类标签上与 FE07 保持 100% 逐位一致，完全消除交接来源悬空缺陷。"
+  },
+  "restrictions_and_warnings": [
+    "数值一致仅代表交接一致，绝对不能宣称策略有效或正式放行",
+    "历史合约规格全池仍未验证：verified 数量为 0，formal_pass_allowed 全部为 false",
+    "PIT 发布时点仍未证实：无法排除未来信息穿越假设",
+    "两代际样本严重对立：连续回放 (+144.11) 与窗口回放 (-42.57) 方向相反，绝对禁止简单相加宣称为组合收益",
+    "探索性样本性质：205笔样本仍属于事后观测样本，不得据此宣称 Crowding 有效"
+  ]
+}

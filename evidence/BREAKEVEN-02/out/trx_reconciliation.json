@@ -1,0 +1,52 @@
+{
+  "symbol": "TRXUSDT",
+  "group": 85,
+  "window": "2023-01-16~2024-01-16",
+  "historical_full_sweep": {
+    "run_timestamp": "2026-10-18 03:57~05:37",
+    "candidates_count": 2,
+    "first_candidate_event": "2023-05-29 (产生 -9.86 U 亏损)",
+    "second_candidate_trade": {
+      "entry_time_utc": "2024-01-13 10:15",
+      "exit_time_utc": "2024-01-15 23:45",
+      "entry_price": 0.11288,
+      "exit_price": 0.10863,
+      "qty": 865.0,
+      "initial_stop": 0.10152014068418644,
+      "gross_pnl": -3.676249999999991,
+      "fees": 0.095803075,
+      "funding_fee": 0.068841209245,
+      "slippage_loss": 0.06919999999999718,
+      "net_pnl": -3.840894284244991,
+      "exit_reason": "force_close_eod"
+    }
+  },
+  "current_baseline_A": {
+    "run_timestamp": "2026-10-19",
+    "candidates_count": 1,
+    "first_candidate_filtered": "2023-05-29 事件被 FRAME-PIT-01 守卫拦截（6h OI增长率1.07% < 2%）",
+    "trade": {
+      "entry_time_utc": "2024-01-13 10:15",
+      "exit_time_utc": "2024-01-15 23:45",
+      "entry_price": 0.11288,
+      "exit_price": 0.10863,
+      "qty": 869.0,
+      "initial_stop": 0.10152014068418644,
+      "gross_pnl": -3.693249999999991,
+      "fees": 0.096246095,
+      "funding_fee": 0.069159550097,
+      "slippage_loss": 0.06951999999999717,
+      "net_pnl": -3.858655645096991,
+      "exit_reason": "force_close_eod"
+    }
+  },
+  "reconciliation_deltas": {
+    "qty_delta": 4.0,
+    "gross_delta": -0.017,
+    "fees_delta": 0.000443,
+    "funding_delta": 0.000318,
+    "slippage_delta": 0.00032,
+    "net_pnl_delta": -0.017761
+  },
+  "root_cause_explanation": "2026-10-18 21:54 FRAME-PIT-01 对 pit_guard.py 进行合规整改，引入 ts+5m <= decision，使 2023-05-29 的事件不再引用未收盘 K 线 OI，其实际增长率由 2.01% 下降为 1.07%，触发门槛拦截。因此当前版本在该窗口内少了一笔 -9.86 U 的早期亏损，账户起始资金保持为 2000 U，使后续 TRXUSDT 交易的开仓数量从 865 调整为 869 股（比值 869/865 = 1.00462，对应本金比值 2000/1990.14 = 1.00495）。入场价、出场价与强平退出原因完全一致，净额差异为 0.017762 U（仅占净亏损的 0.46%）。本差异系历史未来函数修复带来的合理调整，当前版本基线完全一致且安全。"
+}

@@ -1,0 +1,9 @@
+﻿类别,文件,行号,事实
+开关定义,unified_runtime.py,353,RealSignalEngine 构造参数默认值 = False
+开关定义,unified_runtime.py,656,MultiSymbolSignalEngine 构造参数默认值 = False
+开关定义,unified_runtime.py,2143,UnifiedRuntime 构造参数默认值 = False
+生产调用,unified_runtime.py,2857,main() 构造运行时**不传** enable_oi_filter ⇒ 取默认 False
+状态机,策略/WyckoffMaster/event_trend_v0_1/state_machine.py,38,EventStateMachine 自身默认 True；B 组语义由上层显式传 False 触发
+回测分支,策略/WyckoffMaster/event_trend_v0_1/runner.py,620,FT-LOW4H 分支写死 RealSignalEngine(enable_oi_filter=False)，且 sm_a = sm_b
+实时喂数,unified_runtime.py,557,process_1h_bar 的 oi_timestamps/oi_values 恒传空数组 ⇒ 实时链路根本没有 OI
+命令行,unified_runtime.py,2836,argparse 只有 --arm/--symbol/--interval/--once/--status，**没有 OI 开关**

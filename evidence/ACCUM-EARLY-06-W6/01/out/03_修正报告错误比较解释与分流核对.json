@@ -1,0 +1,58 @@
+{
+  "task": "ACCUM-EARLY-06-W6-01",
+  "step": "03_修正报告错误比较解释与分流核对",
+  "generated_at_utc": "2026-10-26T17:58:20Z",
+  "streamline_statistics": {
+    "全量试验 (TOTAL_ALL)": {
+      "count": 102,
+      "valid_trades": 101,
+      "win_rate_pct": 32.67,
+      "total_net_usdt": -314.3707,
+      "mean_net_per_trade_usdt": -3.112581
+    },
+    "可用基线组 (USABLE_BASELINE_REFERENCE)": {
+      "count": 63,
+      "valid_trades": 63,
+      "win_rate_pct": 28.57,
+      "total_net_usdt": -310.5379,
+      "mean_net_per_trade_usdt": -4.929173
+    },
+    "政策暂缓组 (HOLD_PENDING_POLICY)": {
+      "count": 38,
+      "valid_trades": 38,
+      "win_rate_pct": 39.47,
+      "total_net_usdt": -3.8328,
+      "mean_net_per_trade_usdt": -0.100863
+    },
+    "因规拒单组 (HOLD_REJECTED)": {
+      "count": 1,
+      "valid_trades": 0,
+      "win_rate_pct": 0.0,
+      "total_net_usdt": 0.0,
+      "mean_net_per_trade_usdt": 0.0,
+      "symbol": "CARVUSDT"
+    }
+  },
+  "critical_flaw_analysis": {
+    "error_quotation_05c": "这组数说明一件重要的事：可用组的净额比全量更差（-310.5379 vs -314.3707），所以不存在「剔掉争议笔来美化成绩」。",
+    "error_quotation_05d_r1": "63 笔可用组净额为 -310.54 USDT（胜率 28.57%），劣于全池平均，证明该分流是客观风险隔离，绝非美化。",
+    "correction_points": [
+      {
+        "dimension": "1. 代数大小与绝对额看反（数值错误）",
+        "fact": "全量总净额为 -314.3707 USDT（亏损 314.3707 USDT），可用组总净额为 -310.5379 USDT（亏损 310.5379 USDT）。可用组相比全量，亏损绝对额实际减少了 3.8328 USDT（-310.5379 > -314.3707）。报告将亏损减少描述为“净额比全量更差”，系对负数代数大小和绝对额关系的混淆。",
+        "severity": "严重数值与逻辑表述错误"
+      },
+      {
+        "dimension": "2. 结构性指标的隐藏恶化与片面性（统计假象）",
+        "fact": "被暂缓的 38 笔交易表现显著优于可用组：胜率高达 39.47%，单笔均损仅 -0.100863 USDT（基本打平）；剔除这 38 笔后，可用组的胜率下降至 28.57%（下降 4.10 个百分点），单笔均损由 -3.112581 恶化至 -4.929173 USDT（恶化幅度达 58.34%）。如果仅看总金额亏损绝对额变小，会掩盖单笔结构恶化的事实。",
+        "severity": "指标解读片面，混淆总量与结构"
+      },
+      {
+        "dimension": "3. 以事后盈亏断言分流无美化的根本方法论谬误（逻辑偏倚）",
+        "fact": "科学分流的正当性仅取决于数据完整性、时序严谨性与物理合约约束（如资金费重叠顺序未决、跳空未决、强行缩量），必须独立于交易盈亏结果。用事后分流集合的亏损数字来推导分流未美化属于典型的结果偏倚（Outcome Bias）与后此谬误（Post Hoc Fallacy）。若该逻辑成立，将产生'只要保留集合亏损大就可以任意分流'的恶劣漏洞；未来若将新策略与 63 笔可用组对比，将因基准子集被改变而引入潜在的选择性偏倚（Selection Bias）。",
+        "severity": "科学方法论根本违背"
+      }
+    ],
+    "correct_discipline": "分流只能作为客观工程隔离与数据完整性受限的合规动作，严禁使用任何盈亏优劣来倒推分流中立性。可用组 63 笔只作机制可算性基准，不能代替原策略真实水平，更不能仅比较负数绝对额断言无美化。"
+  }
+}

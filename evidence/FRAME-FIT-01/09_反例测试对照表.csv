@@ -1,0 +1,49 @@
+﻿工单要求,测试组,测试名,断言内容,结果
+未冻结配置不能解封最终留出,T02,test_unseal_without_freeze_blocked,只登记未冻结就解封 ⇒ 抛 ExperimentBlocked，且 unsealed_at 仍为 None,通过
+未冻结配置不能解封最终留出,T02,test_unseal_with_unconfigured_split_blocked_even_if_frozen,冻结了但分组未配置 ⇒ 仍拒绝，理由是「分组未配置」,通过
+未冻结配置不能解封最终留出,T02,test_unseal_ok_when_frozen_and_split_valid,冻结 + 分组合法 ⇒ 放行（证明不是一律拒绝）,通过
+未冻结配置不能解封最终留出,T02,test_second_unseal_blocked,留出只能解封一次，第二次拒绝,通过
+未冻结配置不能解封最终留出,T02,test_freeze_twice_blocked,重复冻结拒绝（第二次会掩盖冻结后的改动）,通过
+已观察样本不能重新声明为未见留出,T03,test_holdout_containing_observed_samples_blocked,留出段含已观察样本 ⇒ 解封被拒，理由点名登记集 EA04_227,通过
+已观察样本不能重新声明为未见留出,T03,test_observed_outside_holdout_does_not_block,已观察样本在训练段 ⇒ 不影响留出（避免一刀切）,通过
+已观察样本不能重新声明为未见留出,T03,test_observe_requires_keys,只说「看过 227 条」不给样本键 ⇒ 拒绝登记,通过
+已观察样本不能重新声明为未见留出,T03,test_observed_set_recorded,样本键与行数正确入册,通过
+参数/数据/规则/样本变更产生新身份,T04,test_param_change_new_identity,参数指纹变 ⇒ 设计身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_code_change_new_identity,代码指纹变 ⇒ 设计身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_rule_change_new_identity,冻结规则变 ⇒ 设计身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_sample_list_change_new_identity,标的清单变 ⇒ 设计身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_split_change_new_identity,分组规则（含隔离长度）变 ⇒ 设计身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_data_change_new_run_identity,数据指纹变 ⇒ 运行身份变,通过
+参数/数据/规则/样本变更产生新身份,T04,test_same_identity_cannot_be_reregistered,换 ID 重登记同一身份 ⇒ 拒绝（不能继承旧结果）,通过
+参数/数据/规则/样本变更产生新身份,T04,test_changed_identity_requires_parent_link,改配置后必须显式写父实验，新老身份不同,通过
+参数/数据/规则/样本变更产生新身份,T04,test_parent_must_exist,父实验不存在 ⇒ 拒绝,通过
+参数/数据/规则/样本变更产生新身份,T04,test_frozen_identity_drift_invalidates,身份漂移写 invalidate 事件并解冻,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_label_crossing_detected,出场越过下一段起点 ⇒ 报「标签跨界」,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_exit_inside_isolation_band_is_not_crossing,出场落在隔离带内 ⇒ 不算跨界（隔离带就是吸收这段尾巴）,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_duplicate_sample_detected,同标的同入场时刻出现两次 ⇒ 报「重复样本」,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_insufficient_isolation_rejected,段间隔小于标签跨度 ⇒ 配置判不自洽,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_overlapping_segments_rejected,段间重叠/相接 ⇒ 拒绝,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_isolation_derived_from_measured_spans,隔离长度由实测跨度推出（240h），空样本返回 None 不猜,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_unconfigured_split_cannot_pass_leakage_check,分组未配置时不假装检查过，直接报「无法检查」,通过
+跨分组标签重叠、重复样本可识别并阻断,T05,test_clean_sample_passes,干净样本通过（证明不是一律报错）,通过
+失败和被放弃的试验也进入记录,T06,test_failed_trial_is_recorded,失败结论入册，trial 计数为 1,通过
+失败和被放弃的试验也进入记录,T06,test_abandoned_trial_and_experiment_recorded,放弃的试验与放弃实验都留痕,通过
+失败和被放弃的试验也进入记录,T06,test_runs_without_trials_blocks_formal,有运行但无试验结论 ⇒ 不给正式资格（「只留赢家」不算合格）,通过
+失败和被放弃的试验也进入记录,T06,test_formal_eligible_when_complete,六项齐全 ⇒ 给资格（证明不是一律拒绝）,通过
+失败和被放弃的试验也进入记录,T06,test_unknown_outcome_rejected,结论取值只能是 success/failure/abandoned/invalid,通过
+失败和被放弃的试验也进入记录,T06,test_run_requires_freeze,未冻结不得绑定运行,通过
+失败和被放弃的试验也进入记录,T06,test_unknown_data_fingerprint_not_faked,数据指纹未知就记 None，不填占位符,通过
+实际实验启动入口执行上述约束,T07,test_create_run_research_mode_registers_and_allows,真调 create_run：研究模式 202 + 登记落库 + formal_eligible=False,通过
+实际实验启动入口执行上述约束,T07,test_create_run_formal_without_freeze_rejected_409,真调 create_run：正式模式未登记/未冻结 ⇒ 409,通过
+实际实验启动入口执行上述约束,T07,test_create_run_formal_with_frozen_but_unconfigured_split_rejected,真调 create_run：已冻结但分组未配置 ⇒ 409,通过
+实际实验启动入口执行上述约束,T07,test_create_run_identity_drift_rejected,真调 create_run：身份不一致 ⇒ 409,通过
+实际实验启动入口执行上述约束,T07,test_create_run_rejects_pinned_window_mismatch,真调 create_run：请求窗口≠写死窗口 ⇒ 409,通过
+实际实验启动入口执行上述约束,T07,test_execute_run_without_experiment_blocked,真调 execute_run：无实验绑定 ⇒ 标 failed，不产出 trades/summary,通过
+实际实验启动入口执行上述约束,T07,test_execute_run_unregistered_experiment_blocked,真调 execute_run：实验未登记 ⇒ 标 failed,通过
+实际实验启动入口执行上述约束,T07,test_execute_run_unfrozen_experiment_blocked,真调 execute_run：实验未冻结 ⇒ 标 failed,通过
+实际实验启动入口执行上述约束,T07,test_execute_run_abandoned_experiment_blocked,真调 execute_run：实验已放弃 ⇒ 标 failed,通过
+实际实验启动入口执行上述约束,T07,test_guard_execute_passes_when_identity_matches,身份一致 ⇒ 闸门放行（证明不是一律拒绝）,通过
+实际实验启动入口执行上述约束,T07,test_guard_execute_identity_drift_writes_invalidate,身份漂移 ⇒ 拒绝并写 invalidate 事件,通过
+事件流不可静默改写,T01,test_chain_verifies_after_appends,追加后哈希链自洽,通过
+事件流不可静默改写,T01,test_middle_row_tamper_detected,改中间一行 ⇒ 断链，state() 抛 RegistryTampered,通过
+事件流不可静默改写,T01,test_tail_truncation_detected,删末尾一行 ⇒ 与 head 不符,通过

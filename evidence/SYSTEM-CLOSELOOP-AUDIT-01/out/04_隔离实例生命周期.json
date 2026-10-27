@@ -1,0 +1,400 @@
+{
+  "生成时刻": "2026-10-22T19:42:24",
+  "隔离实例": {
+    "端口": 8899,
+    "PAPER_LEDGER_DIR": "/tmp/wx_audit_iso/paper",
+    "LIVE_DB": "/tmp/wx_audit_iso/live/live_signals.sqlite3",
+    "启动方式": "adapter._loopback_server（跳过 main 的 startup/prewarm）"
+  },
+  "计数": {
+    "通过": 10,
+    "不通过": 3,
+    "未验证": 1
+  },
+  "明细": [
+    {
+      "id": "C0",
+      "title": "隔离实例启动",
+      "verdict": "通过",
+      "判据": "8899 上 /api/v1/health 返回 200",
+      "实测": {
+        "启动秒数": 1.6,
+        "隔离账本目录": {
+          "ledger_dir": "/tmp/wx_audit_iso/paper",
+          "files_before_any_write": [],
+          "allow_init": true
+        },
+        "闸门（只读，未修改）": {
+          "sha": "32725e0e1d0f123ac40105ac03d0d43ae8140a201d0faf657adb245bfde23a80",
+          "content": {
+            "allow_new_entries": true,
+            "reason": "user_ui_resumed",
+            "set_by": "user_ui_control",
+            "since_ms": 1792668603581,
+            "scope": "server_side_new_entry_only",
+            "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+          },
+          "mtime": "2026-10-22T19:30:03"
+        },
+        "行情库最新已闭合15m": 1792667700000,
+        "该bar距今_分钟": 27.3,
+        "注入配方": "requested_at = 1792666800000（= 最新已闭合 bar 起点 − 15m）"
+      },
+      "补充": {}
+    },
+    {
+      "id": "C2",
+      "title": "拒单矩阵（未知臂/缺参/未知action/不存在仓位/非法方向）",
+      "verdict": "不通过",
+      "判据": "每条都返回约定状态码与明确 reason，不得静默成功",
+      "实测": {
+        "用例": [
+          {
+            "用例": "未知臂 arm=zz",
+            "HTTP": 400,
+            "期望HTTP": 400,
+            "quality.status": "bad_request",
+            "missing_reason": "未知臂 'zz'（应为 ['3a', '3b', '3c', '3d']）",
+            "reason": null,
+            "期望reason": null,
+            "符合": true,
+            "原始": null
+          },
+          {
+            "用例": "缺 symbol",
+            "HTTP": 400,
+            "期望HTTP": 400,
+            "quality.status": "bad_request",
+            "missing_reason": "缺 symbol",
+            "reason": null,
+            "期望reason": null,
+            "符合": true,
+            "原始": null
+          },
+          {
+            "用例": "未知 action",
+            "HTTP": 400,
+            "期望HTTP": 400,
+            "quality.status": "bad_request",
+            "missing_reason": "未知 action 'teleport'（应为 open|close）",
+            "reason": null,
+            "期望reason": null,
+            "符合": true,
+            "原始": null
+          },
+          {
+            "用例": "平仓缺 position_id",
+            "HTTP": 400,
+            "期望HTTP": 400,
+            "quality.status": "bad_request",
+            "missing_reason": "缺 position_id",
+            "reason": null,
+            "期望reason": null,
+            "符合": true,
+            "原始": null
+          },
+          {
+            "用例": "平仓不存在仓位",
+            "HTTP": 409,
+            "期望HTTP": 409,
+            "quality.status": "rejected",
+            "missing_reason": null,
+            "reason": "no_closed_15m_for_exit",
+            "期望reason": "position_not_found",
+            "符合": false,
+            "原始": "{\"mode\": \"paper\", \"account_id\": null, \"run_id\": null, \"strategy_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"rule_version\": \"F_WX_v2.2_project_closure_user_5000_shared\", \"param_hash\": null, \"data_version\": null, \"as_of\": null, \"quality\": {\"status\": \"rejected\", \"age_seconds\": null, \"note\""
+          },
+          {
+            "用例": "非法方向",
+            "HTTP": 409,
+            "期望HTTP": 409,
+            "quality.status": "rejected",
+            "missing_reason": null,
+            "reason": "illegal_direction_sideways",
+            "期望reason": "illegal_direction_sideways",
+            "符合": true,
+            "原始": null
+          }
+        ]
+      },
+      "补充": {}
+    },
+    {
+      "id": "C1a",
+      "title": "真实时钟开仓：必须登记挂单，不得立即成交",
+      "verdict": "通过",
+      "判据": "不注入任何时钟时，应成交 bar 尚未闭合 ⇒ 只能挂单（pending_future_fill）",
+      "实测": {
+        "HTTP": 200,
+        "quality.status": "pending",
+        "reason": "pending_future_fill",
+        "earliest_fill_ms": 1792670241535,
+        "earliest_fill(本地)": "2026-10-22T19:57:21",
+        "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+      },
+      "补充": {
+        "说明": "这条同时说明：**没有 worker 推进挂单时，真实时钟下永远走不到成交** ⇒ 「闭环」不可能靠真实时钟产生"
+      }
+    },
+    {
+      "id": "C1b",
+      "title": "注入过去 requested_at：立即成交（缺陷复现）",
+      "verdict": "不通过",
+      "判据": "同一份开仓请求，只把 requested_at 前移到「最新已闭合 bar − 15m」，就从「只能挂单」变成「立即成交」",
+      "实测": {
+        "HTTP": 200,
+        "quality.status": "ok",
+        "注入 requested_at": 1792666800000,
+        "注入时刻(本地)": "2026-10-22T19:00:00",
+        "真实挂钟(本地)": "2026-10-22T19:42:19",
+        "成交bar_open_time": 1792667700000,
+        "成交bar(本地)": "2026-10-22T19:15:00",
+        "成交价": null,
+        "数量": 0.006,
+        "position_id": 1,
+        "reason": "filled",
+        "结果": {
+          "ok": true,
+          "position_id": 1,
+          "fill_price": null,
+          "qty": 0.006,
+          "bar_open_time": 1792667700000,
+          "entry_ts": null
+        }
+      },
+      "补充": {
+        "说明": "成交即缺陷：成交 bar 落在真实挂钟之前 ⇒ 用过去的 K 线价成交。生产账本里那 3 笔就是这样产生的（见 03 的 L5）。若本条判未验证，说明行情库该 bar 已超出 MAX_FILL_LAG_MS(60min) 迟滞窗"
+      }
+    },
+    {
+      "id": "C1c",
+      "title": "平仓 → 已实现入账 → 余额闭合（隔离账本）",
+      "verdict": "通过",
+      "判据": "5000 + 已实现 == cash；已实现 == paper_realized 求和；平仓后无 open 仓位",
+      "实测": {
+        "平仓结果": [
+          {
+            "position_id": 1,
+            "HTTP": 200,
+            "quality.status": "ok",
+            "item": {
+              "ok": true,
+              "reason": "closed",
+              "position_id": 1,
+              "symbol": "BTCUSDT",
+              "exit_price": 81803.2779,
+              "raw_price": 81844.2,
+              "qty": 0.006,
+              "gross_pnl": -1.0003325999999944,
+              "entry_fee": 0.24591,
+              "exit_fee": 0.24540983370000002,
+              "funding_paid": 0.0,
+              "funding_paid_this_close": 0.0,
+              "n_funding_events": 0,
+              "n_funding_events_this_close": 0,
+              "funding_events": [],
+              "funding_gaps": [],
+              "amount_sign_convention": "expense_positive",
+              "net_pnl": -1.4916524336999943,
+              "entry_ts": 1792667700000,
+              "exit_ts": 1792668599999,
+              "exit_reason": "iso_audit_close",
+              "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+              "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+              "market_source": "binance.um.candles_15m.is_closed.open"
+            }
+          }
+        ],
+        "cash": 4998.5083475663005,
+        "realized_pnl": -1.4916524336999943,
+        "Σrealized": -1.49165243,
+        "差额(5000+已实现-cash)": -0.0,
+        "差额(已实现-Σ明细)": -0.0,
+        "未平仓数": 0,
+        "账本仓位": [
+          {
+            "position_id": 1,
+            "symbol": "BTCUSDT",
+            "status": "closed",
+            "qty": 0.006,
+            "entry_price": 81970.0,
+            "exit_price": 81803.2779,
+            "exit_reason": "iso_audit_close",
+            "signal_uid": "iso_inject_1792669339791"
+          }
+        ],
+        "已实现明细": [
+          {
+            "id": 1,
+            "position_id": 1,
+            "net_pnl": -1.4916524336999943
+          }
+        ]
+      },
+      "补充": {
+        "说明": "本条只证明「隔离账本上记账闭合」，不证明「成交时钟正确」——C1b 已证明成交靠注入历史时钟才发生"
+      }
+    },
+    {
+      "id": "C3",
+      "title": "重复请求幂等：同一 signal_uid 只成交一笔",
+      "verdict": "通过",
+      "判据": "第二次必须返回 duplicate_signal_uid，且账本里该 uid 只有 1 个仓位",
+      "实测": {
+        "第一次": {
+          "HTTP": 200,
+          "reason": "filled",
+          "position_id": 2,
+          "原始": null
+        },
+        "第二次": {
+          "HTTP": 409,
+          "reason": "duplicate_signal_uid",
+          "position_id": null,
+          "原始": null
+        },
+        "账本内该uid仓位数": 1,
+        "说明": "幂等判定依赖 paper_processed；本用例在「无未平仓位」前提下执行，避免被 position_already_open_no_add 抢先拦下"
+      },
+      "补充": {}
+    },
+    {
+      "id": "C5",
+      "title": "数据失效：无 K 线标的不得用任何价格成交",
+      "verdict": "通过",
+      "判据": "缺 15m 数据的标的必须登记挂单或拒单，绝不成交",
+      "实测": {
+        "HTTP": 200,
+        "reason": "pending_future_fill",
+        "quality.status": "pending",
+        "position_id": null,
+        "fill_price": null,
+        "原始": null
+      },
+      "补充": {
+        "说明": "同一套注入时钟配方下，BTCUSDT 能成交、无数据标的只能挂单 ⇒ 「没有 bar 就不成交」这条守住了"
+      }
+    },
+    {
+      "id": "A11",
+      "title": "POST /api/v1/paper/orders 契约（隔离实例）",
+      "verdict": "不通过",
+      "判据": "未知臂 400 / 缺参 400 / 不存在仓位 409 / 重复 uid 幂等 / 正常路径 200",
+      "实测": {
+        "拒单矩阵通过": false,
+        "幂等通过": true,
+        "注": "账本缺失 503 无法在隔离实例复现（隔离账本由 ALLOW_INIT 建好）；该分支由代码事实支撑：LedgerUnavailable ⇒ 503，绝不自动建库"
+      },
+      "补充": {}
+    },
+    {
+      "id": "A19",
+      "title": "POST /api/v1/signals/clear 回执等于实际删除行数",
+      "verdict": "通过",
+      "判据": "回执 cleared_count == 清理前后行数差",
+      "实测": {
+        "HTTP": 200,
+        "回执cleared_count": 2,
+        "清理前行数": 2,
+        "清理后行数": 0,
+        "实际删除": 2,
+        "一致": true,
+        "说明": "隔离 live 库内自造 2 行后调用清理接口"
+      },
+      "补充": {}
+    },
+    {
+      "id": "A21b",
+      "title": "写侧未知路径 404",
+      "verdict": "通过",
+      "判据": "未知 POST 路径一律 404，且不写任何状态",
+      "实测": {
+        "POST /api/v1/__nope__": {
+          "HTTP": 404,
+          "body": {
+            "错误": "接口不存在"
+          }
+        },
+        "POST /api/v1/paper/__nope__": {
+          "HTTP": 404,
+          "body": {
+            "错误": "接口不存在"
+          }
+        }
+      },
+      "补充": {}
+    },
+    {
+      "id": "A20",
+      "title": "POST /api/v1/paper/control 闸门翻转持久化到文件",
+      "verdict": "未验证",
+      "判据": "翻转后写盘，重启后仍生效",
+      "实测": {
+        "闸门文件路径": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+        "是否可环境隔离": false,
+        "原因": "GATE_FILE 由 paper_engine 硬编码为 __file__ 同级 live/ 目录，无环境变量出口；隔离实例与生产实例共用同一文件 ⇒ 执行即改生产文件",
+        "旁证（非本轮执行）": "生产闸门 19:30:03 被 set_by=user_ui_control 翻成 allow_new_entries=true 并已持久化（见 03 的 L8）"
+      },
+      "补充": {}
+    },
+    {
+      "id": "C4",
+      "title": "重启恢复：写入后重启，账户/持仓仍在",
+      "verdict": "通过",
+      "判据": "重启后 /paper/accounts 的 cash 与重启前账本一致；仓位数不变",
+      "实测": {
+        "重启耗时_s": 0.7,
+        "重启前cash": 4997.016695132601,
+        "重启后接口cash": 4997.016695,
+        "重启前仓位数": 2,
+        "重启后账本仓位数": 2,
+        "重启后接口持仓条数": 0,
+        "接口账户条数": 4
+      },
+      "补充": {}
+    },
+    {
+      "id": "C6",
+      "title": "真实交易未启用：写路径无可执行的交易所下单调用",
+      "verdict": "通过",
+      "判据": "剥掉注释与 docstring 后，纸面写路径与适配层不得出现下单/撤单/查余额的可执行调用",
+      "实测": {
+        "纸面三模块可疑命中": [],
+        "adapter 可疑命中": [],
+        "扫描关键词": [
+          "create_order",
+          "place_order",
+          "submit_order",
+          "cancel_order",
+          "fapiPrivate",
+          "fapi/v1/order",
+          "fetch_balance",
+          "createOrder"
+        ],
+        "结论": "纸面执行是纯标准库的本地记账；实盘账户只有只读快照读取"
+      },
+      "补充": {}
+    },
+    {
+      "id": "Z1",
+      "title": "隔离纪律自检：生产闸门文件未被本轮改动",
+      "verdict": "通过",
+      "判据": "审核前后 paper_new_entry_gate.json 的 SHA-256 完全相同",
+      "实测": {
+        "前": {
+          "sha": "32725e0e1d0f123ac40105ac03d0d43ae8140a201d0faf657adb245bfde23a80",
+          "mtime": "2026-10-22T19:30:03",
+          "allow_new_entries": true
+        },
+        "后": {
+          "sha": "32725e0e1d0f123ac40105ac03d0d43ae8140a201d0faf657adb245bfde23a80",
+          "mtime": "2026-10-22T19:30:03",
+          "allow_new_entries": true
+        },
+        "隔离账本目录": "/tmp/wx_audit_iso/paper",
+        "生产账本目录未被引用": true
+      },
+      "补充": {}
+    }
+  ]
+}

@@ -1,0 +1,464 @@
+{
+  "checks": [
+    {
+      "明细": "[]",
+      "检查": "5 个标的全部在纳入清单 526 内",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'ARUSDT': 'COIN', 'BANANAUSDT': 'COIN', 'BATUSDT': 'COIN', 'CTSIUSDT': 'COIN', 'PUMPBTCUSDT': 'COIN'}",
+      "检查": "无指数标的混入（underlyingType≠INDEX）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'4h': [1134], '1h': [4536], '15m': [18144]}",
+      "检查": "4h/1h/15m 行数与理论值一致（1134/4536/18144）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "222",
+      "检查": "4h 预热根数 ≥220",
+      "结果": "PASS"
+    },
+    {
+      "明细": "2025-06-25 00:00:00",
+      "检查": "导出起点为 2025-06-25 00:00",
+      "结果": "PASS"
+    },
+    {
+      "明细": "['date', 'open', 'high', 'low', 'close', 'volume']",
+      "检查": "OHLCV 列恰为 6 列且未混入 quote_volume",
+      "结果": "PASS"
+    },
+    {
+      "明细": "['date', 'open_interest_amount', 'open_interest_value']",
+      "检查": "OI 列恰为 3 列",
+      "结果": "PASS"
+    },
+    {
+      "明细": "['date', 'funding_rate']",
+      "检查": "资金费列恰为 2 列",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{}",
+      "检查": "导出数据无 NaN（未用 0 或前值填充）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'ARUSDT': ['2025-08-29 06:20:00', '2025-08-29 06:25:00', '2025-08-29 06:30:00'], 'BANANAUSDT': ['2025-08-29 06:20:00', '2025-08-29 06:25:00', '2025-08-29 06:30:00'], 'BATUSDT': ['2025-08-29 06:20:00', '2025-08-29 06:25:00', '2025-08-29 06:30:00'], 'CTSIUSDT': ['2025-08-29 06:20:00', '2025-08-29 06:25:00', '2025-08-29 06:30:00'], 'PUMPBTCUSDT': ['2025-08-29 06:20:00', '2025-08-29 06:25:00', '2025-08-29 06:30:00']}",
+      "检查": "OI 缺口恰为已知 3 桶（2025-08-29 06:20/06:25/06:30）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{}",
+      "检查": "所有时间列严格递增且无重复",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "时间列为无时区（UTC 起点）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'ARUSDT': [567, 567, 567], 'BANANAUSDT': [1242, 1242, 1242], 'BATUSDT': [567, 567, 567], 'CTSIUSDT': [567, 567, 567], 'PUMPBTCUSDT': [1134, 1134, 1134]}",
+      "检查": "资金费 1h/8h 两文件内容相同且与 sidecar 行数一致",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'ARUSDT': [18144, 18144], 'BANANAUSDT': [18144, 18144], 'BATUSDT': [18144, 18144], 'CTSIUSDT': [18144, 18144], 'PUMPBTCUSDT': [18144, 18144]}",
+      "检查": "15m 成交额 sidecar 行数与 15m K 线一致",
+      "结果": "PASS"
+    },
+    {
+      "明细": "{'ARUSDT': [4536, True, True], 'BANANAUSDT': [4536, True, True], 'BATUSDT': [4536, True, True], 'CTSIUSDT': [4536, True, True], 'PUMPBTCUSDT': [4536, True, True]}",
+      "检查": "mark 蜡烛 4536 行、四列同值、volume 全 0",
+      "结果": "PASS"
+    },
+    {
+      "明细": "85 个字段",
+      "检查": "精度核对全部为「未改变数值含义」",
+      "结果": "PASS"
+    },
+    {
+      "明细": "45",
+      "检查": "数据文件数 45",
+      "结果": "PASS"
+    },
+    {
+      "明细": "a41356cb6aeee8502c6b66ae vs a41356cb6aeee8502c6b66ae",
+      "检查": "组合指纹与导出日志一致（可复算）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "5",
+      "检查": "旧引擎基准 5 笔",
+      "结果": "PASS"
+    },
+    {
+      "明细": "['2025-12-03 07:15:00', '2025-10-02 01:15:00', '2025-08-16 06:15:00', '2025-11-20 13:15:00', '2025-09-06 00:15:00']",
+      "检查": "基准成交入场时间均在测试段内",
+      "结果": "PASS"
+    },
+    {
+      "明细": "['ARUSDT', 'BANANAUSDT', 'BATUSDT', 'CTSIUSDT', 'PUMPBTCUSDT']",
+      "检查": "基准成交覆盖全部 5 个标的",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "文档标注「等待 FT 基线」",
+      "结果": "PASS"
+    },
+    {
+      "明细": "[94, 8163]",
+      "检查": "未把输入包写成完成报告",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "未声称已通过验收/测试通过",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "比较规则含共享账户与独立配对分离说明",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "比较规则明确禁止把独立交易收益相加当组合收益",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "比较规则区分 PF 与盈亏比",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "比较规则给出仓位公式（权益×0.5%÷风险距离）",
+      "结果": "PASS"
+    },
+    {
+      "明细": "",
+      "检查": "缺口清单 9 项且只有 1 项硬阻塞",
+      "结果": "PASS"
+    },
+    {
+      "明细": "30",
+      "检查": "输入指纹覆盖 30 个源文件",
+      "结果": "PASS"
+    }
+  ],
+  "comparison_rules_version": "WX-FT-CMP-1.0",
+  "data_combined_sha256": "a41356cb6aeee8502c6b66aeac4734501ded95dfdfaa2f06433eb004d354ef04",
+  "fail": 0,
+  "file_count": 62,
+  "files": {
+    "00_输入包说明.md": {
+      "bytes": 9239,
+      "sha256": "7a1ac55f7858d8212bb676eb0cb6c7521861a93a2d0cde7bbb6d7eb6fe738f62"
+    },
+    "01_冻结比较规则.md": {
+      "bytes": 7734,
+      "sha256": "de22e2f18b63caa87864624c2e75e54a8f573db7fbf5c99241442e31b879380c"
+    },
+    "05_交接单.md": {
+      "bytes": 4750,
+      "sha256": "5fbee2eec1be53995d5c24e3949ff8fe59a0d2e044512b517c8e7c3c3d4ea08a"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-15m-futures.feather": {
+      "bytes": 474122,
+      "sha256": "0a7822f123f50f9b22b5239b5d5f36befe0f943837c8db234fd2c9e31c2b643f"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-1h-funding_rate.feather": {
+      "bytes": 8378,
+      "sha256": "5aac0c0e6a03aaf2dc376308cba2c8f81bb907c071e6272811eeacf1421d066e"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-1h-futures.feather": {
+      "bytes": 126690,
+      "sha256": "d88470171601a48c43afba7439a24385e408587be0713096a1de8cf7c402fcdc"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-1h-mark.feather": {
+      "bytes": 152362,
+      "sha256": "de289be4c2a4e3f46e331e6ffc6bcc52738f7a6694d98445433e247be412e0e7"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-4h-futures.feather": {
+      "bytes": 36994,
+      "sha256": "cb663b5bd26da7338eaa3a062b9b19c4d8cce07dc282d721e88d39be1f4da2d2"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-5m-open_interest.feather": {
+      "bytes": 1049634,
+      "sha256": "0877440ba01e1fdcd8de9d5fba86b4590f805eb08008e4aaa8bc7e811b67a6ef"
+    },
+    "data/freqtrade/futures/AR_USDT_USDT-8h-funding_rate.feather": {
+      "bytes": 8378,
+      "sha256": "5aac0c0e6a03aaf2dc376308cba2c8f81bb907c071e6272811eeacf1421d066e"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-15m-futures.feather": {
+      "bytes": 499594,
+      "sha256": "0a83511985154dd6332fb17f9b31d8fe15b91645a1f09ec52688c59770b6c195"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-1h-funding_rate.feather": {
+      "bytes": 14698,
+      "sha256": "3fe6678f33b92dc41aa3b5dcb77cae8455bc2be2b561afd8ee6b5aead19da94e"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-1h-futures.feather": {
+      "bytes": 135010,
+      "sha256": "48f1938e05331c3732986a7539e2672dc3b5e8372562b89e0e6fe4ca0f8346e9"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-1h-mark.feather": {
+      "bytes": 153898,
+      "sha256": "9bf3dee8c75c6c99ac3caff54e3062210556156d958e90cef9e5375daaa79955"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-4h-futures.feather": {
+      "bytes": 38834,
+      "sha256": "5b7caf5048c090cfd72f4e04c301ae3dd8cc2f2286d7ff5adc34103fd07ccb8a"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-5m-open_interest.feather": {
+      "bytes": 1022114,
+      "sha256": "f8ac6180e54e88ab955af7defa499a1facfb7321559aa019508eaf614af07409"
+    },
+    "data/freqtrade/futures/BANANA_USDT_USDT-8h-funding_rate.feather": {
+      "bytes": 14698,
+      "sha256": "3fe6678f33b92dc41aa3b5dcb77cae8455bc2be2b561afd8ee6b5aead19da94e"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-15m-futures.feather": {
+      "bytes": 436922,
+      "sha256": "235cb5425cf7531d1bb46b12670d309409cd4b70190d96458b34f7cf21928a1f"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-1h-funding_rate.feather": {
+      "bytes": 8234,
+      "sha256": "dd442da1a79b9b118e2d6faa122b2c8957793a494499f20ab247fe4da2913f23"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-1h-futures.feather": {
+      "bytes": 122626,
+      "sha256": "bd41d202039aadef5b79a1d0f05db88d3efb5fbda05e9df383217abde716ac65"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-1h-mark.feather": {
+      "bytes": 145770,
+      "sha256": "e56b9e2e5370a5a0a580259b74af89b5fc1122c4907e0a80ce7505730298281a"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-4h-futures.feather": {
+      "bytes": 38970,
+      "sha256": "d5d50f4bb08d5436fcc6587a74d9623de8e400b7442e7d1e35c7b39040d686d6"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-5m-open_interest.feather": {
+      "bytes": 1077706,
+      "sha256": "1d687c74844d2903dba36cb77d40aca848e171ad9115a02595f03e72ed9dfcdb"
+    },
+    "data/freqtrade/futures/BAT_USDT_USDT-8h-funding_rate.feather": {
+      "bytes": 8234,
+      "sha256": "dd442da1a79b9b118e2d6faa122b2c8957793a494499f20ab247fe4da2913f23"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-15m-futures.feather": {
+      "bytes": 404266,
+      "sha256": "680244e613bf99d52071f911be0f917697cebf75ee8dec8878764197245b3051"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-1h-funding_rate.feather": {
+      "bytes": 6594,
+      "sha256": "6350dd00656800ae61df004db8493d786b698e49b27a96e4002fc8ff2f6a1742"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-1h-futures.feather": {
+      "bytes": 114290,
+      "sha256": "556c3cb642fd5bf2ee5bccb164b7de7b2e80e6e2f34f2f2bcb2d79ede1f43dba"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-1h-mark.feather": {
+      "bytes": 156266,
+      "sha256": "8d94e5fc1fd3915986b4fd9cda831b744eda6b38151314371f26f4ea5588a21a"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-4h-futures.feather": {
+      "bytes": 36546,
+      "sha256": "084737d3ddd22aefd8d226fa38b83a688c267f5eecac2f9bf4c70d15f3695813"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-5m-open_interest.feather": {
+      "bytes": 1051578,
+      "sha256": "3bd3bc2fe434da31d629e4cfda870c9fc35a39a95532b45fec9a704e98ef0232"
+    },
+    "data/freqtrade/futures/CTSI_USDT_USDT-8h-funding_rate.feather": {
+      "bytes": 6594,
+      "sha256": "6350dd00656800ae61df004db8493d786b698e49b27a96e4002fc8ff2f6a1742"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-15m-futures.feather": {
+      "bytes": 531234,
+      "sha256": "f471af80729bb2682ca4f96edb6f6c19c9889c989827538b21d45c04f5859baa"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-1h-funding_rate.feather": {
+      "bytes": 12098,
+      "sha256": "696423d94c434b6b4d32521c66ea2e544f93d6d1df3f99d8503d30ab9280f993"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-1h-futures.feather": {
+      "bytes": 146730,
+      "sha256": "93d735369608905ebf885c11c91a0e5ee2b22f6fa7ff3ae58566c9a706570938"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-1h-mark.feather": {
+      "bytes": 162890,
+      "sha256": "2b9c3e64aec9f6892303b5f6f631dd319532af09c58bc5c4b931990b0f04c72a"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-4h-futures.feather": {
+      "bytes": 46794,
+      "sha256": "5592f07b3d1994da873ddb4d15df30cc772dede518536a5115440de8043656a2"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-5m-open_interest.feather": {
+      "bytes": 1060090,
+      "sha256": "4f740774497b2e4256d74e3de358fb99790d79207b07f087f512031b01678b07"
+    },
+    "data/freqtrade/futures/PUMPBTC_USDT_USDT-8h-funding_rate.feather": {
+      "bytes": 12098,
+      "sha256": "696423d94c434b6b4d32521c66ea2e544f93d6d1df3f99d8503d30ab9280f993"
+    },
+    "data/sidecar/ARUSDT_15m_quote_volume.csv": {
+      "bytes": 681769,
+      "sha256": "6c93e11c159e313b9e7b9a1611be6cfb55c2592b776951bf61d3ed5f74e4f16b"
+    },
+    "data/sidecar/ARUSDT_funding_settlements.csv": {
+      "bytes": 21987,
+      "sha256": "4c6710bee8b0f648d2ad6c0d7e284a9fa5a10e9ae0c07e8ae7f4a98cb3e3ac66"
+    },
+    "data/sidecar/BANANAUSDT_15m_quote_volume.csv": {
+      "bytes": 739200,
+      "sha256": "22a27bb5a1103d91709d62ed66d2b5286655dcdb8c5bf1f36b3d81847c5a7689"
+    },
+    "data/sidecar/BANANAUSDT_funding_settlements.csv": {
+      "bytes": 47619,
+      "sha256": "de2fabae25837b854dcc740afd424b633f1d512525810e6d254ff8a4d018398c"
+    },
+    "data/sidecar/BATUSDT_15m_quote_volume.csv": {
+      "bytes": 684537,
+      "sha256": "17a5eb218227cdf6970dd44417c89fa26205b5c48ace0ea3968e1cbcbe9161ed"
+    },
+    "data/sidecar/BATUSDT_funding_settlements.csv": {
+      "bytes": 22093,
+      "sha256": "5b52448abcf7c517b25a7997fe9a111784a958c5372240f3b2a7ab08f64ba4b7"
+    },
+    "data/sidecar/CTSIUSDT_15m_quote_volume.csv": {
+      "bytes": 654911,
+      "sha256": "21ccd3fa552524f3ee160b22669ee3c3b94bd5b9e5dbdf7a73ce9ab25f1629b5"
+    },
+    "data/sidecar/CTSIUSDT_funding_settlements.csv": {
+      "bytes": 21693,
+      "sha256": "ec881cac2718128ea078c7d737ebd764f759f91a3914813ef39e7f54fd227940"
+    },
+    "data/sidecar/PUMPBTCUSDT_15m_quote_volume.csv": {
+      "bytes": 711786,
+      "sha256": "f545e9049a303a56f3490999d9f889fe2183210f3d5c9cc83e5fda721e65ffa2"
+    },
+    "data/sidecar/PUMPBTCUSDT_funding_settlements.csv": {
+      "bytes": 42854,
+      "sha256": "e1bf6b6ceaf4edfb763acb9b9b9e27bef1278504e11501b2380cde9f389e9672"
+    },
+    "logs/00_inventory.json": {
+      "bytes": 7834,
+      "sha256": "9b3405f200ee8e8af9906f9754ed91b9d51ecb48deb66a3a252034ce25e05f8b"
+    },
+    "logs/01_export.json": {
+      "bytes": 27336,
+      "sha256": "1cc0e88f0b85d5b84f26e76a94e3f86ef95f7f21367c129781fe25eaa99fa6e1"
+    },
+    "out/01_标的选择与完整性.csv": {
+      "bytes": 7183,
+      "sha256": "730199b87c9e17e14f2023eabf28e08f6d023c3930fa672666a792ecbc11e9f0"
+    },
+    "out/02_选择结论.csv": {
+      "bytes": 1784,
+      "sha256": "81f8a198c2104af95e6430cfc13f3b37e8fbf4cd08bcf3cbb1d429ed17904232"
+    },
+    "out/03_导出文件指纹.csv": {
+      "bytes": 9009,
+      "sha256": "9b7a5135d8ef29394a1888b3e5c7d63d4cfe91ee4659085e26b10f4c508aad82"
+    },
+    "out/04_精度核对.csv": {
+      "bytes": 4488,
+      "sha256": "bb02413dc3bb5253b0b7804a1f0479d55477c21d50b707d4221b99698386cfe8"
+    },
+    "out/05_旧引擎基准成交.csv": {
+      "bytes": 2165,
+      "sha256": "a7c996619a52b4ab6cd2598d5bc762ff125142a6e1166b22d33e27ebf5ae95cb"
+    },
+    "out/06_字段映射.csv": {
+      "bytes": 4102,
+      "sha256": "53a9c19bcb713b712864490ffae7de747cbea003c4bf7f7194273ea6216e76fb"
+    },
+    "out/07_缺口清单.csv": {
+      "bytes": 3064,
+      "sha256": "d78910c2c27093a9e17aca90ee37c829b4f84f690988ddcfccf0b24de2f75e94"
+    },
+    "queries/00_inventory_and_select.py": {
+      "bytes": 14217,
+      "sha256": "09f21b993d9158e222994af01b06cafa29f4a35b3322895cc509fca878e3a666"
+    },
+    "queries/01_export_freqtrade.py": {
+      "bytes": 12568,
+      "sha256": "f4aa531fb7ff30267846ff89ae7d874547e4b893e4f80c3f949feae40621a712"
+    },
+    "queries/02_build_doc_tables.py": {
+      "bytes": 9950,
+      "sha256": "11d48059cc8f82dd884cf16973ec6273a542c24dbc9b29acfc7f0b25861db24c"
+    },
+    "queries/03_baseline_trades.py": {
+      "bytes": 3410,
+      "sha256": "50702b7d9182d7c3a6e69b08735c35d581be7c5556cbd71a48e7d453f7efb06d"
+    },
+    "queries/04_selfcheck_and_manifest.py": {
+      "bytes": 13065,
+      "sha256": "8baadd6e8f35cf423717166ad7aba371ac084c12fcf8401beb8fc42c9f28b1f2"
+    }
+  },
+  "inputs": {
+    "candles/ARUSDT/15m/2025.parquet": "ac96fe5dda534b9569dfb58b3089ac7613aa75ad1cf9e9f56c9de0b4c9e0caac",
+    "candles/ARUSDT/1h/2025.parquet": "5a823cf233a713d7be417b6c1d653424f4f99d50ceeeb849662e755c536d1068",
+    "candles/ARUSDT/4h/2025.parquet": "ffa210521d887e79cfca93b8e9e484027d149ba1d0d0d462a8c6ee072f0fd09f",
+    "candles/BANANAUSDT/15m/2025.parquet": "c83d709f487667a4e2afb55a3c8831b436819434cfd98fa5675620c41ea856a1",
+    "candles/BANANAUSDT/1h/2025.parquet": "c96658f8bb1ed8fcaa1e9f1ee6a27c3b5a7abbedcbafe5b2457b682186a05264",
+    "candles/BANANAUSDT/4h/2025.parquet": "9c5f66906882f192dbf7efdc728cdc71c42d3e6c46b4e6283219ba97c7f37b51",
+    "candles/BATUSDT/15m/2025.parquet": "57327452e1f33dc54d8df94f0c9bb44dc1c5c830c26a4b2ed8094642188e6691",
+    "candles/BATUSDT/1h/2025.parquet": "320a607e2b6456a58c3269d751b70a62d662096ac0d6c9bf8613a1c375baf0ed",
+    "candles/BATUSDT/4h/2025.parquet": "7d5a2d94b7b3c676208f46819cabd73b8c4aef8eb39b3609f9a4ee6f4c4c9f34",
+    "candles/CTSIUSDT/15m/2025.parquet": "70e3a56a5b6107255d8be8a94ad82e2a9f830930f88ea36754671fffe8ba450c",
+    "candles/CTSIUSDT/1h/2025.parquet": "b2028d2c16321b82337fff321e86b42280a7ff8cf16de4d764af982775e76fce",
+    "candles/CTSIUSDT/4h/2025.parquet": "cd2dfce3d4c9e01afee2692cfc2c8683058b60d322bc07b60836ad560692a57a",
+    "candles/PUMPBTCUSDT/15m/2025.parquet": "6f96c99dd4d885d2e2c323a46780b18c7dce43b6112641d35e7825679db87968",
+    "candles/PUMPBTCUSDT/1h/2025.parquet": "bb53f08f6582e01376db5d6c1bd5f8530686939b70876494b263860c2bee2ead",
+    "candles/PUMPBTCUSDT/4h/2025.parquet": "f2f7174587468303a548237d9399e27a72c2df9e009d57fab8aad195adce740e",
+    "funding/ARUSDT.parquet": "c09cd081e471509bb492516d4e28d2cc4def951430413ffad4c2ba81b61d724f",
+    "funding/BANANAUSDT.parquet": "18dd141ddb507fe1dd875acffbcf6e691c6b15454328b3ae57886d1a7901c4a0",
+    "funding/BATUSDT.parquet": "8e9a9db6f101f37618c84defb74480888e5740cafb98bc3eb75b3cc6014b28ce",
+    "funding/CTSIUSDT.parquet": "b53c57d18528ff98f0102aab4cc5e90a29a33cc7c36f07e191546041c3bd7663",
+    "funding/PUMPBTCUSDT.parquet": "706a9a4560a1bc38d4c41d93e7d694cc26f43e5cd25905e15749534f99ddd45b",
+    "mark1h/ARUSDT.parquet": "dad99378ab3042367756e746168463be98a211781479e4619715880373847bfa",
+    "mark1h/BANANAUSDT.parquet": "d4a95818bbb6cbe87bf618eccdf75dfc42e4133119c5f9b35ada9d24539dd442",
+    "mark1h/BATUSDT.parquet": "6d9079ee5c9b90762cf328552c9c33ac6a0f7b69d5db36961379b97ed4638e46",
+    "mark1h/CTSIUSDT.parquet": "79c8e723a81a8995368e23a721d6b7c6250c930027aa5b4eec47bff9ab54f312",
+    "mark1h/PUMPBTCUSDT.parquet": "124fa5b46bec9aa3722fc208499fbcce90b302fadbaa400b87f964c2e3446ff0",
+    "oi/ARUSDT/2025.parquet": "65cfc7650eb3bbd704a07e2c02a7a4cfac0143ccf56ad1edcae3031df196727d",
+    "oi/BANANAUSDT/2025.parquet": "5f6a5065dcafb0f48e9aeb04cd912c9650f6c2614ce57e030caae0f30061c1ae",
+    "oi/BATUSDT/2025.parquet": "b721c8260ab315d65dc5e429ed0caca96f5aec2e7bef8e0b919b92c5dae70f88",
+    "oi/CTSIUSDT/2025.parquet": "0db8e0b54dc65469040ce4efc2ff7c954455b5fafb882df83ff31689642abd84",
+    "oi/PUMPBTCUSDT/2025.parquet": "15643d8b0cf2104c715079ca7146a86b92d3a50d71142ac7596ff79e2657ce77"
+  },
+  "note": "自检通过不等于独立验收；收到 FT 结果前不产出绩效结论。",
+  "package": "FT-DATA-01",
+  "pairs": {
+    "ARUSDT": "AR/USDT:USDT",
+    "BANANAUSDT": "BANANA/USDT:USDT",
+    "BATUSDT": "BAT/USDT:USDT",
+    "CTSIUSDT": "CTSI/USDT:USDT",
+    "PUMPBTCUSDT": "PUMPBTC/USDT:USDT"
+  },
+  "pass": 30,
+  "status": "输入包已冻结，等待FT基线",
+  "symbols": [
+    "ARUSDT",
+    "BANANAUSDT",
+    "BATUSDT",
+    "CTSIUSDT",
+    "PUMPBTCUSDT"
+  ],
+  "version": "WX-FT-IN-1.0",
+  "window": {
+    "export_start_utc": "2025-06-25 00:00:00+00:00",
+    "test_end_utc_exclusive": "2025-12-31 00:00:00+00:00",
+    "test_start_utc": "2025-08-01 00:00:00+00:00"
+  }
+}

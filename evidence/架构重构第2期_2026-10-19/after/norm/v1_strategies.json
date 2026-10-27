@@ -1,0 +1,652 @@
+{
+ "account_id": null,
+ "as_of": "<易变>",
+ "current": [
+  {
+   "available": true,
+   "direction": "long",
+   "exec_params_hash": "0000000000000000",
+   "experiment_id": "exp_event_trend_v0_1",
+   "family": "F_WX_EVENT_TREND",
+   "formal_run_gate": {
+    "ai_role": "AI 只能生成候选；确定性风控有最终权限",
+    "blocking_reasons": [
+     "目前处于候选研究阶段，正式生产运行需通过实盘前置 Gate 审批"
+    ],
+    "formal_run_allowed": false,
+    "gate_status": {
+     "G01": "pass",
+     "G02": "pass",
+     "G03": "pass",
+     "G04": "pending",
+     "G05": "pending"
+    },
+    "live_order_enabled": false,
+    "new_entry_switch_default": false,
+    "requirements": [
+     "真实数据覆盖",
+     "确定性状态迁移与四大对账通过",
+     "共享交易核心真实成交与成本对账",
+     "多标的独立回放验证"
+    ],
+    "run_frozen": false,
+    "strategy_id": "WX_EVENT_TREND_V0_1"
+   },
+   "inherits_legacy_results": false,
+   "legacy_archive": "策略/WyckoffMaster/_legacy_archive_v31",
+   "live_order_enabled": false,
+   "name": "WX_EVENT_TREND_V0_1：低频事件趋势研究（4h箱体 / 1h扫低回踩突破 / 15m撮合）",
+   "not_inherited": [
+    "旧 WX_OI_RESONANCE_V1 / 3a-3d 的任何历史净值与夏普"
+   ],
+   "note": "正式 M4 门禁未过（run_frozen=False）⇒ 本策略只做**独立候选研究**，不得冒称 M4 已通过、不得继承 3a–3d / M0–M6 成绩",
+   "oi_weights": {
+    "oi_growth_pct": 1.0
+   },
+   "retired": false,
+   "role": "当前**唯一可运行回测策略**；旧 F_WX 3a–3d 与旧 A/B 已退役（runnable=False，见 list_legacy / retirement_summary）",
+   "runnable": true,
+   "signal_names": {
+    "1": "breakout_long"
+   },
+   "signal_params_hash": "0000000000000000",
+   "signal_versions": {
+    "core": "event_state_machine_v0_1",
+    "exec_core": "trading_core_shared_v1",
+    "signal": "event_trend_v0_1"
+   },
+   "stop_modes": [
+    "wilder_atr_trailing",
+    "initial_stop"
+   ],
+   "strategy_id": "WX_EVENT_TREND_V0_1",
+   "strategy_key": "wx_event_trend_v0_1",
+   "time_unit": "ms",
+   "timeframe": "1h"
+  }
+ ],
+ "current_backtest": {
+  "available": true,
+  "direction": "long",
+  "exec_params_hash": "0000000000000000",
+  "experiment_id": "exp_event_trend_v0_1",
+  "family": "F_WX_EVENT_TREND",
+  "formal_run_gate": {
+   "ai_role": "AI 只能生成候选；确定性风控有最终权限",
+   "blocking_reasons": [
+    "目前处于候选研究阶段，正式生产运行需通过实盘前置 Gate 审批"
+   ],
+   "formal_run_allowed": false,
+   "gate_status": {
+    "G01": "pass",
+    "G02": "pass",
+    "G03": "pass",
+    "G04": "pending",
+    "G05": "pending"
+   },
+   "live_order_enabled": false,
+   "new_entry_switch_default": false,
+   "requirements": [
+    "真实数据覆盖",
+    "确定性状态迁移与四大对账通过",
+    "共享交易核心真实成交与成本对账",
+    "多标的独立回放验证"
+   ],
+   "run_frozen": false,
+   "strategy_id": "WX_EVENT_TREND_V0_1"
+  },
+  "inherits_legacy_results": false,
+  "legacy_archive": "策略/WyckoffMaster/_legacy_archive_v31",
+  "live_order_enabled": false,
+  "name": "WX_EVENT_TREND_V0_1：低频事件趋势研究（4h箱体 / 1h扫低回踩突破 / 15m撮合）",
+  "not_inherited": [
+   "旧 WX_OI_RESONANCE_V1 / 3a-3d 的任何历史净值与夏普"
+  ],
+  "note": "正式 M4 门禁未过（run_frozen=False）⇒ 本策略只做**独立候选研究**，不得冒称 M4 已通过、不得继承 3a–3d / M0–M6 成绩",
+  "oi_weights": {
+   "oi_growth_pct": 1.0
+  },
+  "retired": false,
+  "role": "当前**唯一可运行回测策略**；旧 F_WX 3a–3d 与旧 A/B 已退役（runnable=False，见 list_legacy / retirement_summary）",
+  "runnable": true,
+  "signal_names": {
+   "1": "breakout_long"
+  },
+  "signal_params_hash": "0000000000000000",
+  "signal_versions": {
+   "core": "event_state_machine_v0_1",
+   "exec_core": "trading_core_shared_v1",
+   "signal": "event_trend_v0_1"
+  },
+  "stop_modes": [
+   "wilder_atr_trailing",
+   "initial_stop"
+  ],
+  "strategy_id": "WX_EVENT_TREND_V0_1",
+  "strategy_key": "wx_event_trend_v0_1",
+  "time_unit": "ms",
+  "timeframe": "1h"
+ },
+ "current_run_keys": [
+  "wx_event_trend_v0_1"
+ ],
+ "data_version": null,
+ "evidence_level": null,
+ "items": [
+  {
+   "available": true,
+   "direction": "long",
+   "exec_params_hash": "0000000000000000",
+   "experiment_id": "exp_event_trend_v0_1",
+   "family": "F_WX_EVENT_TREND",
+   "formal_run_gate": {
+    "ai_role": "AI 只能生成候选；确定性风控有最终权限",
+    "blocking_reasons": [
+     "目前处于候选研究阶段，正式生产运行需通过实盘前置 Gate 审批"
+    ],
+    "formal_run_allowed": false,
+    "gate_status": {
+     "G01": "pass",
+     "G02": "pass",
+     "G03": "pass",
+     "G04": "pending",
+     "G05": "pending"
+    },
+    "live_order_enabled": false,
+    "new_entry_switch_default": false,
+    "requirements": [
+     "真实数据覆盖",
+     "确定性状态迁移与四大对账通过",
+     "共享交易核心真实成交与成本对账",
+     "多标的独立回放验证"
+    ],
+    "run_frozen": false,
+    "strategy_id": "WX_EVENT_TREND_V0_1"
+   },
+   "inherits_legacy_results": false,
+   "legacy_archive": "策略/WyckoffMaster/_legacy_archive_v31",
+   "live_order_enabled": false,
+   "name": "WX_EVENT_TREND_V0_1：低频事件趋势研究（4h箱体 / 1h扫低回踩突破 / 15m撮合）",
+   "not_inherited": [
+    "旧 WX_OI_RESONANCE_V1 / 3a-3d 的任何历史净值与夏普"
+   ],
+   "note": "正式 M4 门禁未过（run_frozen=False）⇒ 本策略只做**独立候选研究**，不得冒称 M4 已通过、不得继承 3a–3d / M0–M6 成绩",
+   "oi_weights": {
+    "oi_growth_pct": 1.0
+   },
+   "retired": false,
+   "role": "当前**唯一可运行回测策略**；旧 F_WX 3a–3d 与旧 A/B 已退役（runnable=False，见 list_legacy / retirement_summary）",
+   "runnable": true,
+   "signal_names": {
+    "1": "breakout_long"
+   },
+   "signal_params_hash": "0000000000000000",
+   "signal_versions": {
+    "core": "event_state_machine_v0_1",
+    "exec_core": "trading_core_shared_v1",
+    "signal": "event_trend_v0_1"
+   },
+   "stop_modes": [
+    "wilder_atr_trailing",
+    "initial_stop"
+   ],
+   "strategy_id": "WX_EVENT_TREND_V0_1",
+   "strategy_key": "wx_event_trend_v0_1",
+   "time_unit": "ms",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3a (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3a",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3b (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3b",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3c (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3c",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3d (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3d",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy A (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "A",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy B (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "B",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy wx_oi_resonance_v1 (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "wx_oi_resonance_v1",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  }
+ ],
+ "legacy": [
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3a (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3a",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3b (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3b",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3c (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3c",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy 3d (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "3d",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy A (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "A",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy B (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "B",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  },
+  {
+   "config_errors": [
+    "WORK-04B: 策略已彻底退役，禁止运行"
+   ],
+   "config_hash": null,
+   "config_source": null,
+   "config_status": "已退役清理",
+   "config_version": null,
+   "direction": "long",
+   "enabled_for_current_run": false,
+   "family": "legacy_retired",
+   "frozen": false,
+   "implementation_status": "deleted_in_work04b",
+   "missing_config": [],
+   "name": "Legacy Strategy wx_oi_resonance_v1 (Retired)",
+   "note": "WORK-04B: 旧策略已退役并从源码中物理清理，仅保留历史审计凭据，不可作为生产策略启动。",
+   "policy_status": "retired",
+   "required_config": [],
+   "retired": true,
+   "retired_at": "2026-10-16",
+   "run_status": "retired",
+   "runnable": false,
+   "status": "retired",
+   "strategy_key": "wx_oi_resonance_v1",
+   "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+   "timeframe": "1h"
+  }
+ ],
+ "legacy_keys": [
+  "3a",
+  "3b",
+  "3c",
+  "3d",
+  "A",
+  "B",
+  "wx_oi_resonance_v1"
+ ],
+ "missing_reason": null,
+ "mode": null,
+ "param_hash": null,
+ "quality": {
+  "age_seconds": "<易变>",
+  "note": "<易变>",
+  "status": "ok"
+ },
+ "retirement": {
+  "current_runnable_keys": [
+   "wx_event_trend_v0_1"
+  ],
+  "legacy_readonly_keys": [
+   "3a",
+   "3b",
+   "3c",
+   "3d",
+   "A",
+   "B",
+   "wx_oi_resonance_v1"
+  ],
+  "note": "旧策略（3a/3b/3c/3d/A/B）已退役：仅保留历史只读追溯，不进入任何可运行入口；唯一可运行策略为 WX_EVENT_TREND_V0_1。",
+  "retired_at": "2026-10-16",
+  "retired_strategy_keys": [
+   "3a",
+   "3b",
+   "3c",
+   "3d",
+   "A",
+   "B",
+   "wx_oi_resonance_v1",
+   "WX_OI_RESONANCE_V1"
+  ],
+  "successor_strategy_id": "WX_EVENT_TREND_V0_1",
+  "successor_strategy_key": "wx_event_trend_v0_1"
+ },
+ "rule_version": null,
+ "run_binding": {
+  "all_pass": false,
+  "gates": {
+   "G01": "pending",
+   "G02": "pending",
+   "G03": "pending",
+   "G04": "pending",
+   "G05": "pending"
+  },
+  "source": null
+ },
+ "run_context": {
+  "identity_ok": false,
+  "policy_run_frozen": false,
+  "run_frozen": false,
+  "version": null
+ },
+ "run_id": null,
+ "source_url": null,
+ "strategy_version": null,
+ "time": {
+  "available_at": null,
+  "event_time": null,
+  "fetched_at": "<易变>",
+  "received_at": null
+ },
+ "total": 8
+}

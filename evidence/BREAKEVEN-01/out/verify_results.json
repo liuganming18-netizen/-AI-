@@ -1,0 +1,108 @@
+{
+ "contract": "breakeven_01_v1.0.0",
+ "step": "0.01",
+ "results": [
+  {
+   "case": "V1 未到阈值不启动保本",
+   "pass": true,
+   "detail": {
+    "triggered": false,
+    "net_A": -10.002908,
+    "net_B": -10.002908,
+    "exit_A": "intrabar_stop"
+   }
+  },
+  {
+   "case": "V2 恰好触及阈值即触发",
+   "pass": true,
+   "detail": {
+    "entry": 100.03,
+    "threshold": 105.06,
+    "triggered": true,
+    "trigger_ordinal": 3,
+    "trigger_px": 105.06
+   }
+  },
+  {
+   "case": "V3 原止损更高时不下调",
+   "pass": true,
+   "detail": {
+    "stop_before": 101.0,
+    "stop_after": 101.0,
+    "be_px": 100.18
+   }
+  },
+  {
+   "case": "V4 费用上升只会抬高保本价",
+   "pass": true,
+   "detail": {
+    "be_fee5": 100.18,
+    "be_fee10": 100.28,
+    "be_fee5+funding": 100.2,
+    "net_at_be": [
+     0.018866999999998912,
+     0.018543999999988098
+    ]
+   }
+  },
+  {
+   "case": "V5 跳空越过止损按实际撮合",
+   "pass": true,
+   "detail": {
+    "exit_reason": "gap_open_stop",
+    "exit_price": 96.97,
+    "be_px": 100.18,
+    "net": -6.125872
+   }
+  },
+  {
+   "case": "V6 改未来价格不影响已发生的触发/止损",
+   "pass": true,
+   "detail": {
+    "trigger_full": 3,
+    "trigger_trunc": 3,
+    "be_full": 100.18,
+    "be_trunc": 100.18,
+    "stop_full": 100.18,
+    "stop_trunc": 100.18
+   }
+  },
+  {
+   "case": "V7 无触发时 B/C 与 A 一致",
+   "pass": true,
+   "detail": {
+    "net": [
+     -10.002907777,
+     -10.002907777,
+     -10.002907777
+    ],
+    "exit": [
+     "intrabar_stop",
+     "intrabar_stop",
+     "intrabar_stop"
+    ]
+   }
+  },
+  {
+   "case": "V8 同根先后不明按原止损退出",
+   "pass": true,
+   "detail": {
+    "same_bar_ambiguous": true,
+    "triggered": false,
+    "exit_price": 94.97,
+    "exit_reason": "intrabar_stop"
+   }
+  },
+  {
+   "case": "V9 保本退出净额不为负",
+   "pass": true,
+   "detail": {
+    "net": 0.019230020476625087,
+    "exit_price": 100.14,
+    "be_px": 100.18,
+    "reason": "intrabar_stop"
+   }
+  }
+ ],
+ "all_pass": true
+}

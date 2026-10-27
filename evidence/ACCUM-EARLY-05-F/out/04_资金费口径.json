@@ -1,0 +1,259 @@
+{
+  "generated_at_utc": "2026-10-26T16:10:57Z",
+  "calibers": {
+    "04A": {
+      "discipline": [
+        "只读：不写库、不下单、不改生产；15m 与 1h/4h 全部走 research_15m 冷热合并读取器",
+        "四条规则共用同一批箱体候选（list_box_candidates），不各自筛选",
+        "基线不含 OI 门槛：历史 OI 可得时点不可证明，带它等于用不可证的量做闸门",
+        "R 倍数 = 净收益率 / 5%（初始止损幅度），绕开本金与仓位口径冲突",
+        "不含资金费：对比只算价格路径 + 手续费 + 滑点；资金费已在 replay_calc 实现，正式回测必须加"
+      ],
+      "slippage_bps": 3.0,
+      "metric": "R 倍数 = 净收益率 / 5%"
+    },
+    "04CD": {
+      "04C_baseline": {},
+      "has_funding_field": true
+    },
+    "differences": [
+      {
+        "项": "资金费",
+        "04A": "不计（discipline 明示）",
+        "04CD": "逐笔按结算事件计入，缺 rate/mark 记 funding_gap 不补 0",
+        "影响": "系统性偏向多头付费；单笔量级见本文件 delta_r"
+      },
+      {
+        "项": "计量单位",
+        "04A": "R 倍数（相对 5% 止损幅度）",
+        "04CD": "USDT 净额 + 回撤比例",
+        "影响": "不能直接横比，必须先换算"
+      },
+      {
+        "项": "本金与仓位",
+        "04A": "用 R 绕开，未定义名义额",
+        "04CD": "生效视图 5000 / 策略包 2000，名义额由风险与止损推出",
+        "影响": "资金费的绝对额取决于名义额 ⇒ 同一 Σrate 在不同本金下 USDT 不同"
+      },
+      {
+        "项": "滑点",
+        "04A": "3bps（主表）",
+        "04CD": "5bps / 3bps 两套并列",
+        "影响": "与资金费同为成本项，混用会把口径差算进策略差"
+      },
+      {
+        "项": "参与率上限",
+        "04A": "不模拟，只报触发笔数",
+        "04CD": "0.1% / 1.0% 两套并列并实际缩量",
+        "影响": "缩量改 qty ⇒ 改资金费绝对额与净额"
+      },
+      {
+        "项": "候选集",
+        "04A": "526 池、四条规则共用箱体候选",
+        "04CD": "51 条历史候选（原策略）",
+        "影响": "样本不同，任何总量都不可比"
+      },
+      {
+        "项": "区间",
+        "04A": "2025-01-01~2026-07-01 / 2026-07-01~2026-10-12",
+        "04CD": "2026-06-27~2026-10-26",
+        "影响": "区间不同，费率环境不同"
+      }
+    ]
+  },
+  "quantified": {
+    "research_final": {
+      "applicable": true,
+      "fills": 7789,
+      "funding_zero_settlement_trades": 256,
+      "funding_zero_but_hold_lt_8h": 256,
+      "funding_real_gap_trades": 0,
+      "funding_gap_inside_hot_gap": 0,
+      "funding_gap_attribution": "真实缺口 0 笔中有 0 笔的持仓区间与热库资金费缺口段相交 ⇒ 归因到「热库缺、冷档有」，不是策略侧问题",
+      "funding_real_gap_examples": [],
+      "settlements": {
+        "total": 103148,
+        "median_per_trade": 8,
+        "max_per_trade": 156,
+        "median_interval_hours": 4.0,
+        "interval_note": "结算间隔中位数来自实际数据，不用「8 小时」这种教科书假设；这批币多数是 4 小时一次"
+      },
+      "held_hours": {
+        "median": 43.0,
+        "why": "结算次数与持仓时长必须一起看，否则中位 9 次会被误读成异常"
+      },
+      "sum_rate_stats": {
+        "mean": -0.00044267,
+        "median": 0.00029754,
+        "total": -3.447992,
+        "positive_trades": 5780,
+        "negative_trades": 1751
+      },
+      "delta_r": {
+        "total": 68.9598,
+        "mean_per_trade": 0.008853,
+        "median_per_trade": -0.005951,
+        "direction": "净收入（负费率环境，多头收钱）",
+        "pct_of_abs_base_R_sum": 10.577,
+        "base_R_sum_after": -583.0185
+      },
+      "per_trade_usdt_and_r": {
+        "assumption": "每笔风险 = 权益 0.5%，初始止损 5% ⇒ 名义额 = 权益 × 0.1",
+        "usdt_per_trade": -0.221337,
+        "r_per_trade": -0.008853,
+        "why": "用 5000 权益、25 USDT 风险额把 Σrate 折成 USDT 与 R，供与 04-C 的每笔量级对照"
+      },
+      "base": {
+        "r_sum": -651.9783,
+        "r_mean": -0.0837
+      },
+      "rule": "ΔR = −Σrate / 0.05；Σrate 只取 rate_type='settled' 且 入场 < 结算 ≤ 出场；多头付正费率，负费率则为收入"
+    },
+    "holdout_final": {
+      "applicable": true,
+      "fills": 1523,
+      "funding_zero_settlement_trades": 156,
+      "funding_zero_but_hold_lt_8h": 60,
+      "funding_real_gap_trades": 96,
+      "funding_gap_inside_hot_gap": 96,
+      "funding_gap_attribution": "真实缺口 96 笔中有 96 笔的持仓区间与热库资金费缺口段相交 ⇒ 归因到「热库缺、冷档有」，不是策略侧问题",
+      "funding_real_gap_examples": [
+        {
+          "symbol": "ACEUSDT",
+          "entry_utc": "2026-09-15T07:15:00Z",
+          "exit_utc": "2026-09-16T01:00:00Z",
+          "held_hours": 17.75
+        },
+        {
+          "symbol": "AGTUSDT",
+          "entry_utc": "2026-09-07T09:15:00Z",
+          "exit_utc": "2026-09-08T07:45:00Z",
+          "held_hours": 22.5
+        },
+        {
+          "symbol": "AIGENSYNUSDT",
+          "entry_utc": "2026-09-07T07:15:00Z",
+          "exit_utc": "2026-09-07T16:00:00Z",
+          "held_hours": 8.75
+        },
+        {
+          "symbol": "AIXBTUSDT",
+          "entry_utc": "2026-09-03T15:15:00Z",
+          "exit_utc": "2026-09-04T06:30:00Z",
+          "held_hours": 15.25
+        },
+        {
+          "symbol": "AIXBTUSDT",
+          "entry_utc": "2026-09-03T16:15:00Z",
+          "exit_utc": "2026-09-04T06:00:00Z",
+          "held_hours": 13.75
+        }
+      ],
+      "settlements": {
+        "total": 23343,
+        "median_per_trade": 9,
+        "max_per_trade": 194,
+        "median_interval_hours": 4.0,
+        "interval_note": "结算间隔中位数来自实际数据，不用「8 小时」这种教科书假设；这批币多数是 4 小时一次"
+      },
+      "held_hours": {
+        "median": 55.0,
+        "why": "结算次数与持仓时长必须一起看，否则中位 9 次会被误读成异常"
+      },
+      "sum_rate_stats": {
+        "mean": 0.00028926,
+        "median": 0.00045,
+        "total": 0.440544,
+        "positive_trades": 1165,
+        "negative_trades": 202
+      },
+      "delta_r": {
+        "total": -8.8109,
+        "mean_per_trade": -0.005785,
+        "median_per_trade": -0.009,
+        "direction": "净成本（正费率环境，多头付钱）",
+        "pct_of_abs_base_R_sum": -29.777,
+        "base_R_sum_after": 20.7791
+      },
+      "per_trade_usdt_and_r": {
+        "assumption": "每笔风险 = 权益 0.5%，初始止损 5% ⇒ 名义额 = 权益 × 0.1",
+        "usdt_per_trade": 0.14463,
+        "r_per_trade": 0.005785,
+        "why": "用 5000 权益、25 USDT 风险额把 Σrate 折成 USDT 与 R，供与 04-C 的每笔量级对照"
+      },
+      "base": {
+        "r_sum": 29.59,
+        "r_mean": 0.0194
+      },
+      "rule": "ΔR = −Σrate / 0.05；Σrate 只取 rate_type='settled' 且 入场 < 结算 ≤ 出场；多头付正费率，负费率则为收入"
+    }
+  },
+  "unified_input_requirements": [
+    {
+      "编号": "U1",
+      "要求": "成本三项必须同时在场：手续费（双边 5bps）、滑点（待批）、资金费（逐笔按结算时刻）",
+      "为什么": "少任何一项，两套结果的差里就混进了成本口径差，而不是策略差"
+    },
+    {
+      "编号": "U2",
+      "要求": "先定名义额口径（本金 × 每笔风险 / 止损幅度），再谈资金费绝对额",
+      "为什么": "Σrate 无量纲，USDT 需要名义额；04-A 用 R 绕开名义额，04-C 用 5000/2000 本金"
+    },
+    {
+      "编号": "U3",
+      "要求": "R 与 USDT 必须给显式换算（R = 净额 / (权益 × 0.5%)），不许混着比",
+      "为什么": "同一笔交易两种写法差 200 倍（5000 本金 / 25 USDT 风险额）"
+    },
+    {
+      "编号": "U4",
+      "要求": "资金费只取 rate_type='settled'，且区间为「入场 < 结算 ≤ 出场」",
+      "为什么": "取到 predicted 或含入场前结算，会多算或少算一次"
+    },
+    {
+      "编号": "U5",
+      "要求": "退出时刻与结算时刻相差 ≤15 分钟的，标 funding_order_uncertain，不静默择一",
+      "为什么": "先结算还是先平仓，方向相反"
+    },
+    {
+      "编号": "U6",
+      "要求": "参与率上限必须在两边同值，且缩量后重算 qty 与资金费",
+      "为什么": "0.1% 与 1.0% 差 10 倍，缩量直接改名义额"
+    },
+    {
+      "编号": "U7",
+      "要求": "资金费缺口（区间内 0 条结算记录）单独计数，不按 0 处理",
+      "为什么": "按 0 处理等于假设免费持仓，系统性偏乐观"
+    },
+    {
+      "编号": "U8",
+      "要求": "两套口径并列时，同一张表里不得混排；先各自成表再给差异表",
+      "为什么": "混排会让读者把口径差读成策略差"
+    }
+  ],
+  "hot_funding_gap_used": {
+    "from_utc": "2026-09-02T20:00:00Z",
+    "to_utc": "2026-09-18T16:00:00Z",
+    "symbols": 407,
+    "max_hours": 380.0
+  },
+  "cross_check_04C": {
+    "生效视图_5bps": {
+      "total_funding": -6.554309,
+      "total_realized_net": -225.181453,
+      "total_fees": 22.459331,
+      "total_candidates": 51,
+      "per_trade_usdt": -0.128516,
+      "funding_pct_of_abs_net": -2.911,
+      "funding_pct_of_fees": -29.183
+    },
+    "策略包_3bps": {
+      "total_funding": -2.721954,
+      "total_realized_net": -89.189143,
+      "total_fees": 7.157095,
+      "total_candidates": 51,
+      "per_trade_usdt": -0.053372,
+      "funding_pct_of_abs_net": -3.052,
+      "funding_pct_of_fees": -38.032
+    }
+  }
+}

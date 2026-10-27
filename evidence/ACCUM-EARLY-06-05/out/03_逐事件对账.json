@@ -1,0 +1,224 @@
+{
+  "task": "ACCUM-EARLY-06-05",
+  "probe": "03_逐事件对账",
+  "generated_at_utc": "2026-10-26T18:06:37Z",
+  "window": {
+    "start_utc": "2026-06-27T08:00:00Z",
+    "end_utc": "2026-10-26T09:00:00Z",
+    "start_ms": 1782547200000,
+    "end_ms": 1793005200000,
+    "source": "05-C/out/01_输入快照与版本锁定.json#window（沿用 04-C 同一窗口）"
+  },
+  "键": "(标的, 结算时刻)；时刻为原始毫秒，不截秒",
+  "容差": {
+    "rate": 1e-12,
+    "mark": 1e-09,
+    "为什么": "两源同源（archive 导入 + fapi 增量），一致时应逐位相同；留极小容差只为吸收浮点表示，不吸收口径差"
+  },
+  "全池": {
+    "n_events": 345376,
+    "n_both": 270492,
+    "n_hot_only": 34166,
+    "n_cold_only": 40718,
+    "n_rate_conflict": 0,
+    "n_mark_conflict": 0,
+    "n_mark_null_mismatch": 0,
+    "n_rate_null_mismatch": 0,
+    "n_symbols": 528
+  },
+  "母集48": {
+    "n_events": 31763,
+    "n_both": 24870,
+    "n_hot_only": 3138,
+    "n_cold_only": 3755,
+    "n_rate_conflict": 0,
+    "n_mark_conflict": 0,
+    "n_mark_null_mismatch": 0,
+    "n_rate_null_mismatch": 0,
+    "n_symbols": 48
+  },
+  "重复": {
+    "cold_dup_groups": 0,
+    "hot_dup_groups": 0,
+    "说明": "热库唯一索引 (exchange,market,symbol,funding_time) 保证 0；冷档实测 0"
+  },
+  "冲突": {
+    "总数": 0,
+    "样例": [],
+    "四类定义": [
+      "rate_conflict：两源 rate 差 > 1e-12",
+      "mark_conflict：两源 mark 差 > 1e-9",
+      "mark_null_mismatch：一边 mark 空一边有值（settle_funding 会记 funding_gap）",
+      "rate_null_mismatch：一边 rate 空一边有值"
+    ]
+  },
+  "冷档独有事件": {
+    "symbols": 420,
+    "top20": [
+      {
+        "symbol": "LSKUSDT",
+        "n": 306,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-23T14:00:00Z"
+      },
+      {
+        "symbol": "ONGUSDT",
+        "n": 305,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "ONEUSDT",
+        "n": 266,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-29T03:00:00Z"
+      },
+      {
+        "symbol": "TUSDT",
+        "n": 246,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-19T14:00:00Z"
+      },
+      {
+        "symbol": "ARKUSDT",
+        "n": 220,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-30T23:00:00Z"
+      },
+      {
+        "symbol": "SKRUSDT",
+        "n": 181,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "IOSTUSDT",
+        "n": 176,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "MTLUSDT",
+        "n": 173,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-19T05:00:00Z"
+      },
+      {
+        "symbol": "GUSDT",
+        "n": 170,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-23T04:00:00Z"
+      },
+      {
+        "symbol": "SOPHUSDT",
+        "n": 146,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "AKEUSDT",
+        "n": 121,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-21T00:00:00Z"
+      },
+      {
+        "symbol": "COOKIEUSDT",
+        "n": 96,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T20:00:00Z"
+      },
+      {
+        "symbol": "SPACEUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "CLOUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "INITUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "KATUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "PUNDIXUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "SOONUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "AIGENSYNUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      },
+      {
+        "symbol": "BARDUSDT",
+        "n": 94,
+        "first_utc": "2026-09-03T00:00:00Z",
+        "last_utc": "2026-09-18T12:00:00Z"
+      }
+    ],
+    "按月": [
+      {
+        "month": "2026-09",
+        "n": 40713
+      },
+      {
+        "month": "2026-10",
+        "n": 5
+      }
+    ]
+  },
+  "热库独有事件": {
+    "symbols": 525,
+    "按月": [
+      {
+        "month": "2026-09",
+        "n": 172
+      },
+      {
+        "month": "2026-10",
+        "n": 33994
+      }
+    ]
+  },
+  "缺失": {
+    "来源": "02_原生结算周期与缺口段.json（不在此重算，避免两处口径分叉）",
+    "并集缺失_全池": 0.0,
+    "并集缺失_母集48": 0.0,
+    "热库缺失_全池": 29089.0,
+    "热库缺失_母集48": 2822.0,
+    "不可推算标的数": 109,
+    "读法": "并集缺失=0 且不可推算标的不在母集内 ⇒ 母集 48 的结算事件可判「齐」；全池仍有不可推算标的，不能推广"
+  },
+  "明细文件": {
+    "母集48": {
+      "file": "03_逐事件明细_母集48.csv",
+      "rows": 31763
+    },
+    "异常行": {
+      "file": "03_逐事件明细_异常.csv",
+      "rows": 74884,
+      "内容": "cold_only / hot_only / 四类冲突"
+    }
+  },
+  "elapsed_sec": 0.66
+}

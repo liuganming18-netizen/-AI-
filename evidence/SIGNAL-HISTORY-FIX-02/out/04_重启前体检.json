@@ -1,0 +1,322 @@
+{
+  "ticket": "SIGNAL-HISTORY-FIX-02",
+  "stage": "restart_verify",
+  "generated_at_utc": "2026-10-24T14:33:31Z",
+  "pre": {
+    "captured_at_utc": "2026-10-24T14:33:31Z",
+    "service_status": {
+      "timestamp": "2026-10-24T14:33:30.577320+00:00",
+      "config_identity": {
+        "port": 8787,
+        "py": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+        "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+        "paper_enabled": false,
+        "paper_arm": "3a",
+        "symbol": "all"
+      },
+      "services": {
+        "api": {
+          "name": "adapter_api",
+          "port": 8787,
+          "pid": 76604,
+          "recorded_pid": 76604,
+          "listener_pid": 76604,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T12:16:14.288135+00:00",
+          "last_heartbeat": "2026-10-24T14:33:30.712679+00:00",
+          "http_health": {
+            "ok": true,
+            "code": 200,
+            "url": "http://127.0.0.1:8787/api/health"
+          },
+          "exit_reason": null
+        },
+        "worker": {
+          "name": "backtest_worker",
+          "pid": 58624,
+          "recorded_pid": 58624,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": "2026-10-24T09:45:16.130539+00:00",
+          "last_heartbeat": "2026-10-24T14:33:30.751538+00:00",
+          "exit_reason": null
+        },
+        "collector": {
+          "name": "realtime_collector",
+          "pid": 42278,
+          "recorded_pid": 42278,
+          "status": "running",
+          "health_probe_ok": true,
+          "managed_by_this_instance": false
+        },
+        "runtime": {
+          "name": "unified_runtime",
+          "arm": "3a",
+          "symbol": "all",
+          "pid": 59109,
+          "recorded_pid": 59109,
+          "identity_matched": true,
+          "status": "running",
+          "started_at": null,
+          "last_heartbeat": 1792835343435,
+          "runtime_snapshot": {
+            "runtime_identity": {
+              "arm": "3a",
+              "symbol": "all(526)",
+              "pid": 59109,
+              "status": "running",
+              "started_at": 1792835343435,
+              "cycle_count": 4904,
+              "overall_health": "healthy"
+            },
+            "market_data": {
+              "status": "connected",
+              "symbol": "all(526)",
+              "latest_15m_close_time": 1792851299999,
+              "latest_1h_close_time": 1792850399999,
+              "latest_4h_close_time": 1792843199999
+            },
+            "signal_engine": {
+              "status": "active",
+              "universe": 526,
+              "universe_declared": 526,
+              "watermark_1h": 1792846800000,
+              "watermark_4h": 1792828800000,
+              "bootstrap": {
+                "universe": 526,
+                "ready": 526,
+                "skipped": 0,
+                "skipped_reasons": {},
+                "history_candidates_discarded": 4,
+                "_window_hours": 1160.0,
+                "watermark_clamped": false,
+                "watermark_note": null,
+                "elapsed_sec": 24.2
+              },
+              "skipped_reasons": {},
+              "scan_errors": {},
+              "scan_errors_total": 0,
+              "state_counter": {
+                "IDLE": 136,
+                "BOX": 364,
+                "RETEST": 15,
+                "SWEEP": 11
+              },
+              "active_box": true,
+              "active_state": "BOX",
+              "signals_generated_total": 0,
+              "funnel": {
+                "since_start": {
+                  "BOX": 8,
+                  "SWEEP": 7,
+                  "RETEST": 5,
+                  "CANDIDATE": 0,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 28,
+                  "EXPIRED": 1,
+                  "MISSED_WITHOUT_RETEST": 1
+                },
+                "history": {
+                  "BOX": 3303,
+                  "SWEEP": 672,
+                  "RETEST": 403,
+                  "CANDIDATE": 4,
+                  "VOLUME_REJECTED": 0,
+                  "OI_UNAVAILABLE": 0,
+                  "OI_REJECTED": 0,
+                  "INVALIDATED": 1640,
+                  "EXPIRED": 1239,
+                  "MISSED_WITHOUT_RETEST": 8
+                },
+                "candidates_since_start": 0,
+                "last_candidate_ms": null,
+                "last_candidate_utc": null,
+                "history_candidates_discarded": 4,
+                "bootstrap_window_hours": 1160,
+                "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+              },
+              "last_cycle_ms": 1792852393429
+            },
+            "order_processing": {
+              "status": "ready",
+              "orders_routed_total": 0,
+              "orders_rejected_total": 0,
+              "orders_waiting_gate": 0,
+              "new_entry_gate": {
+                "allow_new_entries": true,
+                "gate_reason": "new_entry_allowed",
+                "reason": "user_ui_resumed",
+                "gate_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json",
+                "gate_scope": "server_side_new_entry_only",
+                "exits_fees_funding_health_unaffected": true,
+                "set_by": "user_ui_control",
+                "since_ms": 1792753532432
+              },
+              "current_pending_in_db": 0
+            },
+            "execution_daemon": {
+              "status": "running",
+              "open_positions": 0,
+              "pending_matched_total": 0,
+              "trailing_updates_total": 0,
+              "exits_triggered_total": 0,
+              "last_error": null
+            }
+          },
+          "exit_reason": null
+        }
+      },
+      "overall_health": "healthy"
+    },
+    "runtime_pid": 59109,
+    "runtime_process": {
+      "pid": 59109,
+      "create_time_utc": "2026-10-24T09:49:02Z",
+      "create_time_ms": 1792835342425,
+      "cmdline": [
+        "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python",
+        "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+        "--arm",
+        "3a",
+        "--symbol",
+        "all",
+        "--interval",
+        "2.0"
+      ]
+    },
+    "unified_runtime_file": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py",
+      "size": 89831,
+      "sha256": "9e2572e08a35d74e3126fbd6b62c2744c992ed39ddd2cbe060bd8ab7ee37986f",
+      "mtime_utc": "2026-10-24T14:31:06Z"
+    },
+    "process_older_than_code": true,
+    "process_lag_sec": 16924.4,
+    "collector_pid": 42278,
+    "collector_managed": false,
+    "api_signal_engine_keys": [
+      "active_box",
+      "active_state",
+      "bootstrap",
+      "funnel",
+      "last_cycle_ms",
+      "scan_errors",
+      "scan_errors_total",
+      "signals_generated_total",
+      "skipped_reasons",
+      "state_counter",
+      "status",
+      "universe",
+      "universe_declared",
+      "watermark_1h",
+      "watermark_4h"
+    ],
+    "api_has_atr_caliber": false,
+    "api_has_watermark_check": false,
+    "history_candidates_discarded": 4,
+    "signals_generated_total": 0,
+    "state_counter": {
+      "IDLE": 136,
+      "BOX": 364,
+      "RETEST": 15,
+      "SWEEP": 11
+    },
+    "funnel": {
+      "since_start": {
+        "BOX": 8,
+        "SWEEP": 7,
+        "RETEST": 5,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 28,
+        "EXPIRED": 1,
+        "MISSED_WITHOUT_RETEST": 1
+      },
+      "history": {
+        "BOX": 3303,
+        "SWEEP": 672,
+        "RETEST": 403,
+        "CANDIDATE": 4,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 1640,
+        "EXPIRED": 1239,
+        "MISSED_WITHOUT_RETEST": 8
+      },
+      "candidates_since_start": 0,
+      "last_candidate_ms": null,
+      "last_candidate_utc": null,
+      "history_candidates_discarded": 4,
+      "bootstrap_window_hours": 1160,
+      "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+    },
+    "orders_routed_total": 0,
+    "orders_rejected_total": 0,
+    "current_pending_in_db": 0,
+    "open_positions": 0,
+    "job_queue": {
+      "exists": true,
+      "total": 6122,
+      "non_terminal_n": 0,
+      "non_terminal": []
+    },
+    "ledger": {
+      "PAPER_LEDGER_DIR": {
+        "path": null
+      },
+      "LIVE_DIR": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live",
+        "exists": true,
+        "n_files": 7,
+        "files": {
+          "live_signals.sqlite3": {
+            "size": 45056,
+            "sha256": "0040a9efa30969e5a93d34776ac077926a1c19e820116a70212ddcd4b9721807"
+          },
+          "live_signals.sqlite3-shm": {
+            "size": 32768,
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+          },
+          "live_signals.sqlite3-wal": {
+            "size": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "live_signals_legacy_backup.sqlite3": {
+            "size": 93130752,
+            "sha256": "a2a903be7b6a709050f81cdcc6a97a4ebaff7bb2ee1ee683faf83a736f9fa636"
+          },
+          "paper_legacy_audit.sqlite3": {
+            "size": 20480,
+            "sha256": "538344ff18a99f48cfa7ed444421efa13f6a426938804f41f1c6bc663287c02f"
+          },
+          "paper_new_entry_gate.json": {
+            "size": 307,
+            "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5"
+          },
+          "pool_diagnostics.json": {
+            "size": 2909,
+            "sha256": "c05db39f47355825acf1fe5208662d6211903b30e29aec56105b5de11064cd27"
+          }
+        }
+      }
+    },
+    "frozen_files_n": 156
+  },
+  "safety_gate": {
+    "checks": {
+      "job_queue_no_running": true,
+      "no_open_positions": true,
+      "no_pending_orders": true,
+      "runtime_process_identified": true,
+      "collector_untouched_by_restart": true
+    },
+    "all_pass": true,
+    "blocking": []
+  }
+}

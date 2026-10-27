@@ -1,0 +1,27 @@
+{
+  "trades_old": 21,
+  "trades_new": 21,
+  "trades_matched": 21,
+  "orders_old": 42,
+  "orders_new": 42,
+  "orders_matched": 42,
+  "all_trade_fields_equal": true,
+  "all_order_7_fields_equal": true,
+  "stats_fields_compared": 104,
+  "stats_fields_unequal_raw": 2,
+  "stats_fields_unequal_are_runtime_clock": [
+    "backtest_run_end_ts",
+    "backtest_run_start_ts"
+  ],
+  "stats_behavior_fields_unequal": [],
+  "stats_block_behavior_equal": true,
+  "engine_counters_all_equal": true,
+  "final_balance": {
+    "old": 1899.11520196,
+    "new": 1899.11520196,
+    "abs_diff": 0.0
+  },
+  "behavior_unchanged": true,
+  "explanation_for_raw_diff": "唯二不同的两个字段是 backtest_run_start_ts / backtest_run_end_ts，即本次进程的挂钟起止时间（相差 19132 / 19028 秒），与交易行为无关；其余 102 个标量逐字段完全相等（含 backtest_start/backtest_end 数据窗口、profit_total_abs、max_drawdown、sharpe、sortino、calmar、sqn、p_value 等）。",
+  "verdict": "PASS"
+}

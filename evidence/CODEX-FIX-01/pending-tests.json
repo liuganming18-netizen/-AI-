@@ -1,0 +1,297 @@
+{
+  "ticket": "UI-PENDING-01",
+  "kind": "frontend-component-test",
+  "fixture": "tests_pending/fixtures.ts（TEST FIXTURE，人工构造）",
+  "component": "src/components/PositionPanel.tsx",
+  "data_source": "none（不请求后端、不读账本）",
+  "note": "本结果只证明页面渲染行为，不构成真实成交闭环证据",
+  "generated_at_utc": "2026-10-23T08:54:24.420Z",
+  "summary": {
+    "total": 40,
+    "passed": 40,
+    "failed": 0,
+    "all_pass": true
+  },
+  "results": [
+    {
+      "case": "has_pending",
+      "check": "挂单块存在",
+      "pass": true,
+      "expected": "block != null",
+      "actual": "[object Object]"
+    },
+    {
+      "case": "has_pending",
+      "check": "data-state = has_pending",
+      "pass": true,
+      "expected": "has_pending",
+      "actual": "has_pending"
+    },
+    {
+      "case": "has_pending",
+      "check": "data-n-pending = 2",
+      "pass": true,
+      "expected": "2",
+      "actual": "2"
+    },
+    {
+      "case": "has_pending",
+      "check": "挂单行数 = 2",
+      "pass": true,
+      "expected": "2",
+      "actual": "2"
+    },
+    {
+      "case": "has_pending",
+      "check": "挂单身份 pending_id 顺序",
+      "pass": true,
+      "expected": "9001,9002",
+      "actual": "9001,9002"
+    },
+    {
+      "case": "has_pending",
+      "check": "标题笔数与行数一致",
+      "pass": true,
+      "expected": "含「待成交挂单 (2 笔)」",
+      "actual": "true"
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 标的名",
+      "pass": true,
+      "expected": "含 TESTFIXUSDT",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 身份 #9001 可见",
+      "pass": true,
+      "expected": "含 #9001",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 状态中文+原码",
+      "pass": true,
+      "expected": "含「等待成交」且含 pending",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 来源=实时信号触发",
+      "pass": true,
+      "expected": "含「实时信号触发」",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行2 来源=页面手动请求",
+      "pass": true,
+      "expected": "含「页面手动请求」",
+      "actual": "data-pending-id=\"9002\" data-arm=\"\" data-symbol=\"TESTFIX2USDT\" data-origin=\"manual\" data-status=\"pending\"> #9002 TESTFIX2USDT 等待成交 · pending 来源: 页面手动请求 · 来源臂未知 方向: 未提供 等待原因: test_fixture_reason_visible 最早可执行 15m: 10-24 01:30Z 请求锚点时刻: 10-24 01:15Z 信号确认/可得: 10-24 01:00Z / 10-24 01:01Z 信号身份: — 数量与成交价待实际成交时确定。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 等待原因(结构性，非 0/—)",
+      "pass": true,
+      "expected": "含结构性等待说明",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行2 等待原因取服务端 reason",
+      "pass": true,
+      "expected": "含 test_fixture_reason_visible",
+      "actual": "data-pending-id=\"9002\" data-arm=\"\" data-symbol=\"TESTFIX2USDT\" data-origin=\"manual\" data-status=\"pending\"> #9002 TESTFIX2USDT 等待成交 · pending 来源: 页面手动请求 · 来源臂未知 方向: 未提供 等待原因: test_fixture_reason_visible 最早可执行 15m: 10-24 01:30Z 请求锚点时刻: 10-24 01:15Z 信号确认/可得: 10-24 01:00Z / 10-24 01:01Z 信号身份: — 数量与成交价待实际成交时确定。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 可成交时间 10-24 00:30Z",
+      "pass": true,
+      "expected": "含 10-24 00:30Z",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行2 可成交时间 10-24 01:30Z",
+      "pass": true,
+      "expected": "含 10-24 01:30Z",
+      "actual": "data-pending-id=\"9002\" data-arm=\"\" data-symbol=\"TESTFIX2USDT\" data-origin=\"manual\" data-status=\"pending\"> #9002 TESTFIX2USDT 等待成交 · pending 来源: 页面手动请求 · 来源臂未知 方向: 未提供 等待原因: test_fixture_reason_visible 最早可执行 15m: 10-24 01:30Z 请求锚点时刻: 10-24 01:15Z 信号确认/可得: 10-24 01:00Z / 10-24 01:01Z 信号身份: — 数量与成交价待实际成交时确定。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 请求锚点 10-24 00:15Z",
+      "pass": true,
+      "expected": "含 10-24 00:15Z",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 信号确认/可得",
+      "pass": true,
+      "expected": "含 00:00Z / 00:01Z",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行1 信号身份 signal_uid",
+      "pass": true,
+      "expected": "含 sig_TESTFIX_9001",
+      "actual": "data-pending-id=\"9001\" data-arm=\"\" data-symbol=\"TESTFIXUSDT\" data-origin=\"signal\" data-status=\"pending\"> #9001 TESTFIXUSDT 等待成交 · pending 来源: 实时信号触发 · 来源臂未知 方向: 未提供 等待原因: 等待最早可成交 15m 闭合（服务端时钟推进） 最早可执行 15m: 10-24 00:30Z 请求锚点时刻: 10-24 00:15Z 信号确认/可得: 10-24 00:00Z / 10-24 00:01Z 信号身份: sig_TESTFIX_9001 <div class=\"p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] font-mono text-neutral-400 space-y-0.5\""
+    },
+    {
+      "case": "has_pending",
+      "check": "行2 无 signal_uid 时显示 —",
+      "pass": true,
+      "expected": "含「信号身份」且含 —",
+      "actual": "data-pending-id=\"9002\" data-arm=\"\" data-symbol=\"TESTFIX2USDT\" data-origin=\"manual\" data-status=\"pending\"> #9002 TESTFIX2USDT 等待成交 · pending 来源: 页面手动请求 · 来源臂未知 方向: 未提供 等待原因: test_fixture_reason_visible 最早可执行 15m: 10-24 01:30Z 请求锚点时刻: 10-24 01:15Z 信号确认/可得: 10-24 01:00Z / 10-24 01:01Z 信号身份: — 数量与成交价待实际成交时确定。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "has_pending",
+      "check": "未编造方向",
+      "pass": true,
+      "expected": "无「方向: 多/空」",
+      "actual": "false"
+    },
+    {
+      "case": "has_pending",
+      "check": "未编造数量",
+      "pass": true,
+      "expected": "无「数量: 数字」",
+      "actual": "false"
+    },
+    {
+      "case": "has_pending",
+      "check": "未编造价格",
+      "pass": true,
+      "expected": "无「$数字」",
+      "actual": "false"
+    },
+    {
+      "case": "has_pending",
+      "check": "如实标注接口缺口",
+      "pass": true,
+      "expected": "含缺口说明",
+      "actual": "true"
+    },
+    {
+      "case": "has_pending",
+      "check": "夹具横幅未混入组件",
+      "pass": true,
+      "expected": "组件内无夹具横幅",
+      "actual": "false"
+    },
+    {
+      "case": "empty",
+      "check": "挂单块存在（不再整块消失）",
+      "pass": true,
+      "expected": "block != null",
+      "actual": "[object Object]"
+    },
+    {
+      "case": "empty",
+      "check": "data-state = empty",
+      "pass": true,
+      "expected": "empty",
+      "actual": "empty"
+    },
+    {
+      "case": "empty",
+      "check": "data-n-pending = 0",
+      "pass": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "case": "empty",
+      "check": "挂单行数 = 0",
+      "pass": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "case": "empty",
+      "check": "空态文案明确",
+      "pass": true,
+      "expected": "含「当前无待成交挂单」",
+      "actual": "模拟实盘持仓 共 0 仓 执行守护 (Execution Daemon) idle 守护 PID: — 推进周期: 0 次 最近推进: — 阻断原因: 执行守护未运行 / 进程离线 账户/策略身份: 模拟账户(paper) · FT-LOW4H-EXP-V2.2 总资金(盯市MTM): $5,000.00 可用现金: $5,000.00 占用资金: $0.00 手续费: $0.00 资金费: $0.00 参数来源: TESTFIX 盈亏多少: $0.00 / $0.00 最大回撤: 0.00% 持仓/已平数: 0 仓在持 / 0 笔已平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 当前无模拟持仓 计划下单 · 待成交挂单 (0 笔) 未成交 · 防旧价回填 当前无待成交挂单（账本已读到，挂单表为空） 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "empty",
+      "check": "标题笔数 0 笔",
+      "pass": true,
+      "expected": "含「(0 笔)」",
+      "actual": "模拟实盘持仓 共 0 仓 执行守护 (Execution Daemon) idle 守护 PID: — 推进周期: 0 次 最近推进: — 阻断原因: 执行守护未运行 / 进程离线 账户/策略身份: 模拟账户(paper) · FT-LOW4H-EXP-V2.2 总资金(盯市MTM): $5,000.00 可用现金: $5,000.00 占用资金: $0.00 手续费: $0.00 资金费: $0.00 参数来源: TESTFIX 盈亏多少: $0.00 / $0.00 最大回撤: 0.00% 持仓/已平数: 0 仓在持 / 0 笔已平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 当前无模拟持仓 计划下单 · 待成交挂单 (0 笔) 未成交 · 防旧价回填 当前无待成交挂单（账本已读到，挂单表为空） 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "empty",
+      "check": "空态不出现夹具标的",
+      "pass": true,
+      "expected": "不含 TESTFIXUSDT",
+      "actual": "false"
+    },
+    {
+      "case": "unreadable",
+      "check": "挂单块存在（失败也要有位置）",
+      "pass": true,
+      "expected": "block != null",
+      "actual": "[object Object]"
+    },
+    {
+      "case": "unreadable",
+      "check": "data-state = unreadable",
+      "pass": true,
+      "expected": "unreadable",
+      "actual": "unreadable"
+    },
+    {
+      "case": "unreadable",
+      "check": "data-n-pending = -1（未知，不写 0）",
+      "pass": true,
+      "expected": "-1",
+      "actual": "-1"
+    },
+    {
+      "case": "unreadable",
+      "check": "失败态不渲染任何挂单行",
+      "pass": true,
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "case": "unreadable",
+      "check": "失败态不渲染上一次缓存的挂单",
+      "pass": true,
+      "expected": "不含 TESTFIXUSDT",
+      "actual": "false"
+    },
+    {
+      "case": "unreadable",
+      "check": "失败原因原样透出",
+      "pass": true,
+      "expected": "含 missing_reason",
+      "actual": "模拟实盘持仓 共 0 仓 持仓接口读取异常: TEST FIXTURE：纸面账本读取失败（后端不可达或未初始化） 执行守护 (Execution Daemon) idle 守护 PID: — 推进周期: 0 次 最近推进: — 阻断原因: 执行守护未运行 / 进程离线 账户/策略身份: 模拟账户(paper) · FT-LOW4H-EXP-V2.2 总资金(盯市MTM): — 可用现金: — 占用资金: — 手续费: — 资金费: — 参数来源: — 盈亏多少: — / — 最大回撤: — 持仓/已平数: 0 仓在持 / 0 笔已平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 账本未就绪 计划下单 · 待成交挂单（状态未知） 账本未读到 · 不等于 0 笔 挂单状态未知（账本读取失败） TEST FIXTURE：纸面账本读取失败（后端不可达或未初始化） 不展示上一次缓存的挂单：旧快照可能已成交或被拒，展示它等于伪造当前状态。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "unreadable",
+      "check": "明确「不等于 0 笔」",
+      "pass": true,
+      "expected": "含「不等于 0 笔」",
+      "actual": "模拟实盘持仓 共 0 仓 持仓接口读取异常: TEST FIXTURE：纸面账本读取失败（后端不可达或未初始化） 执行守护 (Execution Daemon) idle 守护 PID: — 推进周期: 0 次 最近推进: — 阻断原因: 执行守护未运行 / 进程离线 账户/策略身份: 模拟账户(paper) · FT-LOW4H-EXP-V2.2 总资金(盯市MTM): — 可用现金: — 占用资金: — 手续费: — 资金费: — 参数来源: — 盈亏多少: — / — 最大回撤: — 持仓/已平数: 0 仓在持 / 0 笔已平 按选中信号开多 按选中信号开空 实际成交 · 在持仓位 (0) 账本口径 · 点击定位 K 线 账本未就绪 计划下单 · 待成交挂单（状态未知） 账本未读到 · 不等于 0 笔 挂单状态未知（账本读取失败） TEST FIXTURE：纸面账本读取失败（后端不可达或未初始化） 不展示上一次缓存的挂单：旧快照可能已成交或被拒，展示它等于伪造当前状态。 持仓历史 → 回测复盘 共用 5,000 · 四臂分账 实盘仓位（只读） 无快照 尚无实盘账户快照 只读：仅读取余额 / 权益 / 持仓，不提交任何真实订单、不修改 API 权限。 账户 / 连接状态：— 权益 / 可用余额：— 币种 / 方向 / 数量：— 入场均价 / 标记价：— 点击持仓 → 定位中间K线 仓位历史 → 回测复盘"
+    },
+    {
+      "case": "unreadable",
+      "check": "不冒充空态",
+      "pass": true,
+      "expected": "不含空态文案",
+      "actual": "false"
+    },
+    {
+      "case": "not_connected",
+      "check": "未连接时无挂单块",
+      "pass": true,
+      "expected": "block == null",
+      "actual": "null"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "检查项": "⑥ CSV、Parquet、JSON、Markdown 一致性",
+  "CSV vs Parquet": {
+    "比较列数": 70,
+    "数值列不一致": {},
+    "字符串列不一致": {},
+    "说明": "字符串列的空值在 CSV 里读成 NaN、在 Parquet 里是 None；本项已按「空值位置是否相同 + 非空内容是否相同」比对，不把空值表示差异算成不一致",
+    "判定": "PASS"
+  },
+  "discrepancy_summary.json 存在": true,
+  "discrepancy_summary.json 顶层键": [
+    "audit_ticket",
+    "generated_at_utc",
+    "input_hashes",
+    "sample_counts",
+    "classification_results",
+    "cost_rootcause_correction",
+    "restrictions_and_warnings"
+  ],
+  "报告.md 数字 vs 数据": {
+    "FIRST_ADVERSE": {
+      "报告声称": 111,
+      "数据实际": 101,
+      "一致": false
+    },
+    "FIRST_FAVORABLE": {
+      "报告声称": 91,
+      "数据实际": 77,
+      "一致": false
+    },
+    "UNKNOWN_SAME_BAR": {
+      "报告声称": 3,
+      "数据实际": 27,
+      "一致": false
+    },
+    "未触及门槛": {
+      "报告声称": 2,
+      "数据实际": 0,
+      "一致": false
+    },
+    "未成交": {
+      "报告声称": 22,
+      "数据实际": 22,
+      "一致": true
+    }
+  },
+  "报告.md 哈希表 vs hashes.json vs 磁盘": [
+    {
+      "文件": "00_freeze_inputs_manifest.json",
+      "报告声称字节": 1481,
+      "hashes.json 字节": 1499,
+      "磁盘实际字节": 1499,
+      "报告声称 sha": "b0c79ca4f3b7ceab",
+      "hashes.json sha": "4a72343881505965",
+      "磁盘实际 sha": "4a72343881505965",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "01_match_and_bridge_report.md",
+      "报告声称字节": 5612,
+      "hashes.json 字节": 7113,
+      "磁盘实际字节": 7113,
+      "报告声称 sha": "6c10b7ee2270923f",
+      "hashes.json sha": "aa79f819418fa6b9",
+      "磁盘实际 sha": "aa79f819418fa6b9",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "reconstructed_candidate_features_07.csv",
+      "报告声称字节": 260379,
+      "hashes.json 字节": 236956,
+      "磁盘实际字节": 236956,
+      "报告声称 sha": "8997a06645318ba9",
+      "hashes.json sha": "a68b8f97a5c9473d",
+      "磁盘实际 sha": "a68b8f97a5c9473d",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "reconstructed_candidate_features_07.parquet",
+      "报告声称字节": 148460,
+      "hashes.json 字节": 142824,
+      "磁盘实际字节": 142824,
+      "报告声称 sha": "4523bb6eb4a05f15",
+      "hashes.json sha": "c76e3bf80b78674a",
+      "磁盘实际 sha": "c76e3bf80b78674a",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "discrepancy_old_vs_new.csv",
+      "报告声称字节": 88416,
+      "hashes.json 字节": 85209,
+      "磁盘实际字节": 85209,
+      "报告声称 sha": "8c6014e21a48c5a2",
+      "hashes.json sha": "cdff2a997d65b721",
+      "磁盘实际 sha": "cdff2a997d65b721",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "discrepancy_summary.json",
+      "报告声称字节": 2756,
+      "hashes.json 字节": 2979,
+      "磁盘实际字节": 2979,
+      "报告声称 sha": "26e2e5c8e27c10b5",
+      "hashes.json sha": "e5811cd503dbabb5",
+      "磁盘实际 sha": "e5811cd503dbabb5",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "generate_factor_entry_07.py",
+      "报告声称字节": 13873,
+      "hashes.json 字节": 17418,
+      "磁盘实际字节": 17418,
+      "报告声称 sha": "fc3fbc863a35cfba",
+      "hashes.json sha": "7279ecad38d26b65",
+      "磁盘实际 sha": "7279ecad38d26b65",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "test_classification_and_cost_consistency.py",
+      "报告声称字节": 6368,
+      "hashes.json 字节": 6497,
+      "磁盘实际字节": 6497,
+      "报告声称 sha": "de68102dca0ea760",
+      "hashes.json sha": "331bcce57bcd8c6e",
+      "磁盘实际 sha": "331bcce57bcd8c6e",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    },
+    {
+      "文件": "test_results.log",
+      "报告声称字节": 1440,
+      "hashes.json 字节": 1378,
+      "磁盘实际字节": 1378,
+      "报告声称 sha": "51ff1a3cf95669fc",
+      "hashes.json sha": "1788a89740e06a15",
+      "磁盘实际 sha": "1788a89740e06a15",
+      "报告与 hashes.json 一致": false,
+      "hashes.json 与磁盘一致": true
+    }
+  ],
+  "判定": "PASS_WITH_NOTE",
+  "报告.md 数字是否与数据一致": false,
+  "报告.md 哈希表是否与 hashes.json 一致": false,
+  "hashes.json 是否与磁盘一致": true,
+  "分层判定": {
+    "数据层（CSV ↔ Parquet ↔ JSON 数值）": "PASS",
+    "冻结层（hashes.json ↔ 磁盘）": "PASS",
+    "文档层（报告.md 数字与哈希表 ↔ 数据与 hashes.json）": "FAIL"
+  },
+  "文档缺陷": [
+    "报告.md 的首触分布数字与自己的数据不符：报告写 FIRST_ADVERSE=111 / FIRST_FAVORABLE=91 / UNKNOWN_SAME_BAR=3 / 未触及门槛=2 / 未成交=22，数据实际 FIRST_ADVERSE=101 / FIRST_FAVORABLE=77 / UNKNOWN_SAME_BAR=27 / 未触及门槛=0 / 未成交=22",
+    "报告.md 的哈希表 9 项全部与 hashes.json 不符（字节数也不同），说明报告里的表是旧版文件的，文件后来重新生成过而报告未同步"
+  ]
+}

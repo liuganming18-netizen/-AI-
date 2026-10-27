@@ -2,6 +2,8 @@
 /* 设计规范系统（2026-10-16）：令牌层 + 组件层。新代码只允许引用这里的变量与 .ds-* 类。 */
 @import "./design/tokens.css";
 @import "./design/components.css";
+@import "./design/backtest.css";
+@import "./design/shell.css";
 
 /* ============================================================================
  * 浅色清爽风 · 设计令牌层（Style Layer）
@@ -21,45 +23,68 @@
  * ========================================================================== */
 
 :root {
-  color-scheme: light;
-
-  /* —— 中性色阶：深→浅反转（画布 / 卡片 / 描边 / 三级→一级文字） —— */
-  --color-neutral-950: #f2f5f9;
-  --color-neutral-900: #ffffff;
-  --color-neutral-850: #f7f9fc;
-  --color-neutral-800: #e7ecf3;
-  --color-neutral-700: #d4dbe6;
-  --color-neutral-600: #b4bfcf;
-  --color-neutral-500: #8491a5;
-  --color-neutral-400: #586880;
-  --color-neutral-300: #36445a;
-  --color-neutral-200: #1f2b3d;
-  --color-neutral-100: #0b1322;
+  /* —— 中性色阶：只做映射，不写死色值 ——
+   * 2026-10-17 双主题改造：深浅两套值统一收在 tokens.css 的 `--ds-n-*`，
+   * 这里只把 Tailwind 的色阶变量指过去。语义位不变：
+   *   950 = 页面画布，900 = 卡片，800 = 内嵌区，100 = 一级正文。
+   * 主题切换只需改 `<html data-theme>`，本文件一行都不用动。 */
+  --color-neutral-950: var(--ds-n-950);
+  --color-neutral-900: var(--ds-n-900);
+  --color-neutral-850: var(--ds-n-850);
+  --color-neutral-800: var(--ds-n-800);
+  --color-neutral-700: var(--ds-n-700);
+  --color-neutral-600: var(--ds-n-600);
+  --color-neutral-500: var(--ds-n-500);
+  --color-neutral-400: var(--ds-n-400);
+  --color-neutral-300: var(--ds-n-300);
+  --color-neutral-200: var(--ds-n-200);
+  --color-neutral-100: var(--ds-n-100);
 
   /* —— 涨跌 / 多空语义色 ——
    * 口径**沿用原版**（页脚与图表注释均写明「方向绿多红空、K线涨绿跌红」），
-   * 未改动语义方向，只把亮度调到浅底可读的对比度。
-   * 若要改为 A 股习惯的「涨红跌绿」，只需把 emerald-* 与 rose-* 两组色值互换。 */
-  --color-emerald-200: #b7e6d2;
-  --color-emerald-300: #12a06e;
-  --color-emerald-400: #0b8a5e;
-  --color-emerald-500: #0a7a54;
-  --color-emerald-600: #086b4a;
-  --color-emerald-700: #065e40;
+   * 未改动语义方向。色值收敛到 `--ds-pos / --ds-neg / --ds-warn`，
+   * 深浅主题各一套，页面里的 `text-emerald-400` 自动跟随。
+   * 若要改为 A 股习惯的「涨红跌绿」，只需在 tokens.css 互换 pos 与 neg。 */
+  --color-emerald-200: var(--ds-pos-border);
+  --color-emerald-300: var(--ds-pos);
+  --color-emerald-400: var(--ds-pos);
+  --color-emerald-500: var(--ds-pos);
+  --color-emerald-600: var(--ds-pos);
+  --color-emerald-700: var(--ds-pos);
 
-  --color-rose-200: #f6ccd4;
-  --color-rose-300: #e5556b;
-  --color-rose-400: #d92d48;
-  --color-rose-500: #c42240;
-  --color-rose-600: #a81b36;
-  --color-rose-700: #8d1630;
+  --color-rose-200: var(--ds-neg-border);
+  --color-rose-300: var(--ds-neg);
+  --color-rose-400: var(--ds-neg);
+  --color-rose-500: var(--ds-neg);
+  --color-rose-600: var(--ds-neg);
+  --color-rose-700: var(--ds-neg);
 
   /* —— 告警 / 待确认 / 陈旧 —— */
-  --color-amber-200: #f2ddb4;
-  --color-amber-300: #c17600;
-  --color-amber-400: #ad6800;
-  --color-amber-500: #965900;
-  --color-amber-600: #7d4a00;
+  --color-amber-200: var(--ds-warn-border);
+  --color-amber-300: var(--ds-warn);
+  --color-amber-400: var(--ds-warn);
+  --color-amber-500: var(--ds-warn);
+  --color-amber-600: var(--ds-warn);
+
+  /* —— 浅底色（提示条 / 徽章的底）——
+   * 深色主题下必须换成半透明暗底，否则 `bg-amber-50` 会变成一块刺眼的浅黄。 */
+  --color-emerald-50: var(--ds-pos-bg);
+  --color-emerald-100: var(--ds-pos-bg);
+  --color-rose-50: var(--ds-neg-bg);
+  --color-rose-100: var(--ds-neg-bg);
+  --color-amber-50: var(--ds-warn-bg);
+  --color-amber-100: var(--ds-warn-bg);
+  --color-sky-50: var(--ds-info-bg);
+  --color-sky-100: var(--ds-info-bg);
+  --color-sky-200: var(--ds-info-border);
+  --color-sky-300: var(--ds-info);
+  --color-sky-400: var(--ds-info);
+  --color-sky-500: var(--ds-info);
+  --color-sky-600: var(--ds-info);
+  --color-sky-700: var(--ds-info);
+  --color-sky-800: var(--ds-info);
+  --color-indigo-50: var(--ds-accent-50);
+  --color-indigo-100: var(--ds-accent-100);
 
   /* —— AI / 数据强调色（品牌蓝紫，用于信号、标记、AI 光效） —— */
   --color-indigo-200: #d3d7f8;
@@ -292,8 +317,8 @@ body {
   width: 158px;
   min-width: 158px;
   z-index: 10;
-  /* 冻结列右缘投影：深底改浅底后由「黑色重影」改为「柔和灰影」 */
-  box-shadow: 8px 0 12px -10px rgba(15, 23, 42, 0.16);
+  /* 冻结列右缘投影：深浅主题各一套（令牌里定义） */
+  box-shadow: var(--ds-shadow-freeze);
 }
 
 .workbench-market-table thead th:first-child,
@@ -316,13 +341,13 @@ body {
  * 三种状态的视觉层次与原版一一对应。
  */
 .workbench-market-table tbody tr[data-token-id] {
-  background-color: #fbfcfe;
+  background-color: var(--ds-surface);
 }
 .workbench-market-table tbody tr[data-token-id]:hover {
-  background-color: #f4f7fc;
+  background-color: var(--ds-surface-2);
 }
 .workbench-market-table tbody tr[data-token-id].font-medium {
-  background-color: #f7f9fc;
+  background-color: var(--ds-surface-3);
 }
 
 .workbench-market-table tbody tr[data-token-id] > td:first-child,
@@ -349,13 +374,11 @@ body {
   backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid var(--color-neutral-800);
   border-radius: 1rem;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 24px 60px -18px rgba(15, 23, 42, 0.28);
+  box-shadow: var(--ds-shadow-xs), var(--ds-shadow-lg);
 }
 
 .market-source-dialog::backdrop {
-  background: rgba(15, 23, 42, 0.32);
+  background: var(--ds-scrim);
   backdrop-filter: blur(2px);
 }
 
@@ -436,5 +459,93 @@ body {
     max-height: none;
     min-height: 0;
     flex: 1 1 auto;
+  }
+}
+
+/* ============================================================================
+ * 行情表窄屏提示（2026-10-17 响应式改造）
+ * ----------------------------------------------------------------------------
+ * `.workbench-market-table` 最小宽度 1320px（9 组列 + 两列冻结；2026-10-19 新增
+ * 「聪明钱均价」列后由 1260 提到 1320），
+ * 容器放不下时横向滚动。桌面有可见滚动条，触屏没有 ⇒ 补一句文字提示，
+ * 否则用户会以为右侧几列根本没渲染。
+ *
+ * ⚠ **显隐由容器实测决定，不再用视口断点**（`TokenTable.tsx` 的 `hScrollable`）：
+ * 这张表嵌在工作台**中栏**里，1600px 视口下中栏只有约 600px、表格照样溢出，
+ * 而原来的 `max-width: 1199.98px` 会让这一段「溢出但没提示」。
+ * 所以这里只管排版，不管显隐。
+ * ========================================================================== */
+
+.market-scroll-hint {
+  margin-top: 4px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 1199.98px) {
+  .market-table-scroll {
+    -webkit-overflow-scrolling: touch;
+    /* 触屏上滚动条默认隐藏，这里保留一条细的，作为「还有内容」的第二重提示 */
+    scrollbar-width: thin;
+  }
+}
+
+/* 行情表行：键盘聚焦时给出整行可见的焦点框（行本身是焦点目标） */
+.workbench-market-table tbody tr[data-token-id]:focus-visible {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: -2px;
+}
+
+/* ============================================================================
+ * 数据中心：主分栏窄屏堆叠（2026-10-17）
+ * ----------------------------------------------------------------------------
+ * 该页是「左主视窗 + 右归档队列」的双栏看板。窄屏仍并排时，左栏会被压到
+ * ~90px，卡片标题逐字竖排（实测 480px）。< 1024 改成纵向堆叠，
+ * 由分栏容器自己纵向滚动，页面根节点仍是 overflow:hidden（不动整体骨架）。
+ * ========================================================================== */
+
+.ds-dc-split {
+  overflow: hidden;
+}
+
+/* 断点取 1280 而不是 1024：1024–1279 时左栏只有 ~430px，
+ * 17 个数据源图标挤成 9 列后标签全被截成「5分…」，不如整栏堆叠。 */
+@media (max-width: 1279.98px) {
+  .ds-dc-split {
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .ds-dc-split > * {
+    flex: 0 0 auto;
+  }
+  /* 堆叠后左栏卡片不再被 flex 拉伸，给一个最小高度保证图表/网格可见 */
+  .ds-dc-split > * > .ds-card {
+    min-height: 320px;
+  }
+}
+
+/* ============================================================================
+ * 动效兜底（2026-10-19 · 视觉质感升级收尾）
+ * ----------------------------------------------------------------------------
+ * 规格 A6：不许有常驻循环动画。本轮已把项目里 5 处 animate-ping / animate-pulse
+ * 全部清掉（数据中心瓦片状态点、费率页签异常点、实时行情图标、行情表信号点、
+ * 信号面板门禁点），常态一律静止。这条兜底做两件事：
+ *   1. 万一以后有人再写回 ping / pulse / bounce，系统级「减少动效」时也不会动；
+ *   2. 弱动效偏好下把过渡压到近乎瞬时，避免大面积颜色渐变造成闪烁。
+ * 保留 animate-spin：它表达「正在进行」，不是装饰。
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

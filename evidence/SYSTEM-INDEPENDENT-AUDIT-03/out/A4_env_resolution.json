@@ -1,0 +1,159 @@
+{
+  "工单": "SYSTEM-INDEPENDENT-AUDIT-03 / A-4",
+  "检查时刻": "2026-10-23 15:00:44",
+  "隔离根": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1",
+  "组1_全量注入": {
+    "LEDGER_DIR": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+    "PAPER_DIR": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+    "LEDGER_MANIFEST": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger/ledger_identity.json",
+    "LIVE_DIR": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live",
+    "LIVE_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+    "MARKET_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 5000.0,
+    "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+    "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet"
+  },
+  "组2_不注入PAPER_LEDGER_DIR": {
+    "LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "PAPER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "LEDGER_MANIFEST": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+    "LIVE_DIR": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live",
+    "LIVE_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+    "MARKET_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 5000.0,
+    "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+    "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet"
+  },
+  "组3_全不注入(裸环境)": {
+    "LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "PAPER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "LEDGER_MANIFEST": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+    "LIVE_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live",
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 5000.0,
+    "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+    "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet"
+  },
+  "组4_注入PAPER_INITIAL_EQUITY=2000": {
+    "LEDGER_DIR": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+    "PAPER_DIR": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+    "LEDGER_MANIFEST": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger/ledger_identity.json",
+    "LIVE_DIR": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live",
+    "LIVE_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+    "MARKET_DB": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 2000.0,
+    "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+    "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet"
+  },
+  "判定": {
+    "组1_全量注入": {
+      "LEDGER_DIR": {
+        "value": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": true
+      },
+      "LIVE_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "MARKET_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+      "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "initial_equity": 5000.0
+    },
+    "组2_不注入PAPER_LEDGER_DIR": {
+      "LEDGER_DIR": {
+        "value": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "指向生产账本": true,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "LIVE_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "MARKET_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+      "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "initial_equity": 5000.0
+    },
+    "组3_全不注入(裸环境)": {
+      "LEDGER_DIR": {
+        "value": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "指向生产账本": true,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "LIVE_DB": {
+        "value": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "MARKET_DB": {
+        "value": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": true,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+      "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "initial_equity": 5000.0
+    },
+    "组4_注入PAPER_INITIAL_EQUITY=2000": {
+      "LEDGER_DIR": {
+        "value": "/private/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/paper_ledger",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": true
+      },
+      "LIVE_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/live/live_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "MARKET_DB": {
+        "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/_audit03_env_smo0j7g1/market/market_iso.sqlite3",
+        "指向生产账本": false,
+        "指向生产行情库": false,
+        "指向生产归档": false,
+        "在隔离根内": false
+      },
+      "unified_runtime_lock_dir": "<AttributeError: module 'unified_runtime' has no attribute '_lock_dir'>",
+      "project_paths_MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "initial_equity": 2000.0
+    }
+  }
+}

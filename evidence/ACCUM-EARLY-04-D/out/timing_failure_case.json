@@ -1,0 +1,23 @@
+{
+  "case_name": "timing_1200_vs_1215_intrabar_touch",
+  "description": "4h线在12:00收盘，12:00~12:15价格击穿新止损但未击穿初始止损",
+  "initial_stop": 95.0,
+  "candidate_stop": 98.8,
+  "buggy_old_behavior": {
+    "effective_ms": 1785585599999,
+    "effective_utc": "2026-08-01T11:59:59Z",
+    "exit_result": {
+      "exit_utc": "2026-08-01T12:00:00Z",
+      "stop_used": 98.8
+    },
+    "failed_as_expected": true,
+    "assertion_error": "旧逻辑断言失败：在 12:00 发生了提前误退出！exit={'exit_utc': '2026-08-01T12:00:00Z', 'stop_used': 98.8}"
+  },
+  "corrected_user_timing_behavior": {
+    "effective_ms": 1785586500000,
+    "effective_utc": "2026-08-01T12:15:00Z",
+    "exit_result": null,
+    "assertion_passed": true
+  },
+  "verdict": "验证通过：旧逻辑在12:00发生时序穿透并触发真实断言失败；整改后严格遵守12:15生效，成功阻断错误退出。"
+}

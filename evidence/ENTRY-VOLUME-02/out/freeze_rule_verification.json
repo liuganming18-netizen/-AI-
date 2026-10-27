@@ -1,0 +1,21 @@
+{
+  "rule_source": "VOLUME-BE-02/code/vbe2_core.py::extract_entry_features + 02_run_abcd_fixed.py",
+  "actual_rule": "close < open AND volume < mean of up to prior 20 completed 1h volumes (current bar excluded); code falls back to current prior-bar volume when fewer than 5 average bars exist; only close_time <= entry_ms bars",
+  "close_below_entry_price_part_of_actual_flag": false,
+  "entry01_report_extra_close_below_entry_price_text": true,
+  "actual_filter_wired_from_prev_1h_low_vol_drop": true,
+  "filtered_trade_status_net_rule": "FILTERED_NOT_ENTERED => C_net=0; otherwise C_net=A_net",
+  "candidate_selection": "all 206 rows; no PnL cut; dedup uses earliest numeric group only",
+  "holding_exit_branch_in_main_filter_calculation": false,
+  "feature_code_checks": {
+    "feature_uses_only_closed_1h_bars": true,
+    "low_vol_rule_is_close_below_open_and_volume_below_sma": true,
+    "rule_excludes_current_bar_from_average": true,
+    "low_history_average_fallback_is_present": true,
+    "filter_wired_directly_from_low_vol_flag": true,
+    "filtered_entry_variant_has_zero_net": true,
+    "same_three_year_buckets_in_code": true,
+    "entry_price_comparison_absent_from_feature_rule": true
+  },
+  "verdict": "PASS_DATA_RULE_WITH_DOCUMENTATION_NOTE: executed rule/threshold unchanged; ENTRY-VOLUME-01 prose has an unsupported extra condition and must not be read as a calculation criterion."
+}

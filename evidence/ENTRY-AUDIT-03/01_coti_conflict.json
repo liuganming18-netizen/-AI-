@@ -1,0 +1,36 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "case": "COTIUSDT 同一快照 2021-12-23 03:00（UTC）一次判取消、一次判成交",
+  "same_market_fact": {
+    "exec_bar_open": 0.40545,
+    "note": "两侧读的是同一份 15m parquet、同一根 bar，市场事实唯一"
+  },
+  "run_inputs_diff": {
+    "box_low": {
+      "continuous": 0.28777,
+      "window": 0.28777,
+      "delta": 0.0
+    },
+    "box_high": {
+      "continuous": 0.36434,
+      "window": 0.36434,
+      "delta": 0.0
+    },
+    "box_atr": {
+      "continuous": 0.0124229897949747,
+      "window": 0.0163848525265765
+    },
+    "max_entry": {
+      "continuous": 0.4047114948974874,
+      "window": 0.4066924262632883,
+      "delta": 0.001980931365800853
+    },
+    "window": {
+      "continuous": "2021-12-01 ~ 2026-10-18",
+      "window": "2021-12-16 ~ 2022-12-16"
+    }
+  },
+  "decision_rule": "开盘价 > max_entry（突破收盘 + 0.5A）⇒ 取消（canceled_gap_above_0.5a）；开盘价 < min_entry（箱体上沿 H）⇒ 取消（canceled_fell_back_into_box）；否则按 开盘 × (1+3bps) 买入并向上取整到 tick。",
+  "verdict": "不是撮合错误，也不是数据错误：两侧用的是同一根 15m bar 的同一个开盘价，但箱体（上沿/下沿/ATR）不同，于是允许最高入场价不同，同一个开盘价在一侧越线、在另一侧不越线。箱体不同的原因是回放窗口起点不同 ⇒ 状态机建箱路径不同。按现行规则，连续回放这一侧的「取消」才是与 2021-12-01 起连续回放口径一致的结论；窗口回放那一侧的「成交」属于另一套切分，不能当作同一信号。",
+  "what_is_not_claimed": "不主张「哪一侧绝对正确」——两侧各自在其切分下都自洽；要主张的是「它们不是同一个样本」，不能拼在一起算胜率。"
+}

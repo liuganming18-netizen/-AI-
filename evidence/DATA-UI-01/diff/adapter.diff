@@ -1,0 +1,142 @@
+diff --git "a/\346\241\206\346\236\266/backend/adapter.py" "b/\346\241\206\346\236\266/backend/adapter.py"
+index 2d0b4fa..8981abe 100644
+--- "a/\346\241\206\346\236\266/backend/adapter.py"
++++ "b/\346\241\206\346\236\266/backend/adapter.py"
+@@ -121,6 +121,18 @@ except Exception as _exc:                            # noqa: BLE001
+     datacenter = None
+     _DATACENTER_IMPORT_ERROR = f"{type(_exc).__name__}: {_exc}"
+ 
++# ── DATA-UI-01：指标字段矩阵（**加性**，只读）──────────────────────────────────
++# 独立模块：把一个标的的「主动买卖量/成交笔数/多空比/OI/资金费率」按字段摊开，
++# 并给出单位、统计周期、源时间、新鲜度、来源与缺失原因。
++# 只读：归档 parquet + 本机快照 + 只读库；**不联网、不写库、不写快照**。
++# 依赖 duckdb（读归档）；导入失败只影响 `/metrics` 与字段契约端点，既有接口零变化。
++try:                                                 # noqa: E402
++    import metrics_api                               # noqa: E402
++    _METRICS_IMPORT_ERROR = None
++except Exception as _exc:                            # noqa: BLE001
++    metrics_api = None
++    _METRICS_IMPORT_ERROR = f"{type(_exc).__name__}: {_exc}"
++
+ 
+ 
+ def _backtest_missing(reason):
+@@ -2223,7 +2235,7 @@ def _qint(params, name, default=None, lo=None, hi=None):
+ 
+ def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=None,
+              default_period=None, want=None, bucket_ms=None, limit=None,
+-             from_ms=None, to_ms=None):
++             from_ms=None, to_ms=None, newest_first=None):
+     """历史序列（**只读**）。
+ 
+     `oi_history` 自 2026-10-08 起同时存放**两种采样周期**：
+@@ -2239,6 +2251,16 @@ def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=N
+       · `from` / `to` —— 时间闭区间（毫秒）；
+       · `bucket_ms`   —— >0 时按该毫秒数分桶，每桶只取**桶内时间最晚的一条真实观测**
+                          （抽样选择，不插值、不改数值、不改时间戳）。
++
++    **`newest_first`（2026-10-17 修复）**：`None`（默认）沿用旧判定
++    `bool(want_period) or bool(bms)`；显式传 `True` 时**从最新往旧取 limit 条**，
++    取完再恢复时间升序返回。
++
++    为什么需要它：`funding_history` 没有 `period_col`、调用方也不传 `bucket_ms`，
++    于是旧判定给出 `descending=False` ⇒ SQL 变成 `ORDER BY funding_time ASC LIMIT n`，
++    取的是**最老**的 n 条。实测 BTCUSDT 表内 5252 行覆盖 2022-01-01→2026-10-17，
++    接口却只返回 2022-01-01→2023-10-29 ⇒ 前端 `inferFundingPeriod` 拿 2022 年的
++    相邻间隔去判「**当前**结算周期」，且「最近结算时间」比真实值差近 3 年。
+     """
+     if mid.startswith(exchange + ":"):
+         mid = mid[len(exchange) + 1:]
+@@ -2265,6 +2287,8 @@ def _history(table, exchange, mid, ts_col, extra_cols, params=None, period_col=N
+         args.append(to)
+ 
+     descending = bool(want_period) or bool(bms)
++    if newest_first is not None:
++        descending = bool(newest_first)
+     if bms:
+         # 分桶：`MAX(ts)` 是**唯一**聚合 ⇒ 命中 SQLite 的 bare-column 规则，
+         # 其余列取「该最大值所在行」的值 ⇒ 每桶返回一条**真实观测**（非聚合均值）。
+@@ -2552,8 +2576,21 @@ def v1_oi(exchange, mid, params):
+ 
+ 
+ def v1_funding(exchange, mid, params):
++    """`/funding` —— 只读本机 `funding_history`（**最近 N 条**）。
++
++    修复（2026-10-17）：原实现**没把 `params` 传下去**，于是
++      · `limit` / `from` / `to` / `bucket_ms` 四个参数**全部静默失效**（恒取默认 2000）；
++      · 又因无 `period_col`/`bucket_ms`，排序退化为 `ASC` ⇒ 返回**最老**的 2000 条。
++
++    实测证据：前端 `FUNDING_HISTORY_LIMIT = 60`，请求 `?limit=60` 却拿到 2000 条
++    （395KB，约为应有的 33 倍）；BTCUSDT 首条 `2022-01-01T00:00:00Z`、末条
++    `2023-10-29T08:00:00Z`，而库里真实最新结算是 `2026-10-17T08:00:00Z`。
++
++    现在：透传 `params` + `newest_first=True` ⇒ 返回**最新** limit 条（仍按时间升序）。
++    """
+     return _history("funding_history", exchange, mid, "funding_time",
+-                    ["funding_rate", "mark_price", "rate_type", "source", "fetched_at"])
++                    ["funding_rate", "mark_price", "rate_type", "source", "fetched_at"],
++                    params=params, newest_first=True)
+ 
+ 
+ def v1_public_extras(exchange, mid, params):
+@@ -3302,6 +3339,17 @@ def route_v1(path, params):
+     if seg == ["data", "feeds"]:
+         feeds = datacenter.get_data_feeds_status() if datacenter else []
+         return envelope(feeds=feeds, total=len(feeds)), 200
++    # ── DATA-UI-01：加密池分母（官方分类口径）与机器可读字段契约 ────────────────
++    if seg == ["data", "pool-scope"]:
++        if metrics_api is None:
++            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
++                           "not_connected"), 200
++        return metrics_api.handle_pool_scope(params), 200
++    if seg == ["data", "field-contract"]:
++        if metrics_api is None:
++            return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
++                           "not_connected"), 200
++        return metrics_api.handle_field_contract(params), 200
+     if seg in (["data", "whitelist"], ["data", "backfill"]):
+         summary = datacenter.get_backfill_and_whitelist_summary() if datacenter else {}
+         return envelope(**summary), 200
+@@ -3322,7 +3370,13 @@ def route_v1(path, params):
+             # 币安公开扩展字段：**只读本机快照**（采集器周期写入），不触发交易所请求。
+             return v1_public_extras(seg[1], seg[2], params), 200
+         if tail == "metrics":
+-            return missing("指标模块尚未接通；本轮仅数据契约与策略模块", "not_connected"), 200
++            # DATA-UI-01：指标矩阵（主动买卖量/成交笔数/多空比/OI/资金费率）。
++            # 只读：归档 parquet + 本机快照 + 只读库，**不触发任何交易所请求**。
++            # 缺失一律 null + missing_reason，不用 0 / 模拟值 / 当前快照补历史。
++            if metrics_api is None:
++                return missing(f"指标模块不可用：{_METRICS_IMPORT_ERROR}",
++                               "not_connected"), 200
++            return metrics_api.handle_metrics(seg[1], seg[2], params), 200
+     raise LookupError("接口不存在")
+ 
+ 
+@@ -3438,7 +3492,7 @@ class Handler(BaseHTTPRequestHandler):
+     _HEAVY_SEM = threading.BoundedSemaphore(_HEAVY_SLOTS)
+     # 轻量（实时/纸面/健康）路径前缀：这些接口是「页面轮询 + 验收探针」的主路径
+     _LIGHT_PREFIXES = ("/api/v1/health", "/api/v1/live/", "/api/v1/paper/",
+-                       "/api/v1/accounts", "/api/v1/backtests", "/api/health", "/health")
++                       "/api/v1/accounts", "/api/v1/signals", "/api/v1/backtests", "/api/health", "/health")
+     # 观测计数（供 /api/v1/health 暴露；只增不改任何业务语义）
+     CLIENT_ABORTS = 0
+     REQUESTS = 0
+@@ -3625,6 +3679,18 @@ class Handler(BaseHTTPRequestHandler):
+                             f"纸面模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
+                     else:
+                         body, status = live.paper_order_post(payload)
++                elif parsed.path in ("/api/v1/paper/control", "/api/v1/paper/toggle_gate"):
++                    if live is None:
++                        body, status = _live_missing(
++                            f"纸面模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
++                    else:
++                        body, status = live.paper_toggle_gate(payload)
++                elif parsed.path == "/api/v1/signals/clear":
++                    if live is None:
++                        body, status = _live_missing(
++                            f"实时模块导入失败：{_LIVE_IMPORT_ERROR}"), 200
++                    else:
++                        body, status = live.clear_signals(payload)
+                 else:
+                     body, status = {"错误": "接口不存在"}, 404
+             except LookupError as exc:

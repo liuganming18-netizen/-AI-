@@ -1,0 +1,124 @@
+diff --git "a/UI\347\225\214\351\235\242/web/src/api/types.ts" "b/UI\347\225\214\351\235\242/web/src/api/types.ts"
+index 078ab94..4fb1c09 100644
+--- "a/UI\347\225\214\351\235\242/web/src/api/types.ts"
++++ "b/UI\347\225\214\351\235\242/web/src/api/types.ts"
+@@ -1025,3 +1025,119 @@ export interface RawLiveAccount {
+   readonly: boolean;
+   no_real_order: boolean;
+ }
++
++/* ══════════════════════════════════════════════════════════════════════════
++ * DATA-UI-01：指标字段矩阵（`GET /api/v1/markets/{ex}/{mid}/metrics`）
++ *
++ * 纪律（与后端契约一致）：
++ *  · `value` 缺失一律 `null`，**绝不用 0 或模拟值顶替**；
++ *  · `value_kind === 'timestamp'` 时数值是毫秒，界面必须显示 `value_text`（ISO 串）；
++ *  · `unit` 是必显字段：「倍」（比值）与「%」（占比）不是同一口径；
++ *  · `freshness` 是**取数新鲜度**（按 fetched_at 算），`event_age_seconds` 才是业务时刻距现在多久。
++ * ══════════════════════════════════════════════════════════════════════════ */
++export interface RawMetricField {
++  key: string;
++  name: string;
++  group: string;
++  unit: string;
++  basis: string;
++  derived: boolean;
++  value_kind?: 'number' | 'timestamp';
++  value: number | null;
++  value_text: string | null;
++  event_time: string | null;
++  fetched_at: string | null;
++  age_seconds: number | null;
++  event_age_seconds?: number | null;
++  /** ok / stale / missing / unknown */
++  freshness: string;
++  source: string | null;
++  layer: string | null;
++  missing_reason: string | null;
++  /** 允许后端追加证据字段（周期、结算间隔、原始口径等） */
++  [extra: string]: unknown;
++}
++
++export interface RawMetricCoverageRow {
++  period: string;
++  period_label: string;
++  native_supported: boolean;
++  archive: {
++    /** stored / empty / unsupported */
++    status: string;
++    rows: number | null;
++    first: string | null;
++    last: string | null;
++    expected_bars: number | null;
++    missing_bars: number | null;
++    nonnull: Record<string, number> | null;
++    zero_trade_count_rows: number | null;
++    files: number | null;
++    reason: string | null;
++  };
++  realtime: {
++    /** collecting / not_collected / unsupported */
++    status: string;
++    open_time: string | null;
++    is_closed: boolean | null;
++    event_time: string | null;
++    received_at: string | null;
++    has_taker_buy: boolean | null;
++    trade_count: number | null;
++    reason: string | null;
++  };
++  metrics_archive: {
++    /** stored / requestable_not_collected / unsupported */
++    status: string;
++    granularity: string | null;
++    note: string;
++  };
++}
++
++export interface RawMetricsMatrix {
++  exchange: string;
++  market_id: string;
++  as_of: string;
++  period: string;
++  period_label: string;
++  identity: {
++    is_crypto: boolean | null;
++    instrument_category: string | null;
++    category_field: string | null;
++    in_active_range: number | null;
++    base_asset: string | null;
++    contract_type: string | null;
++    status: string | null;
++    source: string | null;
++    error?: string;
++  };
++  fields: RawMetricField[];
++  coverage: RawMetricCoverageRow[];
++  counts: {
++    fields_total: number;
++    available: number;
++    missing: number;
++    stale: number;
++    derived: number;
++  };
++  sources: Record<string, string | null>;
++  snapshot_state: {
++    available: boolean;
++    refreshed_at: string | null;
++    status: string | null;
++    note: string | null;
++  };
++  quality: { status: string; age_seconds: number | null; note: string | null };
++  missing_reason: string | null;
++  time: Record<string, unknown>;
++  evidence: Record<string, unknown>;
++}
++
++/** `GET /api/v1/data/pool-scope` —— 加密池分母（官方分类口径）。 */
++export interface RawPoolScope {
++  combined_total: number;
++  binance?: { total: number; excluded: Record<string, number>; source: string; note: string };
++  okx?: { total: number; excluded: Record<string, number>; source: string; note: string };
++  source_file?: string;
++  error?: string;
++}

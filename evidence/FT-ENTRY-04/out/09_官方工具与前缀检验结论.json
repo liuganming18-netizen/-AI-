@@ -1,0 +1,32 @@
+{
+  "task": "FT-ENTRY-04",
+  "description": "突破前真实成交约束实验合规性核验",
+  "compliance_rules": {
+    "no_fake_pass_on_zero_exit_code": "严格落实，官方样本不足时标明未完成，严禁标PASS",
+    "prefix_consistency_required": "必须在产生非空候选标的上完成截断一致性检验",
+    "execution_price_strictly_below_H": "所有成交 fill_price < frozen_H 必须全量核验"
+  },
+  "official_recursive_analysis": {
+    "tool": "freqtrade recursive-analysis",
+    "returncode": 0,
+    "status": "未完成 (无有效检验产物)",
+    "details": "未在日志中发现明确的递归对比数据表",
+    "log_file": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-04/logs/official_recursive_analysis.log"
+  },
+  "official_lookahead_analysis": {
+    "tool": "freqtrade lookahead-analysis",
+    "returncode": 0,
+    "status": "未完成 (交易样本不足/被取消)",
+    "details": "Freqtrade 官方工具因单币在指定窗口内捕获交易笔数不足 minimum_trade_amount，自动取消了检验",
+    "log_file": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/FT-ENTRY-04/logs/official_lookahead_analysis.log"
+  },
+  "prefix_causal_consistency_check": {
+    "status": "PASS",
+    "symbol": "1000BONKUSDT",
+    "candidate_id": "cand_A_ev_FT_ENTRY_04_binance_1000BONKUSDT_1708718400000_1708977600000",
+    "snapshot_time": "2024-02-26T20:00:00+00:00",
+    "cutoff_time": "2024-02-27T08:00:00+00:00",
+    "is_exact_match": true,
+    "details": "在截断未来K线后，历史候选及其冻结H、止损P0均100%严格一致"
+  }
+}

@@ -1,0 +1,168 @@
+{
+ "audit": "FRAME-FIT-01",
+ "generated_at": "2026-10-18T14:14:21Z",
+ "project_root": "/Users/boos/Desktop/威科夫因子共振趋势",
+ "fingerprint_functions": {
+  "code_fingerprint": true,
+  "rules_fingerprint": true,
+  "config_fingerprint": true,
+  "input_fingerprint": true
+ },
+ "bridge_code_hash_bug": true,
+ "registry": {
+  "has_guard_runnable": true,
+  "current_backtest_id": "WX_EVENT_TREND_V0_1"
+ },
+ "store": {
+  "run_id_re": "^(bt_[0-9]{8}T[0-9]{6}Z_[0-9a-f]{8}|run_WX_EVENT_TREND_V0_1_.*)$",
+  "statuses": [
+   "queued",
+   "running",
+   "succeeded",
+   "failed",
+   "interrupted"
+  ]
+ },
+ "config_param_count": 49,
+ "config_params": [
+  "strategy_name",
+  "strategy_version",
+  "venue",
+  "market",
+  "timeframe_env",
+  "timeframe_event",
+  "timeframe_exec",
+  "box_bars_4h",
+  "atr_period_4h",
+  "atr_warmup_bars",
+  "er_threshold",
+  "box_min_width_atr",
+  "box_max_width_atr",
+  "sweep_max_hours",
+  "sweep_max_overshoot_atr",
+  "sweep_min_recovery_atr",
+  "retest_max_hours",
+  "retest_min_zone_atr",
+  "retest_max_zone_atr",
+  "retest_recovery_atr",
+  "retest_vol_multiplier",
+  "retest_fail_buffer_atr",
+  "breakout_max_hours_after_retest",
+  "breakout_max_total_hours",
+  "breakout_buffer_atr",
+  "breakout_vol_lookback",
+  "breakout_vol_multiplier",
+  "oi_lookback_hours",
+  "oi_min_growth_pct",
+  "oi_max_time_distance_sec",
+  "cooling_hours",
+  "entry_delay_15m_bars",
+  "max_gap_up_atr",
+  "initial_stop_buffer_atr",
+  "initial_equity",
+  "risk_budget_per_trade",
+  "max_active_positions",
+  "max_symbol_positions",
+  "max_total_risk_budget",
+  "max_notional_per_position",
+  "max_total_notional",
+  "trailing_trigger_r",
+  "trailing_lookback_4h_bars",
+  "max_holding_days",
+  "max_participation_of_prev_15m_quote",
+  "taker_fee_bps",
+  "slippage_bps",
+  "stress_taker_fee_bps",
+  "stress_slippage_bps"
+ ],
+ "entrypoints": {
+  "create_run": true,
+  "execute_run": true,
+  "guard_hooked_create": true,
+  "guard_hooked_execute": true
+ },
+ "pinned_window": true,
+ "isolation_hits": {
+  "freeze": [
+   "框架/backend/live_api.py",
+   "策略/WyckoffMaster/test_work02_core_contract.py",
+   "策略/WyckoffMaster/oi_resonance_v1/execution.py",
+   "策略/WyckoffMaster/_legacy_archive_v31/execution.py",
+   "策略/WyckoffMaster/trading_core/policy.py"
+  ],
+  "holdout": [
+   "框架/backend/experiment_registry.py",
+   "框架/backend/strategies/wx_config.py",
+   "框架/backend/strategies/wx_gate.py",
+   "框架/backend/tests/test_frame_fit_01.py",
+   "策略/WyckoffMaster/event_trend_v0_1/runner.py",
+   "策略/WyckoffMaster/_legacy_archive_v31/segments.py",
+   "策略/WyckoffMaster/_legacy_archive_v31/__init__.py",
+   "策略/WyckoffMaster/_legacy_archive_v31/verify.py"
+  ],
+  "observed": [
+   "框架/backend/experiment_registry.py",
+   "框架/backend/tests/test_frame_fit_01.py"
+  ],
+  "trial": [
+   "框架/backend/experiment_registry.py"
+  ]
+ },
+ "experiment_plans": {
+  "frozen_rules_abc": {
+   "where": "EventTrendRunner.run_variant_abc（代码内）",
+   "groups": 3,
+   "formal_plan_file": null,
+   "note": "A/B/C 是规则消融，无独立 run 目录（B/C 未落盘）"
+  },
+  "flow_oi_01": {
+   "where": "evidence/FLOW-OI-01/",
+   "groups": 4,
+   "formal_plan_file": null,
+   "note": "阶梯四组；PIT 227/227 违规（STEP1-A 已登记）"
+  },
+  "factor_entry_01": {
+   "where": "evidence/FACTOR-ENTRY-01/",
+   "groups": 4,
+   "formal_plan_file": null,
+   "note": "平行四组；FE02 已判不成立（97.5% 改善来自 2022 缺失剔除）"
+  }
+ },
+ "evidence_dirs_matched": [
+  "ENTRY-AUDIT-01",
+  "ENTRY-AUDIT-02",
+  "ENTRY-AUDIT-03",
+  "ENTRY-AUDIT-04",
+  "ENTRY-AUDIT-05",
+  "ENTRY-AUDIT-06",
+  "FACTOR-ENTRY-01",
+  "FLOW-OI-01"
+ ],
+ "batches": {
+  "runs": 1198,
+  "runs_2025aug100": 102,
+  "runs_aug100": 102,
+  "runs_sep50": 50,
+  "runs_sep50_check": 50,
+  "runs_sep50_full": 50,
+  "runs_sep50_strict": 50,
+  "runs_sep_all_latest": 528
+ },
+ "batches_total": 2130,
+ "new_files": {
+  "registry": {
+   "exists": true,
+   "path": "框架/backend/experiment_registry.py",
+   "bytes": 57190,
+   "sha256": "0ea2336f4d59f16e8c19a2af23fbd301273f515f794fdd689338c576f3adff9b",
+   "mtime": "2026-10-18T14:11:24Z"
+  },
+  "tests": {
+   "exists": true,
+   "path": "框架/backend/tests/test_frame_fit_01.py",
+   "bytes": 28963,
+   "sha256": "1f6c571ed32be9eeefb7b069a5709ae2cda52bf34e18ad496cf24b9f4b306a29",
+   "mtime": "2026-10-18T14:04:54Z"
+  }
+ }
+}

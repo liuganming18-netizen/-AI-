@@ -1,0 +1,15 @@
+﻿对账字段,前端页面展示字段,服务端文件真实字段,前端页面DOM渲染值,服务端真实文件落盘值,差异与溯源说明,结论
+Run ID,run_id,manifest.json / run_id,run_WX_EVENT_TREND_V0_1_BRETTUSDT_1792253027,run_WX_EVENT_TREND_V0_1_BRETTUSDT_1792253027,真实存在于回测日志/event_trend_v0_1/runs_sep50,完全一致
+策略内核,strategy_id,run.json / strategy_id,WX_EVENT_TREND_V0_1,WX_EVENT_TREND_V0_1,真实策略内核标识,完全一致
+产物哈希,spec_sha256,manifest.json files.summary.sha256,6ff401541802,6ff401541802c1e37e39bab4a820a13ac753ff108be8464cf94e25d085e2e2e1,物理落盘文件SHA256哈希完全匹配,完全一致
+初始资金,initial_equity,summary.json / trades.initial_equity,",000.00",2000.0,初始回测保证金设定,完全一致
+期末资金,final_equity,summary.json / trades.final_equity,",989.92",1989.9209599312276,四舍五入一致 (差异 < 0.01),完全一致
+净盈亏,net_pnl,summary.json / trades.net_pnl,-.08 (-0.50%),-10.079040068772143,真实亏损10.08美元，四舍五入一致,完全一致
+交易笔数,trade_count,summary.json / trades.trade_count,1 笔,1,真实成交1笔，绝非虚构142笔,完全一致
+订单数量,order_count,summary.json / trades.order_count,2 笔,2,真实开仓与平仓2笔委托,完全一致
+总手续费,fee_total,summary.json / trades.fee_total,zsh.0381,0.038118035,真实吃单手续费,完全一致
+总资金费,funding_total,summary.json / trades.funding_total,zsh.1035,0.10349203377214099,真实资金费结算支出,完全一致
+纯滑点损耗,slippage_total,summary.json / trades.slippage_total,zsh.0232,0.02316931335413816,真实因果撮合步进与滑点,完全一致
+胜率指标,win_rate,summary.json (样本不足30笔),0.0%,0.0,1笔亏损交易，胜率0%,完全一致
+夏普与回撤,sharpe / max_dd,summary.json (样本过小打限制),— (样本不足打标),None (不合成虚假夏普),页面如实出黄色告警：样本太少结论不可靠,如实限制
+质量门禁,formal_pass_allowed,summary.json / formal_pass_allowed,未通过 (false),False,如实记录未通过，绝不夸大100%通过,完全一致

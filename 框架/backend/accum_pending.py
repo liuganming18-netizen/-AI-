@@ -1,0 +1,435 @@
+# -*- coding: utf-8 -*-
+"""ACCUM-EARLY-02｜待决表（清理后）与三组可比较规则提案。
+
+为什么要有这个模块
+------------------
+上一轮的待决表把三类**性质完全不同**的东西混在一张表里：
+
+  ① 已经定了的（例如「持仓量要不要接通」——工单已授权接通，还去问就是重复询问）；
+  ② 两份文件写着不同值的（滑点 3bps / 5bps、风险配置 2000-3仓-30% / 5000-10仓-10%、
+     参与率 0.1% / 1%）—— 这不是「参数待定」，是「口径冲突待裁决」；
+  ③ 真正还没定的研究设计（局部压制位怎么取、卖压基准是什么）。
+
+混在一起的后果：真正需要人拍板的那几项被淹没在十几行里，
+而已经定下来的事被反复询问。所以本模块把它们**拆成三张表**，
+并用 `validate()` 硬校验，防止有人往「已确定」里塞没有依据的东西。
+
+纪律
+----
+· `PENDING` 里任何一项都**没有默认值**，`value` 必须是 `None`；
+· `CONFLICTS` 里任何一项必须给出**至少两套值 + 各自来源**，不许只留一套；
+· `DETERMINED` 里任何一项必须给出 `依据`（谁定的、在哪句话里定的）与 `落在哪`；
+· 三组提案在阈值未批准前，`claim_implemented` 恒为 `False`。
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, List
+
+VERSION = "accum_pending_v2"
+
+# ══════════════════════════ ① 已确定（不再询问）══════════════════════════
+
+DETERMINED: Dict[str, dict] = {
+    "oi_wiring": {
+        "值": "持仓量接通到真实判断链路（不再以「要改冻结包」为由要求重新批准）",
+        "依据": ("工单 ACCUM-EARLY-02 第一部分第 1 条原文："
+                 "「不再把『需要改冻结包中的实现』作为要求用户重复批准接线的理由」，"
+                 "并已授权改 `state_machine.py` 的注册守卫"),
+        "落在哪": ("`框架/backend/oi_feed.py`（逐行四态判据）+ "
+                 "`event_trend_v0_1/state_machine.py`（守卫修复）+ "
+                 "`框架/backend/unified_runtime.py`（预载窗口与逐根切片）"),
+        "取证": "evidence/ACCUM-EARLY-02/out/01_持仓量接线核验.json",
+    },
+    "oi_availability_rule": {
+        "值": ("OI 可得性逐行判定四态：`proven`（抓取时刻 ≤ 桶收盘+900s）/ "
+             "`late`（>900s）/ `unknown`（无 fetched_at）/ `future`（晚于决策）"),
+        "依据": ("工单第一部分第 1 条：`available_at_proven` 原先只判「抓取时间非空」、"
+                 "未与决策时刻比较，须改为逐条检验"),
+        "落在哪": "`框架/backend/oi_feed.py::judge_row`",
+        "取证": "evidence/ACCUM-EARLY-02/out/02_时点与单位.json",
+    },
+    "oi_timestamp_semantics": {
+        "值": "OI 的 `ts` 是 5 分钟桶**起点**，桶收盘 = ts + 300000ms",
+        "依据": ("工单第一部分第 1 条要求核查并附原始来源；"
+                 "实测 6,231,889/13,456 行对齐、在线核对最后一根落在当前区间"),
+        "落在哪": "`oi_feed.BUCKET_MS` / `metrics_feed.BUCKET_MS`",
+        "取证": "evidence/ACCUM-EARLY-02/out/02_时点与单位.json",
+    },
+    "oi_unit": {
+        "值": "`open_interest` = 币数（张/币），`open_interest_value` = USDT 名义额",
+        "依据": "工单第一部分第 1 条要求单位追溯原始来源；实测两列比值 ≈ 同期收盘价（1.0002~1.0042）",
+        "落在哪": "`oi_feed.OI_UNIT_EVIDENCE`",
+        "取证": "evidence/ACCUM-EARLY-02/out/02_时点与单位.json",
+    },
+    "observe_evidence_fields": {
+        "值": "主动买卖、多空比、阶段均价进入每个观察事件的结构化证据记录（不参与决策）",
+        "依据": "工单第一部分第 6 条：不得留在「库里有但未参与」",
+        "落在哪": ("`框架/backend/metrics_feed.py` + "
+                 "`unified_runtime.MultiSymbolSignalEngine._observe_market_evidence`"),
+        "取证": "evidence/ACCUM-EARLY-02/out/03_观察证据字段.json",
+    },
+    "replay_entry_arithmetic": {
+        "值": ("入场价 / 初始止损 / 数量 / 名义额 / 手续费统一由**取整后成交价**计算，"
+             "两套口径各自完整执行"),
+        "依据": "工单第二部分第 1 条",
+        "落在哪": "`框架/backend/replay_calc.py::plan_entry`（调用 `apply_order_rounding`）",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+    "replay_stop_path": {
+        "值": "止损路径按持仓生命周期截断（入场 < 4h 收盘 ≤ 退出）",
+        "依据": "工单第二部分第 2 条",
+        "落在哪": "`replay_calc.build_stop_path`",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+    "replay_funding": {
+        "值": ("资金费逐次真实结算事件核算：结算标记价 × 当时数量 × 费率 × 方向，"
+             ">0 支付 / <0 收取，缺字段记缺口不补零，退出与结算相距 ≤15 分钟标记顺序不确定"),
+        "依据": "工单第二部分第 3 条",
+        "落在哪": "`replay_calc.settle_funding_events`（调用 `trading_core.funding.settle_funding`）",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+    "replay_participation": {
+        "值": ("参与率未通过不得计全额成交：参与率进入数量上限 ⇒ 缩量；"
+             "缩量后低于最小可下单量 ⇒ 整单拒绝"),
+        "依据": "工单第二部分第 4 条 + 获批实现 `apply_order_rounding` 的实际行为",
+        "落在哪": "`replay_calc.plan_entry`（同一函数，不另写）",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+    "replay_open_position": {
+        "值": "期末未平仓只计未实现估值，不进已实现净额",
+        "依据": "工单第二部分第 5 条",
+        "落在哪": "`replay_calc.pnl_breakdown`",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+    "replay_exit_classification": {
+        "值": ("退出原因区分 `initial_stop_loss` / `trailing_stop_loss` / "
+             "`initial_stop_gap` / `trailing_stop_gap` / `open_at_window_end`；"
+             "跳空与盘中触及分开核验"),
+        "依据": "工单第二部分第 6 条",
+        "落在哪": "`replay_calc.classify_exit_reason` / `scan_exit`",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json",
+    },
+}
+
+# ══════════════════════════ ② 口径冲突（保留标记，不择一）══════════════════════════
+
+CONFLICTS: Dict[str, dict] = {
+    "slippage_source": {
+        "冲突内容": "滑点单边取万分之三还是万分之五",
+        "两套值": {
+            "策略包": {"值": "3 bps", "来源":
+                    "策略/WyckoffMaster/event_trend_v0_1/config.py::slippage_bps"},
+            "生效视图": {"值": "5 bps", "来源":
+                     "数据/研究输入/…/10_研究参数生效视图_v2_2_user5000_shared.json::"
+                     "execution.slippage_each_side"},
+        },
+        "影响": ("直接影响成交价、初始止损、数量、名义额、手续费与净额。"
+               "实测同一事件（METISUSDT 2026-10-11T20:15Z）两套口径净额差 8.13"
+               "（5bps −13.55 / 3bps −5.42）——差额主要来自本金 5000 vs 2000 与"
+               "单名上限 10% vs 30%，**不只是滑点**"),
+        "本模块做法": "两套并列、各自完整执行，**不择一**",
+        "为什么不能自己选": "改滑点会改所有历史盈亏口径，属于口径变更，必须裁决方批准",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json · A_两套口径",
+    },
+    "risk_config": {
+        "冲突内容": "新方案用哪套本金与仓位上限",
+        "两套值": {
+            "策略包": {"值": "本金 2000 / 最多 3 仓 / 单币 30% / 总名义 90% / 组合风险 1.5%",
+                    "来源": "策略/WyckoffMaster/event_trend_v0_1/config.py"},
+            "生效视图": {"值": "本金 5000 / 最多 10 仓 / 单币 10% / 总名义 80% / 组合风险 5%",
+                     "来源": "10_研究参数生效视图_v2_2_user5000_shared.json::risk"},
+        },
+        "影响": "决定每笔名义额与最大持仓数，直接决定净额量级",
+        "本模块做法": "两套并列，不择一",
+        "为什么不能自己选": "本金与仓位是账户级决策，不是工程细节",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json · A_两套口径",
+    },
+    "participation_cap": {
+        "冲突内容": "订单名义额占「前一根已闭合 15m 成交额」的上限取 0.1% 还是 1%",
+        "两套值": {
+            "策略包": {"值": "0.1%（`max_participation_of_prev_15m_quote=0.001`）",
+                    "来源": "event_trend_v0_1/config.py"},
+            "生效视图": {"值": "1%（`entry_participation_previous_15m_quote_cap=0.01`）",
+                     "来源": "10_研究参数生效视图_v2_2_user5000_shared.json::risk"},
+        },
+        "影响": ("差 10 倍。实测 51 条真实候选里：生效视图口径 11 条被压量，"
+               "策略包口径 22 条被压量、1 条缩量后低于最小可下单量被拒单"),
+        "本模块做法": "两套并列，不择一",
+        "为什么不能自己选": "参与率决定「这笔单在真实市场能不能成交」，属风控口径",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json · B_全量回放",
+    },
+    "gap_fill_model": {
+        "冲突内容": "跳空时止损单按什么价成交（缺批准依据）",
+        "两套值": {
+            "现行默认": {"值": "按止损价成交", "来源":
+                     "ACCUM-EARLY-01 回放脚本；无批准依据文件"},
+            "建议（未批准）": {"值": "按该根 15m 开盘价成交", "来源":
+                        "本单推荐，理由见 `replay_calc.gap_sensitivity`"},
+        },
+        "影响": ("实测真实跳空 bar 上，三种模型每单位毛盈亏差 0.002"
+               "（约价格的 0.05%）；跳空越大差越大，且现行模型方向永远偏乐观"),
+        "本模块做法": "**默认口径未改**，只交付三模型敏感性对照 + 推荐理由",
+        "为什么不能自己选": "改跳空成交价会改所有跳空行情的盈亏，属口径变更",
+        "取证": "evidence/ACCUM-EARLY-02/out/04_回放计算修复.json · C_七项取证.⑦",
+    },
+}
+
+# ══════════════════════════ ③ 真待决（阻塞开仓）══════════════════════════
+
+PENDING: Dict[str, dict] = {
+    "local_resistance_definition": {
+        "status": "pending", "value": None,
+        "问题": "「局部压制位」怎么取：前 N 根 1h 高点？箱体内分位？扫低前最后一个摆动高点？",
+        "影响": "三组提案的入场触发全部依赖它；定义不同 ⇒ 三组不可比",
+        "没有默认值": True,
+    },
+    "local_resistance_confirm": {
+        "status": "pending", "value": None,
+        "问题": "突破局部压制位用 1h 收盘确认还是盘中触及即算",
+        "影响": "决定候选数量与假突破比例",
+        "没有默认值": True,
+    },
+    "sweep_recovery_scope": {
+        "status": "pending", "value": None,
+        "问题": "「扫低收回」要求单根完成还是允许 2~3 根完成（原策略是单根，但那是原策略的规定）",
+        "影响": "事件链起点；放宽会显著增加事件数",
+        "没有默认值": True,
+    },
+    "sell_pressure_baseline": {
+        "status": "pending", "value": None,
+        "问题": "「卖压减弱 / 主动买入放大」的比较基准：V20 均量？近 N 根中位？",
+        "影响": "甲/乙/丙的证据判定",
+        "没有默认值": True,
+    },
+    "sell_pressure_threshold": {
+        "status": "pending", "value": None,
+        "问题": "卖压减弱与主动买入放大的具体阈值",
+        "影响": "直接决定三组入场次数",
+        "没有默认值": True,
+    },
+    "observe_deadline_hours": {
+        "status": "pending", "value": None,
+        "问题": "新方案的事件观察期限（小时）",
+        "影响": "事件生命周期与过期判定（原策略 336 小时只对原策略）",
+        "没有默认值": True,
+    },
+    "pullback_deadline_hours": {
+        "status": "pending", "value": None,
+        "问题": "丙组「突破后等回抽」的回抽等待期限",
+        "影响": "只影响丙组",
+        "没有默认值": True,
+    },
+    "intrabar_break_cancel": {
+        "status": "pending", "value": None,
+        "问题": "盘中跌破是否即时取消观察，还是只看收盘",
+        "影响": "候选取消时点与数量",
+        "没有默认值": True,
+    },
+    "entry_price_deviation_cap": {
+        "status": "pending", "value": None,
+        "问题": "入场时允许的价格偏离上限（相对确认收盘价），超过则放弃",
+        "影响": "成交可行性；与参与率上限是两件事（一个是量、一个是价）",
+        "没有默认值": True,
+    },
+    "oi_role_in_new_scheme": {
+        "status": "pending", "value": None,
+        "问题": "持仓量在新方案里是**必要条件**还是**辅助证据**（原策略的 OI 条件只对原策略）",
+        "影响": "决定 OI 是否进入入场门槛",
+        "没有默认值": True,
+    },
+    "repeat_candidate_limit": {
+        "status": "pending", "value": None,
+        "问题": "同一标的同时段允许几个候选、平仓后多久可再入场",
+        "影响": "候选数量与重复计数",
+        "没有默认值": True,
+    },
+}
+
+# ══════════════════════════ 三组可比较规则提案 ══════════════════════════
+
+#: 共同对照组：同一批真实候选、同一行情、同一成本口径下的原策略结果。
+#: 数字来自 `evidence/ACCUM-EARLY-02/out/04_回放计算修复.json`。
+BASELINE = {
+    "定义": "原策略 `WX_EVENT_TREND_V0_1`（FT-LOW4H 身份）在同一批 51 条真实候选上的回放",
+    "样本": 51,
+    "生效视图口径": {"可回放": 51, "已实现净额合计": -225.181453,
+               "中位": -17.447866, "初始止损退出": 22, "跟踪止损退出": 29},
+    "策略包口径": {"可回放": 50, "拒单": 1, "已实现净额合计": -89.189143,
+              "中位": -2.736367, "初始止损退出": 22, "跟踪止损退出": 28},
+    "为什么它是唯一可比基线": ("同一批事件、同一份行情、同一套获批成交与成本实现；"
+                     "任何提案必须在这 51 条上给出可比结果，否则无法判断改善来自规则还是来自口径"),
+    "注意": ("这是**回放结果**，不是策略绩效。样本 51、全部为多头、"
+           "区间集中在 2026-07~10，且 100% 亏损 ⇒ 只能说明「现规则在这批事件上不赚钱」，"
+           "不能反推「反过来做就赚钱」"),
+}
+
+PROPOSALS: List[dict] = [
+    {
+        "编号": "甲",
+        "工程名": "4a",
+        "一句话": "扫低收回后，回踩到局部压制位下方，由 1h 收盘**首次**收上该压制位确认入场",
+        "改变什么": [
+            "入场时点从「突破箱体上沿 H」提前到「收上局部压制位」——压制位低于 H",
+            "不再要求先跌破箱体下沿 L（原策略的 SWEEP 前置条件）",
+            "不要求回踩到 L 附近（原策略 RETEST 要求 L~L+0.5A）",
+        ],
+        "沿用什麼": [
+            "4h Wilder ATR(14) 与箱体建档条件（宽度 ATR 区间、ER 阈值）",
+            "初始止损 5%（由取整后成交价算）、跟踪止损 4h 低点×0.95 只上移",
+            "成本实现：`apply_order_rounding` / `settle_funding` 原样调用",
+            "每标的每场所最多一个观察事件",
+        ],
+        "需要哪些数据": [
+            {"数据": "1h/4h/15m K 线（冷+热）", "状态": "已具备"},
+            {"数据": "合约规格（步进/最小量/最小金额）", "状态": "已具备"},
+            {"数据": "资金费逐次结算（含 mark_price）", "状态": "已具备"},
+            {"数据": "前一根已闭合 15m 成交额（参与率分母）", "状态": "已具备"},
+            {"数据": "持仓量 5m（若 OI 作必要条件）", "状态": "已具备但**新鲜度不达标**："
+             "真实抓取时刻比桶收盘晚 45~60 分钟，900s 门槛几乎无法满足"},
+        ],
+        "如何独立检验": [
+            "在同一 51 条真实事件上跑，与对照组逐条对比净额、退出原因、持仓时长",
+            "必须同时报「事件数变化」——若甲组事件数远多于 51，说明触发条件被放宽，"
+            "两组不可直接比，需按事件对齐后再比",
+            "必须给出至少一条「甲组入场而原策略未入场」与一条「原策略入场而甲组未入场」的逐根明细",
+            "不得用「胜率提高」单独宣称改善：必须给净额与样本量，并标注样本区间",
+        ],
+        "仍待定": ["local_resistance_definition", "local_resistance_confirm",
+                "sell_pressure_baseline", "sell_pressure_threshold",
+                "observe_deadline_hours", "entry_price_deviation_cap",
+                "oi_role_in_new_scheme"],
+        "claim_implemented": False,
+    },
+    {
+        "编号": "乙",
+        "工程名": "4b",
+        "一句话": "收上局部压制位后**不立即入场**，要求下一根 1h 收盘仍守住该位",
+        "改变什么": [
+            "比甲组晚一根 1h 入场（多一次确认）",
+            "其余触发条件与甲组相同",
+        ],
+        "沿用什麼": [
+            "与甲组完全相同的数据、成本、止损、跟踪规则",
+            "同样的局部压制位定义（这就是为什么它必须与甲组共用待定项）",
+        ],
+        "需要哪些数据": [
+            {"数据": "同甲组", "状态": "已具备"},
+            {"数据": "额外一根 1h 收盘（用于守位确认）", "状态": "已具备"},
+        ],
+        "如何独立检验": [
+            "与甲组**共用同一批事件**做配对比较（同一事件在甲/乙下的入场价与结果）",
+            "报告「甲组入场但乙组未守住」的比例——这是乙组付出的机会成本",
+            "报告「乙组避开而甲组亏损」的比例——这是乙组买到的保险",
+            "两者相减才是乙组相对甲组的净效果，不能只看一边",
+        ],
+        "仍待定": ["local_resistance_definition", "local_resistance_confirm",
+                "sell_pressure_baseline", "sell_pressure_threshold",
+                "observe_deadline_hours", "entry_price_deviation_cap",
+                "oi_role_in_new_scheme"],
+        "claim_implemented": False,
+    },
+    {
+        "编号": "丙",
+        "工程名": "4c",
+        "一句话": "收上局部压制位后等回抽到该位附近，再由 1h 收盘转强确认入场",
+        "改变什么": [
+            "在甲组基础上增加「等回抽」这一步，入场价更低",
+            "增加回抽等待期限（超时则放弃）",
+        ],
+        "沿用什麼": [
+            "与甲/乙相同的数据、成本、止损、跟踪规则",
+            "同样的局部压制位定义",
+        ],
+        "需要哪些数据": [
+            {"数据": "同甲组", "状态": "已具备"},
+            {"数据": "回抽期间的逐根 1h/15m（判定是否回到压制位附近）", "状态": "已具备"},
+        ],
+        "如何独立检验": [
+            "与甲组配对比较（同一事件在甲/丙下的入场价与结果）",
+            "报告「等回抽但没等到」的比例（丙组的放弃率）",
+            "报告「等到了但回抽后继续下跌」的比例（丙组的假回抽率）",
+            "必须报告丙组的平均持仓时长变化——等回抽会显著拉长事件周期",
+        ],
+        "仍待定": ["local_resistance_definition", "local_resistance_confirm",
+                "sell_pressure_baseline", "sell_pressure_threshold",
+                "observe_deadline_hours", "pullback_deadline_hours",
+                "entry_price_deviation_cap", "oi_role_in_new_scheme"],
+        "claim_implemented": False,
+    },
+]
+
+#: 三组提案共同的前置声明（写进任何报告都不能省）
+PRECONDITIONS = [
+    "三组的入场阈值（局部压制位定义、确认方式、卖压基准与阈值）**一项都没批准** "
+    "⇒ 现在只能说「入口已建好」，**不得宣称已实现提前入场策略**。",
+    "任何一组的回放结果都必须与 `BASELINE` 在同一批事件上对比，"
+    "否则无法区分「规则变好」与「口径变松」。",
+    "对照组 51 条全部亏损（生效视图 −225.18 / 策略包 −89.19）⇒ "
+    "改善的定义是「比这个数好」，不是「赚了钱」。",
+    "滑点、风险配置、参与率上限三项仍是**两套值冲突**，未裁决前"
+    "任何单一数字都必须注明用的是哪一套。",
+    "跳空成交模型仍按「止损价成交」的未批准默认口径；改用别的模型需批准。",
+]
+
+
+# ══════════════════════════ 校验 ══════════════════════════
+
+def validate() -> dict:
+    """硬校验三张表，防止有人往「已确定」里塞没有依据的东西。"""
+    errs: List[str] = []
+    for k, v in DETERMINED.items():
+        if not v.get("依据"):
+            errs.append(f"determined:{k}:missing_basis")
+        if not v.get("落在哪"):
+            errs.append(f"determined:{k}:missing_location")
+    for k, v in CONFLICTS.items():
+        vals = v.get("两套值") or {}
+        if len(vals) < 2:
+            errs.append(f"conflict:{k}:fewer_than_two_values")
+        for name, item in vals.items():
+            if not item.get("来源"):
+                errs.append(f"conflict:{k}:{name}:missing_source")
+        if not v.get("为什么不能自己选"):
+            errs.append(f"conflict:{k}:missing_reason")
+    for k, v in PENDING.items():
+        if v.get("value") is not None:
+            errs.append(f"pending:{k}:must_have_no_default_value")
+        if v.get("status") != "pending":
+            errs.append(f"pending:{k}:status_must_be_pending")
+        if not v.get("问题"):
+            errs.append(f"pending:{k}:missing_question")
+    for p in PROPOSALS:
+        if p.get("claim_implemented"):
+            errs.append(f"proposal:{p.get('编号')}:must_not_claim_implemented")
+        for key in ("改变什么", "沿用什麼", "需要哪些数据", "如何独立检验"):
+            if not p.get(key):
+                errs.append(f"proposal:{p.get('编号')}:missing_{key}")
+        for pid in p.get("仍待定") or []:
+            if pid not in PENDING:
+                errs.append(f"proposal:{p.get('编号')}:unknown_pending:{pid}")
+    return {
+        "通过": not errs,
+        "错误": errs,
+        "计数": {"已确定": len(DETERMINED), "口径冲突": len(CONFLICTS),
+                 "真待决": len(PENDING), "提案": len(PROPOSALS)},
+        "说明": ("校验项：已确定必须有依据与落点；冲突必须至少两套值且各带来源、"
+                 "必须写明为何不能自选；待决必须无默认值；提案不得宣称已实现、"
+                 "四要素齐全、引用的待决项必须真实存在"),
+    }
+
+
+def snapshot() -> Dict[str, Any]:
+    return {
+        "version": VERSION,
+        "已确定": DETERMINED,
+        "口径冲突": CONFLICTS,
+        "真待决": PENDING,
+        "对照基线": BASELINE,
+        "三组提案": PROPOSALS,
+        "前置声明": PRECONDITIONS,
+        "校验": validate(),
+    }
+
+
+__all__ = ["VERSION", "DETERMINED", "CONFLICTS", "PENDING", "BASELINE",
+           "PROPOSALS", "PRECONDITIONS", "validate", "snapshot"]

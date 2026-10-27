@@ -1,0 +1,18 @@
+﻿标的/指标,前端展示位置/字段,后端API字段/路径,前端页面DOM抓取值,后端API同一响应原始值,计算差异/格式化规则,对账判定
+顶栏BTC价格,TopStatusBar BTC价格,tickers.items[BTC].last_price,"81,624",81624.12,0.00 (取整显示),完全一致
+顶栏BTC涨跌,TopStatusBar BTC 24h涨跌,tickers.items[BTC].price_change_percent_24h,-2.44%,-0.0244,0.00% (百分比格式化),完全一致
+顶栏ETH价格,TopStatusBar ETH价格,tickers.items[ETH].last_price,"2,404",2404.35,0.00 (取整显示),完全一致
+顶栏ETH涨跌,TopStatusBar ETH 24h涨跌,tickers.items[ETH].price_change_percent_24h,-2.07%,-0.0207,0.00% (百分比格式化),完全一致
+模拟盘总权益,TopStatusBar 模拟盘权益,paper.accounts[0].cash,"5,000.00",5000.0,0.00 (货币格式化),完全一致
+时区规范标识,TopStatusBar 时区时钟,系统时钟UTC规范,04:11:50 UTC,2026-10-23T04:11:50Z,0s (格式化UTC时钟),完全一致
+行情连接状态,TopStatusBar 行情连接,health.market_data_age,stale (8696 秒前),8696,一致 (超过300s如实标stale告警),完全一致
+第一行标的,TokenTable Col 1,markets.items[0].symbol,BLUR,BLUR,无差异 (标的代码),完全一致
+第一行价格,TokenTable Col 1 价格与涨跌,markets.items[0].last_price / change24h,zsh.00878 -3.09%,0.008779 / -0.0309,0.00 (有效位舍入一致),完全一致
+流动市值,TokenTable Col 2 流动市值,markets.items[0].market_cap,.42万,25594200.0,0.00 (单位换算为万),完全一致
+日总成交额,TokenTable Col 3 24h成交额,markets.items[0].volume_24h,.46万,5174600.0,0.00 (单位换算为万),完全一致
+聪明钱多头,TokenTable Col 4 聪明钱多头,markets.items[0].smart_money_long.amount/ratio,持仓额: 57.08万 USD 巨鲸占比: 92.8%,570800 / 0.928,0.00 (单位与比例格式化),完全一致
+聪明钱空头,TokenTable Col 5 聪明钱空头,markets.items[0].smart_money_short.amount/ratio,持仓额: 21.12万 USD 巨鲸占比: 97.7%,211200 / 0.977,0.00 (单位与比例格式化),完全一致
+聪明钱均价,TokenTable Col 6 聪明钱均价,markets.items[0].smart_money_long/short.avg_price,多 0.018482 空 0.019369,0.018482 / 0.019369,0.00 (原样对齐保留6位),完全一致
+总OI持仓,TokenTable Col 7 总持仓量,markets.items[0].oi_total_usd,332.85万U 陈旧,3328500.0,0.00 (单位换算为万U并带时效状态),完全一致
+资金费率,TokenTable Col 8 资金费率,markets.items[0].funding_rate,-0.0370%,-0.00037,0.00% (费率保留符号与4位小数),完全一致
+走势图,TokenTable Col 9 近24h走势图,markets.items[0].sparkline_24h,Canvas Sparkline 渲染正常,24 bars data,无丢失 (走势图完整渲染),完全一致

@@ -1,0 +1,50 @@
+{
+  "候选对照矩阵": {
+    "filled": 4325,
+    "rejected": 3388,
+    "not_filled": 22
+  },
+  "拒单": {
+    "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+    "源条数": 2,
+    "系统条数": 0,
+    "missing_reason": "账本缺失（rejected 表不可读）",
+    "非空 rejected.jsonl 的 run 数": 561,
+    "全批 rejected.jsonl 文件数": 1065,
+    "全批 rejects.jsonl 文件数": 0,
+    "读取器期望文件名": "rejects.jsonl（backtest_store.read_ledger_rows 的 JSONL 兜底表）",
+    "实际文件名": "rejected.jsonl"
+  },
+  "确认失败": {
+    "run_id": "run_FT_ENTRY_09_C1_Vs04_Z04_1000SHIBUSDT",
+    "源条数": 1,
+    "非空 not_filled.jsonl 的 run 数": 22,
+    "样例": {
+      "event_id": "ev_FT_ENTRY_02_binance_SHIBUSDT_1715472000000",
+      "symbol": "1000SHIBUSDT",
+      "signal_time_ms": 1715554800000,
+      "confirm_time_ms": 1715558400000,
+      "P0": 0.022012300287385392,
+      "decision": "CONFIRMED_NOT_FILLED",
+      "reason": "确认通过但该组该币无对应成交记录（资金/仓位/撮合未成交）",
+      "source": "evidence/FT-ENTRY-09/out/audit_confirmation_*.csv"
+    },
+    "系统入口": "无（route 表里没有 not_filled / unfilled 子资源）"
+  },
+  "缺K线": {
+    "本批币种数": 59,
+    "缺目录": [],
+    "15m空目录": [],
+    "构造探测": {
+      "symbol": "NOTEXISTUSDT",
+      "candles": 0,
+      "missing_reason": null
+    },
+    "说明": "FT-REPLAY-02 声称缺数据会返回 missing_reason，实测未返回。"
+  },
+  "既成交又被拒": {
+    "条数": 0,
+    "样例": [],
+    "判读": "同一候选先成交、后又被复评拒单；成交笔本身在源账本存在，属「成交后又拒」而非「把拒单伪造成成交」。"
+  }
+}

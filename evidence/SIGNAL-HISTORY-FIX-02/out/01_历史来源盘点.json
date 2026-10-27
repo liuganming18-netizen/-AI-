@@ -1,0 +1,136 @@
+{
+  "generated_at_utc": "2026-10-24T14:14:18Z",
+  "read_only": true,
+  "downloaded_anything": false,
+  "hot_sqlite": {
+    "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "size_bytes": 11786743808,
+    "15m": {
+      "first_utc": "2026-09-12T00:00:00Z",
+      "last_utc": "2026-10-24T13:45:00Z",
+      "bars": 2245989,
+      "symbols": 551,
+      "span_days": 42.57
+    },
+    "1h": {
+      "first_utc": "2026-09-07T02:00:00Z",
+      "last_utc": "2026-10-24T13:00:00Z",
+      "bars": 581364,
+      "symbols": 551,
+      "span_days": 47.46
+    },
+    "4h": {
+      "first_utc": "2026-09-09T20:00:00Z",
+      "last_utc": "2026-10-24T08:00:00Z",
+      "bars": 147212,
+      "symbols": 551,
+      "span_days": 44.5
+    },
+    "note": "热层只保留近 retention_days 天 + 每周期 latest200 保证；更早的数据已导出冷层后从热库裁掉。**热库跨度 ≠ 全部可得历史**。"
+  },
+  "cold_parquet": {
+    "archive_root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "watermark_utc": "2026-10-13T08:36:17Z",
+    "retention_days": 30,
+    "catalog_shards": 32920,
+    "state": {
+      "watermark_ms": 1791880577632
+    },
+    "per_timeframe": {
+      "15m": {
+        "shards": 1750,
+        "years": [
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2022_补缺20261016",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ],
+        "year_min": "2019",
+        "year_max": "2026",
+        "rows": 45283769
+      },
+      "1h": {
+        "shards": 1710,
+        "years": [
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ],
+        "year_min": "2019",
+        "year_max": "2026",
+        "rows": 11158237
+      },
+      "4h": {
+        "shards": 1683,
+        "years": [
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ],
+        "year_min": "2019",
+        "year_max": "2026",
+        "rows": 2761363
+      }
+    },
+    "note": "冷层 = `candles/`（candle_versions 全版本）+ `candle_heads/`（头版本）；读取必须 JOIN 两个分片，否则会把历史版本重复计入。"
+  },
+  "official_archive_zip": {
+    "root": "/Users/boos/Desktop/威科夫因子共振趋势/数据/raw",
+    "per_timeframe": {
+      "15m": {
+        "symbols": 526,
+        "symbols_with_zip": 526,
+        "zip_count": 27105,
+        "month_min": "2019-12",
+        "month_max": "2026-10",
+        "checksum_sidecars": 27105
+      },
+      "1h": {
+        "symbols": 526,
+        "symbols_with_zip": 526,
+        "zip_count": 21095,
+        "month_min": "2019-12",
+        "month_max": "2026-10",
+        "checksum_sidecars": 21095
+      },
+      "4h": {
+        "symbols": 526,
+        "symbols_with_zip": 526,
+        "zip_count": 19425,
+        "month_min": "2019-12",
+        "month_max": "2026-10",
+        "checksum_sidecars": 19425
+      }
+    },
+    "note": "币安官方月度归档 + 逐文件 CHECKSUM；是冷层的上游原始证据，当前**不参与**任何读路径。"
+  },
+  "existing_router": {
+    "module": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/market_repository.py",
+    "sha256": "31a4e6d3329c9360aaba58ff232605b0eb3c2dddc2b14e9260a7ca77917cef5b",
+    "class": "MarketDataRepository",
+    "entry": "MarketDataRepository.from_archive(hot_db, archive_root)",
+    "watermark_ms": 1791880577632,
+    "watermark_utc": "2026-10-13T08:36:17Z",
+    "retention_days": 30,
+    "min_bars": 200,
+    "hot_floor_1h_utc": "2026-09-13T08:36:17Z",
+    "per_call_limit_max": 2000,
+    "in_production_traffic": false,
+    "note": "既有热+冷读路由，带 head 版本语义 / 去重 / 升序；模块自述「不参与生产流量（由上层决定何时切换）」⇒ 策略引擎当前**没有**走它。"
+  }
+}

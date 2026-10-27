@@ -1,0 +1,90 @@
+{
+  "timestamp_utc": "2026-10-26T15:57:58Z",
+  "test_type": "TRUE_CROSS_PROCESS_RECOVERY",
+  "same_process_repeat_test": {
+    "first_open_ok": true,
+    "first_open_reason": "filled",
+    "repeat_open_ok": false,
+    "repeat_open_reason": "duplicate_signal_uid",
+    "orders_before": 1,
+    "orders_after": 1,
+    "fills_before": 1,
+    "fills_after": 1,
+    "pass": true
+  },
+  "cross_process_recovery_test": {
+    "process_a": {
+      "pid": 27923,
+      "start_time_utc": "2026-10-26T15:57:58Z",
+      "end_time_utc": "2026-10-26T15:57:59Z",
+      "duration_sec": 0.5699,
+      "exit_code": 0,
+      "confirmed_dead_before_b_starts": true,
+      "open_ok": true,
+      "snapshot": {
+        "orders_count": 1,
+        "fills_count": 1,
+        "positions_count": 1,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "SOLUSDT",
+            "status": "open",
+            "qty": 6.84,
+            "entry_price": 72.99,
+            "entry_ts": 1785554100000,
+            "exit_ts": null,
+            "exit_reason": null,
+            "exit_price": null,
+            "stop_price": 69.34,
+            "initial_stop_price": 69.34,
+            "entry_fee": 0.24962579999999998,
+            "exit_fee": null,
+            "funding_paid": 0.0,
+            "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+            "stoploss_s": 0.05,
+            "trail_d": 0.05
+          }
+        ]
+      }
+    },
+    "process_b": {
+      "pid": 27934,
+      "start_time_utc": "2026-10-26T15:57:59Z",
+      "end_time_utc": "2026-10-26T15:57:59Z",
+      "duration_sec": 0.0233,
+      "exit_code": 0,
+      "different_pid": true,
+      "resume_open_ok": false,
+      "resume_open_reason": "duplicate_signal_uid",
+      "snapshot": {
+        "orders_count": 1,
+        "fills_count": 1,
+        "positions_count": 1,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "SOLUSDT",
+            "status": "open",
+            "qty": 6.84,
+            "entry_price": 72.99,
+            "entry_ts": 1785554100000,
+            "exit_ts": null,
+            "exit_reason": null,
+            "exit_price": null,
+            "stop_price": 69.34,
+            "initial_stop_price": 69.34,
+            "entry_fee": 0.24962579999999998,
+            "exit_fee": null,
+            "funding_paid": 0.0,
+            "market_source": "binance.um.candles_15m.is_closed.open|merged.cold|available_at_unproven",
+            "stoploss_s": 0.05,
+            "trail_d": 0.05
+          }
+        ]
+      }
+    },
+    "idempotency_verified": true,
+    "conclusion": "进程 A 正常开仓退出，系统确认进程 A 死亡；进程 B 独立启动，完全基于磁盘持久化账本恢复，对同一候选成功执行 duplicate_signal_uid 幂等拦截，订单/成交/持仓零重复。"
+  }
+}

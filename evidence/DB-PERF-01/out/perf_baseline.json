@@ -1,0 +1,179 @@
+{
+  "mode": "baseline",
+  "captured_at_utc": "2026-10-24T02:33:06Z",
+  "db": "数据/市场数据/db/market_v2.sqlite3",
+  "db_sizes_mb": {
+    "market_v2.sqlite3": 11238.2,
+    "market_v2.sqlite3-wal": 581.9,
+    "market_v2.sqlite3-shm": 1.1
+  },
+  "indexes_before": {
+    "api_cache.sqlite_autoindex_api_cache_1": "(自动索引)",
+    "api_calls.api_calls_scope_time": "CREATE INDEX api_calls_scope_time ON api_calls(scope, started_at)",
+    "api_leases.sqlite_autoindex_api_leases_1": "(自动索引)",
+    "api_scope_state.sqlite_autoindex_api_scope_state_1": "(自动索引)",
+    "candle_field_notes.candle_field_notes_by_field": "CREATE INDEX candle_field_notes_by_field\n    ON candle_field_notes(exchange, field)",
+    "candle_field_notes.sqlite_autoindex_candle_field_notes_1": "(自动索引)",
+    "candle_versions.sqlite_autoindex_candle_versions_1": "(自动索引)",
+    "collector_rounds.collector_rounds_by_kind": "CREATE INDEX collector_rounds_by_kind ON collector_rounds(kind, started_at)",
+    "collector_state.sqlite_autoindex_collector_state_1": "(自动索引)",
+    "coverage_cache.coverage_cache_by_symbol": "CREATE INDEX coverage_cache_by_symbol ON coverage_cache(exchange, symbol, timeframe)",
+    "coverage_cache.sqlite_autoindex_coverage_cache_1": "(自动索引)",
+    "download_tasks.download_tasks_status": "CREATE INDEX download_tasks_status ON download_tasks(status, timeframe)",
+    "download_tasks.sqlite_autoindex_download_tasks_1": "(自动索引)",
+    "funding_history.sqlite_autoindex_funding_history_1": "(自动索引)",
+    "kline_stream_state.sqlite_autoindex_kline_stream_state_1": "(自动索引)",
+    "oi_history.ix_oi_hist_snapshot": "CREATE INDEX ix_oi_hist_snapshot ON oi_history(exchange,market,symbol,ts) WHERE period='snapshot'",
+    "oi_history.ix_oi_hist_sym_period_ts": "CREATE INDEX ix_oi_hist_sym_period_ts ON oi_history(exchange,symbol,period,ts)",
+    "oi_history.sqlite_autoindex_oi_history_1": "(自动索引)",
+    "realtime_klines.realtime_klines_lookup": "CREATE INDEX realtime_klines_lookup\n    ON realtime_klines(exchange, symbol, timeframe)",
+    "realtime_klines.sqlite_autoindex_realtime_klines_1": "(自动索引)",
+    "realtime_quotes.realtime_quotes_by_symbol": "CREATE INDEX realtime_quotes_by_symbol ON realtime_quotes(exchange, symbol)",
+    "realtime_quotes.sqlite_autoindex_realtime_quotes_1": "(自动索引)",
+    "signal_conditions.signal_conditions_by_signal": "CREATE INDEX signal_conditions_by_signal\n    ON signal_conditions(signal_id)",
+    "signals.signals_by_strategy": "CREATE INDEX signals_by_strategy\n    ON signals(strategy_key, created_at)",
+    "signals.signals_lookup": "CREATE INDEX signals_lookup\n    ON signals(exchange, market, symbol, timeframe, confirmed_at)",
+    "signals.sqlite_autoindex_signals_1": "(自动索引)",
+    "sources.sqlite_autoindex_sources_1": "(自动索引)",
+    "strategy_configs.sqlite_autoindex_strategy_configs_1": "(自动索引)",
+    "symbol_classification.sqlite_autoindex_symbol_classification_1": "(自动索引)",
+    "symbol_classification.symbol_classification_by_cat": "CREATE INDEX symbol_classification_by_cat\n    ON symbol_classification(exchange, in_active_range, instrument_category)",
+    "symbol_pool.sqlite_autoindex_symbol_pool_1": "(自动索引)",
+    "symbol_supply.sqlite_autoindex_symbol_supply_1": "(自动索引)",
+    "symbol_supply.symbol_supply_base": "CREATE INDEX symbol_supply_base ON symbol_supply(base)"
+  },
+  "measure_default_pragmas": {
+    "pragmas": [],
+    "queries": {
+      "oi_agg": {
+        "sql": "SELECT count(distinct symbol), count(*), max(ts) FROM oi_history",
+        "median_ms": 356.68,
+        "min_ms": 329.09,
+        "max_ms": 2016.68,
+        "result_head": [
+          814,
+          6700337,
+          1792809000000
+        ]
+      },
+      "funding_agg": {
+        "sql": "SELECT count(distinct symbol), count(*), max(funding_time) FROM funding_history",
+        "median_ms": 120.95,
+        "min_ms": 120.9,
+        "max_ms": 1098.77,
+        "result_head": [
+          814,
+          2114947,
+          1792803600008
+        ]
+      },
+      "funding_stale_groupby": {
+        "sql": "SELECT symbol FROM (SELECT symbol, max(funding_time) as max_ft FROM funding_history GROUP BY symbol) WHERE max_ft < ?",
+        "median_ms": 494.29,
+        "min_ms": 468.8,
+        "max_ms": 623.27,
+        "result_head": null
+      },
+      "coverage_by_tf": {
+        "sql": "SELECT count(*), sum(rows), sum(missing), min(first_open), max(last_close) FROM coverage_cache WHERE timeframe=?",
+        "median_ms": 0.12,
+        "min_ms": 0.11,
+        "max_ms": 2.25,
+        "result_head": [
+          551,
+          46789149,
+          2887
+        ]
+      }
+    },
+    "query_plan": {
+      "oi_agg": [
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SCAN oi_history USING COVERING INDEX ix_oi_hist_sym_period_ts"
+      ],
+      "funding_agg": [
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SCAN funding_history USING COVERING INDEX sqlite_autoindex_funding_history_1"
+      ],
+      "funding_stale_groupby": [
+        "CO-ROUTINE (subquery-1)",
+        "SCAN funding_history USING COVERING INDEX sqlite_autoindex_funding_history_1",
+        "USE TEMP B-TREE FOR GROUP BY",
+        "SCAN (subquery-1)"
+      ],
+      "coverage_by_tf": [
+        "SCAN coverage_cache"
+      ]
+    },
+    "total_median_ms": 972.04
+  },
+  "measure_tuned_pragmas": {
+    "pragmas": [
+      "PRAGMA cache_size = -262144",
+      "PRAGMA temp_store = MEMORY"
+    ],
+    "queries": {
+      "oi_agg": {
+        "sql": "SELECT count(distinct symbol), count(*), max(ts) FROM oi_history",
+        "median_ms": 561.36,
+        "min_ms": 399.24,
+        "max_ms": 1040.86,
+        "result_head": [
+          814,
+          6700337,
+          1792809000000
+        ]
+      },
+      "funding_agg": {
+        "sql": "SELECT count(distinct symbol), count(*), max(funding_time) FROM funding_history",
+        "median_ms": 223.52,
+        "min_ms": 92.18,
+        "max_ms": 1001.54,
+        "result_head": [
+          814,
+          2114947,
+          1792803600008
+        ]
+      },
+      "funding_stale_groupby": {
+        "sql": "SELECT symbol FROM (SELECT symbol, max(funding_time) as max_ft FROM funding_history GROUP BY symbol) WHERE max_ft < ?",
+        "median_ms": 377.72,
+        "min_ms": 357.94,
+        "max_ms": 384.53,
+        "result_head": null
+      },
+      "coverage_by_tf": {
+        "sql": "SELECT count(*), sum(rows), sum(missing), min(first_open), max(last_close) FROM coverage_cache WHERE timeframe=?",
+        "median_ms": 0.12,
+        "min_ms": 0.11,
+        "max_ms": 0.46,
+        "result_head": [
+          551,
+          46789149,
+          2887
+        ]
+      }
+    },
+    "query_plan": {
+      "oi_agg": [
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SCAN oi_history USING COVERING INDEX ix_oi_hist_sym_period_ts"
+      ],
+      "funding_agg": [
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SCAN funding_history USING COVERING INDEX sqlite_autoindex_funding_history_1"
+      ],
+      "funding_stale_groupby": [
+        "CO-ROUTINE (subquery-1)",
+        "SCAN funding_history USING COVERING INDEX sqlite_autoindex_funding_history_1",
+        "USE TEMP B-TREE FOR GROUP BY",
+        "SCAN (subquery-1)"
+      ],
+      "coverage_by_tf": [
+        "SCAN coverage_cache"
+      ]
+    },
+    "total_median_ms": 1162.72
+  },
+  "db_sha256": null
+}

@@ -1,0 +1,208 @@
+{
+  "sample": {
+    "runs_rerun": 253,
+    "unique_signals": 206,
+    "paired_signals": 206,
+    "missing_variant_signals": 0,
+    "signals_with_multiple_window_outcomes": 57,
+    "note": "按 signal_id 规范实例配对，且在固定仓位机制下排除串行资金耦合。"
+  },
+  "A": {
+    "n": 206,
+    "net_sum": 55.308694,
+    "net_mean": 0.268489,
+    "win_rate": 0.4029,
+    "avg_win": 12.298493,
+    "avg_loss": -7.849319,
+    "profit_factor": 1.0573,
+    "worst": -10.752223,
+    "best": 188.255443,
+    "worst5_sum": -52.58773,
+    "loss_tail_sum": -965.466253,
+    "p05": -10.164444,
+    "hold_mean_h": 190.376,
+    "hold_median_h": 240.0,
+    "net_R_sum": 7.449726,
+    "net_R_mean": 0.0362,
+    "exit_reason_counts": {
+      "max_holding_expired": 109,
+      "intrabar_stop": 92,
+      "force_close_eod": 5
+    }
+  },
+  "B": {
+    "n": 206,
+    "net_sum": 12.212005,
+    "net_mean": 0.059282,
+    "win_rate": 0.3786,
+    "avg_win": 11.374681,
+    "avg_loss": -6.83604,
+    "profit_factor": 1.014,
+    "worst": -10.752223,
+    "best": 188.255443,
+    "worst5_sum": -52.301455,
+    "loss_tail_sum": -875.013111,
+    "p05": -10.137841,
+    "hold_mean_h": 177.682,
+    "hold_median_h": 208.0,
+    "net_R_sum": 3.547466,
+    "net_R_mean": 0.0172,
+    "exit_reason_counts": {
+      "max_holding_expired": 95,
+      "intrabar_stop": 108,
+      "force_close_eod": 3
+    }
+  },
+  "C": {
+    "n": 206,
+    "net_sum": 58.356723,
+    "net_mean": 0.283285,
+    "win_rate": 0.4029,
+    "avg_win": 12.298493,
+    "avg_loss": -7.824538,
+    "profit_factor": 1.0606,
+    "worst": -10.752223,
+    "best": 188.255443,
+    "worst5_sum": -52.58773,
+    "loss_tail_sum": -962.418224,
+    "p05": -10.164444,
+    "hold_mean_h": 190.299,
+    "hold_median_h": 240.0,
+    "net_R_sum": 7.758287,
+    "net_R_mean": 0.0377,
+    "exit_reason_counts": {
+      "max_holding_expired": 109,
+      "intrabar_stop": 92,
+      "force_close_eod": 5
+    }
+  },
+  "B_vs_A": {
+    "triggered_n": 75,
+    "triggered_rate": 0.3641,
+    "delta_sum": -43.096689,
+    "delta_mean": -0.209207,
+    "saved_loss_n": 12,
+    "saved_loss_sum": 95.238775,
+    "forgone_profit_n": 16,
+    "forgone_profit_sum": 138.335464,
+    "subsequent_cost_loss_n": 17,
+    "subsequent_cost_loss_sum": 1.381614,
+    "improved_n": 12,
+    "worsened_n": 16,
+    "unchanged_n": 178,
+    "early_exit_n": 28,
+    "loss_tail_sum": -875.013111,
+    "worst5_sum": -52.301455,
+    "worst": -10.752223
+  },
+  "C_vs_A": {
+    "triggered_n": 26,
+    "triggered_rate": 0.1262,
+    "delta_sum": 3.048029,
+    "delta_mean": 0.014796,
+    "saved_loss_n": 1,
+    "saved_loss_sum": 3.048029,
+    "forgone_profit_n": 0,
+    "forgone_profit_sum": 0,
+    "subsequent_cost_loss_n": 1,
+    "subsequent_cost_loss_sum": 0.023171,
+    "improved_n": 1,
+    "worsened_n": 0,
+    "unchanged_n": 205,
+    "early_exit_n": 1,
+    "loss_tail_sum": -962.418224,
+    "worst5_sum": -52.58773,
+    "worst": -10.752223
+  },
+  "consistency": {
+    "B_checked": 131,
+    "B_bad_n": 0,
+    "C_checked": 180,
+    "C_bad_n": 0,
+    "B_bad_details": [],
+    "C_bad_details": [],
+    "fixed_quantity_parity": "100% PASS (未触发保本交易与基线严格一致)"
+  },
+  "opusdt_cascade_summary": {
+    "signal_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_OPUSDT_1704499200000_1705068000000",
+    "symbol": "OPUSDT",
+    "entry_time_utc": "2024-01-12 14:15",
+    "fixed_baseline_A": {
+      "qty": 8.3,
+      "net_pnl": -9.327116,
+      "exit_price": 3.04818,
+      "exit_reason": "max_holding_expired"
+    },
+    "fixed_variant_B": {
+      "qty": 8.3,
+      "net_pnl": -9.327116,
+      "exit_price": 3.04818,
+      "exit_reason": "max_holding_expired",
+      "delta_vs_A": 0.0
+    },
+    "dynamic_variant_B": {
+      "qty": 8.2,
+      "net_pnl": -9.214741,
+      "exit_price": 3.04818,
+      "exit_reason": "max_holding_expired",
+      "delta_vs_A": 0.112375
+    },
+    "cascade_discrepancy_U": 0.112375,
+    "explanation": "在串行动态权益下，OPUSDT 第一笔触发 1R 保本平仓使账户权益保持在 2000 U，而 A 组盈利后权益增至 2009.59 U，导致第二笔开仓数量由 8.3 降为 8.2。在固定仓位机制下，开仓数量锁定为 8.3，第二笔未触发保本，净额与 A 组严格一致（delta = 0.000000）。该 0.112375 U 确认为仓位差异产生的串行资金耦合干扰，已单列排除，不计为保本收益。"
+  },
+  "trx_reconciliation_summary": {
+    "symbol": "TRXUSDT",
+    "group": 85,
+    "window": "2023-01-16~2024-01-16",
+    "historical_full_sweep": {
+      "run_timestamp": "2026-10-18 03:57~05:37",
+      "candidates_count": 2,
+      "first_candidate_event": "2023-05-29 (产生 -9.86 U 亏损)",
+      "second_candidate_trade": {
+        "entry_time_utc": "2024-01-13 10:15",
+        "exit_time_utc": "2024-01-15 23:45",
+        "entry_price": 0.11288,
+        "exit_price": 0.10863,
+        "qty": 865.0,
+        "initial_stop": 0.10152014068418644,
+        "gross_pnl": -3.676249999999991,
+        "fees": 0.095803075,
+        "funding_fee": 0.068841209245,
+        "slippage_loss": 0.06919999999999718,
+        "net_pnl": -3.840894284244991,
+        "exit_reason": "force_close_eod"
+      }
+    },
+    "current_baseline_A": {
+      "run_timestamp": "2026-10-19",
+      "candidates_count": 1,
+      "first_candidate_filtered": "2023-05-29 事件被 FRAME-PIT-01 守卫拦截（6h OI增长率1.07% < 2%）",
+      "trade": {
+        "entry_time_utc": "2024-01-13 10:15",
+        "exit_time_utc": "2024-01-15 23:45",
+        "entry_price": 0.11288,
+        "exit_price": 0.10863,
+        "qty": 869.0,
+        "initial_stop": 0.10152014068418644,
+        "gross_pnl": -3.693249999999991,
+        "fees": 0.096246095,
+        "funding_fee": 0.069159550097,
+        "slippage_loss": 0.06951999999999717,
+        "net_pnl": -3.858655645096991,
+        "exit_reason": "force_close_eod"
+      }
+    },
+    "reconciliation_deltas": {
+      "qty_delta": 4.0,
+      "gross_delta": -0.017,
+      "fees_delta": 0.000443,
+      "funding_delta": 0.000318,
+      "slippage_delta": 0.00032,
+      "net_pnl_delta": -0.017761
+    },
+    "root_cause_explanation": "2026-10-18 21:54 FRAME-PIT-01 对 pit_guard.py 进行合规整改，引入 ts+5m <= decision，使 2023-05-29 的事件不再引用未收盘 K 线 OI，其实际增长率由 2.01% 下降为 1.07%，触发门槛拦截。因此当前版本在该窗口内少了一笔 -9.86 U 的早期亏损，账户起始资金保持为 2000 U，使后续 TRXUSDT 交易的开仓数量从 865 调整为 869 股（比值 869/865 = 1.00462，对应本金比值 2000/1990.14 = 1.00495）。入场价、出场价与强平退出原因完全一致，净额差异为 0.017762 U（仅占净亏损的 0.46%）。本差异系历史未来函数修复带来的合理调整，当前版本基线完全一致且安全。"
+  },
+  "ambiguity_n": 0,
+  "subsequent_costs_n": 17,
+  "drawdown_note": "每个 run 是单标的独立 2000U 账户，彼此不共享资金；本单不计算、也不声明组合账户最大回撤。逐笔累加仅为统计描述。"
+}

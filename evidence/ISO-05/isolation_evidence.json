@@ -1,0 +1,57 @@
+{
+  "run_id": "ISO-05-RUN-20261023-081730",
+  "timestamp_utc": "2026-10-23T08:17:30.395966+00:00",
+  "port": 57553,
+  "pids": {
+    "api": 37744,
+    "worker": 37747
+  },
+  "verifications": {
+    "missing_market_archive_rejection": {
+      "status": "PASSED",
+      "error_message": "隔离模式缺少必要路径配置：['market_archive']，拒绝启动，禁止退回日常目录",
+      "assert_in_missing": true
+    },
+    "daily_market_archive_rejection": {
+      "status": "PASSED",
+      "error_message": "隔离模式严禁使用日常数据/状态目录：market_archive -> '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+      "assert_in_daily": true
+    },
+    "symlink_alias_rejection": {
+      "status": "PASSED",
+      "error_message": "隔离模式严禁使用日常数据/状态目录：market_archive -> '/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/iso05_evidence_xrsefqpd/symlink_parquet' 解析为 '/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet'，指向日常数据根目录 '/Users/boos/Desktop/威科夫因子共振趋势/数据'（已阻断任何别名或相对路径绕行）",
+      "assert_in_symlink": true
+    },
+    "cold_archive_read": {
+      "status": "PASSED",
+      "url": "http://127.0.0.1:57553/api/v1/markets/binance/BTCUSDT/funding?limit=10",
+      "response_status": 200,
+      "matched_record": {
+        "event_time": "2023-01-01T00:00:00Z",
+        "funding_rate": 0.00777777,
+        "mark_price": 16500.0,
+        "rate_type": "settled",
+        "source": "isolated_evidence_ISO-05-RUN-20261023-081730",
+        "fetched_at": 1672531200000
+      },
+      "total_items": 1
+    },
+    "open_files_audit": {
+      "status": "PASSED",
+      "api_violations": [],
+      "worker_violations": [],
+      "protected_patterns": [
+        "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+        "/Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列",
+        "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks",
+        "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/logs"
+      ]
+    }
+  },
+  "source_hashes": {
+    "框架/backend/service_manager.py": "7ba1edf95b65b728c79c6890fd438e541a5e6c0f46c21c85a8ad84e5b0b0fa2a",
+    "框架/backend/tests/test_system_isolation_05.py": "0b18e980f99787aaa4ecc60e57f5144ba2c9161da943cd36e208600edc8e53f9"
+  }
+}

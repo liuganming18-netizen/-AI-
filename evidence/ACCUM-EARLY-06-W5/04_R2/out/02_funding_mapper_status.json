@@ -1,0 +1,126 @@
+{
+  "timestamp_utc": "2026-10-27T02:02:02Z",
+  "task": "ACCUM-EARLY-06-W5-R2",
+  "description": "资金费事件到逐笔成本及分类映射独立复验报告 (接续接入 A-R2 正式交付)",
+  "source_dependencies": {
+    "w3_funding_events": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-06/out/funding_events_母集48.jsonl",
+    "w4_r2_delivery": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.json"
+  },
+  "verification_taxonomy_and_layers": {
+    "layer_1_financial_arithmetic": {
+      "description": "逐笔资金费成本与已实现净额恒等式独立实算复验",
+      "status": "PASSED_100_PERCENT_MATCH",
+      "independence": "100% 独立从 06-06 原始事件累加计算，不依赖 A 的任何计算缓存或汇总"
+    },
+    "layer_2_official_evidence_and_gap_classification": {
+      "description": "币安官方快照历史证明、结算周期判定与时间容差",
+      "status": "REFERENCED_FROM_A_EVIDENCE",
+      "independence": "本窗口独立复核 06-06 数据覆盖自洽性，币安官方快照一手历史取证属于工单 A 证明链条"
+    }
+  },
+  "reconciliation_unit_tests": {
+    "total_cases": 3,
+    "passed_cases": 3,
+    "all_passed": true,
+    "cases": [
+      {
+        "test_id": "NEG_RECON_01_TAMPERED_COST",
+        "test_name": "复验负例 1: 单笔资金费被篡改硬性拦截",
+        "scenario": "将第 0 笔候选生效视图 funding_new 篡改 +10.0",
+        "expected_verdict": "RE_AUDIT_FAILED",
+        "actual_verdict": "RE_AUDIT_FAILED",
+        "cost_mismatches": 1,
+        "pass": true
+      },
+      {
+        "test_id": "NEG_RECON_02_BROKEN_IDENTITY_EQUATION",
+        "test_name": "复验负例 2: 财务净额恒等式破坏硬性拦截",
+        "scenario": "人为篡改 delta_net 打破 ΔNet == -ΔFunding 恒等式",
+        "expected_verdict": "RE_AUDIT_FAILED",
+        "actual_verdict": "RE_AUDIT_FAILED",
+        "equation_failures": 1,
+        "pass": true
+      },
+      {
+        "test_id": "POS_RECON_03_VALID_R2_DELIVERY",
+        "test_name": "复验正向对照: A-R2 真实交付 102 笔条目 100% 对齐放行",
+        "scenario": "源事件库独立累加复算，102 笔条目与 A-R2 交付 0 差异",
+        "expected_verdict": "RE_AUDIT_PASSED",
+        "actual_verdict": "RE_AUDIT_PASSED",
+        "failed_trades": 0,
+        "pass": true
+      }
+    ]
+  },
+  "w4_04_r2_real_reconciliation": {
+    "target_path": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-06-W4/04_R2/out/06_机器可读_交付.json",
+    "re_audit_status": "RE_AUDIT_PASSED",
+    "total_trades_checked": 102,
+    "passed_trades_count": 102,
+    "failed_trades_count": 0,
+    "cost_mismatches_count": 0,
+    "equation_failures_count": 0,
+    "summary_by_caliber": {
+      "生效视图_5bps": {
+        "total_candidates": 51,
+        "filled_count": 51,
+        "rejected_count": 0,
+        "w4_funding_total": -5.895109,
+        "independent_funding_total": -5.895109,
+        "difference": 0.0,
+        "tot_delta_funding": 0.6592,
+        "tot_delta_net": -0.6592,
+        "identity_equation_satisfied": true,
+        "claim_distribution": {
+          "PROVEN": 44,
+          "NOT_PROVEN": 7,
+          "UNKNOWN": 0
+        }
+      },
+      "策略包_3bps": {
+        "total_candidates": 51,
+        "filled_count": 50,
+        "rejected_count": 1,
+        "w4_funding_total": -2.672855,
+        "independent_funding_total": -2.672855,
+        "difference": 0.0,
+        "tot_delta_funding": 0.0491,
+        "tot_delta_net": -0.0491,
+        "identity_equation_satisfied": true,
+        "claim_distribution": {
+          "PROVEN": 43,
+          "NOT_PROVEN": 7,
+          "UNKNOWN": 1
+        }
+      }
+    }
+  },
+  "verdict": {
+    "reconciliation_verdict": "RE_AUDIT_PASSED",
+    "handoff_ready": true,
+    "summary_numbers": {
+      "生效视图_5bps": {
+        "funding_total": -5.895109,
+        "difference": 0.0,
+        "filled": 51,
+        "rejected": 0,
+        "claim_dist": {
+          "PROVEN": 44,
+          "NOT_PROVEN": 7,
+          "UNKNOWN": 0
+        }
+      },
+      "策略包_3bps": {
+        "funding_total": -2.672855,
+        "difference": 0.0,
+        "filled": 50,
+        "rejected": 1,
+        "claim_dist": {
+          "PROVEN": 43,
+          "NOT_PROVEN": 7,
+          "UNKNOWN": 1
+        }
+      }
+    }
+  }
+}

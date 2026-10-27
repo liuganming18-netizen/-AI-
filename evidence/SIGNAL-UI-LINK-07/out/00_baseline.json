@@ -1,0 +1,145 @@
+{
+ "probe": "SIGNAL-UI-LINK-07/00_baseline",
+ "tag": "pre_fix",
+ "captured_real_utc": "2026-10-25T10:09:07Z",
+ "ring1_generate": {
+  "signals_generated_total": 0,
+  "funnel": {
+   "since_start": {
+    "BOX": 8,
+    "SWEEP": 18,
+    "RETEST": 0,
+    "CANDIDATE": 0,
+    "VOLUME_REJECTED": 0,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 31,
+    "EXPIRED": 0,
+    "MISSED_WITHOUT_RETEST": 0
+   },
+   "history": {
+    "BOX": 7924,
+    "SWEEP": 1905,
+    "RETEST": 1165,
+    "CANDIDATE": 51,
+    "VOLUME_REJECTED": 7,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 4087,
+    "EXPIRED": 3388,
+    "MISSED_WITHOUT_RETEST": 33
+   },
+   "candidates_since_start": 0,
+   "last_candidate_ms": null,
+   "last_candidate_utc": null,
+   "history_candidates_discarded": 51,
+   "bootstrap_window_hours": 2880,
+   "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+  },
+  "state_counter": {
+   "IDLE": 191,
+   "BOX": 300,
+   "RETEST": 14,
+   "SWEEP": 21
+  },
+  "idle_breakdown_counts": {
+   "IDLE_COOLING": 141,
+   "IDLE_WAIT_BOX": 31,
+   "IDLE_READY_BOX": 19
+  },
+  "watermark_1h": 1792918800000,
+  "watermark_1h_utc": "2026-10-25T09:00:00Z",
+  "watermark_4h": 1792900800000,
+  "watermark_4h_utc": "2026-10-25T04:00:00Z",
+  "bootstrap_discarded": 51,
+  "bootstrap_recovered": 0,
+  "bootstrap_has_discarded_detail": false,
+  "last_cycle_utc": "2026-10-25T10:09:03Z"
+ },
+ "ring2_persist": {
+  "live_signal_rows": 0,
+  "by_origin_exec": [],
+  "live_run_keys": [
+   "live_start_ms",
+   "paper_epoch_ms",
+   "state_anchor_ms"
+  ],
+  "live_run": {
+   "paper_epoch_ms": "1791939600000",
+   "live_start_ms": "1792748844240",
+   "state_anchor_ms": "1782542715686"
+  }
+ },
+ "ring3_api_current": {
+  "total": 0,
+  "n_items": 0,
+  "as_of": "1970-01-01T00:00:00Z",
+  "quality": {
+   "status": "ok",
+   "age_seconds": null,
+   "scope": "current",
+   "live_start_ms": 1792748844240,
+   "paper_epoch_ms": 1791939600000,
+   "effective_floor_ms": 1792748844240,
+   "paper_ledger_attached_arms": [
+    "3a",
+    "3b",
+    "3c",
+    "3d"
+   ],
+   "n_arm_rows": 0,
+   "n_cards": 0,
+   "excluded_n": 0,
+   "note": "当前交易信号区（scope=current）：origin=live + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 0 条（仍保留在库/审计通道）"
+  },
+  "missing_reason": null
+ },
+ "ring3_api_all": {
+  "total": 0,
+  "n_items": 0,
+  "as_of": "1970-01-01T00:00:00Z",
+  "quality": {
+   "status": "ok",
+   "age_seconds": null,
+   "scope": "all",
+   "note": "审计通道(scope=all)：实时层 live=0、历史研究=0；库内 signals 表=0。展示(display_state)与可执行(executable_state)分列；不适用 G01–G05 正式回测门禁；信号输出 != 下单"
+  }
+ },
+ "ring4_ui": {
+  "page_request": "/api/v1/signals?scope=current&limit=500",
+  "page_source": "UI界面/web/src/api/useMarketData.ts:681",
+  "empty_state_text": "暂无实时信号",
+  "empty_state_source": "UI界面/web/src/components/SignalListPanel.tsx:525-531",
+  "consumes_diagnostics": false,
+  "note": "空态只有一句「暂无实时信号」；/paper/status 已返回的逐币阶段/漏斗/水位/丢弃候选数**均未在本区展示**"
+ },
+ "paper_status_keys": [
+  "execution_daemon",
+  "market_data",
+  "order_processing",
+  "runtime_identity",
+  "signal_engine"
+ ],
+ "paper_status_signal_engine_keys": [
+  "active_box",
+  "active_state",
+  "atr_caliber",
+  "bootstrap",
+  "data_quality",
+  "funnel",
+  "idle_breakdown",
+  "last_cycle_ms",
+  "per_symbol_state",
+  "scan_errors",
+  "scan_errors_total",
+  "signals_generated_total",
+  "skipped_reasons",
+  "state_counter",
+  "status",
+  "universe",
+  "universe_declared",
+  "watermark_1h",
+  "watermark_4h",
+  "watermark_check"
+ ]
+}

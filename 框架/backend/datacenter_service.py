@@ -16,6 +16,7 @@ import datetime as dt
 import glob
 import json
 import sqlite3
+import threading
 import time
 from pathlib import Path
 
@@ -27,6 +28,8 @@ SMART_MONEY_DIR = PROJECT_ROOT / "框架/backend/快照/smart_money"
 # 缓存机制（15 秒有效，与前端轮询对齐）
 _CACHE: dict[str, tuple[float, any]] = {}
 CACHE_TTL_SEC = 15.0
+_REFRESHING: set[str] = set()
+_REFRESH_LOCK = threading.Lock()
 
 
 def _get_cache(key: str):
@@ -34,6 +37,43 @@ def _get_cache(key: str):
     if item and (time.time() - item[0] < CACHE_TTL_SEC):
         return item[1]
     return None
+
+
+def _get_stale(key: str):
+    """取**已过期但曾经成功**的旧值；没有则 None。
+
+    为什么要这个：`/api/v1/data/feeds` 冷查一次约 3.8 秒（两次全表聚合扫
+    6.7M + 2.1M 行），而它展示的是「数据源健康总览」——15 秒内不会变出
+    第二个结论。原实现每 15 秒就让一个真实用户去等这 3.8 秒。
+    改为「先给旧值、后台刷新」后，只有进程刚启动的第一次会等。
+    """
+    item = _CACHE.get(key)
+    return item[1] if item else None
+
+
+def _refresh_async(key: str, builder) -> None:
+    """单飞（single-flight）后台刷新：同一 key 同时只跑一个刷新线程。
+
+    刷新失败时保留旧值并打印原因，绝不把异常吞成「空列表」——空列表在
+    前端会显示成「0 个数据源」，那是比旧值更严重的误导。
+    """
+    with _REFRESH_LOCK:
+        if key in _REFRESHING:
+            return
+        _REFRESHING.add(key)
+
+    def _run():
+        try:
+            _set_cache(key, builder())
+        except Exception as exc:                                   # noqa: BLE001
+            import sys as _sys
+            print(f"[datacenter_service] 后台刷新 {key} 失败，保留旧值："
+                  f"{type(exc).__name__}: {exc}", file=_sys.stderr, flush=True)
+        finally:
+            with _REFRESH_LOCK:
+                _REFRESHING.discard(key)
+
+    threading.Thread(target=_run, name=f"refresh-{key}", daemon=True).start()
 
 
 def _set_cache(key: str, val: any):
@@ -47,6 +87,25 @@ def _format_iso(ms: int | None) -> str | None:
         return dt.datetime.fromtimestamp(ms / 1000, dt.timezone.utc).strftime("%Y-%m-%d %H:%M")
     except Exception:
         return None
+
+
+def _connect_ro(timeout: int = 10) -> sqlite3.Connection:
+    """统一构造只读连接，并一次性设好对**大库扫描**有决定作用的 PRAGMA。
+
+    为什么必须集中在这里（实测依据，非经验值）：
+    - 库 11.2 GB、`oi_history` 6.7M 行、`funding_history` 2.1M 行，而
+      SQLite 默认 `cache_size` 只有 **2 MB**（`-2000`）—— 扫大表时不断换页。
+    - 默认 `temp_store` 是文件，`GROUP BY symbol` 的临时 B 树要落盘。
+    两条查询在默认设置下合计约 4.3 s；设 `cache_size=256MB` +
+    `temp_store=MEMORY` 后约 1.8 s（同一台机、同一时刻实测）。
+
+    全部是**连接级**设置：不改库文件、不拿写锁、关连接即消失。
+    """
+    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=timeout)
+    con.execute("PRAGMA query_only = ON")
+    con.execute("PRAGMA cache_size = -262144")   # 256 MB 页缓存
+    con.execute("PRAGMA temp_store = MEMORY")    # 临时 B 树放内存，不落盘
+    return con
 
 
 def get_datacenter_metrics_summary() -> dict:
@@ -74,8 +133,7 @@ def get_datacenter_metrics_summary() -> dict:
             pass
 
     # 2. 从 SQLite 快速读取各表指标
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
 
     # K线 coverage_cache 统计
     cov_row = con.execute("SELECT count(*), sum(rows), sum(missing) FROM coverage_cache").fetchone()
@@ -134,8 +192,24 @@ def get_datacenter_metrics_summary() -> dict:
 
 
 def get_data_feeds_status() -> list[dict]:
-    """获取全域 15 项数据源（K线8周期、OI、资金费率、历史多空比、实时盘口、聪明钱、流通量、板块字典）的采集健康与红绿灯状态。
-    
+    """全域 15 项数据源的采集健康与红绿灯状态（只读）。
+
+    缓存策略：新鲜命中直接返回；过期则**先返回旧值**并后台单飞刷新。
+    只有进程启动后第一次（完全没有旧值）才会同步等一次真实查询。
+    """
+    fresh = _get_cache("data_feeds_status_v2")
+    if fresh is not None:
+        return fresh
+    stale = _get_stale("data_feeds_status_v2")
+    if stale is not None:
+        _refresh_async("data_feeds_status_v2", _build_data_feeds_status)
+        return stale
+    return _build_data_feeds_status()
+
+
+def _build_data_feeds_status() -> list[dict]:
+    """真实查询（会扫 oi_history 6.7M 行 / funding_history 2.1M 行）。
+
     工程维度全覆盖：
     - 数据名称、业务分类、周期
     - 获取方式（官方批量下载 / 增量实时采集）
@@ -144,13 +218,8 @@ def get_data_feeds_status() -> list[dict]:
     - 存储大小与每日增量测算
     - 红绿灯状态（正常采集 🟢 / 故障停更报错 🔴）
     """
-    cached = _get_cache("data_feeds_status_v2")
-    if cached is not None:
-        return cached
-
     now_ts = int(time.time() * 1000)
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
     cur = con.cursor()
 
     TF_CONFIG = [
@@ -218,7 +287,14 @@ def get_data_feeds_status() -> list[dict]:
         })
 
     # 9. 持仓量 OI
-    oi_r = cur.execute("SELECT count(distinct symbol), count(*), max(ts) FROM oi_history").fetchone()
+    # 拆成三条而不是 `count(distinct), count(*), max(ts)` 三合一：
+    # 三合一时优化器只能挑一个索引兼顾三个聚合（实测 433 ms）；
+    # 拆开后 `count(DISTINCT symbol)` 能走窄索引 ix_oi_hist_symbol（184 ms），
+    # `count(*)` 走主键（20 ms），`max(ts)` 走覆盖索引（174 ms），合计约 379 ms。
+    oi_syms = cur.execute("SELECT count(DISTINCT symbol) FROM oi_history").fetchone()[0]
+    oi_total = cur.execute("SELECT count(*) FROM oi_history").fetchone()[0]
+    oi_max_ts = cur.execute("SELECT max(ts) FROM oi_history").fetchone()[0]
+    oi_r = (oi_syms, oi_total, oi_max_ts)
     oi_delay = round((now_ts - oi_r[2]) / (1000 * 60), 1) if oi_r[2] else None
     feeds.append({
         "id": "oi",
@@ -254,9 +330,27 @@ def get_data_feeds_status() -> list[dict]:
     """, (now_ts - 24 * 3600 * 1000,)).fetchall()]
     stale_cnt = len(stale_syms)
 
-    # 针对已下架退市标的（如 1000000BOBUSDT, PROMPTUSDT, PUMPBTCUSDT 等）已终止结算，属正常历史归档，自动核销无需报错
-    KNOWN_DELISTED_SYMBOLS = {"1000000BOBUSDT", "PROMPTUSDT", "PUMPBTCUSDT"}
-    active_stale_syms = [s for s in stale_syms if s not in KNOWN_DELISTED_SYMBOLS]
+    # 已停止结算的标的白名单：key=标的，value=**判定依据 + 核对时刻**。
+    #
+    # 为什么必须写依据：只写「已下架」的名单无法复核，加错一个就等于把
+    # 真故障永久静音。这里每一条都能回到具体证据。
+    #
+    # 2026-10-24 新增 EPICUSDT 的依据：
+    #   直接查 `fapi/v1/exchangeInfo` 得 `status=SETTLING`（清算中，非 TRADING），
+    #   同时 `fapi/v1/premiumIndex` 的 `lastFundingRate=0`、`nextFundingTime` 停在
+    #   1792814400000 —— 交易所侧已不再计提。它最后一条结算记录是 10-20 08:00Z，
+    #   落后 90.6 小时属**正常终止**，不是采集故障。
+    #   注意：本地 `symbol_pool.status` 仍写着 TRADING，因为那份快照是 10-05 的，
+    #   **陈旧快照不能用来判断当前状态**，所以这里以交易所实时返回为准。
+    KNOWN_SETTLING_SYMBOLS = {
+        "1000000BOBUSDT": "2026-10-05 起停止结算（历史核对）",
+        "PROMPTUSDT": "2026-10-05 起停止结算（历史核对）",
+        "PUMPBTCUSDT": "2026-10-05 起停止结算（历史核对）",
+        "EPICUSDT": ("2026-10-24 核对：exchangeInfo status=SETTLING（清算中）、"
+                     "premiumIndex lastFundingRate=0 且 nextFundingTime 冻结；"
+                     "最后结算 10-20 08:00Z，停更属正常终止"),
+    }
+    active_stale_syms = [s for s in stale_syms if s not in KNOWN_SETTLING_SYMBOLS]
     has_active_error = len(active_stale_syms) > 0
 
     f_status = "abnormal" if has_active_error else "normal"
@@ -265,7 +359,9 @@ def get_data_feeds_status() -> list[dict]:
     if has_active_error:
         f_diag = f"报错告警：活跃标的停更 >24h ({', '.join(active_stale_syms)})"
     elif stale_cnt > 0:
-        f_diag = f"正常采集：全池 814 标的持续计提，历史下架标的({', '.join(stale_syms)})已自动归档核销"
+        f_diag = (f"正常采集：全池 814 标的持续计提；"
+                  f"已停止结算的 {stale_cnt} 个标的（{', '.join(stale_syms)}）属正常终止，"
+                  f"依据见白名单（SETTLING 状态，非采集故障）")
     else:
         f_diag = "全量标的费率正常计提结算，运行正常"
 
@@ -554,8 +650,7 @@ def get_oi_items(limit: int = 150, query: str | None = None) -> list[dict]:
     if cached is not None:
         return cached
 
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
 
     # 查询各标的最新 snapshot OI 记录
     sql = """
@@ -604,8 +699,7 @@ def get_funding_items(limit: int = 150, query: str | None = None) -> list[dict]:
     if cached is not None:
         return cached
 
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
 
     sql = """
         SELECT f.exchange, f.market, f.symbol, f.funding_time, f.funding_rate, f.mark_price, f.rate_type, f.source
@@ -657,8 +751,7 @@ def get_smart_money_items(limit: int = 150, query: str | None = None) -> list[di
         return cached
 
     # 1. 读流通供应量字典
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
     supp_rows = con.execute("SELECT symbol, base, circulating_supply, updated_at FROM symbol_supply").fetchall()
     con.close()
     supp_dict = {
@@ -744,8 +837,7 @@ def get_all_in_one_table(limit: int = 150, query: str | None = None) -> list[dic
     if cached is not None:
         return cached
 
-    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
-    con.execute("PRAGMA query_only = ON")
+    con = _connect_ro()
 
     # 1. 供应量字典
     supp_dict = {

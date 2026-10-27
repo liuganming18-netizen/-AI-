@@ -1,0 +1,56 @@
+{
+  "verification_name": "direct_function_call_timing_verification",
+  "description": "直接调用 RC.build_stop_path 与 RC.scan_exit 验证时序，不使用手写路径",
+  "test_cases": {
+    "negative_test_buggy_old_behavior": {
+      "function_called": "build_stop_path_buggy_old + scan_exit",
+      "stop_path_effective_ms": "2026-08-01T11:59:59.999Z",
+      "premature_exit_triggered_utc": "2026-08-01T12:00:00Z",
+      "assertion_failed_as_expected": true,
+      "captured_error": "【负例断言触发】旧缺陷逻辑在 12:00:00 发生了提前生效退出！"
+    },
+    "positive_test_fixed_rc_functions": {
+      "functions_called": [
+        "replay_calc.build_stop_path",
+        "replay_calc.scan_exit"
+      ],
+      "generated_stop_path": [
+        {
+          "effective_ms": 1785578400000,
+          "utc": "2026-08-01T10:00:00Z",
+          "confirm_ms": 1785578400000,
+          "confirm_utc": "2026-08-01T10:00:00Z",
+          "stop": 95.0,
+          "kind": "init",
+          "来源": "取整后成交价 ×(1−stoploss_s)，再按步进保守取整"
+        },
+        {
+          "effective_ms": 1785586500000,
+          "confirm_ms": 1785585600000,
+          "utc": "2026-08-01T12:15:00Z",
+          "confirm_utc": "2026-08-01T12:00:00Z",
+          "stop": 98.8,
+          "kind": "trail",
+          "来源": "4h 低点 104 ×(1−0.05)，确认于 2026-08-01T12:00:00Z，最早生效于 2026-08-01T12:15:00Z"
+        }
+      ],
+      "bar_1200_scan_result": {
+        "hit": false,
+        "note": "12:00 不提前生效，未退出"
+      },
+      "bar_1215_scan_result": {
+        "hit": true,
+        "exit_utc": "2026-08-01T12:15:00Z",
+        "exit_fill": 98.8,
+        "stop_used": 98.8,
+        "note": "12:15 开始生效，准确命中退出"
+      },
+      "ratchet_upward_only_verified": {
+        "second_4h_cand_stop": 95.0,
+        "final_effective_stop": 98.8,
+        "is_lower_stop_rejected": true
+      }
+    }
+  },
+  "verdict": "通过。直接调用底层生产算术函数证明时序缺陷与修复行为完全成立。"
+}

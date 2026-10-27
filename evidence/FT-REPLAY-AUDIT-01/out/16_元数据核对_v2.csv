@@ -1,0 +1,14 @@
+﻿项,期望,实际,通过
+时区：源账本时间文本 vs 毫秒,open_date/close_date 按 UTC 解析后与 open_timestamp/close_timestamp 完全一致,open 不一致 0 笔、close 不一致 0 笔（共 4325 笔）,True
+时间单位：毫秒而非秒,全部时间戳落在 1e12~2e12（13 位毫秒）,open_timestamp 全部在区间内 = True,True
+时长单位：holding_minutes,(出场−入场)/60000 == holding_minutes,不一致 0 / 4325 笔,True
+成交时间对齐 15 分钟,入场毫秒应为 15 分钟整数倍（exec 周期 15m）,不对齐 0 / 4325 笔,True
+接口时间字段口径,只给毫秒 + UTC 语义，不给本地时间冒充 UTC,entry_time_ms=1717146900000 → UTC 2024-05-31 09:15:00+00:00；接口无 CST 字段,True
+币级 trade_id 可复现,trade_id = ft_<策略>_<币种>_<入场毫秒>，可由源账本字段重建,可重建 4325 / 4325,True
+组级 trade_id 可追溯性,trade_id 应能定位到源账本某一行（不是组内序号）,组级 4325 个 ID 中，形如 trd_<策略>_<四位序号> 的 4325 个（序号不含币种/时间 ⇒ 无法回溯源行）,False
+源账本是否有原生 trade_id,上游 freqtrade 无引擎级 trade_id ⇒ 系统须标明是重建 ID,源账本列无 trade_id；接口标注 trade_id_source=trades.jsonl:trade_id、trade_id_nature=imported_reconstructed,True
+研究状态标记（run 级）,全部 run 标 research_period=true 且写明登记来源；不得写生产/模拟账本,1065 个 run：research_period=1065、registered_by=1065、带 ledger.sqlite3=0,True
+研究状态标记（批次级）,category=research_period_result、formal_pass_allowed=false,组级 category=research_period_result / formal_pass_allowed=False；币级无 category 字段（note 里写研究期）,True
+任务记录里有无本批,本批是「导入既有 CSV」而非重跑 ⇒ 任务队列不应有 4325 笔的跑批任务,任务队列 backtest 任务 61 个；payload 含 FT_ENTRY_09/REPLAY 的 0 个,True
+版本与参数一致性,run.json 的策略名/参数能对上源账本 27 组命名与参数组,"run.json strategy_name=Wyckoff_C1_Vs04_Z02 params={'vs': 0.4, 'z': 0.2}；源版本指纹表 33 行",True
+交付文档里的证据链接可打开,文档引用的截图文件全部存在,引用 8 张，缺失 0 张 [],True

@@ -1,0 +1,231 @@
+{
+  "captured_at_utc": "2026-10-24T03:58:10.590857+00:00",
+  "cold_archive": {
+    "endpoint_status": 200,
+    "response_bytes": 2570,
+    "elapsed_ms": 3.3,
+    "status": "indexed",
+    "catalog_sha256_now": "c5a9b3d0148ab12a71d748f2e0039646710f82bda5fb6bbd937c28d31aefd02f",
+    "catalog_sha256_recomputed": "c5a9b3d0148ab12a71d748f2e0039646710f82bda5fb6bbd937c28d31aefd02f",
+    "catalog_bytes": 14020381,
+    "catalog_backup": "_catalog.json.bak-20261024T0333Z",
+    "catalog_backup_bytes": 11597348,
+    "shard_count": 32920,
+    "candle_shard_count": 12498,
+    "declared": 12498,
+    "present": 12498,
+    "missing": 0,
+    "missing_symbols": [],
+    "rows": {
+      "checked": 12498,
+      "match": 12498,
+      "mismatch": 0,
+      "read_errors": 0,
+      "declared_sum": 108208916,
+      "actual_sum": 108208916,
+      "delta_sum": 0,
+      "mismatch_samples": [],
+      "error_samples": []
+    },
+    "hash_sample": {
+      "ratio": 0.05,
+      "checked": 624,
+      "match": 624,
+      "mismatch": 0,
+      "bytes_read": 258479928,
+      "mismatch_samples": []
+    },
+    "content_integrity_verified": true,
+    "verified_scope": "存在性=全量；行数=全量；内容哈希=抽样",
+    "elapsed_breakdown_ms": {
+      "stat": 32,
+      "rows": 3892,
+      "hash_sample": 2471
+    },
+    "catalog_pruned": {
+      "at_utc": "2026-10-24T03:34:43Z",
+      "removed_count": 53,
+      "reason": "这些条目声明存在但盘上无文件。涉及的标的 ALLUSDT（全部币种综合指数）、BTCDOMUSDT（BTC 主导率指数）属于指数类合约，本就被排除在策略池外，不应有 K 线归档。删除的是**过期声明**，不是数据。",
+      "removed_sample": [
+        "candles/binance/um/ALLUSDT/12h/2025.parquet",
+        "candles/binance/um/ALLUSDT/12h/2026.parquet",
+        "candles/binance/um/ALLUSDT/15m/2025.parquet",
+        "candles/binance/um/ALLUSDT/15m/2026.parquet",
+        "candles/binance/um/ALLUSDT/1d/2025.parquet"
+      ]
+    },
+    "limitations": [
+      "内容哈希为 5% 抽样，未对 5.4 GB 逐字节全量校验",
+      "不与热库合并为覆盖率",
+      "catalog 声明的是归档范围，不代表全市场覆盖"
+    ]
+  },
+  "coverage_agg": {
+    "agg_status": 200,
+    "agg_bytes": 2335,
+    "agg_elapsed_ms": 1.0,
+    "full_status": 200,
+    "full_bytes": 7684331,
+    "full_elapsed_ms": 4.1,
+    "shrink_ratio": 3290.9,
+    "agg_true": true,
+    "cells_count": 13155,
+    "cells_len": 0,
+    "totals": {
+      "cells": 13155,
+      "bars_expected": 115369360,
+      "bars_missing": 3585,
+      "with_data": 13155,
+      "gaps_unknown": 0
+    },
+    "by_timeframe": {
+      "12h": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 966826,
+        "bars_missing": 12,
+        "gaps_unknown": 0
+      },
+      "15m": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 46794791,
+        "bars_missing": 2887,
+        "gaps_unknown": 0
+      },
+      "1d": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 496901,
+        "bars_missing": 5,
+        "gaps_unknown": 0
+      },
+      "1h": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 11683971,
+        "bars_missing": 174,
+        "gaps_unknown": 0
+      },
+      "30m": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 23538659,
+        "bars_missing": 434,
+        "gaps_unknown": 0
+      },
+      "4h": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 2892767,
+        "bars_missing": 49,
+        "gaps_unknown": 0
+      },
+      "5m": {
+        "cells": 551,
+        "with_data": 551,
+        "bars_expected": 27551605,
+        "bars_missing": 0,
+        "gaps_unknown": 0
+      },
+      "8h": {
+        "cells": 528,
+        "with_data": 528,
+        "bars_expected": 1443840,
+        "bars_missing": 24,
+        "gaps_unknown": 0
+      },
+      "snapshot": {
+        "cells": 4385,
+        "with_data": 4385,
+        "bars_expected": 0,
+        "bars_missing": 0,
+        "gaps_unknown": 0
+      },
+      "—": {
+        "cells": 4385,
+        "with_data": 4385,
+        "bars_expected": 0,
+        "bars_missing": 0,
+        "gaps_unknown": 0
+      }
+    },
+    "by_field": {
+      "klines": {
+        "cells": 4385,
+        "with_data": 4385,
+        "bars_expected": 115369360,
+        "bars_missing": 3585,
+        "gaps_unknown": 0
+      },
+      "oi": {
+        "cells": 4385,
+        "with_data": 4385,
+        "bars_expected": 0,
+        "bars_missing": 0,
+        "gaps_unknown": 0
+      },
+      "funding": {
+        "cells": 4385,
+        "with_data": 4385,
+        "bars_expected": 0,
+        "bars_missing": 0,
+        "gaps_unknown": 0
+      }
+    },
+    "by_exchange": {
+      "binance": 12672,
+      "okx": 483
+    },
+    "note": "agg=1 聚合视图：只给计数与分布，不含逐单元格明细。需要明细请去掉 agg 参数（响应约 7.68 MB）。bars_missing 只统计已逐段定位过的缺根；gaps_unknown 为缺根数未知的单元格数，二者不可混算。"
+  },
+  "feeds": {
+    "endpoint_status": 200,
+    "response_bytes": 13131,
+    "elapsed_ms": 1.4,
+    "count": 17,
+    "abnormal": [],
+    "funding": {
+      "name": "资金费率 (Funding Rate)",
+      "status": "normal",
+      "status_label": "正常采集",
+      "detail": null
+    }
+  },
+  "paper_reconciliation": {
+    "endpoint_status": 200,
+    "status": "verified_historical_sample",
+    "passed": 17,
+    "total": 17,
+    "scope_kind": "historical_sample_mechanism",
+    "run_id": "bt_20261023T162149Z_59f3c8fa",
+    "generated_at_utc": "2026-10-24T03:56:49.830887+00:00",
+    "age_seconds": 80.799926,
+    "stale_after_seconds": 172800,
+    "source_hash_count": 16,
+    "source_hash_mismatch": {},
+    "reverify_note_present": true,
+    "reverify_note": "复算原因：本轮修完 4 项后，框架/backend/unified_runtime.py 也改过一次 —— get_unified_runtime_status() 新增 record_pid_alive / record_written_ms / record_age_ms 三个字段，并在「状态文件记录的 pid 已退出」时把 status 由 stopped/crashed 改标为 stale_record。原因：进程重启后新实例要先 import 重模块（实测约 20 秒）才写第一份状态，这段窗口读到的是上一实例的临终记录，原逻辑会把「正在启动」误判成「运行时停了 ⇒ 故障」。该改动只影响状态语义与展示判定，不在 paper↔backtest 逐笔对账路径上；run 产物(trades.jsonl/run.json/summary.json)与隔离账本均未变动。重算 17 条断言：17/17 通过。",
+    "reason": null
+  },
+  "runtime_identity": {
+    "status": "running",
+    "pid": 48545,
+    "record_pid_alive": true,
+    "record_written_ms": 1792814290691,
+    "record_age_ms": 226,
+    "record_status_raw": null,
+    "cycle_count": 19,
+    "overall_health": "healthy",
+    "last_cycle_ms": 1792814289812,
+    "universe": 526,
+    "universe_declared": 526,
+    "signals_generated_total": 0
+  },
+  "still_open": [
+    "模拟盘止损用「成交价×0.95」，回测用「Lr−0.1A」⇒ 同一信号仓位差约 3.8 倍、出场全分歧，尚未裁决。",
+    "自然行情 0 笔成交 ⇒ 「真实挂钟自动成交」仍未验证（不是故障，是还没发生）。",
+    "正式实验能启动但 delivery_eligible=false ⇒ 结果不可交付。",
+    "catalog 声明范围 ≠ 全市场覆盖；冷库哈希仍是 5% 抽样，不是逐字节全量。"
+  ]
+}

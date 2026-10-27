@@ -1,0 +1,120 @@
+{
+  "phase": "A2_isolated_db",
+  "generated_at_utc": "2026-10-24T14:34:24Z",
+  "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-HISTORY-FIX-02/out/180d_market.sqlite3",
+  "window": {
+    "floor_utc": "2026-09-09T20:00:00Z",
+    "upto_utc": "2026-10-24T09:49:28Z",
+    "hours": 1069.8
+  },
+  "anchor_source": "生产热库 4h 首根 open_time（= 生产实际生效的预热起点，因为请求窗口 1160h 被热库保留策略截断）",
+  "fixed_atr_n": 1,
+  "legacy_atr_n": 4,
+  "fixed_candidates": [
+    {
+      "symbol": "ZEREBROUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999_1791982800000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_ZEREBROUSDT_1791863999999",
+      "available_at_ms": 1791982800000,
+      "available_at_utc": "2026-10-14T13:00:00Z",
+      "breakout_close": 0.032305,
+      "initial_stop_price": 0.02713111388458755,
+      "box_high_h": 0.031785,
+      "box_low_l": 0.026861,
+      "box_atr_a": 0.0008988611541244669
+    }
+  ],
+  "legacy_candidates": [
+    {
+      "symbol": "VELVETUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999",
+      "available_at_ms": 1790953200000,
+      "available_at_utc": "2026-10-02T15:00:00Z",
+      "breakout_close": 0.06737,
+      "initial_stop_price": 0.05427379742841447,
+      "box_high_h": 0.0666,
+      "box_low_l": 0.05388,
+      "box_atr_a": 0.0033620257158552837
+    },
+    {
+      "symbol": "SUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999",
+      "available_at_ms": 1791266400000,
+      "available_at_utc": "2026-10-06T06:00:00Z",
+      "breakout_close": 0.04433,
+      "initial_stop_price": 0.03703084400897854,
+      "box_high_h": 0.04385,
+      "box_low_l": 0.03677,
+      "box_atr_a": 0.0012915599102145514
+    },
+    {
+      "symbol": "WALUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999_1791630000000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1790999999999",
+      "available_at_ms": 1791630000000,
+      "available_at_utc": "2026-10-10T11:00:00Z",
+      "breakout_close": 0.04253,
+      "initial_stop_price": 0.032306042743721536,
+      "box_high_h": 0.03854,
+      "box_low_l": 0.03239,
+      "box_atr_a": 0.0011395725627846066
+    },
+    {
+      "symbol": "BBUSDT",
+      "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+      "event_id": "ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999",
+      "available_at_ms": 1791702000000,
+      "available_at_utc": "2026-10-11T07:00:00Z",
+      "breakout_close": 0.010308,
+      "initial_stop_price": 0.00842492511170677,
+      "box_high_h": 0.0102,
+      "box_low_l": 0.008352,
+      "box_atr_a": 0.00033074888293230335
+    }
+  ],
+  "fixed_state_counter": {
+    "BOX": 380,
+    "IDLE": 115,
+    "RETEST": 17,
+    "SWEEP": 14
+  },
+  "legacy_state_counter": {
+    "BOX": 379,
+    "IDLE": 114,
+    "RETEST": 19,
+    "SWEEP": 14
+  },
+  "history_transitions": {
+    "BOX": 1342,
+    "INVALIDATED": 781,
+    "SWEEP": 359,
+    "RETEST": 199,
+    "EXPIRED": 146,
+    "MISSED_WITHOUT_RETEST": 3,
+    "CANDIDATE": 1
+  },
+  "bootstrap": {
+    "universe": 526,
+    "ready": 526,
+    "skipped": 0,
+    "skipped_reasons": {
+      "__watermark_clamped__": "db_1h_max=1792846800000 > upto_ms=1792835368000 ⇒ 水位按预热值 1792825200000"
+    },
+    "history_candidates_discarded": 1,
+    "_window_hours": 1069.8,
+    "watermark_clamped": true,
+    "watermark_note": "db_1h_max=1792846800000 > upto_ms=1792835368000 ⇒ 水位按预热值 1792825200000",
+    "elapsed_sec": 25.9
+  },
+  "identity_vs_production_same_caliber": {
+    "caliber": "legacy（旧 ATR，= 生产进程实际在跑的代码）",
+    "prod_n": 4,
+    "iso_n": 4,
+    "identical": true,
+    "only_in_prod": [],
+    "only_in_iso": [],
+    "note": "锚点与截止时刻都与生产一致，剩余差异只能来自**数据本身**（热库是活库：保留策略滚掉了最老数据，且部分标的早期 bar 缺失）。"
+  }
+}

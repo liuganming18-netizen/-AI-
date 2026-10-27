@@ -1,0 +1,79 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_SQDUSDT_1781424899",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SQDUSDT_1781424899",
+   "fill_id": "paper_fill:9",
+   "order_id": 9,
+   "trade_id": "trd_paper_pos_5",
+   "trade_link": "trades.order_id",
+   "symbol": "SQDUSDT",
+   "strategy_key": null,
+   "action": "open",
+   "fill_price": 0.04122000000000001,
+   "quantity": 11942.0,
+   "fee": 0.24612462000000004,
+   "liquidity": null,
+   "sequence": 9,
+   "event_time": 1781295300000,
+   "fill_time_ms": 1781295300000,
+   "detail": {
+    "position_id": 5,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_SQDUSDT_1780718399999_1781294400000",
+    "raw_price": 0.04119,
+    "notional": 492.2492400000001,
+    "slippage_cost": 0.3582600000001097,
+    "bar_open_time": 1781295300000,
+    "bar_close_time": 1781296199999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_SQDUSDT_1781424899",
+   "fill_id": "paper_fill:10",
+   "order_id": 10,
+   "trade_id": "trd_paper_pos_5",
+   "trade_link": "trades.order_id",
+   "symbol": "SQDUSDT",
+   "strategy_key": null,
+   "action": "close",
+   "fill_price": 0.03913,
+   "quantity": 11942.0,
+   "fee": 0.23364523,
+   "liquidity": null,
+   "sequence": 10,
+   "event_time": 1781424899999,
+   "fill_time_ms": 1781424899999,
+   "detail": {
+    "position_id": 5,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_SQDUSDT_1780718399999_1781294400000",
+    "raw_price": 0.039150000000000004,
+    "notional": 467.29046,
+    "slippage_cost": 0.23884000000007313,
+    "bar_open_time": 1781424000000,
+    "bar_close_time": 1781424899999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  }
+ ],
+ "total": 2,
+ "live_order_enabled": false,
+ "link_notes": [
+  "trade#1 开仓订单冲突：trades.jsonl=9 vs positions.POSITION_OPENED=9"
+ ],
+ "note": "逐次成交明细（同一 run_id 账本 fills.jsonl 事件）；trade_id 由关联 order_id 反查，支持部分成交展开"
+}

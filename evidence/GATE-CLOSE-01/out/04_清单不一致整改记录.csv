@@ -1,0 +1,3 @@
+﻿编号,轮次,原结论,实际证据,原因,整改方式,对结论的影响
+F1,第 1 次整改,OOS-READY-01 把 2026-10-14~2026-10-18 判为「未被回测窗口覆盖」,该段实际已被 BACKTEST-LOSS-03/sep_all_latest 覆盖：528 个 run 的 inputs.json 一致显示数据窗口 2026-09-01 00:00:00 ~ 2026-10-17 18:00:00,原判据只用了 FULL_SWEEP/plan.json 的窗口并集（止 2026-10-13），漏了更晚的批次,拆为 S6a（2026-10-14~10-17，已证明被观察）与 S6b（10-17 18:00~10-18，数据不合格）,结论方向不变（仍无可用样本外段），但「未覆盖时间段」从 4 段缩为 3 段 + 1 个不足 1 天的尾巴
+F2,第 1 次整改,OOS-READY-01 的币种表只有 507 行，与 528 个标的对不上,21 个标的（ACUUSDT、AIAUSDT、ALLUSDT、BASEDUSDT、BTCDOMUSDT、BTWUSDT、CFGUSDT、CTUSDT、DOSUSDT、MANTRAUSDT、MARSCOINUSDT、OPNUSDT 等）在 sep_all_latest 里有 run、有 K 线，但未进币种表,币种表按 FULL_SWEEP + BACKTEST-LOSS-02 两个来源生成，未纳入 BACKTEST-LOSS-03 新增的标的,标的范围按 528 计；漏记的 21 个全部 0 成交，按「未成交≠未观察」计入已观察,结论方向不变；标的覆盖由 507 修正为 528

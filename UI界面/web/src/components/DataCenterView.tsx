@@ -54,7 +54,9 @@ import type {
   RawSmartMoneyItem,
   RawAllInOneItem,
   RawDataFeedItem,
-  RawBackfillWhitelistResponse
+  RawBackfillWhitelistResponse,
+  RawMetricsMatrix,
+  RawPoolScope
 } from '../api/types';
 
 /** 与工作台一致的只读刷新：15s 一轮。 */
@@ -127,13 +129,21 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
   // 'feeds' (默认第一级：先列出数据名称与红绿灯状态看板)
   // 'backfill' (专门列出待补数据与核销清单)
   // 'matrix' (全资产协同大表) | 'kline' | 'oi' | 'funding' | 'smart_money'
-  const [activeSubTab, setActiveSubTab] = useState<'feeds' | 'backfill' | 'matrix' | 'kline' | 'oi' | 'funding' | 'smart_money'>('feeds');
+  const [activeSubTab, setActiveSubTab] = useState<'flow' | 'feeds' | 'backfill' | 'matrix' | 'kline' | 'oi' | 'funding' | 'smart_money' | 'metrics'>('flow');
   
   // 当前在数据名称看板中选中的数据源（联动下方数据清单）
   const [selectedFeedId, setSelectedFeedId] = useState<string>('funding');
   const [selectedCycle, setSelectedCycle] = useState<string>('1d');
   const [selectedItemKey, setSelectedItemKey] = useState<string>('BTCUSDT');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  // ── DATA-UI-01：指标面板自己的标的与周期选择 ────────────────────────────────
+  // 独立于其它子页的 `selectedItemKey`：指标矩阵按「单标的 × 单周期」查询，
+  // 与列表页选中项解耦，避免互相影响既有行为。
+  const [metricSymbol, setMetricSymbol] = useState<string>('BTCUSDT');
+  const [metricExchange, setMetricExchange] = useState<'binance' | 'okx'>('binance');
+  const [metricPeriod, setMetricPeriod] = useState<string>('1h');
+  const [metricEvidenceOpen, setMetricEvidenceOpen] = useState<boolean>(false);
+  const [metricReasonOpen, setMetricReasonOpen] = useState<string | null>(null);
   const [isDetailListExpanded, setIsDetailListExpanded] = useState<boolean>(false);
   const [gapFilter, setGapFilter] = useState<'all' | 'icp' | 'single_day'>('all');
   const [logFilter, setLogFilter] = useState<'all' | 'error_warn' | 'info' | 'sys'>('all');
@@ -360,6 +370,15 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
   const fundingData = useEndpoint<{ items: RawFundingItem[]; total: number }>('/data/funding?limit=150', REFRESH_MS);
   const smartMoneyData = useEndpoint<{ items: RawSmartMoneyItem[]; total: number }>('/data/smart-money?limit=150', REFRESH_MS);
 
+  // 3. DATA-UI-01：指标字段矩阵（单标的 × 单周期）+ 加密池分母（官方分类口径）
+  const metricsPath = useMemo(() => {
+    const ex = encodeURIComponent(metricExchange);
+    const sym = encodeURIComponent(metricSymbol.trim().toUpperCase());
+    return `/markets/${ex}/${sym}/metrics?period=${encodeURIComponent(metricPeriod)}`;
+  }, [metricExchange, metricSymbol, metricPeriod]);
+  const metricsData = useEndpoint<RawMetricsMatrix>(metricsPath, REFRESH_MS);
+  const poolScope = useEndpoint<RawPoolScope>('/data/pool-scope', REFRESH_MS);
+
   const rawCoverage = dataStatus.data?.coverage ?? null;
   const metricsSummary = dataStatus.data?.metrics_summary ?? null;
 
@@ -527,28 +546,36 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
   const activeFeed = dataFeeds.find((f) => f.id === selectedFeedId) ?? dataFeeds[0];
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-neutral-950 p-4 gap-3 select-none text-neutral-200 ai-grid">
+    <div data-testid="datacenter-view" className="flex-1 flex flex-col h-full overflow-hidden bg-neutral-950 p-4 gap-3 select-none text-neutral-200 ai-grid">
       {/* 1. Header Bar: 顶层导航与模式切换 */}
       <div className="flex flex-wrap items-center justify-between border-b border-neutral-800 pb-3 gap-3">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4 min-w-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Database className="w-5 h-5 text-indigo-400" />
             <h1 className="text-xl font-bold text-neutral-100 tracking-wide ai-gradient-text">数据中心</h1>
           </div>
 
           {/* 模式切换：默认第一级【数据名称与采集状态看板】 + 新增【待补数据与核销清单】 */}
-          <div className="flex items-center gap-1 text-xs font-medium bg-neutral-900 p-1 rounded-lg border border-neutral-800">
+          <div className="flex flex-wrap items-center gap-1 text-xs font-medium bg-neutral-900 p-1 rounded-lg border border-neutral-800 whitespace-nowrap">
             <button
-              onClick={() => setActiveSubTab('feeds')}
+              onClick={() => setActiveSubTab('flow')}
               className={`px-3 py-1 rounded transition-colors flex items-center gap-1.5 ${
-                activeSubTab === 'feeds'
+                activeSubTab === 'flow'
                   ? 'bg-neutral-800 text-emerald-400 font-bold border border-neutral-700 shadow-sm'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>全域数据名称与红绿灯看板</span>
+              <Radio className="w-3.5 h-3.5 text-[var(--ds-text-4)]" />
+              <span>实时链路画布</span>
               <span className="text-[10px] px-1 bg-neutral-800 text-neutral-300 rounded font-mono font-bold">主视窗</span>
+            </button>
+            <span className="text-neutral-700">|</span>
+            <button
+              onClick={() => setActiveSubTab('feeds')}
+              className={`px-3 py-1 rounded transition-colors flex items-center gap-1.5 ${activeSubTab === 'feeds' ? 'bg-neutral-800 text-emerald-400 font-bold border border-neutral-700 shadow-sm' : 'text-neutral-400 hover:text-neutral-200'}`}
+            >
+              <Radio className="w-3.5 h-3.5 text-[var(--ds-text-4)]" />
+              <span>数据通道与检索</span>
             </button>
             <span className="text-neutral-700">|</span>
             <button
@@ -610,7 +637,7 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
               <Percent className="w-3 h-3" />
               <span>费率</span>
               {feedsHealthStats.abnormalCount > 0 && (
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--ds-neg)]"></span>
               )}
             </button>
             <span className="text-neutral-700">|</span>
@@ -624,6 +651,18 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
             >
               <Coins className="w-3 h-3" />
               <span>聪明钱</span>
+            </button>
+            <span className="text-neutral-700">|</span>
+            <button
+              onClick={() => setActiveSubTab('metrics')}
+              className={`px-2 py-1 rounded transition-colors flex items-center gap-1 ${
+                activeSubTab === 'metrics'
+                  ? 'bg-neutral-800 text-emerald-400 font-bold border border-neutral-700 shadow-sm'
+                  : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>指标</span>
             </button>
           </div>
         </div>
@@ -651,48 +690,22 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
       <div className="ds-metrics-inline shrink-0">
         <span className="ds-mi">
           <Activity className="w-3.5 h-3.5 self-center text-neutral-500" />
-          <span className="ds-mi__k">全域数据通道</span>
-          <span className="ds-mi__v">{feedsHealthStats.total} 项核心数据流</span>
-        </span>
-        <span className="ds-mi">
-          <span className="ds-mi__k">采集状态</span>
-          <span className="ds-mi__v">{feedsHealthStats.normalCount} 项正常</span>
-        </span>
-        {feedsHealthStats.abnormalCount > 0 && (
-          <span className="ds-mi">
-            <AlertTriangle className="w-3.5 h-3.5 self-center text-rose-400" />
-            <span className="ds-mi__v ds-mi__v--neg">
-              {feedsHealthStats.abnormalCount} 项异常（资金费率 3 标的停更）
-            </span>
-          </span>
-        )}
-        <span className="ds-mi">
-          <Check className="w-3.5 h-3.5 self-center text-neutral-500" />
-          <span className="ds-mi__k">待补缺口</span>
-          <span className="ds-mi__v">0 根（已 100% 补齐闭环）</span>
-        </span>
-        <span className="ds-mi">
-          <span className="ds-mi__k">冷层 Parquet</span>
-          <span className="ds-mi__v">18.3 GB</span>
-        </span>
-        <span className="ds-mi">
-          <span className="ds-mi__k">热层 SQLite</span>
-          <span className="ds-mi__v">6.0 GB（34 天滚动）</span>
-        </span>
-        <span className="ds-mi">
-          <span className="ds-mi__k">每日净增量</span>
-          <span className="ds-mi__v">+16~20 MB/天</span>
+          <span className="ds-mi__k">实时系统链路</span>
+          <span className="ds-mi__v">下方画布按只读 API 与证据判定；未验证项保持灰色</span>
         </span>
       </div>
 
-      {/* 3. Main Center Split Layout */}
-      <div className="flex-1 flex gap-3 overflow-hidden min-h-0">
+      {/* 3. Main Center Split Layout —— 窄屏（<1024）由 .ds-dc-split 改成纵向堆叠并允许整页纵向滚动 */}
+      <div className="ds-dc-split flex-1 flex gap-3 min-h-0">
         {/* Left Column: 主视窗 */}
         <div className="flex-1 flex flex-col gap-3 overflow-hidden min-w-0">
           
           {/* ═══════════════════════════════════════════════════════════════════
               A. 默认主视窗：【全域数据名称与红绿灯状态看板】(核心工程信息一览无余)
               ═══════════════════════════════════════════════════════════════════ */}
+          {activeSubTab === 'flow' && (
+            <iframe title="实时系统链路与数据状态" src="/system-flow.html" className="flex-1 min-h-0 w-full rounded-lg border border-neutral-800 bg-neutral-950" />
+          )}
           {activeSubTab === 'feeds' && (
             <div className="ds-card flex-1 flex flex-col ai-aurora">
               {/* 顶部标题栏 */}
@@ -705,7 +718,10 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                 <span className="ds-card__meta">
                   <span>点击图标切换数据源</span>
                   <span className="ds-toolbar__divider" />
-                  <span>健康度 <span className="text-neutral-100 font-bold">{feedsHealthStats.normalCount}</span> 正常</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--ds-pos)]" aria-hidden="true" />
+                    健康度 <span className="text-neutral-100 font-bold">{feedsHealthStats.normalCount}</span> 正常
+                  </span>
                   {feedsHealthStats.abnormalCount > 0 && (
                     <span className="ds-badge ds-badge--neg">{feedsHealthStats.abnormalCount} 报错</span>
                   )}
@@ -716,7 +732,7 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                   1. 数据名称图标网格（严格只显示图标、简称与采集状态徽章）
                   ────────────────────────────────────────────────────────── */}
               <div className="p-3 bg-neutral-950/50 border-b border-neutral-800/80">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 xl:grid-cols-9 gap-2">
                   {dataFeeds.map((feed) => {
                     const isSelected = selectedFeedId === feed.id;
                     const isGreen = feed.status_light === 'green';
@@ -731,52 +747,49 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                             setSelectedCycle(feed.code);
                           }
                         }}
-                        className={`group relative flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-lg border text-center transition-all min-h-[120px] ${
-                          isSelected
-                            ? 'bg-[var(--ds-accent-50)] border-[var(--ds-accent)] ring-1 ring-[var(--ds-accent-100)] shadow-sm'
-                            : isRed
-                            ? 'bg-rose-950/20 border-rose-800/60 hover:bg-rose-950/30 hover:border-rose-600'
-                            : 'bg-neutral-900/70 border-neutral-800 hover:bg-neutral-800/50 hover:border-neutral-700'
+                        /* 底色/选中线/异常底全部由 .ds-tile 一族决定（见 components.css），
+                           这里只负责状态类名，避免同一件事写两遍 */
+                        className={`ds-tile relative flex flex-col items-center justify-center gap-1.5 p-2.5 text-center min-h-[120px] ${
+                          isSelected ? 'is-selected' : isRed ? 'ds-tile--abnormal' : ''
                         }`}
                       >
-                        {/* 状态角标：常态为安静的中性灰点，只有异常才呼吸闪红 */}
+                        {/* 状态角标：正常=绿点、异常=红点、未知=琥珀点。
+                            2026-10-19 用户明确要求「健康监控要有绿灯」—— 这是红绿灯看板，
+                            绿点是唯一能一眼扫出「哪些通道在正常跑」的信号，不该被压成灰点。 */}
                         <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                          {isRed && (
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                          )}
                           <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                            isRed ? 'bg-rose-500' : isGreen ? 'bg-neutral-500' : 'bg-amber-500'
+                            isRed ? 'bg-[var(--ds-neg)]' : isGreen ? 'bg-[var(--ds-pos)]' : 'bg-[var(--ds-warn)]'
                           }`}></span>
                         </span>
 
                         {/* 数据图标 */}
-                        <div className="p-1.5 rounded-md bg-neutral-800/60 group-hover:bg-neutral-800 transition-colors">
-                          {feed.id.startsWith('kline') && <Layers className="w-4 h-4 text-sky-400" />}
-                          {feed.id === 'oi' && <TrendingUp className="w-4 h-4 text-indigo-400" />}
-                          {feed.id === 'funding' && <Percent className="w-4 h-4 text-purple-400" />}
-                          {feed.id === 'metrics_history' && <Activity className="w-4 h-4 text-amber-400" />}
-                          {feed.id === 'realtime_quotes' && <Radio className="w-4 h-4 text-emerald-400" />}
-                          {feed.id === 'smart_money' && <Coins className="w-4 h-4 text-amber-400" />}
-                          {feed.id === 'supply' && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
-                          {feed.id === 'classification' && <FileSpreadsheet className="w-4 h-4 text-sky-400" />}
-                          {feed.id === 'cvd_delta' && <Activity className="w-4 h-4 text-cyan-400" />}
-                          {feed.id === 'oi_mc_ratio' && <ShieldCheck className="w-4 h-4 text-fuchsia-400" />}
+                        <div className="p-1.5">
+                          {feed.id.startsWith('kline') && <Layers className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'oi' && <TrendingUp className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'funding' && <Percent className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'metrics_history' && <Activity className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'realtime_quotes' && <Radio className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'smart_money' && <Coins className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'supply' && <ShieldCheck className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'classification' && <FileSpreadsheet className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'cvd_delta' && <Activity className="w-4 h-4 text-[var(--ds-text-4)]" />}
+                          {feed.id === 'oi_mc_ratio' && <ShieldCheck className="w-4 h-4 text-[var(--ds-text-4)]" />}
                         </div>
 
                         {/* 简短数据名称 */}
                         <span className={`text-[11px] font-medium truncate max-w-[95%] my-0.5 ${
-                          isSelected ? 'text-[var(--ds-accent-700)] font-bold' : isRed ? 'text-rose-200' : 'text-neutral-200'
+                          isSelected ? 'text-[var(--ds-text)] font-semibold' : isRed ? 'text-[var(--ds-neg)]' : 'text-[var(--ds-text-2)]'
                         }`}>
                           {feed.name.replace('K线 ', '').replace(' (Funding Rate)', '').replace(' (M5/M6)', '').replace(' (实时快照)', '').replace(' (Order Flow Delta)', '').replace(' (OI / MC 逼空锁水度)', '')}
                         </span>
 
-                        {/* 采集状态：常态只留一句安静的「正常」，只有异常才升级为红色告警徽章
-                            （原实现 17 张卡各挂一枚绿色徽章，绿色被稀释成噪音） */}
+                        {/* 采集状态：常态写「正常」但不再用最弱的一档灰（10px + text-4 在浅色下
+                            对比度只有 3.5:1，用户反馈「整屏都是灰的」）；异常升级为红色徽章 */}
                         <div className="w-full flex items-center justify-center mt-1">
                           {isRed ? (
-                            <span className="ds-badge ds-badge--neg">🔴 停更报警</span>
+                            <span className="ds-badge ds-badge--neg">停更报警</span>
                           ) : (
-                            <span className="text-[10px] text-neutral-500 tracking-tight">正常</span>
+                            <span className="text-[10px] text-[var(--ds-text-3)] tracking-tight">正常</span>
                           )}
                         </div>
                       </button>
@@ -825,8 +838,8 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                   </div>
 
                   {/* 级别过滤与搜索 */}
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="flex items-center bg-neutral-950 p-0.5 rounded border border-neutral-800 text-[10px]">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-0.5 bg-neutral-950 p-0.5 rounded border border-neutral-800 text-[10px] whitespace-nowrap">
                       <button
                         onClick={() => setLogFilter('all')}
                         className={`px-2 py-0.5 rounded transition-colors ${
@@ -894,14 +907,13 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                       return (
                         <div
                           key={entry.id}
-                          className={`p-2.5 rounded border transition-all ${
-                            isError
-                              ? 'bg-[var(--ds-neg-bg)] border-[var(--ds-neg-border)]'
-                              : isWarn
-                              ? 'bg-[var(--ds-warn-bg)] border-[var(--ds-warn-border)]'
-                              : isSys
-                              ? 'bg-[var(--ds-info-bg)] border-[var(--ds-info-border)]'
-                              : 'bg-[var(--ds-surface)] border-[var(--ds-border)] hover:border-[var(--ds-border-strong)]'
+                          /* 复用通用提示条：近中性底 + 左侧 2px 语义竖线（级别只决定那条线的颜色）。
+                             `.ds-note` 自带 `display:flex; flex-wrap:wrap`，而这一行内部是
+                             「头行 + 诊断详情」两块纵向堆叠 ⇒ 用内联 `display:block` 恢复原布局，
+                             不动任何 DOM 结构与子元素类名。 */
+                          style={{ display: 'block' }}
+                          className={`ds-note p-2.5 rounded transition-all ${
+                            isError ? 'ds-note--neg' : isWarn ? 'ds-note--warn' : isSys ? 'ds-note--info' : ''
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -999,7 +1011,7 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
                       '25ms'
                     }</strong></span>
                     <span>•</span>
-                    <span>每日净增量: <strong className="text-emerald-400">{activeFeed.daily_increment}</strong></span>
+                    <span>每日净增量: <strong className="text-[var(--ds-text-2)]">{activeFeed.daily_increment}</strong></span>
                     <span>•</span>
                     <span>存储层: <strong className="text-neutral-200">{activeFeed.storage_size}</strong> (Parquet+ZSTD 列式压缩)</span>
                   </div>
@@ -1784,6 +1796,420 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
             </div>
           )}
 
+          {/* ═══════════════════════════════════════════════════════════════════
+              H. 选项卡 6：【指标】（DATA-UI-01）
+              口径纪律（与后端契约一致，改前必读）：
+                · 值缺失一律显示「—」，**绝不显示 0**；缺失原因必须给出；
+                · 单位必须显示：「倍」（比值）与「%」（占比）不是同一件事；
+                · 「当前值」与「历史覆盖」**分两块**，不互相填充；
+                · 新鲜度按「取数时点」算，业务时刻另列，两者不混。
+              ═══════════════════════════════════════════════════════════════════ */}
+          {activeSubTab === 'metrics' && (
+            <div className="ds-card flex-1 flex flex-col ai-aurora overflow-hidden">
+              {/* 头部：标的与周期选择 */}
+              <div className="px-4 py-2.5 border-b border-neutral-800 flex flex-wrap items-center justify-between gap-2 bg-neutral-950/40">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h2 className="text-xs font-bold text-neutral-200 whitespace-nowrap">指标明细</h2>
+                  <div className="flex items-center gap-1 text-[11px]">
+                    {(['binance', 'okx'] as const).map((ex) => (
+                      <button
+                        key={ex}
+                        onClick={() => setMetricExchange(ex)}
+                        className={`px-2 py-0.5 rounded border transition-colors ${
+                          metricExchange === ex
+                            ? 'bg-neutral-800 text-neutral-100 border-neutral-600 font-bold'
+                            : 'text-neutral-400 border-neutral-800 hover:text-neutral-200'
+                        }`}
+                      >
+                        {ex === 'binance' ? '币安' : '欧易'}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    value={metricSymbol}
+                    onChange={(e) => setMetricSymbol(e.target.value)}
+                    placeholder="标的，如 BTCUSDT"
+                    className="bg-neutral-950 border border-neutral-800 rounded px-2 py-0.5 text-[11px] font-mono w-40 text-neutral-200 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+                  />
+                  <div className="flex items-center gap-1 text-[11px]">
+                    {['1d', '4h', '1h', '15m', '5m'].map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => setMetricPeriod(p)}
+                        className={`px-1.5 py-0.5 rounded border transition-colors ${
+                          metricPeriod === p
+                            ? 'bg-neutral-800 text-neutral-100 border-neutral-600 font-bold'
+                            : 'text-neutral-400 border-neutral-800 hover:text-neutral-200'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] text-neutral-500">
+                    <span>快捷：</span>
+                    {(metricExchange === 'binance'
+                      ? ['BTCUSDT', 'ETHUSDT', '1000CATUSDT', 'ACHUSDT']
+                      : ['OKB-USDT-SWAP', 'CRO-USDT-SWAP']
+                    ).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setMetricSymbol(s)}
+                        className="px-1.5 py-0.5 rounded border border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:border-neutral-700 font-mono"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
+                  {metricsData.data && (
+                    <>
+                      <span>
+                        可用 {metricsData.data.counts.available}/
+                        {metricsData.data.counts.fields_total}
+                      </span>
+                      {metricsData.data.counts.missing > 0 && (
+                        <span className="text-neutral-400">
+                          缺失 {metricsData.data.counts.missing}
+                        </span>
+                      )}
+                      {metricsData.data.counts.stale > 0 && (
+                        <span className="text-amber-400/80">
+                          过期 {metricsData.data.counts.stale}
+                        </span>
+                      )}
+                      <span className="text-neutral-600">|</span>
+                      <span>as_of {metricsData.data.as_of?.slice(11, 19)}Z</span>
+                    </>
+                  )}
+                  {metricsData.error && <span className="text-rose-400">取数失败</span>}
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto">
+                {!metricsData.data && (
+                  <div className="p-6 text-xs text-neutral-500">
+                    {metricsData.error ? `指标接口不可用：${metricsData.error}` : '读取中…'}
+                  </div>
+                )}
+
+                {metricsData.data && (
+                  <div className="p-3 space-y-3">
+                    {/* 标的身份：是否加密（官方分类） */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-neutral-400 px-1">
+                      <span className="text-neutral-200 font-bold font-mono">
+                        {metricsData.data.exchange}:{metricsData.data.market_id}
+                      </span>
+                      <span>
+                        官方分类：
+                        <span className="text-neutral-200 font-mono">
+                          {metricsData.data.identity.instrument_category ?? '—'}
+                        </span>
+                        <span className="text-neutral-600">
+                          （{metricsData.data.identity.category_field ?? '—'}）
+                        </span>
+                      </span>
+                      <span>
+                        {metricsData.data.identity.is_crypto === true
+                          ? '加密合约'
+                          : metricsData.data.identity.is_crypto === false
+                            ? '非加密（按官方分类排除）'
+                            : '分类未知'}
+                      </span>
+                      <span className="text-neutral-500">
+                        统计周期 {metricsData.data.period_label}（{metricsData.data.period}）
+                      </span>
+                      <span className="text-neutral-500">
+                        快照 {metricsData.data.snapshot_state.refreshed_at?.slice(11, 19) ?? '—'}Z
+                      </span>
+                    </div>
+
+                    {/* ── A. 当前值（实时层/快照），按分组 ── */}
+                    {Array.from(new Set(metricsData.data.fields.map((f) => f.group))).map((group) => {
+                      const rows = metricsData.data!.fields.filter((f) => f.group === group);
+                      return (
+                        <div key={group} className="border border-neutral-800 rounded-lg overflow-hidden">
+                          <div className="px-3 py-1.5 bg-neutral-950/60 border-b border-neutral-800 text-[11px] font-bold text-neutral-300">
+                            {group}
+                          </div>
+                          <table className="w-full text-left text-[11px]">
+                            <thead className="text-neutral-500 border-b border-neutral-800/70">
+                              <tr>
+                                <th className="py-1.5 px-3 font-medium">指标</th>
+                                <th className="py-1.5 px-2 font-medium text-right">值</th>
+                                <th className="py-1.5 px-2 font-medium">单位</th>
+                                <th className="py-1.5 px-2 font-medium">源时间</th>
+                                <th className="py-1.5 px-2 font-medium text-right">新鲜度</th>
+                                <th className="py-1.5 px-2 font-medium">来源</th>
+                                <th className="py-1.5 px-2 font-medium">缺失原因</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-neutral-800/50">
+                              {rows.map((f) => {
+                                const missing = f.value === null;
+                                const stale = f.freshness === 'stale';
+                                const reasonShort = f.missing_reason
+                                  ? f.missing_reason.replace(/\*\*/g, '').split(/[；;]/)[0].slice(0, 26)
+                                  : null;
+                                const reasonFull = f.missing_reason
+                                  ? f.missing_reason.replace(/\*\*/g, '')
+                                  : null;
+                                return (
+                                  <tr key={f.key} className="hover:bg-neutral-900/40">
+                                    <td className="py-1.5 px-3 text-neutral-200">
+                                      {f.name}
+                                      {f.derived && (
+                                        <span className="ml-1 text-[9px] text-neutral-500 border border-neutral-700 rounded px-1">
+                                          派生
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      className={`py-1.5 px-2 text-right font-mono tabular-nums ${
+                                        missing ? 'text-neutral-600' : 'text-neutral-100'
+                                      }`}
+                                    >
+                                      {missing ? '—' : (f.value_text ?? '—')}
+                                    </td>
+                                    <td className="py-1.5 px-2 text-neutral-500 font-sans">{f.unit}</td>
+                                    <td className="py-1.5 px-2 font-mono text-neutral-400">
+                                      {f.event_time ? f.event_time.slice(5, 19).replace('T', ' ') : '—'}
+                                    </td>
+                                    <td className="py-1.5 px-2 text-right font-mono">
+                                      <span
+                                        className={
+                                          missing
+                                            ? 'text-neutral-600'
+                                            : stale
+                                              ? 'text-amber-400'
+                                              : 'text-neutral-400'
+                                        }
+                                        title={
+                                          f.age_seconds === null
+                                            ? undefined
+                                            : `取数距今 ${f.age_seconds}s`
+                                        }
+                                      >
+                                        {missing
+                                          ? '缺失'
+                                          : stale
+                                            ? `过期 ${Math.round((f.age_seconds ?? 0) / 60)}m`
+                                            : f.age_seconds !== null
+                                              ? `${Math.round(f.age_seconds)}s`
+                                              : '—'}
+                                      </span>
+                                    </td>
+                                    <td className="py-1.5 px-2 text-neutral-500 max-w-[220px] truncate" title={f.source ?? ''}>
+                                      {f.source ?? '—'}
+                                    </td>
+                                    <td className="py-1.5 px-2 max-w-[220px]">
+                                      {reasonShort ? (
+                                        <button
+                                          onClick={() =>
+                                            setMetricReasonOpen(metricReasonOpen === f.key ? null : f.key)
+                                          }
+                                          className="text-left text-neutral-500 hover:text-neutral-300"
+                                          title="点开看完整原因"
+                                        >
+                                          {reasonShort}…
+                                        </button>
+                                      ) : (
+                                        <span className="text-neutral-700">—</span>
+                                      )}
+                                      {metricReasonOpen === f.key && reasonFull && (
+                                        <div className="mt-1 text-[10px] leading-relaxed text-neutral-400 border-l-2 border-neutral-700 pl-2">
+                                          {reasonFull}
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })}
+
+                    {/* ── B. 历史覆盖（与当前值独立，8 个周期分列） ── */}
+                    <div className="border border-neutral-800 rounded-lg overflow-hidden">
+                      <div className="px-3 py-1.5 bg-neutral-950/60 border-b border-neutral-800 flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-neutral-300">
+                          历史覆盖（按周期分列，与上方当前值互不填充）
+                        </span>
+                        <span className="text-[10px] text-neutral-500">
+                          「已存」= 归档有行；「在采」= 实时层有未收盘 bar
+                        </span>
+                      </div>
+                      <table className="w-full text-left text-[11px]">
+                        <thead className="text-neutral-500 border-b border-neutral-800/70">
+                          <tr>
+                            <th className="py-1.5 px-3 font-medium">周期</th>
+                            <th className="py-1.5 px-2 font-medium">历史已存</th>
+                            <th className="py-1.5 px-2 font-medium text-right">行数</th>
+                            <th className="py-1.5 px-2 font-medium">UTC 起止</th>
+                            <th className="py-1.5 px-2 font-medium text-right">缺根</th>
+                            <th className="py-1.5 px-2 font-medium">实时在采</th>
+                            <th className="py-1.5 px-2 font-medium">多空比/OI 归档</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-800/50">
+                          {metricsData.data.coverage.map((c) => {
+                            const aStored = c.archive.status === 'stored';
+                            const rtOn = c.realtime.status === 'collecting';
+                            const mStatus = c.metrics_archive.status;
+                            return (
+                              <tr key={c.period} className="hover:bg-neutral-900/40">
+                                <td className="py-1.5 px-3 font-mono text-neutral-200">
+                                  {c.period}
+                                  <span className="ml-1 text-neutral-600 font-sans">
+                                    {c.period_label}
+                                  </span>
+                                </td>
+                                <td className="py-1.5 px-2">
+                                  <span className={aStored ? 'text-neutral-300' : 'text-neutral-600'}>
+                                    {aStored
+                                      ? '已存'
+                                      : c.archive.status === 'unsupported'
+                                        ? '不支持'
+                                        : '空'}
+                                  </span>
+                                </td>
+                                <td className="py-1.5 px-2 text-right font-mono tabular-nums text-neutral-300">
+                                  {c.archive.rows === null
+                                    ? '—'
+                                    : c.archive.rows.toLocaleString()}
+                                </td>
+                                <td className="py-1.5 px-2 font-mono text-[10px] text-neutral-400">
+                                  {c.archive.first ? c.archive.first.slice(0, 10) : '—'}
+                                  {' → '}
+                                  {c.archive.last ? c.archive.last.slice(0, 10) : '—'}
+                                </td>
+                                <td className="py-1.5 px-2 text-right font-mono tabular-nums">
+                                  <span
+                                    className={
+                                      c.archive.missing_bars === null
+                                        ? 'text-neutral-600'
+                                        : c.archive.missing_bars > 0
+                                          ? 'text-amber-400/90'
+                                          : 'text-neutral-400'
+                                    }
+                                  >
+                                    {c.archive.missing_bars === null
+                                      ? '—'
+                                      : c.archive.missing_bars.toLocaleString()}
+                                  </span>
+                                </td>
+                                <td className="py-1.5 px-2">
+                                  <span className={rtOn ? 'text-neutral-300' : 'text-neutral-600'}>
+                                    {rtOn
+                                      ? c.realtime.is_closed
+                                        ? '已收盘'
+                                        : '未收盘在采'
+                                      : c.realtime.status === 'unsupported'
+                                        ? '不支持'
+                                        : '未采'}
+                                  </span>
+                                  {rtOn && c.realtime.has_taker_buy === false && (
+                                    <span className="ml-1 text-[9px] text-neutral-500">
+                                      无主动买卖量
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-1.5 px-2">
+                                  <span
+                                    className={
+                                      mStatus === 'stored'
+                                        ? 'text-neutral-300'
+                                        : 'text-neutral-600'
+                                    }
+                                    title={c.metrics_archive.note}
+                                  >
+                                    {mStatus === 'stored'
+                                      ? '已存 5m'
+                                      : mStatus === 'requestable_not_collected'
+                                        ? '可请求未采'
+                                        : '不支持'}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* ── C. 折叠：详细证据（不占首屏） ── */}
+                    <details
+                      className="border border-neutral-800 rounded-lg overflow-hidden"
+                      open={metricEvidenceOpen}
+                      onToggle={(e) => setMetricEvidenceOpen((e.target as HTMLDetailsElement).open)}
+                    >
+                      <summary className="px-3 py-1.5 bg-neutral-950/60 cursor-pointer text-[11px] font-bold text-neutral-300">
+                        详细证据（字段口径 / 数据来源 / 时间语义）
+                      </summary>
+                      <div className="p-3 space-y-2 text-[10px] leading-relaxed text-neutral-400">
+                        <div>
+                          <span className="text-neutral-300">时间语义：</span>
+                          <span className="font-mono">
+                            {String((metricsData.data.time as Record<string, unknown>).note ?? '')}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-neutral-300">口径提示：</span>
+                          <span>{metricsData.data.quality.note}</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1">
+                          {Object.entries(metricsData.data.sources).map(([k, v]) => (
+                            <div key={k} className="truncate" title={`${k}: ${v ?? ''}`}>
+                              <span className="text-neutral-500">{k}：</span>
+                              <span className="font-mono text-neutral-400">{v ?? '—'}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="border-t border-neutral-800 pt-2">
+                          <div className="text-neutral-300 mb-1">字段口径（逐项）</div>
+                          {metricsData.data.fields.map((f) => (
+                            <div key={f.key} className="flex gap-2 py-0.5">
+                              <span className="font-mono text-neutral-500 w-44 shrink-0 truncate">
+                                {f.key}
+                              </span>
+                              <span className="text-neutral-400">{f.basis}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </details>
+
+                    {/* ── D. 加密池分母（官方分类口径，不硬编码） ── */}
+                    <div className="text-[10px] text-neutral-500 px-1">
+                      加密池分母（官方分类，排除指数/股票/商品）：
+                      {poolScope.data?.combined_total != null ? (
+                        <span className="font-mono text-neutral-300 ml-1">
+                          币安 {poolScope.data.binance?.total ?? '—'} + 欧易{' '}
+                          {poolScope.data.okx?.total ?? '—'} = {poolScope.data.combined_total}
+                        </span>
+                      ) : (
+                        <span className="ml-1">读取中…</span>
+                      )}
+                      {poolScope.data?.binance?.excluded &&
+                        Object.keys(poolScope.data.binance.excluded).length > 0 && (
+                          <span className="ml-2 text-neutral-600">
+                            （已排除：
+                            {Object.entries(poolScope.data.binance.excluded)
+                              .map(([k, v]) => `${k} ${v}`)
+                              .join('、')}
+                            ）
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 底部口径面板：默认收起。原为常驻三行长文，占首屏却极少被读 ⇒ 收进折叠 */}
           <details className="ds-card shrink-0">
             <summary className="ds-card__head cursor-pointer">
@@ -1860,8 +2286,11 @@ export const DataCenterView: React.FC<DataCenterViewProps> = ({ importedAt, acti
               <span className="ds-card__title">数据库物理健康度</span>
             </div>
             <div className="ds-card__body space-y-1 text-[11px] text-neutral-400 font-mono">
-              <div>
-                当前工作池状态：<span className="text-neutral-100 font-bold">{scopeTotal ?? 549} 个标的在线</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-[var(--ds-pos)]" aria-hidden="true" />
+                <span>
+                  当前工作池状态：<span className="text-neutral-100 font-bold">{scopeTotal ?? 549} 个标的在线</span>
+                </span>
               </div>
               <div>
                 热层行情数据库：<span className="text-neutral-300">market_v2.sqlite3 (6.0 GB)</span>

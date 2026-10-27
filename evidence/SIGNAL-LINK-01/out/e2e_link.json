@@ -1,0 +1,160 @@
+{
+ "probe": "SIGNAL-LINK-01/20_e2e_link",
+ "generated_real_utc": "2026-10-24T05:27:51Z",
+ "signal_is_synthetic": true,
+ "synthetic_note": "候选的『存在性』由探针构造（真实市场在该时刻未必出现突破）；价格/ATR/量能/止损全部取自真实行情库。本探针只验证管道通断，不声称市场出现信号。",
+ "candidate": {
+  "candidate_id": "probe_signal_link_01|BTCUSDT|1792810799999",
+  "symbol": "BTCUSDT",
+  "snapshot_time_ms": 1792810799999,
+  "snapshot_utc": "2026-10-24T02:59:59Z",
+  "breakout_close": 80964.9,
+  "initial_stop_price": 80384.20129789853,
+  "box_atr_a": 773.9870210147877,
+  "volume_ratio": 0.4921389473460222
+ },
+ "isolation": {
+  "tmp_dir": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/signal_link_01_t1z_izr6",
+  "paths": {
+   "LIVE_DIR": {
+    "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/signal_link_01_t1z_izr6/live",
+    "inside_tmp": true
+   },
+   "LIVE_DB": {
+    "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/signal_link_01_t1z_izr6/live/live_signals.sqlite3",
+    "inside_tmp": true
+   },
+   "PAPER_LEDGER_DIR": {
+    "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/signal_link_01_t1z_izr6/paper",
+    "inside_tmp": true
+   },
+   "PAPER_GATE_FILE": {
+    "value": "/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/signal_link_01_t1z_izr6/gate.json",
+    "inside_tmp": true
+   }
+  },
+  "all_inside_tmp": true,
+  "prod_live_db_before": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+   "mtime": 1792748844.3437195,
+   "size": 45056
+  },
+  "prod_live_db_after": {
+   "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+   "mtime": 1792748844.3437195,
+   "size": 45056
+  },
+  "prod_paper_untouched": true,
+  "market_db_readonly": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3"
+ },
+ "steps": [
+  {
+   "step": "1. 候选落库 live_signal",
+   "ok": true,
+   "detail": {
+    "signal_uid": "probe_signal_link_01|BTCUSDT|1792810799999",
+    "origin": "live",
+    "executable_state": "enterable",
+    "display_state": "displayable",
+    "strategy_key": "wyckoff_v0_1",
+    "payload_role": "enterable_arm_entry",
+    "payload_arm": "3a",
+    "exchange": "binance",
+    "market": "um",
+    "timeframe": "1h"
+   }
+  },
+  {
+   "step": "2. 可执行扫描命中（路由与界面同一口径）",
+   "ok": true,
+   "detail": {
+    "scanned": 1,
+    "hit": [
+     "probe_signal_link_01|BTCUSDT|1792810799999"
+    ]
+   }
+  },
+  {
+   "step": "3. 路由登记挂单 paper_pending",
+   "ok": true,
+   "detail": {
+    "route": {
+     "processed": 1,
+     "registered": 1,
+     "rejected": 0,
+     "waiting_gate": 0,
+     "terminal": 0,
+     "errors": []
+    },
+    "pending": {
+     "pending_id": 1,
+     "symbol": "BTCUSDT",
+     "direction": "long",
+     "requested_at": 1792819671895,
+     "earliest_fill_ms": 1792820571895,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "origin": "live"
+    }
+   }
+  },
+  {
+   "step": "4. 挂单成交并建仓 paper_position",
+   "ok": true,
+   "detail": {
+    "open_position": {
+     "ok": true,
+     "reason": "filled",
+     "entry_price": 80990.90000000001,
+     "size": null,
+     "stop_price": 76941.3,
+     "bar_open_time": 1792811700000,
+     "lag_ms": null,
+     "risk": null,
+     "note": null
+    },
+    "clock": {
+     "signal_utc": "2026-10-24T02:59:59Z",
+     "earliest_fill_utc": "2026-10-24T03:14:59Z",
+     "fill_bar_open_utc": "2026-10-24T03:15:00Z",
+     "attempt_utc": "2026-10-24T03:16:00Z",
+     "lag_ms": 60000
+    },
+    "position": {
+     "position_id": 1,
+     "symbol": "BTCUSDT",
+     "qty": 0.006,
+     "entry_price": 80990.90000000001,
+     "entry_ts": 1792811700000,
+     "entry_utc": "2026-10-24T03:15:00Z",
+     "stop_price": 76941.3,
+     "initial_stop_price": 76941.3,
+     "planned_risk": 24.297600000000035,
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "status": "open",
+     "origin": "test",
+     "model_version": "FT-LOW4H-EXP-V2.2"
+    }
+   }
+  },
+  {
+   "step": "5. 初始止损 = 成交价×(1−stoploss_s)",
+   "ok": true,
+   "detail": {
+    "stoploss_s": 0.05,
+    "entry_price": 80990.90000000001,
+    "expect_stop": 76941.35500000001,
+    "actual_stop": 76941.3,
+    "rel_diff": 7.148301457332924e-07
+   }
+  }
+ ],
+ "verdict": {
+  "passed": 5,
+  "total": 5,
+  "all_passed": true,
+  "chain": "候选 → live_signal → 可执行扫描 → paper_pending → 成交 → paper_position",
+  "meaning": "链路本身通/不通。注意：**通 ≠ 有信号**。是否真的产出信号取决于策略漏斗，见 10_funnel.py 的漏斗统计。"
+ }
+}

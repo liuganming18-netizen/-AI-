@@ -1,0 +1,19 @@
+﻿rule_item,frozen_text,implementation,verdict,note
+Benchmark 突破判定,突破 H+0.1A 且放量>=1.5V20 且 OI>=2%,prev_close<=H+0.1A 且 close>H+0.1A；vol>=1.5V20；oi>=0.02,符合
+Benchmark 允许执行区间,未在冻结方案写明,"min_entry=H, max_entry=close+0.5A",需披露
+A1 触发价,close >= H-0.5A,close>=H-0.5A 且 close<=H+0.1A,部分符合,实现额外加了上界 H+0.1A，冻结方案未写；该上界与'无兜底分支'共同造成静默丢单
+A2 触发价,close >= H,close>=H 且 close<=H+0.1A,部分符合,同上
+A 组放量,>= 1.0 V20,volume>=1.0*v20,符合
+A 组 OI,6h OI >= 2%,oi_growth>=config.oi_min_growth_pct(0.02),符合
+A 组止损,P0 = Lr - 0.1A,retest_low_lr - 0.1A,符合
+A 组突破兜底分支,未规定；预期应为'触发带未命中时退回基准突破',无。close>H+0.1A 时既不建候选也不终止事件，事件挂到过期,不符,导致基线事件被静默丢弃，详见 04/07 号产物
+C 组触发,SWEEP 后首次缩量企稳（收阳且 vol<=0.8Vs）,在 RETEST 判定成立的那一根 1h 收盘立即建候选,符合,注意：C 组触发点与 RETEST 判定同根，不是'再等一根确认'
+C 组 OI,6h OI >= 0%,oi_growth is None 或 <0 时终止事件,符合,阈值由 2% 降为 0%，属参数变更而非仅时点变更
+C1 止损,P0 = S - 0.1A,sweep_low_s - 0.1A,符合
+C2 止损,P0 = low_bar - 0.1A,low_p - 0.1A,符合
+C 组允许执行区间,未在冻结方案写明,"min_entry=L-0.2A, max_entry=close+0.5A",需披露
+决策时钟,1h 收盘决策，下一根 15m 开盘执行,DecisionClock.for_bar + execution_earliest_ms=close+15min；入场用 15m open,符合
+快照字段完整性,未规定,C 组 v20_median_volume 写成 volume_v、volume_ratio 写死 1.0；A 组 box_high_h 被写成 target_level,不符,不影响成交，但快照字段失真，下游若读快照会得到错误 H/V20
+冷却期,未规定,cooling_hours=24（沿用 config 默认）,需披露
+持仓超时,未规定,custom_exit: 持有>=240h 强制退出,需披露
+移动止损,未规定,4h 收盘突破 2R 后启用 4h 10 根最低价追踪,需披露

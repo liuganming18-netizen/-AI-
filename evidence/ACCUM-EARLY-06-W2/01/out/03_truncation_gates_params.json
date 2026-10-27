@@ -1,0 +1,193 @@
+{
+ "code": {
+  "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/accum_early_entry.py",
+  "exists": true,
+  "bytes": 119895,
+  "sha256": "65b0ee70bb0283ff12381b4dcb13baf9f50993abdaddf9b8bec06f11f83d0394",
+  "hashed_bytes": 119895
+ },
+ "T_truncation": {
+  "cut_index": 60,
+  "n_bars_truncated": 61,
+  "truncated_n_candidates": 0,
+  "truncated_final_state": "SWEEP",
+  "truncated_absorption_indices": [
+   60
+  ],
+  "max_bar_index_touched_in_truncated_run": 60,
+  "no_candidate_before_confirm": true,
+  "touched_within_cut": true,
+  "prefix_actions_identical": true,
+  "prefix_actions_full_vs_long_identical": true,
+  "actions_prefix": [
+   {
+    "bar_i": 60,
+    "kind": "transition",
+    "state": "SWEEP",
+    "reason": "扫低收回成立"
+   }
+  ],
+  "negative_control_ratio_by_index": {
+   "sweep": {
+    "bar_i": 60,
+    "bar_close_utc": "2026-06-03T12:59:59Z",
+    "open": 103.5,
+    "high": 103.85,
+    "low": 103.1,
+    "close": 103.8,
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 700.0,
+    "buy_ratio": 0.7,
+    "baseline_n": 20,
+    "baseline_filled": 20,
+    "baseline_median_ratio": 0.5,
+    "buy_ratio_threshold": 0.5,
+    "buy_ratio_ok": true,
+    "sell_amount": 300.0,
+    "baseline_median_sell": 500.0,
+    "sell_threshold": 400.0,
+    "sell_ok": true,
+    "upper_half_threshold": 103.475,
+    "upper_half_ok": true
+   },
+   "confirm": {
+    "bar_i": 61,
+    "bar_close_utc": "2026-06-03T13:59:59Z",
+    "open": 103.7,
+    "high": 104.1,
+    "low": 103.7,
+    "close": 104.0,
+    "quote_volume": 1000.0,
+    "taker_buy_quote_volume": 300.0,
+    "buy_ratio": 0.3,
+    "baseline_n": 20,
+    "baseline_filled": 20,
+    "baseline_median_ratio": 0.5,
+    "buy_ratio_threshold": 0.5,
+    "buy_ratio_ok": false,
+    "sell_amount": 700.0,
+    "baseline_median_sell": 500.0,
+    "sell_threshold": 400.0,
+    "sell_ok": false,
+    "upper_half_threshold": 103.9,
+    "upper_half_ok": true
+   }
+  },
+  "negative_control_distinguishes": true,
+  "verdict": "PASS"
+ },
+ "G_gates": {
+  "blank_config": {
+   "ready": false,
+   "open_allowed": false,
+   "blocked_by": [
+    "config_fields_missing"
+   ],
+   "n_missing": 48,
+   "n_candidates": 0,
+   "absorption_calls": 0,
+   "final_state": "BOX",
+   "blocked_actions": [
+    "配置未批准（不是数据不足）"
+   ]
+  },
+  "fixture_without_env": {
+   "ready": true,
+   "open_allowed": false,
+   "open_scope": "blocked",
+   "blocked_by": [
+    "not_approved",
+    "fixture_without_explicit_env"
+   ]
+  },
+  "fixture_with_env": {
+   "ready": true,
+   "open_allowed": true,
+   "open_scope": "fixture_chain_selfcheck"
+  },
+  "positive_control": {
+   "n_candidates": 1,
+   "absorption_indices": [
+    60
+   ]
+  },
+  "required_paths": 49,
+  "pending_mapping": {
+   "ok": true,
+   "errors": [],
+   "pending_count": 13,
+   "mapped_count": 13,
+   "required_fields": 49
+  },
+  "verdict": "PASS"
+ },
+ "P_params": {
+  "config_deep_diff_vs_05B_fixture": [
+   {
+    "path": "approval_ref",
+    "a": "工程自测配置（未经用户批准）：只用于验证接线与链路行为",
+    "b": "06-03 时序整改测试配置：由 ACCUM-EARLY-05-B/config/fixture_rules_05.json 复制，仅改本句说明，规则/阈值/倍率一字未改（见 01 单 out/02 的逐项对撞）；仍是未经用户批准的工程自测配置"
+   }
+  ],
+  "only_approval_ref_changed": true,
+  "fixed_rules": {
+   "confirm_timeframe": "1h",
+   "execution_timeframe": "15m",
+   "entry_delay_minutes": 15,
+   "initial_stop_pct": 0.05,
+   "trailing_low_pct": 0.05,
+   "trailing_trigger_r": 0.0,
+   "max_holding_days": null,
+   "taker_fee_bps": 5.0,
+   "trail_effective_mode": "next_15m_after_4h_close"
+  },
+  "fixed_rules_match_expected": true,
+  "required_paths_count": 49,
+  "implemented_keys": [
+   "conflict_resolution.participation_cap",
+   "conflict_resolution.risk_config",
+   "conflict_resolution.slippage_source",
+   "exit.gap_model",
+   "kind",
+   "schemes.4a.confirm",
+   "schemes.4b.confirm",
+   "schemes.4c.confirm",
+   "shared.intrabar_break_cancel.mode",
+   "shared.local_resistance.mode",
+   "shared.local_resistance.timeframe",
+   "shared.local_resistance_confirm.mode",
+   "shared.oi_role",
+   "shared.sell_pressure.baseline",
+   "shared.sweep_recovery_scope.mode",
+   "shared.sweep_reference.mode"
+  ],
+  "sell_pressure_in_config": {
+   "baseline": "v20_median",
+   "buy_ratio_mult": 1.0,
+   "n": 20,
+   "require": true,
+   "require_upper_half": true,
+   "sell_pressure_mult": 0.8
+  },
+  "verdict": "PASS"
+ },
+ "R_adjacent_defect": {
+  "note": "本项**未修**：工单 06-03 只点名 `_absorption`；这里只交证据。",
+  "sweep_relative_resistance": 103.9,
+  "confirm_relative_resistance": 105.0,
+  "resistance_call_indices": [
+   60
+  ],
+  "differs": true,
+  "n_candidates": 1,
+  "confirm_bar_i": 65,
+  "confirm_bar_close": 103.95,
+  "would_confirm_under_sweep_relative": true
+ },
+ "summary": {
+  "T_truncation": "PASS",
+  "G_gates": "PASS",
+  "P_params": "PASS",
+  "R_adjacent_defect": "EVIDENCE_ONLY"
+ }
+}

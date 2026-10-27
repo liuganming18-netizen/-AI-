@@ -1,0 +1,80 @@
+{
+ "task": "ACCUM-EARLY-06-06",
+ "probe": "04_产出事件文件与清单",
+ "files": {
+  "jsonl": {
+   "name": "funding_events_母集48.jsonl",
+   "bytes": 14904198,
+   "lines": 31811,
+   "sha256": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d"
+  }
+ },
+ "checks": [
+  {
+   "检查": "S1 重跑同输入 ⇒ 事件文件 sha256 逐位相同",
+   "通过": true,
+   "证据": {
+    "第一次": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d",
+    "第二次": "a8e6643a79cd7ab846bb3c47f318e95597cd25af598ebacfc7cd7b0be8a1205d",
+    "lines": 31811
+   }
+  },
+  {
+   "检查": "S2 行序确定：按 (symbol, funding_time) 升序",
+   "通过": true,
+   "证据": {
+    "首行": "{\"availability\":\"unproven\",\"available_at\":null,\"conflicts\":[],\"exchange\":\"binance\",\"fetched_at_hot\":1792035104993,\"fundi"
+   }
+  },
+  {
+   "检查": "S3 无重复键",
+   "通过": true,
+   "证据": {
+    "events": 31811,
+    "distinct": 31811
+   }
+  },
+  {
+   "检查": "S4 与 03 的 events_sha256 一致（跨脚本，同一输入同一摘要）",
+   "通过": true,
+   "证据": {
+    "03": "a8e6643a79cd7ab8",
+    "04": "a8e6643a79cd7ab8"
+   }
+  },
+  {
+   "检查": "S5 清单不含生成时刻（字节可复现的前提）",
+   "通过": true,
+   "证据": {
+    "清单键": [
+     "dataset",
+     "adapter_version",
+     "generated_by",
+     "generated_at",
+     "scope",
+     "counts",
+     "field_semantics",
+     "data_identity",
+     "known_limits",
+     "gap_reference",
+     "files",
+     "per_symbol"
+    ]
+   }
+  },
+  {
+   "检查": "S6 事件数 == 02 汇总事件数",
+   "通过": true,
+   "证据": {
+    "04": 31811,
+    "02": 31811
+   }
+  }
+ ],
+ "summary": {
+  "total": 6,
+  "pass": 6,
+  "verdict": "通过"
+ },
+ "elapsed_sec": 1.9
+}

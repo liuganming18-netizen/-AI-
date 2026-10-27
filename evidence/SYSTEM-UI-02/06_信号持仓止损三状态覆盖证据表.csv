@@ -1,0 +1,10 @@
+﻿业务模块,覆盖状态,触发条件与机制,页面真实呈现特征,证据截图文件名
+信号流 (Signal),状态1: 有数据,隔离库写入3条预置信号(BTC/ETH/SOL),SignalListPanel渲染3张信号卡片，展示Spring/突破/入场价/止损价,state_signal_normal.png
+信号流 (Signal),状态2: 空态,在隔离实例点击「清理」，隔离库信号降为0,SignalListPanel展示清晰空态「暂无实时信号」，无残余伪造数据,state_signal_empty.png
+信号流 (Signal),状态3: 接口失败,代理服务器对/api/v1/signals注入HTTP 500,前端捕获异常，显示网络错误/离线重试提示，不误报为空态或成功,state_signal_failed.png
+持仓区 (Position),状态1: 有数据,隔离库写入BTCUSDT持仓(0.052数量/95000入场),PositionPanel渲染持仓卡片、实时浮盈+62.4U、三口径权益,state_position_normal.png
+持仓区 (Position),状态2: 空态,隔离库将持仓状态更新为closed,PositionPanel展示「0 仓在持 / 3 笔已平」，空持仓提示，无假持仓,state_position_empty.png
+持仓区 (Position),状态3: 接口失败,代理服务器对/api/v1/paper/accounts注入HTTP 500,PositionPanel展示红色告警框「持仓接口读取异常: Injected backend internal error」,state_position_failed.png
+止损轨迹 (Stop Trail),状态1: 有数据,隔离库写入2条止损变动记录(初始止损+4h上移),展开轨迹面板，显示90500->93500上移过程，带明确(UTC+8)时区,state_stop_trail_normal.png
+止损轨迹 (Stop Trail),状态2: 空态,新建未发生止损移动的持仓,展开轨迹提示「当前为初始止损，尚未发生动态上移」,view_06_stop_trail.png
+止损轨迹 (Stop Trail),状态3: 接口失败,代理服务器对/api/v1/paper/stops注入HTTP 500,展开区域优雅捕获异常并提示「查询止损历史失败」，不崩溃白屏,state_stop_trail_failed.png

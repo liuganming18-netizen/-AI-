@@ -1,0 +1,4446 @@
+{
+ "工单": "ACCUM-EARLY-06-W4-R2",
+ "口径": {
+  "证据三类": [
+   "official_snapshot（官方，含 updateTime）",
+   "inferred_*（观测推断）",
+   "undetermined（不可判定）"
+  ],
+  "为什么观测间隔不能证明原生周期": "① 缺失记录会把 4h 看成 8h/12h，观察到的「规律」本身被缺失污染；② 周期可变更（实测有标的在窗口内 8h→4h→1h 来回切）；③ 历史间隔规律只说明「过去这样结算」，不说明交易所当时的规则文本。",
+  "官方证据的边界": "`updateTime` 是该行最后一次更新时间，交易所不提供变更流水 ⇒ 只能界定「官方值自 updateTime 起生效」，更早时段无官方证据。"
+ },
+ "汇总": {
+  "symbols": 48,
+  "official_hit": 48,
+  "official_consistent_with_observed_after_update": 45,
+  "official_inconsistent_with_observed": 0,
+  "symbols_with_switch_points": 15,
+  "symbols_with_multiple_intervals": 39,
+  "events_total": 211604,
+  "events_ms_suffix_nonzero": 95144,
+  "events_ms_suffix_nonzero_frac": 0.449632
+ },
+ "per_symbol": {
+  "1000PEPEUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1697703241715,
+    "update_utc": "2023-10-19T08:14:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3287,
+     "agree_with_official": 3287,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3789,
+    "first_utc": "2023-05-05T16:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 3788,
+       "start_utc": "2023-05-05T16:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3789,
+     "zero": 2556,
+     "nonzero": 1233,
+     "nonzero_frac": 0.325416,
+     "max_ms": 29,
+     "top": {
+      "0": 2556,
+      "1": 485,
+      "2": 161,
+      "3": 110,
+      "4": 93,
+      "5": 97,
+      "6": 54,
+      "7": 55
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+     "entry_ms": 1785050100000,
+     "exit_ms": 1785191400000,
+     "entry_utc": "2026-07-26T07:15:00Z",
+     "exit_utc": "2026-07-27T22:30:00Z"
+    }
+   ]
+  },
+  "AGTUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1747737424690,
+    "update_utc": "2025-05-20T10:37:04Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3101,
+     "agree_with_official": 3100,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3102,
+    "first_utc": "2025-05-20T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2397,
+       "start_utc": "2025-05-20T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3102,
+     "zero": 1429,
+     "nonzero": 1673,
+     "nonzero_frac": 0.539329,
+     "max_ms": 26,
+     "top": {
+      "0": 1429,
+      "1": 444,
+      "2": 275,
+      "3": 222,
+      "4": 157,
+      "5": 150,
+      "6": 92,
+      "7": 86
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+     "entry_ms": 1788772500000,
+     "exit_ms": 1788852600000,
+     "entry_utc": "2026-09-07T09:15:00Z",
+     "exit_utc": "2026-09-08T07:30:00Z"
+    }
+   ]
+  },
+  "AIGENSYNUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1777470361463,
+    "update_utc": "2026-04-29T13:46:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1036,
+     "agree_with_official": 1035,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 1037,
+    "first_utc": "2026-04-29T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 332,
+       "start_utc": "2026-04-29T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 1037,
+     "zero": 535,
+     "nonzero": 502,
+     "nonzero_frac": 0.484089,
+     "max_ms": 26,
+     "top": {
+      "0": 535,
+      "1": 144,
+      "2": 100,
+      "3": 58,
+      "4": 48,
+      "5": 45,
+      "6": 23,
+      "7": 19
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+     "entry_ms": 1788765300000,
+     "exit_ms": 1788795900000,
+     "entry_utc": "2026-09-07T07:15:00Z",
+     "exit_utc": "2026-09-07T15:45:00Z"
+    },
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+     "entry_ms": 1789964100000,
+     "exit_ms": 1790179200000,
+     "entry_utc": "2026-09-21T04:15:00Z",
+     "exit_utc": "2026-09-23T16:00:00Z"
+    }
+   ]
+  },
+  "ASTERUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1758283340973,
+    "update_utc": "2025-09-19T12:02:20Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2368,
+     "agree_with_official": 2367,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2370,
+    "first_utc": "2025-09-19T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1665,
+       "start_utc": "2025-09-19T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2370,
+     "zero": 1123,
+     "nonzero": 1247,
+     "nonzero_frac": 0.52616,
+     "max_ms": 26,
+     "top": {
+      "0": 1123,
+      "1": 328,
+      "2": 211,
+      "3": 156,
+      "4": 122,
+      "5": 108,
+      "6": 64,
+      "7": 61
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+     "entry_ms": 1787174100000,
+     "exit_ms": 1787338800000,
+     "entry_utc": "2026-08-19T21:15:00Z",
+     "exit_utc": "2026-08-21T19:00:00Z"
+    }
+   ]
+  },
+  "AXSUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1769410860136,
+    "update_utc": "2026-01-26T07:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1596,
+     "agree_with_official": 1595,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 7458,
+    "first_utc": "2020-11-20T08:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 5653,
+       "start_utc": "2020-11-20T08:00:00Z",
+       "end_utc": "2026-01-17T16:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 208,
+       "start_utc": "2026-01-17T16:00:00Z",
+       "end_utc": "2026-01-26T08:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 892,
+       "start_utc": "2026-01-26T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-01-17T16:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1768665600002,
+      "prev_run_count": 5653,
+      "next_run_count": 208
+     },
+     {
+      "at_utc": "2026-01-26T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1769414400003,
+      "prev_run_count": 208,
+      "next_run_count": 892
+     }
+    ],
+    "ms_jitter": {
+     "n": 7458,
+     "zero": 3904,
+     "nonzero": 3554,
+     "nonzero_frac": 0.476535,
+     "max_ms": 47,
+     "top": {
+      "0": 3904,
+      "1": 791,
+      "2": 365,
+      "3": 278,
+      "4": 268,
+      "5": 277,
+      "6": 218,
+      "7": 190
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+     "entry_ms": 1789697700000,
+     "exit_ms": 1790172000000,
+     "entry_utc": "2026-09-18T02:15:00Z",
+     "exit_utc": "2026-09-23T14:00:00Z"
+    }
+   ]
+  },
+  "BABYUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1780891260662,
+    "update_utc": "2026-06-08T04:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 798,
+     "agree_with_official": 797,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3419,
+    "first_utc": "2025-04-05T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2555,
+       "start_utc": "2025-04-05T16:00:00Z",
+       "end_utc": "2026-06-05T12:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 64,
+       "start_utc": "2026-06-05T12:00:00Z",
+       "end_utc": "2026-06-08T04:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 95,
+       "start_utc": "2026-06-08T04:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-06-05T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1780660800000,
+      "prev_run_count": 2555,
+      "next_run_count": 64
+     },
+     {
+      "at_utc": "2026-06-08T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1780891200009,
+      "prev_run_count": 64,
+      "next_run_count": 95
+     }
+    ],
+    "ms_jitter": {
+     "n": 3419,
+     "zero": 1610,
+     "nonzero": 1809,
+     "nonzero_frac": 0.529102,
+     "max_ms": 26,
+     "top": {
+      "0": 1610,
+      "1": 501,
+      "2": 297,
+      "3": 235,
+      "4": 166,
+      "5": 156,
+      "6": 105,
+      "7": 91
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+     "entry_ms": 1789694100000,
+     "exit_ms": 1789702200000,
+     "entry_utc": "2026-09-18T01:15:00Z",
+     "exit_utc": "2026-09-18T03:30:00Z"
+    }
+   ]
+  },
+  "BBUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1715603493496,
+    "update_utc": "2024-05-13T12:31:33Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5332,
+     "agree_with_official": 5331,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5333,
+    "first_utc": "2024-05-13T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 4628,
+       "start_utc": "2024-05-13T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 5333,
+     "zero": 3207,
+     "nonzero": 2126,
+     "nonzero_frac": 0.39865,
+     "max_ms": 26,
+     "top": {
+      "0": 3207,
+      "1": 760,
+      "2": 311,
+      "3": 243,
+      "4": 177,
+      "5": 162,
+      "6": 109,
+      "7": 95
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+     "entry_ms": 1791702900000,
+     "exit_ms": 1791705600000,
+     "entry_utc": "2026-10-11T07:15:00Z",
+     "exit_utc": "2026-10-11T08:00:00Z"
+    }
+   ]
+  },
+  "BLURUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1775235660198,
+    "update_utc": "2026-04-03T17:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1191,
+     "agree_with_official": 1190,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4459,
+    "first_utc": "2023-04-27T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 6,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 3209,
+       "start_utc": "2023-04-27T16:00:00Z",
+       "end_utc": "2026-04-01T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 57,
+       "start_utc": "2026-04-01T08:00:00Z",
+       "end_utc": "2026-04-03T17:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 487,
+       "start_utc": "2026-04-03T20:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 3.0,
+       "count": 1,
+       "at_utc": "2026-04-03T17:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      3.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 2
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-04-01T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1775030400000,
+      "prev_run_count": 3209,
+      "next_run_count": 57
+     },
+     {
+      "at_utc": "2026-04-03T20:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1775246400001,
+      "prev_run_count": 57,
+      "next_run_count": 487
+     }
+    ],
+    "ms_jitter": {
+     "n": 4459,
+     "zero": 2886,
+     "nonzero": 1573,
+     "nonzero_frac": 0.35277,
+     "max_ms": 29,
+     "top": {
+      "0": 2886,
+      "1": 569,
+      "2": 224,
+      "3": 161,
+      "4": 123,
+      "5": 122,
+      "6": 73,
+      "7": 67
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+     "entry_ms": 1787217300000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-20T09:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "BNBUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   },
+   "observed": {
+    "n_events": 7330,
+    "first_utc": "2020-02-10T08:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 7329,
+       "start_utc": "2020-02-10T08:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 7330,
+     "zero": 4003,
+     "nonzero": 3327,
+     "nonzero_frac": 0.453888,
+     "max_ms": 47,
+     "top": {
+      "0": 4003,
+      "1": 790,
+      "2": 306,
+      "3": 241,
+      "4": 239,
+      "5": 251,
+      "6": 200,
+      "7": 176
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+     "entry_ms": 1791170100000,
+     "exit_ms": 1791338400000,
+     "entry_utc": "2026-10-05T03:15:00Z",
+     "exit_utc": "2026-10-07T02:00:00Z"
+    }
+   ]
+  },
+  "CARVUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1754585124450,
+    "update_utc": "2025-08-07T16:45:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2625,
+     "agree_with_official": 2624,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2627,
+    "first_utc": "2025-08-07T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1922,
+       "start_utc": "2025-08-07T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2627,
+     "zero": 1227,
+     "nonzero": 1400,
+     "nonzero_frac": 0.532927,
+     "max_ms": 26,
+     "top": {
+      "0": 1227,
+      "1": 367,
+      "2": 237,
+      "3": 177,
+      "4": 135,
+      "5": 123,
+      "6": 77,
+      "7": 70
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+     "entry_ms": 1789823700000,
+     "exit_ms": 1790172000000,
+     "entry_utc": "2026-09-19T13:15:00Z",
+     "exit_utc": "2026-09-23T14:00:00Z"
+    }
+   ]
+  },
+  "CHZUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1698655916366,
+    "update_utc": "2023-10-30T08:51:56Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3254,
+     "agree_with_official": 3254,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6353,
+    "first_utc": "2021-01-01T00:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 6352,
+       "start_utc": "2021-01-01T00:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6353,
+     "zero": 3381,
+     "nonzero": 2972,
+     "nonzero_frac": 0.46781,
+     "max_ms": 47,
+     "top": {
+      "0": 3381,
+      "1": 653,
+      "2": 273,
+      "3": 210,
+      "4": 218,
+      "5": 225,
+      "6": 174,
+      "7": 161
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+     "entry_ms": 1791000900000,
+     "exit_ms": 1791174600000,
+     "entry_utc": "2026-10-03T04:15:00Z",
+     "exit_utc": "2026-10-05T04:30:00Z"
+    }
+   ]
+  },
+  "COLLECTUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767185851416,
+    "update_utc": "2025-12-31T12:57:31Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1750,
+     "agree_with_official": 1749,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 1751,
+    "first_utc": "2025-12-31T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1046,
+       "start_utc": "2025-12-31T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 1751,
+     "zero": 841,
+     "nonzero": 910,
+     "nonzero_frac": 0.519703,
+     "max_ms": 26,
+     "top": {
+      "0": 841,
+      "1": 233,
+      "2": 161,
+      "3": 113,
+      "4": 81,
+      "5": 78,
+      "6": 50,
+      "7": 48
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+     "entry_ms": 1787289300000,
+     "exit_ms": 1787300100000,
+     "entry_utc": "2026-08-21T05:15:00Z",
+     "exit_utc": "2026-08-21T08:15:00Z"
+    }
+   ]
+  },
+  "COOKIEUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1736249460645,
+    "update_utc": "2025-01-07T11:31:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3899,
+     "agree_with_official": 3898,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3900,
+    "first_utc": "2025-01-07T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3195,
+       "start_utc": "2025-01-07T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3900,
+     "zero": 2024,
+     "nonzero": 1876,
+     "nonzero_frac": 0.481026,
+     "max_ms": 26,
+     "top": {
+      "0": 2024,
+      "1": 563,
+      "2": 296,
+      "3": 237,
+      "4": 168,
+      "5": 158,
+      "6": 105,
+      "7": 91
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+     "entry_ms": 1785125700000,
+     "exit_ms": 1785192300000,
+     "entry_utc": "2026-07-27T04:15:00Z",
+     "exit_utc": "2026-07-27T22:45:00Z"
+    }
+   ]
+  },
+  "CROSSUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752143509921,
+    "update_utc": "2025-07-10T10:31:49Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2795,
+     "agree_with_official": 2794,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2796,
+    "first_utc": "2025-07-10T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2091,
+       "start_utc": "2025-07-10T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2796,
+     "zero": 1302,
+     "nonzero": 1494,
+     "nonzero_frac": 0.534335,
+     "max_ms": 26,
+     "top": {
+      "0": 1302,
+      "1": 398,
+      "2": 247,
+      "3": 190,
+      "4": 145,
+      "5": 132,
+      "6": 80,
+      "7": 75
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+     "entry_ms": 1788945300000,
+     "exit_ms": 1788975000000,
+     "entry_utc": "2026-09-09T09:15:00Z",
+     "exit_utc": "2026-09-09T17:30:00Z"
+    }
+   ]
+  },
+  "DOTUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   },
+   "observed": {
+    "n_events": 6754,
+    "first_utc": "2020-08-20T08:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 6753,
+       "start_utc": "2020-08-20T08:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6754,
+     "zero": 3578,
+     "nonzero": 3176,
+     "nonzero_frac": 0.47024,
+     "max_ms": 47,
+     "top": {
+      "0": 3578,
+      "1": 701,
+      "2": 288,
+      "3": 230,
+      "4": 234,
+      "5": 246,
+      "6": 189,
+      "7": 172
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+     "entry_ms": 1785809700000,
+     "exit_ms": 1786111200000,
+     "entry_utc": "2026-08-04T02:15:00Z",
+     "exit_utc": "2026-08-07T14:00:00Z"
+    }
+   ]
+  },
+  "DUSKUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1769209260111,
+    "update_utc": "2026-01-23T23:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1610,
+     "agree_with_official": 1609,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6144,
+    "first_utc": "2022-01-06T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 4421,
+       "start_utc": "2022-01-06T16:00:00Z",
+       "end_utc": "2026-01-19T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 112,
+       "start_utc": "2026-01-19T08:00:00Z",
+       "end_utc": "2026-01-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 906,
+       "start_utc": "2026-01-24T00:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-01-19T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 1.0,
+      "at_ms": 1768809600007,
+      "prev_run_count": 4421,
+      "next_run_count": 112
+     },
+     {
+      "at_utc": "2026-01-24T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1769212800011,
+      "prev_run_count": 112,
+      "next_run_count": 906
+     }
+    ],
+    "ms_jitter": {
+     "n": 6144,
+     "zero": 3432,
+     "nonzero": 2712,
+     "nonzero_frac": 0.441406,
+     "max_ms": 31,
+     "top": {
+      "0": 3432,
+      "1": 676,
+      "2": 283,
+      "3": 211,
+      "4": 197,
+      "5": 199,
+      "6": 152,
+      "7": 133
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+     "entry_ms": 1789978500000,
+     "exit_ms": 1790172000000,
+     "entry_utc": "2026-09-21T08:15:00Z",
+     "exit_utc": "2026-09-23T14:00:00Z"
+    }
+   ]
+  },
+  "ETHWUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1701174684534,
+    "update_utc": "2023-11-28T12:31:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6334,
+     "agree_with_official": 6333,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6335,
+    "first_utc": "2023-11-28T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 5630,
+       "start_utc": "2023-11-28T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6335,
+     "zero": 4085,
+     "nonzero": 2250,
+     "nonzero_frac": 0.35517,
+     "max_ms": 26,
+     "top": {
+      "0": 4085,
+      "1": 869,
+      "2": 317,
+      "3": 244,
+      "4": 179,
+      "5": 162,
+      "6": 110,
+      "7": 97
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+     "entry_ms": 1787174100000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-19T21:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "EVAAUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1759487831783,
+    "update_utc": "2025-10-03T10:37:11Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2285,
+     "agree_with_official": 2284,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2286,
+    "first_utc": "2025-10-03T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1581,
+       "start_utc": "2025-10-03T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2286,
+     "zero": 1077,
+     "nonzero": 1209,
+     "nonzero_frac": 0.528871,
+     "max_ms": 26,
+     "top": {
+      "0": 1077,
+      "1": 318,
+      "2": 202,
+      "3": 152,
+      "4": 120,
+      "5": 104,
+      "6": 62,
+      "7": 60
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+     "entry_ms": 1789744500000,
+     "exit_ms": 1789744500000,
+     "entry_utc": "2026-09-18T15:15:00Z",
+     "exit_utc": "2026-09-18T15:15:00Z"
+    }
+   ]
+  },
+  "GOATUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1729776706404,
+    "update_utc": "2024-10-24T13:31:46Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4348,
+     "agree_with_official": 4347,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4349,
+    "first_utc": "2024-10-24T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3644,
+       "start_utc": "2024-10-24T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 4349,
+     "zero": 2388,
+     "nonzero": 1961,
+     "nonzero_frac": 0.450908,
+     "max_ms": 26,
+     "top": {
+      "0": 2388,
+      "1": 631,
+      "2": 299,
+      "3": 239,
+      "4": 170,
+      "5": 158,
+      "6": 107,
+      "7": 93
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+     "entry_ms": 1789258500000,
+     "exit_ms": 1789389000000,
+     "entry_utc": "2026-09-13T00:15:00Z",
+     "exit_utc": "2026-09-14T12:30:00Z"
+    }
+   ]
+  },
+  "HYPERUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752854488832,
+    "update_utc": "2025-07-18T16:01:28Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2745,
+     "agree_with_official": 2744,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3419,
+    "first_utc": "2025-04-22T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 472,
+       "start_utc": "2025-04-22T16:00:00Z",
+       "end_utc": "2025-07-10T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 200,
+       "start_utc": "2025-07-10T08:00:00Z",
+       "end_utc": "2025-07-18T16:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 2042,
+       "start_utc": "2025-07-18T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2025-07-10T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1752134400000,
+      "prev_run_count": 472,
+      "next_run_count": 200
+     },
+     {
+      "at_utc": "2025-07-18T16:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1752854400000,
+      "prev_run_count": 200,
+      "next_run_count": 2042
+     }
+    ],
+    "ms_jitter": {
+     "n": 3419,
+     "zero": 1550,
+     "nonzero": 1869,
+     "nonzero_frac": 0.546651,
+     "max_ms": 26,
+     "top": {
+      "0": 1550,
+      "1": 500,
+      "2": 306,
+      "3": 251,
+      "4": 175,
+      "5": 167,
+      "6": 112,
+      "7": 97
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+     "entry_ms": 1787174100000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-19T21:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "IRYSUSDT": {
+   "official": {
+    "interval_hours": 1,
+    "update_ms": 1792785660605,
+    "update_utc": "2026-10-23T20:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 0,
+     "agree_with_official": 0,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2031,
+    "first_utc": "2025-11-26T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1019,
+       "start_utc": "2025-11-26T16:00:00Z",
+       "end_utc": "2026-05-15T12:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 92,
+       "start_utc": "2026-05-15T12:00:00Z",
+       "end_utc": "2026-05-19T08:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 919,
+       "start_utc": "2026-05-19T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      1.0,
+      4.0
+     ],
+     "n_major_runs": 3,
+     "n_minor_runs": 0
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-05-15T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1778846400001,
+      "prev_run_count": 1019,
+      "next_run_count": 92
+     },
+     {
+      "at_utc": "2026-05-19T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1779177600001,
+      "prev_run_count": 92,
+      "next_run_count": 919
+     }
+    ],
+    "ms_jitter": {
+     "n": 2031,
+     "zero": 972,
+     "nonzero": 1059,
+     "nonzero_frac": 0.521418,
+     "max_ms": 26,
+     "top": {
+      "0": 972,
+      "1": 273,
+      "2": 181,
+      "3": 122,
+      "4": 105,
+      "5": 91,
+      "6": 55,
+      "7": 55
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+     "entry_ms": 1789863300000,
+     "exit_ms": 1789902000000,
+     "entry_utc": "2026-09-20T00:15:00Z",
+     "exit_utc": "2026-09-20T11:00:00Z"
+    }
+   ]
+  },
+  "JELLYJELLYUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1773190860163,
+    "update_utc": "2026-03-11T01:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1333,
+     "agree_with_official": 1332,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3444,
+    "first_utc": "2025-03-26T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 6,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2092,
+       "start_utc": "2025-03-26T16:00:00Z",
+       "end_utc": "2026-03-10T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 17,
+       "start_utc": "2026-03-10T08:00:00Z",
+       "end_utc": "2026-03-11T01:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 629,
+       "start_utc": "2026-03-11T04:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 3.0,
+       "count": 1,
+       "at_utc": "2026-03-11T01:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      3.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 2
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-03-10T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1773129600002,
+      "prev_run_count": 2092,
+      "next_run_count": 17
+     },
+     {
+      "at_utc": "2026-03-11T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1773201600000,
+      "prev_run_count": 17,
+      "next_run_count": 629
+     }
+    ],
+    "ms_jitter": {
+     "n": 3444,
+     "zero": 1636,
+     "nonzero": 1808,
+     "nonzero_frac": 0.524971,
+     "max_ms": 26,
+     "top": {
+      "0": 1636,
+      "1": 505,
+      "2": 297,
+      "3": 238,
+      "4": 164,
+      "5": 158,
+      "6": 103,
+      "7": 89
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+     "entry_ms": 1790414100000,
+     "exit_ms": 1790432100000,
+     "entry_utc": "2026-09-26T09:15:00Z",
+     "exit_utc": "2026-09-26T14:15:00Z"
+    }
+   ]
+  },
+  "KATUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1772425755582,
+    "update_utc": "2026-03-02T04:29:15Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1386,
+     "agree_with_official": 1385,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 1387,
+    "first_utc": "2026-03-02T08:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 682,
+       "start_utc": "2026-03-02T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 1387,
+     "zero": 683,
+     "nonzero": 704,
+     "nonzero_frac": 0.50757,
+     "max_ms": 26,
+     "top": {
+      "0": 683,
+      "1": 187,
+      "2": 129,
+      "3": 94,
+      "4": 65,
+      "5": 62,
+      "6": 39,
+      "7": 26
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+     "entry_ms": 1787303700000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-21T09:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "KMNOUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1734721279925,
+    "update_utc": "2024-12-20T19:01:19Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4005,
+     "agree_with_official": 4004,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4006,
+    "first_utc": "2024-12-20T20:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3301,
+       "start_utc": "2024-12-20T20:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 4006,
+     "zero": 2107,
+     "nonzero": 1899,
+     "nonzero_frac": 0.474039,
+     "max_ms": 26,
+     "top": {
+      "0": 2107,
+      "1": 581,
+      "2": 297,
+      "3": 237,
+      "4": 169,
+      "5": 158,
+      "6": 106,
+      "7": 92
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+     "entry_ms": 1786072500000,
+     "exit_ms": 1786077900000,
+     "entry_utc": "2026-08-07T03:15:00Z",
+     "exit_utc": "2026-08-07T04:45:00Z"
+    }
+   ]
+  },
+  "KOMAUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1733833060968,
+    "update_utc": "2024-12-10T12:17:40Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4066,
+     "agree_with_official": 4065,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4067,
+    "first_utc": "2024-12-10T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3362,
+       "start_utc": "2024-12-10T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 4067,
+     "zero": 2157,
+     "nonzero": 1910,
+     "nonzero_frac": 0.469634,
+     "max_ms": 26,
+     "top": {
+      "0": 2157,
+      "1": 591,
+      "2": 297,
+      "3": 237,
+      "4": 169,
+      "5": 158,
+      "6": 106,
+      "7": 92
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+     "entry_ms": 1788614100000,
+     "exit_ms": 1788615000000,
+     "entry_utc": "2026-09-05T13:15:00Z",
+     "exit_utc": "2026-09-05T13:30:00Z"
+    }
+   ]
+  },
+  "METISUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1710232428071,
+    "update_utc": "2024-03-12T08:33:48Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5705,
+     "agree_with_official": 5704,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5709,
+    "first_utc": "2024-03-11T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 4,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 5002,
+       "start_utc": "2024-03-12T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 2,
+       "at_utc": "2024-03-11T16:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 2
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 5709,
+     "zero": 3531,
+     "nonzero": 2178,
+     "nonzero_frac": 0.381503,
+     "max_ms": 26,
+     "top": {
+      "0": 3531,
+      "1": 802,
+      "2": 315,
+      "3": 243,
+      "4": 178,
+      "5": 162,
+      "6": 110,
+      "7": 96
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+     "entry_ms": 1791749700000,
+     "exit_ms": 1791810900000,
+     "entry_utc": "2026-10-11T20:15:00Z",
+     "exit_utc": "2026-10-12T13:15:00Z"
+    }
+   ]
+  },
+  "METUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1760184817190,
+    "update_utc": "2025-10-11T12:13:37Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2236,
+     "agree_with_official": 2235,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2238,
+    "first_utc": "2025-10-11T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1533,
+       "start_utc": "2025-10-11T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2238,
+     "zero": 1060,
+     "nonzero": 1178,
+     "nonzero_frac": 0.526363,
+     "max_ms": 26,
+     "top": {
+      "0": 1060,
+      "1": 314,
+      "2": 194,
+      "3": 144,
+      "4": 116,
+      "5": 102,
+      "6": 60,
+      "7": 60
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+     "entry_ms": 1789118100000,
+     "exit_ms": 1789163100000,
+     "entry_utc": "2026-09-11T09:15:00Z",
+     "exit_utc": "2026-09-11T21:45:00Z"
+    }
+   ]
+  },
+  "NEARUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1760927510785,
+    "update_utc": "2025-10-20T02:31:50Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1092,
+     "agree_with_official": 1092,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6588,
+    "first_utc": "2020-10-14T16:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 6587,
+       "start_utc": "2020-10-14T16:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6588,
+     "zero": 3493,
+     "nonzero": 3095,
+     "nonzero_frac": 0.469794,
+     "max_ms": 47,
+     "top": {
+      "0": 3493,
+      "1": 681,
+      "2": 280,
+      "3": 223,
+      "4": 226,
+      "5": 236,
+      "6": 183,
+      "7": 170
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+     "entry_ms": 1788552900000,
+     "exit_ms": 1788820200000,
+     "entry_utc": "2026-09-04T20:15:00Z",
+     "exit_utc": "2026-09-07T22:30:00Z"
+    }
+   ]
+  },
+  "NILUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1742821311662,
+    "update_utc": "2025-03-24T13:01:51Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3442,
+     "agree_with_official": 3441,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3444,
+    "first_utc": "2025-03-24T08:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 4,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2738,
+       "start_utc": "2025-03-24T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2025-03-24T08:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 2
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3444,
+     "zero": 1642,
+     "nonzero": 1802,
+     "nonzero_frac": 0.523229,
+     "max_ms": 26,
+     "top": {
+      "0": 1642,
+      "1": 505,
+      "2": 295,
+      "3": 236,
+      "4": 165,
+      "5": 156,
+      "6": 103,
+      "7": 89
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+     "entry_ms": 1785114900000,
+     "exit_ms": 1785195000000,
+     "entry_utc": "2026-07-27T01:15:00Z",
+     "exit_utc": "2026-07-27T23:30:00Z"
+    }
+   ]
+  },
+  "PEOPLEUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1697703181342,
+    "update_utc": "2023-10-19T08:13:01Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3287,
+     "agree_with_official": 3287,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5283,
+    "first_utc": "2021-12-23T16:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 5282,
+       "start_utc": "2021-12-23T16:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 5283,
+     "zero": 3013,
+     "nonzero": 2270,
+     "nonzero_frac": 0.42968,
+     "max_ms": 31,
+     "top": {
+      "0": 3013,
+      "1": 567,
+      "2": 204,
+      "3": 151,
+      "4": 156,
+      "5": 164,
+      "6": 121,
+      "7": 112
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+     "entry_ms": 1785006900000,
+     "exit_ms": 1785322800000,
+     "entry_utc": "2026-07-25T19:15:00Z",
+     "exit_utc": "2026-07-29T11:00:00Z"
+    }
+   ]
+  },
+  "PIXELUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1773360060213,
+    "update_utc": "2026-03-13T00:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1321,
+     "agree_with_official": 1320,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5876,
+    "first_utc": "2024-02-19T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 4501,
+       "start_utc": "2024-02-19T16:00:00Z",
+       "end_utc": "2026-03-10T20:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 52,
+       "start_utc": "2026-03-10T20:00:00Z",
+       "end_utc": "2026-03-13T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 618,
+       "start_utc": "2026-03-13T00:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-03-10T20:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1773172800004,
+      "prev_run_count": 4501,
+      "next_run_count": 52
+     },
+     {
+      "at_utc": "2026-03-13T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1773360000006,
+      "prev_run_count": 52,
+      "next_run_count": 618
+     }
+    ],
+    "ms_jitter": {
+     "n": 5876,
+     "zero": 3663,
+     "nonzero": 2213,
+     "nonzero_frac": 0.376617,
+     "max_ms": 26,
+     "top": {
+      "0": 3663,
+      "1": 822,
+      "2": 319,
+      "3": 246,
+      "4": 180,
+      "5": 163,
+      "6": 110,
+      "7": 96
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+     "entry_ms": 1789989300000,
+     "exit_ms": 1790172000000,
+     "entry_utc": "2026-09-21T11:15:00Z",
+     "exit_utc": "2026-09-23T14:00:00Z"
+    }
+   ]
+  },
+  "PLUMEUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767157260558,
+    "update_utc": "2025-12-31T05:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1752,
+     "agree_with_official": 1751,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4089,
+    "first_utc": "2025-03-21T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 6,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1498,
+       "start_utc": "2025-03-21T16:00:00Z",
+       "end_utc": "2025-11-26T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 837,
+       "start_utc": "2025-11-26T08:00:00Z",
+       "end_utc": "2025-12-31T05:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 1048,
+       "start_utc": "2025-12-31T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 3.0,
+       "count": 1,
+       "at_utc": "2025-12-31T05:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      3.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 2
+    },
+    "switch_points": [
+     {
+      "at_utc": "2025-11-26T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1764144000001,
+      "prev_run_count": 1498,
+      "next_run_count": 837
+     },
+     {
+      "at_utc": "2025-12-31T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1767168000001,
+      "prev_run_count": 837,
+      "next_run_count": 1048
+     }
+    ],
+    "ms_jitter": {
+     "n": 4089,
+     "zero": 1935,
+     "nonzero": 2154,
+     "nonzero_frac": 0.526779,
+     "max_ms": 26,
+     "top": {
+      "0": 1935,
+      "1": 603,
+      "2": 336,
+      "3": 265,
+      "4": 197,
+      "5": 194,
+      "6": 129,
+      "7": 116
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+     "entry_ms": 1786036500000,
+     "exit_ms": 1786080600000,
+     "entry_utc": "2026-08-06T17:15:00Z",
+     "exit_utc": "2026-08-07T05:30:00Z"
+    }
+   ]
+  },
+  "PORTALUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1709219601092,
+    "update_utc": "2024-02-29T15:13:21Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5776,
+     "agree_with_official": 5775,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5777,
+    "first_utc": "2024-02-29T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 5072,
+       "start_utc": "2024-02-29T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 5777,
+     "zero": 3591,
+     "nonzero": 2186,
+     "nonzero_frac": 0.378397,
+     "max_ms": 26,
+     "top": {
+      "0": 3591,
+      "1": 810,
+      "2": 315,
+      "3": 243,
+      "4": 178,
+      "5": 162,
+      "6": 110,
+      "7": 96
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+     "entry_ms": 1786882500000,
+     "exit_ms": 1786931100000,
+     "entry_utc": "2026-08-16T12:15:00Z",
+     "exit_utc": "2026-08-17T01:45:00Z"
+    }
+   ]
+  },
+  "PROVEUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1779519660572,
+    "update_utc": "2026-05-23T07:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 894,
+     "agree_with_official": 893,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2672,
+    "first_utc": "2025-08-05T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 1733,
+       "start_utc": "2025-08-05T16:00:00Z",
+       "end_utc": "2026-05-21T12:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 44,
+       "start_utc": "2026-05-21T12:00:00Z",
+       "end_utc": "2026-05-23T08:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 190,
+       "start_utc": "2026-05-23T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-05-21T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1779364800000,
+      "prev_run_count": 1733,
+      "next_run_count": 44
+     },
+     {
+      "at_utc": "2026-05-23T08:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1779523200001,
+      "prev_run_count": 44,
+      "next_run_count": 190
+     }
+    ],
+    "ms_jitter": {
+     "n": 2672,
+     "zero": 1248,
+     "nonzero": 1424,
+     "nonzero_frac": 0.532934,
+     "max_ms": 26,
+     "top": {
+      "0": 1248,
+      "1": 371,
+      "2": 240,
+      "3": 181,
+      "4": 138,
+      "5": 126,
+      "6": 78,
+      "7": 74
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+     "entry_ms": 1789751700000,
+     "exit_ms": 1790035200000,
+     "entry_utc": "2026-09-18T17:15:00Z",
+     "exit_utc": "2026-09-22T00:00:00Z"
+    }
+   ]
+  },
+  "PYTHUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1700663556024,
+    "update_utc": "2023-11-22T14:32:36Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6370,
+     "agree_with_official": 6369,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6371,
+    "first_utc": "2023-11-22T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 5666,
+       "start_utc": "2023-11-22T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6371,
+     "zero": 4114,
+     "nonzero": 2257,
+     "nonzero_frac": 0.354261,
+     "max_ms": 26,
+     "top": {
+      "0": 4114,
+      "1": 876,
+      "2": 317,
+      "3": 244,
+      "4": 179,
+      "5": 162,
+      "6": 110,
+      "7": 97
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+     "entry_ms": 1791494100000,
+     "exit_ms": 1791505800000,
+     "entry_utc": "2026-10-08T21:15:00Z",
+     "exit_utc": "2026-10-09T00:30:00Z"
+    }
+   ]
+  },
+  "SAFEUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1729859454826,
+    "update_utc": "2024-10-25T12:30:54Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 4342,
+     "agree_with_official": 4341,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 4343,
+    "first_utc": "2024-10-25T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3638,
+       "start_utc": "2024-10-25T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 4343,
+     "zero": 2383,
+     "nonzero": 1960,
+     "nonzero_frac": 0.451301,
+     "max_ms": 26,
+     "top": {
+      "0": 2383,
+      "1": 630,
+      "2": 299,
+      "3": 239,
+      "4": 170,
+      "5": 158,
+      "6": 107,
+      "7": 93
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+     "entry_ms": 1787303700000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-21T09:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "SANDUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1760547283535,
+    "update_utc": "2025-10-15T16:54:43Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1105,
+     "agree_with_official": 1105,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6280,
+    "first_utc": "2021-01-25T08:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 6279,
+       "start_utc": "2021-01-25T08:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 6280,
+     "zero": 3349,
+     "nonzero": 2931,
+     "nonzero_frac": 0.46672,
+     "max_ms": 47,
+     "top": {
+      "0": 3349,
+      "1": 647,
+      "2": 269,
+      "3": 204,
+      "4": 213,
+      "5": 222,
+      "6": 172,
+      "7": 159
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+     "entry_ms": 1787242500000,
+     "exit_ms": 1787362200000,
+     "entry_utc": "2026-08-20T16:15:00Z",
+     "exit_utc": "2026-08-22T01:30:00Z"
+    }
+   ]
+  },
+  "SKRUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1788807660623,
+    "update_utc": "2026-09-07T19:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 250,
+     "agree_with_official": 250,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 1864,
+    "first_utc": "2026-01-22T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 8,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 197,
+       "start_utc": "2026-01-22T12:00:00Z",
+       "end_utc": "2026-02-24T08:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 137,
+       "start_utc": "2026-02-24T08:00:00Z",
+       "end_utc": "2026-03-02T01:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 683,
+       "start_utc": "2026-03-02T04:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 406,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-08-31T00:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 188,
+       "start_utc": "2026-08-31T00:00:00Z",
+       "end_utc": "2026-09-07T20:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 250,
+       "start_utc": "2026-09-07T20:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 3.0,
+       "count": 1,
+       "at_utc": "2026-03-02T01:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      3.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 6,
+     "n_minor_runs": 2
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-02-24T08:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1771920000000,
+      "prev_run_count": 197,
+      "next_run_count": 137
+     },
+     {
+      "at_utc": "2026-03-02T04:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1772424000001,
+      "prev_run_count": 137,
+      "next_run_count": 683
+     },
+     {
+      "at_utc": "2026-08-31T00:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1788134400002,
+      "prev_run_count": 406,
+      "next_run_count": 188
+     },
+     {
+      "at_utc": "2026-09-07T20:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1788811200000,
+      "prev_run_count": 188,
+      "next_run_count": 250
+     }
+    ],
+    "ms_jitter": {
+     "n": 1864,
+     "zero": 895,
+     "nonzero": 969,
+     "nonzero_frac": 0.51985,
+     "max_ms": 26,
+     "top": {
+      "0": 895,
+      "1": 242,
+      "2": 181,
+      "3": 121,
+      "4": 89,
+      "5": 87,
+      "6": 55,
+      "7": 52
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+     "entry_ms": 1787318100000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-21T13:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  },
+  "SUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1737021684483,
+    "update_utc": "2025-01-16T10:01:24Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3845,
+     "agree_with_official": 3844,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3846,
+    "first_utc": "2025-01-16T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3141,
+       "start_utc": "2025-01-16T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3846,
+     "zero": 1976,
+     "nonzero": 1870,
+     "nonzero_frac": 0.486219,
+     "max_ms": 26,
+     "top": {
+      "0": 1976,
+      "1": 559,
+      "2": 296,
+      "3": 237,
+      "4": 168,
+      "5": 158,
+      "6": 104,
+      "7": 91
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+     "entry_ms": 1791267300000,
+     "exit_ms": 1791338400000,
+     "entry_utc": "2026-10-06T06:15:00Z",
+     "exit_utc": "2026-10-07T02:00:00Z"
+    }
+   ]
+  },
+  "TNSRUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1767355260060,
+    "update_utc": "2026-01-02T12:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1738,
+     "agree_with_official": 1737,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6331,
+    "first_utc": "2024-04-08T20:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3539,
+       "start_utc": "2024-04-08T20:00:00Z",
+       "end_utc": "2025-11-19T16:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 1052,
+       "start_utc": "2025-11-19T16:00:00Z",
+       "end_utc": "2026-01-02T12:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 1035,
+       "start_utc": "2026-01-02T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2025-11-19T16:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1763568000008,
+      "prev_run_count": 3539,
+      "next_run_count": 1052
+     },
+     {
+      "at_utc": "2026-01-02T12:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1767355200000,
+      "prev_run_count": 1052,
+      "next_run_count": 1035
+     }
+    ],
+    "ms_jitter": {
+     "n": 6331,
+     "zero": 3738,
+     "nonzero": 2593,
+     "nonzero_frac": 0.409572,
+     "max_ms": 26,
+     "top": {
+      "0": 3738,
+      "1": 896,
+      "2": 368,
+      "3": 281,
+      "4": 222,
+      "5": 203,
+      "6": 141,
+      "7": 127
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+     "entry_ms": 1784880900000,
+     "exit_ms": 1785008700000,
+     "entry_utc": "2026-07-24T08:15:00Z",
+     "exit_utc": "2026-07-25T19:45:00Z"
+    },
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+     "entry_ms": 1786252500000,
+     "exit_ms": 1786638600000,
+     "entry_utc": "2026-08-09T05:15:00Z",
+     "exit_utc": "2026-08-13T16:30:00Z"
+    }
+   ]
+  },
+  "UAIUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1764172860089,
+    "update_utc": "2025-11-26T16:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1960,
+     "agree_with_official": 1960,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2437,
+    "first_utc": "2025-11-06T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3,
+       "start_utc": "2025-11-06T12:00:00Z",
+       "end_utc": "2025-11-07T00:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 472,
+       "start_utc": "2025-11-07T00:00:00Z",
+       "end_utc": "2025-11-26T16:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 1961,
+       "start_utc": "2025-11-26T16:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      1.0,
+      4.0
+     ],
+     "n_major_runs": 3,
+     "n_minor_runs": 0
+    },
+    "switch_points": [
+     {
+      "at_utc": "2025-11-07T00:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1762473600005,
+      "prev_run_count": 3,
+      "next_run_count": 472
+     },
+     {
+      "at_utc": "2025-11-26T16:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1764172800000,
+      "prev_run_count": 472,
+      "next_run_count": 1961
+     }
+    ],
+    "ms_jitter": {
+     "n": 2437,
+     "zero": 1145,
+     "nonzero": 1292,
+     "nonzero_frac": 0.53016,
+     "max_ms": 26,
+     "top": {
+      "0": 1145,
+      "1": 321,
+      "2": 200,
+      "3": 156,
+      "4": 126,
+      "5": 120,
+      "6": 70,
+      "7": 75
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+     "entry_ms": 1785334500000,
+     "exit_ms": 1785351600000,
+     "entry_utc": "2026-07-29T14:15:00Z",
+     "exit_utc": "2026-07-29T19:00:00Z"
+    }
+   ]
+  },
+  "VELVETUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1752571091591,
+    "update_utc": "2025-07-15T09:18:11Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 2765,
+     "agree_with_official": 2764,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 2766,
+    "first_utc": "2025-07-15T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2061,
+       "start_utc": "2025-07-15T12:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 2766,
+     "zero": 1294,
+     "nonzero": 1472,
+     "nonzero_frac": 0.532176,
+     "max_ms": 26,
+     "top": {
+      "0": 1294,
+      "1": 391,
+      "2": 245,
+      "3": 186,
+      "4": 143,
+      "5": 131,
+      "6": 78,
+      "7": 73
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+     "entry_ms": 1790954100000,
+     "exit_ms": 1791004500000,
+     "entry_utc": "2026-10-02T15:15:00Z",
+     "exit_utc": "2026-10-03T05:15:00Z"
+    }
+   ]
+  },
+  "WALUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1743089542904,
+    "update_utc": "2025-03-27T15:32:22Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3424,
+     "agree_with_official": 3423,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 3425,
+    "first_utc": "2025-03-27T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 2720,
+       "start_utc": "2025-03-27T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 3425,
+     "zero": 1629,
+     "nonzero": 1796,
+     "nonzero_frac": 0.52438,
+     "max_ms": 26,
+     "top": {
+      "0": 1629,
+      "1": 500,
+      "2": 295,
+      "3": 236,
+      "4": 164,
+      "5": 156,
+      "6": 103,
+      "7": 89
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+     "entry_ms": 1791630900000,
+     "exit_ms": 1791633600000,
+     "entry_utc": "2026-10-10T11:15:00Z",
+     "exit_utc": "2026-10-10T12:00:00Z"
+    }
+   ]
+  },
+  "WUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1712158275459,
+    "update_utc": "2024-04-03T15:31:15Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 5572,
+     "agree_with_official": 5571,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5573,
+    "first_utc": "2024-04-03T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 3,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 4868,
+       "start_utc": "2024-04-03T16:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 2,
+     "n_minor_runs": 1
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 5573,
+     "zero": 3413,
+     "nonzero": 2160,
+     "nonzero_frac": 0.387583,
+     "max_ms": 26,
+     "top": {
+      "0": 3413,
+      "1": 788,
+      "2": 315,
+      "3": 243,
+      "4": 177,
+      "5": 162,
+      "6": 110,
+      "7": 95
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+     "entry_ms": 1788696900000,
+     "exit_ms": 1788991200000,
+     "entry_utc": "2026-09-06T12:15:00Z",
+     "exit_utc": "2026-09-09T22:00:00Z"
+    }
+   ]
+  },
+  "XLMUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": null,
+    "update_utc": null,
+    "disclaimer": true
+   },
+   "observed": {
+    "n_events": 7395,
+    "first_utc": "2020-01-19T16:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 7394,
+       "start_utc": "2020-01-19T16:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 7395,
+     "zero": 4059,
+     "nonzero": 3336,
+     "nonzero_frac": 0.451116,
+     "max_ms": 47,
+     "top": {
+      "0": 4059,
+      "1": 797,
+      "2": 308,
+      "3": 241,
+      "4": 239,
+      "5": 251,
+      "6": 200,
+      "7": 176
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+     "entry_ms": 1788786900000,
+     "exit_ms": 1788966000000,
+     "entry_utc": "2026-09-07T13:15:00Z",
+     "exit_utc": "2026-09-09T15:00:00Z"
+    }
+   ]
+  },
+  "YGGUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1697703030891,
+    "update_utc": "2023-10-19T08:10:30Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 6575,
+     "agree_with_official": 6574,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 6834,
+    "first_utc": "2023-08-04T16:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 8,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 8,
+       "start_utc": "2023-08-04T16:00:00Z",
+       "end_utc": "2023-08-07T08:00:00Z"
+      },
+      {
+       "interval_h": 2.0,
+       "count": 11,
+       "start_utc": "2023-08-07T14:00:00Z",
+       "end_utc": "2023-08-08T12:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 194,
+       "start_utc": "2023-08-08T16:00:00Z",
+       "end_utc": "2023-10-12T08:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 5914,
+       "start_utc": "2023-10-12T08:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 6.0,
+       "count": 1,
+       "at_utc": "2023-08-07T08:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 1,
+       "at_utc": "2023-08-08T12:00:00Z"
+      },
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      2.0,
+      4.0,
+      6.0,
+      8.0
+     ],
+     "n_major_runs": 5,
+     "n_minor_runs": 3
+    },
+    "switch_points": [
+     {
+      "at_utc": "2023-08-07T14:00:00Z",
+      "from_h": 8.0,
+      "to_h": 2.0,
+      "at_ms": 1691416800000,
+      "prev_run_count": 8,
+      "next_run_count": 11
+     },
+     {
+      "at_utc": "2023-08-08T16:00:00Z",
+      "from_h": 2.0,
+      "to_h": 8.0,
+      "at_ms": 1691510400000,
+      "prev_run_count": 11,
+      "next_run_count": 194
+     },
+     {
+      "at_utc": "2023-10-12T08:00:00Z",
+      "from_h": 8.0,
+      "to_h": 4.0,
+      "at_ms": 1697097600000,
+      "prev_run_count": 194,
+      "next_run_count": 5914
+     }
+    ],
+    "ms_jitter": {
+     "n": 6834,
+     "zero": 4529,
+     "nonzero": 2305,
+     "nonzero_frac": 0.337284,
+     "max_ms": 26,
+     "top": {
+      "0": 4529,
+      "1": 921,
+      "2": 317,
+      "3": 245,
+      "4": 179,
+      "5": 164,
+      "6": 110,
+      "7": 97
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+     "entry_ms": 1789791300000,
+     "exit_ms": 1790172000000,
+     "entry_utc": "2026-09-19T04:15:00Z",
+     "exit_utc": "2026-09-23T14:00:00Z"
+    },
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+     "entry_ms": 1790943300000,
+     "exit_ms": 1790964900000,
+     "entry_utc": "2026-10-02T12:15:00Z",
+     "exit_utc": "2026-10-02T18:15:00Z"
+    }
+   ]
+  },
+  "ZECUSDT": {
+   "official": {
+    "interval_hours": 8,
+    "update_ms": 1698655930369,
+    "update_utc": "2023-10-30T08:52:10Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 3254,
+     "agree_with_official": 3254,
+     "multiples_of_official": {},
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 7348,
+    "first_utc": "2020-02-04T08:00:00Z",
+    "last_utc": "2026-10-19T08:00:00Z",
+    "full_step_h": 8.0,
+    "recent_90d_step_h": 8.0,
+    "runs": {
+     "n_runs": 1,
+     "major_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 7347,
+       "start_utc": "2020-02-04T08:00:00Z",
+       "end_utc": "2026-10-19T08:00:00Z"
+      }
+     ],
+     "minor_runs": [],
+     "distinct_intervals": [
+      8.0
+     ],
+     "n_major_runs": 1,
+     "n_minor_runs": 0
+    },
+    "switch_points": [],
+    "ms_jitter": {
+     "n": 7348,
+     "zero": 4018,
+     "nonzero": 3330,
+     "nonzero_frac": 0.453185,
+     "max_ms": 47,
+     "top": {
+      "0": 4018,
+      "1": 792,
+      "2": 307,
+      "3": 241,
+      "4": 239,
+      "5": 251,
+      "6": 200,
+      "7": 176
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+     "entry_ms": 1789586100000,
+     "exit_ms": 1789586100000,
+     "entry_utc": "2026-09-16T19:15:00Z",
+     "exit_utc": "2026-09-16T19:15:00Z"
+    }
+   ]
+  },
+  "ZKUSDT": {
+   "official": {
+    "interval_hours": 4,
+    "update_ms": 1770159660106,
+    "update_utc": "2026-02-03T23:01:00Z",
+    "disclaimer": false,
+    "observed_after_update": {
+     "n_intervals": 1544,
+     "agree_with_official": 1543,
+     "multiples_of_official": {
+      "8.0": 1
+     },
+     "contradicting_intervals": {},
+     "consistent": true,
+     "判据": "间隔 == 官方值 ⇒ 一致；间隔是官方值的整数倍 ⇒ 缺口痕迹（不算矛盾）；间隔比官方值更短或非整数倍 ⇒ 与官方值矛盾"
+    }
+   },
+   "observed": {
+    "n_events": 5169,
+    "first_utc": "2024-06-17T12:00:00Z",
+    "last_utc": "2026-10-19T12:00:00Z",
+    "full_step_h": 4.0,
+    "recent_90d_step_h": 4.0,
+    "runs": {
+     "n_runs": 5,
+     "major_runs": [
+      {
+       "interval_h": 4.0,
+       "count": 3564,
+       "start_utc": "2024-06-17T12:00:00Z",
+       "end_utc": "2026-02-01T12:00:00Z"
+      },
+      {
+       "interval_h": 1.0,
+       "count": 60,
+       "start_utc": "2026-02-01T12:00:00Z",
+       "end_utc": "2026-02-04T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 840,
+       "start_utc": "2026-02-04T00:00:00Z",
+       "end_utc": "2026-06-24T00:00:00Z"
+      },
+      {
+       "interval_h": 4.0,
+       "count": 703,
+       "start_utc": "2026-06-24T08:00:00Z",
+       "end_utc": "2026-10-19T12:00:00Z"
+      }
+     ],
+     "minor_runs": [
+      {
+       "interval_h": 8.0,
+       "count": 1,
+       "at_utc": "2026-06-24T00:00:00Z"
+      }
+     ],
+     "distinct_intervals": [
+      1.0,
+      4.0,
+      8.0
+     ],
+     "n_major_runs": 4,
+     "n_minor_runs": 1
+    },
+    "switch_points": [
+     {
+      "at_utc": "2026-02-01T12:00:00Z",
+      "from_h": 4.0,
+      "to_h": 1.0,
+      "at_ms": 1769947200004,
+      "prev_run_count": 3564,
+      "next_run_count": 60
+     },
+     {
+      "at_utc": "2026-02-04T00:00:00Z",
+      "from_h": 1.0,
+      "to_h": 4.0,
+      "at_ms": 1770163200002,
+      "prev_run_count": 60,
+      "next_run_count": 840
+     }
+    ],
+    "ms_jitter": {
+     "n": 5169,
+     "zero": 3049,
+     "nonzero": 2120,
+     "nonzero_frac": 0.410137,
+     "max_ms": 26,
+     "top": {
+      "0": 3049,
+      "1": 744,
+      "2": 312,
+      "3": 243,
+      "4": 176,
+      "5": 163,
+      "6": 113,
+      "7": 97
+     }
+    }
+   },
+   "holds": [
+    {
+     "candidate_id": "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000",
+     "entry_ms": 1787202900000,
+     "exit_ms": 1787374800000,
+     "entry_utc": "2026-08-20T05:15:00Z",
+     "exit_utc": "2026-08-22T05:00:00Z"
+    }
+   ]
+  }
+ },
+ "checks": [
+  {
+   "检查": "P1 48 标的全有官方快照记录（interval 字段非空）",
+   "通过": true,
+   "证据": {
+    "缺 interval": []
+   }
+  },
+  {
+   "检查": "P2 官方值与观测在 updateTime 之后无矛盾（否则必须判冲突）",
+   "通过": true,
+   "证据": {
+    "矛盾标的": []
+   }
+  },
+  {
+   "检查": "P3 确实存在周期切换的标的（说明「一个标的只有一个周期」是错的）",
+   "通过": true,
+   "证据": {
+    "有切换点的标的数": 15,
+    "样例": [
+     {
+      "symbol": "AXSUSDT",
+      "switch_points": [
+       {
+        "at_utc": "2026-01-17T16:00:00Z",
+        "from_h": 8.0,
+        "to_h": 1.0,
+        "at_ms": 1768665600002,
+        "prev_run_count": 5653,
+        "next_run_count": 208
+       },
+       {
+        "at_utc": "2026-01-26T08:00:00Z",
+        "from_h": 1.0,
+        "to_h": 4.0,
+        "at_ms": 1769414400003,
+        "prev_run_count": 208,
+        "next_run_count": 892
+       }
+      ]
+     },
+     {
+      "symbol": "BABYUSDT",
+      "switch_points": [
+       {
+        "at_utc": "2026-06-05T12:00:00Z",
+        "from_h": 4.0,
+        "to_h": 1.0,
+        "at_ms": 1780660800000,
+        "prev_run_count": 2555,
+        "next_run_count": 64
+       },
+       {
+        "at_utc": "2026-06-08T04:00:00Z",
+        "from_h": 1.0,
+        "to_h": 4.0,
+        "at_ms": 1780891200009,
+        "prev_run_count": 64,
+        "next_run_count": 95
+       }
+      ]
+     },
+     {
+      "symbol": "BLURUSDT",
+      "switch_points": [
+       {
+        "at_utc": "2026-04-01T08:00:00Z",
+        "from_h": 8.0,
+        "to_h": 1.0,
+        "at_ms": 1775030400000,
+        "prev_run_count": 3209,
+        "next_run_count": 57
+       },
+       {
+        "at_utc": "2026-04-03T20:00:00Z",
+        "from_h": 1.0,
+        "to_h": 4.0,
+        "at_ms": 1775246400001,
+        "prev_run_count": 57,
+        "next_run_count": 487
+       }
+      ]
+     },
+     {
+      "symbol": "DUSKUSDT",
+      "switch_points": [
+       {
+        "at_utc": "2026-01-19T08:00:00Z",
+        "from_h": 8.0,
+        "to_h": 1.0,
+        "at_ms": 1768809600007,
+        "prev_run_count": 4421,
+        "next_run_count": 112
+       },
+       {
+        "at_utc": "2026-01-24T00:00:00Z",
+        "from_h": 1.0,
+        "to_h": 4.0,
+        "at_ms": 1769212800011,
+        "prev_run_count": 112,
+        "next_run_count": 906
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "检查": "P4 毫秒尾数非 0 的事件占相当比例（精确毫秒匹配必然误判）",
+   "通过": true,
+   "证据": {
+    "非零尾数事件": 95144,
+    "占比": 0.4496,
+    "最大尾数ms": 47
+   }
+  }
+ ]
+}

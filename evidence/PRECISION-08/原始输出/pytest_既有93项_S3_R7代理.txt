@@ -1,0 +1,116 @@
+.........FF...............F.........FF.................................. [ 77%]
+.....................                                                    [100%]
+=================================== FAILURES ===================================
+_____________________ test_max_holding_10_days_expiry_exit _____________________
+
+    def test_max_holding_10_days_expiry_exit():
+        """【测试项 7】最长持仓 10 个自然日：到期按下一根 15m 开盘退出。"""
+        t0 = 1788652800000
+        t_1h_open = t0 + 24 * HOUR_MS
+        t_1h_close = t_1h_open + HOUR_MS
+        t_exec = t_1h_close + MIN15_MS
+        cand = _candidate(candidate_id="cand_hold", event_id="ev_hold",
+                          snapshot_time_ms=t_1h_close, available_at_ms=t_1h_close,
+                          execution_earliest_ms=t_exec)
+    
+        df_1h_sim = pd.DataFrame([{
+            "timestamp": t_1h_open,
+            "open": 105.0, "high": 111.5, "low": 104.8, "close": 111.0, "volume": 2500.0
+        }])
+        # 横盘 11 天，价格始终远离止损（100.1），因此只会因到期退出
+        df_15m_sim = _bars_15m(t_exec - MIN15_MS, 11 * 96 + 2, open_px=111.2)
+    
+        res = _run("SOLUSDT", df_1h_sim, df_15m_sim, [cand], [], variant="A")
+        val = res["validation_results"][0]
+>       assert val.executed is True
+E       AssertionError: assert False is True
+E        +  where False = ValidationResult(validation_id='val_cand_hold_A', candidate_id='cand_hold', event_id='ev_hold', symbol='SOLUSDT', stra...slippage_cost=0.0, funding_cost=0.0, gross_pnl=0.0, net_pnl=0.0, net_pnl_r=0.0, mfe=0.0, mae=0.0, mfe_r=0.0, mae_r=0.0).executed
+
+../../策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:616: AssertionError
+_________________ test_participation_cap_limits_order_notional _________________
+
+    def test_participation_cap_limits_order_notional():
+        """【测试项 8】订单名义 ≤ 已完成前一根 15m 成交额 0.1%。"""
+        t0 = 1788652800000
+        t_1h_open = t0 + 24 * HOUR_MS
+        t_1h_close = t_1h_open + HOUR_MS
+        t_exec = t_1h_close + MIN15_MS
+        cand = _candidate(candidate_id="cand_part", event_id="ev_part",
+                          snapshot_time_ms=t_1h_close, available_at_ms=t_1h_close,
+                          execution_earliest_ms=t_exec)
+    
+        df_1h_sim = pd.DataFrame([{
+            "timestamp": t_1h_open,
+            "open": 105.0, "high": 111.5, "low": 104.8, "close": 111.0, "volume": 2500.0
+        }])
+    
+        # 基准：前一根 15m 成交额很大 ⇒ 参与率不构成约束
+        big = _bars_15m(t_exec - MIN15_MS, 21, open_px=111.2, quote_volume=5_000_000.0)
+        res_big = _run("SOLUSDT", df_1h_sim, big, [cand], [], variant="A")
+        qty_big = res_big["validation_results"][0].executed_qty
+    
+        # 反例：前一根 15m 成交额只有 50000 ⇒ 上限 = 50 U，数量被压到 50/entry
+        # （2026-10-17：原用 100000，但本金事实源已由 10000 改为 2000，风险定量降到
+        #   ~0.887 SOL（名义 ~98.6U）⇒ 100U 上限不再构成约束，用例会假失败。
+        #   改成 50000 保持「上限必须真的卡住」这一原始意图。）
+        small = _bars_15m(t_exec - MIN15_MS, 21, open_px=111.2, quote_volume=50_000.0)
+        res_small = _run("SOLUSDT", df_1h_sim, small, [cand], [], variant="A")
+        val_small = res_small["validation_results"][0]
+>       assert val_small.executed is True
+E       AssertionError: assert False is True
+E        +  where False = ValidationResult(validation_id='val_cand_part_A', candidate_id='cand_part', event_id='ev_part', symbol='SOLUSDT', stra...slippage_cost=0.0, funding_cost=0.0, gross_pnl=0.0, net_pnl=0.0, net_pnl_r=0.0, mfe=0.0, mae=0.0, mfe_r=0.0, mae_r=0.0).executed
+
+../../策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:649: AssertionError
+________________ test_qty_floor_to_step_and_min_notional_reject ________________
+
+    def test_qty_floor_to_step_and_min_notional_reject():
+        """数量必须向下取整到 stepSize；低于最小量 / 最小名义额必须拒绝。"""
+        cand, df_1h, df_15m = _entry_scenario(100.0, 99.0)
+        # ① stepSize=0.01 ⇒ 数量必须是 0.01 的整数倍
+        spec = _spec(symbol="SOLUSDT", price_step="0.01", qty_step="0.01",
+                     min_qty="0.01", min_notional="5")
+        res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                       variant="A", instrument_spec=spec)
+        tr = res["engine_result"]["trades"]
+>       assert tr, "应当成交"
+E       AssertionError: 应当成交
+E       assert []
+
+../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py:230: AssertionError
+_________ test_exit_failure_keeps_position_open_and_marks_run_invalid __________
+
+    def test_exit_failure_keeps_position_open_and_marks_run_invalid():
+        """出场取整后为 0 ⇒ **不得**把仓位当作已平仓；运行标记为无效/未完成。"""
+        # 价格 0.004 + 步长 0.01：入场（买，向上）能成 0.01，出场（卖，向下）必成 0.00
+        cand, df_1h, df_15m = _entry_scenario(0.004, 0.003)
+        res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                       variant="A", price_step="0.01")
+        eng = res["engine_result"]
+        assert eng["trades_count"] == 0
+>       assert eng["open_positions_remaining"], "出场失败时仓位必须仍未平"
+E       AssertionError: 出场失败时仓位必须仍未平
+E       assert []
+
+../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py:326: AssertionError
+______________ test_slippage_and_rounding_are_split_and_reconcile ______________
+
+    def test_slippage_and_rounding_are_split_and_reconcile():
+        """`slippage_loss`（原有总口径）== 纯滑点 + 取整；不把旧 slippage 整体加回利润。"""
+        cand, df_1h, df_15m = _entry_scenario(0.004, 0.003)
+        spec = _spec(symbol="SOLUSDT", price_step="0.0000010", qty_step="1",
+                     min_qty="1", min_notional="5")
+        res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                       variant="A", instrument_spec=spec)
+        tr = res["engine_result"]["trades"]
+>       assert tr, "真实 tick 下应当成交"
+E       AssertionError: 真实 tick 下应当成交
+E       assert []
+
+../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py:344: AssertionError
+=========================== short test summary info ============================
+FAILED ../../策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_max_holding_10_days_expiry_exit
+FAILED ../../策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_participation_cap_limits_order_notional
+FAILED ../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py::test_qty_floor_to_step_and_min_notional_reject
+FAILED ../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py::test_exit_failure_keeps_position_open_and_marks_run_invalid
+FAILED ../../策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py::test_slippage_and_rounding_are_split_and_reconcile
+5 failed, 88 passed in 1.48s

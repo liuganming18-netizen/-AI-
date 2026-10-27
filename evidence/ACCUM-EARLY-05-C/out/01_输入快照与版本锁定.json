@@ -1,0 +1,325 @@
+{
+ "task": "ACCUM-EARLY-05-C",
+ "probe": "01_输入快照与版本锁定",
+ "generated_at_utc": "2026-10-26T15:45:42Z",
+ "window": {
+  "start_utc": "2026-06-27T08:00:00Z",
+  "end_utc": "2026-10-26T09:00:00Z",
+  "warmup_start_utc": "2026-05-21T16:00:00Z",
+  "start_ms": 1782547200000,
+  "end_ms": 1793005200000,
+  "warmup_start_ms": 1779379200000,
+  "why_unchanged": "沿用 04-C 的同一窗口，保证与已交付基线可比。窗口末端之后新到货的数据不并入，属已知边界（见 coverage.hot_now）。"
+ },
+ "code_identity": [
+  {
+   "path": "框架/backend/replay_calc.py",
+   "sha256": "c9fecd6a1e91273c5f600d75c17d977d93fa35f65baf8e9c9ac121d0bbd6e278",
+   "bytes": 33009,
+   "mtime_utc": "2026-10-26T14:11:50Z"
+  },
+  {
+   "path": "框架/backend/research_15m.py",
+   "sha256": "0c00ab0e11a72396be5c70521983b250f8e6ee26158a1bcfb0e1d5b673dd815f",
+   "bytes": 29403,
+   "mtime_utc": "2026-10-26T13:04:44Z"
+  },
+  {
+   "path": "框架/backend/history_loader.py",
+   "sha256": "8150c2c1c27fb70b6453c9ef9ffe2c251ccf734e661280ae60a0233080bffa5f",
+   "bytes": 16028,
+   "mtime_utc": "2026-10-25T01:00:26Z"
+  },
+  {
+   "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+   "sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+   "bytes": 33467,
+   "mtime_utc": "2026-10-26T10:29:24Z"
+  },
+  {
+   "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+   "sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+   "bytes": 5851,
+   "mtime_utc": "2026-10-26T05:45:20Z"
+  },
+  {
+   "path": "策略/WyckoffMaster/event_trend_v0_1/features.py",
+   "sha256": "163194b340e56b33b6a6666dbbcf3ffab58221a9d38f94686e689fcb6de7373d",
+   "bytes": 9056,
+   "mtime_utc": "2026-10-18T14:01:35Z"
+  },
+  {
+   "path": "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py",
+   "sha256": "5ea657faeafe1f253a903225980dd728c60c41022c2cb5d56c9d9d87b6fee79f",
+   "bytes": 11754,
+   "mtime_utc": "2026-10-26T10:29:03Z"
+  },
+  {
+   "path": "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+   "sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+   "bytes": 13315,
+   "mtime_utc": "2026-10-16T15:02:04Z"
+  }
+ ],
+ "data_identity": {
+  "hot_db": {
+   "path": "数据/市场数据/db/market_v2.sqlite3",
+   "sha256": "558d7cbb309081eec3b523e4f877e6e20e371ee76823e2064daf0da3344357cc",
+   "bytes": 13407240192,
+   "size_matches_stat": true,
+   "mtime_utc": "2026-10-26T15:45:55Z",
+   "hash_sec": 14.55,
+   "chunk_bytes": 33554432,
+   "caveat": "采集器实时写入，该 SHA256 只代表取哈希时刻的内容；跨时段不可复用，只能用于「同一时刻的隔离泄漏判据」。"
+  },
+  "cold_parquet": {
+   "catalog_path": "数据/市场数据/parquet/_catalog.json",
+   "catalog_sha256": "c5a9b3d0148ab12a71d748f2e0039646710f82bda5fb6bbd937c28d31aefd02f",
+   "catalog_updated_at": 1792812883,
+   "shards_total": 32920,
+   "rows_total": 343720612,
+   "bytes_total": 10373130046,
+   "by_top_dir": {
+    "candle_heads": {
+     "shards": 12551,
+     "rows": 107913208,
+     "bytes": 577888068
+    },
+    "candles": {
+     "shards": 12498,
+     "rows": 108208916,
+     "bytes": 5371551404
+    },
+    "funding": {
+     "shards": 525,
+     "rows": 2102859,
+     "bytes": 17987220
+    },
+    "oi": {
+     "shards": 1646,
+     "rows": 123422671,
+     "bytes": 4257043629
+    },
+    "sources": {
+     "shards": 5700,
+     "rows": 2072958,
+     "bytes": 148659725
+    }
+   },
+   "shard_manifest_sha256": "751a9167d595a335e01792b037e7cbe667af06075ee099f1acca932edd9a446e",
+   "manifest_rule": "对 (分片路径, 行数, 字节, 分片自身 sha256) 按路径排序后逐行哈希；它等价于「冷档内容指纹」，不需要重算 4 万多个文件。",
+   "caveat": "冷档是只增不改的归档；但导出器在跑，清单会随导出增长。比对时必须以本文件的 manifest_sha256 + shards_total 成对引用。"
+  }
+ },
+ "coverage": {
+  "hot_now": {
+   "by_timeframe": {
+    "12h": {
+     "first_utc": "2026-07-04T12:00:00Z",
+     "last_utc": "2026-10-26T00:00:00Z",
+     "first_ms": 1783166400000,
+     "last_ms": 1792972800000
+    },
+    "15m": {
+     "first_utc": "2026-09-12T00:00:00Z",
+     "last_utc": "2026-10-26T15:30:00Z",
+     "first_ms": 1789171200000,
+     "last_ms": 1793028600000
+    },
+    "1d": {
+     "first_utc": "2026-03-26T00:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "first_ms": 1774483200000,
+     "last_ms": 1792886400000
+    },
+    "1h": {
+     "first_utc": "2026-09-07T02:00:00Z",
+     "last_utc": "2026-10-26T14:00:00Z",
+     "first_ms": 1788746400000,
+     "last_ms": 1793023200000
+    },
+    "30m": {
+     "first_utc": "2026-09-12T00:00:00Z",
+     "last_utc": "2026-10-26T15:00:00Z",
+     "first_ms": 1789171200000,
+     "last_ms": 1793026800000
+    },
+    "4h": {
+     "first_utc": "2026-09-09T20:00:00Z",
+     "last_utc": "2026-10-26T08:00:00Z",
+     "first_ms": 1788984000000,
+     "last_ms": 1793001600000
+    },
+    "5m": {
+     "first_utc": "2026-09-12T00:00:00Z",
+     "last_utc": "2026-10-26T15:40:00Z",
+     "first_ms": 1789171200000,
+     "last_ms": 1793029200000
+    },
+    "8h": {
+     "first_utc": "2026-08-07T08:00:00Z",
+     "last_utc": "2026-10-26T00:00:00Z",
+     "first_ms": 1786089600000,
+     "last_ms": 1792972800000
+    }
+   },
+   "query_sec": 14.43,
+   "note": "这是取数时刻的热库水位；窗口末端 2026-10-26T09:00Z 之后的 bar 未纳入本次实验。"
+  },
+  "symbols": {
+   "symbol_pool_rows": 814,
+   "distinct_candle_symbols": 528,
+   "note": "三层次口径（已接入/已存储/实际参与决策）以 DATA-AUDIT-01-R1 的 FACTS-DATA-v1.json 为准，本文件不另立一套分母。"
+  }
+ },
+ "params": {
+  "calibers": {
+   "生效视图_5bps": {
+    "来源": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+    "initial_equity": 5000.0,
+    "risk_per_trade_fraction": 0.005,
+    "fee_each_side": 0.0005,
+    "slippage_each_side": 0.0005,
+    "single_name_notional_cap": 0.1,
+    "gross_long_notional_cap": 0.8,
+    "participation_cap": 0.01,
+    "leverage": 1.0,
+    "cash_reserve_fraction": 0.2,
+    "portfolio_risk_cap": 0.05
+   },
+   "策略包_3bps": {
+    "来源": "策略/WyckoffMaster/event_trend_v0_1/config.py · make_ft_low4h_config()",
+    "initial_equity": 2000.0,
+    "risk_per_trade_fraction": 0.005,
+    "fee_each_side": 0.0005,
+    "slippage_each_side": 0.0003,
+    "single_name_notional_cap": 0.3,
+    "gross_long_notional_cap": 0.9,
+    "participation_cap": 0.001,
+    "leverage": 1.0,
+    "cash_reserve_fraction": 0.2,
+    "portfolio_risk_cap": 0.015
+   }
+  },
+  "caliber_conflicts": [
+   "滑点：生效视图 5bps vs 策略包 3bps（无批准依据，两套并列）",
+   "每笔风险：两套 risk_per_trade_fraction 实测分别为 0.005 / 0.005，对应绝对风险 25.00 / 10.00 USDT",
+   "参与率上限：生效视图 1.0% vs 策略包 0.1%",
+   "初始本金：生效视图 5000 vs 策略包 2000"
+  ],
+  "vs_04c_text_check": {
+   "04C正文写的策略包单笔风险": "1.5% (30.0 USDT)",
+   "代码实测": "0.50% (10.00 USDT)",
+   "一致": false,
+   "处理": "以代码为准。04-C 正文该格与 CALIBERS 不符，本单不沿用其写法，并把这条登记为「上一单正文与产物不一致」的实例。"
+  },
+  "frozen_effective": {
+   "source": "策略/WyckoffMaster/event_trend_v0_1/config.py · make_ft_low4h_config()",
+   "stoploss_s": 0.05,
+   "trail_d": 0.05,
+   "trailing_trigger_r": 0.0,
+   "trailing_lookback_4h_bars": 1,
+   "max_holding_days": null,
+   "risk_budget_per_trade": 0.005,
+   "initial_equity": 2000.0,
+   "max_active_positions": 3,
+   "max_symbol_positions": 1,
+   "max_total_risk_budget": 0.015,
+   "max_notional_per_position": 0.3,
+   "max_total_notional": 0.9,
+   "atr_warmup_bars": 200,
+   "taker_fee_bps": 5.0,
+   "slippage_bps": 3.0,
+   "max_participation_of_prev_15m_quote": 0.001,
+   "box_bars_4h": 42,
+   "er_threshold": 0.3,
+   "box_min_width_atr": 2.0,
+   "box_max_width_atr": 8.0,
+   "cooling_hours": 24,
+   "enable_oi_filter_default": true,
+   "note": "以上为代码实际生效值。max_holding_days=None 是用户已定（取消 10 天强平）。"
+  }
+ },
+ "dependencies": {
+  "05-B（新策略实现）": {
+   "dir": "evidence/ACCUM-EARLY-05-B",
+   "exists": true,
+   "file_count": 72,
+   "has_readme": false
+  },
+  "05-D（拒单差异与计算版本）": {
+   "dir": "evidence/ACCUM-EARLY-05-D",
+   "exists": true,
+   "file_count": 5,
+   "has_readme": true,
+   "readme_mtime_utc": "2026-10-26T15:43:31Z"
+  },
+  "05-F（数据边界）": {
+   "dir": "evidence/ACCUM-EARLY-05-F",
+   "exists": true,
+   "file_count": 10,
+   "has_readme": false
+  },
+  "04-C（上一单对照框架）": {
+   "dir": "evidence/ACCUM-EARLY-04-C",
+   "exists": true,
+   "file_count": 10,
+   "has_readme": true,
+   "readme_mtime_utc": "2026-10-26T14:14:34Z"
+  },
+  "04-D（回放计算复核）": {
+   "dir": "evidence/ACCUM-EARLY-04-D",
+   "exists": true,
+   "file_count": 6,
+   "has_readme": true,
+   "readme_mtime_utc": "2026-10-26T14:19:25Z"
+  },
+  "结论": "05-B / 05-D / 05-F 三份依赖均未交付（目录不存在）。本单因此只做「可立即开展」的五项，不运行正式新旧策略对照，也不自行设阈值跑新成绩。可用替代上游 = 04-D 的 102 笔复算记录与窗口三分流清单，但必须标注它不是 05-D。"
+ },
+ "gaps": [
+  {
+   "id": "GAP-01",
+   "内容": "生产库无历史观察事件存档",
+   "取证": "live_signals.sqlite3 的 live_signal 表实测 0 行；观察快照只有当前时刻一份",
+   "影响": "「统一观察范围」的历史母集无法从存档直接取，只能靠状态机重放重建（本单脚本 04）",
+   "性质": "数据缺口，不是工程缺陷"
+  },
+  {
+   "id": "GAP-02",
+   "内容": "冷档 15m/4h 无抓取时刻（available_at 填充率 0%）",
+   "取证": "本单脚本 01 的冷档清单统计 + 04-C 已登记",
+   "影响": "凡依赖冷档的成交判定只能标「探索性」，不能声称「当时可得」",
+   "性质": "可得性缺口"
+  },
+  {
+   "id": "GAP-03",
+   "内容": "主动买卖 / 多空比归档停在 2026-10-14T23:55Z",
+   "取证": "04-C 01 与 03-A 已登记；本单不重跑采集侧",
+   "影响": "任何以比率为门槛的新策略判定，在 10-14 之后属于无输入",
+   "性质": "采集侧缺口，跨界未修"
+  },
+  {
+   "id": "GAP-04",
+   "内容": "热库 1h 仅从 2026-09-07T02:00Z 起，15m 仅从 2026-09-12 起",
+   "取证": "本脚本对 candles 表实测 GROUP BY timeframe 的首末时刻",
+   "影响": "窗口前段（06-27 起）的 1h/15m 全部来自冷档 ⇒ 观察流重放与成交回放都依赖冷档",
+   "性质": "覆盖缺口"
+  },
+  {
+   "id": "GAP-05",
+   "内容": "跳空成交模型、滑点 3/5bps、参与率 0.1%/1.0% 均未批准；另：旧材料里「策略包风险 1.5%」与代码实测 0.5% 不符，以代码为准",
+   "取证": "replay_calc.CALIBERS 两套来源字符串 + 派工单待决表",
+   "影响": "两套口径只能并列，不得择一宣称正式成绩",
+   "性质": "批准缺口"
+  }
+ ],
+ "errors": [],
+ "frozen_rule_self_check": {
+  "声明来源": "策略/WyckoffMaster/event_trend_v0_1/config.py 模块 docstring",
+  "声明值": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+  "实测值": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+  "一致": true,
+  "说明": "不一致不代表规则被改，但必须先查清再引用任何基线。"
+ },
+ "elapsed_sec": 35.9
+}

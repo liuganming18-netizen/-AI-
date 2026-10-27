@@ -1,0 +1,40 @@
+path,role,bytes,sha256,note
+框架/backend/backtest_store.py,改,38743,d41ca0cfd3a379f9db58c1c9b563ae34480647e1651bf355f97284979cd197da,P0-1/2/3/5 合成诚实化 + register_external_run 写入口 + STATUS_UNKNOWN
+框架/backend/backtest_runner.py,改,78757,e8b9f946c85aee4fcf5c6e8763ad1b8d685780a7816d9409ea9c71bf2756a419,P1-6/7 execute_run 运行级日志四出口 + 逐笔开关
+框架/backend/backtest_api.py,改,63171,a27671c702d8977ddf2fffa4f5d271ccc782f15b1c108fa905b20e962d472591,P1-8/9 图表兜底 null + 坏行计数日志；registered/status_basis 透传
+框架/backend/backtest_chart.py,改,21052,96df2caaf97b732476d1a35485c837bc3390251a1c5578cf93396cf8bd10e530,同类 R7：equity cash/unrealized 缺字段 null
+框架/backend/run_tests.sh,改,2043,acf045449a4a031d56ceb2894081ab8a8a1da26afca0cea4a9422a8025e14dad,测试隔离：BT_RUN_LOG 默认写 /tmp
+框架/backend/bt_run_log.py,新,3870,3f50fee2b7e374c9e1e77416c85f112dbb0f3ee73aa37f1bd175e6cb347a8269,P1-6/7 运行日志单一实现（stdout + logs/backtest_runs.log 双写）
+工具_登记回测运行.py,新,11305,8151e5924fb2e19caf7be11bd521d9f119b0f25613e3368e975db418733296d9,P0-4 批量 run 登记工具（只走 store 写入口，原子、拒绝覆盖）
+run_batch_2025q4_100.py,改,8569,f0bc6050a636723deee48b76f08bf4d008299a54e6f6c19a3a34a0c794f9335e,P0-4 登记调用
+run_batch_2025q4_100_batch2.py,改,10672,e68df854601f6d74cd48e8f65b348dad62e32cb82c7b2c9c91f66282e4ed8634,P0-4 登记调用
+run_batch_2026_aug_20.py,改,9669,e2a72ba5130c5d59593df2aeece25d82e33c6aa0b8dcb1e1e65674aacf3d7a26,P0-4 登记调用
+run_batch_2026_aug_100.py,改,9196,47e2e6c507b3bcbfdac261a6d8bfd4a8c5eba22dc72e9715c4ba8481856fc59c,P0-4 登记调用
+run_batch_2026_sep_oct_50.py,改,9124,7bf998ae36dd009b8bf4d71475b6cc8818e4efbfe7d809a1ad41111551d9bca0,P0-4 登记调用
+run_batch_round3_50.py,改,6578,e9a1b9d8e971b49250599b71ae62e45b21bdd1f7ec206a1f97937641d8a73502,P0-4 登记调用
+run_batch_round4_all_remain.py,改,6713,b7e9849a7d3ff0f5c964d59c8a032b85b4db346237e6f89154552f9b0c9f637b,P0-4 登记调用
+run_batch_round5_100.py,改,7359,8e7793a9747659a9137e0dd9c8fd4f258e91a1aaf45334bdee4b4c024a824119,P0-4 登记调用
+run_batch_round6_100.py,改,7332,99f251927f51655fc6dee6aa0b9afe54705af816273ac72a78485220069edb48,P0-4 登记调用
+run_clean_batch_test.py,改,5417,c824099155b8543c6d5ee65b3598b79a91042f355e655bf78077e915c89dd867,P0-4 登记调用
+run_expand_batch_test.py,改,5794,e9746e1ea93d16c20f902d3bd64a43fb179be3e4913e21242281260e4b3557a6,P0-4 登记调用
+run_random_50_batch_test.py,改,6618,9f19c6b2a7b07d7a9ded6a20824c6161a28a94e9c05a5126ecacc7430194f7f5,P0-4 登记调用
+UI界面/web/src/utils/runMeta.ts,改,6128,5ea00aef0095577916d41a196feb578019c1a45a0a0cd0488f6c8b5931ea304e,statusLabel/statusTone 增 unknown=未登记、interrupted=已中断
+UI界面/web/src/api/backtestReview.ts,改,18161,df6d1633504812c4edd74d7901d3cdc6724ac42389adc61fe7844bb19372e5fa,BtRunListItem/BtRunDetail/BtBatchRun 增 registered/status_basis/record_note
+UI界面/web/src/components/BacktestWorkbench.tsx,改,139189,b363ecb1eb127a428dbbf8cd2f1701ea8390ab521d34dcf0274abf922a1f1c1c,留存记录清单状态列走 statusLabel + 未登记徽标；批次映射补 registered/record_note（原白名单丢字段）
+UI界面/web/src/api/labBacktest.ts,改,37616,fbd85546e7391b86ec9a00ad9938d186949609cef59797ce386f685b600325f3,LabRunSummary 增 registered/status_basis/record_note
+UI界面/web/src/components/backtest/RunHeader.tsx,改,4248,9047acedac01a5edf8fe43d5b2dead39caee5ca89579720ef5e8f70d245db69f,未登记徽标（registered===false）；组件当前无引用方
+UI界面/web/src/components/backtest/RunListPanel.tsx,改,9894,5ab5075af01b3579ad014a788def49c0206354156306b51a1ceeebacca2fe7a6,未登记小徽标 + 注释更新；组件当前无引用方
+UI界面/web/src/components/backtest/RunInfoCard.tsx,改,6036,eb305be8f20a255e8abd975118eb82dc07fc3c56f4cc49a39a35e9e108d9f3fa,注释更新（created_at 已非读时兜底）；组件当前无引用方
+框架/backend/backtest_batches.py,改,32133,3019cb00d01473d2bf46e7a9021d79ad0d2272ad43470f980e475fc79fe5457e,_run_facts 增 has_run_json；runs_rows 透传 registered
+evidence/CODE-REVIEW-02/00_报告.md,新,7787,717c9521551748494b71b1bd37fc3a468abd16535947e37830b40f57bd4db7dd,本单回执
+evidence/CODE-REVIEW-02/queries/01_verify_fixes.py,新,10898,5263ebcbb7988848e466c18270b98f3e3f4871b82b7795dd903aed53e960e348,20 项核验脚本（rc=0）
+evidence/CODE-REVIEW-02/queries/02_collect_hashes.py,新,5652,020e5c1fbd068ed3250b4577df378eeac9bf7722f68371c282c774eba527d22c,本哈希清单采集脚本
+evidence/CODE-REVIEW-02/logs/01_verify_fixes.log,新,2082,674b48807082af0fbcd1480cef42227567a7e24b9f20cd361910278ba85836e2,核验实跑输出
+evidence/CODE-REVIEW-02/out/01_verify_results.json,新,2661,e0f2f9473779105152170a3bf5d663fd35c08ae50ce586916244aed8c08dec08,核验结果（20/20）
+evidence/CODE-REVIEW-02/out/02_api_snapshot_after_fix.txt,新,2014,33ac6cd6dd799bb8edfa6c038c703754b46cd141d18d5ae91069fb7c352190f3,重启后 API 实测存档
+evidence/CODE-REVIEW-02/out/check_report.md,新,5288,cba3da05c967fec0c0b8dac576192721458994b2f567f7bad3d4135e5c52d468,门禁实跑（P0=1/P1=5/P2=18）
+evidence/CODE-REVIEW-02/out/check_report.json,新,7776,f78a687769b605a37574b084a38bd8db7ac570c18d247d0667fcd7285feb1e6e,门禁实跑 JSON
+evidence/CODE-REVIEW-02/03_实际命令.md,新,1688,37d445f4e69894d0aacf855e45f5c26a4a419cbd071f2c3c916b0a47beb8e34b,复现命令
+evidence/CODE-REVIEW-02/queries/03_verify_page_badges.mjs,新,1592,ba77faf53bcc5da267d60fd01397cabda3e36ab506af541446680cc35d19ad78,页面徽标只读验收脚本（playwright）
+evidence/CODE-REVIEW-02/out/03_page_verify.txt,新,127,1f4d3f35a91ab30e52fc574c3124df75d9cb2f19b5fb00d849e2b8dd88032123,页面验收输出（lab-run-unregistered 544/544）
+evidence/CODE-REVIEW-02/out/backtest_run_tab.png,新,277218,b8070cb459e31cdc7285c3d37a3ed13138fe82f09aa1e8794de3961093f2035f,按单 run 页签验收截图

@@ -1,0 +1,10 @@
+﻿旧行,旧表述,问题,新表对应行,新判定,依据
+1,① 记录身份及匹配关系｜PASS,未标目标版本，读者会当成整单结论,1（FE07）,PASS,00_acceptance_table.csv
+2,② 四项金额｜PASS_WITH_NOTE｜差异行 0,未标目标版本；注记没写 22 条未成交是 0 对 null,2（FE07）、13（FE08）,PASS_WITH_NOTE,04_data_invariance.json
+3,③ 恒等式｜PASS,未标目标版本,3（FE07）,PASS,EA05 00_verify_fe07.json
+4,④ 三套分类｜PASS,未标目标版本,4（FE07）、12（FE08）,PASS,EA05 00_verify_fe07.json
+5,⑤ ATR/首触｜PASS,未标目标版本,5（FE07）、12（FE08）,PASS,EA05 00_verify_fe07.json
+6,⑥ 多格式一致性｜PASS_WITH_NOTE｜数据层 一致；冻结层 一致；文档层 报告.md 数字 不一致、哈希表 不一致,一行混了两个版本、三个层；读者无法判断是 FE07 还是 FE08 的文档层失败,6/9/10（FE07）、15/18/19（FE08）、20/21/22/24（FE09）,数据层 PASS；FE07/FE08 文档层 FAIL；FE09 文档层 PASS,06_doc_layer_check.csv / 11_fe09_recheck.json
+7,⑦ 输入输出哈希与来源契约｜PASS｜输入 9 条全一致；输出 18 条全一致；读 EA03=True / 读 EA04=False,这句只描述 FE07，却没写目标版本，被读成「整单未读 EA04」，与 FE08 实际读 EA04 冲突——这正是本轮要纠正的矛盾,7（FE07，读 EA03=True/读 EA04=False）、11（FE08，读 EA04=True）、25（FE09，读 EA04=True）,均 PASS,07_source_binding.json / 11_fe09_recheck.json
+缺,（旧表无 FE08 逐项行）,FE08 的六项只在另一个 JSON 里，验收表看不到,11–19（FE08）,6 PASS + 2 PASS_WITH_NOTE + 1 FAIL,EA05 01_fe08_recheck.json
+缺,（旧表无 FE09）,旧表没有任何 FE09 行；FE09 现已交付,20–25（FE09）,6 项全 PASS,11_fe09_recheck.json

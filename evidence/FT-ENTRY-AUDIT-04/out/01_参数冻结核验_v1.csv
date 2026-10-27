@@ -1,0 +1,12 @@
+﻿item,expected,evidence,pass
+A 入场上界,close_p < H（严格低于突破位）,基类 338 行 is_pre_bo_trigger = (close_p >= target_level) and (close_p < H),True
+A 入场下限,close_p >= H - offset*A,基类 337 行 target_level = H - a_entry_level_atr_offset * A,True
+A 快照箱顶字段,box_high_h 写真实 H（旧版误写 target_level）,基类 375 行 box_high_h=H,True
+突破兜底分支,A 组无兜底（不做突破后追单）,A 分支代码块内无 breakout_buffer_atr、无第二条触发路径；唯一触发条件为 is_pre_bo_trigger,True
+OI 过滤开关,enable_oi_filter = True，9 组 A 均不覆盖,基类 509 行类属性 enable_oi_filter: bool = True；子类仅设 timing_mode/offset/volume,True
+OI 门槛,ΔOI_6h >= 2.0%,event_trend_v0_1/config.py: oi_min_growth_pct = 0.02；基类 358 行 oi_growth < config.oi_min_growth_pct ⇒ return None,True
+OI 回看窗口,6 小时,config.py: oi_lookback_hours = 6,True
+初始止损锚点,Lr - 0.1A,基类 362 行 initial_stop = event.retest_low_lr - initial_stop_buffer_atr * A,True
+手续费,0.05% 单边,config.json fee=0.0005，逐笔 fee_open/fee_close 全为 0.0005,True
+资金与槽位,2000 U / 最多 3 槽,归档 dry_run_wallet=2000、max_open_trades=3,True
+时间框架,15m 执行、4h 箱体、1h 状态机,归档 timeframe=15m；informative_pairs 含 4h/1h,True

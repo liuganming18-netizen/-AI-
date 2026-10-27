@@ -1,0 +1,26 @@
+﻿原因,产生位置,分类,写 invalid_reasons,依据
+invalid_price_step_nonpositive,fill.py `_guard` / `price_breakdown`,execution_validity,是,步长 ≤ 0 ⇒ 无法取整，等于没有精度约束
+non_finite_or_invalid_price,fill.py `_guard`,execution_validity,是,原价不是可解析的有限数 ⇒ 这笔单的价格不可信
+non_finite_or_invalid_price_step,fill.py `_guard`,execution_validity,是,步长不可解析 ⇒ 规格链路断了
+nonpositive_or_nonfinite_entry_fill,fill.py strict 取整后,execution_validity,是,取整后不可成交（≤0）⇒ 成交价非法
+nonpositive_or_nonfinite_exit_fill,fill.py strict 取整后,execution_validity,是,同上，出场侧（P06 已按此处理）
+nonpositive_raw_price,fill.py `_guard`,execution_validity,是,原价 ≤ 0 ⇒ 价格源坏了，不是策略决定
+notional_below_min,engine.py 相位 C 名义额闸门,execution_validity,是,名义额 < minNotional ⇒ 同上
+qty_below_min_step,engine.py 相位 C 数量闸门,execution_validity,是,数量向下取整后 < minQty ⇒ 交易所根本不收这张单
+canceled_fell_back_into_box,engine_adapter.decide_entry,strategy_cancel,否,下一根开盘跌回箱体上沿以下 ⇒ 规则要求的取消（工单点名的正常取消）
+canceled_gap_above_0.5a,engine_adapter.decide_entry,strategy_cancel,否,开盘高于突破收盘 + 0.5A ⇒ 规则要求的取消
+candidate_identity_unresolved,engine_adapter.decide_entry,strategy_cancel,否,信号身份链解析不到候选 ⇒ 不猜、不兜底，直接不做
+candidate_symbol_mismatch,engine_adapter.decide_entry,strategy_cancel,否,候选与信号币种不一致 ⇒ 身份链不可信
+candidate_signal_bar_mismatch,engine_adapter.decide_entry,strategy_cancel,否,信号 bar 与候选快照不一致 ⇒ 身份链不可信
+invalid_signal_stop,engine_adapter.decide_entry / risk.py,strategy_cancel,否,初始止损不低于入场价 ⇒ 这笔信号本身无效
+nonpositive_qty,engine_adapter.decide_entry,strategy_cancel,否,风控算出的仓位为 0 ⇒ 策略层面不参与
+notional_cap_exceeded_zero_qty,engine_adapter.decide_entry,strategy_cancel,否,单仓/总仓名义上限压到 0 ⇒ 策略层面不参与
+duplicate_symbol_active,risk.check_entry,strategy_cancel,否,同币已有持仓
+max_concurrent_trades_reached,risk.check_entry,strategy_cancel,否,并发上限
+open_gapped_beyond_stop,risk.check_entry,strategy_cancel,否,开盘已越过止损
+nonpositive_equity,risk.check_entry,strategy_cancel,否,权益非正
+zero_unit_risk,risk.check_entry,strategy_cancel,否,单位风险为 0
+portfolio_risk_cap_exceeded,risk.check_entry,strategy_cancel,否,组合风险上限
+portfolio_margin_cap_exceeded,risk.check_entry,strategy_cancel,否,组合保证金上限
+participation_cap_zero_qty,engine.py 参与率约束（可选，默认关闭）,unregistered,否（本轮不归类）,数据缺失 fail-closed；既非价格/规格不成立，也非策略主动不做，是否判无效需单独工单
+participation_volume_unavailable,engine.py 参与率约束（可选，默认关闭）,unregistered,否（本轮不归类）,数据缺失 fail-closed；既非价格/规格不成立，也非策略主动不做，是否判无效需单独工单

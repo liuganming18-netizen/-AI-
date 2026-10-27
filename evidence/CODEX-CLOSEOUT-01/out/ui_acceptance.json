@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-10-24T02:01:40.186Z",
+  "ui_url": "http://127.0.0.1:3000",
+  "total": 15,
+  "passed": 15,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "U0",
+      "name": "页面可渲染（非白屏）",
+      "pass": true,
+      "detail": "body 文本长度=1037"
+    },
+    {
+      "id": "U1.1",
+      "name": "开仓闸门取自服务端（不写死「总闸关闭」）",
+      "pass": true,
+      "detail": "DOM=\"• 新开仓总闸：开启（user_ui_resumed）\" / API allow_new_entries=true"
+    },
+    {
+      "id": "U1.2",
+      "name": "手续费/滑点不是硬编码 1bps",
+      "pass": true,
+      "detail": "DOM=\"• 撮合成本：滑点单边 5.00 bps · 手续费单边 5.00 bps\" / 契约 fee=5bps slip=5bps"
+    },
+    {
+      "id": "U1.3",
+      "name": "策略版本与接口同源",
+      "pass": true,
+      "detail": "DOM=\"FT-LOW4H-EXP-V2.2\" / API=\"FT-LOW4H-EXP-V2.2\""
+    },
+    {
+      "id": "U1.4",
+      "name": "不再宣称「17 项核心流正常」",
+      "pass": true,
+      "detail": "页面全文不含该静态断言"
+    },
+    {
+      "id": "U2.1",
+      "name": "数据中心默认页给出实时结论（不只看静态文案）",
+      "pass": true,
+      "detail": "默认页文本长度=895；coverage 接口 code=200"
+    },
+    {
+      "id": "U2.2",
+      "name": "默认页不出现无依据的「100% 补齐」静态断言",
+      "pass": true,
+      "detail": "默认页未出现该文案（仅在核销子页保留历史记录）"
+    },
+    {
+      "id": "U3.1",
+      "name": "回测复盘页可加载运行列表",
+      "pass": true,
+      "detail": "文本长度=56471"
+    },
+    {
+      "id": "U3.2",
+      "name": "逐笔接口返回真实交易号（trd_ 前缀，非行号合成）",
+      "pass": true,
+      "detail": "trade_id=trd_edfeb086690a19e3b79b7982"
+    },
+    {
+      "id": "U3.3",
+      "name": "逐笔接口返回开平仓时间与持仓时长",
+      "pass": true,
+      "detail": "entry=1790954100000 exit=1791004500000 hold=14"
+    },
+    {
+      "id": "U3.4",
+      "name": "切到「按单 run」后页面能定位到本次提交的 run（完整编号在 title 上）",
+      "pass": true,
+      "detail": "切换=true；命中=true；显示=\"bt_2026102...59f3c8fa\""
+    },
+    {
+      "id": "U3.5",
+      "name": "该 run 排在列表首行（提交后不跳回旧批次）",
+      "pass": true,
+      "detail": "首行=\"VELVETUSDT bt_2026102...59f3c8fa 已完成 +0.3947% 1 笔\""
+    },
+    {
+      "id": "U4.1",
+      "name": "工作台显示「最近推进」时间",
+      "pass": true,
+      "detail": "页面出现最近推进字段"
+    },
+    {
+      "id": "U4.2",
+      "name": "推进时间与接口 last_cycle_ms 同源",
+      "pass": true,
+      "detail": "API last_cycle_ms=1792807269324"
+    },
+    {
+      "id": "U5.1",
+      "name": "账户接口给出权益字段（供页面同源显示）",
+      "pass": true,
+      "detail": "items[0].equity=5000 / initial=5000 / cash=5000"
+    }
+  ],
+  "shots": [
+    "01_strategy.png",
+    "02_datacenter.png",
+    "03_backtest.png",
+    "03b_backtest_single_run.png",
+    "03c_probe.png",
+    "04_workbench.png"
+  ]
+}

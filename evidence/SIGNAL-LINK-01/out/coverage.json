@@ -1,0 +1,187 @@
+{
+ "probe": "SIGNAL-LINK-01/40_coverage",
+ "generated_real_utc": "2026-10-24T05:47:20Z",
+ "source_funnel": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-LINK-01/out/funnel.json",
+ "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+ "window": {
+  "start_utc": "2026-09-07T02:00:00Z",
+  "end_utc": "2026-10-24T04:59:59Z",
+  "days": 47.12
+ },
+ "rate_identity": {
+  "symbols": 526,
+  "window_days": 47.12,
+  "boxes_total": 3278,
+  "candidates_total": 4,
+  "boxes_per_symbol": 6.232,
+  "opportunities_per_symbol_per_day": 0.13226,
+  "market_opportunities_per_day": 69.57,
+  "hit_rate_box_to_candidate": 0.00122,
+  "signals_per_day": 0.08489,
+  "days_per_signal": 11.78,
+  "identity_check": 0.08489,
+  "note": "signals_per_day = market_opportunities_per_day × hit_rate；三项里只有 hit_rate 与机会频率受规则控制，标的数已顶到 526"
+ },
+ "coverage_counterfactual": [
+  {
+   "top_n": 20,
+   "quote_volume_share": 0.7804,
+   "boxes": 120,
+   "candidates": 0,
+   "days_per_signal": null,
+   "expected_candidates_in_47d": 0
+  },
+  {
+   "top_n": 50,
+   "quote_volume_share": 0.8682,
+   "boxes": 292,
+   "candidates": 0,
+   "days_per_signal": null,
+   "expected_candidates_in_47d": 0
+  },
+  {
+   "top_n": 100,
+   "quote_volume_share": 0.9271,
+   "boxes": 589,
+   "candidates": 2,
+   "days_per_signal": 23.56,
+   "expected_candidates_in_47d": 2
+  },
+  {
+   "top_n": 200,
+   "quote_volume_share": 0.9692,
+   "boxes": 1195,
+   "candidates": 3,
+   "days_per_signal": 15.71,
+   "expected_candidates_in_47d": 3
+  },
+  {
+   "top_n": 300,
+   "quote_volume_share": 0.9855,
+   "boxes": 1811,
+   "candidates": 4,
+   "days_per_signal": 11.78,
+   "expected_candidates_in_47d": 4
+  },
+  {
+   "top_n": 526,
+   "quote_volume_share": 1.0,
+   "boxes": 3278,
+   "candidates": 4,
+   "days_per_signal": 11.78,
+   "expected_candidates_in_47d": 4
+  }
+ ],
+ "candidate_detail": [
+  {
+   "symbol": "WALUSDT",
+   "quote_volume": 1468219386.58,
+   "volume_percentile": 83.5,
+   "boxes": 5,
+   "candidates": 1
+  },
+  {
+   "symbol": "SUSDT",
+   "quote_volume": 1285687298.6,
+   "volume_percentile": 81.4,
+   "boxes": 6,
+   "candidates": 1
+  },
+  {
+   "symbol": "VELVETUSDT",
+   "quote_volume": 422522224.18,
+   "volume_percentile": 64.3,
+   "boxes": 7,
+   "candidates": 1
+  },
+  {
+   "symbol": "BBUSDT",
+   "quote_volume": 209898647.74,
+   "volume_percentile": 45.6,
+   "boxes": 6,
+   "candidates": 1
+  }
+ ],
+ "volume_quintiles": [
+  {
+   "tier": "Q1(最高成交额)",
+   "symbols": 105,
+   "quote_volume_share": 0.9307,
+   "boxes": 615,
+   "candidates": 2,
+   "hit_rate": 0.003252
+  },
+  {
+   "tier": "Q2",
+   "symbols": 105,
+   "quote_volume_share": 0.0407,
+   "boxes": 641,
+   "candidates": 1,
+   "hit_rate": 0.00156
+  },
+  {
+   "tier": "Q3",
+   "symbols": 105,
+   "quote_volume_share": 0.0157,
+   "boxes": 651,
+   "candidates": 1,
+   "hit_rate": 0.001536
+  },
+  {
+   "tier": "Q4",
+   "symbols": 105,
+   "quote_volume_share": 0.0086,
+   "boxes": 668,
+   "candidates": 0,
+   "hit_rate": 0.0
+  },
+  {
+   "tier": "Q5(最低成交额)",
+   "symbols": 106,
+   "quote_volume_share": 0.0042,
+   "boxes": 703,
+   "candidates": 0,
+   "hit_rate": 0.0
+  }
+ ],
+ "no_opportunity_symbols": {
+  "symbols_zero_box": 0,
+  "symbols_le1_box": 0,
+  "symbols_lt120_bars_4h": 0,
+  "min_bars_4h": 138,
+  "max_bars_4h": 266,
+  "note": "箱体需要 42 根 4h + 200 根 ATR 预热；K 线太短的标的本窗口内根本进不了状态机"
+ },
+ "samples_needed": [
+  {
+   "target_samples": 10,
+   "expected_days": 117.8,
+   "expected_years": 0.32
+  },
+  {
+   "target_samples": 30,
+   "expected_days": 353.4,
+   "expected_years": 0.97
+  },
+  {
+   "target_samples": 50,
+   "expected_days": 589.0,
+   "expected_years": 1.61
+  },
+  {
+   "target_samples": 100,
+   "expected_days": 1178.0,
+   "expected_years": 3.23
+  },
+  {
+   "target_samples": 200,
+   "expected_days": 2356.0,
+   "expected_years": 6.45
+  }
+ ],
+ "reading": {
+  "q": "全市场 500 多个币不能覆盖低频策略？",
+  "a": "覆盖广度已经用满了：526 个标的、3,278 次箱体机会，全部算过。瓶颈不在「看得够不够多」，在「每次机会里只有 0.122% 能走到候选」。加标的已无可加（526 已是全部合规合约），加时间不改规则就能线性攒样本，改规则（放宽某道关卡）等于改冻结规则，须走裁决流程。"
+ },
+ "elapsed_s": 3.46
+}

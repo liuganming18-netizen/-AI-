@@ -1,0 +1,31 @@
+{
+  "generated_utc": "2026-10-24T10:54:01Z",
+  "source": "每个 run 的 inputs.json → data_summary.time_range_1h（run 实际消费区间）",
+  "runs_counted": 2274,
+  "span_days": {
+    "min": 0.01,
+    "p25": 97.0,
+    "median": 211.45,
+    "p75": 365.0,
+    "max": 2115.792
+  },
+  "rule": {
+    "可查看范围": "= 该 run 实际消费的数据区间（time_range_1h）；前端不额外取历史、不取回测之后的行情",
+    "后端读取窗口": "run 窗口 ∪ 全部标记点时刻，各自 ± 48 小时（FT_REPLAY_CANDLE_PAD_MS = 2 天）",
+    "按笔聚焦": "带 focus_ms 时收窄到「该时刻前后各 10000 × 15 分钟」再与上面求交",
+    "单次上限": "FT_REPLAY_CANDLE_CAP = 20000 根；超出取末 20000 根并置 candles_truncated=true",
+    "最终裁剪": "统一裁到 time_range_1h（candles_clipped_to_run_data），避免画进回测没消费的行情"
+  },
+  "focus_run": {
+    "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_ACHUSDT",
+    "symbol": "ACHUSDT",
+    "start_utc": "2023-04-21 00:15",
+    "end_utc": "2023-04-21 17:15",
+    "span_hours": 17.0,
+    "span_days": 0.708,
+    "bars_15m": 69,
+    "bars_1h": 18,
+    "bars_4h": 5
+  },
+  "note": "15m/4h 与 1h 同一时间跨度，只是根数不同；根数为「跨度 ÷ 周期 + 1」的理论值，实际返回见接口"
+}

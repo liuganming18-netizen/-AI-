@@ -1,0 +1,7 @@
+check_item,status,details
+1. 批次汇总 API (summary),PASS,"runs_total=27, trades_total=4325, 一致性检验=True, note包含分组不可累加声明"
+2. 批次运行列表 API (runs),PASS,27 组标准策略运行完整列出，无任何逐币子目录混淆
+3. 单 Run 详情 API (get_run),PASS,"成功返回 200，status=succeeded, missing_reason=None"
+4. 单 Run 逐笔交易 API (trades),PASS,88 笔交易完整返回；下单时间严格标明'未记录'；信号、确认、成交、出场四维物理分离；保留源文件与行号定位
+5. 图表载荷 API (chart - 默认标的),PASS,加载标的 C98USDT 真实 15m K 线共 108193 根，时间戳为毫秒级（ms），含信号与交易标记
+6. 动态标的切换与缺失明确提示,PASS,支持 ?symbol=BCHUSDT 动态加载真实行情；不存在标的明确返回 missing_reason，无伪造数据

@@ -1,0 +1,12 @@
+﻿check_item,frozen_requirement,actual_value,verdict,note
+币池数量,74 标的合格池,74,符合,
+时间区间,2021-12-01 ~ 2024-12-31,CLI --timerange 20211201-20241231,符合（需二次核验实际起止）,timerange 未写入 config.json，只在命令行与 run 脚本中出现
+手续费 Taker,5 bps,fee=0.0005,符合,
+滑点,3 bps,配置与策略源码中均无滑点项,不符,引擎无 slippage 参数；全仓搜索未发现 0.0003 注入
+单笔风险预算,0.5% 账户权益,custom_stake_amount: equity*0.005,符合,
+单仓上限,30%,custom_stake_amount: equity*0.30,符合,
+并发上限,max_open_trades = 3,3,符合,
+初始资金,未在冻结方案中写明,dry_run_wallet=2000,需披露,所有 net_return_pct 均以 2000 U 为分母
+可交易余额比例,未写明,tradable_balance_ratio=0.99,需披露,
+数据源,未写明,evidence/FT-FACTOR-03/user_data/data/binance,需披露,与 FT-FACTOR-03 同一份 feather，未重新导出
+交易模式,未写明,futures/cross,需披露,cross 保证金、leverage=1.0（逐笔字段确认）

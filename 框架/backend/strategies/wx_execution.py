@@ -1721,45 +1721,97 @@ def min_orderable_qty(limits, rounded_buy_price):
     return _step_ceil(need, limits["quantity_step"])
 
 
-def apply_order_rounding(*, raw_open, atr, limits, risk_per_trade_fraction, equity,
-                         stop_atr_mult, slippage_each_side, gross_open_notional,
-                         free_cash, leverage,
-                         cash_reserve_fraction, single_name_notional_cap,
-                         gross_long_notional_cap, prev_quote_volume,
-                         participation_cap, portfolio_risk_open, portfolio_risk_cap):
-    """统一「保守取整 + 最小单 + 风险重核」，返回取整明细或拒单原因。
+def apply_order_rounding(*, raw_open, atr=None, limits=None, risk_per_trade_fraction=0.005, equity=5000.0,
+                         stop_atr_mult=3.0, slippage_each_side=0.0005, gross_open_notional=0.0,
+                         free_cash=5000.0, leverage=1.0,
+                         cash_reserve_fraction=0.20, single_name_notional_cap=0.10,
+                         gross_long_notional_cap=0.80, prev_quote_volume=None,
+                         participation_cap=0.01, portfolio_risk_open=0.0, portfolio_risk_cap=0.05,
+                         stoploss_s=None, strategy_id=None, direction="long"):
+    """统一「保守取整 + 最小单 + 风险重核」，返回取整明细或拒单原因（SYSTEM-RISK-01 统一核心）。
 
-    顺序（照 08）：
-      ① 买价 = round_up(开盘 × (1+滑点))；② 保护价 = round_down(买价 − 3×ATR)；
-      ③ 由风险/资金/参与率各上限求 q 上限 ⇒ q = 步进 × floor(q上限/步进)；
-      ④ 最小可下数量 / 最大量 / 取整后上限复核 ⇒ 任一不满足整单拒绝（不凑单）。
-    返回 dict 含 `reject`（None=通过）与取整明细（原值/取整值/差额/最小可下/上限快照）。
+    规则：
+      ① 买价/卖价按不利方向滑点与步进保守取整（买入向上取整更贵、卖出向下取整更低）；
+      ② 初始止损与距离统一口径：
+         - FT-LOW4H（或指定 stoploss_s）：必须使用真实初始止损百分比 stoploss_s，严禁隐式回退到 ATR；
+         - 旧 ATR 策略（strategy_id != FT-LOW4H 且提供 ATR）：使用独立策略身份并按 3×ATR 计算；
+      ③ 数量计算严格使用同一个实际初始止损距离：
+         q_risk = (equity × risk_per_trade_fraction) / stop_dist；
+      ④ 由风险/单名/总敞口/预留资金/流动性参与率各上限求 q 上限 ⇒ 步进向下截断；
+      ⑤ 最小可下数量/最大量/最小金额/单笔与组合风险复核 ⇒ 任一超限整单拒绝（严禁向上凑单）。
     """
-    step = limits["quantity_step"]
-    ps = limits["price_step"]
-    entry_raw = raw_open * (1.0 + slippage_each_side)
-    entry_price = round_buy_price(entry_raw, ps)
-    stop_price = round_protect_price(entry_price - stop_atr_mult * float(atr), ps)
-    out = {"entry_price_raw": entry_raw, "entry_price": entry_price,
-           "price_raw": entry_raw, "price_step_delta": entry_price - entry_raw,
-           "stop_price": stop_price, "qty": None, "qty_raw": None, "qty_step_delta": None,
-           "notional": None, "min_orderable_qty": None, "limits": dict(limits),
-           "reject": None}
-    if entry_price <= stop_price:
+    if limits is None or limits.get("quantity_step", 0) <= 0 or limits.get("price_step", 0) <= 0:
+        return {"reject": "missing_or_invalid_contract_limits", "limits": dict(limits) if limits else None}
+    step = float(limits["quantity_step"])
+    ps = float(limits["price_step"])
+    dir_lower = (direction or "long").lower()
+
+    # ① 价格确定（不利滑点 + 保守取整）
+    if dir_lower == "short":
+        entry_raw = float(raw_open) * (1.0 - float(slippage_each_side))
+        entry_price = round_protect_price(entry_raw, ps)
+    else:
+        entry_raw = float(raw_open) * (1.0 + float(slippage_each_side))
+        entry_price = round_buy_price(entry_raw, ps)
+
+    out = {
+        "entry_price_raw": entry_raw, "entry_price": entry_price,
+        "price_raw": entry_raw, "price_step_delta": entry_price - entry_raw,
+        "stop_price": None, "initial_stop_price": None, "stop_dist": None, "stop_distance": None,
+        "qty": None, "qty_raw": None, "qty_step_delta": None,
+        "notional": None, "planned_risk": None, "planned_risk_fraction": None,
+        "min_orderable_qty": None, "limits": dict(limits),
+        "reject": None
+    }
+
+    # ② 初始止损与止损距离统一（杜绝口径分叉与隐式兜底）
+    if strategy_id == "FT-LOW4H" or stoploss_s is not None:
+        if stoploss_s is None or float(stoploss_s) <= 0:
+            out["reject"] = "ft_low4h_missing_or_invalid_stoploss_s"
+            return out
+        s = float(stoploss_s)
+        if dir_lower == "short":
+            stop_raw = entry_price * (1.0 + s)
+            stop_price = round_buy_price(stop_raw, ps)
+            stop_dist = stop_price - entry_price
+        else:
+            stop_raw = entry_price * (1.0 - s)
+            stop_price = round_protect_price(stop_raw, ps)
+            stop_dist = entry_price - stop_price
+    else:
+        # 旧 ATR 策略（必须有独立身份或显式提供 ATR）
+        if atr is None or float(atr) <= 0 or stop_atr_mult is None or float(stop_atr_mult) <= 0:
+            out["reject"] = "missing_atr_specification"
+            return out
+        mult = float(stop_atr_mult)
+        if dir_lower == "short":
+            stop_price = round_buy_price(entry_price + mult * float(atr), ps)
+            stop_dist = stop_price - entry_price
+        else:
+            stop_price = round_protect_price(entry_price - mult * float(atr), ps)
+            stop_dist = entry_price - stop_price
+
+    out["stop_price"] = stop_price
+    out["initial_stop_price"] = stop_price
+    out["stop_dist"] = stop_dist
+    out["stop_distance"] = stop_dist
+
+    if stop_dist <= 0 or (dir_lower != "short" and entry_price <= stop_price) or (dir_lower == "short" and stop_price <= entry_price):
         out["reject"] = "nonpositive_stop_distance"
         return out
-    stop_dist = entry_price - stop_price
-    # 各上限蕴含的数量上限（只用**当时因果可得**的价格/权益）
-    caps = [equity * risk_per_trade_fraction / stop_dist]
+
+    # ③ 各上限蕴含的数量上限（严格使用同一实际初始止损距离 stop_dist）
+    caps = [float(equity) * float(risk_per_trade_fraction) / stop_dist]
     if single_name_notional_cap > 0:
-        caps.append(equity * single_name_notional_cap / entry_price)
+        caps.append(float(equity) * float(single_name_notional_cap) / entry_price)
     if gross_long_notional_cap > 0:
-        caps.append(max(0.0, equity * gross_long_notional_cap - gross_open_notional) / entry_price)
+        caps.append(max(0.0, float(equity) * float(gross_long_notional_cap) - float(gross_open_notional)) / entry_price)
     if leverage and leverage > 0:
-        margin_per_unit = entry_price / leverage
-        caps.append(max(0.0, free_cash - equity * cash_reserve_fraction) / margin_per_unit)
+        margin_per_unit = entry_price / float(leverage)
+        caps.append(max(0.0, float(free_cash) - float(equity) * float(cash_reserve_fraction)) / margin_per_unit)
     if participation_cap > 0 and prev_quote_volume is not None:
-        caps.append(float(prev_quote_volume) * participation_cap / entry_price)
+        caps.append(float(prev_quote_volume) * float(participation_cap) / entry_price)
+
     q_upper = min(caps) if caps else 0.0
     qty_raw = q_upper
     qty = _step_floor(q_upper, step)
@@ -1768,6 +1820,8 @@ def apply_order_rounding(*, raw_open, atr, limits, risk_per_trade_fraction, equi
         out["reject"] = "quantity_below_step"
         return out
     out["qty_step_delta"] = qty - qty_raw
+
+    # ④ 最小下单限制复核（严禁向上凑量加仓，小于最小量直接拒绝）
     mn = min_orderable_qty(limits, entry_price)
     out["min_orderable_qty"] = mn
     if mn is None:
@@ -1776,30 +1830,38 @@ def apply_order_rounding(*, raw_open, atr, limits, risk_per_trade_fraction, equi
     if qty < mn - _EPS:
         out["reject"] = "below_min_orderable_qty"
         return out
-    if limits["max_quantity"] > 0 and qty > limits["max_quantity"] + _EPS:
+    if limits.get("max_quantity", 0) > 0 and qty > limits["max_quantity"] + _EPS:
         out["reject"] = "above_max_quantity"
         return out
+
     notional = qty * entry_price
+    planned_risk = stop_dist * qty
     out["notional"] = notional
-    # 取整后上限复核（价格上取整会抬高名义 ⇒ 必须重核，违反即整单拒绝）
-    if limits["min_notional"] > 0 and notional < limits["min_notional"] - _EPS:
+    out["planned_risk"] = planned_risk
+    out["planned_risk_fraction"] = planned_risk / max(float(equity), 1e-9)
+
+    # ⑤ 取整后上限复核（名义金额、单笔风险预算、单名上限、总多敞口、预留现金、组合初始止损风险）
+    if limits.get("min_notional", 0) > 0 and notional < limits["min_notional"] - _EPS:
         out["reject"] = "below_min_notional"
         return out
-    if single_name_notional_cap > 0 and notional > equity * single_name_notional_cap + _EPS:
+    if planned_risk > float(equity) * float(risk_per_trade_fraction) + _EPS:
+        out["reject"] = "risk_per_trade_cap"
+        return out
+    if single_name_notional_cap > 0 and notional > float(equity) * float(single_name_notional_cap) + _EPS:
         out["reject"] = "single_name_notional_cap"
         return out
-    if gross_long_notional_cap > 0 and gross_open_notional + notional > equity * gross_long_notional_cap + _EPS:
+    if gross_long_notional_cap > 0 and float(gross_open_notional) + notional > float(equity) * float(gross_long_notional_cap) + _EPS:
         out["reject"] = "gross_long_notional_cap"
         return out
     if participation_cap > 0 and prev_quote_volume is not None and \
-            notional > float(prev_quote_volume) * participation_cap + _EPS:
+            notional > float(prev_quote_volume) * float(participation_cap) + _EPS:
         out["reject"] = "entry_participation_cap"
         return out
     if leverage and leverage > 0 and \
-            free_cash - notional / leverage < equity * cash_reserve_fraction - _EPS:
+            float(free_cash) - notional / float(leverage) < float(equity) * float(cash_reserve_fraction) - _EPS:
         out["reject"] = "cash_reserve_cap"
         return out
-    if portfolio_risk_cap > 0 and portfolio_risk_open + stop_dist * qty > equity * portfolio_risk_cap + _EPS:
+    if portfolio_risk_cap > 0 and float(portfolio_risk_open) + planned_risk > float(equity) * float(portfolio_risk_cap) + _EPS:
         out["reject"] = "portfolio_risk_cap"
         return out
     return out

@@ -1,0 +1,285 @@
+{
+  "schema": "accum-early-06-w1-r1/stop-decision/v1",
+  "checked_at_utc": "2026-10-27T01:18:28Z",
+  "input": {
+    "pending_table_sha256": "2d42fc54809453d9a112a1aa69bd4818e86ad89ddf8f66b57ea24a23ab6c1b40",
+    "old_pending_sha256": "ad368dd4c1124533152c87bee285f1e96ea954dae0daa0264956e2ec450bc51f",
+    "decision_doc_sha256": "3170ec997faae8715456df700f90acf1c4bb04d0a7842920d402baf9500b580b",
+    "code_sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017"
+  },
+  "not_asked": [
+    {
+      "id": "N-01",
+      "item": "初始止损 = 实际成交价 × 95%",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 25,
+          "must_contain": "实际成交价 × 95%"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "初始止损为实际成交价×95%"
+        }
+      ]
+    },
+    {
+      "id": "N-02",
+      "item": "跟踪候选止损 = 新收盘 4h 最低价 × 95%",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 26,
+          "must_contain": "候选止损＝该根最低价 × 95%"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "新收盘4h线最低价×95%只上移"
+        }
+      ]
+    },
+    {
+      "id": "N-03",
+      "item": "实际止损取初始/此前/本次候选三者最高，只上移不下移",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 26,
+          "must_contain": "只上移、不下移"
+        }
+      ]
+    },
+    {
+      "id": "N-04",
+      "item": "不得用新止损追溯此前行情",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不得用新止损追溯此前行情"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "不得追溯生效"
+        }
+      ]
+    },
+    {
+      "id": "N-05",
+      "item": "入场当根 4h 线在入场后收盘可用于未来止损",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 28,
+          "must_contain": "可以用于未来止损"
+        }
+      ]
+    },
+    {
+      "id": "N-06",
+      "item": "不设「盈利到初始风险两倍」才启动跟踪（取消 2R 激活）",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不设“盈利到初始风险两倍才启动跟踪”"
+        },
+        {
+          "file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+          "line": 10,
+          "must_contain": "不设2R激活或10天强平"
+        }
+      ]
+    },
+    {
+      "id": "N-07",
+      "item": "不设持仓 10 天自动平仓",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "不设持仓 10 天自动平仓"
+        }
+      ]
+    },
+    {
+      "id": "N-08",
+      "item": "执行周期 15m；确认于 12:00 最早 12:15，不回填 12:00",
+      "level": "E1",
+      "refs": [
+        {
+          "file": "docs/用户约定/用户要求与决策.md",
+          "line": 27,
+          "must_contain": "最早 12:15，不回填 12:00"
+        }
+      ]
+    }
+  ],
+  "old_pending_refs": [
+    [
+      "docs/用户约定/用户要求与决策.md",
+      25
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      26
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      27
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      28
+    ]
+  ],
+  "r1_refs": [
+    [
+      "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md",
+      10
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      25
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      26
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      27
+    ],
+    [
+      "docs/用户约定/用户要求与决策.md",
+      28
+    ]
+  ],
+  "code_effective_values": [
+    {
+      "key": "initial_stop_pct",
+      "expected_from_user": 0.05,
+      "code_actual": 0.05,
+      "ok": true
+    },
+    {
+      "key": "trailing_low_pct",
+      "expected_from_user": 0.05,
+      "code_actual": 0.05,
+      "ok": true
+    },
+    {
+      "key": "trailing_trigger_r",
+      "expected_from_user": 0.0,
+      "code_actual": 0.0,
+      "ok": true
+    },
+    {
+      "key": "max_holding_days",
+      "expected_from_user": null,
+      "code_actual": null,
+      "ok": true
+    },
+    {
+      "key": "entry_delay_minutes",
+      "expected_from_user": 15,
+      "code_actual": 15,
+      "ok": true
+    },
+    {
+      "key": "execution_timeframe",
+      "expected_from_user": "15m",
+      "code_actual": "15m",
+      "ok": true
+    }
+  ],
+  "p_items_fields": {
+    "P-01": [
+      "shared.sweep_reference.mode",
+      "shared.sweep_reference.n",
+      "shared.sweep_reference.must_be_above_box_low",
+      "shared.sweep_recovery_scope.mode",
+      "shared.sweep_recovery_scope.max_bars",
+      "shared.sweep_max_overshoot_atr",
+      "shared.sweep_min_recovery_atr"
+    ],
+    "P-02": [
+      "shared.local_resistance.mode",
+      "shared.local_resistance.lookback_bars",
+      "shared.local_resistance.swing_k",
+      "shared.local_resistance.timeframe",
+      "shared.resistance_qualify.min_gap_atr"
+    ],
+    "P-03": [
+      "shared.sell_pressure.require",
+      "shared.sell_pressure.baseline",
+      "shared.sell_pressure.n",
+      "shared.sell_pressure.buy_ratio_mult",
+      "shared.sell_pressure.require_upper_half",
+      "shared.sell_pressure.sell_pressure_mult"
+    ],
+    "P-04": [
+      "shared.local_resistance_confirm.mode",
+      "shared.local_resistance_confirm.buffer_atr",
+      "shared.confirm.require_bull_close",
+      "shared.armed_fail.bars",
+      "shared.armed_fail.buffer_atr",
+      "shared.invalidate.close_below_l_bars",
+      "shared.invalidate.l_overshoot_atr",
+      "shared.intrabar_break_cancel.mode",
+      "shared.intrabar_break_cancel.buffer_atr",
+      "shared.observe_deadline_hours"
+    ],
+    "P-05": [
+      "schemes.4a.enabled",
+      "schemes.4a.confirm",
+      "schemes.4b.enabled",
+      "schemes.4b.confirm",
+      "schemes.4c.enabled",
+      "schemes.4c.confirm",
+      "schemes.4c.pullback.zone_atr",
+      "schemes.4c.pullback.deadline_hours"
+    ],
+    "P-06": [
+      "conflict_resolution.risk_config"
+    ],
+    "P-07": [
+      "conflict_resolution.slippage_source"
+    ],
+    "P-08": [
+      "conflict_resolution.participation_cap"
+    ],
+    "P-09": [
+      "shared.repeat_candidate_limit.per_event",
+      "shared.repeat_candidate_limit.cooldown_hours"
+    ],
+    "P-10": [
+      "exit.gap_model",
+      "shared.entry_gate.max_gap_up_atr",
+      "shared.entry_gate.entry_price_deviation_cap"
+    ],
+    "P-11": [],
+    "P-12": [
+      "shared.oi_role"
+    ]
+  },
+  "references": {
+    "total": 12,
+    "pass": 12,
+    "fail": 0
+  },
+  "bad_references": [],
+  "problems": [],
+  "verdict": "pass",
+  "statement": "8 项止损语义均为 E1（用户原话）；代码生效值逐项等于用户值；R1 待决表 12 个参数项无一再问这 8 项。本轮不新增任何止损审批要求。"
+}

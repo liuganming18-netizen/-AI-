@@ -1,0 +1,175 @@
+{
+ "label": "修复后",
+ "generated_utc": "2026-10-17T08:09:39Z",
+ "root": "/Users/boos/Desktop/威科夫因子共振趋势",
+ "scenarios": {
+  "S1_名义额低于最小": {
+   "trades_count": 0,
+   "open_positions_remaining": [],
+   "final_cash": 2000.0,
+   "final_equity": 2000.0,
+   "initial_equity": 2000.0,
+   "fees_total": 0.0,
+   "rejected_reasons": [
+    "notional_below_min"
+   ],
+   "rejects_count": 1,
+   "invalid_reasons": [
+    "entry_notional_rejected:notional_below_min"
+   ],
+   "run_valid": false,
+   "unclosed_positions": [],
+   "spec_status": "spec_applied",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": null,
+   "spec_applicability": "unverified_historical"
+  },
+  "S2_数量低于最小": {
+   "trades_count": 0,
+   "open_positions_remaining": [],
+   "final_cash": 2000.0,
+   "final_equity": 2000.0,
+   "initial_equity": 2000.0,
+   "fees_total": 0.0,
+   "rejected_reasons": [
+    "qty_below_min_step"
+   ],
+   "rejects_count": 1,
+   "invalid_reasons": [
+    "entry_qty_rejected:qty_below_min_step"
+   ],
+   "run_valid": false,
+   "unclosed_positions": [],
+   "spec_status": "spec_applied",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": null,
+   "spec_applicability": "unverified_historical"
+  },
+  "S3_原价非正": {
+   "trades_count": 0,
+   "open_positions_remaining": [],
+   "final_cash": 2000.0,
+   "final_equity": 2000.0,
+   "initial_equity": 2000.0,
+   "fees_total": 0.0,
+   "rejected_reasons": [
+    "nonpositive_raw_price"
+   ],
+   "rejects_count": 1,
+   "invalid_reasons": [
+    "entry_fill_rejected:nonpositive_raw_price"
+   ],
+   "run_valid": false,
+   "unclosed_positions": [],
+   "spec_status": "declared_no_spec",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": null,
+   "spec_applicability": null
+  },
+  "S4_跌回箱体取消": {
+   "trades_count": 0,
+   "open_positions_remaining": [],
+   "final_cash": 2000.0,
+   "final_equity": 2000.0,
+   "initial_equity": 2000.0,
+   "fees_total": 0.0,
+   "rejected_reasons": [
+    "canceled_fell_back_into_box (open=100.0 < H=101.0)"
+   ],
+   "rejects_count": 0,
+   "invalid_reasons": [],
+   "run_valid": true,
+   "unclosed_positions": [],
+   "spec_status": "declared_no_spec",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": null,
+   "spec_applicability": null
+  },
+  "S5_正常成交": {
+   "trades_count": 1,
+   "open_positions_remaining": [],
+   "final_cash": 1999.04,
+   "final_equity": 1999.04,
+   "initial_equity": 2000.0,
+   "fees_total": 0.6,
+   "rejected_reasons": [],
+   "rejects_count": 0,
+   "invalid_reasons": [],
+   "run_valid": true,
+   "unclosed_positions": [],
+   "spec_status": "spec_applied",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": {
+    "entry_price": 100.03,
+    "exit_price": 99.97,
+    "qty": 6.0,
+    "net_pnl": -0.96,
+    "fees": 0.6
+   },
+   "spec_applicability": "unverified_historical"
+  },
+  "S6_出场拒绝": {
+   "trades_count": 0,
+   "open_positions_remaining": [
+    "SOLUSDT"
+   ],
+   "final_cash": 1999.9928646854,
+   "final_equity": 1991.4276330939,
+   "initial_equity": 2000.0,
+   "fees_total": 0.0,
+   "rejected_reasons": [],
+   "rejects_count": 1,
+   "invalid_reasons": [
+    "exit_eod_fill_rejected:nonpositive_or_nonfinite_exit_fill"
+   ],
+   "run_valid": false,
+   "unclosed_positions": [
+    "SOLUSDT"
+   ],
+   "spec_status": "declared_no_spec",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": null,
+   "spec_applicability": null
+  },
+  "S7_历史规格不可证": {
+   "trades_count": 1,
+   "open_positions_remaining": [],
+   "final_cash": 1999.04,
+   "final_equity": 1999.04,
+   "initial_equity": 2000.0,
+   "fees_total": 0.6,
+   "rejected_reasons": [],
+   "rejects_count": 0,
+   "invalid_reasons": [],
+   "run_valid": true,
+   "unclosed_positions": [],
+   "spec_status": "spec_applied",
+   "formal_pass_allowed": false,
+   "cash_identity_ok": true,
+   "equity_identity_ok": true,
+   "first_trade": {
+    "entry_price": 100.03,
+    "exit_price": 99.97,
+    "qty": 6.0,
+    "net_pnl": -0.96,
+    "fees": 0.6
+   },
+   "spec_applicability": "unverified_historical"
+  },
+  "S8_缺规格": {
+   "raised": "ExecutionInputError: instrument_spec_required: 必须提供交易所合约规格（或显式 price_step）；禁止用固定 0.01 默认值成交"
+  }
+ }
+}

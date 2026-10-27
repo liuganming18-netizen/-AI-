@@ -1,0 +1,744 @@
+{
+ "生成时刻": "2026-10-23T00:53:02+08:00",
+ "被审测试脚本": [
+  "reconcile_automated_vs_backtest.py",
+  "test_automated_closeloop.py"
+ ],
+ "C_测试脚本是否自己推进": {
+  "reconcile_automated_vs_backtest.py": {
+   "execute_cycle_调用": [],
+   "record_stop_update_调用": [],
+   "裸SQL写入": []
+  },
+  "test_automated_closeloop.py": {
+   "execute_cycle_调用": [
+    {
+     "行": 250,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "fill_time_1 + 900000",
+      "trail_d": "0.05"
+     }
+    },
+    {
+     "行": 268,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "c4h_1_close + 100",
+      "trail_d": "0.05"
+     }
+    },
+    {
+     "行": 282,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "c4h_2_close + 100",
+      "trail_d": "0.05"
+     }
+    },
+    {
+     "行": 296,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "b15_1_close + 100",
+      "trail_d": "0.05"
+     }
+    },
+    {
+     "行": 355,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "fill_time_2 + 900000",
+      "trail_d": "0.02"
+     }
+    },
+    {
+     "行": 370,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "b15_g2_close + 100",
+      "trail_d": "0.02"
+     }
+    },
+    {
+     "行": 392,
+     "函数": "execute_cycle",
+     "位置参数": [],
+     "关键字": {
+      "now_ms": "1792699200200",
+      "trail_d": "0.05"
+     }
+    }
+   ],
+   "record_stop_update_调用": [],
+   "裸SQL写入": [
+    {
+     "行": 117,
+     "动作": "INSERT INTO",
+     "表": "candles"
+    },
+    {
+     "行": 122,
+     "动作": "INSERT INTO",
+     "表": "candle_versions"
+    },
+    {
+     "行": 147,
+     "动作": "INSERT OR REPLACE INTO",
+     "表": "live_signal"
+    }
+   ]
+  }
+ },
+ "C_汇总": {
+  "execute_cycle_调用总次数": 7,
+  "record_stop_update_调用总次数": 0,
+  "对账本四表的裸SQL写入": [],
+  "判定": "不通过",
+  "说明": "只要测试脚本自己调用执行方法/自己记止损/自己写成交，就不是「系统自动完成」"
+ },
+ "A_参数来源": {
+  "reconcile_automated_vs_backtest.py": {
+   "请求体出现参数键": [
+    {
+     "行": 59,
+     "命中键": [
+      "stoploss_s",
+      "trail_d"
+     ],
+     "全部键": [
+      "stoploss_s",
+      "trail_d"
+     ]
+    }
+   ],
+   "execute_cycle传参": [],
+   "now_ms字面注入": 0
+  },
+  "test_automated_closeloop.py": {
+   "请求体出现参数键": [
+    {
+     "行": 225,
+     "命中键": [
+      "stoploss_s",
+      "trail_d"
+     ],
+     "全部键": [
+      "action",
+      "arm",
+      "symbol",
+      "direction",
+      "signal_uid",
+      "origin",
+      "notional",
+      "price",
+      "stoploss_s",
+      "trail_d"
+     ]
+    },
+    {
+     "行": 332,
+     "命中键": [
+      "stoploss_s",
+      "trail_d"
+     ],
+     "全部键": [
+      "action",
+      "arm",
+      "symbol",
+      "direction",
+      "signal_uid",
+      "origin",
+      "now_ms",
+      "notional",
+      "price",
+      "stoploss_s",
+      "trail_d"
+     ]
+    }
+   ],
+   "execute_cycle传参": [
+    {
+     "now_ms": "fill_time_1 + 900000",
+     "trail_d": "0.05"
+    },
+    {
+     "now_ms": "c4h_1_close + 100",
+     "trail_d": "0.05"
+    },
+    {
+     "now_ms": "c4h_2_close + 100",
+     "trail_d": "0.05"
+    },
+    {
+     "now_ms": "b15_1_close + 100",
+     "trail_d": "0.05"
+    },
+    {
+     "now_ms": "fill_time_2 + 900000",
+     "trail_d": "0.02"
+    },
+    {
+     "now_ms": "b15_g2_close + 100",
+     "trail_d": "0.02"
+    },
+    {
+     "now_ms": "1792699200200",
+     "trail_d": "0.05"
+    }
+   ],
+   "now_ms字面注入": 8
+  }
+ },
+ "A_账本配置身份列": {
+  "paper_3a.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "paper_3b.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "paper_3c.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "paper_3d.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "隔离/paper_3a.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "stoploss_s",
+    "trail_d",
+    "model_version",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "stoploss_s",
+    "trail_d",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "隔离/paper_3b.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "stoploss_s",
+    "trail_d",
+    "model_version",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "stoploss_s",
+    "trail_d",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "隔离/paper_3c.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "stoploss_s",
+    "trail_d",
+    "model_version",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "stoploss_s",
+    "trail_d",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  },
+  "隔离/paper_3d.sqlite3": {
+   "paper_pending": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "stoploss_s",
+    "trail_d",
+    "model_version",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "paper_position": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "stoploss_s",
+    "trail_d",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ]
+  }
+ },
+ "A_账本配置身份列_说明": "生产库（数据/paper）是旧 schema，尚未迁移；隔离新库（/tmp/wx_audit05/paper）由新版 live_store.ensure_live_schema 建表，含 stoploss_s/trail_d/config_fingerprint",
+ "A_汇总": {
+  "请求体是否携带 stoploss_s/trail_d": true,
+  "账本疑似身份列": [
+   "config_fingerprint",
+   "market_source"
+  ],
+  "判定": "不通过",
+  "说明": "参数若由请求体给出，则「来自冻结配置」不成立；账本若无配置身份列，则「保留配置身份」不成立"
+ },
+ "B_行情来源": {
+  "live_api_请求体取行情或参数": [
+   {
+    "行": 901,
+    "文本": "replay_now = int(payload.get(\"now_ms\")) if (origin == \"replay\" and payload.get(\"now_ms\") is not None) else None"
+   },
+   {
+    "行": 970,
+    "文本": "replay_now = int(payload.get(\"now_ms\")) if (origin == \"replay\" and payload.get(\"now_ms\") is not None) else None"
+   },
+   {
+    "行": 1030,
+    "文本": "candle_4h = payload.get(\"candle_4h\")"
+   },
+   {
+    "行": 1031,
+    "文本": "trail_d = payload.get(\"trail_d\")"
+   }
+  ],
+  "live_api_推进调用点": [
+   {
+    "行": 840,
+    "文本": "\"trailing_handler\": \"paper_engine.advance_position_trailing & advance_arm_trailing\""
+   },
+   {
+    "行": 1089,
+    "文本": "res = PE.advance_position_trailing(arm, int(position_id), candle_4h, trail_d=trail_d, now_ms=now_ms)"
+   }
+  ],
+  "判定": "不通过",
+  "说明": "行情若从请求体取，就不是「服务端从隔离数据源读取」"
+ },
+ "D_工程测试标注": {
+  "reconcile_automated_vs_backtest.py": {
+   "出现'工程测试'": false,
+   "出现'策略成绩/收益'字样": false
+  },
+  "test_automated_closeloop.py": {
+   "出现'工程测试'": false,
+   "出现'策略成绩/收益'字样": false
+  }
+ },
+ "总判定": {
+  "A_参数来自冻结配置": "不通过",
+  "B_行情服务端读取": "不通过",
+  "C_测试未自行推进": "不通过",
+  "D_隔离运行器自行推进": "不通过",
+  "结论": "被审测试不满足工单「测试真实性」四条：它自己给参数、自己给时钟、自己逐周期调执行方法"
+ }
+}

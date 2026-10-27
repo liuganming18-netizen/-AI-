@@ -1,0 +1,79 @@
+{
+ "mode": "research_backtest",
+ "contract_version": "bt_api_v1",
+ "strategy_id": "WX_EVENT_TREND_V0_1",
+ "run_id": "run_WX_EVENT_TREND_V0_1_KAITOUSDT_1781679599",
+ "status": "succeeded",
+ "quality": {
+  "status": "unknown",
+  "age_seconds": null,
+  "note": null
+ },
+ "missing_reason": null,
+ "items": [
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KAITOUSDT_1781679599",
+   "fill_id": "paper_fill:13",
+   "order_id": 13,
+   "trade_id": "trd_paper_pos_7",
+   "trade_link": "trades.order_id",
+   "symbol": "KAITOUSDT",
+   "strategy_key": null,
+   "action": "open",
+   "fill_price": 0.5013000000000001,
+   "quantity": 974.7,
+   "fee": 0.24430855500000004,
+   "liquidity": null,
+   "sequence": 13,
+   "event_time": 1781666100000,
+   "fill_time_ms": 1781666100000,
+   "detail": {
+    "position_id": 7,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_KAITOUSDT_1781063999999_1781665200000",
+    "raw_price": 0.501,
+    "notional": 488.6171100000001,
+    "slippage_cost": 0.292410000000076,
+    "bar_open_time": 1781666100000,
+    "bar_close_time": 1781666999999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  },
+  {
+   "run_id": "run_WX_EVENT_TREND_V0_1_KAITOUSDT_1781679599",
+   "fill_id": "paper_fill:14",
+   "order_id": 14,
+   "trade_id": "trd_paper_pos_7",
+   "trade_link": "trades.order_id",
+   "symbol": "KAITOUSDT",
+   "strategy_key": null,
+   "action": "close",
+   "fill_price": 0.4759,
+   "quantity": 974.7,
+   "fee": 0.231929865,
+   "liquidity": null,
+   "sequence": 14,
+   "event_time": 1781679599999,
+   "fill_time_ms": 1781679599999,
+   "detail": {
+    "position_id": 7,
+    "signal_uid": "cand_ev_WX_EVENT_TREND_V0_1_binance_KAITOUSDT_1781063999999_1781665200000",
+    "raw_price": 0.4762,
+    "notional": 463.85973,
+    "slippage_cost": 0.29241000000002193,
+    "bar_open_time": 1781678700000,
+    "bar_close_time": 1781679599999,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "exchange_order_id": null,
+    "exchange_order_absent_reason": "模拟盘不下真单，无交易所回报"
+   }
+  }
+ ],
+ "total": 2,
+ "live_order_enabled": false,
+ "link_notes": [
+  "trade#1 开仓订单冲突：trades.jsonl=13 vs positions.POSITION_OPENED=13"
+ ],
+ "note": "逐次成交明细（同一 run_id 账本 fills.jsonl 事件）；trade_id 由关联 order_id 反查，支持部分成交展开"
+}

@@ -1,0 +1,42 @@
+{
+  "audit": "ENTRY-AUDIT-03",
+  "checked_utc": "2026-10-18 09:10:42",
+  "upstream_code_contracts": {
+    "count": 51,
+    "sha256_unchanged": 51,
+    "changed": [],
+    "verdict": "零改动"
+  },
+  "market_candles": {
+    "count": 2500,
+    "whole_file_changed": 304,
+    "history_slice_unchanged": 2500,
+    "history_slice_changed": [],
+    "verdict": "历史切片零改动（整文件哈希变化来自尾部追加，属采集器正常写入）"
+  },
+  "oi_funding_metrics": {
+    "count": 1588,
+    "changed": 0,
+    "changed_paths_sample": [],
+    "note": "这些文件的 live 分片同样会被采集器追加；整文件哈希变化不构成「审计改动了数据」的证据，历史切片零改动才是硬证据（见 market_candles）。"
+  },
+  "missing_files": [],
+  "write_scope": {
+    "declared": "本轮新增文件全部在 evidence/ENTRY-AUDIT-03/ 内",
+    "outside_writes": [],
+    "not_modified": [
+      "正式策略",
+      "共享撮合",
+      "UI",
+      "采集器",
+      "生产库",
+      "原账本"
+    ]
+  },
+  "hard_verdict": {
+    "upstream_unchanged": true,
+    "market_history_unchanged": true,
+    "no_missing": true,
+    "pass": true
+  }
+}

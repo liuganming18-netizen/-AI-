@@ -1,0 +1,50 @@
+﻿layer,field,in_engine_model,engine_ref,in_raw_export,would_be_in_to_json_full,provenance_class,value_available_now,remediation,note
+order,amount,True,trade_model.py:106,True,True,raw_export,True,无需,成交数量（backtest 里 filled 恒等于它）
+order,safe_price,True,trade_model.py:140-141(property),True,True,raw_export,True,无需,成交均价；backtest 中 average==price==ft_price，故等于委托价
+order,ft_order_side,True,trade_model.py:92,True,True,raw_export,True,无需,buy/sell
+order,order_filled_timestamp,True,trade_model.py:112,True,True,raw_export,True,无需,**成交**时刻（不是委托时刻）
+order,ft_is_entry,True,trade_model.py:269,True,True,engine_computed,True,无需,引擎导出时按 side==entry_side 即时算
+order,ft_order_tag,True,trade_model.py:118,True,True,raw_export,True,无需,入场=candidate_id，出场=exit_reason
+order,cost,True,trade_model.py:109,True,True,raw_export,True,无需,含手续费的成交额
+order,pair,True,trade_model.py:93,False,True,derived_from_raw,True,无需,== trade.pair，可从交易层取到，非原始订单字段
+order,order_id,True,trade_model.py:99,False,True,unrecoverable_rerun,False,重跑才能拿到,**引擎真 ID**：回测里是全局自增计数器字符串（backtesting.py:149/940/1175），导出被裁 ⇒ 事后不可恢复
+order,status,True,trade_model.py:100,False,True,derived_from_construction,True,无需,导出只保留已成交单；close_bt_order 恒置 'closed'（trade_model.py:309）
+order,average,True,trade_model.py:105,False,True,derived_from_construction,True,无需,backtest 建单时即置为 propose_rate，成交后不再改 ⇒ == safe_price
+order,filled,True,trade_model.py:107,False,True,derived_from_construction,True,无需,close_bt_order 置 filled=amount（trade_model.py:305）
+order,is_open,True,trade_model.py:94,False,True,derived_from_construction,True,无需,close_bt_order 置 False（trade_model.py:308）
+order,order_date,True,trade_model.py:111,False,True,derived_from_construction,True,无需,建单即成交（同一根 K 线）⇒ == order_filled_date
+order,order_timestamp,True,trade_model.py:285-289,False,True,derived_from_construction,True,无需,同上，毫秒形态
+order,order_filled_date,True,trade_model.py:112,False,True,derived_from_construction,True,无需,== order_filled_timestamp
+order,order_type,True,trade_model.py:102,False,True,derived_from_construction,True,无需,取 strategy.order_types['entry'|'exit']；策略未覆盖 ⇒ 默认 'limit'（interface.py:95-101）
+order,price,True,trade_model.py:104,False,True,derived_from_construction,True,无需,委托价；backtest 建单时 = propose_rate = safe_price
+order,remaining,True,trade_model.py:108,False,True,derived_from_construction,True,无需,close_bt_order 置 0（trade_model.py:306）
+order,ft_fee_base,True,trade_model.py:117,False,True,derived_from_construction,True,无需,合约(U 本位)手续费以计价币计 ⇒ 恒 None；回测建单时未传该实参
+order,funding_fee,True,trade_model.py:114,False,True,derived_from_construction,False,无需,**逐单拆分不可证**：close_bt_order 把 funding_fee_running 整体结转并清零，导出只剩 trade.funding_fees 总额 ⇒ 只能给总额，不能给逐单归属
+order,id,True,trade_model.py:85,False,False,unrecoverable_rerun,False,重跑才能拿到,与 order_id 同值（同一计数器）
+order,ft_trade_id,True,trade_model.py:86,False,False,unrecoverable_rerun,False,重跑才能拿到,== trade.id；导出无，见 trade 层 trade_id 行
+order,order_update_date,True,trade_model.py:113,False,False,derived_from_construction,True,无需,建单时置为同一时刻 ⇒ == order_date
+order,ft_cancel_reason,True,trade_model.py:97,False,False,derived_from_construction,True,无需,本批次无撤单（canceled/timedout/replaced 全 0）⇒ None
+order,stop_price,True,trade_model.py:110,False,False,derived_from_construction,True,无需,backtest 建单未传 ⇒ None
+order,ft_amount / ft_price,True,trade_model.py:95-96,False,False,derived_from_construction,True,无需,兜底列，建单时未传 ⇒ 分别等于 amount / safe_price
+order,side / symbol,True,trade_model.py:101/103,False,False,derived_from_construction,True,无需,分别 == ft_order_side / pair
+order,fill_id,False,—,False,False,nonexistent_backtest,False,永远补不出,回测无交易所回报，不存在逐次成交 ID；任何自造 fill_id 都是伪造
+order,exchange_order_id / client_order_id,False,—,False,False,nonexistent_backtest,False,永远补不出,同上，只有 dry-run/实盘才有
+order,partial_fills[]（一单多次成交明细）,False,—,False,False,nonexistent_backtest,False,永远补不出,回测 1 单 = 1 次全额成交；本批次 6790 单全部 amount>0 且一次性 close_bt_order
+trade,pair / amount / open_rate / close_rate / open_timestamp / close_timestamp,True,trade_model.py:667+,False,True,raw_export,True,无需,交易汇总原始值
+trade,fee_open / fee_close,True,trade_model.py:722-725,False,True,raw_export,True,无需,本批次恒 0.0005 / 0.0005
+trade,profit_abs / profit_ratio,True,trade_model.py:751-752,False,True,raw_export,True,无需,"引擎 round(profit_abs,8)"
+trade,funding_fees,True,trade_model.py:781,True,True,raw_export,True,无需,资金费总额
+trade,enter_tag / exit_reason,True,trade_model.py:721/750,False,True,raw_export,True,无需,与订单 ft_order_tag 一一对应
+trade,trade_id,True,backtesting.py:149/1211/1213,False,False,derived_unverified,False,见报告,"**引擎内部有自增 trade.id，导出被裁**；当前 1..n 是按 (open_ts,白名单序) 排的秩，同刻并列时依赖未观测的建仓顺序 ⇒ 不可宣称等于 trade.id"
+trade,fee_open_cost / fee_close_cost,True,trade_model.py:723/727,False,False,derived_from_raw,True,无需,== 订单 cost − amount×price（两侧口径已逐笔校验）
+trade,exit_order_status,True,trade_model.py:749,False,False,derived_from_construction,True,无需,== 'closed'（同 order.status）
+trade,nr_of_successful_entries / exits,True,trade_model.py:790-791,False,False,derived_from_raw,True,无需,== 已导出订单里 is_entry 的计数，逐笔可数
+trade,open_fill_timestamp,True,trade_model.py:732-733,False,False,derived_from_construction,True,无需,入场单建单即成交 ⇒ == open_timestamp
+trade,amount_requested,True,trade_model.py:712,False,False,unrecoverable_rerun,False,重跑才能拿到,回测中通常 == amount，但导出无值可证 ⇒ 不猜
+trade,stoploss_last_update_timestamp,True,trade_model.py:770-771,False,False,derived_from_raw,True,无需,BT-01 `out/stage_trace_unified/*` 的止损轨迹末条时刻（已在 BT-02 索引）
+trade,base_currency / quote_currency / exchange / trading_mode,True,trade_model.py:709-713,False,False,derived_from_raw,True,无需,由 pair 与 config 唯一确定
+internal,internal_order_key,False,本项目,,False,internal_key,True,改字段名/标注,`<run_id>|<pair>|<fill_ts_ms>|E|X`，全库唯一（6790/6790 已校验）；**不是交易所 ID**
+internal,raw_trade_array_index,False,原始 JSON 数组下标,,False,raw_position,True,改字段名/标注,0 基；45/45 run 的 trades 数组按 close_timestamp 升序（即引擎 bt_trades 平仓追加顺序）
+internal,trade_id（BT-01/02 在用）,False,本项目派生,,False,derived_unverified,True,改字段名/标注,见 trade.trade_id 行
+internal,order_id（`ord_<策略>_<序号>_<腿>`）,False,BT-01 code/05_export.py:335,,False,internal_key,True,改字段名/标注,**平台合成键**，全库 6790/6790 都是这个形态；旧导出把它写在 `order_id` 字段里，极易被误当交易所订单号 ⇒ 本单在规范导出中改名为 `internal_order_key`
+internal,created_at（run 目录 orders.jsonl）,False,BT-01 code/05_export.py:339,,False,internal_key,True,改字段名/标注,**字段名错**：其值取自 `fill_ts_ms`，是成交时刻不是委托创建时刻 ⇒ 本单改名为 `fill_utc`

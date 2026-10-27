@@ -10,6 +10,7 @@
     policy.py     ExecutionPolicy（只决策，不含成交逻辑）
     fill.py       FillAdapter 协议 + Simulated / Exchange 两个实现
     position.py   Position / Trade（原 OpenPosition 搬移，非第二套）
+    rejects.py    拒单分类（执行有效性错误 vs 策略/风控取消）—— `run_valid` 的唯一分界
     funding.py    资金费结算（settlement_events / 显式假设模型）
     ledger.py     LedgerEvent 类型 + 幂等写入协议
     engine.py     TradingCore 主循环
@@ -37,6 +38,10 @@ from .policy import (POLICY_CONTRACT_VERSION, EntryDecision, ExitDecision,
                      ExecutionPolicy)
 from .position import (POSITION_CONTRACT_VERSION, Position, PositionBook, Trade,
                        unrealized_net_open, unrealized_pnl)
+from .rejects import (REJECT_CONTRACT_VERSION, REJECT_CLASS_EXECUTION,
+                      REJECT_CLASS_STRATEGY, REJECT_CLASS_UNREGISTERED,
+                      classify_reject, is_execution_validity,
+                      mark_if_execution_invalid)
 from .risk import (RISK_CONTRACT_VERSION, RiskConstraints, RiskDecision,
                    check_entry, portfolio_notional, portfolio_open_risk)
 from .signal import (SIGNAL_CONTRACT_VERSION, SignalEvent, build_signal_events,
@@ -46,7 +51,7 @@ __all__ = [
     "CORE_CONTRACT_VERSION", "ENGINE_CONTRACT_VERSION", "SIGNAL_CONTRACT_VERSION",
     "ORDER_CONTRACT_VERSION", "RISK_CONTRACT_VERSION", "POLICY_CONTRACT_VERSION",
     "FILL_CONTRACT_VERSION", "POSITION_CONTRACT_VERSION", "FUNDING_CONTRACT_VERSION",
-    "LEDGER_CONTRACT_VERSION",
+    "LEDGER_CONTRACT_VERSION", "REJECT_CONTRACT_VERSION",
     # contracts
     "OrderStatus", "Side", "PositionSide", "OrderType", "ExecPhase", "Liquidity",
     "TradingCoreError", "LiveExecutionForbidden", "ExecutionInputError",
@@ -67,6 +72,9 @@ __all__ = [
     "round_buy_price", "round_sell_price", "round_qty_down",
     # position / trade
     "Position", "PositionBook", "Trade", "unrealized_pnl", "unrealized_net_open",
+    # rejects（拒单分类：run_valid 的唯一分界）
+    "REJECT_CLASS_EXECUTION", "REJECT_CLASS_STRATEGY", "REJECT_CLASS_UNREGISTERED",
+    "classify_reject", "is_execution_validity", "mark_if_execution_invalid",
     # funding
     "funding_events_ms", "settle_funding",
     # ledger

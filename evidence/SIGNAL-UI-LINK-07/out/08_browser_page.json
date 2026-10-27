@@ -1,0 +1,321 @@
+{
+  "probe": "40_browser_page_check",
+  "generated_at_utc": "2026-10-25T10:46:22.598Z",
+  "page_url": "http://127.0.0.1:3000/",
+  "api_base": "http://127.0.0.1:8787",
+  "steps": [
+    {
+      "name": "打开页面",
+      "ok": true,
+      "detail": "http://127.0.0.1:3000/"
+    },
+    {
+      "name": "空态诊断块出现",
+      "ok": true,
+      "detail": "[data-testid=\"signal-empty\"]"
+    },
+    {
+      "name": "首帧不诬告接口故障",
+      "ok": true,
+      "detail": "显示「正在读取逐币诊断」"
+    },
+    {
+      "name": "逐币诊断渲染",
+      "ok": true,
+      "detail": "等待 4.9 秒"
+    },
+    {
+      "name": "诊断行数",
+      "ok": true,
+      "detail": "8 行：最近处理到 / 行情最新 / 当前阶段 / 本进程漏斗 / 历史回放 / 最近候选 / 空转原因 / 样例"
+    },
+    {
+      "name": "必需诊断行齐全",
+      "ok": true,
+      "detail": "7 项齐全"
+    },
+    {
+      "name": "旧「暂无实时信号」已消失",
+      "ok": true,
+      "detail": "无旧文案"
+    },
+    {
+      "name": "新空态标题存在",
+      "ok": true,
+      "detail": "当前没有可执行信号"
+    },
+    {
+      "name": "历史候选展开入口存在",
+      "ok": true,
+      "detail": "展开历史回放候选明细（51 条，均不可执行）"
+    },
+    {
+      "name": "明细行数 / 去重",
+      "ok": true,
+      "detail": "51 行，去重 51 个 ID"
+    },
+    {
+      "name": "截图已保存",
+      "ok": true,
+      "detail": "out/08_page_empty_diagnostics.png"
+    },
+    {
+      "name": "页面明细 ↔ 接口明细一致",
+      "ok": true,
+      "detail": "接口 51 条 / 页面 51 条；逐位相同=true"
+    },
+    {
+      "name": "「丢弃 N」↔ 接口",
+      "ok": true,
+      "detail": "页面 51 / 接口 51"
+    },
+    {
+      "name": "页面发起的信号请求",
+      "ok": true,
+      "detail": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500 → 200，total=0，as_of=null"
+    },
+    {
+      "name": "页面无 JS 报错",
+      "ok": true,
+      "detail": "无"
+    }
+  ],
+  "ok": true,
+  "first_paint": {
+    "pending_block": true,
+    "nodiag_block": false
+  },
+  "diagnostics_latency_ms": 4876,
+  "diagnostic_rows": [
+    {
+      "label": "最近处理到",
+      "value": "1h 10-25 09:00 UTC · 4h 10-25 04:00 UTC"
+    },
+    {
+      "label": "行情最新",
+      "value": "1h 10-25 09:59 UTC · 4h 10-25 07:59 UTC"
+    },
+    {
+      "label": "当前阶段",
+      "value": "箱体观察 300 · 空转 191 · 已扫低 21 · 待突破 14"
+    },
+    {
+      "label": "本进程漏斗",
+      "value": "箱体 0 → 扫低 0 → 回踩 0 → 候选 0"
+    },
+    {
+      "label": "历史回放",
+      "value": "箱体 7932 → 扫低 1923 → 回踩 1165 → 候选 51（丢弃 51 · 恢复 0）"
+    },
+    {
+      "label": "最近候选",
+      "value": "本次启动后没有产生候选"
+    },
+    {
+      "label": "空转原因",
+      "value": "冷却中（距上次事件不足 24h） 141；箱体条件未满足（宽度或 ER 超阈） 31；条件已满足，等下一根 4h 收盘建档 19"
+    },
+    {
+      "label": "样例",
+      "value": "0GUSDT：冷却中（距上次事件不足 24h）（实际 2026-10-25T14:00:00Z / 阈值 冷却 24h）"
+    }
+  ],
+  "key_values": {
+    "最近处理到": "1h 10-25 09:00 UTC · 4h 10-25 04:00 UTC",
+    "行情最新": "1h 10-25 09:59 UTC · 4h 10-25 07:59 UTC",
+    "当前阶段": "箱体观察 300 · 空转 191 · 已扫低 21 · 待突破 14",
+    "本进程漏斗": "箱体 0 → 扫低 0 → 回踩 0 → 候选 0",
+    "历史回放": "箱体 7932 → 扫低 1923 → 回踩 1165 → 候选 51（丢弃 51 · 恢复 0）",
+    "最近候选": "本次启动后没有产生候选",
+    "空转原因": "冷却中（距上次事件不足 24h） 141；箱体条件未满足（宽度或 ER 超阈） 31；条件已满足，等下一根 4h 收盘建档 19",
+    "样例": "0GUSDT：冷却中（距上次事件不足 24h）（实际 2026-10-25T14:00:00Z / 阈值 冷却 24h）"
+  },
+  "discarded_ids_on_page": [
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+    "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000"
+  ],
+  "first_discarded_text": "1000PEPEUSDT07-26 07:00 UTCcand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000早于模拟盘启用时点（按纪律不补开）；已错过成交时点（超出 1h 成交时效）",
+  "cross_check": {
+    "api_detail_n": 51,
+    "page_detail_n": 51,
+    "order_identical": true,
+    "api_history_candidates_discarded": 51,
+    "api_detail_n_field": 51
+  },
+  "page_network": {
+    "signals": [
+      {
+        "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+        "status": 200,
+        "total": 0,
+        "items": 0,
+        "as_of": null,
+        "scope": "current"
+      },
+      {
+        "url": "http://127.0.0.1:3000/api/v1/signals?scope=current&limit=500",
+        "status": 200,
+        "total": 0,
+        "items": 0,
+        "as_of": null,
+        "scope": "current"
+      }
+    ],
+    "daemon": [
+      {
+        "url": "http://127.0.0.1:3000/api/v1/paper/execution_daemon/status?arm=3a",
+        "status": 200,
+        "watermark_1h": 1792918800000,
+        "watermark_4h": 1792900800000,
+        "funnel": {
+          "since_start": {
+            "BOX": 0,
+            "SWEEP": 0,
+            "RETEST": 0,
+            "CANDIDATE": 0,
+            "VOLUME_REJECTED": 0,
+            "OI_UNAVAILABLE": 0,
+            "OI_REJECTED": 0,
+            "INVALIDATED": 0,
+            "EXPIRED": 0,
+            "MISSED_WITHOUT_RETEST": 0
+          },
+          "history": {
+            "BOX": 7932,
+            "SWEEP": 1923,
+            "RETEST": 1165,
+            "CANDIDATE": 51,
+            "VOLUME_REJECTED": 7,
+            "OI_UNAVAILABLE": 0,
+            "OI_REJECTED": 0,
+            "INVALIDATED": 4118,
+            "EXPIRED": 3388,
+            "MISSED_WITHOUT_RETEST": 33
+          },
+          "candidates_since_start": 0,
+          "last_candidate_ms": null,
+          "last_candidate_utc": null,
+          "history_candidates_discarded": 51,
+          "bootstrap_window_hours": 2884,
+          "note": "since_start 只统计本次进程启动后的状态机迁移；history 是预热回放期（≈48 天）走过的各关数量；history_candidates_discarded 是其中产生、按纪律丢弃的历史候选。三者互不替代。"
+        },
+        "idle_counts": {
+          "IDLE_COOLING": 141,
+          "IDLE_WAIT_BOX": 31,
+          "IDLE_READY_BOX": 19
+        },
+        "state_counter": {
+          "IDLE": 191,
+          "BOX": 300,
+          "RETEST": 14,
+          "SWEEP": 21
+        },
+        "discarded_detail_n": 51,
+        "history_candidates_discarded": 51,
+        "discarded_ids": [
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_AGTUSDT_1788177599999_1788771600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1788177599999_1788764400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_AIGENSYNUSDT_1789559999999_1789963200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_ASTERUSDT_1786809599999_1787173200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_AXSUSDT_1789127999999_1789696800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_BABYUSDT_1789142399999_1789693200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_BBUSDT_1791431999999_1791702000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_BLURUSDT_1786795199999_1787216400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_BNBUSDT_1790668799999_1791169200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_CARVUSDT_1789545599999_1789822800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_CHZUSDT_1790639999999_1791000000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_COLLECTUSDT_1787169599999_1787288400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_COOKIEUSDT_1784836799999_1785124800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_CROSSUSDT_1788609599999_1788944400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_DOTUSDT_1785383999999_1785808800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_DUSKUSDT_1788940799999_1789977600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_ETHWUSDT_1786089599999_1787173200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_EVAAUSDT_1789574399999_1789743600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_GOATUSDT_1788479999999_1789257600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_HYPERUSDT_1786996799999_1787173200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_IRYSUSDT_1789502399999_1789862400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_JELLYJELLYUSDT_1789790399999_1790413200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_KATUSDT_1786939199999_1787302800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_KMNOUSDT_1785657599999_1786071600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_KOMAUSDT_1788177599999_1788613200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_METISUSDT_1791071999999_1791748800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_METUSDT_1788163199999_1789117200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_NEARUSDT_1787990399999_1788552000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_NILUSDT_1784836799999_1785114000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PEOPLEUSDT_1784836799999_1785006000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PIXELUSDT_1789142399999_1789988400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PLUMEUSDT_1785801599999_1786035600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PORTALUSDT_1786665599999_1786881600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PROVEUSDT_1789171199999_1789750800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_PYTHUSDT_1791345599999_1791493200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_SAFEUSDT_1787068799999_1787302800000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_SANDUSDT_1786651199999_1787241600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_SKRUSDT_1786737599999_1787317200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_SUSDT_1790740799999_1791266400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1784836799999_1784880000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_TNSRUSDT_1785715199999_1786251600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_UAIUSDT_1784836799999_1785333600000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_VELVETUSDT_1790308799999_1790953200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_WALUSDT_1791043199999_1791630000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_WUSDT_1788091199999_1788696000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_XLMUSDT_1788249599999_1788786000000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1789358399999_1789790400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_YGGUSDT_1790596799999_1790942400000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_ZECUSDT_1789343999999_1789585200000",
+          "cand_ev_WX_EVENT_TREND_V0_1_binance_ZKUSDT_1786651199999_1787202000000"
+        ]
+      }
+    ]
+  },
+  "page_errors": []
+}

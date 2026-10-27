@@ -1,0 +1,89 @@
+{
+ "probe": "PAPER-LEDGER-PARITY-11/two_books",
+ "generated_utc": "2026-10-25T15:03:35Z",
+ "生产库": "数据/paper/paper_3a.sqlite3",
+ "本次操作": "只读生产库；所有模拟都在副本 `out/_paper3a_copy.sqlite3` 上做，做完即删",
+ "①当前": {
+  "initial_equity": 5000.0,
+  "旧底座_paper_state": {
+   "cash": 5000.0,
+   "realized_pnl": 0.0,
+   "fees_paid": 0.0
+  },
+  "正式口径_account_view": {
+   "cash": 5000.0,
+   "realized_pnl": 0.0,
+   "fees_paid": 0.0
+  },
+  "差额_cash": 0.0,
+  "含作废净额": -4.345455,
+  "未作废净额": 0.0,
+  "自洽检查_旧口径_expect": 4995.654545,
+  "自洽检查_expect": 5000.0,
+  "自洽检查_cash": 5000.0,
+  "自洽检查通过": true
+ },
+ "作废记录明细": [
+  {
+   "id": 1,
+   "symbol": "BTCUSDT",
+   "net_pnl": -1.3621504065000463,
+   "exit_reason": "manual_closeloop_test",
+   "voided": 1,
+   "void_reason": "synthetic_test_isolation"
+  },
+  {
+   "id": 2,
+   "symbol": "BTCUSDT",
+   "net_pnl": -1.4916524336999943,
+   "exit_reason": "manual_closeloop_test",
+   "voided": 1,
+   "void_reason": "synthetic_test_isolation"
+  },
+  {
+   "id": 3,
+   "symbol": "BTCUSDT",
+   "net_pnl": -1.4916524336999943,
+   "exit_reason": "ui_closeloop_verification",
+   "voided": 1,
+   "void_reason": "synthetic_test_isolation"
+  }
+ ],
+ "作废净额合计": -4.345455,
+ "未作废净额合计": 0,
+ "②模拟": {
+  "净亏损": -10.0,
+  "手续费": 0.5,
+  "方式": "插入 1 条 voided=0 的 paper_realized + 按 _set_cash 同逻辑改 paper_state"
+ },
+ "③模拟后": {
+  "initial_equity": 5000.0,
+  "旧底座_paper_state": {
+   "cash": 4990.0,
+   "realized_pnl": -10.0,
+   "fees_paid": 0.5
+  },
+  "正式口径_account_view": {
+   "cash": 4990.0,
+   "realized_pnl": -10.0,
+   "fees_paid": 1.0
+  },
+  "差额_cash": 0.0,
+  "含作废净额": -14.345455,
+  "未作废净额": -10.0,
+  "自洽检查_旧口径_expect": 4985.654545,
+  "自洽检查_expect": 4990.0,
+  "自洽检查_cash": 4990.0,
+  "自洽检查通过": true
+ },
+ "差额_模拟前": 0.0,
+ "差额_模拟后": 0.0,
+ "差额是否传递": true,
+ "两套账是否一致": true,
+ "结论": "两套账已一致（差额 0，模拟真实交易后仍为 0）：作废亏损不再留在账本底座里",
+ "修复方向": {
+  "数据": "把 paper_state 的 cash/realized_pnl/fees_paid 校正到正式口径，并用 paper_correction 留痕",
+  "代码": "recover_report 里 SUM(net_pnl) 同步改为只算 voided=0，否则校正后自洽检查会报错",
+  "为什么必须两边一起改": "只改数据 ⇒ 自洽检查立刻失败；只改代码 ⇒ 差额仍在"
+ }
+}

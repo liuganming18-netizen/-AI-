@@ -1,0 +1,1385 @@
+{
+ "probe": "SIGNAL-LIVE-CHECK-09/50_sample_analysis",
+ "generated_real_utc": "2026-10-25T13:24:20Z",
+ "source": "10_prod_samples.ndjson",
+ "n_samples": 72,
+ "sampled_from_utc": "2026-10-25T11:50:01Z",
+ "sampled_to_utc": "2026-10-25T13:01:03Z",
+ "runtime_pids": [
+  38664
+ ],
+ "segments": [
+  {
+   "seq": 0,
+   "watermark_1h": 1792922400000,
+   "watermark_1h_utc": "2026-10-25T10:00:00Z",
+   "watermark_4h_utc": "2026-10-25T04:00:00Z",
+   "latest_1h_close_utc": "2026-10-25T10:59:59Z",
+   "n_samples_in_seg": 11,
+   "first_sampled_utc": "2026-10-25T11:50:01Z",
+   "last_sampled_utc": "2026-10-25T12:00:01Z",
+   "watermark_check": {
+    "convention": "open_time（区间起点）；close 口径另列 `*_close`，不混用",
+    "global_1h": 1792922400000,
+    "processed_1h_max": 1792922400000,
+    "processed_1h_min": 1792922400000,
+    "db_1h_max": 1792922400000,
+    "aligned_1h": true,
+    "lag_1h_bars": 0,
+    "global_4h": 1792900800000,
+    "processed_4h_max_open": 1792900800000,
+    "processed_4h_max_close": 1792915199999,
+    "db_4h_max_open": 1792900800000,
+    "aligned_4h": true,
+    "lag_4h_bars": 0,
+    "per_symbol": {
+     "n": 526,
+     "lag_1h_histogram": {
+      "0": 526
+     },
+     "lag_1h_max": 0,
+     "n_lag_1h_gt1": 0,
+     "lagging": [],
+     "note": "`lag_1h>1` 的标的逐条列出（最多 30 条）。`lag_1h_histogram` 是全部标的的分布，用于区分「个别落后」与「全池落后」。"
+    },
+    "n_engines_with_1h": 526,
+    "n_engines_with_4h": 526,
+    "n_engines": 526,
+    "note": "`lag_1h_bars` = 库内最新已闭合 1h 与「实际处理过的最大 1h open」之差，正常 ≤1；>1 即漏处理（本单**不**把允许值放宽到 4）。`per_symbol` 给逐币分布与落后清单，防止 1 个标的落后被全池 max 掩盖。"
+   },
+   "state_counter": {
+    "IDLE": 192,
+    "BOX": 300,
+    "RETEST": 16,
+    "SWEEP": 18
+   },
+   "idle_counts": {
+    "IDLE_COOLING": 140,
+    "IDLE_WAIT_BOX": 32,
+    "IDLE_READY_BOX": 20
+   },
+   "idle_sample": {
+    "0GUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "1000CATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "1000LUNCUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "1000SHIBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "1INCHUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "2ZUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    },
+    "4USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "ACEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "ACTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "ADAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "AEROUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T06:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 19.0
+    },
+    "AEVOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    },
+    "AKTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "ALTUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=14.20A, ER=0.1143",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 14.20A 不在 2.0~8.0A"
+     ]
+    },
+    "APEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "API3USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T08:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "ARBUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=7.44A, ER=0.1279",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "ARPAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "ARUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ARXUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=6.31A, ER=0.1816",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "ASTERUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T00:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 13.0
+    },
+    "ATOMUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "AXLUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=8.73A, ER=0.2044",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 8.73A 不在 2.0~8.0A"
+     ]
+    },
+    "AXSUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=7.06A, ER=0.1759",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "AZTECUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BANANAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BERAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T11:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 24.0
+    },
+    "BIOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BLURUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=8.54A, ER=0.3812",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 8.54A 不在 2.0~8.0A",
+      "ER=0.3812 超阈 0.3"
+     ]
+    },
+    "BNTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BROCCOLIF3BUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 5.0
+    },
+    "BSVUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "C98USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "CAKEUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=7.07A, ER=0.1452",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "CATIUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=6.38A, ER=0.1517",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "CELOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "CELRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "CFGUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    }
+   },
+   "funnel_since_start": {
+    "BOX": 0,
+    "SWEEP": 0,
+    "RETEST": 0,
+    "CANDIDATE": 0,
+    "VOLUME_REJECTED": 0,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 0,
+    "EXPIRED": 0,
+    "MISSED_WITHOUT_RETEST": 0
+   },
+   "signals_generated_total": 0,
+   "api": {
+    "current_total": 0,
+    "current_ids": [],
+    "current_quality_status": "ok",
+    "current_missing_reason": null,
+    "current_note_len": 172,
+    "all_total": 0,
+    "history_total": 0
+   },
+   "live_db_n": 0,
+   "live_db_ids": []
+  },
+  {
+   "seq": 1,
+   "watermark_1h": 1792926000000,
+   "watermark_1h_utc": "2026-10-25T11:00:00Z",
+   "watermark_4h_utc": "2026-10-25T08:00:00Z",
+   "latest_1h_close_utc": "2026-10-25T11:59:59Z",
+   "n_samples_in_seg": 60,
+   "first_sampled_utc": "2026-10-25T12:01:01Z",
+   "last_sampled_utc": "2026-10-25T13:00:03Z",
+   "watermark_check": {
+    "convention": "open_time（区间起点）；close 口径另列 `*_close`，不混用",
+    "global_1h": 1792926000000,
+    "processed_1h_max": 1792926000000,
+    "processed_1h_min": 1792926000000,
+    "db_1h_max": 1792926000000,
+    "aligned_1h": true,
+    "lag_1h_bars": 0,
+    "global_4h": 1792915200000,
+    "processed_4h_max_open": 1792915200000,
+    "processed_4h_max_close": 1792929599999,
+    "db_4h_max_open": 1792915200000,
+    "aligned_4h": true,
+    "lag_4h_bars": 0,
+    "per_symbol": {
+     "n": 526,
+     "lag_1h_histogram": {
+      "0": 365,
+      "1": 161
+     },
+     "lag_1h_max": 1,
+     "n_lag_1h_gt1": 0,
+     "lagging": [],
+     "note": "`lag_1h>1` 的标的逐条列出（最多 30 条）。`lag_1h_histogram` 是全部标的的分布，用于区分「个别落后」与「全池落后」。"
+    },
+    "n_engines_with_1h": 526,
+    "n_engines_with_4h": 526,
+    "n_engines": 526,
+    "note": "`lag_1h_bars` = 库内最新已闭合 1h 与「实际处理过的最大 1h open」之差，正常 ≤1；>1 即漏处理（本单**不**把允许值放宽到 4）。`per_symbol` 给逐币分布与落后清单，防止 1 个标的落后被全池 max 掩盖。"
+   },
+   "state_counter": {
+    "IDLE": 171,
+    "BOX": 314,
+    "RETEST": 24,
+    "SWEEP": 17
+   },
+   "idle_counts": {
+    "IDLE_COOLING": 137,
+    "IDLE_WAIT_BOX": 26,
+    "IDLE_READY_BOX": 8
+   },
+   "idle_sample": {
+    "0GUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "1000CATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "1000LUNCUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "1000SHIBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    },
+    "1INCHUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "2ZUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "4USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ACEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ACTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ADAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "AEROUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T06:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 18.0
+    },
+    "AEVOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "AKTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ALTUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=15.01A, ER=0.1292",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 15.01A 不在 2.0~8.0A"
+     ]
+    },
+    "APEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "API3USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T08:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 20.0
+    },
+    "ARIAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 24.0
+    },
+    "ARPAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "ARUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ASRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 24.0
+    },
+    "ASTERUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T00:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 12.0
+    },
+    "ATOMUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "AZTECUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BANANAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "BATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BERAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T11:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "BICOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 24.0
+    },
+    "BIOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BLURUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=8.40A, ER=0.3801",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 8.40A 不在 2.0~8.0A",
+      "ER=0.3801 超阈 0.3"
+     ]
+    },
+    "BNTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BROCCOLIF3BUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 4.0
+    },
+    "BSVUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "C98USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    },
+    "CELOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "CELRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "CFGUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "CHRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "CHZUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=7.04A, ER=0.1229",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "CKBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    }
+   },
+   "funnel_since_start": {
+    "BOX": 26,
+    "SWEEP": 7,
+    "RETEST": 8,
+    "CANDIDATE": 0,
+    "VOLUME_REJECTED": 0,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 3,
+    "EXPIRED": 2,
+    "MISSED_WITHOUT_RETEST": 0
+   },
+   "signals_generated_total": 0,
+   "api": {
+    "current_total": 0,
+    "current_ids": [],
+    "current_quality_status": "ok",
+    "current_missing_reason": null,
+    "current_note_len": 172,
+    "all_total": 0,
+    "history_total": 0
+   },
+   "live_db_n": 0,
+   "live_db_ids": [],
+   "delta_vs_prev": {
+    "watermark_advance_bars": 1,
+    "state_counter": {
+     "BOX": 14,
+     "IDLE": -21,
+     "RETEST": 8,
+     "SWEEP": -1
+    },
+    "idle_counts": {
+     "IDLE_COOLING": -3,
+     "IDLE_READY_BOX": -12,
+     "IDLE_WAIT_BOX": -6
+    },
+    "funnel_since_start": {
+     "BOX": 26,
+     "EXPIRED": 2,
+     "INVALIDATED": 3,
+     "RETEST": 8,
+     "SWEEP": 7
+    },
+    "signals_generated_total": 0,
+    "live_db_n": 0,
+    "api_current_total": 0
+   },
+   "per_symbol_changes": [
+    {
+     "symbol": "ALPINEUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "APTUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "ARBUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "ARIAUSDT",
+     "from": "BOX",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "ARXUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "ASRUSDT",
+     "from": "BOX",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "AXLUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "AXSUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "BICOUSDT",
+     "from": "BOX",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "CAKEUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "CATIUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "CETUSUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "CFXUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "EDUUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "ERAUSDT",
+     "from": "BOX",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "ESPORTSUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "FOLKSUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "GALAUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "GASUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "HYPEUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "ICPUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "KAIAUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "KITEUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "KOMAUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "KSMUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "LINEAUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "MAGICUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "NEARUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "NIGHTUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "ONDOUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "RAREUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "RENDERUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "RONINUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "ROSEUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "SEIUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "SENTUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "SOMIUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "STEEMUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "SUNUSDT",
+     "from": "BOX",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "SYRUPUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    },
+    {
+     "symbol": "TWTUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "USUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "VANAUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "XLMUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "XPINUSDT",
+     "from": "IDLE",
+     "to": "BOX"
+    },
+    {
+     "symbol": "我踏马来了USDT",
+     "from": "IDLE",
+     "to": "BOX"
+    }
+   ],
+   "per_symbol_changed_n": 46,
+   "anomalies": [],
+   "migration_types": {
+    "SWEEP->RETEST": 8,
+    "BOX->SWEEP": 7,
+    "IDLE->BOX": 26,
+    "BOX->IDLE": 5
+   },
+   "migration_vs_funnel": [
+    {
+     "状态": "BOX",
+     "逐币迁移进入": 26,
+     "漏斗计数增量": 26,
+     "一致": true
+    },
+    {
+     "状态": "SWEEP",
+     "逐币迁移进入": 7,
+     "漏斗计数增量": 7,
+     "一致": true
+    },
+    {
+     "状态": "RETEST",
+     "逐币迁移进入": 8,
+     "漏斗计数增量": 8,
+     "一致": true
+    },
+    {
+     "状态": "IDLE(事件终止)",
+     "逐币迁移进入": 5,
+     "漏斗计数增量": 5,
+     "一致": true,
+     "说明": "漏斗把终止拆成 EXPIRED / INVALIDATED 两项，逐币只能看到「回了 IDLE」；逐币具体是哪一项要看回放导出的 last_terminated_event.termination_reason"
+    }
+   ],
+   "migration_vs_funnel_all_equal": true
+  },
+  {
+   "seq": 2,
+   "watermark_1h": 1792929600000,
+   "watermark_1h_utc": "2026-10-25T12:00:00Z",
+   "watermark_4h_utc": "2026-10-25T08:00:00Z",
+   "latest_1h_close_utc": "2026-10-25T12:59:59Z",
+   "n_samples_in_seg": 1,
+   "first_sampled_utc": "2026-10-25T13:01:03Z",
+   "last_sampled_utc": "2026-10-25T13:01:03Z",
+   "watermark_check": {
+    "convention": "open_time（区间起点）；close 口径另列 `*_close`，不混用",
+    "global_1h": 1792929600000,
+    "processed_1h_max": 1792929600000,
+    "processed_1h_min": 1792929600000,
+    "db_1h_max": 1792929600000,
+    "aligned_1h": true,
+    "lag_1h_bars": 0,
+    "global_4h": 1792915200000,
+    "processed_4h_max_open": 1792915200000,
+    "processed_4h_max_close": 1792929599999,
+    "db_4h_max_open": 1792915200000,
+    "aligned_4h": true,
+    "lag_4h_bars": 0,
+    "per_symbol": {
+     "n": 526,
+     "lag_1h_histogram": {
+      "0": 526
+     },
+     "lag_1h_max": 0,
+     "n_lag_1h_gt1": 0,
+     "lagging": [],
+     "note": "`lag_1h>1` 的标的逐条列出（最多 30 条）。`lag_1h_histogram` 是全部标的的分布，用于区分「个别落后」与「全池落后」。"
+    },
+    "n_engines_with_1h": 526,
+    "n_engines_with_4h": 526,
+    "n_engines": 526,
+    "note": "`lag_1h_bars` = 库内最新已闭合 1h 与「实际处理过的最大 1h open」之差，正常 ≤1；>1 即漏处理（本单**不**把允许值放宽到 4）。`per_symbol` 给逐币分布与落后清单，防止 1 个标的落后被全池 max 掩盖。"
+   },
+   "state_counter": {
+    "IDLE": 172,
+    "BOX": 313,
+    "RETEST": 25,
+    "SWEEP": 16
+   },
+   "idle_counts": {
+    "IDLE_COOLING": 136,
+    "IDLE_WAIT_BOX": 27,
+    "IDLE_READY_BOX": 9
+   },
+   "idle_sample": {
+    "0GUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 1.0
+    },
+    "1000CATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "1000LUNCUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "1000SHIBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "1INCHUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "2ZUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 20.0
+    },
+    "4USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ACEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ACTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ADAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "AEROUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T06:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 17.0
+    },
+    "AEVOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 20.0
+    },
+    "AKTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ALTUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=15.01A, ER=0.1292",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 15.01A 不在 2.0~8.0A"
+     ]
+    },
+    "APEUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "API3USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T08:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 19.0
+    },
+    "ARIAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "ARPAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "ARUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "ASRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "ASTERUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T00:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 11.0
+    },
+    "ATOMUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "AZTECUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BANANAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T14:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 1.0
+    },
+    "BATUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BERAUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T11:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 22.0
+    },
+    "BICOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T12:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 23.0
+    },
+    "BIOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BLURUSDT": {
+     "reason": "IDLE_WAIT_BOX",
+     "actual": "宽度=8.40A, ER=0.3801",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": [
+      "宽度 8.40A 不在 2.0~8.0A",
+      "ER=0.3801 超阈 0.3"
+     ]
+    },
+    "BNTUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BROCCOLIF3BUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T16:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 3.0
+    },
+    "BSVUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "C98USDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T10:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 21.0
+    },
+    "CELOUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "CELRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "CFGUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-26T09:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 20.0
+    },
+    "CHRUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    },
+    "CHZUSDT": {
+     "reason": "IDLE_READY_BOX",
+     "actual": "宽度=7.04A, ER=0.1229",
+     "threshold": "2.0~8.0A, ER<=0.3",
+     "unmet": []
+    },
+    "CKBUSDT": {
+     "reason": "IDLE_COOLING",
+     "actual": "2026-10-25T15:00:00Z",
+     "threshold": "冷却 24h",
+     "remaining_hours": 2.0
+    }
+   },
+   "funnel_since_start": {
+    "BOX": 26,
+    "SWEEP": 8,
+    "RETEST": 9,
+    "CANDIDATE": 0,
+    "VOLUME_REJECTED": 0,
+    "OI_UNAVAILABLE": 0,
+    "OI_REJECTED": 0,
+    "INVALIDATED": 4,
+    "EXPIRED": 2,
+    "MISSED_WITHOUT_RETEST": 0
+   },
+   "signals_generated_total": 0,
+   "api": {
+    "current_total": 0,
+    "current_ids": [],
+    "current_quality_status": "ok",
+    "current_missing_reason": null,
+    "current_note_len": 172,
+    "all_total": 0,
+    "history_total": 0
+   },
+   "live_db_n": 0,
+   "live_db_ids": [],
+   "delta_vs_prev": {
+    "watermark_advance_bars": 1,
+    "state_counter": {
+     "BOX": -1,
+     "IDLE": 1,
+     "RETEST": 1,
+     "SWEEP": -1
+    },
+    "idle_counts": {
+     "IDLE_COOLING": -1,
+     "IDLE_READY_BOX": 1,
+     "IDLE_WAIT_BOX": 1
+    },
+    "funnel_since_start": {
+     "INVALIDATED": 1,
+     "RETEST": 1,
+     "SWEEP": 1
+    },
+    "signals_generated_total": 0,
+    "live_db_n": 0,
+    "api_current_total": 0
+   },
+   "per_symbol_changes": [
+    {
+     "symbol": "RAREUSDT",
+     "from": "SWEEP",
+     "to": "RETEST"
+    },
+    {
+     "symbol": "SENTUSDT",
+     "from": "SWEEP",
+     "to": "IDLE"
+    },
+    {
+     "symbol": "SOPHUSDT",
+     "from": "BOX",
+     "to": "SWEEP"
+    }
+   ],
+   "per_symbol_changed_n": 3,
+   "anomalies": [],
+   "migration_types": {
+    "SWEEP->RETEST": 1,
+    "SWEEP->IDLE": 1,
+    "BOX->SWEEP": 1
+   },
+   "migration_vs_funnel": [
+    {
+     "状态": "BOX",
+     "逐币迁移进入": 0,
+     "漏斗计数增量": 0,
+     "一致": true
+    },
+    {
+     "状态": "SWEEP",
+     "逐币迁移进入": 1,
+     "漏斗计数增量": 1,
+     "一致": true
+    },
+    {
+     "状态": "RETEST",
+     "逐币迁移进入": 1,
+     "漏斗计数增量": 1,
+     "一致": true
+    },
+    {
+     "状态": "IDLE(事件终止)",
+     "逐币迁移进入": 1,
+     "漏斗计数增量": 1,
+     "一致": true,
+     "说明": "漏斗把终止拆成 EXPIRED / INVALIDATED 两项，逐币只能看到「回了 IDLE」；逐币具体是哪一项要看回放导出的 last_terminated_event.termination_reason"
+    }
+   ],
+   "migration_vs_funnel_all_equal": true
+  }
+ ],
+ "totals": {
+  "watermark_start_utc": "2026-10-25T10:00:00Z",
+  "watermark_end_utc": "2026-10-25T12:00:00Z",
+  "bars_advanced": 2,
+  "candidates_since_start": 0,
+  "signals_generated_total": 0,
+  "live_db_rows": 0,
+  "api_current_total": 0,
+  "state_counter_start": {
+   "IDLE": 192,
+   "BOX": 300,
+   "RETEST": 16,
+   "SWEEP": 18
+  },
+  "state_counter_end": {
+   "IDLE": 172,
+   "BOX": 313,
+   "RETEST": 25,
+   "SWEEP": 16
+  },
+  "state_counter_delta": {
+   "BOX": 13,
+   "IDLE": -20,
+   "RETEST": 9,
+   "SWEEP": -2
+  },
+  "funnel_delta": {
+   "BOX": 26,
+   "EXPIRED": 2,
+   "INVALIDATED": 4,
+   "RETEST": 9,
+   "SWEEP": 8
+  },
+  "per_symbol_changed_total": 49,
+  "data_quality_blocked_n": 6,
+  "scan_errors_total": 0,
+  "three_stage_consistent": true,
+  "anomalies_total": 0,
+  "anomalies": []
+ }
+}

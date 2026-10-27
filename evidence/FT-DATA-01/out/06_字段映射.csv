@@ -1,0 +1,20 @@
+﻿序号,数据类,源路径,源字段,源类型,源含义,导出文件,导出字段,导出类型,转换方式,语义是否改变,可用时点依据
+1,K线4h,candles/binance/um/<symbol>/4h/2025.parquet,open_time,int64,4h K 线起点（UTC 毫秒）,futures/<PAIR>-4h-futures.feather,date,datetime64[ms] 无时区,毫秒转 UTC 时间，去时区标记,否（仍是起点）,close_time 字段存在 ⇒ 交易所闭合可证
+2,K线4h,同上,open/high/low/close,十进制字符串,OHLC 价格,同上,open/high/low/close,float64,十进制字符串转 float64，不缩放不复权,否（往返表示与原字面量一致，相对误差 0）,同上
+3,K线4h,同上,volume,十进制字符串,基础币成交量,同上,volume,float64,十进制字符串转 float64,否,同上
+4,K线1h,candles/binance/um/<symbol>/1h/2025.parquet,open_time 及 OHLCV,同 4h,1h K 线,futures/<PAIR>-1h-futures.feather,date/open/high/low/close/volume,同 4h,同 4h,否,同 4h
+5,K线15m,candles/binance/um/<symbol>/15m/2025.parquet,open_time 及 OHLCV,同 4h,15m K 线（执行周期）,futures/<PAIR>-15m-futures.feather,date/open/high/low/close/volume,同 4h,同 4h,否,同 4h
+6,15m成交额,candles/binance/um/<symbol>/15m/2025.parquet,quote_volume,十进制字符串,15m 计价成交额（参与率上限用）,sidecar/<symbol>_15m_quote_volume.csv,quote_volume,原样字符串,不做数值转换，保持原十进制字面量,否（完全未转换）,同 4h
+7,15m成交笔数,同上,trade_count,int64,15m 成交笔数,sidecar/<symbol>_15m_quote_volume.csv,trade_count,int64,原样,否,同 4h
+8,OI 5m,oi/binance/um/<symbol>/2025.parquet,ts,int64,OI 5 分钟桶起点（UTC 毫秒）,futures/<PAIR>-5m-open_interest.feather,date,datetime64[ms] 无时区,毫秒转 UTC 时间,否（仍是桶起点）,只有桶起点，fetched_at 全空 ⇒ 无发布时点证据，按桶结束假设
+9,OI 5m,同上,open_interest,十进制字符串,持仓量（基础币）,同上,open_interest_amount,float64,十进制字符串转 float64,否,同 8（假设时刻）
+10,OI 5m,同上,open_interest_value,十进制字符串,持仓量（计价币）,同上,open_interest_value,float64,十进制字符串转 float64,否,同 8（假设时刻）
+11,资金费,funding/binance/um/<symbol>.parquet,funding_time,int64,结算时刻（UTC 毫秒，含 0–16ms 偏移）,futures/<PAIR>-1h-funding_rate.feather 与 -8h-funding_rate.feather（同一份数据）,date,datetime64[ms] 无时区,毫秒转 UTC 时间，保留毫秒不取整,否（时间戳原样）,结算时刻本身即事件时刻；发布时点无证据
+12,资金费,同上,funding_rate,十进制字符串,资金费率,同上,funding_rate,float64,十进制字符串转 float64,否,同上
+13,资金费 mark,同上,mark_price,十进制字符串,结算时点的标记价格,sidecar/<symbol>_funding_settlements.csv,mark_price_at_settlement,原样字符串,不做转换,否（完全未转换）,只有结算时点值，无连续 mark 序列
+14,mark 1h,数据/研究输入/WyckoffMaster/mark1h/<symbol>.parquet,open_time,int64,mark 1h 桶起点（UTC 毫秒）,futures/<PAIR>-1h-mark.feather,date,datetime64[ms] 无时区,毫秒转 UTC 时间,否（仍是起点）,研究输入目录，非主行情链路；每小时一个值
+15,mark 1h,同上,mark_open,float64（已是数值）,每小时标记价格,同上,open/high/low/close,float64,同一值同时写入四列,否（没有新增或推算价格）,同上
+16,mark 1h,—（无源字段）,—,—,—,同上,volume,float64,构造值 0.0（mark 无成交量）,是（构造列，须声明）,同上
+17,K线闭合标记,candles/.../2025.parquet,is_closed,int64,是否已收盘,不导出,—,—,导出前筛掉 is_closed≠1,否,未收盘 K 线一律不进包
+18,可用时点,candles/.../2025.parquet,available_at,object,声称的可用时刻,不导出,—,—,全为 None，无信息，不导出也不臆造,—,无证据
+19,K线收盘时刻,candles/.../2025.parquet,close_time,int64,K 线收盘时刻（=起点+周期-1ms）,不导出,—,—,Freqtrade 由 timeframe 自行推导,否,可作闭合证据，但不随包导出

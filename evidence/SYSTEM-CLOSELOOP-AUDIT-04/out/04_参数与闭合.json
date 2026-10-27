@@ -1,0 +1,157 @@
+{
+ "生成时刻": "2026-10-23T00:34:10+0800",
+ "③_配置": {
+  "approved_params._source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+  "含 stoploss_s": true,
+  "含 trail_d": true,
+  "uniform_stop_atr_mult": 3.0,
+  "键数": 25,
+  "生效视图文件": "/Users/boos/Desktop/威科夫因子共振趋势/数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+  "生效视图存在": true
+ },
+ "③_两组参数": {
+  "d=0.05": {
+   "candidate": 92.10000000000001,
+   "effective": 92.10000000000001,
+   "stop_updated": true
+  },
+  "d=0.10": {
+   "candidate": 87.30000000000001,
+   "effective": 87.30000000000001,
+   "stop_updated": true
+  },
+  "区别成立": true,
+  "轨迹条数_0.05": 1
+ },
+ "③_缺参数": {
+  "ok": false,
+  "reason": "missing_parameter_trail_d",
+  "止损是否被动": 87.30000000000001
+ },
+ "③_初始止损": {
+  "ok": false,
+  "reason": "pending_future_fill",
+  "t_sig": 1792683250057,
+  "earliest": 1792684150057,
+  "可成交bar": null,
+  "只读连接取bar": null,
+  "行情库": "/tmp/wx_audit04/market.sqlite3"
+ },
+ "④_不追溯": {
+  "老4h_bar_close_time": 1792442050056,
+  "决策时刻": 1792686850057,
+  "candidate": 85.5,
+  "effective_stop": 85.5,
+  "stop_updated": true,
+  "轨迹": [
+   {
+    "old": 85.0,
+    "new": 85.5,
+    "ref_bar_open_ms": 1792427650057,
+    "decision_at": 1792686850057,
+    "effective_at": 1792686850057
+   }
+  ],
+  "effective_at_是否等于决策时刻": true,
+  "effective_at_是否被写成老bar收盘": false
+ },
+ "④_分离_4h不退出": {
+  "cur_stop": 85.5,
+  "4h_low": 90.5,
+  "exit_triggered": false,
+  "status": "open"
+ },
+ "④_分离_15m退出": {
+  "15m_low": 80.5,
+  "exit_triggered": true,
+  "status": "closed",
+  "exit_reason": "trailing_stop_loss"
+ },
+ "④_老15m能否追溯": {
+  "老bar_close_time": 1792680550056,
+  "决策时刻": 1792686850057,
+  "exit_triggered": true,
+  "status": "closed",
+  "说明": "自动路径只会喂最新已闭合 15m，故当前不可由外部触发；属代码层缺守卫"
+ },
+ "⑤_闭合": {
+  "第一次退出": {
+   "exit_triggered": true,
+   "reason": "closed"
+  },
+  "第二次退出（幂等）": {
+   "exit_triggered": null,
+   "ok": false,
+   "reason": "position_not_open"
+  },
+  "持仓": {
+   "status": "closed",
+   "exit_reason": "trailing_stop_loss",
+   "exit_price": 84.95750000000001,
+   "entry_fee": 0.05,
+   "exit_fee": 0.42478750000000004,
+   "funding_paid": 0.0
+  },
+  "订单": [
+   {
+    "order_id": 31,
+    "side": "sell",
+    "qty": 10.0,
+    "price": 85.0,
+    "status": "filled",
+    "fill_price": 84.95750000000001,
+    "notional": 849.575
+   }
+  ],
+  "成交": [
+   {
+    "fill_id": 12,
+    "action": "close",
+    "qty": 10.0,
+    "raw_price": 85.0,
+    "fill_price": 84.95750000000001,
+    "notional": 849.575,
+    "fee": 0.42478750000000004,
+    "slippage_cost": 0.4249999999998977,
+    "bar_open_time": 1792685950057,
+    "bar_close_time": 1792686850056,
+    "fill_ts": 1792686850057
+   }
+  ],
+  "现金": 4849.1002124999995,
+  "按逐笔重算应为": 4849.1002124999995,
+  "残差": 0.0,
+  "退出成交条数": 1
+ },
+ "⑤_幂等成立": true,
+ "⑤_重启恢复": {
+  "持仓": [
+   {
+    "position_id": 19,
+    "status": "closed",
+    "exit_reason": "trailing_stop_loss",
+    "exit_price": 84.95750000000001
+   }
+  ],
+  "轨迹": [
+   {
+    "id": 38,
+    "reason": "initial_stop",
+    "new_stop": 85.0,
+    "effective_at": 1792600450057
+   }
+  ],
+  "成交条数": 1
+ },
+ "⑤_重启一致": true,
+ "判定": {
+  "③参数来自明确配置": "通过",
+  "③两组参数有预期区别": "通过",
+  "③无静默兜底": "通过",
+  "④止损不追溯": "通过",
+  "④4h与15m分离": "通过",
+  "⑤账本闭合": "通过",
+  "⑤幂等": "通过",
+  "⑤重启恢复": "通过"
+ }
+}

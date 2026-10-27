@@ -1,0 +1,273 @@
+{
+ "generated_utc": "2026-10-25T09:22:33Z",
+ "rebuilt_by": "code/26_observe_summary.py",
+ "why": "20 号在第二根新增 1 小时线触发瞬间崩溃，未写出本汇总；此处从已有产物重算，不重跑仿真",
+ "n_samples": 195,
+ "baseline": {
+  "captured_utc": "2026-10-25T07:22:50Z",
+  "pid": 7178,
+  "started_utc": "2026-10-25T07:17:28Z",
+  "watermark_1h": 1792908000000,
+  "watermark_1h_utc": "2026-10-25T06:00:00Z",
+  "state_counter": {
+   "IDLE": 174,
+   "BOX": 318,
+   "RETEST": 29,
+   "SWEEP": 5
+  },
+  "history_candidates_discarded": 51,
+  "ledger_sha_join": "8b450b2f4b054ac63c28bdd3b5e50518403ff2845cab46d2a007ac98e2b24de2",
+  "live_counts": {
+   "live_signals": "ERR:OperationalError:no such table: live_signals",
+   "live_signal": 0
+  }
+ },
+ "observed_watermarks_utc": [
+  "2026-10-25T06:00:00Z",
+  "2026-10-25T07:00:00Z",
+  "2026-10-25T08:00:00Z"
+ ],
+ "n_advances": 2,
+ "events": [
+  {
+   "bar": 1,
+   "wm_prev_utc": "2026-10-25T06:00:00Z",
+   "wm_new_utc": "2026-10-25T07:00:00Z",
+   "observed_utc": "2026-10-25T08:01:21Z",
+   "n_phase_changes": 9,
+   "phase_changes": [
+    [
+     "API3USDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "CFXUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "DEEPUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "FETUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "MANAUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "METUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "ORCAUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "SOPHUSDT",
+     "IDLE",
+     "BOX"
+    ],
+    [
+     "ZILUSDT",
+     "IDLE",
+     "BOX"
+    ]
+   ],
+   "state_counter_after": {
+    "IDLE": 167,
+    "BOX": 326,
+    "RETEST": 28,
+    "SWEEP": 5
+   },
+   "funnel_delta": {
+    "BOX": 8,
+    "INVALIDATED": 1
+   },
+   "candidates_delta": 0,
+   "orders_routed_delta": 0,
+   "lag_1h_hist": {
+    "0": 526
+   },
+   "ledger_sha_join": "8b450b2f4b054ac63c28bdd3b5e50518403ff2845cab46d2a007ac98e2b24de2",
+   "phase_list_source": "20_运行观察_逐币事件.json（采样脚本当场落盘）"
+  },
+  {
+   "bar": 2,
+   "wm_prev_utc": "2026-10-25T07:00:00Z",
+   "wm_new_utc": "2026-10-25T08:00:00Z",
+   "observed_utc": "2026-10-25T09:00:22Z",
+   "n_phase_changes": 19,
+   "phase_changes": [
+    [
+     "2ZUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "AEVOUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "ALPINEUSDT",
+     "BOX",
+     "SWEEP"
+    ],
+    [
+     "CFGUSDT",
+     "BOX",
+     "IDLE"
+    ],
+    [
+     "IMXUSDT",
+     "BOX",
+     "SWEEP"
+    ],
+    [
+     "LDOUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "LSKUSDT",
+     "BOX",
+     "IDLE"
+    ],
+    [
+     "MANAUSDT",
+     "BOX",
+     "SWEEP"
+    ],
+    [
+     "ORDIUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "PNUTUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "POLUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "RIFUSDT",
+     "BOX",
+     "SWEEP"
+    ],
+    [
+     "SPELLUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "SSVUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "VANAUSDT",
+     "BOX",
+     "SWEEP"
+    ],
+    [
+     "WLDUSDT",
+     "BOX",
+     "IDLE"
+    ],
+    [
+     "XAIUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "YFIUSDT",
+     "RETEST",
+     "IDLE"
+    ],
+    [
+     "ZENUSDT",
+     "RETEST",
+     "IDLE"
+    ]
+   ],
+   "state_counter_after": {
+    "IDLE": 181,
+    "BOX": 318,
+    "RETEST": 17,
+    "SWEEP": 10
+   },
+   "funnel_delta": {
+    "INVALIDATED": 14,
+    "SWEEP": 5
+   },
+   "candidates_delta": 0,
+   "orders_routed_delta": 0,
+   "lag_1h_hist": {
+    "0": 483,
+    "1": 43
+   },
+   "ledger_sha_join": null,
+   "phase_list_source": "25_第二根小时线逐币重建.json（离线重建 + 两端校验 PASS）",
+   "why_reconstructed": "20 号在第二根触发瞬间 KeyError（取 events[-1]['state_counter']，实际键名 state_counter_now）⇒ 计数拿到、逐币名单没拿到"
+  }
+ ],
+ "ledger_check": {
+  "baseline_sha_join": "8b450b2f4b054ac63c28bdd3b5e50518403ff2845cab46d2a007ac98e2b24de2",
+  "event1_sha_join": "8b450b2f4b054ac63c28bdd3b5e50518403ff2845cab46d2a007ac98e2b24de2",
+  "now_sha_join": "8b450b2f4b054ac63c28bdd3b5e50518403ff2845cab46d2a007ac98e2b24de2",
+  "checked_utc": "2026-10-25T09:22:33Z",
+  "ledger_untouched": true,
+  "files": {
+   "paper_3a.sqlite3": {
+    "exists": true,
+    "sha256": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479",
+    "bytes": 163840
+   },
+   "paper_3b.sqlite3": {
+    "exists": true,
+    "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+    "bytes": 163840
+   },
+   "paper_3c.sqlite3": {
+    "exists": true,
+    "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+    "bytes": 163840
+   },
+   "paper_3d.sqlite3": {
+    "exists": true,
+    "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+    "bytes": 163840
+   }
+  }
+ },
+ "live_now": {
+  "live_signal": 0,
+  "live_signals": "ERR:OperationalError"
+ },
+ "verdict": {
+  "got_two_new_1h_bars": true,
+  "natural_candidates": 0,
+  "natural_orders": 0,
+  "phase_changes_total": 28,
+  "ledger_untouched": true,
+  "real_trading_disabled": true,
+  "n_phase_changes_by_bar": [
+   9,
+   19
+  ],
+  "note": "natural_candidates=0 必须如实报告为 0，不得用隔离成交冒充自然成交；第 2 根逐币名单来自 25 号离线重建，已在 events[].phase_list_source 标注"
+ }
+}

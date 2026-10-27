@@ -1,0 +1,481 @@
+{
+ "page_load_at_local": "Fri Oct 23 2026 22:24:32 GMT+0800 (China Standard Time)",
+ "page_load_at_utc": "2026-10-23T14:24:32.310Z",
+ "dom_captured_at_utc": "2026-10-23T14:24:45.850Z",
+ "screenshot_at_utc": "2026-10-23T14:24:46.005Z",
+ "captured_at_local": "Fri Oct 23 2026 22:24:32 GMT+0800 (China Standard Time)",
+ "captured_at_utc": "2026-10-23T14:24:32.310Z",
+ "url": "http://127.0.0.1:8912/system-flow.html",
+ "viewport": {
+  "width": 1680,
+  "height": 1200
+ },
+ "wait_ms": 9000,
+ "fault_after": null,
+ "console_errors": [],
+ "api_responses": [
+  {
+   "url": "http://127.0.0.1:8912/api/v1/data/import-plan",
+   "status": 200,
+   "bytes": 11221
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/data/pool-scope",
+   "status": 200,
+   "bytes": 960
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/paper/status",
+   "status": 200,
+   "bytes": 1741
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/backtests?limit=1",
+   "status": 200,
+   "bytes": 10946
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/signals?scope=current",
+   "status": 200,
+   "bytes": 1572
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/pool/status",
+   "status": 200,
+   "bytes": 3649
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/paper/accounts",
+   "status": 200,
+   "bytes": 29326
+  },
+  {
+   "url": "http://127.0.0.1:8912/api/v1/data/status",
+   "status": 200,
+   "bytes": 932618
+  }
+ ],
+ "dom": {
+  "title": "数据链路画布 · 数据停在哪里",
+  "verdict": {
+   "state": "fail",
+   "title": "断点：第 2 段「实时采集 ／ 历史归档」 等 3 段",
+   "sub": "2. 实时采集 ／ 历史归档、4. 数据质量与已闭合水位、5. 信号引擎 故障；下游各段状态不可信。",
+   "meta": "读取时刻 2026-10-23 22:24:36（本地）\n同源 http://127.0.0.1:8912/api/v1\n已验证 3 · 等待 0 · 故障 3 · 未验证 1\n构建 dc01-20261023-2210"
+  },
+  "build": "dc01-20261023-2210",
+  "chips": [
+   {
+    "key": "source",
+    "state": "unv",
+    "text": "1. 交易所来源 未验证",
+    "isBreak": false
+   },
+   {
+    "key": "collect",
+    "state": "fail",
+    "text": "2. 实时采集 ／ 历史归档 故障 断点",
+    "isBreak": true
+   },
+   {
+    "key": "store",
+    "state": "pass",
+    "text": "3. 热库 ／ 冷库 已验证可用",
+    "isBreak": false
+   },
+   {
+    "key": "quality",
+    "state": "fail",
+    "text": "4. 数据质量与已闭合水位 故障",
+    "isBreak": false
+   },
+   {
+    "key": "engine",
+    "state": "fail",
+    "text": "5. 信号引擎 故障",
+    "isBreak": false
+   },
+   {
+    "key": "ledger",
+    "state": "pass",
+    "text": "6. 模拟账本 已验证可用",
+    "isBreak": false
+   },
+   {
+    "key": "workbench",
+    "state": "pass",
+    "text": "7. 工作台 ／ 回测对账 已验证可用",
+    "isBreak": false
+   }
+  ],
+  "pools": [
+   "下载池（合约目录全量） | 814 | 来源 symbol_pool（exchangeInfo 快照全量） | 排除规则：无排除 —— 股票 / 商品 / 外汇 / 指数合约都在里面 | 字段 /api/v1/pool/status → pool_all_total",
+   "展示池（工作台列表口径） | 549 | 来源 active_scope = 币安 COIN 526 + 欧易仅补 23 | 排除：币安非 COIN（CN_EQUITY 2、COIN(不在活动范围) 178、COMMODITY 8、EQUITY 175、FX 1、HK_EQUITY 15、INDEX 3、KR_EQUITY 8、PREMARKET 4）、欧易重复 263 个、欧易非加密（3 190、4 9、1(不在活动范围) 15）；指数另列 2 个 | 字段 /api/v1/pool/status → active_scope.active_total",
+   "策略监控池（信号引擎 universe） | 526 | 来源 signal_engine.universe（运行时实际在扫的标的） | 排除：欧易补充的 23 个未纳入策略；指数不纳入 | 字段 /api/v1/paper/status → signal_engine.universe（声明 526）"
+  ],
+  "nodes": [
+   {
+    "key": "source",
+    "state": "unv",
+    "pill": "未验证",
+    "headline": "分母与排除规则已核验（526 + 286 = 812），但接口不返回快照时点 ⇒ 新鲜度未验证，不判绿。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "交易所官方 exchangeInfo / instruments 快照\nsymbol_classification"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "未提供（C-01）"
+     },
+     {
+      "k": "数据年龄",
+      "v": "未提供（C-01）"
+     },
+     {
+      "k": "覆盖数",
+      "v": "币安 526 + 欧易 286 = 812 个加密永续\n目录快照另计：814 个（含股票/商品/外汇/指数）"
+     }
+    ],
+    "blocker": "◻ 契约缺口 C-01：/api/v1/data/pool-scope 未返回 snapshot_utc / updated_at，无法给出“最后成功时间/数据年龄”。按纪律，缺这两项不能判“已验证可用”。",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/data/pool-scope 返回 200 且为 JSON　HTTP 200 · 764 B · 171 ms"
+     },
+     {
+      "ok": "1",
+      "text": "✓币安加密永续分母 > 0　total=526（分类字段 underlyingType=COIN）"
+     },
+     {
+      "ok": "1",
+      "text": "✓欧易加密永续分母 > 0　total=286"
+     },
+     {
+      "ok": "1",
+      "text": "✓排除规则可读（excluded 字典非空）　币安排除 9 类 · 欧易排除 3 类"
+     },
+     {
+      "ok": "1",
+      "text": "✓来源可追溯（source 字段非空）　symbol_classification（交易所官方 exchangeInfo / instruments 快照）"
+     },
+     {
+      "ok": "0",
+      "text": "✗快照时点可得（用于算数据年龄）　接口未提供 snapshot_utc / updated_at ⇒ 契约缺口 C-01"
+     }
+    ]
+   },
+   {
+    "key": "collect",
+    "state": "fail",
+    "pill": "故障",
+    "headline": "采集进程未运行或心跳过期（stopped）⇒ 数据从这一段的输出开始停。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "交易所原生 WS（币安 kline_<tf>／欧易 candle<bar>）\n历史归档：官方静态资源直连下载，不经 REST 网关"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "心跳 10-23 11:24:29Z\n最新 WS 消息 10-23 11:24:29Z"
+     },
+     {
+      "k": "数据年龄",
+      "v": "心跳 3.0 小时前\n最旧一路消息 3.0 小时前"
+     },
+     {
+      "k": "覆盖数",
+      "v": "已见 528 / 计划 528 标的\n15 路 (交易所,周期)；归档任务 done 8 组"
+     }
+    ],
+    "blocker": "⛔ 采集进程心跳失效或进程已停（recorded_status=stopped，心跳 3.0 小时前）⇒ 断点在第 2 段。",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/data/import-plan 返回 200 且为 JSON　HTTP 200 · 10061 B · 170 ms"
+     },
+     {
+      "ok": "1",
+      "text": "✓采集进程有心跳记录　heartbeat_at=2026-10-23T11:24:29Z"
+     },
+     {
+      "ok": "0",
+      "text": "✗心跳新鲜（≤ 120 秒）　心跳 3.0 小时前"
+     },
+     {
+      "ok": "0",
+      "text": "✗最近 WS 消息新鲜（≤ 120 秒）　最旧一路 3.0 小时前"
+     },
+     {
+      "ok": "0",
+      "text": "✗全部周期状态为 ok（native_absent 记“不适用”，不记故障）　binance 12h=no_messages、binance 15m=no_messages、binance 1d=no_messages、binance 1h=no_messages、binance 30m=no_messages、binance 4h=no_messages、binance 5m=no_messages、binance 8h=no_messages、okx 12h=no_messages、okx 15m=no_messages、okx 1d=no_messages、okx 1h=no_messages、okx 30m=no_messages、okx 4h=no_messages、okx 5m=no_messages"
+     },
+     {
+      "ok": "1",
+      "text": "✓历史归档有已完成任务记录（≠ 已补齐全池）　8 / 9 个 (周期,状态) 分组为 done"
+     }
+    ]
+   },
+   {
+    "key": "store",
+    "state": "pass",
+    "pill": "已验证可用",
+    "headline": "热库已入库 4,385 个 (标的,周期) 组合、最新闭合 10-23 11:19:59Z；冷库全量覆盖未验证（接口缺 C-03）。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "热库 market.db（SQLite）\n冷库 parquet：接口未提供全量口径（C-03）"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "最新已闭合 10-23 11:19:59Z\nas_of 2026-10-23T14:24:36Z"
+     },
+     {
+      "k": "数据年龄",
+      "v": "3.1 小时（按最新闭合 bar）"
+     },
+     {
+      "k": "覆盖数",
+      "v": "4,385 个 (标的,周期)\n冷库：未验证（C-03）"
+     }
+    ],
+    "blocker": "◻ 冷库（parquet）无全量覆盖接口 ⇒ 该子项记未验证，不用热库数字冒充。",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/data/status 返回 200 且为 JSON　HTTP 200 · 929288 B · 4454 ms"
+     },
+     {
+      "ok": "1",
+      "text": "✓热库覆盖单元格非空　4385 个 (标的,周期) 组合"
+     },
+     {
+      "ok": "1",
+      "text": "✓两处覆盖口径一致（/data/status 与 /pool/status 同源）　data/status 4385 vs pool/status 4,385"
+     },
+     {
+      "ok": "1",
+      "text": "✓K 线行数 > 0　按覆盖单元格累计 115,233,871 根 · pool/status 115,233,871 根"
+     },
+     {
+      "ok": "0",
+      "text": "✗冷库（parquet）全量覆盖有接口口径　契约缺口 C-03：/api/v1 无冷库全量覆盖端点；仅 /markets/{ex}/{sym}/metrics 可按标的抽样，不能代表全量"
+     }
+    ]
+   },
+   {
+    "key": "quality",
+    "state": "fail",
+    "pill": "故障",
+    "headline": "15m／1h／4h 三处水位对齐：上游写入 → 热库最后闭合 → 引擎实际读取；最大滞后 3.0 小时。欧易 8h 记“不适用”。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "热库 coverage_cache（每标的每周期）\n对照：WS 闭合入库 + 引擎读取"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "15m 10-23 11:14:59Z\n1h 10-23 10:59:59Z\n4h 10-23 08:59:59Z"
+     },
+     {
+      "k": "数据年龄",
+      "v": "15m 滞后 3.0 小时\n1h 滞后 3.0 小时\n4h 滞后 3.0 小时"
+     },
+     {
+      "k": "覆盖／缺口",
+      "v": "15m 551 标的 · 缺 4,308 根\n1h 551 标的 · 缺 174 根\n4h 551 标的 · 缺 49 根\n8 周期合计缺口 10,236 根（含官方白名单历史缺口，画布不做抵扣）"
+     }
+    ],
+    "blocker": "⛔ 15m 滞后 3.0 小时（> 2 个周期）⇒ 已闭合水位停更。",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/data/status 返回 200 且为 JSON　HTTP 200 · 929288 B"
+     },
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/paper/status 返回 200 且为 JSON　HTTP 200 · 1741 B"
+     },
+     {
+      "ok": "1",
+      "text": "✓上游写入水位可得（kline_stream_state.last_closed_open_time）　15m=10-23 11:14:59Z · 1h=10-23 10:59:59Z · 4h=10-23 08:59:59Z"
+     },
+     {
+      "ok": "1",
+      "text": "✓热库最后闭合可得（coverage_cache.last_close）　15m=10-23 11:14:59Z · 1h=10-23 10:59:59Z · 4h=10-23 08:59:59Z"
+     },
+     {
+      "ok": "1",
+      "text": "✓下游读取水位可得（paper/status.market_data）　15m=10-23 11:14:59Z · 1h=10-23 10:59:59Z · 4h=10-23 08:59:59Z"
+     },
+     {
+      "ok": "1",
+      "text": "✓下游读取 == 热库最后闭合（不是只看上游写入成功）　15m 差 0s · 1h 差 0s · 4h 差 0s"
+     },
+     {
+      "ok": "0",
+      "text": "✗滞后 ≤ 2 个周期　15m 滞后 3.0 小时 · 1h 滞后 3.0 小时 · 4h 滞后 3.0 小时"
+     },
+     {
+      "ok": "1",
+      "text": "✓欧易 8h 记为“不适用”（不是故障，也不是已补齐）　无该路 → 不适用"
+     }
+    ]
+   },
+   {
+    "key": "engine",
+    "state": "fail",
+    "pill": "故障",
+    "headline": "数据不足：引擎读到的 15m 水位滞后 3.0 小时，不是“没机会”而是“没数据”。\n状态分布 BOX 363 / IDLE 147 / SWEEP 4 / RETEST 12",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "unified_runtime 状态文件（隔离/生产同接口）\n信号：live_signal + 四臂账本 ATTACH"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "上次扫描 10-23 14:24:21Z\n启动 2026-10-23 13:24:28.722Z"
+     },
+     {
+      "k": "数据年龄",
+      "v": "16 秒（距上次周期）\n引擎读到的 15m：10-23 11:14:59Z"
+     },
+     {
+      "k": "覆盖／信号",
+      "v": "universe 526/526 · 累计生成 0\n当前可执行 0 条 · 历史回放候选 4（不补开）"
+     }
+    ],
+    "blocker": "⛔ 数据不足：引擎读到的 15m 水位滞后 3.0 小时，不是“没机会”而是“没数据”。",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/paper/status 返回 200 且为 JSON　HTTP 200 · 1741 B"
+     },
+     {
+      "ok": "1",
+      "text": "✓运行时进程在跑（runtime_identity.status=running）　status=running · pid=78,800"
+     },
+     {
+      "ok": "1",
+      "text": "✓信号引擎已注册且 active　signal_engine.status=active"
+     },
+     {
+      "ok": "1",
+      "text": "✓扫描周期新鲜（≤ 600 秒）　上次周期 16 秒前"
+     },
+     {
+      "ok": "1",
+      "text": "✓监控池齐备（universe = universe_declared）　universe 526 / 声明 526"
+     },
+     {
+      "ok": "0",
+      "text": "✗下游读取的 15m 水位不滞后（≤ 2 个周期）　读取到 10-23 11:14:59Z，滞后 3.0 小时"
+     },
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/signals?scope=current 返回 total 字段　total=0"
+     }
+    ]
+   },
+   {
+    "key": "ledger",
+    "state": "pass",
+    "pill": "已验证可用",
+    "headline": "四臂现金合计 20000.00 USDT；已平 0 笔、已实现 0.00；挂单 0 笔。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "四臂纸面账本（3a/3b/3c/3d）+ 总闸文件\n/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/paper_new_entry_gate.json"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "本次读取成功 10-23 14:24:32Z\n总闸状态变更 2026-10-23 11:05:32.432Z · 水线 —"
+     },
+     {
+      "k": "数据年龄",
+      "v": "3.3 小时（距总闸变更）\n接口无“最后写入时点”字段（C-05）"
+     },
+     {
+      "k": "覆盖／笔数",
+      "v": "现金 20000.00 · 已平 0 笔 · 已实现 0.00\n挂单 0 · 持仓 0 · 闸门 开启"
+     }
+    ],
+    "blocker": "",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/paper/accounts 返回 200 且为 JSON　HTTP 200 · 24460 B · 275 ms"
+     },
+     {
+      "ok": "1",
+      "text": "✓账本 quality.status=ok　quality.status=ok"
+     },
+     {
+      "ok": "1",
+      "text": "✓四臂齐备　3a / 3b / 3c / 3d"
+     },
+     {
+      "ok": "1",
+      "text": "✓挂单口径自洽（Σ臂 pending = quality.n_pending_orders）　Σ 0 vs quality 0"
+     },
+     {
+      "ok": "1",
+      "text": "✓总闸可读（账本侧 new_entry_gate）　allow=true · reason=user_ui_resumed"
+     }
+    ]
+   },
+   {
+    "key": "workbench",
+    "state": "pass",
+    "pill": "已验证可用",
+    "headline": "工作台展示池 549 行（币安 526 + 欧易补 23），回测库 2,263 条 run；与画布同源。",
+    "facts": [
+     {
+      "k": "实际来源",
+      "v": "工作台列表口径 active_scope + 回测库 runs\n与工作台同一组 /api/v1 接口"
+     },
+     {
+      "k": "最后成功时间",
+      "v": "2026-10-23T14:24:32Z\n回测 本次读取成功 10-23 14:24:32Z"
+     },
+     {
+      "k": "数据年龄",
+      "v": "5 秒"
+     },
+     {
+      "k": "覆盖数",
+      "v": "展示池 549 行 · 回测 run 2,263 条\n最新 run run_WX_EVENT_TREND_V0_1_BTCUSDT_17"
+     }
+    ],
+    "blocker": "",
+    "checks": [
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/pool/status 返回 200 且为 JSON　HTTP 200 · 3065 B"
+     },
+     {
+      "ok": "1",
+      "text": "✓展示池行数 > 0　active_total=549"
+     },
+     {
+      "ok": "1",
+      "text": "✓展示池 = 币安 COIN + 欧易仅补（口径自洽）　526 + 23 = 549"
+     },
+     {
+      "ok": "1",
+      "text": "✓GET /api/v1/backtests 返回 200 且 total>0　total=2,263 · 返回 1 条"
+     },
+     {
+      "ok": "1",
+      "text": "✓最新 run 带 run_id（能与详情绑定）　run_WX_EVENT_TREND_V0_1_BTCUSDT_1792350107"
+     }
+    ]
+   }
+  ],
+  "viewport": {
+   "w": 1680,
+   "h": 1200
+  },
+  "docHeight": 2291
+ }
+}

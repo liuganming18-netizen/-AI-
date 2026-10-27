@@ -1,0 +1,1180 @@
+/* ============================================================================
+ * 回测复盘页 · 专属样式（2026-10-17 按深色设计稿重做）
+ * ----------------------------------------------------------------------------
+ * 只允许引用 tokens.css 的令牌，不写任何色值字面量 —— 这样深浅两套主题自动跟随。
+ * 与 components.css 的分工：`.ds-*` 是通用组件，本文件只放**本页特有**的版式
+ * （回测列表卡、指标条、周期切换条、圆环图、分页器）。
+ * ========================================================================== */
+
+/* ── 页面骨架：左列表 + 右主区 ─────────────────────────────────────────── */
+
+.ds-bt-shell {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  background: var(--ds-canvas);
+}
+
+.ds-bt-side {
+  display: flex;
+  flex-direction: column;
+  width: 264px;
+  min-width: 264px;
+  border-right: 1px solid var(--ds-border-subtle);
+  background: var(--ds-surface);
+}
+
+.ds-bt-side__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-2);
+  padding: var(--ds-3) var(--ds-3) var(--ds-2);
+}
+
+.ds-bt-side__title {
+  font-size: var(--ds-fs-md);
+  font-weight: 700;
+  color: var(--ds-text);
+  letter-spacing: 0.02em;
+}
+
+.ds-bt-side__filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-2);
+  padding: 0 var(--ds-3) var(--ds-3);
+}
+
+.ds-bt-side__selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ds-2);
+}
+
+.ds-bt-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ds-bt-search svg {
+  position: absolute;
+  left: 8px;
+  width: 13px;
+  height: 13px;
+  color: var(--ds-text-4);
+  pointer-events: none;
+}
+
+.ds-bt-search input {
+  width: 100%;
+  padding: 6px 8px 6px 26px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-2);
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-r-md);
+  outline: none;
+  transition: border-color var(--ds-dur-fast) var(--ds-ease);
+}
+
+.ds-bt-search input::placeholder {
+  color: var(--ds-text-4);
+}
+
+.ds-bt-search input:focus {
+  border-color: var(--ds-border-focus);
+}
+
+/* ── 回测列表 ─────────────────────────────────────────────────────────── */
+
+.ds-runlist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--ds-3) var(--ds-3);
+  scrollbar-gutter: stable;
+}
+
+.ds-runlist__spacer {
+  position: relative;
+  width: 100%;
+}
+
+.ds-runitem {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100px;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 9px 10px 9px 12px;
+  margin-bottom: var(--ds-2);
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--ds-r-lg);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--ds-dur-fast) var(--ds-ease),
+    border-color var(--ds-dur-fast) var(--ds-ease);
+}
+
+.ds-runitem:hover {
+  background: var(--ds-surface-3);
+  border-color: var(--ds-border);
+}
+
+.ds-runitem[aria-selected='true'] {
+  background: var(--ds-surface-3);
+  border-color: var(--ds-accent);
+  box-shadow: inset 3px 0 0 0 var(--ds-accent);
+}
+
+.ds-runitem__top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.ds-runitem__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: var(--ds-r-pill);
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.ds-runitem__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--ds-fs-sm);
+  font-weight: 600;
+  color: var(--ds-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-runitem__meta {
+  margin-top: 4px;
+  font-size: var(--ds-fs-2xs);
+  line-height: 1.6;
+  color: var(--ds-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-runitem__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+
+.ds-runitem__param {
+  font-size: var(--ds-fs-2xs);
+  color: var(--ds-text-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-runitem__ret {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--ds-fs-sm);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.ds-runitem__ret--pos {
+  color: var(--ds-pos);
+}
+.ds-runitem__ret--neg {
+  color: var(--ds-neg);
+}
+.ds-runitem__ret--muted {
+  color: var(--ds-text-3);
+}
+
+/* ── 右主区 ───────────────────────────────────────────────────────────── */
+
+.ds-bt-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--ds-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-3);
+}
+
+.ds-bt-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-4);
+  flex: 0 0 auto;
+}
+
+.ds-bt-head__title {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-2);
+  font-size: var(--ds-fs-xl);
+  font-weight: 700;
+  color: var(--ds-text);
+  letter-spacing: -0.01em;
+}
+
+.ds-bt-head__sub {
+  margin-top: 4px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+}
+
+.ds-bt-head__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-2);
+  flex: 0 0 auto;
+}
+
+/* ── 指标条（对照设计稿 gm-layout.html 的 `.kp.k8` + `.k`）───────────────
+ * 设计稿里是 **8 张独立白卡**：`background:#fff; border:1px solid #E3E8E5;
+ * border-radius:12px; padding:11px 13px`，卡与卡之间 10px 间距；
+ * 数字 22px / 700 / 行高 1.35，标签 12px。
+ * 原实现是「一条连体容器 + 内部竖分隔线」，视觉上是表格而不是卡片 —— 已改。
+ * 颜色全部走令牌，所以深色主题自动跟随（设计稿只有浅色，这里不外扩色值）。 */
+
+.ds-metricstrip {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  flex: 0 0 auto;
+}
+
+.ds-metric {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-r-lg);
+  padding: 11px 13px;
+  min-width: 0;
+}
+
+.ds-metric__k {
+  font-size: var(--ds-fs-sm);
+  color: var(--ds-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-metric__v {
+  margin-top: 2px;
+  font-family: var(--ds-font);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ds-text);
+  white-space: nowrap;
+}
+
+.ds-metric__v--pos {
+  color: var(--ds-pos);
+}
+.ds-metric__v--neg {
+  color: var(--ds-neg);
+}
+.ds-metric__v--muted {
+  color: var(--ds-text-3);
+}
+
+.ds-metric__note {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--ds-text-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 主区两行栅格 ─────────────────────────────────────────────────────── */
+
+/* 回测复盘三栏骨架（对照设计稿 `.bt3`）：
+ *   230px 左（配置与筛选）| 自适应中（图 + 明细）| 260px 右（成本 / 限制 / 检查）
+ * 断点照设计稿：≤1500 收窄两档侧栏；≤1180 整列堆叠。 */
+.ds-bt-3col {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 260px;
+  gap: 12px;
+  align-items: start;
+}
+
+.ds-bt-3col__left,
+.ds-bt-3col__mid,
+.ds-bt-3col__right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 1500px) {
+  .ds-bt-3col {
+    grid-template-columns: 210px minmax(0, 1fr) 230px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .ds-bt-3col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ds-bt-row1 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--ds-3);
+  min-height: 400px;
+}
+
+.ds-bt-row2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: var(--ds-3);
+  align-items: start;
+}
+
+.ds-bt-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-3);
+  min-width: 0;
+}
+
+@media (max-width: 1400px) {
+  .ds-bt-row1,
+  .ds-bt-row2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ds-metricstrip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .ds-metric:nth-child(4n) {
+    border-right: 0;
+  }
+}
+
+/* 窄屏（平板竖屏 / 手机）：指标条从 4 列降到 2 列。
+ * 8 个指标在 4 列时每格仍有 ~170px，能放下「夏普比率 (Sharpe)」这类长标签；
+ * 降到 2 列后每格 ≥ 150px，标签与副标都不再被截断。 */
+@media (max-width: 760px) {
+  .ds-metricstrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ds-metric {
+    padding: 9px 10px 10px;
+  }
+  /* 4n 的右边框要还回来（4 列规则在 2 列下会漏掉一列），再按 2n 收口 */
+  .ds-metric:nth-child(4n) {
+    border-right: 1px solid var(--ds-border-subtle);
+  }
+  .ds-metric:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+/* 手机：指标值略收一号，避免 1fr 列里「-0.91%」被压成两行 */
+@media (max-width: 420px) {
+  .ds-metric__v {
+    font-size: var(--ds-fs-lg);
+  }
+}
+
+/* ── 周期切换条 ───────────────────────────────────────────────────────── */
+
+.ds-tfbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--ds-r-md);
+}
+
+.ds-tf {
+  padding: 3px 9px;
+  font-size: var(--ds-fs-xs);
+  font-weight: 600;
+  color: var(--ds-text-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-r-sm);
+  cursor: pointer;
+  transition: color var(--ds-dur-fast) var(--ds-ease),
+    background var(--ds-dur-fast) var(--ds-ease);
+}
+
+.ds-tf:hover:not(:disabled) {
+  color: var(--ds-text);
+  background: var(--ds-surface-3);
+}
+
+.ds-tf[aria-pressed='true'] {
+  color: #fff;
+  background: var(--ds-accent);
+}
+
+.ds-tf:disabled {
+  color: var(--ds-text-4);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ── 图表容器 ─────────────────────────────────────────────────────────── */
+
+.ds-chartbox {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--ds-r-md);
+  overflow: hidden;
+}
+
+.ds-chartlegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 6px 10px;
+  font-size: var(--ds-fs-2xs);
+  color: var(--ds-text-3);
+  border-bottom: 1px solid var(--ds-border-subtle);
+}
+
+.ds-chartlegend b {
+  color: var(--ds-text-2);
+  font-weight: 600;
+}
+
+.ds-chartlegend__num {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-chartlegend__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: 0;
+}
+
+/* ── 分析面板 ─────────────────────────────────────────────────────────── */
+
+.ds-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-3);
+  padding: var(--ds-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ds-donut {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-3);
+}
+
+.ds-donut__chart {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  flex: 0 0 116px;
+}
+
+.ds-donut__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.ds-donut__value {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ds-text);
+  line-height: 1.1;
+}
+
+.ds-donut__label {
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--ds-text-3);
+}
+
+.ds-donut__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ds-donut__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  white-space: nowrap;
+}
+
+.ds-donut__row b {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-text-2);
+  font-weight: 600;
+}
+
+.ds-kvline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-2);
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--ds-border-subtle);
+  font-size: var(--ds-fs-xs);
+}
+
+.ds-kvline:last-child {
+  border-bottom: 0;
+}
+
+.ds-kvline__k {
+  color: var(--ds-text-3);
+}
+
+.ds-kvline__v {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ds-text-2);
+}
+
+.ds-kvline__v--pos {
+  color: var(--ds-pos);
+}
+.ds-kvline__v--neg {
+  color: var(--ds-neg);
+}
+
+/* 三栏里的键值行 = 设计稿 `.row`：
+ *   `.row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+ *         border-top:1px solid #EEF2F0;font-size:13px}`
+ * 标签左、值右、一行；值太长（引擎全名 / 窗口区间）才折到下一行，
+ * 不用「上下堆叠」—— 那样每行都变成两行，260px 的卡会翻倍变高。 */
+.ds-bt-3col__left .ds-kvline,
+.ds-bt-3col__right .ds-kvline {
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 10px;
+  padding: 6px 0;
+  border-bottom: 0;
+  /* 设计稿这里用的是 #EEF2F0，与分段控件底 #EEF1F0 差 1 个蓝通道，单列 */
+  border-top: 1px solid #eef2f0;
+  font-size: 13px;
+}
+
+.ds-bt-3col__left .ds-kvline:first-child,
+.ds-bt-3col__right .ds-kvline:first-child {
+  border-top: 0;
+}
+
+.ds-bt-3col__left .ds-kvline__v,
+.ds-bt-3col__right .ds-kvline__v {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-family: var(--ds-font);
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.ds-kvline__v--muted {
+  color: var(--ds-text-3);
+}
+
+/* ── 分页 ─────────────────────────────────────────────────────────────── */
+
+.ds-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-2);
+  padding: 8px 10px;
+  border-top: 1px solid var(--ds-border-subtle);
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+}
+
+.ds-pager__btns {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ds-pager__btn {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  font-family: var(--ds-mono);
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ds-r-sm);
+  cursor: pointer;
+}
+
+.ds-pager__btn:hover:not(:disabled) {
+  background: var(--ds-surface-3);
+  color: var(--ds-text);
+}
+
+.ds-pager__btn[aria-current='true'] {
+  color: #fff;
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+}
+
+.ds-pager__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── 未成交 run 的日志行 ──────────────────────────────────────────────── */
+
+.ds-logrow {
+  display: grid;
+  grid-template-columns: 120px 96px minmax(0, 1fr);
+  gap: var(--ds-2);
+  padding: 6px 10px;
+  font-size: var(--ds-fs-xs);
+  border-bottom: 1px solid var(--ds-border-subtle);
+}
+
+.ds-logrow:last-child {
+  border-bottom: 0;
+}
+
+.ds-logrow__t {
+  font-family: var(--ds-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-text-3);
+}
+
+.ds-logrow__k {
+  color: var(--ds-text-3);
+}
+
+.ds-logrow__v {
+  color: var(--ds-text-2);
+  overflow-wrap: anywhere;
+}
+
+/* ── 空态 ─────────────────────────────────────────────────────────────── */
+
+.ds-bt-empty {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  color: var(--ds-text-3);
+  font-size: var(--ds-fs-sm);
+}
+
+/* 卡片在回测页里统一用更紧凑的内边距 */
+.ds-bt-main .ds-card__head {
+  padding: 8px 10px;
+}
+
+.ds-bt-main .ds-card__body {
+  padding: 10px;
+}
+
+/* ============================================================================
+ * 响应式：页容器与顶部工具条（2026-10-17）
+ * ----------------------------------------------------------------------------
+ * 之前顶部条用的是内联样式，窄屏下「量化复盘台」会被压成一字一行、
+ * 下拉框 minWidth:220 硬撑出横向溢出。改为类 + 断点后：
+ *   · 标题 `nowrap`，永不竖排；
+ *   · 下拉框 `flex:1 1 180px` 可收缩，最小 0，最长 340；
+ *   · 按钮组在窄屏换行并靠左，不溢出。
+ * ========================================================================== */
+
+.bt-page {
+  padding: 12px 16px;
+}
+
+.bt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--ds-r-md);
+  flex: 0 0 auto;
+}
+
+.bt-toolbar__left,
+.bt-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.bt-toolbar__title {
+  font-size: var(--ds-fs-sm);
+  font-weight: 700;
+  color: var(--ds-text);
+  white-space: nowrap; /* 窄屏不得竖排 */
+  flex: 0 0 auto;
+}
+
+.bt-toolbar__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+.bt-toolbar__fieldlabel {
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-3);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.bt-toolbar__select {
+  font-size: var(--ds-fs-xs);
+  padding: 4px 8px;
+  border-radius: var(--ds-r-sm);
+  background: var(--ds-surface-2);
+  color: var(--ds-text);
+  border: 1px solid var(--ds-border-subtle);
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 340px;
+}
+
+.bt-toolbar__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--ds-fs-xs);
+  color: var(--ds-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+  .bt-page {
+    padding: 10px;
+    gap: 10px;
+  }
+  .bt-toolbar {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  /* 左组占满整行，右组换到下一行并靠左 —— 比把三个按钮挤成一排更好按 */
+  .bt-toolbar__left,
+  .bt-toolbar__right {
+    flex: 1 1 100%;
+  }
+  .bt-toolbar__right {
+    gap: 6px;
+  }
+  .bt-toolbar__field {
+    flex: 1 1 100%;
+  }
+  .bt-toolbar__select {
+    max-width: none;
+  }
+}
+
+/* 触摸设备：工具条按钮抬到 36px，避免误触 */
+@media (pointer: coarse) {
+  .bt-toolbar .ds-btn {
+    min-height: 36px;
+  }
+}
+
+/* ══ 样本不足提示条（设计稿 `.warn`）════════════════════════════════════
+ * 白底卡片之间的一条浅黄横幅：底 #FFF4D6、边 #F2D98A、字 #7A5200。
+ * 只在「样本确实不足」时出现，且文案里的数字全部来自当前 run，
+ * 不写「约正负 N」这类本应用算不出来的置信区间。 */
+.ds-warnbar {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 7px 14px;
+  border: 1px solid var(--ds-warn-border);
+  border-radius: 10px;
+  background: var(--ds-warn-bg);
+  color: var(--ds-warn);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ds-warnbar b {
+  font-weight: 700;
+}
+
+/* ══ 窄栏「标签 + 值胶囊」行（设计稿 `.fld`）════════════════════════════
+ * 左栏只有 230px，长值（引擎名 / 哈希）必须能换行，所以胶囊用
+ * `overflow-wrap:anywhere` 而不是 nowrap —— 设计稿里那些值都很短，
+ * 但真实数据不是，宁可换行也不横向溢出。 */
+.ds-fld {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ds-fld__k {
+  color: var(--ds-text-3);
+  flex: 0 0 auto;
+}
+
+.ds-fld__v {
+  min-width: 0;
+  padding: 2px 9px;
+  border: 1px solid var(--ds-border);
+  border-radius: 6px;
+  background: var(--ds-canvas);
+  color: var(--ds-text-2);
+  font-size: 12.5px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* 设计稿 `.m`：卡片底部的 12px 灰色说明（放不进胶囊的长值） */
+.ds-fldnote {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ds-text-3);
+  overflow-wrap: anywhere;
+}
+
+/* ══ 左栏（230px）里的「运行配置」表单：横排改竖排 ═══════════════════════════
+ * 设计稿把配置放在左栏、以「标签 + 浅灰胶囊」只读展示；本应用需要能填，
+ * 所以缺省收起，展开后必须能在 230px 里填完 —— 这里把 `.ds-bar` 的横向
+ * 单行改成纵向堆叠，并把 Tailwind 的固定宽度（w-32/w-40）拉满整栏。 */
+.ds-bt-3col__left .ds-bar {
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.ds-bt-3col__left .ds-bar > label,
+.ds-bt-3col__left .ds-bar > .block {
+  width: 100% !important;
+}
+
+/* 横排专用的分隔线与弹簧在竖排里没有意义 */
+.ds-bt-3col__left .ds-bar .ds-pagehead__spacer,
+.ds-bt-3col__left .ds-bar .ds-bar__sep,
+.ds-bt-3col__left .ds-bar > .text-neutral-400 {
+  display: none;
+}
+
+.ds-bt-3col__left .ds-bar .ds-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* 高级设置里的 2/3/6 列网格在 230px 里会挤成碎片 ⇒ 一律单列 */
+.ds-bt-3col__left .ds-bar .grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* 左栏里的参数区标题（成本 / 风险 / 结构 / OI）也跟着压紧 */
+.ds-bt-3col__left .ds-bar .border-t {
+  padding-top: 8px;
+}
+
+/* ══ 更多视图入口条（原页首工具条，搬到审计面板正上方）════════════════════ */
+.ds-viewbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 2px;
+  border-top: 1px solid var(--ds-border-subtle);
+  margin-top: 4px;
+}
+
+.ds-viewbar__label {
+  margin-right: 4px;
+  font-size: var(--ds-fs-xs);
+  font-weight: 600;
+  color: var(--ds-text-3);
+}
+
+/* ══ 卡片头灰字（设计稿 `.h span`）══════════════════════════════════════ */
+.ds-card__hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ds-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ══ K 线周期切换（设计稿 `.tf`）════════════════════════════════════════ */
+.ds-tfgroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.ds-tfgroup__item {
+  padding: 2px 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--ds-font);
+  font-size: 11.5px;
+  color: var(--ds-text-3);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--ds-dur-fast) var(--ds-ease),
+    color var(--ds-dur-fast) var(--ds-ease);
+}
+
+.ds-tfgroup__item:hover:not(:disabled) {
+  background: var(--ds-surface-2);
+  color: var(--ds-text);
+}
+
+.ds-tfgroup__item.is-on {
+  background: var(--ds-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.ds-tfgroup__item:disabled {
+  color: var(--ds-text-4);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ══ 图例一行（设计稿 `.h span` 的等价物，但允许折叠更多口径）════════════ */
+.ds-chartlegend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ds-text-3);
+}
+
+.ds-chartlegend__up {
+  color: var(--ds-pos);
+}
+.ds-chartlegend__dn {
+  color: var(--ds-neg);
+}
+.ds-chartlegend__stop {
+  color: var(--ds-warn);
+}
+.ds-chartlegend__muted {
+  color: var(--ds-text-4);
+}
+
+.ds-chartlegend__more {
+  position: relative;
+  font-size: 12px;
+}
+
+.ds-chartlegend__more > summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--ds-accent-text);
+}
+
+.ds-chartlegend__more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ds-chartlegend__more > summary::before {
+  content: "▸ ";
+}
+
+.ds-chartlegend__more[open] > summary::before {
+  content: "▾ ";
+}
+
+.ds-chartlegend__more > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+  background: var(--ds-canvas);
+  color: var(--ds-text-3);
+  font-family: var(--ds-mono);
+  font-size: 11.5px;
+}
+
+/* ══ 悬停读数条（设计稿 `.hv`）══════════════════════════════════════════ */
+.ds-hoverbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-bottom: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--ds-canvas);
+  font-family: var(--ds-mono);
+  font-size: 12px;
+  color: var(--ds-text-3);
+}
+
+.ds-hoverbar b {
+  color: var(--ds-text-2);
+  font-weight: 700;
+}
+
+/* ══ 卡片底部的黄色提示条（设计稿 `.nt2`）══════════════════════════════════
+ *   `.nt2{margin-top:8px;font-size:12px;color:#7A5200;background:#FFF4D6;
+ *         border-radius:8px;padding:7px 10px}`
+ * 用途是「这条结论有限制」这类必须看见的说明；普通补充说明仍用灰字。 */
+.ds-nt2 {
+  margin-top: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--ds-warn-bg);
+  color: var(--ds-warn);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* ══ 折叠卡片（设计稿没有、但功能必须留的区块用它收起来）══════════════════
+ * 展开后内部的 `.ds-card` 去掉外框与圆角，避免「卡中卡」双层描边。 */
+.ds-foldcard {
+  display: block;
+  margin-bottom: 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-r-lg);
+  background: var(--ds-surface);
+}
+
+.ds-foldcard > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ds-text-2);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.ds-foldcard > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ds-foldcard > summary::before {
+  content: "▸";
+  font-size: 10px;
+  color: var(--ds-text-4);
+}
+
+.ds-foldcard[open] > summary::before {
+  content: "▾";
+}
+
+.ds-foldcard[open] > summary {
+  border-bottom: 1px solid var(--ds-border);
+}
+
+/* 展开后内部那张卡不再画自己的框 */
+.ds-foldcard > .ds-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* ══ 两张并排（设计稿 `.g2`）════════════════════════════════════════════
+ *   `.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}`
+ *   `@media(max-width:1180px){.g2{grid-template-columns:1fr}}`
+ * 用于「净值曲线 | 回撤曲线」。 */
+.ds-g2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .ds-g2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

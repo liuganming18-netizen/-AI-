@@ -1,0 +1,62 @@
+{
+  "ticket": "WORK-SIGNAL-REPLAY-01",
+  "title": "跑通信号、逐笔订单及小时线联动复盘",
+  "created_at_utc": "2026-10-24T07:00:00Z",
+  "executor": "Antigravity",
+  "audit_status": "待验收",
+  "git_commit": "2a13325f189e13de7ed06a836ba3d9db4ee63ce3",
+  "working_directory": "/Users/boos/Desktop/威科夫因子共振趋势",
+  "runtime_identity": {
+    "api_pid": 72910,
+    "api_port": 8787,
+    "worker_pid": 72913,
+    "collector_pid": 42278,
+    "runtime_pid": 72929,
+    "fe_port": 3000,
+    "paper_arm": "3a",
+    "universe_declared": 526,
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "strategy_key": "WX_EVENT_TREND_V0_1",
+    "rule": "FT-LOW4H"
+  },
+  "replayed_backtest_target": {
+    "run_id": "bt_20261023T162149Z_59f3c8fa",
+    "symbol": "VELVETUSDT",
+    "window_start": "2026-09-07T00:00:00Z",
+    "window_end": "2026-10-06T00:00:00Z",
+    "initial_equity": 5000.0,
+    "final_equity": 5019.732990145542,
+    "net_pnl": 19.732990145542892,
+    "trades_count": 1,
+    "orders_count": 2,
+    "fills_count": 2,
+    "funding_count": 4
+  },
+  "evidence_paths": {
+    "readme": "evidence/WORK-SIGNAL-REPLAY-01/README.md",
+    "manifest": "evidence/WORK-SIGNAL-REPLAY-01/manifest.json",
+    "reconciliation_report": "evidence/WORK-SIGNAL-REPLAY-01/out/reconciliation.json",
+    "orders_csv": "evidence/WORK-SIGNAL-REPLAY-01/out/orders_bt_20261023T162149Z_59f3c8fa.csv",
+    "fills_csv": "evidence/WORK-SIGNAL-REPLAY-01/out/fills_bt_20261023T162149Z_59f3c8fa.csv",
+    "trades_csv": "evidence/WORK-SIGNAL-REPLAY-01/out/trades_bt_20261023T162149Z_59f3c8fa.csv",
+    "comprehensive_json": "evidence/WORK-SIGNAL-REPLAY-01/out/backtest_bt_20261023T162149Z_59f3c8fa_all.json",
+    "funnel_replay": "evidence/WORK-SIGNAL-REPLAY-01/out/funnel_replay.json",
+    "boundary_cases": "evidence/WORK-SIGNAL-REPLAY-01/out/boundary_cases.json",
+    "browser_ui_acceptance": "evidence/WORK-SIGNAL-REPLAY-01/out/ui_acceptance.json",
+    "screenshots_dir": "evidence/WORK-SIGNAL-REPLAY-01/out/screenshots/"
+  },
+  "modified_files": [
+    "框架/backend/ledger_links.py",
+    "框架/backend/backtest_api.py",
+    "UI界面/web/src/api/labBacktest.ts",
+    "UI界面/web/src/components/LabChartPanel.tsx",
+    "UI界面/web/src/components/BacktestWorkbench.tsx"
+  ],
+  "verification_results": {
+    "reconciliation_checks": "7/7 PASSED",
+    "browser_acceptance_checks": "15/15 PASSED",
+    "focused_unit_tests": "95/95 PASSED",
+    "all_unit_tests": "368 passed, 11 failed (环境占用已运行进程夹具互斥), 79 skipped",
+    "net_regressions": 0
+  }
+}

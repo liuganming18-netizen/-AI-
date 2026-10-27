@@ -25,13 +25,17 @@ export function useEndpoint<T>(path: string, refreshMs: number): EndpointState<T
   const [state, setState] = useState<Omit<EndpointState<T>, 'refresh'>>({
     data: null,
     error: null,
-    loading: true,
+    loading: Boolean(path),
     fetchedAt: null,
   });
   const alive = useRef(true);
   const ctrlRef = useRef<AbortController | null>(null);
 
   const pull = async () => {
+    if (!path) {
+      if (alive.current) setState((s) => ({ ...s, data: null, error: null, loading: false }));
+      return;
+    }
     ctrlRef.current?.abort();
     const ctrl = new AbortController();
     ctrlRef.current = ctrl;
@@ -53,6 +57,13 @@ export function useEndpoint<T>(path: string, refreshMs: number): EndpointState<T
 
   useEffect(() => {
     alive.current = true;
+    if (!path) {
+      setState((s) => ({ ...s, data: null, error: null, loading: false }));
+      return () => {
+        alive.current = false;
+        ctrlRef.current?.abort();
+      };
+    }
     void pull();
     const timer = setInterval(() => {
       void pull();

@@ -83,7 +83,7 @@ export const SketchDrawerModal: React.FC<SketchDrawerModalProps> = ({ isOpen, on
               download
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-[var(--ds-text-inverse)] text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               下载当前图纸
@@ -143,7 +143,7 @@ export const SketchDrawerModal: React.FC<SketchDrawerModalProps> = ({ isOpen, on
 
         {/* Canvas Body */}
         <div className="flex-1 overflow-auto bg-neutral-950 p-4 flex justify-center items-center">
-          <div className="bg-white rounded-xl p-2 shadow-2xl max-w-none">
+          <div className="bg-neutral-900 rounded-xl p-2 shadow-2xl max-w-none">
             <img
               src={current.src}
               alt={current.title}

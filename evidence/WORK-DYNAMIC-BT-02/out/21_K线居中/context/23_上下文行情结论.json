@@ -1,0 +1,134 @@
+{
+  "task": "BT-KLINE-CONTEXT-01",
+  "run_id": "run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT",
+  "captured_at": "2026-10-24T11:42:46.039Z",
+  "sources": {
+    "frontend": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/WORK-DYNAMIC-BT-02/out/21_K线居中/context/verify_steps_run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT.json",
+    "backend": "http://127.0.0.1:8787/api/v1/backtests/run_FT_ENTRY_09_C1_Vs04_Z02_1000XECUSDT/chart"
+  },
+  "criterion": {
+    "A_fill": "visible_bars == payload_bars（按 UTC 边界独立重算）且 left/right_gap <= 0.05",
+    "B_zoom_kept": "三次可见时间窗完全一致且 |spacing_ratio - width_ratio| / width_ratio <= 0.02",
+    "C_locate": "主动 setViewport 后可见范围落在请求窗口 ±1 根内",
+    "D_append_only": "context_days=0 与 7 的 run 区间内 K 线逐根相同",
+    "E_budget": "context_days=90 总根数 <= 20000 且 run 区间仍逐根相同"
+  },
+  "supersedes_note": "`22_K线居中修复结论.json` 是 **context_days=0（上下文功能上线前）** 的实测：ACHUSDT 可见 18 根 / 留白 0.7%~0.9%。当前默认载荷已带 ±7 天上下文，同一 run 的可见根数变成 343 根（1h）——判据本身不变（**可见根数 == 载荷根数**、留白 <= 5%），只是分母变了。两份结论互不矛盾，各自绑定各自的载荷。",
+  "payload_bars": {
+    "15m": 1370,
+    "1h": 343,
+    "4h": 86
+  },
+  "A_fill": [
+    {
+      "tag": "A_first_1h",
+      "tf": "1h",
+      "visible_bars": 343,
+      "payload_bars": 343,
+      "left_gap_pct": 0,
+      "right_gap_pct": 0.12,
+      "bar_spacing_px": 2.3731778425655974,
+      "pass": true
+    },
+    {
+      "tag": "C_tf_15m",
+      "tf": "15m",
+      "visible_bars": 1370,
+      "payload_bars": 1370,
+      "left_gap_pct": 0,
+      "right_gap_pct": 0,
+      "bar_spacing_px": 0.5941605839416059,
+      "pass": true
+    },
+    {
+      "tag": "C_tf_4h",
+      "tf": "4h",
+      "visible_bars": 86,
+      "payload_bars": 86,
+      "left_gap_pct": 0.12,
+      "right_gap_pct": 0.25,
+      "bar_spacing_px": 9.465116279069766,
+      "pass": true
+    },
+    {
+      "tag": "C_tf_back_1h",
+      "tf": "1h",
+      "visible_bars": 343,
+      "payload_bars": 343,
+      "left_gap_pct": 0,
+      "right_gap_pct": 0.12,
+      "bar_spacing_px": 2.3731778425655974,
+      "pass": true
+    }
+  ],
+  "B_zoom_kept": {
+    "visible_range": [
+      [
+        1717081200,
+        1717225200
+      ],
+      [
+        1717081200,
+        1717225200
+      ],
+      [
+        1717081200,
+        1717225200
+      ]
+    ],
+    "bar_spacing": [
+      19.853658536585368,
+      9.658536585365855,
+      19.853658536585368
+    ],
+    "width": [
+      814,
+      396,
+      814
+    ],
+    "spacing_ratio": 0.4865,
+    "width_ratio": 0.4865,
+    "rel_delta_spacing": 0.0,
+    "pass": true
+  },
+  "C_locate": {
+    "asked_from_s": 1717103700,
+    "asked_to_s": 1717214400,
+    "applied": {
+      "from": 1717106400,
+      "to": 1717214400
+    },
+    "bar_spacing_after": 26.258064516129032,
+    "bar_spacing_before": 19.853658536585368,
+    "pass": true
+  },
+  "D_append_only": {
+    "context_days_0_bars": 27,
+    "context_days_7_bars": 1370,
+    "run_slice_bars": 27,
+    "run_slice_identical": true,
+    "context_before_declared": 672,
+    "context_before_actual": 672,
+    "context_after_declared": 671,
+    "context_after_actual": 671,
+    "pass": true
+  },
+  "E_budget": {
+    "context_days": 90,
+    "total_bars": 17306,
+    "cap": 20000,
+    "trim_exercised": false,
+    "run_slice_identical_to_7d": true,
+    "note": null,
+    "pass": true,
+    "未验证说明": "context_days 上限 90 天、前后各 90 天共 17,306 根 < 20,000 根 ⇒ **预算裁剪分支本轮不可达、未验证**（未验证不计入通过）。本轮只证明「总根数不超上限 + run 区间逐根不变」。"
+  },
+  "console_errors": [],
+  "A_pass": true,
+  "B_pass": true,
+  "C_pass": true,
+  "D_pass": true,
+  "E_pass": true,
+  "F_console_clean": true,
+  "overall": "PASS"
+}

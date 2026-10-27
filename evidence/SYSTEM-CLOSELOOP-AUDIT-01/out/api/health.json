@@ -1,0 +1,62 @@
+{
+  "mode": null,
+  "account_id": null,
+  "run_id": null,
+  "strategy_version": null,
+  "rule_version": null,
+  "param_hash": null,
+  "data_version": null,
+  "as_of": "2026-10-22T11:57:51Z",
+  "quality": null,
+  "source_url": null,
+  "evidence_level": null,
+  "missing_reason": null,
+  "time": {
+    "event_time": null,
+    "available_at": null,
+    "received_at": null,
+    "fetched_at": null
+  },
+  "items": [
+    {
+      "name": "统一行情数据库",
+      "status": "ok",
+      "last_event_time": "2026-10-22T11:54:59Z",
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3；已入库 4385 个（标的,周期）组合，共 114955771 根真实K线"
+    },
+    {
+      "name": "公共 REST 网关（目录/端点）",
+      "status": "missing",
+      "last_event_time": null,
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "成功公共 REST 请求计数**暂不可得**（无界全表 COUNT 已移出请求路径，重统计未就绪）：币安 USD-M exchangeInfo 合约目录、币安现货目录；经统一网关（限频 + 缓存 + 并发租约）。前端读取不触发外部采集。"
+    },
+    {
+      "name": "官方归档下载（独立下载器）",
+      "status": "ok",
+      "last_event_time": "2026-10-22T11:54:59Z",
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "由 `历史下载/batch_download.py` 直连 data.binance.vision / S3 列举端点下载，**不经 REST 网关、不计入 api_calls**；每包核验官方 CHECKSUM。来源归档 3444866 个"
+    },
+    {
+      "name": "实时行情采集（价格/OI/费率）",
+      "status": "ok",
+      "last_event_time": "2026-10-22T11:57:51Z",
+      "last_received_at": "2026-10-22T11:57:51Z",
+      "age_seconds": 12,
+      "detail": "realtime_quotes 覆盖 814 标的；最新价格事件 2026-10-22T11:57:51Z（0s 前，新鲜=True）；心跳 2026-10-22T11:57:39Z（12s 前，有效=True，pid=39067）；WS 消息 币安 13781916 / 欧易 110270810；OI 724763 行，费率结算 2106815 行。判定要求**新鲜价格时点与有效心跳同时成立**，缺一即 stale"
+    },
+    {
+      "name": "账户/交易",
+      "status": "not_connected",
+      "last_event_time": null,
+      "last_received_at": null,
+      "age_seconds": null,
+      "detail": "未配置账户，不读取凭据"
+    }
+  ]
+}

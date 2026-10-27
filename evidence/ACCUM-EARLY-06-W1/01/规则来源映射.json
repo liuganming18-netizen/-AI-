@@ -1,0 +1,686 @@
+{
+  "schema": "accum-early-06-w1/rule-provenance/v1",
+  "order": "06-01",
+  "generated_at_utc": "2026-10-26T18:08:08Z",
+  "generated_at_local": "2026-10-27T02:08:08+0800",
+  "workspace": "/Users/boos/Desktop/威科夫因子共振趋势",
+  "scope": "只读整理；未改任何生产文件、配置、账本、冻结规则",
+  "status_legend": {
+    "USER_DECIDED": "用户明确决定：能在《用户要求与决策.md》找到原话，且原话覆盖该字段语义",
+    "SPEC_ONLY": "方案文本：只出现在 04-A / 05-A-R1 的方案与推荐里，未经用户批准",
+    "INHERITED_UNRATIFIED": "沿用：来自冻结策略包代码或既有引擎的既有事实，未获新批准；不得写成用户批准",
+    "PROPOSED": "执行方建议：某执行窗口提出、无用户批准来源",
+    "CONFLICT": "来源冲突：两处以上表述互斥，精确阻塞该项，不影响其他项",
+    "UNVERIFIED": "未验证：实现存在但未证明与目标语义等价"
+  },
+  "identity": {
+    "code": [
+      {"path": "框架/backend/accum_early_entry.py", "sha256": "3c570edc1eddaa2cd5c82c39fbf60a9deb633d376dd6b47200453b8f061c9017", "bytes": 117711, "mtime_local": "2026-10-27 01:56"},
+      {"path": "框架/backend/paper_engine.py", "sha256": "e8a994b6750d8532576e5120e66144acc63cab355766b8ad8db932de3caec784"},
+      {"path": "策略/WyckoffMaster/event_trend_v0_1/config.py", "sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46"}
+    ],
+    "documents": [
+      {"path": "docs/用户约定/用户要求与决策.md", "sha256": "3170ec997faae8715456df700f90acf1c4bb04d0a7842920d402baf9500b580b"},
+      {"path": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "sha256": "f27da7cddea499945fa4ae73a47d713701eb4cfe9833d08f21b3bfe2fd633637"},
+      {"path": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "sha256": "8f4bd7b79adde0198e1e8e23a207aba632d6d50a71cc52f7478ebf1acbf0a171"},
+      {"path": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "sha256": "b4139484e1f296ecc6dca95f0b8020f73bbb307775e9a3f7c2a2c95b0508d4c9"},
+      {"path": "evidence/ACCUM-EARLY-04-A/README.md", "sha256": "8a6ee644b2cc7ec0400af3f45832a7e25dd80e972925a059b133ada30f2e2106"},
+      {"path": "evidence/ACCUM-EARLY-05-A-R1/01_旧表到新表的纠错清单.md", "sha256": "fa84457501bd6b17454c703e450b0a4efb1b2d4241709b764fc9feaebb8aabfa"},
+      {"path": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "sha256": "a1d45c8975bc934778761c483a7e1fa1d25776da80e95f1ace448ab22bad3ffc"},
+      {"path": "evidence/ACCUM-EARLY-05-A-R1/02_简明决策表.md", "sha256": "054e38bbd46a0a5eca688547feb07d73f7169351ae1594c6e67120bf3d23db03"},
+      {"path": "evidence/ACCUM-EARLY-05-E-R1/README.md", "sha256": "e59a0fc701722da160b7a54317bacb021a2999bb17550f9b5be6016f18bde126"},
+      {"path": "evidence/ACCUM-EARLY-05-B/README.md", "sha256": "06fbde381087c60e65017989a02592be27d53948aca86bf1e84d6706caba334e"},
+      {"path": "evidence/ACCUM-EARLY-05-B/向05-A-R1协调说明_配置字段表.md", "sha256": "242c1fa4d9eb9fcbf77dd905451b8c4abe0f8c931f64a9f20931b222a64d6c39"},
+      {"path": "evidence/ACCUM-EARLY-06-W2/01/README.md", "sha256": "e293494240bc706514f06ab084083409ba9e019ff54d92025d12bd55a61122cc"}
+    ]
+  },
+  "entries": [
+    {
+      "id": "SW-01",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "承接判定所读 bar = 扫低发生根",
+      "user": null,
+      "user_absent_reason": "《用户要求与决策.md》只规定止损与成交时序，未提及承接判定的 bar 归属",
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/README.md", "line": 53, "quote": "承接/卖压怎么判 | `taker_buy_quote_volume / quote_volume`，基准为前 20 根中位数；卖压 = `quote_volume − taker_buy_quote_volume`（推导量） | 扫低根 1h 收盘", "must_contain": "扫低根 1h 收盘"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 53, "quote": "承接（主动买占比）… 1h 收盘", "must_contain": "承接（主动买占比）"},
+        {"file": "evidence/ACCUM-EARLY-04-A/rules/accum_early_rules.py", "line": 1065, "quote": "参考实现：扫低成立那一根调用 absorption", "must_contain": "absorption", "verified_by": "06-W2/01 README:48 读回校验"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-E-R1/README.md", "line": 188, "quote": "移至 `_sweep_check` 成立之后（或在 `on_bar` 的 `state == \"BOX\"` 扫低收回瞬间），作为进入 `SWEEP` 的硬门槛", "must_contain": "扫低收回瞬间"},
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 13, "quote": "本单把它改成「进入 SWEEP 时在**扫低发生根**求值一次，确认阶段只读这一份结果」", "must_contain": "扫低发生根"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1012, "quote": "ab = _absorption(bars_1h, i_sweep, self.cfg)", "must_contain": "_absorption(bars_1h, i_sweep"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": true,
+      "blocking": false,
+      "note": "方案文本与代码现状一致（均为扫低根）。但「扫低根」在 multi_bar 下未定义，见 SW-06。"
+    },
+    {
+      "id": "SW-02",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "承接基准窗口 = 扫低根之前 20 根 1h",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 134, "quote": "承接与卖压的比较基准 = 扫低根之前 20 根 1h 的中位数", "must_contain": "扫低根之前 20 根 1h"},
+        {"file": "evidence/ACCUM-EARLY-04-A/README.md", "line": 53, "quote": "基准为前 20 根中位数", "must_contain": "基准为前 20 根中位数"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 125, "quote": "基准窗口（三类一致）：`from_ms=1780416000000` → `to_ms=1780487999999`，`n=20`，右端 = 扫低根**前一根**收盘", "must_contain": "右端 = 扫低根**前一根**收盘"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 854, "quote": "seg = bars_1h[i - n:i]", "must_contain": "bars_1h[i - n:i]"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": true,
+      "blocking": false,
+      "note": "代码在 i=i_sweep 时切片 [i-20, i)，右端为扫低根前一根，与文本一致。n=20 本身属「建议未批准」（见 AB-03）。"
+    },
+    {
+      "id": "SW-03",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "承接门槛的位置：不满足时停在哪一步",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 28, "quote": "承接条件是**硬门槛**（不满足不进 ARMED），不只是证据", "must_contain": "不满足不进 ARMED"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 137, "quote": "承接条件是**硬门槛**（不满足不进 ARMED），不只是证据", "must_contain": "不满足不进 ARMED"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-E-R1/README.md", "line": 188, "quote": "作为进入 `SWEEP` 的硬门槛；若承接不达标，不迁移至 `SWEEP`", "must_contain": "不迁移至 `SWEEP`"},
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 114, "quote": "BOX → SWEEP(2026-06-03T12:59:59Z)，收上压制位但承接不达标 ⇒ 继续观察", "must_contain": "承接不达标 ⇒ 继续观察"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1024, "quote": "self.state = \"SWEEP\"", "must_contain": "self.state = \"SWEEP\"", "context": "该行只在 ok 分支内执行，承接不达标时状态保持 BOX"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-02",
+      "affects_window2": true,
+      "blocking": true,
+      "blocked_reason": "方案文本写「不满足不进 ARMED」（即允许先进入 SWEEP、定出压制位、但不武装），代码与 05-E-R1 建议写「不满足不进 SWEEP」（停在 BOX 反复重判扫低）。两者事件计数与后续轨迹不同，不得声称等价。",
+      "note": "状态机 04-A:30 为 OBSERVE→SWEEP→ARMED，ARMED 才定压制位；文本的「不进 ARMED」与代码的「不进 SWEEP」是两个不同断点。"
+    },
+    {
+      "id": "SW-04",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "突破确认不得复用另一根的承接结果",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 10, "quote": "1h 上等一次「跌破局部支撑又收回」（扫低收回）→ 在同一时刻定出一个**低于箱顶的**局部压制位 → 1h 收盘收上该位即确认", "must_contain": "在同一时刻定出一个"}
+      ],
+      "executor": [
+        {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 41, "quote": "突破确认不得偷换为另一根的承接判断", "must_contain": "突破确认不得偷换为另一根的承接判断"},
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 27, "quote": "`_confirm_actions` 内已无 `_absorption` 调用（AST 复核）；只剩 `self.sweep_absorption`", "must_contain": "只剩 `self.sweep_absorption`"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1015, "quote": "self.sweep_absorption = ab", "must_contain": "self.sweep_absorption = ab"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": true,
+      "blocking": false,
+      "note": "工单要求本身即依据；代码现状符合。"
+    },
+    {
+      "id": "SW-05",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "扫低与收回同根（single_bar）",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 128, "quote": "扫低与收回必须在**同一根** 1h 内完成（不允许多根拼）", "must_contain": "必须在**同一根** 1h 内完成"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 791, "quote": "max_bars = 1 if scope[\"mode\"] == \"single_bar\" else int(scope.get(\"max_bars\") or 1)", "must_contain": "single_bar"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": true,
+      "blocking": false,
+      "note": "single_bar 是「没有数据支持的建议」，04-A:128 自述未做双根对照。"
+    },
+    {
+      "id": "SW-06",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "multi_bar 时「扫低根」取哪一根",
+      "user": null,
+      "spec": null,
+      "spec_absent_reason": "04-A 只定义 single_bar 的扫低根；multi_bar 未批准且原文未规定取哪一根",
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 30, "quote": "唯一阻塞项：`sweep_recovery_scope = multi_bar` 时「扫低根」取哪一根原文未规定", "must_contain": "原文未规定"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1011, "quote": "i_sweep = min(range(lo_i, i + 1), key=lambda j: (float(bars_1h[j][\"low\"]), -j))", "must_contain": "key=lambda j: (float(bars_1h[j][\"low\"]), -j)"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-03",
+      "affects_window2": true,
+      "blocking": true,
+      "blocked_reason": "multi_bar 档没有原文依据，代码按「窗口内最低价那一根」取并标 multi_bar_scope_unverified=true。该档不得计入已验证，也不得据它宣称时序已覆盖全部档位。",
+      "note": "single_bar 下 i_sweep 恒等于 i，不受影响。"
+    },
+    {
+      "id": "SW-07",
+      "topic": "扫低根承接与突破确认的时序",
+      "field": "局部压制位窗口 = 扫低根之前 48 根",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/README.md", "line": 52, "quote": "扫低根之前 48 根 1h 内最后一个「左右各 3 根都不高于它」的最高价", "must_contain": "扫低根之前 48 根"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 129, "quote": "R_loc = 扫低根**之前** 48 根 1h 内", "must_contain": "扫低根**之前** 48 根"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-06-W2/01/README.md", "line": 155, "quote": "规则说压制位取「扫低根之前 48 根」（B7），但 `_confirm_actions` 传的是**确认根**下标，窗口整体右移", "must_contain": "窗口整体右移"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1089, "quote": "res, res_detail = _resistance(bars_1h, i, self.box, self.cfg)", "must_contain": "_resistance(bars_1h, i, self.box"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-04",
+      "affects_window2": true,
+      "blocking": true,
+      "blocked_reason": "同一类时序缺陷（传确认根 i，而非扫低根 i_sweep）。06-W2 已交证据（压制位 103.9 vs 105.0、would_confirm_under_sweep_relative=true）但未修，窗口二本单范围外。",
+      "note": "改它会改「哪些事件能确认」，属行为口径变更，需单独立项与裁决。"
+    },
+    {
+      "id": "AB-01",
+      "topic": "主动买卖金额定义",
+      "field": "主动买占比 = taker_buy_quote_volume / quote_volume",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 133, "quote": "主动买占比 = taker_buy_quote_volume / quote_volume，逐根 1h 自带", "must_contain": "taker_buy_quote_volume / quote_volume"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 53, "quote": "`taker_buy_quote_volume` / `quote_volume`（1h）", "must_contain": "`taker_buy_quote_volume` / `quote_volume`"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-E-R1/README.md", "line": 103, "quote": "`_absorption` 内部已正确采用 USDT 名义额比例（`taker_buy_quote_volume / quote_volume`）对比前 20 根中位数", "must_contain": "USDT 名义额比例"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 843, "quote": "return float(tbq) / float(qv), float(qv) - float(tbq)", "must_contain": "float(tbq) / float(qv)"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "分子分母都是 USDT 计价成交额，属「金额口径的占比」，不是成交量张数、不是笔数。"
+    },
+    {
+      "id": "AB-02",
+      "topic": "主动买卖金额定义",
+      "field": "主动卖出额 = quote_volume − taker_buy_quote_volume（推导量）",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 136, "quote": "扫低根主动卖出额 ≤ 前 20 根中位数 × 0.8", "must_contain": "主动卖出额"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 54, "quote": "`quote_volume − taker_buy_quote_volume`（1h，推导）", "must_contain": "quote_volume − taker_buy_quote_volume"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 890, "quote": "主动卖出额 = quote_volume − taker_buy_quote_volume（推导量）", "must_contain": "推导量"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "交易所不直接提供 taker_sell；该量为推导量。买侧比的是「占比」，卖侧比的是「绝对金额」，两侧量纲不同但各自与基准同量纲，04-A 原文如此，不是代码错。"
+    },
+    {
+      "id": "AB-03",
+      "topic": "主动买卖金额定义",
+      "field": "基准统计量与窗口（前 20 根中位数）",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 134, "quote": "承接与卖压的比较基准 = 扫低根之前 20 根 1h 的中位数", "must_contain": "20 根 1h 的中位数"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 49, "quote": "`shared.sell_pressure.baseline` | `\"v20_median\"` | **建议未批准**", "must_contain": "v20_median"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 864, "quote": "base_ratio = _median(hist_ratio)", "must_contain": "_median(hist_ratio)"}
+      ],
+      "status": "PROPOSED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "「与冻结规则 V20 同窗口」只是窗口对齐，指标从「成交量」平移到「主动买占比/主动卖出额」，属语义平移，04-A:134 自述未独立验证。"
+    },
+    {
+      "id": "AB-04",
+      "topic": "主动买卖金额定义",
+      "field": "承接倍率 buy_ratio_mult = 1.0",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 135, "quote": "扫低根主动买占比 ≥ 前 20 根中位数 × 1.0", "must_contain": "× 1.0"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 51, "quote": "`shared.sell_pressure.buy_ratio_mult` | `1.0` | **建议未批准<br>(核心决策 3)**", "must_contain": "建议未批准"}
+      ],
+      "code": [
+        {"file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json", "line": 0, "quote": "\"buy_ratio_mult\": 1.0", "must_contain": "\"buy_ratio_mult\": 1.0", "line_search": true}
+      ],
+      "status": "PROPOSED",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "「承接是硬门槛」有方案文本，但门槛里的倍率 1.0 没有任何批准来源；1.2 档能把研究区间 R 合计翻正（甲 −192.78→+6.89），更不得据敏感性结果定参。",
+      "note": "规范中存在承接要求 ≠ 其中倍率获批。这是本单要防的核心误读。"
+    },
+    {
+      "id": "AB-05",
+      "topic": "主动买卖金额定义",
+      "field": "卖压倍率 sell_pressure_mult = 0.8",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 136, "quote": "扫低根主动卖出额 ≤ 前 20 根中位数 × 0.8", "must_contain": "× 0.8"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 53, "quote": "`shared.sell_pressure.sell_pressure_mult` | `0.8` | **建议未批准**", "must_contain": "0.8` | **建议未批准**"}
+      ],
+      "code": [
+        {"file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json", "line": 0, "quote": "\"sell_pressure_mult\": 0.8", "must_contain": "\"sell_pressure_mult\": 0.8", "line_search": true}
+      ],
+      "status": "PROPOSED",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "0.8 来自冻结规则 retest_vol_multiplier 的倍数平移，不是用户批准；且被平移的对象从「总量」变成「主动卖出额」。",
+      "note": "无独立验证：04-A 未给 0.8 与 1.0 的对照。"
+    },
+    {
+      "id": "AB-06",
+      "topic": "主动买卖金额定义",
+      "field": "收盘位于当根振幅上半区",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 135, "quote": "且收盘位于当根振幅上半区（close ≥ low + 0.5 × (high−low)）", "must_contain": "收盘位于当根振幅上半区"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 872, "quote": "upper_half = (cl >= lo + 0.5 * (hi - lo))", "must_contain": "cl >= lo + 0.5 * (hi - lo)"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "属方案文本，无批准来源；不是止损类用户决定。"
+    },
+    {
+      "id": "AB-07",
+      "topic": "主动买卖金额定义",
+      "field": "数据源：K 线主动买卖额，而非 metrics parquet",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 133, "quote": "`metrics_feed.py` 的 5m 指标 parquet **只有 ts、没有发布/抓取时点**，按项目 PIT 规则只能是 unproven，不得进决策", "must_contain": "只能是 unproven"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 840, "quote": "tbq = b.get(\"taker_buy_quote_volume\")", "must_contain": "taker_buy_quote_volume"}
+      ],
+      "status": "SPEC_ONLY",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "冷档 available_at 填充率 0% ⇒ 只能声明「计算不超前」，不能声明「已证明当时可得」。"
+    },
+    {
+      "id": "TS-01",
+      "topic": "止损生效时点",
+      "field": "初始止损 = 实际成交价 × 95%",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 25, "quote": "初始止损：实际成交价 × 95%。", "must_contain": "实际成交价 × 95%"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 102, "quote": "初始止损 = 实际成交价 × 95%", "must_contain": "实际成交价 × 95%"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 120, "quote": "_row(\"initial_stop_pct\", 0.05, p.get(\"stoploss_s\"), \"paper_engine.approved_params()\")", "must_contain": "p.get(\"stoploss_s\")"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "唯一一处「用户原话 + 引擎真值对撞」都对得上的止损项。"
+    },
+    {
+      "id": "TS-02",
+      "topic": "止损生效时点",
+      "field": "跟踪候选止损 = 新收盘 4h 最低价 × 95%",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 26, "quote": "入场后每根**该笔入场之后新收盘**的 4 小时 K 线，候选止损＝该根最低价 × 95%", "must_contain": "候选止损＝该根最低价 × 95%"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 103, "quote": "入场后每根**新收盘**的 4h K 线：候选止损 = 该根最低价 × 95%", "must_contain": "该根最低价 × 95%"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1810, "quote": "cand_stop = _round_protect(float(b4[\"low\"]) * (1.0 - trail_d), step)", "must_contain": "float(b4[\"low\"]) * (1.0 - trail_d)"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "用户原话与代码公式一致。"
+    },
+    {
+      "id": "TS-03",
+      "topic": "止损生效时点",
+      "field": "只上移不下移、不得追溯此前行情",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 26, "quote": "实际止损取初始、此前、本次候选三者最高值，只上移、不下移", "must_contain": "只上移、不下移"},
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "quote": "不得用新止损追溯此前行情", "must_contain": "不得用新止损追溯此前行情"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 57, "quote": "4h 收盘，且必须**严格早于**当前 15m 决策时刻", "must_contain": "严格早于"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1811, "quote": "if cand_stop > cur_stop:", "must_contain": "if cand_stop > cur_stop:"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "用户原话直接覆盖「只上移」；「不得追溯」由 eff 门控实现（见 TS-04）。"
+    },
+    {
+      "id": "TS-04",
+      "topic": "止损生效时点",
+      "field": "新止损生效时刻 = 4h 收盘后下一根 15m 开盘",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "quote": "按既有 15 分钟执行规则；确认于 12:00 时，最早 12:15，不回填 12:00", "must_contain": "最早 12:15，不回填 12:00"}
+      ],
+      "user_scope_note": "该原话字面讲的是「确认→成交」的延迟，不是「4h 收盘→止损生效」；后者只有「不得用新止损追溯此前行情」（L27）可作约束，具体 15m 对齐是实现选择。",
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 84, "quote": "`trail_effective_mode`: `\"next_15m_after_4h_close\"`（新止损在 4h 收盘后下一根 15m 生效）", "must_contain": "next_15m_after_4h_close"},
+        {"file": "evidence/ACCUM-EARLY-05-B/README.md", "line": 96, "quote": "生效时刻 = `(4h收盘毫秒 // 900000 + 1) × 900000`", "must_contain": "(4h收盘毫秒 // 900000 + 1) × 900000"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1803, "quote": "eff = c4 if legacy_4h_exit else (c4 // M15 + 1) * M15", "must_contain": "(c4 // M15 + 1) * M15"},
+        {"file": "框架/backend/paper_engine.py", "line": 2583, "quote": "eff_ms = max(dec_ms, ref_close_ms)", "must_contain": "max(dec_ms, ref_close_ms)"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-05",
+      "affects_window2": true,
+      "blocking": true,
+      "blocked_reason": "研究入口用 (c4//900000+1)*900000（下一个 15m 整点）；生产引擎用 max(挂钟, 4h收盘)，paper_loop/unified_runtime 传 decision_at=now。两者公式不同，未证明等价；不得宣称「全链同一生效口径」。",
+      "note": "退出判定仍由 15m bar 的 open/close 门控，effective_at 目前主要用于落库；是否影响真实成交未验证，标 UNVERIFIED，不擅自判为缺陷。"
+    },
+    {
+      "id": "TS-05",
+      "topic": "止损生效时点",
+      "field": "入场当根 4h 线在入场后收盘可用于未来止损",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 28, "quote": "入场当根 4 小时线在入场后收盘，可以用于未来止损；不要求该线开盘时间晚于入场", "must_contain": "不要求该线开盘时间晚于入场"}
+      ],
+      "spec": null,
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1808, "quote": "if c4 <= entry_ts:", "must_contain": "if c4 <= entry_ts:"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "代码用 c4 <= entry_ts 排除「入场前已收盘」的 4h，允许「入场当根 4h 在入场后收盘」参与，与用户原话一致。"
+    },
+    {
+      "id": "TS-06",
+      "topic": "止损生效时点",
+      "field": "不设 2R 启动门槛、不设 10 天强平",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "quote": "不设“盈利到初始风险两倍才启动跟踪”；不设持仓 10 天自动平仓", "must_contain": "不设持仓 10 天自动平仓"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 104, "quote": "入场即开始跟踪（无 2R 门槛）", "must_contain": "无 2R 门槛"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 125, "quote": "_row(\"trailing_trigger_r\", 0.0, 0.0, \"本模块固定（入场即跟踪，不读配置）\")", "must_contain": "不读配置"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "用户原话成立；但代码侧这一行 expected 与 actual 都是字面量 0.0，属自证恒真，见 C-06。"
+    },
+    {
+      "id": "FX-01",
+      "topic": "其他已确定语义与边界",
+      "field": "确认周期 = 1h",
+      "user": null,
+      "user_absent_reason": "《用户要求与决策.md》全文没有「1h」二字；L27 只有「按既有 15 分钟执行规则」「确认于 12:00 时，最早 12:15」。1h 来自冻结包 config.py:21 timeframe_event=\"1h\"，属沿用既有规则，不是用户新批准。",
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 99, "quote": "《用户要求与决策.md》已确认：1h 确认、15m 执行", "must_contain": "已确认：1h 确认、15m 执行"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 42, "quote": "`shared.local_resistance.timeframe` | `\"1h\"` | **用户已定** | 《用户要求与决策》1h 确认", "must_contain": "**用户已定**"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-B/README.md", "line": 84, "quote": "确认周期 | 1h 收盘 | 本模块固定", "must_contain": "本模块固定"}
+      ],
+      "code": [
+        {"file": "策略/WyckoffMaster/event_trend_v0_1/config.py", "line": 21, "quote": "timeframe_event: str = \"1h\"        # 1h 事件推动", "must_contain": "timeframe_event: str = \"1h\""}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-01",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "两处把 1h 标成「用户已确认」，但用户文档无此原话 ⇒ 归因错误。1h 可继续作为沿用值使用（与冻结包一致），但不得作为「用户已定」引用，也不得据它拒绝重新讨论确认周期。",
+      "note": "这正是「没有原始批准来源的字段不得补为已批」的实例。"
+    },
+    {
+      "id": "FX-02",
+      "topic": "其他已确定语义与边界",
+      "field": "执行周期 = 15m",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "quote": "按既有 15 分钟执行规则", "must_contain": "15 分钟执行规则"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 100, "quote": "成交与止损撮合在 15m 上做", "must_contain": "15m 上做"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 116, "quote": "_row(\"execution_timeframe\", \"15m\", \"15m\", \"本模块固定（15m 撮合）\")", "must_contain": "\"15m\", \"15m\""}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "用户原话覆盖「15 分钟执行」；但代码这一行同样是自证恒真（见 C-06）。"
+    },
+    {
+      "id": "FX-03",
+      "topic": "其他已确定语义与边界",
+      "field": "确认→成交延迟 = 15 分钟，不回填",
+      "user": [
+        {"file": "docs/用户约定/用户要求与决策.md", "line": 27, "quote": "确认于 12:00 时，最早 12:15，不回填 12:00", "must_contain": "最早 12:15，不回填 12:00"}
+      ],
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 101, "quote": "确认后取**严格更晚**的下一根 15m 开盘成交（12:00 确认 ⇒ 12:15）", "must_contain": "严格更晚"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 117, "quote": "_row(\"entry_delay_minutes\", 15, p.get(\"signal_execution_delay_minutes\")", "must_contain": "p.get(\"signal_execution_delay_minutes\")"}
+      ],
+      "status": "USER_DECIDED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "用户原话 + 引擎真值对撞，是本单少数「真对撞」项之一。"
+    },
+    {
+      "id": "FX-04",
+      "topic": "其他已确定语义与边界",
+      "field": "手续费 5bps（单边）",
+      "user": null,
+      "user_absent_reason": "用户文档未提手续费",
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 106, "quote": "单边手续费 5bps | 两套口径一致（策略包与生效视图都是 5bps）", "must_contain": "两套口径一致"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/01_旧表到新表的纠错清单.md", "line": 16, "quote": "5bps 手续费属于**基线默认值（待确认）**", "must_contain": "基线默认值（待确认）"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 122, "quote": "_row(\"taker_fee_bps\", 5.0,", "must_contain": "\"taker_fee_bps\", 5.0"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-07",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "04-A 把「两套文件一致」当「已确定」；05-A-R1 纠错清单明确要求降为「基线默认值（待确认）」。二者互斥，该项的「已批准」资格撤销。",
+      "note": "5bps 不在 49 个配置字段里，是 check_fixed_rules 的硬编码期望值 ⇒ 若用户批不同费率，无法通过配置改，只能改代码。"
+    },
+    {
+      "id": "FX-05",
+      "topic": "其他已确定语义与边界",
+      "field": "重复候选冷却 24 小时",
+      "user": null,
+      "user_absent_reason": "用户文档未提冷却",
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 65, "quote": "`shared.repeat_candidate_limit.cooldown_hours` | `24` | **建议沿用** | 冻结规则 24h 平移", "must_contain": "**建议沿用**"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-E-R1/README.md", "line": 190, "quote": "将 `repeat_candidate_limit.cooldown_hours` 恢复为 24，避免未批准扫描测试时冗余膨胀", "must_contain": "恢复为 24"},
+        {"file": "docs/派工_ACCUM-EARLY-06_六窗口十二单_2026-10-27.md", "line": 10, "quote": "24小时冷却是建议沿用值，不能写成用户批准", "must_contain": "不能写成用户批准"}
+      ],
+      "code": [
+        {"file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json", "line": 0, "quote": "\"cooldown_hours\": 0", "must_contain": "\"cooldown_hours\": 0", "line_search": true},
+        {"file": "框架/backend/accum_early_entry.py", "line": 1907, "quote": "repeat_candidate_limit 未批准 ⇒ 冷却不生效（不编造）", "must_contain": "冷却不生效"}
+      ],
+      "status": "INHERITED_UNRATIFIED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "05-E-R1 §7.2 的「恢复 24」是执行方建议，不得升级为规定；fixture 现为 0 且代码显式记 cooldown_not_applied。正式值待用户裁决。"
+    },
+    {
+      "id": "FX-06",
+      "topic": "其他已确定语义与边界",
+      "field": "滑点 3bps / 5bps（两套并列，不择一）",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 62, "quote": "策略包 3bps / 生效视图 5bps", "must_contain": "策略包 3bps / 生效视图 5bps"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 68, "quote": "`conflict_resolution.slippage_source`", "must_contain": "slippage_source"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/paper_engine.py", "line": 288, "quote": "\"fee_each_side\": 0.0005, \"slippage_each_side\": 0.0005,", "must_contain": "\"slippage_each_side\": 0.0005"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-08",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "两份文件两个值，无批准依据；配置必须显式指名并与引擎实际一致，否则 economic_caliber_declared_mismatch 阻塞。不得静默混搭。",
+      "note": "引擎生效视图当前为 5bps（FALLBACK 与 approved_params 一致）。"
+    },
+    {
+      "id": "FX-07",
+      "topic": "其他已确定语义与边界",
+      "field": "本金与仓位（2000/3仓/30% vs 5000/10仓/10%）",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 63, "quote": "2000/3仓/30% / 5000/10仓/10%", "must_contain": "2000/3仓/30%"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/paper_engine.py", "line": 291, "quote": "\"initial_equity_USDT\": 5000.0, \"risk_per_trade_equity_fraction\": 0.005,", "must_contain": "5000.0"},
+        {"file": "框架/backend/paper_engine.py", "line": 292, "quote": "\"max_positions\": 10, \"single_name_notional_equity_cap\": 0.1,", "must_contain": "\"max_positions\": 10"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-08",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "两套风控互斥；用户文档 L32 明确「最大仓位存在 3／10 等互相冲突的记录，未查清来源前均不得当成用户批准」。",
+      "note": "引擎生效视图为 5000/10仓/10%。"
+    },
+    {
+      "id": "FX-08",
+      "topic": "其他已确定语义与边界",
+      "field": "参与率上限 0.1% / 1.0%",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/03_决策表.md", "line": 64, "quote": "0.1% / 1%", "must_contain": "0.1% / 1%"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/paper_engine.py", "line": 299, "quote": "\"entry_participation_previous_15m_quote_cap\": 0.01,", "must_contain": "0.01"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-08",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "两套值互斥，无批准依据；影响小币种能否成交。",
+      "note": "引擎生效视图为 1.0%。"
+    },
+    {
+      "id": "FX-09",
+      "topic": "其他已确定语义与边界",
+      "field": "跳空止损成交模型 stop_price / bar_open / midpoint",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 67, "quote": "`exit.gap_model` | `\"bar_open\"`（推荐）/ `\"stop_price\"` | **待确认<br>(核心决策 5)**", "must_contain": "**待确认"}
+      ],
+      "executor": null,
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 209, "quote": "\"exit.gap_model\": {\"stop_price\", \"bar_open\", \"midpoint\"},", "must_contain": "{\"stop_price\", \"bar_open\", \"midpoint\"}"},
+        {"file": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json", "line": 0, "quote": "\"gap_model\": \"stop_price\"", "must_contain": "\"gap_model\": \"stop_price\"", "line_search": true}
+      ],
+      "status": "PROPOSED",
+      "affects_window2": false,
+      "blocking": true,
+      "blocked_reason": "三档均未批准；fixture 用 stop_price（引擎现行），bar_open 只是推荐。",
+      "note": "改它会改盈亏口径。"
+    },
+    {
+      "id": "FX-10",
+      "topic": "其他已确定语义与边界",
+      "field": "观察期 336 小时 / 结构失效 2 根与 0.5A",
+      "user": null,
+      "spec": [
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 143, "quote": "沿用原策略 336 小时（14 天）的总期限", "must_contain": "336 小时（14 天）"},
+        {"file": "evidence/ACCUM-EARLY-04-A/02_规则接口.md", "line": 144, "quote": "连续 2 根 1h 收盘 < 箱体下沿 L ⇒ 失效（沿用原策略）", "must_contain": "连续 2 根 1h 收盘"}
+      ],
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 57, "quote": "`shared.invalidate.close_below_l_bars` | `2` | **建议沿用**", "must_contain": "**建议沿用**"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 1072, "quote": "if n_need > 0 and self.below_l_count >= n_need:", "must_contain": "self.below_l_count >= n_need"}
+      ],
+      "status": "INHERITED_UNRATIFIED",
+      "affects_window2": false,
+      "blocking": false,
+      "note": "沿用冻结规则，未获新批准；不阻塞窗口二（不改）。"
+    },
+    {
+      "id": "FX-11",
+      "topic": "其他已确定语义与边界",
+      "field": "「已确定语义逐项对撞」这一结论本身",
+      "user": null,
+      "spec": null,
+      "executor": [
+        {"file": "evidence/ACCUM-EARLY-05-B/README.md", "line": 19, "quote": "已确定的 8 条语义 + 1 条时序语义，全部与引擎生效视图逐项对撞通过", "must_contain": "全部与引擎生效视图逐项对撞通过"},
+        {"file": "evidence/ACCUM-EARLY-05-A-R1/03_完整方案参数附件表.md", "line": 76, "quote": "由 `accum_early_entry.py::check_fixed_rules()` 进行逐项断言，若与生效视图不符直接拒绝开仓", "must_contain": "逐项断言"}
+      ],
+      "code": [
+        {"file": "框架/backend/accum_early_entry.py", "line": 115, "quote": "_row(\"confirm_timeframe\", \"1h\", \"1h\", \"本模块固定（1h 收盘确认）\")", "must_contain": "\"1h\", \"1h\""},
+        {"file": "框架/backend/accum_early_entry.py", "line": 127, "quote": "_row(\"trail_effective_mode\", TRAIL_EFFECTIVE_MODE, TRAIL_EFFECTIVE_MODE,", "must_contain": "TRAIL_EFFECTIVE_MODE, TRAIL_EFFECTIVE_MODE"}
+      ],
+      "status": "CONFLICT",
+      "conflict_id": "C-06",
+      "affects_window2": true,
+      "blocking": true,
+      "blocked_reason": "check_fixed_rules() 共 9 行，只有 4 行真的读 approved_params()（entry_delay / initial_stop / trailing_low / fee）；其余 5 行（confirm_timeframe、execution_timeframe、trailing_trigger_r、max_holding_days、trail_effective_mode）expected 与 actual 是同一个字面量或同一个常量 ⇒ 恒真，不构成对撞。",
+      "note": "这是「判据恒真」类缺陷，不是策略参数问题；窗口二若声称「已确定语义已对撞」必须改口径或补真对撞。"
+    }
+  ],
+  "conflicts": [
+    {"id": "C-01", "item": "确认周期 1h 的来源归因", "type": "归因错误", "a": "04-A/02_规则接口.md:99、05-A-R1/03:42 写「用户已确认 1h」", "b": "《用户要求与决策.md》全文无「1h」；仅冻结包 config.py:21 timeframe_event=\"1h\"", "blocked": "该项「用户已定」资格撤销；1h 降为沿用值", "does_not_block": "窗口二不改确认周期，可继续施工"},
+    {"id": "C-02", "item": "承接不达标时停在哪一步", "type": "行为口径分歧", "a": "04-A:28/137「不满足不进 ARMED」", "b": "代码 :1024 与 05-E-R1:188「不满足不进 SWEEP」", "blocked": "该项；不得声称代码与方案文本等价", "does_not_block": "「承接必须在扫低根判定」这一条本身无冲突"},
+    {"id": "C-03", "item": "multi_bar 下扫低根的取法", "type": "依据缺失", "a": "04-A 只定义 single_bar", "b": "代码按窗口最低价取并标 unverified", "blocked": "multi_bar 档", "does_not_block": "single_bar 档（默认、已批准白名单内）"},
+    {"id": "C-04", "item": "局部压制位窗口用扫低根还是确认根", "type": "同类时序缺陷未修", "a": "04-A/README.md:52「扫低根之前 48 根」", "b": "代码 :1089 传确认根 i；06-W2 已证 103.9 vs 105.0", "blocked": "该项（窗口二范围外，需单独立项）", "does_not_block": "承接时序修正本身"},
+    {"id": "C-05", "item": "跟踪止损生效时刻公式", "type": "实现分歧/未证等价", "a": "研究入口 (c4//M15+1)*M15", "b": "生产引擎 max(dec_ms, ref_close_ms)，调用方传 now", "blocked": "「全链同一生效口径」这一结论", "does_not_block": "用户决定「只上移、不追溯」的执行"},
+    {"id": "C-06", "item": "check_fixed_rules 的 5 行恒真", "type": "判据恒真", "a": "05-B:19/94 称 9 项逐项对撞", "b": "代码 :115/:116/:125/:126/:127 expected==actual", "blocked": "「已确定语义已逐项对撞」的结论", "does_not_block": "4 行真对撞项（延迟/初始止损/跟踪幅度/手续费）"},
+    {"id": "C-07", "item": "手续费 5bps 是否已定", "type": "定性冲突", "a": "04-A:106 归入「已确定（两套一致）」", "b": "05-A-R1 纠错清单:16 要求降为「基线默认值（待确认）」", "blocked": "该项「已批准」资格", "does_not_block": "窗口二不改费率"},
+    {"id": "C-08", "item": "经济口径三冲突（滑点/风控/参与率）", "type": "两套值并列", "a": "策略包 3bps / 2000U·3仓·30% / 0.1%", "b": "生效视图 5bps / 5000U·10仓·10% / 1.0%", "blocked": "该项；必须显式指名并与引擎一致", "does_not_block": "研究侧用 R 倍数绕开的工作"}
+  ],
+  "forbidden_phrasings": [
+    "「用户已确认 1h 确认」——用户文档无此原话，只能写「沿用冻结包 config.py:21」",
+    "「承接倍率 1.0 已定」——规范里有承接要求，不代表倍率获批",
+    "「冷却 24 小时是规定」——05-E-R1 的建议不得升级为规定；派工单明写不能写成用户批准",
+    "「已确定 9 项全部逐项对撞」——实际只有 4 项读引擎真值",
+    "「手续费 5bps 已批准」——两套文件一致不等于批准",
+    "「承接时序已验收通过」——06-03 是执行方自报，待 06-09/06-10 独立复验"
+  ],
+  "window2_basis_check": {
+    "source": "evidence/ACCUM-EARLY-06-W2/01/README.md §5 五处编辑 + §8 范围外缺陷",
+    "items": [
+      {"edit": "E1 _absorption detail 增加 bar_open_ms/bar_close_ms", "basis": "AB-01（判哪一根须可解释）；工单 06-03 第 3 条", "found": true},
+      {"edit": "E2 __init__ 新增 sweep_i/sweep_bar_ms/sweep_baseline_window/sweep_absorption", "basis": "SW-01、SW-02", "found": true},
+      {"edit": "E3 BOX→SWEEP 时按 scope 最低价定位扫低根并求值一次", "basis": "SW-01、SW-05；multi_bar 部分见 C-03（阻塞）", "found": true},
+      {"edit": "E4 _confirm_actions 删除 _absorption，缺失则 DATA_INSUFFICIENT", "basis": "SW-04；SW-01", "found": true},
+      {"edit": "E5 失败原因文案改为「扫低根无法判定」", "basis": "SW-01", "found": true},
+      {"edit": "未修：_resistance 传确认根", "basis": "SW-07 → C-04 阻塞该项", "found": false, "blocked": true}
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+ "spec_qualification_counts": {
+  "unverified_historical": 212,
+  "contradicted": 13,
+  "not_listed": 2
+ },
+ "exec_validity_counts": {
+  "valid": 227
+ },
+ "research_usability_counts": {
+  "usable_with_caveat": 227
+ },
+ "not_usable_count": 0
+}
+{"formula": "net_pnl = gross_pnl − fee_paid − funding_cost", "checked": 205, "ok_within_1e-9": 205, "violated": 0, "max_abs_residual": 2.842170943040401e-14}
+{"principle": "滑点与取整已经写进成交价（entry_price / exit_price 都是取整后的最终价），所以 net_pnl 里只减 fees 与 funding，不再单独减 slippage", "entry_price_equals_post_round_audit_price": 205, "exit_price_equals_post_round_audit_price": 205, "entry_slippage_moved_price": 205, "exit_slippage_moved_price": 205, "chain_rule": "raw_price → post_slip_price（滑点）→ post_round_price（取整）= 成交价；成交价已含滑点与取整，故 net_pnl 只再减 fees 与 funding", "filled_with_slippage_recorded": 205, "counterfactual_if_slippage_deducted_again_usdt": 9.519034, "counterfactual_note": "把 slippage 再减一次会让全样本净盈亏额外少这么多 USDT，即重复扣减的量级；本轮没有扣"}
+{"convention": "正=支出（付资金费），负=收入（收资金费）", "filled_with_positive_cost": 152, "filled_with_negative_income": 53, "net_sum": 101.531971, "gross_sum": 121.635348, "fee_sum": 13.125871, "funding_sum": 6.977506, "sum_check": 101.531971}

@@ -1,0 +1,329 @@
+{
+  "timestamp_utc": "2026-10-26T15:54:57Z",
+  "config_used": "evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json",
+  "cases_retest": [
+    {
+      "case_index": 1,
+      "symbol": "SOLUSDT",
+      "scheme": "4a",
+      "old_event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-08-02T02:59:59Z",
+      "current_event_id": "ev_4a_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1785556799999,
+          "time_utc": "2026-08-01T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1785603599999,
+          "time_utc": "2026-08-01T16:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+          "at_ms": 1785610799999,
+          "time_utc": "2026-08-01T18:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "rule": "shared.sweep_reference.must_be_above_box_low = true",
+          "finding": "箱体下沿 low_l 为 72.26，在 2026-08-02 扫低点计算所得 ref 恰为 72.26。因 ref <= low_l，05-B 正确阻断扫低成立，事件合法停留在 BOX 阶段或终结，不再冒充为提前入场候选！",
+          "status": "PROVEN_STRICT_OBEDIENCE"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "rule": "local_resistance=swing_high_k3_lookback48, resistance_qualify.min_gap_atr=0.5",
+          "finding": "因扫低未成立，未推进至压制位武装阶段；在单测中已证明合格性校验与摆动高点生效"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "当前 05-B 代码中 _absorption 仍在确认根调用，时序错位依然存在（见脚本 01 和 03 专项证明）"
+        }
+      }
+    },
+    {
+      "case_index": 2,
+      "symbol": "SOLUSDT",
+      "scheme": "4b",
+      "old_event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-08-02T03:59:59Z",
+      "current_event_id": "ev_4b_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1785556799999,
+          "time_utc": "2026-08-01T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1785603599999,
+          "time_utc": "2026-08-01T16:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+          "at_ms": 1785610799999,
+          "time_utc": "2026-08-01T18:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "rule": "shared.sweep_reference.must_be_above_box_low = true",
+          "finding": "箱体下沿 low_l 为 72.26，在 2026-08-02 扫低点计算所得 ref 恰为 72.26。因 ref <= low_l，05-B 正确阻断扫低成立，事件合法停留在 BOX 阶段或终结，不再冒充为提前入场候选！",
+          "status": "PROVEN_STRICT_OBEDIENCE"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "rule": "local_resistance=swing_high_k3_lookback48, resistance_qualify.min_gap_atr=0.5",
+          "finding": "因扫低未成立，未推进至压制位武装阶段；在单测中已证明合格性校验与摆动高点生效"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "当前 05-B 代码中 _absorption 仍在确认根调用，时序错位依然存在（见脚本 01 和 03 专项证明）"
+        }
+      }
+    },
+    {
+      "case_index": 3,
+      "symbol": "SOLUSDT",
+      "scheme": "4c",
+      "old_event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-08-02T03:59:59Z",
+      "current_event_id": "ev_4c_binance_SOLUSDT_box_SOLUSDT_1785556799999_1785556799999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1785556799999,
+          "time_utc": "2026-08-01T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1785603599999,
+          "time_utc": "2026-08-01T16:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 72.26 ⇒ 失效",
+          "at_ms": 1785610799999,
+          "time_utc": "2026-08-01T18:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "rule": "shared.sweep_reference.must_be_above_box_low = true",
+          "finding": "箱体下沿 low_l 为 72.26，在 2026-08-02 扫低点计算所得 ref 恰为 72.26。因 ref <= low_l，05-B 正确阻断扫低成立，事件合法停留在 BOX 阶段或终结，不再冒充为提前入场候选！",
+          "status": "PROVEN_STRICT_OBEDIENCE"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "rule": "local_resistance=swing_high_k3_lookback48, resistance_qualify.min_gap_atr=0.5",
+          "finding": "因扫低未成立，未推进至压制位武装阶段；在单测中已证明合格性校验与摆动高点生效"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "当前 05-B 代码中 _absorption 仍在确认根调用，时序错位依然存在（见脚本 01 和 03 专项证明）"
+        }
+      }
+    },
+    {
+      "case_index": 4,
+      "symbol": "AVAXUSDT",
+      "scheme": "4a",
+      "old_event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-09-14T11:59:59Z",
+      "current_event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1789185599999,
+          "time_utc": "2026-09-12T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1789293599999,
+          "time_utc": "2026-09-13T09:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+          "at_ms": 1789520399999,
+          "time_utc": "2026-09-16T00:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "finding": "AVAXUSDT 箱体下沿校验与局部支撑扫描行为"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "finding": "AVAXUSDT 历史行情下 swing_high 与空间合格性判定"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "承接门槛在开启状态下的判定影响"
+        }
+      }
+    },
+    {
+      "case_index": 5,
+      "symbol": "AVAXUSDT",
+      "scheme": "4b",
+      "old_event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-09-14T12:59:59Z",
+      "current_event_id": "ev_4b_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1789185599999,
+          "time_utc": "2026-09-12T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1789293599999,
+          "time_utc": "2026-09-13T09:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+          "at_ms": 1789520399999,
+          "time_utc": "2026-09-16T00:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "finding": "AVAXUSDT 箱体下沿校验与局部支撑扫描行为"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "finding": "AVAXUSDT 历史行情下 swing_high 与空间合格性判定"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "承接门槛在开启状态下的判定影响"
+        }
+      }
+    },
+    {
+      "case_index": 6,
+      "symbol": "AVAXUSDT",
+      "scheme": "4c",
+      "old_event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-09-14T13:59:59Z",
+      "current_event_id": "ev_4c_binance_AVAXUSDT_box_AVAXUSDT_1789185599999_1789185599999",
+      "current_state": "INVALIDATED",
+      "candidate_produced": false,
+      "current_transitions": [
+        {
+          "from_state": null,
+          "to_state": "BOX",
+          "reason": "事件建档（初始锚点冻结）",
+          "at_ms": 1789185599999,
+          "time_utc": "2026-09-12T03:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "SWEEP",
+          "reason": "扫低收回成立",
+          "at_ms": 1789293599999,
+          "time_utc": "2026-09-13T09:59:59Z"
+        },
+        {
+          "from_state": "SWEEP",
+          "to_state": "INVALIDATED",
+          "reason": "连续 2 根 1h 收盘跌破箱体下沿 7.27 ⇒ 失效",
+          "at_ms": 1789520399999,
+          "time_utc": "2026-09-16T00:59:59Z"
+        }
+      ],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "finding": "AVAXUSDT 箱体下沿校验与局部支撑扫描行为"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "finding": "AVAXUSDT 历史行情下 swing_high 与空间合格性判定"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "承接门槛在开启状态下的判定影响"
+        }
+      }
+    },
+    {
+      "case_index": 7,
+      "symbol": "AVAXUSDT",
+      "scheme": "4a",
+      "old_event_id": "ev_4a_binance_AVAXUSDT_box_AVAXUSDT_1789473599999_1789473599999",
+      "old_04_status": "WAIT_ENTRY",
+      "old_04_confirm_time": "2026-09-16T20:59:59Z",
+      "current_event_id": null,
+      "current_state": "NOT_FOUND",
+      "candidate_produced": false,
+      "current_transitions": [],
+      "rule_behavior_verification": {
+        "sweep_box_low_constraint": {
+          "tested": true,
+          "finding": "AVAXUSDT 箱体下沿校验与局部支撑扫描行为"
+        },
+        "local_resistance_and_qualify": {
+          "tested": true,
+          "finding": "AVAXUSDT 历史行情下 swing_high 与空间合格性判定"
+        },
+        "absorption_timing": {
+          "tested": true,
+          "finding": "承接门槛在开启状态下的判定影响"
+        }
+      }
+    }
+  ]
+}

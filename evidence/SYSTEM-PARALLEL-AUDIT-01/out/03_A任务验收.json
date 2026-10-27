@@ -1,0 +1,241 @@
+{
+ "生成时刻": "2026-10-23T13:42:49+08:00",
+ "用途": "A 任务独立验收：本金真实生效 / 已有账户不重置 / 缺配置拒新单不阻断退出",
+ "边界": "只读业务代码；全部在 /tmp/wx_a_task 隔离环境；子进程保证模块常量正确",
+ "隔离方式": "每个场景独立子进程，环境变量在 import 前注入（LEDGER_DIR 是模块级常量）",
+ "文件SHA": {
+  "框架/backend/live_store.py": {
+   "sha256": "b19ea830aeb736e8e1247f0d059970764f34234f9526cabdf042bd764a9d1084",
+   "bytes": 42403,
+   "mtime": "2026-10-23 12:19:59"
+  },
+  "框架/backend/paper_engine.py": {
+   "sha256": "3cc2c06583add471e97cc8ae2f630d1724d1bd4704aa7d627be924ab9d5c68fa",
+   "bytes": 140147,
+   "mtime": "2026-10-23 12:08:04"
+  },
+  "框架/backend/strategy_contracts.py": {
+   "sha256": "d0143f19d03b87b5c60442e8af46ce789a81ca40114d043241def1262ba5ea46",
+   "bytes": 19802,
+   "mtime": "2026-10-23 11:59:56"
+  },
+  "框架/backend/strategies/wx_execution.py": {
+   "sha256": "2e652550949e701920290c3992eea08791feccf315c353090b931a560d8dd2fd",
+   "bytes": 176653,
+   "mtime": "2026-10-23 10:13:46"
+  },
+  "框架/backend/live_api.py": {
+   "sha256": "652948fc9742593f499ab6445b566c7d6b93fb0f5af51ab666c19ee7c47cd429",
+   "bytes": 107086,
+   "mtime": "2026-10-23 10:17:16"
+  }
+ },
+ "污染自查": {
+  "生产账本目录": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+  "文件": [
+   {
+    "name": "paper_3a.sqlite3",
+    "bytes": 163840,
+    "mtime": "2026-10-23 10:54:23"
+   },
+   {
+    "name": "paper_3b.sqlite3",
+    "bytes": 163840,
+    "mtime": "2026-10-23 11:13:44"
+   },
+   {
+    "name": "paper_3c.sqlite3",
+    "bytes": 163840,
+    "mtime": "2026-10-23 11:13:44"
+   },
+   {
+    "name": "paper_3d.sqlite3",
+    "bytes": 163840,
+    "mtime": "2026-10-23 11:13:44"
+   }
+  ],
+  "探针痕迹": [],
+  "判定": "未污染"
+ },
+ "场景": {
+  "A1_本金真实生效": [
+   {
+    "场景": "A1_eq_2000",
+    "视图本金": 2000.0,
+    "LEDGER_DIR": "/private/tmp/wx_a_task/a1_2000/paper",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 2000.0,
+    "_config_valid": true,
+    "approved_initial_equity_USDT": 2000.0,
+    "approved_stoploss_s": 0.05,
+    "account_view.initial_equity": 2000.0,
+    "account_view.cash": 2000.0,
+    "equity().equity": 2000.0,
+    "equity().initial_equity": 2000.0,
+    "open_ok": true,
+    "open_reason": "filled",
+    "bar_open_time": 1792730700000,
+    "落库持仓数": 1,
+    "落库qty": 1.96,
+    "落库entry": 100.10000000000001,
+    "落库stop": 95.0,
+    "预算_视图x0.005": 10.0,
+    "判定_equity随视图变": true,
+    "判定_account_view随视图变": true,
+    "期望qty_预算除stop_dist": 1.960784,
+    "判定_qty按视图预算": true
+   },
+   {
+    "场景": "A1_eq_5000",
+    "视图本金": 5000.0,
+    "LEDGER_DIR": "/private/tmp/wx_a_task/a1_5000/paper",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 5000.0,
+    "_config_valid": true,
+    "approved_initial_equity_USDT": 5000.0,
+    "approved_stoploss_s": 0.05,
+    "account_view.initial_equity": 5000.0,
+    "account_view.cash": 5000.0,
+    "equity().equity": 5000.0,
+    "equity().initial_equity": 5000.0,
+    "open_ok": true,
+    "open_reason": "filled",
+    "bar_open_time": 1792730700000,
+    "落库持仓数": 1,
+    "落库qty": 4.901,
+    "落库entry": 100.10000000000001,
+    "落库stop": 95.0,
+    "预算_视图x0.005": 25.0,
+    "判定_equity随视图变": true,
+    "判定_account_view随视图变": true,
+    "期望qty_预算除stop_dist": 4.901961,
+    "判定_qty按视图预算": true
+   },
+   {
+    "场景": "A1_eq_20000",
+    "视图本金": 20000.0,
+    "LEDGER_DIR": "/private/tmp/wx_a_task/a1_20000/paper",
+    "INIT_EQUITY": 5000.0,
+    "get_configured_initial_equity": 20000.0,
+    "_config_valid": true,
+    "approved_initial_equity_USDT": 20000.0,
+    "approved_stoploss_s": 0.05,
+    "account_view.initial_equity": 20000.0,
+    "account_view.cash": 20000.0,
+    "equity().equity": 20000.0,
+    "equity().initial_equity": 20000.0,
+    "open_ok": true,
+    "open_reason": "filled",
+    "bar_open_time": 1792730700000,
+    "落库持仓数": 1,
+    "落库qty": 19.607,
+    "落库entry": 100.10000000000001,
+    "落库stop": 95.0,
+    "预算_视图x0.005": 100.0,
+    "判定_equity随视图变": true,
+    "判定_account_view随视图变": true,
+    "期望qty_预算除stop_dist": 19.607843,
+    "判定_qty按视图预算": true
+   }
+  ],
+  "A1_结论": "通过",
+  "A2_已有账户不重置": {
+   "步骤": [
+    {
+     "阶段": "① 用 5000 建账并开仓",
+     "open_ok": true,
+     "open_reason": "filled",
+     "持仓数": 1,
+     "account_view.initial_equity": 5000.0,
+     "account_view.cash": 5000.0,
+     "equity": 5000.0,
+     "LEDGER_DIR": "/private/tmp/wx_a_task/a2/paper"
+    },
+    {
+     "阶段": "② 视图切 20000，同一账本",
+     "LEDGER_DIR": "/private/tmp/wx_a_task/a2/paper",
+     "approved_initial_equity_USDT": 20000.0,
+     "get_configured_initial_equity": 20000.0,
+     "account_view.initial_equity": 5000.0,
+     "account_view.cash": 5000.0,
+     "equity": 5000.0,
+     "身份核对": {
+      "raised": true,
+      "type": "LedgerIdentityMismatch",
+      "msg": "配置与已有账本身份冲突：当前配置初始本金为 20000.0 USDT，但已有账本 /private/tmp/wx_a_task/a2/paper/paper_3a.sqlite3 记录为 5000.0 USDT。已有账户不得被重新注资或重置余额，已严格拦截，等待迁移方案。"
+     }
+    }
+   ],
+   "判定_账户未被改写": true,
+   "判定_未注资": true,
+   "判定_身份核对拒绝": true,
+   "判定_合计": true
+  },
+  "A2_结论": "通过",
+  "A3_缺配置拒新单不阻断退出": {
+   "场景": "A3",
+   "LEDGER_DIR": "/private/tmp/wx_a_task/a3/paper",
+   "approved_params": {
+    "_config_valid": false,
+    "_config_error": "config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_a_task/a3/view_absent.json",
+    "_source": "missing",
+    "stoploss_s": null,
+    "trail_d": null,
+    "initial_equity_USDT": 5000.0
+   },
+   "开新单": {
+    "ok": false,
+    "reason": "rejected_by_config_contract: config_file_not_found: 配置文件不存在于指定路径: /tmp/wx_a_task/a3/view_absent.json"
+   },
+   "判定_拒新单": true,
+   "持仓数": 1,
+   "平仓": {
+    "ok": "True",
+    "reason": "closed",
+    "position_id": "1",
+    "order_id": "3",
+    "symbol": "BTCUSDT",
+    "exit_price": "109.94500000000001",
+    "raw_price": "110.0",
+    "qty": "4.901",
+    "gross_pnl": "48.250344999999996",
+    "entry_fee": "0.24529505000000001",
+    "exit_fee": "0.26942022250000003",
+    "funding_paid": "0.0",
+    "funding_paid_this_close": "0.0",
+    "n_funding_events": "0",
+    "n_funding_events_this_close": "0",
+    "funding_events": "[]",
+    "funding_gaps": "[]",
+    "amount_sign_convention": "expense_positive",
+    "net_pnl": "47.73562972749999",
+    "entry_ts": "1792730700000",
+    "exit_ts": "1792731600000",
+    "exit_reason": "audit_force_exit",
+    "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+    "ledger_model_version": "paper_exec_v1_legacy_retired_in_work04b",
+    "market_source": "binance.um.candles_15m.is_closed.open"
+   },
+   "平仓后剩余持仓": 0,
+   "判定_退出不阻断": true,
+   "备料": {
+    "备料开仓": {
+     "ok": true,
+     "reason": "filled"
+    },
+    "持仓数": 1,
+    "LEDGER_DIR": "/private/tmp/wx_a_task/a3/paper"
+   },
+   "缺配置路径": "/tmp/wx_a_task/a3/view_absent.json",
+   "缺配置路径存在": false
+  },
+  "A3_结论": "通过"
+ },
+ "A任务总判定": {
+  "A1_本金真实生效": "通过",
+  "A2_已有账户不重置": "通过",
+  "A3_缺配置拒新单不阻断退出": "通过",
+  "合计": "通过",
+  "说明": "任一子项不通过即整体不通过；不得把局部通过升级为系统通过"
+ }
+}

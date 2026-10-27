@@ -1,0 +1,280 @@
+{
+  "mode": "read_only",
+  "account_id": null,
+  "run_id": null,
+  "strategy_version": "F_WX_v2.2_project_closure_user_5000_shared",
+  "rule_version": "F_WX_v2.2_project_closure_user_5000_shared",
+  "param_hash": null,
+  "data_version": null,
+  "as_of": null,
+  "quality": {
+    "status": "down",
+    "age_seconds": null,
+    "worker_status": "down",
+    "worker_ttl_seconds": 2250.0,
+    "worker_down_after_seconds": 5400.0,
+    "worker_interval_seconds": 900,
+    "heartbeats": {
+      "signal_engine": {
+        "heartbeat_utc": null,
+        "age_seconds": null
+      },
+      "account_reader": {
+        "heartbeat_utc": null,
+        "age_seconds": null
+      }
+    },
+    "ledger_available": true,
+    "ledger_source": {
+      "kind": "paper_ledger",
+      "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+      "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+      "manifest_present": false,
+      "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+      "allow_init": false,
+      "all_present": true,
+      "any_present": true,
+      "arms": {
+        "3a": {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+          "exists": true,
+          "sha256": "1a9a2d8291f3bcdc97afceadc1e98a434ffb98f9e25ecd095320c524498c9933",
+          "rows": {
+            "paper_position": 3,
+            "paper_fill": 6,
+            "paper_funding": 0,
+            "paper_equity": 6,
+            "paper_realized": 3,
+            "paper_order": 3,
+            "paper_state": 1
+          },
+          "open_nonvoid": 0,
+          "identity": {
+            "account_id": "paper43_3a",
+            "initial_equity": null,
+            "spec_version": null
+          },
+          "readable": true
+        },
+        "3b": {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+          "exists": true,
+          "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+          "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_funding": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+          },
+          "open_nonvoid": 0,
+          "identity": {
+            "account_id": "paper43_3b",
+            "initial_equity": null,
+            "spec_version": null
+          },
+          "readable": true
+        },
+        "3c": {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+          "exists": true,
+          "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+          "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_funding": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+          },
+          "open_nonvoid": 0,
+          "identity": {
+            "account_id": "paper43_3c",
+            "initial_equity": null,
+            "spec_version": null
+          },
+          "readable": true
+        },
+        "3d": {
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+          "exists": true,
+          "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+          "rows": {
+            "paper_position": 0,
+            "paper_fill": 0,
+            "paper_funding": 0,
+            "paper_equity": 0,
+            "paper_realized": 0,
+            "paper_order": 0,
+            "paper_state": 1
+          },
+          "open_nonvoid": 0,
+          "identity": {
+            "account_id": "paper43_3d",
+            "initial_equity": null,
+            "spec_version": null
+          },
+          "readable": true
+        }
+      }
+    },
+    "market_collector_note": "市场采集进程与策略 worker 是**两个**进程；前者活跃不代表后者在跑。",
+    "strategy_core": "WX_EVENT_TREND_V0_1",
+    "new_core_wired": false,
+    "paper_live": {
+      "new_core": "WX_EVENT_TREND_V0_1",
+      "paper": {
+        "connected": true,
+        "status": "ok",
+        "reason": "Paper 模拟实盘已接通新共享核心（WX_EVENT_TREND_V0_1 / 共享 TradingCore 执行核心）"
+      },
+      "live": {
+        "connected": false,
+        "status": "not_connected",
+        "reason": "Live 尚未配置真实交易所交易密钥，保持只读安全熔断"
+      },
+      "note": "Paper 模拟实盘已就绪；支持实时信号开平仓与开始/暂停控制。"
+    },
+    "retired_strategy_keys": [
+      "3a",
+      "3b",
+      "3c",
+      "3d",
+      "A",
+      "B",
+      "wx_oi_resonance_v1",
+      "WX_OI_RESONANCE_V1"
+    ],
+    "note": "无 worker 心跳（live_run:signal_engine_state/account_state 均缺失）；**新共享核心未接线**（Live 仍为旧 3a–3d 链路，已退役，不得据此开仓/下单）"
+  },
+  "source_url": null,
+  "evidence_level": null,
+  "missing_reason": "无 worker 心跳（live_run:signal_engine_state/account_state 均缺失）",
+  "time": {
+    "event_time": null,
+    "available_at": null,
+    "received_at": null,
+    "fetched_at": null
+  },
+  "items": [
+    {
+      "signal_engine": {},
+      "account_reader": {}
+    }
+  ],
+  "has_more": false,
+  "next_cursor": null,
+  "total": 1,
+  "param_hash_basis": null,
+  "params_source": "fallback_frozen_v2_2_conservative",
+  "rule_view_available": false,
+  "rule_view_spec_version": null,
+  "rule_view_note": "冻结参数视图文件不可读（随旧工作区一并丢失）⇒ 按 FALLBACK 冻结 v2.2 保守真值运行；`param_hash` 已退回共用执行核心冻结配置 hash，并附 `exec_core_crosscheck` 逐项核对结果。",
+  "exec_core_crosscheck": {
+    "available": false,
+    "ok": null,
+    "mismatch_n": 0,
+    "mismatches": []
+  },
+  "daily_list_version": null,
+  "pool_rule_identity": null,
+  "ledger_source": {
+    "kind": "paper_ledger",
+    "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "manifest_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/ledger_identity.json",
+    "manifest_present": false,
+    "spec_version": "F_WX_v2.2_project_closure_user_5000_shared",
+    "allow_init": false,
+    "all_present": true,
+    "any_present": true,
+    "arms": {
+      "3a": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+        "exists": true,
+        "sha256": "1a9a2d8291f3bcdc97afceadc1e98a434ffb98f9e25ecd095320c524498c9933",
+        "rows": {
+          "paper_position": 3,
+          "paper_fill": 6,
+          "paper_funding": 0,
+          "paper_equity": 6,
+          "paper_realized": 3,
+          "paper_order": 3,
+          "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+          "account_id": "paper43_3a",
+          "initial_equity": null,
+          "spec_version": null
+        },
+        "readable": true
+      },
+      "3b": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3b.sqlite3",
+        "exists": true,
+        "sha256": "85dd16ab9965219ac7fcf82e0e5b2885cac4dd98dfa8e9a4f6253daf52b5c2c5",
+        "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+          "account_id": "paper43_3b",
+          "initial_equity": null,
+          "spec_version": null
+        },
+        "readable": true
+      },
+      "3c": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3c.sqlite3",
+        "exists": true,
+        "sha256": "44a849576d03b50a2774b48e969df17385032ff48eb14686b2ff202a6a675870",
+        "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+          "account_id": "paper43_3c",
+          "initial_equity": null,
+          "spec_version": null
+        },
+        "readable": true
+      },
+      "3d": {
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3d.sqlite3",
+        "exists": true,
+        "sha256": "a426b54060a760edb9ea196206dec6dc21d4da9c56e503a7eba1398c4ff9cb71",
+        "rows": {
+          "paper_position": 0,
+          "paper_fill": 0,
+          "paper_funding": 0,
+          "paper_equity": 0,
+          "paper_realized": 0,
+          "paper_order": 0,
+          "paper_state": 1
+        },
+        "open_nonvoid": 0,
+        "identity": {
+          "account_id": "paper43_3d",
+          "initial_equity": null,
+          "spec_version": null
+        },
+        "readable": true
+      }
+    }
+  }
+}

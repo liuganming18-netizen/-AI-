@@ -1,0 +1,608 @@
+{
+ "生成时刻": "2026-10-23T11:57:18+08:00",
+ "用途": "风险定量基线：A 任务改动后用它做受影响回归，避免全量重审",
+ "冻结规则_已授权": {
+  "atr_warmup_bars": 200,
+  "initial_stop_buffer_atr": 0.1,
+  "risk_budget_per_trade": 0.005,
+  "initial_equity": 2000,
+  "max_active_positions": 3,
+  "max_total_risk_budget": 0.015,
+  "max_notional_per_position": 0.3,
+  "max_total_notional": 0.9,
+  "trailing_trigger_r": 2.0,
+  "trailing_lookback_4h_bars": 10,
+  "max_holding_days": 10,
+  "taker_fee_bps": 5.0,
+  "slippage_bps": 3.0,
+  "max_participation_of_prev_15m_quote": 0.001
+ },
+ "冻结规则来源": "FT-VALIDATION-02 认定；本轮按既定值执行，不再列为用户待选项",
+ "文件SHA": {
+  "框架/backend/live_store.py": {
+   "sha256": "34fc60f78da6c90fc4e3ca09f2a9ef38640df515731491c07d403b386dee54d2",
+   "bytes": 40058,
+   "mtime": "2026-10-23 10:13:58"
+  },
+  "框架/backend/paper_engine.py": {
+   "sha256": "0cd7ce21b3e20ba0daa527382584c82b92b8f0983e023427c7f6b1f1affcf5de",
+   "bytes": 138932,
+   "mtime": "2026-10-23 10:17:03"
+  },
+  "框架/backend/strategies/wx_execution.py": {
+   "sha256": "2e652550949e701920290c3992eea08791feccf315c353090b931a560d8dd2fd",
+   "bytes": 176653,
+   "mtime": "2026-10-23 10:13:46"
+  },
+  "框架/backend/strategy_contracts.py": {
+   "sha256": "7b1ae9f68eff55eea11429164ef91efbf0f1af53567533a1ff5288698aef54ee",
+   "bytes": 18743,
+   "mtime": "2026-10-23 01:32:22"
+  },
+  "框架/backend/unified_runtime.py": {
+   "sha256": "bb2ea4b86cf122e623e6689c4d8228d46d9f1fff497197a1f30ddf0a84123c4e",
+   "bytes": 37025,
+   "mtime": "2026-10-23 10:48:44"
+  },
+  "框架/backend/live_api.py": {
+   "sha256": "652948fc9742593f499ab6445b566c7d6b93fb0f5af51ab666c19ee7c47cd429",
+   "bytes": 107086,
+   "mtime": "2026-10-23 10:17:16"
+  },
+  "框架/backend/paper_loop.py": {
+   "sha256": "571e1929a1eb949f53d15c8c88d1c35367e7cd1e8340fedc147737f8be958b50",
+   "bytes": 13586,
+   "mtime": "2026-10-23 01:38:10"
+  },
+  "框架/backend/api/routes.py": {
+   "sha256": "24cf06505217c941d7e98581f0ecb234d421d28900b5aac1743106999efbaf58",
+   "bytes": 16398,
+   "mtime": "2026-10-23 11:03:19"
+  }
+ },
+ "关键常量": {
+  "L.INIT_EQUITY": 5000.0,
+  "FALLBACK.initial_equity_USDT": 5000.0,
+  "FALLBACK.risk_per_trade_equity_fraction": 0.005,
+  "FALLBACK.max_positions": 10,
+  "冻结_initial_equity": 2000,
+  "常量与冻结一致": false
+ },
+ "定量矩阵": [
+  {
+   "s": 0.03,
+   "atr": 0.5,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 1.998,
+   "planned_risk": 6.193800000000017,
+   "budget": 10.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 0.5,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 4.995,
+   "planned_risk": 15.484500000000043,
+   "budget": 25.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 1.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 1.998,
+   "planned_risk": 6.193800000000017,
+   "budget": 10.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 1.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 4.995,
+   "planned_risk": 15.484500000000043,
+   "budget": 25.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 2.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 1.998,
+   "planned_risk": 6.193800000000017,
+   "budget": 10.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 2.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 4.995,
+   "planned_risk": 15.484500000000043,
+   "budget": 25.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 5.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 1.998,
+   "planned_risk": 6.193800000000017,
+   "budget": 10.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.03,
+   "atr": 5.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 97.0,
+   "stop_dist": 3.1000000000000085,
+   "qty": 4.995,
+   "planned_risk": 15.484500000000043,
+   "budget": 25.0,
+   "风险比预算": 0.6193800000000017,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 0.5,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 1.96,
+   "planned_risk": 9.996000000000016,
+   "budget": 10.0,
+   "风险比预算": 0.9996000000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 0.5,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 4.901,
+   "planned_risk": 24.99510000000004,
+   "budget": 25.0,
+   "风险比预算": 0.9998040000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 1.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 1.96,
+   "planned_risk": 9.996000000000016,
+   "budget": 10.0,
+   "风险比预算": 0.9996000000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 1.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 4.901,
+   "planned_risk": 24.99510000000004,
+   "budget": 25.0,
+   "风险比预算": 0.9998040000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 2.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 1.96,
+   "planned_risk": 9.996000000000016,
+   "budget": 10.0,
+   "风险比预算": 0.9996000000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 2.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 4.901,
+   "planned_risk": 24.99510000000004,
+   "budget": 25.0,
+   "风险比预算": 0.9998040000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 5.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 1.96,
+   "planned_risk": 9.996000000000016,
+   "budget": 10.0,
+   "风险比预算": 0.9996000000000016,
+   "reject": null
+  },
+  {
+   "s": 0.05,
+   "atr": 5.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 95.0,
+   "stop_dist": 5.1000000000000085,
+   "qty": 4.901,
+   "planned_risk": 24.99510000000004,
+   "budget": 25.0,
+   "风险比预算": 0.9998040000000016,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 0.5,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 1.234,
+   "planned_risk": 9.99540000000001,
+   "budget": 10.0,
+   "风险比预算": 0.9995400000000011,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 0.5,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 3.086,
+   "planned_risk": 24.996600000000026,
+   "budget": 25.0,
+   "风险比预算": 0.999864000000001,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 1.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 1.234,
+   "planned_risk": 9.99540000000001,
+   "budget": 10.0,
+   "风险比预算": 0.9995400000000011,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 1.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 3.086,
+   "planned_risk": 24.996600000000026,
+   "budget": 25.0,
+   "风险比预算": 0.999864000000001,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 2.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 1.234,
+   "planned_risk": 9.99540000000001,
+   "budget": 10.0,
+   "风险比预算": 0.9995400000000011,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 2.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 3.086,
+   "planned_risk": 24.996600000000026,
+   "budget": 25.0,
+   "风险比预算": 0.999864000000001,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 5.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 1.234,
+   "planned_risk": 9.99540000000001,
+   "budget": 10.0,
+   "风险比预算": 0.9995400000000011,
+   "reject": null
+  },
+  {
+   "s": 0.08,
+   "atr": 5.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 92.0,
+   "stop_dist": 8.100000000000009,
+   "qty": 3.086,
+   "planned_risk": 24.996600000000026,
+   "budget": 25.0,
+   "风险比预算": 0.999864000000001,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 0.5,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 0.497,
+   "planned_risk": 9.989700000000004,
+   "budget": 10.0,
+   "风险比预算": 0.9989700000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 0.5,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 1.243,
+   "planned_risk": 24.98430000000001,
+   "budget": 25.0,
+   "风险比预算": 0.9993720000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 1.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 0.497,
+   "planned_risk": 9.989700000000004,
+   "budget": 10.0,
+   "风险比预算": 0.9989700000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 1.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 1.243,
+   "planned_risk": 24.98430000000001,
+   "budget": 25.0,
+   "风险比预算": 0.9993720000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 2.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 0.497,
+   "planned_risk": 9.989700000000004,
+   "budget": 10.0,
+   "风险比预算": 0.9989700000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 2.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 1.243,
+   "planned_risk": 24.98430000000001,
+   "budget": 25.0,
+   "风险比预算": 0.9993720000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 5.0,
+   "equity": 2000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 0.497,
+   "planned_risk": 9.989700000000004,
+   "budget": 10.0,
+   "风险比预算": 0.9989700000000005,
+   "reject": null
+  },
+  {
+   "s": 0.2,
+   "atr": 5.0,
+   "equity": 5000.0,
+   "entry": 100.10000000000001,
+   "stop": 80.0,
+   "stop_dist": 20.10000000000001,
+   "qty": 1.243,
+   "planned_risk": 24.98430000000001,
+   "budget": 25.0,
+   "风险比预算": 0.9993720000000005,
+   "reject": null
+  }
+ ],
+ "判据": {
+  "B关已通过的定义": "固定 raw_open 与 stoploss_s，只改 ATR ⇒ stop_price/stop_dist/qty/planned_risk 全部不变",
+  "回归失败判据": "同一组输入下任一字段与基线不同",
+  "A任务通过判据": "equity() 随视图 initial_equity_USDT 变化，且 2000 时数量按 10 USDT 预算算"
+ },
+ "分叉判据": {
+  "s=0.03,eq=2000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    97.0
+   ],
+   "数量": [
+    1.998
+   ]
+  },
+  "s=0.03,eq=5000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    97.0
+   ],
+   "数量": [
+    4.995
+   ]
+  },
+  "s=0.05,eq=2000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    95.0
+   ],
+   "数量": [
+    1.96
+   ]
+  },
+  "s=0.05,eq=5000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    95.0
+   ],
+   "数量": [
+    4.901
+   ]
+  },
+  "s=0.08,eq=2000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    92.0
+   ],
+   "数量": [
+    1.234
+   ]
+  },
+  "s=0.08,eq=5000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    92.0
+   ],
+   "数量": [
+    3.086
+   ]
+  },
+  "s=0.2,eq=2000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    80.0
+   ],
+   "数量": [
+    0.497
+   ]
+  },
+  "s=0.2,eq=5000.0": {
+   "止损唯一": true,
+   "数量唯一": true,
+   "止损": [
+    80.0
+   ],
+   "数量": [
+    1.243
+   ]
+  }
+ },
+ "冻结视图": {
+  "exp1": {
+   "路径": "evidence/SYSTEM-CLOSELOOP-05/config/exp1_config.json",
+   "_config_valid": true,
+   "stoploss_s": 0.05,
+   "trail_d": 0.05,
+   "initial_equity_USDT": 5000.0,
+   "risk_per_trade_equity_fraction": 0.005,
+   "max_positions": 10,
+   "single_name_notional_equity_cap": 0.1,
+   "gross_long_notional_equity_cap": 0.8,
+   "portfolio_initial_stop_risk_cap": 0.05,
+   "entry_participation_previous_15m_quote_cap": 0.01,
+   "slippage_each_side": 0.0005,
+   "config_fingerprint": "c2aeddb3fa0a"
+  },
+  "exp2": {
+   "路径": "evidence/SYSTEM-CLOSELOOP-05/config/exp2_config.json",
+   "_config_valid": true,
+   "stoploss_s": 0.03,
+   "trail_d": 0.08,
+   "initial_equity_USDT": 5000.0,
+   "risk_per_trade_equity_fraction": 0.005,
+   "max_positions": 10,
+   "single_name_notional_equity_cap": 0.1,
+   "gross_long_notional_equity_cap": 0.8,
+   "portfolio_initial_stop_risk_cap": 0.05,
+   "entry_participation_previous_15m_quote_cap": 0.01,
+   "slippage_each_side": 0.0005,
+   "config_fingerprint": "5f9cdfe9da6c"
+  }
+ }
+}

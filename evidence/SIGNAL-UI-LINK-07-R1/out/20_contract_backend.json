@@ -1,0 +1,78 @@
+{
+  "probe": "20_contract_backend",
+  "generated_real_utc": "2026-10-25T11:04:50Z",
+  "cases": {
+    "A_normal": {
+      "quality_status": "ok",
+      "quality_note_nonempty": true,
+      "missing_reason": null,
+      "total": 0
+    },
+    "B_not_connected": {
+      "quality_status": "not_connected",
+      "quality_note_nonempty": true,
+      "missing_reason": "实时信号层不可用：None",
+      "total": 0
+    },
+    "C_error": {
+      "quality_status": "error",
+      "quality_note_nonempty": true,
+      "missing_reason": "实时信号层读取失败：RuntimeError: 模拟读库失败（契约测试）",
+      "total": 0
+    },
+    "D_no_watermark": {
+      "quality_status": "no_watermark",
+      "quality_note_nonempty": true,
+      "missing_reason": "有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定",
+      "total": 0
+    }
+  },
+  "steps": [
+    {
+      "name": "A 正常：status=ok",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "A 正常：missing_reason 为空",
+      "ok": true,
+      "detail": "None"
+    },
+    {
+      "name": "A 正常：note 非空（说明字段恒有值，不得被当故障）",
+      "ok": true,
+      "detail": "note_nonempty=True"
+    },
+    {
+      "name": "B 未连接：status=not_connected",
+      "ok": true,
+      "detail": "not_connected"
+    },
+    {
+      "name": "B 未连接：missing_reason 非空",
+      "ok": true,
+      "detail": "实时信号层不可用：None"
+    },
+    {
+      "name": "C 异常：status=error",
+      "ok": true,
+      "detail": "error"
+    },
+    {
+      "name": "C 异常：missing_reason 非空",
+      "ok": true,
+      "detail": "实时信号层读取失败：RuntimeError: 模拟读库失败（契约测试）"
+    },
+    {
+      "name": "D 下限缺失：status 透传 no_watermark",
+      "ok": true,
+      "detail": "no_watermark"
+    },
+    {
+      "name": "D 下限缺失：missing_reason 透传",
+      "ok": true,
+      "detail": "有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定"
+    }
+  ],
+  "ok": true
+}

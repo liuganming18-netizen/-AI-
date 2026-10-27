@@ -1,0 +1,44 @@
+{
+  "testRunUtc": "2026-10-25T11:00:11.470Z",
+  "tests": {
+    "test1_natural_readonly": {
+      "description": "自然只读核验：API 与真实页面同一候选 ID 核对，历史明细展开与条数验证",
+      "signalsApiStatus": 200,
+      "signalsTotal": 0,
+      "daemonApiStatus": 200,
+      "daemonDiscardedCount": 51,
+      "pageHasDiagnostics": true,
+      "pageHasToggle": true,
+      "toggleText": "展开历史回放候选明细（51 条，均不可执行）",
+      "pageExpandedRowsCount": 51,
+      "firstCandidateIdOnPage": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "firstCandidateIdInApi": "cand_ev_WX_EVENT_TREND_V0_1_binance_1000PEPEUSDT_1784836799999_1785049200000",
+      "idMatch": true,
+      "verdict": "PASS: 同一候选ID在API与页面精确吻合，历史丢弃候选条数(51)对应，不可执行原因明确标注"
+    },
+    "test2_cards_persistence": {
+      "description": "live 与 recovered 卡片渲染，以及刷新、轮询、关闭重开持久性核验",
+      "initialCardCount": 2,
+      "hasLiveCard": true,
+      "hasRecoveredCard": true,
+      "reloadCardCount": 2,
+      "pollCardCount": 2,
+      "reopenCardCount": 2,
+      "verdict": "PASS: live与recovered均能正确识别展示，且在刷新、轮询、关闭重开后均不丢失、不重复"
+    },
+    "test3_business_200_missing_reason": {
+      "description": "业务异常 200 携带 missing_reason 时，前端是否能够透出真实异常，还是被判定为普通正常",
+      "hasErrorBox": true,
+      "errorBoxText": "实时信号接口读取异常\n有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定\n（降级保护：错误不冒充空态）",
+      "hasEmptyFallback": false,
+      "verdict": "PASS: 业务异常成功展示为错误提示"
+    },
+    "test4_network_failure_and_recovery": {
+      "description": "HTTP 503 异常能够立即展示红色告警框；后端恢复后能够自动消除告警恢复空态诊断",
+      "failedStageShowsError": true,
+      "errorText": "实时信号接口读取异常\n后端返回 HTTP 503\n（降级保护：错误不冒充空态）",
+      "recoveryClearsError": true,
+      "verdict": "PASS: HTTP失败能显示明确异常不冒充空态；恢复后自动自愈消除错误框"
+    }
+  }
+}

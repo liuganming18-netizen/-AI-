@@ -1,0 +1,640 @@
+{
+  "audit": "ENTRY-AUDIT-05",
+  "stage": "第一阶段 · FE07 逐项独立复核",
+  "generated_utc": "2026-10-18 10:22:01",
+  "fe07_version": {
+    "table_csv_sha256": "a68b8f97a5c9473da743ddbeb2159dc7062475b8d7c7b6d1546d1fc2197ca429",
+    "table_parquet_sha256": "c76e3bf80b78674a134b8121a1436e1c2df694c4c2c40e9a13ad755bf99009b0",
+    "report_md_sha256": "f11ebfcf9341fcc77f0296bc8e940bf88352854e4c04b3f354cf4d2c550996dd",
+    "hashes_json_sha256": "de920eb7ed8421dfbf3f48dffe254a452b1a05541f98496b188d8d6dc81e8bd9"
+  },
+  "sample_space": {
+    "rows": 227,
+    "unique_signal": 226,
+    "filled": 205,
+    "unfilled": 22,
+    "coti_relation_rows": 2,
+    "note": "227 条记录 ID 唯一，但只有 226 个唯一市场信号；COTI 同快照被两代际各记一次"
+  },
+  "acceptance_table": [
+    {
+      "序号": 1,
+      "检查项": "① 记录身份及匹配关系",
+      "判定": "PASS",
+      "关键事实": "227 行 / 226 唯一信号 / 未匹配 0 / 遗漏 0 / 多重 0 / COTI 2 条"
+    },
+    {
+      "序号": 2,
+      "检查项": "② 毛盈亏、手续费、资金费、净盈亏",
+      "判定": "PASS_WITH_NOTE",
+      "关键事实": "净盈亏合计 FE07 101.531971 / 交接包 101.531971；差异行 0"
+    },
+    {
+      "序号": 3,
+      "检查项": "③ 净盈亏恒等式及费用符号",
+      "判定": "PASS",
+      "关键事实": "恒等式 227/227，最大残差 2.842170943040401e-14，手续费负值 0 条"
+    },
+    {
+      "序号": 4,
+      "检查项": "④ 三套分类与独立分类基准",
+      "判定": "PASS",
+      "关键事实": "标准混合 227/227；纯ATR-4h 227/227；纯ATR-全周期 227/227"
+    },
+    {
+      "序号": 5,
+      "检查项": "⑤ ATR、首触顺序及未知状态",
+      "判定": "PASS",
+      "关键事实": "首触分布相同；NO_DATA 22 == 未成交 22；同根未知 27 条保留"
+    },
+    {
+      "序号": 6,
+      "检查项": "⑥ CSV、Parquet、JSON、Markdown 一致性",
+      "判定": "PASS_WITH_NOTE",
+      "关键事实": "数据层 一致；冻结层(hashes.json↔磁盘) 一致；文档层 报告.md 数字 不一致、哈希表 不一致"
+    },
+    {
+      "序号": 7,
+      "检查项": "⑦ 输入输出哈希与来源契约",
+      "判定": "PASS",
+      "关键事实": "输入 9 条全一致；输出 18 条全一致；读 EA03=True / 读 EA04=False"
+    }
+  ],
+  "all_pass_strict": false,
+  "all_pass_or_note": true,
+  "failed_items": [],
+  "noted_items": [
+    "② 毛盈亏、手续费、资金费、净盈亏",
+    "⑥ CSV、Parquet、JSON、Markdown 一致性"
+  ],
+  "details": {
+    "identity": {
+      "检查项": "③ 净盈亏恒等式及费用符号",
+      "公式": "net_pnl = gross_pnl - fee_paid - funding_cost",
+      "可复算条数": 227,
+      "成立(<=1e-9)": 227,
+      "违反": 0,
+      "最大残差": 2.842170943040401e-14,
+      "手续费出现负值条数": 0,
+      "资金费为正（支出）条数": 152,
+      "资金费为负（收入）条数": 53,
+      "资金费符号与交接包一致": true,
+      "手续费符号与交接包一致": true,
+      "符号约定": "手续费正=支出；资金费正=支出、负=收入；账本 FUNDING_FEE.payload.delta 是现金口径（支出为负），与本表符号相反",
+      "判定": "PASS"
+    },
+    "money": {
+      "检查项": "② 毛盈亏、手续费、资金费、净盈亏",
+      "逐列": {
+        "gross_pnl→gross_pnl": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 22,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0,
+          "FE07 列名": "gross_pnl",
+          "交接包列名": "gross_pnl",
+          "成交行逐笔": {
+            "比较条数": 205,
+            "NaN 对 NaN": 0,
+            "一边 NaN 一边有值": 0,
+            "数值不一致(>tol)": 0,
+            "最大绝对差": 0.0
+          },
+          "未成交行": {
+            "FE07 取值": [
+              0.0
+            ],
+            "交接包取值": "全部为空（未成交没有这笔交易）",
+            "交接包空值条数": 22,
+            "FE07 空值条数": 0
+          }
+        },
+        "fee_paid→fees": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 22,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0,
+          "FE07 列名": "fee_paid",
+          "交接包列名": "fees",
+          "成交行逐笔": {
+            "比较条数": 205,
+            "NaN 对 NaN": 0,
+            "一边 NaN 一边有值": 0,
+            "数值不一致(>tol)": 0,
+            "最大绝对差": 0.0
+          },
+          "未成交行": {
+            "FE07 取值": [
+              0.0
+            ],
+            "交接包取值": "全部为空（未成交没有这笔交易）",
+            "交接包空值条数": 22,
+            "FE07 空值条数": 0
+          }
+        },
+        "funding_cost→funding_fee": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 22,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0,
+          "FE07 列名": "funding_cost",
+          "交接包列名": "funding_fee",
+          "成交行逐笔": {
+            "比较条数": 205,
+            "NaN 对 NaN": 0,
+            "一边 NaN 一边有值": 0,
+            "数值不一致(>tol)": 0,
+            "最大绝对差": 0.0
+          },
+          "未成交行": {
+            "FE07 取值": [
+              0.0
+            ],
+            "交接包取值": "全部为空（未成交没有这笔交易）",
+            "交接包空值条数": 22,
+            "FE07 空值条数": 0
+          }
+        },
+        "net_pnl→net_pnl": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 22,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0,
+          "FE07 列名": "net_pnl",
+          "交接包列名": "net_pnl",
+          "成交行逐笔": {
+            "比较条数": 205,
+            "NaN 对 NaN": 0,
+            "一边 NaN 一边有值": 0,
+            "数值不一致(>tol)": 0,
+            "最大绝对差": 0.0
+          },
+          "未成交行": {
+            "FE07 取值": [
+              0.0
+            ],
+            "交接包取值": "全部为空（未成交没有这笔交易）",
+            "交接包空值条数": 22,
+            "FE07 空值条数": 0
+          }
+        }
+      },
+      "成交行判定": "PASS",
+      "成交行说明": "205 条成交逐笔比，这是所有统计的实际分母",
+      "未成交行缺值口径": {
+        "条数": 22,
+        "交接包": "空（未成交没有这笔交易，按 null 政策一律 None）",
+        "FE07": "0（把「没有这笔交易」写成「这笔交易盈亏为 0」）",
+        "影响": "不影响任何分类与统计（所有统计只用 205 成交），但违反「缺值不等于 0」",
+        "交接包空值条数合计": 88
+      },
+      "FE07 合计": {
+        "gross_pnl": 121.635348,
+        "fee_paid": 13.125871,
+        "funding_cost": 6.977506,
+        "net_pnl": 101.531971
+      },
+      "交接包合计": {
+        "gross_pnl": 121.635348,
+        "fees": 13.125871,
+        "funding_fee": 6.977506,
+        "net_pnl": 101.531971
+      },
+      "合计是否相同": true,
+      "列名差异": "FE07 用 fee_paid / funding_cost，交接包用 fees / funding_fee；名字不同但逐笔数值相同，属可接受的命名映射，已记入字段对照",
+      "判定": "PASS_WITH_NOTE"
+    },
+    "net_identity": {
+      "检查项": "③ 净盈亏恒等式及费用符号",
+      "公式": "net_pnl = gross_pnl - fee_paid - funding_cost",
+      "可复算条数": 227,
+      "成立(<=1e-9)": 227,
+      "违反": 0,
+      "最大残差": 2.842170943040401e-14,
+      "手续费出现负值条数": 0,
+      "资金费为正（支出）条数": 152,
+      "资金费为负（收入）条数": 53,
+      "资金费符号与交接包一致": true,
+      "手续费符号与交接包一致": true,
+      "符号约定": "手续费正=支出；资金费正=支出、负=收入；账本 FUNDING_FEE.payload.delta 是现金口径（支出为负），与本表符号相反",
+      "判定": "PASS"
+    },
+    "classification": {
+      "检查项": "④ 三套分类与独立分类基准",
+      "逐体系": {
+        "标准混合": {
+          "比较条数": 227,
+          "一致": 227,
+          "不一致": 0,
+          "FE07 分布": {
+            "CHOPPY_OR_OTHER": 94,
+            "EARLY_WEAKNESS": 67,
+            "SUSTAINED_TREND": 36,
+            "UNFILLED": 22,
+            "MFE_PULLBACK": 8
+          },
+          "基准分布": {
+            "CHOPPY_OR_OTHER": 94,
+            "EARLY_WEAKNESS": 67,
+            "SUSTAINED_TREND": 36,
+            "UNFILLED": 22,
+            "MFE_PULLBACK": 8
+          },
+          "判定": "PASS"
+        },
+        "纯ATR-4h": {
+          "比较条数": 227,
+          "一致": 227,
+          "不一致": 0,
+          "FE07 分布": {
+            "CHOPPY_OR_OTHER": 79,
+            "EARLY_WEAKNESS": 67,
+            "MFE_PULLBACK": 39,
+            "UNFILLED": 22,
+            "SUSTAINED_TREND": 20
+          },
+          "基准分布": {
+            "CHOPPY_OR_OTHER": 79,
+            "EARLY_WEAKNESS": 67,
+            "MFE_PULLBACK": 39,
+            "UNFILLED": 22,
+            "SUSTAINED_TREND": 20
+          },
+          "判定": "PASS"
+        },
+        "纯ATR-全周期": {
+          "比较条数": 227,
+          "一致": 227,
+          "不一致": 0,
+          "FE07 分布": {
+            "EARLY_WEAKNESS": 67,
+            "SUSTAINED_TREND": 64,
+            "MFE_PULLBACK": 47,
+            "CHOPPY_OR_OTHER": 27,
+            "UNFILLED": 22
+          },
+          "基准分布": {
+            "EARLY_WEAKNESS": 67,
+            "SUSTAINED_TREND": 64,
+            "MFE_PULLBACK": 47,
+            "CHOPPY_OR_OTHER": 27,
+            "UNFILLED": 22
+          },
+          "判定": "PASS"
+        }
+      },
+      "浮盈回吐专项": {
+        "FE07 条数": 8,
+        "基准条数": 8,
+        "被标为回吐但 net_pnl>0": 0,
+        "明细": []
+      },
+      "判定": "PASS"
+    },
+    "atr_first_move": {
+      "检查项": "⑤ ATR、首触顺序及未知状态",
+      "逐字段": {
+        "signal_atr_snapshot": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "box_atr_formation": {
+          "比较条数": 227,
+          "NaN 对 NaN": 42,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "fwd_ret_4h": {
+          "比较条数": 227,
+          "NaN 对 NaN": 0,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "mfe_r_4h": {
+          "比较条数": 227,
+          "NaN 对 NaN": 22,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "mae_r_4h": {
+          "比较条数": 227,
+          "NaN 对 NaN": 22,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "mfe_r": {
+          "比较条数": 227,
+          "NaN 对 NaN": 22,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        },
+        "mfe_atr_full": {
+          "比较条数": 227,
+          "NaN 对 NaN": 22,
+          "一边 NaN 一边有值": 0,
+          "数值不一致(>tol)": 0,
+          "最大绝对差": 0.0
+        }
+      },
+      "首触分布 FE07": {
+        "FIRST_ADVERSE": 101,
+        "FIRST_FAVORABLE": 77,
+        "UNKNOWN_SAME_BAR": 27,
+        "NO_DATA": 22
+      },
+      "首触分布 基准": {
+        "FIRST_ADVERSE": 101,
+        "FIRST_FAVORABLE": 77,
+        "UNKNOWN_SAME_BAR": 27,
+        "NO_DATA": 22
+      },
+      "首触分布是否相同": true,
+      "NO_DATA 条数": 22,
+      "未成交条数": 22,
+      "NO_DATA 是否等于未成交": true,
+      "UNKNOWN_SAME_BAR 条数": 27,
+      "UNKNOWN_SAME_BAR 是否被强行指定先后": "否，仍保留为未知",
+      "契约外取值": [
+        "NO_DATA"
+      ],
+      "契约外取值说明": "NO_DATA 不在 FE06 契约四选一内，但正好等于 22 条未成交；契约没规定未成交怎么标，属契约空档，不判 FAIL，但条数必须对得上",
+      "判定": "PASS"
+    },
+    "format": {
+      "检查项": "⑥ CSV、Parquet、JSON、Markdown 一致性",
+      "CSV vs Parquet": {
+        "比较列数": 70,
+        "数值列不一致": {},
+        "字符串列不一致": {},
+        "说明": "字符串列的空值在 CSV 里读成 NaN、在 Parquet 里是 None；本项已按「空值位置是否相同 + 非空内容是否相同」比对，不把空值表示差异算成不一致",
+        "判定": "PASS"
+      },
+      "discrepancy_summary.json 存在": true,
+      "discrepancy_summary.json 顶层键": [
+        "audit_ticket",
+        "generated_at_utc",
+        "input_hashes",
+        "sample_counts",
+        "classification_results",
+        "cost_rootcause_correction",
+        "restrictions_and_warnings"
+      ],
+      "报告.md 数字 vs 数据": {
+        "FIRST_ADVERSE": {
+          "报告声称": 111,
+          "数据实际": 101,
+          "一致": false
+        },
+        "FIRST_FAVORABLE": {
+          "报告声称": 91,
+          "数据实际": 77,
+          "一致": false
+        },
+        "UNKNOWN_SAME_BAR": {
+          "报告声称": 3,
+          "数据实际": 27,
+          "一致": false
+        },
+        "未触及门槛": {
+          "报告声称": 2,
+          "数据实际": 0,
+          "一致": false
+        },
+        "未成交": {
+          "报告声称": 22,
+          "数据实际": 22,
+          "一致": true
+        }
+      },
+      "报告.md 哈希表 vs hashes.json vs 磁盘": [
+        {
+          "文件": "00_freeze_inputs_manifest.json",
+          "报告声称字节": 1481,
+          "hashes.json 字节": 1499,
+          "磁盘实际字节": 1499,
+          "报告声称 sha": "b0c79ca4f3b7ceab",
+          "hashes.json sha": "4a72343881505965",
+          "磁盘实际 sha": "4a72343881505965",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "01_match_and_bridge_report.md",
+          "报告声称字节": 5612,
+          "hashes.json 字节": 7113,
+          "磁盘实际字节": 7113,
+          "报告声称 sha": "6c10b7ee2270923f",
+          "hashes.json sha": "aa79f819418fa6b9",
+          "磁盘实际 sha": "aa79f819418fa6b9",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "reconstructed_candidate_features_07.csv",
+          "报告声称字节": 260379,
+          "hashes.json 字节": 236956,
+          "磁盘实际字节": 236956,
+          "报告声称 sha": "8997a06645318ba9",
+          "hashes.json sha": "a68b8f97a5c9473d",
+          "磁盘实际 sha": "a68b8f97a5c9473d",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "reconstructed_candidate_features_07.parquet",
+          "报告声称字节": 148460,
+          "hashes.json 字节": 142824,
+          "磁盘实际字节": 142824,
+          "报告声称 sha": "4523bb6eb4a05f15",
+          "hashes.json sha": "c76e3bf80b78674a",
+          "磁盘实际 sha": "c76e3bf80b78674a",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "discrepancy_old_vs_new.csv",
+          "报告声称字节": 88416,
+          "hashes.json 字节": 85209,
+          "磁盘实际字节": 85209,
+          "报告声称 sha": "8c6014e21a48c5a2",
+          "hashes.json sha": "cdff2a997d65b721",
+          "磁盘实际 sha": "cdff2a997d65b721",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "discrepancy_summary.json",
+          "报告声称字节": 2756,
+          "hashes.json 字节": 2979,
+          "磁盘实际字节": 2979,
+          "报告声称 sha": "26e2e5c8e27c10b5",
+          "hashes.json sha": "e5811cd503dbabb5",
+          "磁盘实际 sha": "e5811cd503dbabb5",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "generate_factor_entry_07.py",
+          "报告声称字节": 13873,
+          "hashes.json 字节": 17418,
+          "磁盘实际字节": 17418,
+          "报告声称 sha": "fc3fbc863a35cfba",
+          "hashes.json sha": "7279ecad38d26b65",
+          "磁盘实际 sha": "7279ecad38d26b65",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "test_classification_and_cost_consistency.py",
+          "报告声称字节": 6368,
+          "hashes.json 字节": 6497,
+          "磁盘实际字节": 6497,
+          "报告声称 sha": "de68102dca0ea760",
+          "hashes.json sha": "331bcce57bcd8c6e",
+          "磁盘实际 sha": "331bcce57bcd8c6e",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        },
+        {
+          "文件": "test_results.log",
+          "报告声称字节": 1440,
+          "hashes.json 字节": 1378,
+          "磁盘实际字节": 1378,
+          "报告声称 sha": "51ff1a3cf95669fc",
+          "hashes.json sha": "1788a89740e06a15",
+          "磁盘实际 sha": "1788a89740e06a15",
+          "报告与 hashes.json 一致": false,
+          "hashes.json 与磁盘一致": true
+        }
+      ],
+      "判定": "PASS_WITH_NOTE",
+      "报告.md 数字是否与数据一致": false,
+      "报告.md 哈希表是否与 hashes.json 一致": false,
+      "hashes.json 是否与磁盘一致": true,
+      "分层判定": {
+        "数据层（CSV ↔ Parquet ↔ JSON 数值）": "PASS",
+        "冻结层（hashes.json ↔ 磁盘）": "PASS",
+        "文档层（报告.md 数字与哈希表 ↔ 数据与 hashes.json）": "FAIL"
+      },
+      "文档缺陷": [
+        "报告.md 的首触分布数字与自己的数据不符：报告写 FIRST_ADVERSE=111 / FIRST_FAVORABLE=91 / UNKNOWN_SAME_BAR=3 / 未触及门槛=2 / 未成交=22，数据实际 FIRST_ADVERSE=101 / FIRST_FAVORABLE=77 / UNKNOWN_SAME_BAR=27 / 未触及门槛=0 / 未成交=22",
+        "报告.md 的哈希表 9 项全部与 hashes.json 不符（字节数也不同），说明报告里的表是旧版文件的，文件后来重新生成过而报告未同步"
+      ]
+    },
+    "source_contract": {
+      "检查项": "⑦ 输入输出哈希与来源契约",
+      "输入清单文件": "evidence/FACTOR-ENTRY-07/00_freeze_inputs_manifest.json",
+      "输入条目数": 9,
+      "输入逐条核对": [
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/03_identity_full.csv",
+          "声明 sha": "18e28dd85f7fb856",
+          "磁盘实际 sha": "18e28dd85f7fb856",
+          "声明字节": 226443,
+          "磁盘实际字节": 226443,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/04_cost_reconcile.csv",
+          "声明 sha": "ac12c170963067eb",
+          "磁盘实际 sha": "ac12c170963067eb",
+          "声明字节": 87848,
+          "磁盘实际字节": 87848,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/04_cost_reconcile.json",
+          "声明 sha": "5d0524b2c52d56aa",
+          "磁盘实际 sha": "5d0524b2c52d56aa",
+          "声明字节": 6139,
+          "磁盘实际字节": 6139,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/01_coti_conflict.json",
+          "声明 sha": "eec047b9ea95183c",
+          "磁盘实际 sha": "eec047b9ea95183c",
+          "声明字节": 1833,
+          "磁盘实际字节": 1833,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/05_bridge.csv",
+          "声明 sha": "d308d6bd459c6b82",
+          "磁盘实际 sha": "d308d6bd459c6b82",
+          "声明字节": 15478,
+          "磁盘实际字节": 15478,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/ENTRY-AUDIT-03/01_cost_zero_rootcause.json",
+          "声明 sha": "29088f05be15ec53",
+          "磁盘实际 sha": "29088f05be15ec53",
+          "声明字节": 3184,
+          "磁盘实际字节": 3184,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/FACTOR-ENTRY-06/classification_contract.md",
+          "声明 sha": "7c358f2ffe156a9d",
+          "磁盘实际 sha": "7c358f2ffe156a9d",
+          "声明字节": 9128,
+          "磁盘实际字节": 9128,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/FACTOR-ENTRY-06/reconstructed_candidate_features.csv",
+          "声明 sha": "d8e8a387572a9e96",
+          "磁盘实际 sha": "d8e8a387572a9e96",
+          "声明字节": 219147,
+          "磁盘实际字节": 219147,
+          "一致": true
+        },
+        {
+          "输入文件": "evidence/FACTOR-ENTRY-06/discrepancy_summary.json",
+          "声明 sha": "8c248b64f1ee8823",
+          "磁盘实际 sha": "8c248b64f1ee8823",
+          "声明字节": 3110,
+          "磁盘实际字节": 3110,
+          "一致": true
+        }
+      ],
+      "输入是否全部与磁盘一致": true,
+      "是否读取 ENTRY-AUDIT-03": true,
+      "是否读取 ENTRY-AUDIT-04 交接包": false,
+      "来源契约说明": "FE07 的工单是「接入 ENTRY-AUDIT-03 校正账本」，读 EA03 符合它自己的工单；EA04 交接包按工单由 FE08 补齐来源。所以本项对 FE07 不判 FAIL，只如实记录「未读 EA04」这一事实",
+      "输出条目数": 18,
+      "输出是否全部与磁盘一致": true,
+      "判定": "PASS"
+    }
+  },
+  "conclusion_split": {
+    "数据交接及产物一致性": {
+      "数据层": "通过",
+      "文档层": "有缺陷",
+      "逐项": {
+        "① 记录身份及匹配关系": "PASS",
+        "② 毛盈亏、手续费、资金费、净盈亏": "PASS_WITH_NOTE",
+        "③ 净盈亏恒等式及费用符号": "PASS",
+        "④ 三套分类与独立分类基准": "PASS",
+        "⑤ ATR、首触顺序及未知状态": "PASS",
+        "⑥ CSV、Parquet、JSON、Markdown 一致性": "PASS_WITH_NOTE",
+        "⑦ 输入输出哈希与来源契约": "PASS"
+      }
+    },
+    "历史规格与 PIT 限制": "仍未解除：spec verified 0 条、formal_pass_allowed 全 false、PIT UNPROVEN；两代际净盈亏方向相反（+144.106 / −42.574）",
+    "策略有效性": "仍未证明（与数据一致性无关，见报告 §结论分离）"
+  }
+}

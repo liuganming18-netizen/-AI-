@@ -1,0 +1,1242 @@
+{
+ "generated_at_utc": "2026-10-25T01:27:49Z",
+ "universe": 526,
+ "scan_threshold_bars": 20,
+ "invalid_run_min": 3,
+ "anomaly_symbols": [
+  "1000000BOBUSDT",
+  "EPICUSDT",
+  "MITOUSDT",
+  "PROMPTUSDT",
+  "PTBUSDT",
+  "PUMPBTCUSDT"
+ ],
+ "sources": {
+  "S1_exchangeInfo": "https://fapi.binance.com/fapi/v1/exchangeInfo",
+  "S2_klines_rest": "https://fapi.binance.com/fapi/v1/klines",
+  "S3_daily_archive": "https://data.binance.vision/data/futures/um/daily/klines/",
+  "S4_local": "hot sqlite candles view (candle_versions JOIN candle_heads)"
+ },
+ "discipline": {
+  "wrote_market_db": false,
+  "deleted_rows": 0,
+  "filled_prices": 0,
+  "note": "占位行保留原样：不删行、不改价、不插值。"
+ },
+ "items": [
+  {
+   "symbol": "1000000BOBUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1749112200000,
+    "onboard_utc": "2025-06-05T08:30:00Z",
+    "deliveryDate": 1791190800000,
+    "delivery_utc": "2026-10-05T09:00:00Z",
+    "pricePrecision": 7,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0096,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0096,
+      "volume": 1317938793.0
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0096,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0096,
+      "volume": 1317938793.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-24"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/1000000BOBUSDT/4h/1000000BOBUSDT-4h-2026-10-15.zip",
+     "bytes": 366,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 6,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 117,
+     "atr_before_run": 0.0034947666,
+     "atr_after_run": 5.995e-07,
+     "decay_pct": -99.9828,
+     "theoretical_decay_pct": -99.9828
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 472,
+     "first_open_ms": 1791190800000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T09:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0096,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0096,
+      "volume": 1317938793.0
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 472,
+     "first_open_ms": 1791190800000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T09:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0096,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0096,
+      "volume": 1317938793.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-25"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/1000000BOBUSDT/1h/1000000BOBUSDT-1h-2026-10-15.zip",
+     "bytes": 480,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 24,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 472,
+     "atr_before_run": 0.0033290711,
+     "atr_after_run": 0.0,
+     "decay_pct": -100.0,
+     "theoretical_decay_pct": -100.0
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 472,
+      "since_ms": 1791198000000,
+      "skipped_bars": 470,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1151,
+     "fed_1h_bars": 681,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 5.995290298788742e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 472,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1151,
+     "fed_1h_bars": 1151,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 5.995290298788742e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 470,
+    "box_skipped_invalid": 72,
+    "fed_1h_bars_on": 681,
+    "fed_1h_bars_off": 1151,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1151
+    }
+   }
+  },
+  {
+   "symbol": "EPICUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1741852800000,
+    "onboard_utc": "2025-03-13T08:00:00Z",
+    "deliveryDate": 1792486800000,
+    "delivery_utc": "2026-10-20T09:00:00Z",
+    "pricePrecision": 6,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 27,
+     "first_open_ms": 1792497600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-20T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.1837,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792483200000,
+      "utc": "2026-10-20T08:00:00Z",
+      "close": 0.1837,
+      "volume": 15955997.2
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 27,
+     "first_open_ms": 1792497600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-20T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.1837,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792483200000,
+      "utc": "2026-10-20T08:00:00Z",
+      "close": 0.1837,
+      "volume": 15955997.2
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-22",
+      "2026-10-20",
+      "2026-10-24"
+     ],
+     "day": "2026-10-22",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/EPICUSDT/4h/EPICUSDT-4h-2026-10-22.zip",
+     "bytes": 354,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 6,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 27,
+     "atr_before_run": 0.0332875118,
+     "atr_after_run": 0.0045008535,
+     "decay_pct": -86.4789,
+     "theoretical_decay_pct": -86.4789
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 111,
+     "first_open_ms": 1792490400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-20T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.1837,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792486800000,
+      "utc": "2026-10-20T09:00:00Z",
+      "close": 0.1837,
+      "volume": 447886.5
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 111,
+     "first_open_ms": 1792490400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-20T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.1837,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792486800000,
+      "utc": "2026-10-20T09:00:00Z",
+      "close": 0.1837,
+      "volume": 447886.5
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-22",
+      "2026-10-20",
+      "2026-10-25"
+     ],
+     "day": "2026-10-22",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/EPICUSDT/1h/EPICUSDT-1h-2026-10-22.zip",
+     "bytes": 466,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 24,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 111,
+     "atr_before_run": 0.0164503288,
+     "atr_after_run": 4.4023e-06,
+     "decay_pct": -99.9732,
+     "theoretical_decay_pct": -99.9732
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 111,
+      "since_ms": 1792497600000,
+      "skipped_bars": 109,
+      "box_skipped_invalid": 27,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1068,
+     "fed_1h_bars": 959,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 0.004500853549391123,
+     "n_transitions": 6,
+     "n_completed": 2
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 111,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 27,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1068,
+     "fed_1h_bars": 1068,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 0.004500853549391123,
+     "n_transitions": 6,
+     "n_completed": 2
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 109,
+    "box_skipped_invalid": 27,
+    "fed_1h_bars_on": 959,
+    "fed_1h_bars_off": 1068,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1068
+    }
+   }
+  },
+  {
+   "symbol": "MITOUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1756398600000,
+    "onboard_utc": "2025-08-28T16:30:00Z",
+    "deliveryDate": 1792746000000,
+    "delivery_utc": "2026-10-23T09:00:00Z",
+    "pricePrecision": 7,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 9,
+     "first_open_ms": 1792756800000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-23T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.00919,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.00919,
+      "volume": 31415024.0
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 9,
+     "first_open_ms": 1792756800000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-23T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.00919,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.00919,
+      "volume": 31415024.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-24",
+      "2026-10-23"
+     ],
+     "tried": [
+      {
+       "day": "2026-10-24",
+       "error": "HTTPError: HTTP Error 404: Not Found"
+      }
+     ],
+     "day": "2026-10-23",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/MITOUSDT/4h/MITOUSDT-4h-2026-10-23.zip",
+     "bytes": 476,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 3,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 9,
+     "atr_before_run": 0.0008480811,
+     "atr_after_run": 0.0004352865,
+     "decay_pct": -48.6739,
+     "theoretical_decay_pct": -48.6739
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 40,
+     "first_open_ms": 1792746000000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-23T09:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.00919,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.00919,
+      "volume": 31415024.0
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 40,
+     "first_open_ms": 1792746000000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-23T09:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.00919,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.00919,
+      "volume": 31415024.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-24",
+      "2026-10-23",
+      "2026-10-25"
+     ],
+     "tried": [
+      {
+       "day": "2026-10-24",
+       "error": "HTTPError: HTTP Error 404: Not Found"
+      }
+     ],
+     "day": "2026-10-23",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/MITOUSDT/1h/MITOUSDT-1h-2026-10-23.zip",
+     "bytes": 804,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 15,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 40,
+     "atr_before_run": 0.0005038613,
+     "atr_after_run": 2.5997e-05,
+     "decay_pct": -94.8404,
+     "theoretical_decay_pct": -94.8404
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 40,
+      "since_ms": 1792753200000,
+      "skipped_bars": 38,
+      "box_skipped_invalid": 9,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 995,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 0.00043528651309138476,
+     "n_transitions": 5,
+     "n_completed": 2
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 40,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 9,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 1033,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 0.00043528651309138476,
+     "n_transitions": 5,
+     "n_completed": 2
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 38,
+    "box_skipped_invalid": 9,
+    "fed_1h_bars_on": 995,
+    "fed_1h_bars_off": 1033,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1033
+    }
+   }
+  },
+  {
+   "symbol": "PROMPTUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1744353000000,
+    "onboard_utc": "2025-04-11T06:30:00Z",
+    "deliveryDate": 1791190800000,
+    "delivery_utc": "2026-10-05T09:00:00Z",
+    "pricePrecision": 7,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.02037,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.02037,
+      "volume": 21547755.0
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.02037,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.02037,
+      "volume": 21547755.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-24"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PROMPTUSDT/4h/PROMPTUSDT-4h-2026-10-15.zip",
+     "bytes": 359,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 6,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 117,
+     "atr_before_run": 0.0010305916,
+     "atr_after_run": 1.768e-07,
+     "decay_pct": -99.9828,
+     "theoretical_decay_pct": -99.9828
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 471,
+     "first_open_ms": 1791194400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.02037,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791190800000,
+      "utc": "2026-10-05T09:00:00Z",
+      "close": 0.02037,
+      "volume": 10125.0
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 471,
+     "first_open_ms": 1791194400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.02037,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791190800000,
+      "utc": "2026-10-05T09:00:00Z",
+      "close": 0.02037,
+      "volume": 10125.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-25"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PROMPTUSDT/1h/PROMPTUSDT-1h-2026-10-15.zip",
+     "bytes": 472,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 24,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 471,
+     "atr_before_run": 0.0007886889,
+     "atr_after_run": 0.0,
+     "decay_pct": -100.0,
+     "theoretical_decay_pct": -100.0
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 471,
+      "since_ms": 1791201600000,
+      "skipped_bars": 469,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 564,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 1.7679853294576966e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 471,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 1033,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 1.7679853294576966e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 469,
+    "box_skipped_invalid": 72,
+    "fed_1h_bars_on": 564,
+    "fed_1h_bars_off": 1033,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1033
+    }
+   }
+  },
+  {
+   "symbol": "PTBUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1756902600000,
+    "onboard_utc": "2025-09-03T12:30:00Z",
+    "deliveryDate": 1792746000000,
+    "delivery_utc": "2026-10-23T09:00:00Z",
+    "pricePrecision": 7,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 9,
+     "first_open_ms": 1792756800000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-23T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0003406,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.0003406,
+      "volume": 268066104.0
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 9,
+     "first_open_ms": 1792756800000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-23T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0003406,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792742400000,
+      "utc": "2026-10-23T08:00:00Z",
+      "close": 0.0003406,
+      "volume": 268066104.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-24",
+      "2026-10-23"
+     ],
+     "tried": [
+      {
+       "day": "2026-10-24",
+       "error": "HTTPError: HTTP Error 404: Not Found"
+      }
+     ],
+     "day": "2026-10-23",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PTBUSDT/4h/PTBUSDT-4h-2026-10-23.zip",
+     "bytes": 489,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 3,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 9,
+     "atr_before_run": 0.0001054388,
+     "atr_after_run": 5.41176e-05,
+     "decay_pct": -48.6739,
+     "theoretical_decay_pct": -48.6739
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 39,
+     "first_open_ms": 1792749600000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-23T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0003406,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792746000000,
+      "utc": "2026-10-23T09:00:00Z",
+      "close": 0.0003406,
+      "volume": 126467.0
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 39,
+     "first_open_ms": 1792749600000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-23T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0003406,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1792746000000,
+      "utc": "2026-10-23T09:00:00Z",
+      "close": 0.0003406,
+      "volume": 126467.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-24",
+      "2026-10-23",
+      "2026-10-25"
+     ],
+     "tried": [
+      {
+       "day": "2026-10-24",
+       "error": "HTTPError: HTTP Error 404: Not Found"
+      }
+     ],
+     "day": "2026-10-23",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PTBUSDT/1h/PTBUSDT-1h-2026-10-23.zip",
+     "bytes": 883,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 14,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 39,
+     "atr_before_run": 6.23423e-05,
+     "atr_after_run": 3.464e-06,
+     "decay_pct": -94.4436,
+     "theoretical_decay_pct": -94.4436
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 39,
+      "since_ms": 1792756800000,
+      "skipped_bars": 37,
+      "box_skipped_invalid": 9,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 996,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 5.4117563514229044e-05,
+     "n_transitions": 9,
+     "n_completed": 4
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 39,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 9,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 1033,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 5.4117563514229044e-05,
+     "n_transitions": 9,
+     "n_completed": 4
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 37,
+    "box_skipped_invalid": 9,
+    "fed_1h_bars_on": 996,
+    "fed_1h_bars_off": 1033,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1033
+    }
+   }
+  },
+  {
+   "symbol": "PUMPBTCUSDT",
+   "exchange_info": {
+    "status": "SETTLING",
+    "contractType": "PERPETUAL",
+    "onboardDate": 1749808800000,
+    "onboard_utc": "2025-06-13T10:00:00Z",
+    "deliveryDate": 1791190800000,
+    "delivery_utc": "2026-10-05T09:00:00Z",
+    "pricePrecision": 7,
+    "quoteAsset": "USDT",
+    "delivery_in_past": true
+   },
+   "4h": {
+    "local": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0371,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0371,
+      "volume": 1383495577.0
+     }
+    },
+    "local_last_open_utc": "2026-10-24T20:00:00Z",
+    "official_rest": {
+     "run": 117,
+     "first_open_ms": 1791201600000,
+     "last_open_ms": 1792872000000,
+     "first_utc": "2026-10-05T12:00:00Z",
+     "last_utc": "2026-10-24T20:00:00Z",
+     "price": 0.0371,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791187200000,
+      "utc": "2026-10-05T08:00:00Z",
+      "close": 0.0371,
+      "volume": 1383495577.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T00:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-24"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PUMPBTCUSDT/4h/PUMPBTCUSDT-4h-2026-10-15.zip",
+     "bytes": 361,
+     "rows_in_zip": 6,
+     "compared_rows_in_run": 6,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 117,
+     "atr_before_run": 0.004335049,
+     "atr_after_run": 7.437e-07,
+     "decay_pct": -99.9828,
+     "theoretical_decay_pct": -99.9828
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "1h": {
+    "local": {
+     "run": 471,
+     "first_open_ms": 1791194400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0371,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791190800000,
+      "utc": "2026-10-05T09:00:00Z",
+      "close": 0.0371,
+      "volume": 1527205.0
+     }
+    },
+    "local_last_open_utc": "2026-10-25T00:00:00Z",
+    "official_rest": {
+     "run": 471,
+     "first_open_ms": 1791194400000,
+     "last_open_ms": 1792886400000,
+     "first_utc": "2026-10-05T10:00:00Z",
+     "last_utc": "2026-10-25T00:00:00Z",
+     "price": 0.0371,
+     "all_same_price": true,
+     "before_last_traded": {
+      "open_time": 1791190800000,
+      "utc": "2026-10-05T09:00:00Z",
+      "close": 0.0371,
+      "volume": 1527205.0
+     }
+    },
+    "official_rest_raw_last_utc": "2026-10-25T01:00:00Z",
+    "official_archive": {
+     "candidate_days": [
+      "2026-10-15",
+      "2026-10-05",
+      "2026-10-25"
+     ],
+     "day": "2026-10-15",
+     "url": "https://data.binance.vision/data/futures/um/daily/klines/PUMPBTCUSDT/1h/PUMPBTCUSDT-1h-2026-10-15.zip",
+     "bytes": 474,
+     "rows_in_zip": 24,
+     "compared_rows_in_run": 24,
+     "matched": true,
+     "all_zero_flat_same_price": true
+    },
+    "atr_effect": {
+     "available": true,
+     "run": 471,
+     "atr_before_run": 0.0040361354,
+     "atr_after_run": 0.0,
+     "decay_pct": -100.0,
+     "theoretical_decay_pct": -100.0
+    },
+    "verdict": {
+     "run_len_equal": true,
+     "run_start_equal": true,
+     "price_equal": true,
+     "all_three_sources_agree": true,
+     "placeholder_confirmed": true,
+     "note": "run_len_equal / run_start_equal / price_equal 都是**在重叠区间**上比（本地截止 = 本地最后一根 open_time）。official_rest_raw_last_utc 是官方最新一根，通常比本地新 1~2 根，那是采集滞后，不是来源不一致。"
+    },
+    "placeholder_meaning": "交易所对该合约已停止撮合（status=SETTLING，deliveryDate 已过），但 K 线接口仍按每根周期返回「零成交 + O=H=L=C=最后成交价」的占位行。该行**不是采集错误**：官方 REST 与官方归档两个独立来源返回同样的行。"
+   },
+   "gate": {
+    "gate_on": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": true,
+      "reason": "zero_volume_flat_run(3)",
+      "zero_flat_run": 471,
+      "since_ms": 1791201600000,
+      "skipped_bars": 469,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 564,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 7.43679929720449e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_off": {
+     "candidates": 0,
+     "candidate_ids": [],
+     "state": "IDLE",
+     "data_quality": {
+      "invalid": false,
+      "reason": null,
+      "zero_flat_run": 471,
+      "since_ms": null,
+      "skipped_bars": 0,
+      "box_skipped_invalid": 72,
+      "last_bar_ms": 1792886400000
+     },
+     "processed_1h_bars": 1033,
+     "fed_1h_bars": 1033,
+     "atr_bars_seen": 271,
+     "box_gate_bars": 271,
+     "last_atr": 7.43679929720449e-07,
+     "n_transitions": 0,
+     "n_completed": 0
+    },
+    "gate_changed_decision": false,
+    "skipped_1h_bars": 469,
+    "box_skipped_invalid": 72,
+    "fed_1h_bars_on": 564,
+    "fed_1h_bars_off": 1033,
+    "note": "闸门的实际效果是「不让占位行进入状态机」：fed_1h_bars_off − fed_1h_bars_on 就是被拦下的根数。本窗口内两种设置候选数都是 0（该标的没有箱体，状态机无迁移）⇒ 闸门在这里是**预防性**的，不是「拦下了一个真实信号」。这一点必须如实写，不能把「拦了 470 根」说成「拦掉了一个信号」。",
+    "window_bars": {
+     "4h": 271,
+     "1h": 1033
+    }
+   }
+  }
+ ],
+ "db_fingerprint_unchanged": true,
+ "db_fingerprint_cutoff_utc": "2026-10-25T01:27:09Z",
+ "db_fingerprint_rows": 8161218,
+ "elapsed_sec": 89.6
+}

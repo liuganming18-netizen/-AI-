@@ -1,0 +1,61 @@
+{
+ "generated_utc": "2026-10-26T16:33:43Z",
+ "required_fields": 49,
+ "schema": "accum-early-05/v1",
+ "files": {
+  "blank": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/批准配置_空白表单_05.json",
+  "fixture": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/ACCUM-EARLY-05-B/config/fixture_rules_05.json"
+ },
+ "checks": [
+  {
+   "check": "fixture 取值集合 == 必填清单",
+   "ok": true,
+   "extra": [],
+   "missing": []
+  },
+  {
+   "check": "空白表单路径集合 == 必填清单",
+   "ok": true,
+   "n": 49
+  },
+  {
+   "check": "fixture 路径集合 == 必填清单",
+   "ok": true,
+   "n": 49
+  },
+  {
+   "check": "fixture 白名单字段取值合法",
+   "ok": true,
+   "bad": []
+  },
+  {
+   "check": "空白表单 ⇒ 阻塞且缺字段数 == 必填字段数-1（格式版本已填）",
+   "ok": true,
+   "missing": 48,
+   "expected_missing": 48,
+   "required": 49,
+   "blocked_by": [
+    "config_fields_missing"
+   ]
+  },
+  {
+   "check": "fixture 未开环境开关 ⇒ 阻塞（fixture_without_explicit_env）",
+   "ok": true,
+   "blocked_by": [
+    "not_approved",
+    "fixture_without_explicit_env"
+   ],
+   "missing": [],
+   "unsupported": []
+  },
+  {
+   "check": "fixture 开了环境开关 ⇒ 允许开仓（fixture_chain_selfcheck）",
+   "ok": true,
+   "blocked_by": [],
+   "missing": [],
+   "unsupported": [],
+   "fixed_rules_ok": true
+  }
+ ],
+ "all_ok": true
+}

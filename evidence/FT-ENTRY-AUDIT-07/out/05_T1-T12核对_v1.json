@@ -1,0 +1,115 @@
+{
+  "T1_三入口同网格": {
+    "共18组": 18,
+    "全部符合": true
+  },
+  "T2_环境一致": {
+    "pair_whitelist数量": 74,
+    "timerange(18组)": {
+      "Wyckoff_C1_Vs04_Z02": "20211201-20241231",
+      "Wyckoff_C1_Vs04_Z04": "20211201-20241231",
+      "Wyckoff_C1_Vs04_Z06": "20211201-20241231",
+      "Wyckoff_C1_Vs06_Z02": "20211201-20241231",
+      "Wyckoff_C1_Vs06_Z04": "20211201-20241231",
+      "Wyckoff_C1_Vs06_Z06": "20211201-20241231",
+      "Wyckoff_C1_Vs08_Z02": "20211201-20241231",
+      "Wyckoff_C1_Vs08_Z04": "20211201-20241231",
+      "Wyckoff_C1_Vs08_Z06": "20211201-20241231",
+      "Wyckoff_C2_Vs04_Z02": "20211201-20241231",
+      "Wyckoff_C2_Vs04_Z04": "20211201-20241231",
+      "Wyckoff_C2_Vs04_Z06": "20211201-20241231",
+      "Wyckoff_C2_Vs06_Z02": "20211201-20241231",
+      "Wyckoff_C2_Vs06_Z04": "20211201-20241231",
+      "Wyckoff_C2_Vs06_Z06": "20211201-20241231",
+      "Wyckoff_C2_Vs08_Z02": "20211201-20241231",
+      "Wyckoff_C2_Vs08_Z04": "20211201-20241231",
+      "Wyckoff_C2_Vs08_Z06": "20211201-20241231"
+    },
+    "timerange唯一": [
+      "20211201-20241231"
+    ],
+    "max_open_trades": 3,
+    "dry_run_wallet": 2000,
+    "timeframe": "15m",
+    "stake_amount": "unlimited"
+  },
+  "T3_数据快照": {
+    "data/futures feather 数": 518,
+    "覆盖 pair 数": 74,
+    "C0与FT-ENTRY-02逐字节同一": true,
+    "说明": "C1/C2 使用 74 币 15m/1h/4h+funding+mark+OI 本地数据（2026-10-20 落盘），与 C0 同源环境"
+  },
+  "T4_仅改确认条件": {
+    "函数级字节一致": {
+      "custom_stake_amount": true,
+      "custom_stoploss": true,
+      "custom_exit": true,
+      "populate_entry_trend": true,
+      "populate_exit_trend": true,
+      "informative_pairs": true
+    },
+    "全部一致": true,
+    "改动范围": "diff 仅涉及：①timing_mode 判定由 ==\"C\" 改为 startswith(\"C\")；②C0 分支原样保留于 if==\"C\"；③新增 C1/C2 待确认与次根复检分支（341-466 行）；④confirm_trade_entry 新增 C1/C2 审计分支；⑤audit/confirmation 落盘钩子。P0/仓位/止损/退出/A 路线逻辑未动（A 路线为 FT-ENTRY-04 继承代码，本轮 C1/C2 不经过）"
+  },
+  "T5_P0一致": {
+    "C1∩C2同事件数": 619,
+    "C1vsC2_orig_P0最大偏差": 0.0,
+    "账本orig_P0_vs对方P0_stop": {
+      "共同事件数": 778,
+      "最大绝对偏差": 0.0,
+      "最大相对偏差": 0.0
+    },
+    "C0成交价<=对方P0_stop笔数": 0,
+    "C0可配对P0笔数": 3034,
+    "stop_loss_abs口径澄清(按退出原因)": {
+      "stop_loss": {
+        "n": 2357,
+        "median(open-stop)": 0.014,
+        "median(open-P0)": 0.0148,
+        "stop==P0比例": 0.1175
+      },
+      "timeout_240h": {
+        "n": 41,
+        "median(open-stop)": -0.0016,
+        "median(open-P0)": 0.0068,
+        "stop==P0比例": 0.0
+      },
+      "trailing_stop_loss": {
+        "n": 636,
+        "median(open-stop)": -0.026,
+        "median(open-P0)": 0.016,
+        "stop==P0比例": 0.0
+      }
+    },
+    "判定": "P0 在信号柱冻结、C1/C2 与 C0 同事件同值（账本与对方表互证，最大相对偏差<1e-9 量级）；stop_loss_abs 是平仓时刻止损（2R 跟踪后会高于 P0），不能当 P0 用；C0 无成交价<=P0 的非法多头"
+  },
+  "T6_入场带差异": {
+    "C0的min_entry": "L-0.2A",
+    "C1/C2的min_entry": "P0（并新增 fill<=P0 拒单）",
+    "C1/C2放行笔数": 1357,
+    "放行中fill<=P0笔数": 0,
+    "fill_price_le_initial_stop_p0拒单数": 0,
+    "outside_min_max_bounds拒单": 8,
+    "其中C0同事件已成交": 8,
+    "retry_prohibited行数": 32,
+    "判定": "min_entry 收紧（L-0.2A→P0）未产生任何额外拒单（0 笔 fill<=P0）；8 笔 outside_min_max_bounds 均为成交价超过 max_entry=close+0.5A，属 C0 同款上限边界；该条款差异对 27 组成交无可测影响，但确属『确认条件之外的一并改动』，登记为轻微超标"
+  },
+  "T7_执行时刻": {
+    "核对笔数": 1357,
+    "违反笔数": 0,
+    "样例": [],
+    "判定": "全部=确认柱收盘+15m"
+  },
+  "T11_config一致": {
+    "max_open_trades": 3,
+    "dry_run_wallet": 2000,
+    "与FT-ENTRY-02一致": true
+  },
+  "T12_无留出期": {
+    "全部成交最晚平仓": "2024-12-30 14:30 UTC",
+    "判定": "最晚平仓<=2025-01-01，未触碰 2025+ 留出/未使用区间"
+  },
+  "T8_OI过滤": {
+    "判定": "代码级一致：is_retest 块在 C0/C1/C2 分流前统一执行 enable_oi_filter 且 oi_growth>=0；C1/C2 复用原信号柱 OI 读数，未新增/放松过滤"
+  }
+}

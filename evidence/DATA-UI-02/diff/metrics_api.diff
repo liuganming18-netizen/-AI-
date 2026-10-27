@@ -1,0 +1,56 @@
+diff --git a/tmp/dui02_base/metrics_api.py "b/\346\241\206\346\236\266/backend/metrics_api.py"
+index 90ebc6b..d10d196 100644
+--- a/tmp/dui02_base/metrics_api.py
++++ "b/\346\241\206\346\236\266/backend/metrics_api.py"
+@@ -652,6 +652,16 @@ SNAPSHOT_RATIO_BLOCKS = {
+     "global_account_ls_ratio": "global_account_long_short_ratio",
+ }
+ 
++# ── 轮转补采块的新鲜度阈值（DATA-UI-02 订正）────────────────────────────────
++# 这两个块只有轮转窗口才取：一轮铺满 = ceil(标的数 / 每轮 N) × 单轮周期。
++# **单轮周期实测 456s**（取数约 156s + 间隔 300s，2026-10-18 连续 8 轮均值），
++# 62 标的 / 每轮 12 ⇒ 6 轮铺满 ≈ **38 分钟**。
++# 若仍按 900s 判过期，「刚铺满时最早那批已经过期」在数学上永远成立
++# —— 不是数据坏了，是阈值比轮转周期还短。故这几个块的阈值跟随轮转周期。
++ROTATION_RATIO_KEYS = ("top_account_ls_ratio", "global_account_ls_ratio")
++ROTATION_CYCLE_S = int(os.environ.get("PUBLIC_EXTRAS_ROTATION_CYCLE_S", "2400"))
++ROTATION_STALE_S = int(ROTATION_CYCLE_S * 1.2)      # 2880s = 48 分钟
++
+ # 归档里能查到「比率」的唯一来源（币安官方归档 metrics，仅 5m 粒度）
+ METRICS_COLUMNS = {
+     "top_position_ls_ratio": "top_position_ls_ratio",
+@@ -850,8 +860,14 @@ def build_metrics(exchange, mid, params=None):
+                        "period_label": PERIOD_LABEL.get(block.get("period") or period),
+                        "snapshot_refreshed_at": snap.get("refreshed_at"),
+                        "snapshot_status": snap_fresh.get("status"),
+-                       "note": "聚合比率，非聪明钱身份/金额/均价"},
+-                stale_after_s=900))
++                       "stale_after_s": (ROTATION_STALE_S
++                                         if key in ROTATION_RATIO_KEYS else 900),
++                       "rotation_cycle_s": (ROTATION_CYCLE_S
++                                            if key in ROTATION_RATIO_KEYS else None),
++                       "note": ("聚合比率，非聪明钱身份/金额/均价；"
++                                + (f"该块按轮转补采，铺满一轮约 {ROTATION_CYCLE_S // 60} 分钟"
++                                   if key in ROTATION_RATIO_KEYS else ""))},
++                stale_after_s=(ROTATION_STALE_S if key in ROTATION_RATIO_KEYS else 900)))
+         else:
+             reason = block.get("reason")
+             if not reason:
+@@ -1138,8 +1154,17 @@ def handle_metrics(exchange, mid, params):
+     try:
+         return build_metrics(exchange, mid, params)
+     except Exception as exc:                                     # noqa: BLE001
++        # 构建失败必须**留痕**：此前这里静默返回 200 + 空字段集，
++        # 客户端只看到「所有指标都缺」，查不出真正原因（DATA-UI-02 实测撞到过一次：
++        # 某个标的整块字段为空，接口仍 200，错误信息只藏在 missing_reason 里）。
++        import sys as _sys
++        import traceback as _tb
++        print(f"[metrics_api] build_metrics 失败 {exchange}:{mid} "
++              f"{type(exc).__name__}: {exc}", file=_sys.stderr, flush=True)
++        _tb.print_exc(file=_sys.stderr)
+         return {"exchange": exchange, "market_id": mid, "as_of": iso(_now_ms()),
+                 "fields": [], "coverage": [], "available": False,
++                "degraded": True,
+                 "missing_reason": f"指标矩阵构建失败：{type(exc).__name__}: {exc}",
+                 "quality": {"status": "error", "age_seconds": None,
+                             "note": f"{type(exc).__name__}: {exc}"}}

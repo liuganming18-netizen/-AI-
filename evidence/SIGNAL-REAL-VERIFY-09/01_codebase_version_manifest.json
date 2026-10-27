@@ -1,0 +1,181 @@
+{
+ "probe": "SIGNAL-UI-LINK-07-R1/80_delivery_identity",
+ "generated_real_utc": "2026-10-25T11:44:21Z",
+ "code_fingerprint": {
+  "UI界面/web/src/api/signalsState.ts": {
+   "why": "新增：信号三态分类器（唯一实现）",
+   "exists": true,
+   "bytes": 7008,
+   "lines": 162,
+   "sha256": "f2d408931c50205306244737726ee59af87a1c1b8ffc31fda6903c518ae028e9"
+  },
+  "UI界面/web/src/api/useMarketData.ts": {
+   "why": "改：pullSignals 按契约分类，不再把异常清成空列表",
+   "exists": true,
+   "bytes": 56031,
+   "lines": 1250,
+   "sha256": "b1289ce6a2aa8d38f3971c62c42f42fd9a3da3d1bb039646f91a35b889cfe30f"
+  },
+  "UI界面/web/src/components/SignalListPanel.tsx": {
+   "why": "改：三态渲染 + 故障框 + 卡片 data 属性",
+   "exists": true,
+   "bytes": 46388,
+   "lines": 1010,
+   "sha256": "bf8eb3ce8df12718d6dcd5ff87368b33eca859d97180bb89a99031cc28616daf"
+  },
+  "UI界面/web/src/App.tsx": {
+   "why": "改：把 signalsState 透传给信号面板",
+   "exists": true,
+   "bytes": 21206,
+   "lines": 487,
+   "sha256": "07aefc6b8f82a8a7efd90d3e17786845ff9f319819172e9b96c3f0b1756b32b2"
+  },
+  "框架/backend/adapter.py": {
+   "why": "改：两条失败路径写对 quality.status / missing_reason",
+   "exists": true,
+   "bytes": 215744,
+   "lines": 3967,
+   "sha256": "6218416fae5f6dc37340524e405eb00cc9f149836c15c3bb0655de8c0bd0dd08"
+  }
+ },
+ "untouched_fingerprint": {
+  "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md": {
+   "why": "冻结规则（不得改）",
+   "exists": true,
+   "bytes": 13315,
+   "sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab"
+  },
+  "框架/backend/live/paper_new_entry_gate.json": {
+   "why": "生产入场门禁",
+   "exists": true,
+   "bytes": 307,
+   "sha256": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5"
+  },
+  "框架/backend/live/live_signals.sqlite3": {
+   "why": "生产实时信号库",
+   "exists": true,
+   "bytes": 45056,
+   "sha256": "91e0979b9458338f744fb674394a85209034266d244f07aa0152168092ac6e66"
+  },
+  "数据/paper/paper_3a.sqlite3": {
+   "why": "3a 账本",
+   "exists": true,
+   "bytes": 163840,
+   "sha256": "19825112fecbdba711debb8dce2dcf3d774ce43bbb25eaccee6bc07486da9479"
+  },
+  "数据/paper/paper_3b.sqlite3": {
+   "why": "3b 账本",
+   "exists": true,
+   "bytes": 163840,
+   "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df"
+  },
+  "数据/paper/paper_3c.sqlite3": {
+   "why": "3c 账本",
+   "exists": true,
+   "bytes": 163840,
+   "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b"
+  },
+  "数据/paper/paper_3d.sqlite3": {
+   "why": "3d 账本",
+   "exists": true,
+   "bytes": 163840,
+   "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5"
+  }
+ },
+ "services": {
+  "api_backend": {
+   "port": 8787,
+   "pid": 32935,
+   "started_at_utc": "2026-10-25T11:03:51Z",
+   "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend",
+   "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+   "environ_isolated_keys": {
+    "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "PAPER_LOCK_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/locks",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3"
+   }
+  },
+  "frontend_dev": {
+   "port": 3000,
+   "pid": 42341,
+   "started_at_utc": "2026-10-23T09:00:26Z",
+   "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/UI界面/web",
+   "cmdline": "node /Users/boos/Desktop/威科夫因子共振趋势/UI界面/web/node_modules/.bin/vite --port=3000 --host=0.0.0.0",
+   "environ_isolated_keys": {
+    "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3"
+   }
+  },
+  "collectors": [
+   {
+    "pid": 42278,
+    "started_at_utc": "2026-10-23T09:00:16Z",
+    "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py"
+   }
+  ]
+ },
+ "entries": {
+  "生产页面": {
+   "url": "http://127.0.0.1:3000/",
+   "current_state": "当前可执行信号 0 张（正常空列表）+ 空态诊断 9 行 + 历史明细 51 条",
+   "证据": [
+    "out/70_prod_page.json",
+    "out/70_prod_page_discarded.png"
+   ]
+  },
+  "生产接口": {
+   "signals_current": "http://127.0.0.1:8787/api/v1/signals?scope=current&limit=500",
+   "signals_all": "http://127.0.0.1:8787/api/v1/signals?scope=all&limit=500",
+   "paper_status": "http://127.0.0.1:8787/api/v1/paper/status",
+   "note": "正常态：quality.status=ok、missing_reason=null、quality.note 非空（口径说明，不是故障）"
+  },
+  "隔离验证入口": [
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python 20_contract_backend.py",
+    "proves": "接口契约四种情况：正常 ok / 未连接 not_connected / 读库异常 error / 下限缺失 no_watermark",
+    "out": "out/20_contract_backend.json"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python 40_two_paths.py --mode live",
+    "proves": "新产生候选：正式引擎 step_once(2026-10-02T15:00Z) 现场产生并落库（origin=live）",
+    "out": "out/40_two_paths_live.json",
+    "cost": "约 100 秒（要回放 2336 小时真实行情重建状态）"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python 40_two_paths.py --mode recovered",
+    "proves": "重启恢复候选：bootstrap 尾部补齐 + _route_recovered_candidates 落库（origin=recovered）",
+    "out": "out/40_two_paths_recovered.json",
+    "cost": "约 100 秒"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/node/versions/22.22.2-6/bin/node 30_fault_recovery.mjs",
+    "proves": "五态 + 恢复：加载中 / 正常空 / 业务异常200 / HTTP503 / 网络失败 / 恢复",
+    "out": "out/30_fault_recovery.json",
+    "cost": "约 50 秒"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/node/versions/22.22.2-6/bin/node 50_two_paths_page.mjs --mode live",
+    "proves": "新产生候选的页面级验收（库/接口/页面按同一 ID 对四项字段）",
+    "out": "out/50_two_paths_page_live.json",
+    "cost": "约 20 秒；需要 3000 端口前端在跑"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/node/versions/22.22.2-6/bin/node 50_two_paths_page.mjs --mode recovered",
+    "proves": "重启恢复候选的页面级验收",
+    "out": "out/50_two_paths_page_recovered.json",
+    "cost": "约 20 秒"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python 60_history_reconcile.py",
+    "proves": "历史明细 51 条：数量一致 / ID 时间原因可查 / 不进当前列表 / 账本无过期补单",
+    "out": "out/60_history_reconcile.json"
+   },
+   {
+    "cmd": "cd /Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-UI-LINK-07-R1/probes && /Users/boos/.workbuddy-ai/binaries/node/versions/22.22.2-6/bin/node 70_prod_page.mjs",
+    "proves": "生产页面：0 张卡 + 9 行诊断 + 51 条明细可展开，刷新轮询稳定",
+    "out": "out/70_prod_page.json"
+   }
+  ]
+ }
+}

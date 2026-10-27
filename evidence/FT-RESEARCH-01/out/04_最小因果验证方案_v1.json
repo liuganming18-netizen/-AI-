@@ -1,0 +1,98 @@
+{
+ "工单": "FT-RESEARCH-01｜最小后续因果验证方案（只交方案，不执行）",
+ "总原则": [
+  "不重跑整套实验：只做最小差分/前缀核对，规模以「币 × 格 × 2（约束开/关）」计",
+  "不新增下载：数据一律取自本机 v3.1 物理隔离目录",
+  "不改时间戳、不打开 2026 留出数据",
+  "所有引擎运行必须落在 is/ 窗（2021-10-01~2024-12-31）或 val/ 窗（2024-10-01~2026-04-14），二者均不含旧 Holdout（2026-04-15~2026-10-15）",
+  "结论限定为「机制是否成立」，不据此宣布新因子或新策略有效"
+ ],
+ "方案A_前缀检查（因果/无前瞻）": {
+  "问题": "已有研究区间里哪些有真实信号，可用来做前缀（截断）检查，证明信号不依赖未来数据",
+  "可用区间与信号": {
+   "区间1_冻结研究期_is": {
+    "窗口": "2021-12-01~2024-12-31（is/ 数据自 2021-10-01 起，含 220 根 4h 预热）",
+    "L1有候选币": 125,
+    "L1有成交币": 100,
+    "其中可扩展171_有候选": 92,
+    "有成交": 71,
+    "信号锚点来源": "FT-ENTRY-04 audit_orders_*.csv 的 planned_execution_time（已知候选，最可靠）"
+   },
+   "区间2_val_窗": {
+    "窗口": "2024-10-01~2026-04-14（止于 Holdout 之前）",
+    "L1有候选币": 107,
+    "L1有成交币": 86,
+    "其中可扩展171_有候选": 76,
+    "有成交": 60,
+    "信号锚点来源": "FULL_SWEEP runs.jsonl trade_list.t_in（旧引擎窗口内真实成交）",
+    "注意": "val 窗已被 FULL_SWEEP 扫描过（OOS-READY-01 归入 S4 已接触），故 val 只能用于机制核对，不能当干净样本外"
+   },
+   "不可用区间": {
+    "旧Holdout_2026-04-15~2026-10-15": "已消耗 37 笔唯一交易 +234.38U，已污染，禁用",
+    "S0/S1/S6/S7": "数据资格不合格或无数据"
+   }
+  },
+  "最小设计": {
+   "对象": "先做拒单足迹 9 币（1000BONK/ARPA/AR/CHR/BNB/COTI/APE/API3/BEL），这些币同时具备 is/ 数据与已知候选锚点；确有必要再扩到 92 个可扩展有信号币",
+   "锚点": "out/04_前缀锚点_v1.csv（已生成：审计日志候选时刻 + FULL_SWEEP 真实成交时刻）",
+   "做法": "对每个锚点时刻 T_p，跑一次 `--timerange 20211201-<T_p 前一根 15m>`（前缀）与一次全期 `--timerange 20211201-20241231`（基准），比较两者在 < T_p 区间内产生的候选集合",
+   "通过条件": "前缀运行的候选集合 = 基准运行同期候选集合（子集关系且无缺失）",
+   "失败含义": "基准有、前缀无的候选 ⇒ 该候选的生成依赖 T_p 之后的数据 ⇒ 前瞻污染，必须停",
+   "规模": "每币 (1 基准 + k 前缀)，k=2~3 即可覆盖早/中/晚三个锚点 ⇒ 9 币约 27~36 次回测",
+   "配套": "预热校验：4h 需 220 根（200 预热 + 42 箱体），is/ 自 2021-10-01 起满足"
+  },
+  "预期证据": [
+   "两次运行的 enter_tag / candidate_id 清单（同期）",
+   "H（箱顶）与 L/A 在两次运行中逐候选一致",
+   "若不一致，输出差异候选的 fill/H/planned_execution_time"
+  ]
+ },
+ "方案B_成交价>=H拒单的真实引擎验证": {
+  "问题": "成交价等于/高于 H 的拒单，怎样用真实引擎（而非替代报告）验证",
+  "手法": "同币同格、只切基类的 A 路线约束分支，做 ON/OFF 差分；以 FT-ENTRY-04 运行期自写 audit_orders_*.csv 为权威预期，交叉验证 freqtrade 逐笔 trades_*.csv",
+  "最小设计": {
+   "对象币": [
+    "1000BONKUSDT",
+    "APEUSDT",
+    "API3USDT",
+    "ARPAUSDT",
+    "ARUSDT",
+    "BELUSDT",
+    "BNBUSDT",
+    "CHRUSDT",
+    "COTIUSDT"
+   ],
+   "格": "先取 1 格（建议 A01 = Wyckoff_A_L06_V08，深 Δ，拒单 5 个）；如需覆盖三种 Δ，再取 A04/A07 ⇒ 共 3 格",
+   "两组基类": {
+    "OFF（对照）": "evidence/FT-ENTRY-03/user_data/strategies（无 fill<H 约束）",
+    "ON（实验）": "evidence/FT-ENTRY-04/user_data/strategies（A 路线 fill_price>=frozen_H → REJECT）"
+   },
+   "命令": [
+    "FT-BASELINE-01/.venv/bin/freqtrade backtesting -c <cfg_off> --strategy <S> --strategy-path evidence/FT-ENTRY-03/user_data/strategies --timerange 20211201-20241231 --cache none --export trades",
+    "FT-BASELINE-01/.venv/bin/freqtrade backtesting -c <cfg_on> --strategy <S> --strategy-path evidence/FT-ENTRY-04/user_data/strategies --timerange 20211201-20241231 --cache none --export trades"
+   ],
+   "pairlist": "只放该格涉及的拒单币（≤9 个），不改其它任何参数"
+  },
+  "通过条件": [
+   "OFF 组：该格在 9 币上出现 fill_price >= frozen_H 的成交，逐笔可与 FT-ENTRY-03 的 trades_*.csv 对上（enter_tag 主键）",
+   "ON 组：上述成交全部消失，且消失集合恰等于 audit_orders_*.csv 中 reason 为 fill_price_ge_frozen_h_greater/equal 的去重候选集（A01 格为 5 个）",
+   "ON 组放行笔数与 audit 的 PASSED 数一致，且逐笔 open_rate < frozen_H",
+   "Baseline 不受影响（约束只作用于 A 路线）"
+  ],
+  "规模": "3 格 × 2 组 = 6 次回测（若只做 1 格则 2 次）",
+  "前置": "需先用 FT-DATA-01 口径把 9 币的 v31 parquet 本地转成 freqtrade feather（本地转换，非下载）"
+ },
+ "方案C_PIT与OI检查（可选，最小）": {
+  "问题": "候选所用 OI 在决策时刻是否真的可得（FRAME-PIT-01）",
+  "做法": "对同一批候选，用 flow_oi/pit_features.py 的唯一受控实现复算 ΔOI_6h 与 available_at，核对 桶起点+5m <= decision_time",
+  "通过条件": "每个候选的 OI 输入满足该不等式；不满足者记 pit_qualified=False",
+  "硬边界": "declared_lag 不升级资格；OI 无 fetched_at ⇒ 全池 1h OI 因子资格仍为 0，不得宣称 PIT 隔离",
+  "规模": "纯本地复算，不需要跑引擎"
+ },
+ "不做的事": [
+  "不跑 9 格 × 70 币的整套回测",
+  "不扩展 C 路线",
+  "不打开 2026 留出数据、不读取 WyckoffMaster/v3.0 含 Holdout 目录",
+  "不据此宣布任何新因子/新策略有效"
+ ]
+}

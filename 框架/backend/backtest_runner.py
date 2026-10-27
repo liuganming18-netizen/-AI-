@@ -27,6 +27,7 @@ import json
 import math
 import os
 import threading
+import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
@@ -36,6 +37,7 @@ import numpy as np
 import pandas as pd
 
 import backtest_store as S
+import bt_run_log as _LOG
 import oi_resonance_bridge as BR
 from market_repository import MarketDataRepository
 
@@ -781,12 +783,29 @@ def _run_event_trend(run_id: str, doc: dict) -> dict:
     symbol = str(syms[0]).upper()
     initial_equity = float(spec.get("initial_equity") or (spec.get("params") or {}).get("initial_equity") or 2000.0)
 
-    cfg = EventTrendConfig(initial_equity=initial_equity)
+    from WyckoffMaster.event_trend_v0_1.config import make_ft_low4h_config
+    frozen = spec.get("execution_contract") or {}
+    if frozen.get("rule") != "FT-LOW4H":
+        raise RuntimeError("缺少冻结 FT-LOW4H 执行契约，拒绝回退旧规则")
+    cfg = make_ft_low4h_config(
+        initial_equity=initial_equity, stoploss_s=float(frozen["stoploss_s"]),
+        trail_d=float(frozen["trail_d"]),
+        risk_budget_per_trade=float(frozen["risk_per_trade_equity_fraction"]),
+        taker_fee_bps=float(frozen["fee_each_side"])*10000,
+        slippage_bps=float(frozen["slippage_each_side"])*10000,
+        max_participation_of_prev_15m_quote=float(frozen["entry_participation_previous_15m_quote_cap"]),
+    )
     runner = EventTrendRunner()
+    runner.runs_base = str(S.get_runs_root())
+    if os.environ.get("MARKET_ARCHIVE"):
+        runner.parquet_base = os.environ["MARKET_ARCHIVE"]
+    win_req = spec.get("window") or {}
+    if win_req.get("mode") != "explicit":
+        raise RuntimeError("缺少显式回测窗口")
     
     # 1. 加载数据
     df_4h, df_1h, df_15m, oi_ts, oi_vals, funding_events = runner.load_symbol_data(
-        symbol=symbol, start_date="2024-01-01", end_date="2024-06-30"
+        symbol=symbol, start_date=_iso(int(win_req["start_ms"])), end_date=_iso(int(win_req["end_ms"])), allow_auto_window=False
     )
 
     # 2. 跑 A/B/C 三方案并原子落盘
@@ -1407,10 +1426,68 @@ def build_chart(win: dict, exec_df: pd.DataFrame, sig_frame: pd.DataFrame, res: 
     }
 
 
+def _record_experiment_outcome(run_id: str, doc: dict, *, outcome: str,
+                               metrics: Optional[dict] = None,
+                               note: str = "") -> dict:
+    """把这次执行写进实验登记（run + trial）。**失败不影响回测本身的状态**。
+
+    FRAME-FIT-02：登记只在这里写 —— 两道闸门（`guard_create` / `guard_execute`）
+    全程只读，不会为了让首个正式实验过闸而伪造运行/试验记录。
+    研究运行（实验未冻结）不写记录，`record_execution` 会返回原因，照实记进 run.json。
+    """
+    rec: dict = {"outcome": outcome, "recorded": False, "error": None}
+    try:
+        import experiment_registry as _EXP
+        err = _EXP.record_execution(run_id, doc, outcome=outcome,
+                                    metrics=metrics, note=note)
+        rec["recorded"] = err is None
+        rec["error"] = err
+    except Exception as exc:                                # noqa: BLE001
+        rec["error"] = f"{type(exc).__name__}: {exc}"
+    try:
+        S.update_run(run_id, experiment_record=rec)
+    except Exception:                                       # noqa: BLE001
+        pass
+    return rec
+
+
 def execute_run(run_id: str) -> dict:
-    """执行一次研究回测：状态机 + 失败留原因（**不吞异常**）。"""
+    """执行一次研究回测：状态机 + 失败留原因（**不吞异常**）。
+
+    FRAME-FIT-01：执行前必须过实验闸门 —— 未绑定已冻结实验、或登记身份与
+    当前代码/参数/样本不一致 ⇒ 直接标 `failed` 并**不产出任何结果**。
+    这条闸在**真实入口**上，不是只给登记工具做自测。
+
+    FRAME-FIT-02：执行**之后**把这次运行与结论写回登记（成功/失败都写）。
+    闸门拒绝（没真跑）不写记录 —— 没跑过就没有结果，不能靠写记录冒充。
+
+    CODE-REVIEW-02：运行级日志（`bt_run_log.run_log`，落 `logs/backtest_runs.log`
+    + stdout）—— 闸门拒绝 / 失败 / 成功三个出口各记一行，逐笔受
+    `BT_TRADE_LOG=1` 控制。这是「回测留痕」的日志侧地基。
+    """
     doc = S.read_run(run_id)
+    _spec = doc.get("spec") or {}
+    _t0 = time.time()
+    try:
+        import experiment_registry as _EXP
+        gate_err = _EXP.guard_execute(run_id, doc)
+    except Exception as exc:                              # noqa: BLE001
+        gate_err = f"实验登记库不可用：{type(exc).__name__}: {exc}"
+    if gate_err:
+        S.set_status(run_id, S.STATUS_FAILED,
+                     failure_reason=f"实验闸门拒绝（FRAME-FIT-01）：{gate_err}",
+                     gate="experiment_registry")
+        _LOG.run_log("run_gate_rejected", run_id=run_id,
+                     symbol=str((_spec.get("symbols") or [None])[0]),
+                     reason=gate_err, duration_s=round(time.time() - _t0, 3))
+        return S.read_run(run_id)
+
     S.set_status(run_id, S.STATUS_RUNNING)
+    _LOG.run_log("run_started", run_id=run_id,
+                 symbol=str((_spec.get("symbols") or [None])[0]),
+                 strategy_id=_spec.get("strategy_id"),
+                 win_start_ms=(_spec.get("params") or {}).get("win_start_ms"),
+                 win_end_ms=(_spec.get("params") or {}).get("win_end_ms"))
     with _EXEC_LOCK:
         try:
             out = _run(run_id, doc)
@@ -1419,8 +1496,31 @@ def execute_run(run_id: str) -> dict:
             S.set_status(run_id, S.STATUS_FAILED,
                          failure_reason=f"{type(exc).__name__}: {exc}",
                          traceback=tb[-4000:])
+            _record_experiment_outcome(run_id, doc, outcome="failure",
+                                       note=f"{type(exc).__name__}: {exc}")
+            _LOG.run_log("run_failed", run_id=run_id,
+                         symbol=str((_spec.get("symbols") or [None])[0]),
+                         error=f"{type(exc).__name__}: {exc}",
+                         tb_tail=tb[-800:], duration_s=round(time.time() - _t0, 3))
             return S.read_run(run_id)
     S.set_status(run_id, S.STATUS_SUCCEEDED, **out)
+    _record_experiment_outcome(run_id, doc, outcome="success",
+                               metrics=(out or {}).get("metrics"))
+    _m = (out or {}).get("metrics") or {}
+    _LOG.run_log("run_succeeded", run_id=run_id,
+                 symbol=str(((out or {}).get("window") or {}).get("symbol")
+                            or (_spec.get("symbols") or [None])[0]),
+                 strategy_id=_spec.get("strategy_id"),
+                 window=out.get("window"), funnel=out.get("summary"),
+                 trades_count=_m.get("trades_count"), net_pnl=_m.get("net_pnl"),
+                 net_return_pct=_m.get("net_return_pct"),
+                 data_quality=(out.get("data_quality") or {}).get("status"),
+                 duration_s=round(time.time() - _t0, 3))
+    # 逐笔日志默认关（BT_TRADE_LOG=1 开启）；字段全部真实，缺的字段不进日志
+    if _LOG.trade_log_enabled():
+        _tp = (out or {}).get("trades_preview") or []
+        for _i, _t in enumerate(_tp):
+            _LOG.log_trade(run_id, _i, _t)
     return S.read_run(run_id)
 
 

@@ -1,0 +1,377 @@
+{
+ "生成时刻": "2026-10-23T01:29:53+08:00",
+ "环境": {
+  "PAPER_LEDGER_DIR": "/tmp/wx_final01/paper",
+  "PAPER_LEDGER_ALLOW_INIT": "1",
+  "LIVE_DIR": "/tmp/wx_final01/live",
+  "LIVE_DB": "/tmp/wx_final01/live/live_signals.sqlite3",
+  "MARKET_DB": "/tmp/wx_final01/market.sqlite3",
+  "PAPER_GATE_FILE": "/tmp/wx_final01/gate.json",
+  "PAPER_LOCK_DIR": "/tmp/wx_final01/locks",
+  "PYTHONPATH": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend:/Users/boos/Desktop/威科夫因子共振趋势"
+ },
+ "场景": [
+  {
+   "场景": "S1 视图文件不存在（必需配置缺失）",
+   "EFFECTIVE_VIEW": "/tmp/wx_final01/view_missing.json",
+   "视图存在": false,
+   "approved_params": {
+    "source": "fallback_frozen_v2_2_conservative",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "max_holding_hours": 720,
+    "portfolio_initial_stop_risk_cap": 0.03,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "view_sha256": null
+   },
+   "open_position": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 1,
+    "symbol": "BTCUSDT",
+    "signal_uid": "fin_a_s1",
+    "origin": "replay",
+    "requested_at": 1792690193649,
+    "first_request_ms": 1792690193649,
+    "order_request_ms": 1792690193649,
+    "earliest_fill_ms": 1792691093649,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792690193649,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "结论": "静默接受(登记挂单)",
+   "期望": "应拒绝新单",
+   "挂单落库": [
+    {
+     "pending_id": 1,
+     "symbol": "BTCUSDT",
+     "signal_uid": "fin_a_s1",
+     "status": "pending",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "model_version": "FT-LOW4H-EXP-V2.2",
+     "config_fingerprint": null
+    }
+   ]
+  },
+  {
+   "场景": "S2 视图存在但缺 stops 段",
+   "EFFECTIVE_VIEW": "/tmp/wx_final01/view_no_stops.json",
+   "视图存在": true,
+   "approved_params": {
+    "source": "frozen_view_view_no_stops",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "max_holding_hours": 720,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "view_sha256": "7d7538bd4c50"
+   },
+   "open_position": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 2,
+    "symbol": "BTCUSDT",
+    "signal_uid": "fin_a_s2",
+    "origin": "replay",
+    "requested_at": 1792690193718,
+    "first_request_ms": 1792690193718,
+    "order_request_ms": 1792690193718,
+    "earliest_fill_ms": 1792691093718,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792690193718,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "结论": "静默接受(登记挂单)",
+   "期望": "应拒绝新单",
+   "挂单落库": [
+    {
+     "pending_id": 2,
+     "symbol": "BTCUSDT",
+     "signal_uid": "fin_a_s2",
+     "status": "pending",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "model_version": "FT-LOW4H-EXP-V2.2",
+     "config_fingerprint": "7d7538bd4c50736a561b6ed9d7eb8c8e8d188afc654bcd0c1327524f4d73b36e"
+    }
+   ]
+  },
+  {
+   "场景": "S3 stops.stoploss_s=0（显式非法）",
+   "EFFECTIVE_VIEW": "/tmp/wx_final01/view_zero_s.json",
+   "视图存在": true,
+   "approved_params": {
+    "source": "frozen_view_view_zero_s",
+    "stoploss_s": 0.0,
+    "trail_d": 0.05,
+    "max_holding_hours": 240,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP-V2.2",
+    "view_sha256": "740bd272c683"
+   },
+   "open_position": "抛异常: ValueError: missing_parameter_stoploss_s: FT-LOW4H 规则必需有效的 stoploss_s 配置，阻止登记挂单",
+   "结论": "拒绝(显式报错)",
+   "期望": "应拒绝新单",
+   "挂单落库": []
+  },
+  {
+   "场景": "S4 完整配置 exp1(0.05/0.05)",
+   "EFFECTIVE_VIEW": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-05/config/exp1_config.json",
+   "视图存在": true,
+   "approved_params": {
+    "source": "frozen_view_exp1_config",
+    "stoploss_s": 0.05,
+    "trail_d": 0.05,
+    "max_holding_hours": 240,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP05-GROUP1",
+    "view_sha256": "c2aeddb3fa0a"
+   },
+   "open_position": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 3,
+    "symbol": "BTCUSDT",
+    "signal_uid": "fin_a_s4",
+    "origin": "replay",
+    "requested_at": 1792690193780,
+    "first_request_ms": 1792690193780,
+    "order_request_ms": 1792690193780,
+    "earliest_fill_ms": 1792691093780,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792690193780,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "结论": "静默接受(登记挂单)",
+   "期望": "应接受",
+   "挂单落库": [
+    {
+     "pending_id": 3,
+     "symbol": "BTCUSDT",
+     "signal_uid": "fin_a_s4",
+     "status": "pending",
+     "stoploss_s": 0.05,
+     "trail_d": 0.05,
+     "model_version": "FT-LOW4H-EXP05-GROUP1",
+     "config_fingerprint": "c2aeddb3fa0a2cc9ad45a6fd7f113075ddc524001eb47ecb4eec088dfb830955"
+    }
+   ]
+  },
+  {
+   "场景": "S5 完整配置 exp2(0.03/0.08)",
+   "EFFECTIVE_VIEW": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SYSTEM-CLOSELOOP-05/config/exp2_config.json",
+   "视图存在": true,
+   "approved_params": {
+    "source": "frozen_view_exp2_config",
+    "stoploss_s": 0.03,
+    "trail_d": 0.08,
+    "max_holding_hours": 240,
+    "portfolio_initial_stop_risk_cap": 0.05,
+    "model_version": "FT-LOW4H-EXP05-GROUP2",
+    "view_sha256": "5f9cdfe9da6c"
+   },
+   "open_position": {
+    "ok": false,
+    "reason": "pending_future_fill",
+    "pending_id": 4,
+    "symbol": "BTCUSDT",
+    "signal_uid": "fin_a_s5",
+    "origin": "replay",
+    "requested_at": 1792690193814,
+    "first_request_ms": 1792690193814,
+    "order_request_ms": 1792690193814,
+    "earliest_fill_ms": 1792691093814,
+    "epoch_ms": 1791939600000,
+    "attempt_ms": 1792690193814,
+    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+   },
+   "结论": "静默接受(登记挂单)",
+   "期望": "应接受",
+   "挂单落库": [
+    {
+     "pending_id": 4,
+     "symbol": "BTCUSDT",
+     "signal_uid": "fin_a_s5",
+     "status": "pending",
+     "stoploss_s": 0.03,
+     "trail_d": 0.08,
+     "model_version": "FT-LOW4H-EXP05-GROUP2",
+     "config_fingerprint": "5f9cdfe9da6c41d73d63bcff309479dd3dd68cc90a80fd5f95114cf3b9b94102"
+    }
+   ]
+  }
+ ],
+ "四层身份列": {
+  "paper_pending": {
+   "列": [
+    "pending_id",
+    "account_id",
+    "arm",
+    "symbol",
+    "direction",
+    "signal_uid",
+    "origin",
+    "atr",
+    "stop_price",
+    "stoploss_s",
+    "trail_d",
+    "model_version",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "status",
+    "reason",
+    "created_at",
+    "resolved_at",
+    "fill_position_id",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "有stoploss_s": true,
+   "有trail_d": true,
+   "有config_fingerprint": true
+  },
+  "paper_order": {
+   "列": [
+    "order_id",
+    "account_id",
+    "event_uid",
+    "symbol",
+    "side",
+    "qty",
+    "price",
+    "fee",
+    "ts",
+    "status",
+    "reject_reason",
+    "fill_price",
+    "notional",
+    "bar_open_time",
+    "model_version",
+    "event_time",
+    "requested_at",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "有stoploss_s": false,
+   "有trail_d": false,
+   "有config_fingerprint": false
+  },
+  "paper_fill": {
+   "列": [
+    "fill_id",
+    "account_id",
+    "order_id",
+    "position_id",
+    "signal_uid",
+    "symbol",
+    "action",
+    "qty",
+    "raw_price",
+    "fill_price",
+    "notional",
+    "fee",
+    "slippage_cost",
+    "bar_open_time",
+    "bar_close_time",
+    "fill_ts",
+    "model_version",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "market_source",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "有stoploss_s": false,
+   "有trail_d": false,
+   "有config_fingerprint": false
+  },
+  "paper_position": {
+   "列": [
+    "position_id",
+    "account_id",
+    "symbol",
+    "qty",
+    "entry_price",
+    "entry_ts",
+    "exit_ts",
+    "exit_reason",
+    "status",
+    "exit_price",
+    "entry_fee",
+    "exit_fee",
+    "funding_paid",
+    "signal_uid",
+    "arm",
+    "stop_price",
+    "atr_at_entry",
+    "model_version",
+    "stoploss_s",
+    "trail_d",
+    "config_fingerprint",
+    "event_time",
+    "available_at",
+    "requested_at",
+    "earliest_fill_ms",
+    "market_source",
+    "origin",
+    "first_request_ms",
+    "epoch_ms",
+    "voided",
+    "void_reason"
+   ],
+   "有stoploss_s": true,
+   "有trail_d": true,
+   "有config_fingerprint": true
+  },
+  "paper_stop_history": {
+   "列": [
+    "id",
+    "account_id",
+    "position_id",
+    "old_stop",
+    "new_stop",
+    "reason",
+    "ref_bar_open_ms",
+    "available_at",
+    "decision_at",
+    "effective_at",
+    "created_at"
+   ],
+   "有stoploss_s": false,
+   "有trail_d": false,
+   "有config_fingerprint": false
+  }
+ },
+ "判定": {
+  "A1_缺配置拒绝新单": {
+   "S1 视图不存在": "不通过",
+   "S2 缺 stops 段": "不通过",
+   "S3 s=0 显式非法": "通过",
+   "结论": "不通过"
+  },
+  "A1_完整配置应接受": {
+   "exp1": "静默接受(登记挂单)",
+   "exp2": "静默接受(登记挂单)",
+   "结论": "通过"
+  },
+  "A2_身份贯穿": {
+   "挂单": true,
+   "订单": false,
+   "持仓": true,
+   "结论": "不通过(订单层缺身份)"
+  }
+ }
+}
