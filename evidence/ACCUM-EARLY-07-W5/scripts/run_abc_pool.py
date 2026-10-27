@@ -219,6 +219,12 @@ out = {
     "window": res["window"],
     "n_symbols": len(res["symbols"]),
     "n_errors": len(res["errors"]), "errors": res["errors"][:20],
+    # [AUDIT-003-PATCH] 退出推进异常 / 平仓被拒 ⇒ research_run 把状态打成 FAILED，
+    # 这里必须原样透传，否则跑分器又会算出一份看起来正常的成绩单（BLK-01）。
+    "run_status": res.get("run_status", "OK"),
+    "invalid_reasons": res.get("invalid_reasons") or [],
+    "run_problems": (res.get("run_problems") or [])[:20],
+    "run_invalid_note": res.get("run_invalid_note"),
     "flags": res["flags"],
     "identity": {k: res["identity"][k] for k in
                  ("entry_version", "config_schema", "rule_version", "exit_rules",
@@ -270,7 +276,31 @@ def _q(con, sql, args=()):
     return [dict(r) for r in con.execute(sql, args)]
 
 
-def ledger_metrics(paper_dir: Path, scheme: str, window_days: float) -> dict:
+def _block_metrics(out: dict, run_invalid: dict) -> dict:
+    """[AUDIT-003-PATCH] 运行被标记无效 ⇒ 抹掉一切绩效结论，只留「无意义」标记。
+
+    保留 `n_positions_rows` / `n_open_at_end` 这类**账本事实**用于诊断，
+    但收益、胜率、盈亏比、回撤、年化一律置 None —— 不允许出现「看起来正常」的成绩单。
+    """
+    for k in ("win_rate", "net_pnl", "gross_profit", "gross_loss", "profit_factor",
+              "avg_win", "avg_loss", "payoff_ratio", "max_drawdown",
+              "max_drawdown_pct", "max_drawdown_at", "range_return",
+              "annualized_return", "avg_holding_hours", "n_trades",
+              "n_wins", "n_losses", "fees_total", "funding_total"):
+        out[k] = None
+    out["equity_curve"] = []
+    out["reconcile"] = {}
+    out["invalid"] = True
+    out["status"] = run_invalid.get("status", "FAILED")
+    out["invalid_reasons"] = list(run_invalid.get("reasons") or [])
+    out["blocked_by"] = "run_status_gate"
+    out["invalid_note"] = ("本次运行被标记为无效（退出推进异常或平仓被拒）⇒ "
+                           "收益率/胜率/回撤一律不产出；必须修掉 invalid_reasons 后重跑。")
+    return out
+
+
+def ledger_metrics(paper_dir: Path, scheme: str, window_days: float,
+                   run_invalid: dict = None) -> dict:
     acc = f"paper43_{scheme}"
     f = paper_dir / f"paper_{scheme}.sqlite3"
     out = {"scheme": scheme, "label": SCHEME_LABEL[scheme], "ledger": str(f),
@@ -371,6 +401,9 @@ def ledger_metrics(paper_dir: Path, scheme: str, window_days: float) -> dict:
                 "sum_funding": round(funding, 10),
             },
         })
+        # [AUDIT-003-PATCH] 绩效汇总入口的状态检查：无效运行**不许**带成绩出门
+        if run_invalid:
+            return _block_metrics(out, run_invalid)
         return out
     finally:
         con.close()
@@ -441,6 +474,11 @@ def main(argv=None) -> int:
     ap.add_argument("--scan-only", action="store_true", help="只数候选，不撮合不出成绩")
     ap.add_argument("--run-id", default="")
     ap.add_argument("--no-cache-limit", action="store_true")
+    # [AUDIT-003-PATCH] 允许把本次产物写到别的证据目录，避免覆盖既有审计报告
+    ap.add_argument("--out-dir", default="",
+                    help="输出目录；缺省 evidence/ACCUM-EARLY-07-W5/out（不要覆盖历史报告）")
+    ap.add_argument("--runs-dir", default="",
+                    help="运行产物目录；缺省 evidence/ACCUM-EARLY-07-W5/runs")
     a = ap.parse_args(argv)
 
     cfg_path = Path(a.config).resolve()
@@ -463,7 +501,7 @@ def main(argv=None) -> int:
     start_ms, end_ms = ms_of(a.start), ms_of(a.end)
     window_days = (end_ms - start_ms) / DAY
     run_id = a.run_id or time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
-    run_dir = W5 / "runs" / run_id
+    run_dir = (Path(a.runs_dir) if a.runs_dir else (W5 / "runs")) / run_id
     if run_dir.exists():
         shutil.rmtree(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -525,9 +563,16 @@ def main(argv=None) -> int:
     drift = [rel for rel in SHARED_FILES
              if code_before[rel].get("sha256") != code_after[rel].get("sha256")]
 
+    # ── [AUDIT-003-PATCH] 运行可信度先判，再决定要不要算指标（BLK-01）─────────
+    run_status = str(raw.get("run_status") or "OK")
+    invalid_reasons = list(raw.get("invalid_reasons") or [])
+    run_invalid = ({"status": run_status, "reasons": invalid_reasons}
+                   if run_status != "OK" else None)
+
     # 指标
     paper_dir = run_dir / "paper"
-    metrics = {s: ledger_metrics(paper_dir, s, window_days) for s in ("4a", "4b", "4c")}
+    metrics = {s: ledger_metrics(paper_dir, s, window_days, run_invalid=run_invalid)
+               for s in ("4a", "4b", "4c")}
     diag = chain_diagnosis(run_dir / "observe.sqlite3")
 
     # 候选与成交（来自 raw）
@@ -551,13 +596,20 @@ def main(argv=None) -> int:
     boxes_capped = sum(1 for p in raw["per_symbol"]
                        if int(p.get("boxes_used") or 0) >= a.max_boxes)
     status = "OK"
-    if drift:
+    if run_invalid:
+        # 退出推进异常 / 平仓被拒是**最严重**的一档：账本与行情不自洽，
+        # 比「代码漂移」「配置未批准」都更根本，优先级最高。
+        status = "INVALID_RUN_FAILED"
+    elif drift:
         status = "INVALID_CODE_DRIFT"
     elif cfg_brief.get("kind") != "approved" or not cfg_brief.get("approved"):
         status = "UNVERIFIED_CONFIG_UNAPPROVED"
 
     identity = {
         "run_id": run_id, "status": status,
+        "run_status": run_status, "invalid_reasons": invalid_reasons,
+        "run_invalid_note": raw.get("run_invalid_note"),
+        "run_problems": raw.get("run_problems") or [],
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "window": {"start": a.start, "end": a.end, "days": round(window_days, 3)},
         "pool": scope, "n_symbols": len(symbols),
@@ -586,7 +638,7 @@ def main(argv=None) -> int:
 
     result = {"identity": identity, "metrics": metrics, "diagnosis": diag,
               "per_symbol": raw["per_symbol"]}
-    out = W5 / "out"
+    out = Path(a.out_dir) if a.out_dir else (W5 / "out")
     out.mkdir(parents=True, exist_ok=True)
     stem = "扫描_候选普查" if a.scan_only else "回测_甲乙丙对比"
     (out / f"{stem}.json").write_text(
@@ -596,8 +648,18 @@ def main(argv=None) -> int:
     write_csv(out / f"{stem}.csv", result)
     (out / f"运行身份_{run_id}.json").write_text(
         json.dumps(identity, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    # [AUDIT-003-PATCH] 落一份机器可读的运行可信度标记，供 backtest_metrics
+    # 等绩效汇总入口按同一契约阻断（否则换个入口又能算出成绩）。
+    (run_dir / "run_status.json").write_text(
+        json.dumps({"status": run_status,
+                    "invalid_reasons": invalid_reasons,
+                    "run_id": run_id,
+                    "table_status": status,
+                    "note": raw.get("run_invalid_note")},
+                   ensure_ascii=False, indent=1), encoding="utf-8")
 
     print(json.dumps({"stage": "done", "run_id": run_id, "status": status,
+                      "run_status": run_status, "invalid_reasons": invalid_reasons,
                       "candidates": cand, "opened": opened,
                       "n_exits": raw.get("n_exits"),
                       "trades": {s: metrics[s].get("n_trades") for s in metrics},
@@ -642,6 +704,13 @@ def write_table(path: Path, result: dict, a) -> None:
     L.append(f"- 成本底座（引擎生效视图）：`{eng.get('view_sha256')}` "
              f"{eng.get('strategy_version')}，来源 `{eng.get('_source')}`")
     L.append(f"- 状态：**{ident['status']}**")
+    if ident.get("run_status") and ident["run_status"] != "OK":
+        L.append("")
+        L.append(f"> **本次运行无效（run_status={ident['run_status']}）。** "
+                 f"原因码：`{', '.join(ident.get('invalid_reasons') or [])}`")
+        L.append("> 退出推进出现异常或平仓被价格门禁拒单 ⇒ 账本与行情不自洽，"
+                 "下表所有绩效指标已置空（`—` 表示「无意义」，不是 0）。"
+                 "必须先修掉上述原因再重跑，禁止引用本次数字。")
     if ident["code_drift"]:
         L.append(f"- ⚠ 代码漂移：{ident['code_drift']} ⇒ 本次结果判失效")
     if ident["status"] == "UNVERIFIED_CONFIG_UNAPPROVED":

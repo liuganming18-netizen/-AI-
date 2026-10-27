@@ -51,6 +51,8 @@ __all__ = [
     "compute_metrics",
     "compute_benchmark",
     "compute_monthly_returns",
+    # [AUDIT-003-PATCH] 运行可信度门禁
+    "load_run_status",
 ]
 
 WIN_LOSS_BASIS = "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平"
@@ -150,12 +152,81 @@ def _sharpe_sqrt365(eq_rows: List[dict]) -> Tuple[Optional[float], Optional[int]
     return mean / math.sqrt(var) * math.sqrt(365.0), n, SHARPE_BASIS
 
 
+def load_run_status(run_dir) -> Optional[dict]:
+    """读 run 的可信度标记（AUDIT-003-PATCH）。
+
+    契约：回测运行方在 `run_dir` 下写 `run_status.json`
+    `{"status": "OK"|"FAILED", "invalid_reasons": [...], "note": "..."}`。
+    文件不存在 ⇒ 返回 None（= 未标记，沿用既有行为，不阻断历史 run）。
+    只有**被明确标记为 FAILED/INVALID** 的运行才会被阻断 —— 与工单
+    「凡标记为异常/无效的运行，直接阻止产出正常收益与胜率指标」一致。
+    """
+    try:
+        import json
+        p = Path(run_dir) / "run_status.json"
+        if not p.exists():
+            return None
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        if not isinstance(doc, dict):
+            return None
+        st = str(doc.get("status") or "").strip().upper()
+        if not st:
+            return None
+        return {"status": st,
+                "invalid_reasons": list(doc.get("invalid_reasons") or []),
+                "note": doc.get("note")}
+    except Exception:                                       # noqa: BLE001
+        return None
+
+
+_INVALID_STATUSES = frozenset({"FAILED", "INVALID", "ERROR", "ABORTED"})
+
+
 def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[dict, List[str]]:
     """按真实账本计算指标。返回 (metrics, notes)。
 
     绝不读 `summary.json` 里不存在的字段来「凑」数字；每一处缺失都在 `notes` 里写明原因。
+
+    **AUDIT-003-PATCH（BLK-01）**：入口先查 `run_dir/run_status.json`。
+    运行被标记为 FAILED/INVALID ⇒ 直接返回「阻断态」指标：所有收益/胜率/回撤/
+    PF/夏普一律 `None`，并带 `invalid=True` + `invalid_reasons`，**不允许**再算出一份
+    看起来正常的成绩单。这正是审计复现的「带病产出有效绩效报告」漏洞的堵点。
     """
     notes: List[str] = []
+    _st = load_run_status(run_dir)
+    if _st is not None and _st["status"] in _INVALID_STATUSES:
+        reason = ",".join(_st["invalid_reasons"]) or _st["status"]
+        notes.append(f"该 run 已被标记为 {_st['status']}（{reason}）⇒ "
+                     "绩效指标全部阻断，不输出收益率/胜率/回撤/PF/夏普")
+        if _st.get("note"):
+            notes.append(str(_st["note"]))
+        blocked: Dict[str, Any] = {
+            "invalid": True,
+            "status": _st["status"],
+            "invalid_reasons": _st["invalid_reasons"],
+            "blocked_by": "run_status_gate",
+            "initial_equity": None, "final_equity": None,
+            "net_pnl": None, "net_return_pct": None, "gross_pnl": None,
+            "total_entry_fee": None, "total_exit_fee": None, "total_fees": None,
+            "total_funding_fee": None,
+            "trades_count": None, "wins": None, "losses": None, "flats": None,
+            "win_rate_pct": None, "win_rate_basis": WR_BASIS,
+            "win_loss_basis": WIN_LOSS_BASIS,
+            "avg_win": None, "avg_loss": None, "avg_win_loss_ratio": None,
+            "avg_win_loss_ratio_basis": AWLR_BASIS,
+            "profit_factor": None, "profit_factor_basis": PF_BASIS,
+            "expectancy_usd": None,
+            "max_drawdown_pct": None, "max_drawdown_basis": MDD_BASIS,
+            "max_drawdown_detail": None,
+            "sharpe_annualized_sqrt365": None, "sharpe_basis": SHARPE_BASIS,
+            "daily_points": None, "equity_points": None,
+            "open_positions_remaining": None,
+            "funding_events_total": None,
+            "note": ("运行被标记为无效 ⇒ 指标一律不产出（不是 0，是「无意义」）。"
+                     "必须修掉 invalid_reasons 指向的问题后重跑。"),
+        }
+        return blocked, notes
+
     facts = load_ledger_facts(run_dir, run_id)
 
     rows = facts.trade_rows

@@ -1,0 +1,1058 @@
+diff --git a/evidence/ACCUM-EARLY-07-W5/scripts/run_abc_pool.py b/evidence/ACCUM-EARLY-07-W5/scripts/run_abc_pool.py
+index ed7c1738..5c8a8ca6 100644
+--- a/evidence/ACCUM-EARLY-07-W5/scripts/run_abc_pool.py
++++ b/evidence/ACCUM-EARLY-07-W5/scripts/run_abc_pool.py
+@@ -219,6 +219,12 @@ out = {
+     "window": res["window"],
+     "n_symbols": len(res["symbols"]),
+     "n_errors": len(res["errors"]), "errors": res["errors"][:20],
++    # [AUDIT-003-PATCH] 退出推进异常 / 平仓被拒 ⇒ research_run 把状态打成 FAILED，
++    # 这里必须原样透传，否则跑分器又会算出一份看起来正常的成绩单（BLK-01）。
++    "run_status": res.get("run_status", "OK"),
++    "invalid_reasons": res.get("invalid_reasons") or [],
++    "run_problems": (res.get("run_problems") or [])[:20],
++    "run_invalid_note": res.get("run_invalid_note"),
+     "flags": res["flags"],
+     "identity": {k: res["identity"][k] for k in
+                  ("entry_version", "config_schema", "rule_version", "exit_rules",
+@@ -270,7 +276,31 @@ def _q(con, sql, args=()):
+     return [dict(r) for r in con.execute(sql, args)]
+ 
+ 
+-def ledger_metrics(paper_dir: Path, scheme: str, window_days: float) -> dict:
++def _block_metrics(out: dict, run_invalid: dict) -> dict:
++    """[AUDIT-003-PATCH] 运行被标记无效 ⇒ 抹掉一切绩效结论，只留「无意义」标记。
++
++    保留 `n_positions_rows` / `n_open_at_end` 这类**账本事实**用于诊断，
++    但收益、胜率、盈亏比、回撤、年化一律置 None —— 不允许出现「看起来正常」的成绩单。
++    """
++    for k in ("win_rate", "net_pnl", "gross_profit", "gross_loss", "profit_factor",
++              "avg_win", "avg_loss", "payoff_ratio", "max_drawdown",
++              "max_drawdown_pct", "max_drawdown_at", "range_return",
++              "annualized_return", "avg_holding_hours", "n_trades",
++              "n_wins", "n_losses", "fees_total", "funding_total"):
++        out[k] = None
++    out["equity_curve"] = []
++    out["reconcile"] = {}
++    out["invalid"] = True
++    out["status"] = run_invalid.get("status", "FAILED")
++    out["invalid_reasons"] = list(run_invalid.get("reasons") or [])
++    out["blocked_by"] = "run_status_gate"
++    out["invalid_note"] = ("本次运行被标记为无效（退出推进异常或平仓被拒）⇒ "
++                           "收益率/胜率/回撤一律不产出；必须修掉 invalid_reasons 后重跑。")
++    return out
++
++
++def ledger_metrics(paper_dir: Path, scheme: str, window_days: float,
++                   run_invalid: dict = None) -> dict:
+     acc = f"paper43_{scheme}"
+     f = paper_dir / f"paper_{scheme}.sqlite3"
+     out = {"scheme": scheme, "label": SCHEME_LABEL[scheme], "ledger": str(f),
+@@ -371,6 +401,9 @@ def ledger_metrics(paper_dir: Path, scheme: str, window_days: float) -> dict:
+                 "sum_funding": round(funding, 10),
+             },
+         })
++        # [AUDIT-003-PATCH] 绩效汇总入口的状态检查：无效运行**不许**带成绩出门
++        if run_invalid:
++            return _block_metrics(out, run_invalid)
+         return out
+     finally:
+         con.close()
+@@ -441,6 +474,11 @@ def main(argv=None) -> int:
+     ap.add_argument("--scan-only", action="store_true", help="只数候选，不撮合不出成绩")
+     ap.add_argument("--run-id", default="")
+     ap.add_argument("--no-cache-limit", action="store_true")
++    # [AUDIT-003-PATCH] 允许把本次产物写到别的证据目录，避免覆盖既有审计报告
++    ap.add_argument("--out-dir", default="",
++                    help="输出目录；缺省 evidence/ACCUM-EARLY-07-W5/out（不要覆盖历史报告）")
++    ap.add_argument("--runs-dir", default="",
++                    help="运行产物目录；缺省 evidence/ACCUM-EARLY-07-W5/runs")
+     a = ap.parse_args(argv)
+ 
+     cfg_path = Path(a.config).resolve()
+@@ -463,7 +501,7 @@ def main(argv=None) -> int:
+     start_ms, end_ms = ms_of(a.start), ms_of(a.end)
+     window_days = (end_ms - start_ms) / DAY
+     run_id = a.run_id or time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+-    run_dir = W5 / "runs" / run_id
++    run_dir = (Path(a.runs_dir) if a.runs_dir else (W5 / "runs")) / run_id
+     if run_dir.exists():
+         shutil.rmtree(run_dir)
+     run_dir.mkdir(parents=True, exist_ok=True)
+@@ -525,9 +563,16 @@ def main(argv=None) -> int:
+     drift = [rel for rel in SHARED_FILES
+              if code_before[rel].get("sha256") != code_after[rel].get("sha256")]
+ 
++    # ── [AUDIT-003-PATCH] 运行可信度先判，再决定要不要算指标（BLK-01）─────────
++    run_status = str(raw.get("run_status") or "OK")
++    invalid_reasons = list(raw.get("invalid_reasons") or [])
++    run_invalid = ({"status": run_status, "reasons": invalid_reasons}
++                   if run_status != "OK" else None)
++
+     # 指标
+     paper_dir = run_dir / "paper"
+-    metrics = {s: ledger_metrics(paper_dir, s, window_days) for s in ("4a", "4b", "4c")}
++    metrics = {s: ledger_metrics(paper_dir, s, window_days, run_invalid=run_invalid)
++               for s in ("4a", "4b", "4c")}
+     diag = chain_diagnosis(run_dir / "observe.sqlite3")
+ 
+     # 候选与成交（来自 raw）
+@@ -551,13 +596,20 @@ def main(argv=None) -> int:
+     boxes_capped = sum(1 for p in raw["per_symbol"]
+                        if int(p.get("boxes_used") or 0) >= a.max_boxes)
+     status = "OK"
+-    if drift:
++    if run_invalid:
++        # 退出推进异常 / 平仓被拒是**最严重**的一档：账本与行情不自洽，
++        # 比「代码漂移」「配置未批准」都更根本，优先级最高。
++        status = "INVALID_RUN_FAILED"
++    elif drift:
+         status = "INVALID_CODE_DRIFT"
+     elif cfg_brief.get("kind") != "approved" or not cfg_brief.get("approved"):
+         status = "UNVERIFIED_CONFIG_UNAPPROVED"
+ 
+     identity = {
+         "run_id": run_id, "status": status,
++        "run_status": run_status, "invalid_reasons": invalid_reasons,
++        "run_invalid_note": raw.get("run_invalid_note"),
++        "run_problems": raw.get("run_problems") or [],
+         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+         "window": {"start": a.start, "end": a.end, "days": round(window_days, 3)},
+         "pool": scope, "n_symbols": len(symbols),
+@@ -586,7 +638,7 @@ def main(argv=None) -> int:
+ 
+     result = {"identity": identity, "metrics": metrics, "diagnosis": diag,
+               "per_symbol": raw["per_symbol"]}
+-    out = W5 / "out"
++    out = Path(a.out_dir) if a.out_dir else (W5 / "out")
+     out.mkdir(parents=True, exist_ok=True)
+     stem = "扫描_候选普查" if a.scan_only else "回测_甲乙丙对比"
+     (out / f"{stem}.json").write_text(
+@@ -596,8 +648,18 @@ def main(argv=None) -> int:
+     write_csv(out / f"{stem}.csv", result)
+     (out / f"运行身份_{run_id}.json").write_text(
+         json.dumps(identity, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
++    # [AUDIT-003-PATCH] 落一份机器可读的运行可信度标记，供 backtest_metrics
++    # 等绩效汇总入口按同一契约阻断（否则换个入口又能算出成绩）。
++    (run_dir / "run_status.json").write_text(
++        json.dumps({"status": run_status,
++                    "invalid_reasons": invalid_reasons,
++                    "run_id": run_id,
++                    "table_status": status,
++                    "note": raw.get("run_invalid_note")},
++                   ensure_ascii=False, indent=1), encoding="utf-8")
+ 
+     print(json.dumps({"stage": "done", "run_id": run_id, "status": status,
++                      "run_status": run_status, "invalid_reasons": invalid_reasons,
+                       "candidates": cand, "opened": opened,
+                       "n_exits": raw.get("n_exits"),
+                       "trades": {s: metrics[s].get("n_trades") for s in metrics},
+@@ -642,6 +704,13 @@ def write_table(path: Path, result: dict, a) -> None:
+     L.append(f"- 成本底座（引擎生效视图）：`{eng.get('view_sha256')}` "
+              f"{eng.get('strategy_version')}，来源 `{eng.get('_source')}`")
+     L.append(f"- 状态：**{ident['status']}**")
++    if ident.get("run_status") and ident["run_status"] != "OK":
++        L.append("")
++        L.append(f"> **本次运行无效（run_status={ident['run_status']}）。** "
++                 f"原因码：`{', '.join(ident.get('invalid_reasons') or [])}`")
++        L.append("> 退出推进出现异常或平仓被价格门禁拒单 ⇒ 账本与行情不自洽，"
++                 "下表所有绩效指标已置空（`—` 表示「无意义」，不是 0）。"
++                 "必须先修掉上述原因再重跑，禁止引用本次数字。")
+     if ident["code_drift"]:
+         L.append(f"- ⚠ 代码漂移：{ident['code_drift']} ⇒ 本次结果判失效")
+     if ident["status"] == "UNVERIFIED_CONFIG_UNAPPROVED":
+diff --git "a/\346\241\206\346\236\266/backend/accum_early_entry.py" "b/\346\241\206\346\236\266/backend/accum_early_entry.py"
+index b0ba5ef9..a04fe652 100644
+--- "a/\346\241\206\346\236\266/backend/accum_early_entry.py"
++++ "b/\346\241\206\346\236\266/backend/accum_early_entry.py"
+@@ -1741,6 +1741,48 @@ def ledger_snapshot(scheme: str) -> dict:
+ # ══════════════════════════════════════════════════════════════════════════
+ # 八、退出驱动（**本单的核心修正**）
+ # ══════════════════════════════════════════════════════════════════════════
++
++# ── [AUDIT-003-PATCH] 运行状态与失效原因码（BLK-01）────────────────────────
++# AUDIT-003 实测：退出推进抛异常时，原实现只往 `out` 里塞一条 `drive_error`，
++# 回放继续跑，`research_run` 照常 `ledger_snapshot`，上层跑分器照常算胜率/收益率
++# ⇒ **带病产出有效绩效报告**。现在把「运行是否可信」变成一等公民：
++#   · 任何一次退出推进异常 / 平仓被拒 ⇒ `run_state["status"] = FAILED`；
++#   · `research_run` 把状态写进 `out["run_status"]`，绩效汇总入口据此**阻断指标产出**。
++RUN_STATUS_OK = "OK"
++RUN_STATUS_FAILED = "FAILED"
++
++INVALID_EXIT_DRIVE_ERROR = "EXIT_DRIVE_ERROR"          # 退出推进抛异常
++INVALID_EXIT_CLOSE_REJECTED = "EXIT_CLOSE_REJECTED"    # 平仓被引擎拒（越界/缺高低价/缺规格）
++INVALID_TIMELINE_REPLAY_ERROR = "TIMELINE_REPLAY_ERROR"
++INVALID_DRIVE_EXITS_ERROR = "DRIVE_EXITS_ERROR"
++
++#: 这些退出原因属于「执行有效性错误」⇒ 一旦出现，整次运行不可用于出成绩
++_EXIT_INVALID_REASONS = frozenset({
++    "missing_contract_spec",
++    "MISSING_CONTRACT_SPEC",
++    "EXEC_PRICE_OUT_OF_RANGE",
++    "MISSING_BAR_RANGE",
++    "INVALID_QTY_PRECISION",
++})
++
++
++def new_run_state() -> dict:
++    """一次回测运行的可信度状态。`status` 只有 OK / FAILED 两态。"""
++    return {"status": RUN_STATUS_OK, "invalid_reasons": [], "problems": []}
++
++
++def mark_run_invalid(run_state: Optional[dict], code: str, detail: Optional[dict] = None) -> None:
++    """把运行标记为 FAILED 并登记原因码（幂等：同一原因码只记一次）。"""
++    if run_state is None:
++        return
++    run_state["status"] = RUN_STATUS_FAILED
++    reasons = run_state.setdefault("invalid_reasons", [])
++    if code not in reasons:
++        reasons.append(code)
++    if detail is not None:
++        run_state.setdefault("problems", []).append(detail)
++
++
+ def _bar_label(bar: dict, base: str = "binance_um") -> str:
+     """写进账本的来源标签：层 + 「可得时刻有没有证据」。"""
+     layer = bar.get("source")
+@@ -1811,10 +1853,15 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
+         cls = ("initial" if abs(stop_used - initial_stop) < 1e-12 else "trailing") \
+             + ("_stop_gap" if gap else "_stop_loss")
+         exit_ts = int(bar["open_time"])
++        # [AUDIT-003-PATCH] 必须把出场 K 线的真实高低价交给引擎：`close_at_price`
++        # 现在缺高低价直接拒单（MISSING_BAR_RANGE），越界则 EXEC_PRICE_OUT_OF_RANGE。
++        # 引擎拒单时**不得**当成已平仓（原来只看 `exit_ts` 是否存在，会把拒单
++        # 误记成一次退出，仓位却仍 open ⇒ 既漏记又带病出成绩）。
+         res = PE.close_at_price(
+             scheme, int(position_id), raw_price=float(raw), now_ms=exit_ts,
+             reason=cls, bar_open_time=int(bar["open_time"]),
+             bar_close_time=int(bar["close_time"]), exit_ts=exit_ts,
++            bar_low=float(bar["low"]), bar_high=float(bar["high"]),
+             bar_source=_bar_label(bar))
+         row = {"ok": bool(res.get("ok")), "scheme": scheme,
+                "position_id": int(position_id), "symbol": symbol,
+@@ -1828,7 +1875,14 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
+                "detail": {"close_result": res, "updates": updates,
+                           "bar_open_time": int(bar["open_time"]),
+                           "bar_low": float(bar["low"]),
++                          "bar_high": float(bar["high"]),
+                           "bar_open": float(bar["open"])}}
++        if not res.get("ok"):
++            # 平仓被拒 ⇒ 这不是一次退出。带出原因码，交给上层把整次运行判无效。
++            row["reason"] = res.get("reason") or "exit_close_rejected"
++            row["close_rejected"] = True
++            row["exit_ts"] = None
++            row["net_pnl"] = None
+         if store is not None:
+             record_exit(store, row)
+         return row
+@@ -1889,14 +1943,31 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
+ 
+ 
+ def drive_all_exits(feed: DataFeed, *, cfg: dict, end_ms: int, schemes=SCHEMES,
+-                    legacy_4h_exit: bool = False, store=None) -> List[dict]:
++                    legacy_4h_exit: bool = False, store=None,
++                    run_state: Optional[dict] = None) -> List[dict]:
++    """收尾：把所有仍开着的持仓推进到窗口末。
++
++    `run_state`（AUDIT-003-PATCH）：单笔失败不能只记一条就放过——平仓被拒或引擎
++    明确失败都说明账本与行情不自洽 ⇒ 整次运行标 FAILED，绩效汇总入口据此阻断。
++    """
+     out = []
+     for scheme in schemes:
+         for pos in open_positions(scheme):
+-            r = drive_position_exit(scheme, int(pos["position_id"]), feed,
+-                                    cfg=cfg, end_ms=end_ms,
+-                                    legacy_4h_exit=legacy_4h_exit, store=store)
++            pid = int(pos["position_id"])
++            try:
++                r = drive_position_exit(scheme, pid, feed,
++                                        cfg=cfg, end_ms=end_ms,
++                                        legacy_4h_exit=legacy_4h_exit, store=store)
++            except Exception as exc:                          # noqa: BLE001
++                rec = {"ok": False, "scheme": scheme, "position_id": pid,
++                       "reason": "drive_error", "error": repr(exc)}
++                out.append(rec)
++                mark_run_invalid(run_state, INVALID_DRIVE_EXITS_ERROR, rec)
++                continue
+             out.append(r)
++            if r.get("close_rejected") or (r.get("ok") is False
++                                           and str(r.get("reason") or "") in _EXIT_INVALID_REASONS):
++                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
+     return out
+ 
+ 
+@@ -2154,7 +2225,8 @@ def _timeline_events(per_symbol: Sequence[dict]) -> List[dict]:
+ 
+ def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int,
+                             legacy_4h_exit: bool = False, store=None,
+-                            cache: Dict[str, List[int]]) -> List[dict]:
++                            cache: Dict[str, List[int]],
++                            run_state: Optional[dict] = None) -> List[dict]:
+     """把各方案存量持仓推进到 `until_ms`（含），返回本次新增的退出记录。
+ 
+     `drive_position_exit` 每根 15m 先上移 4h 跟踪止损、再判退出，所以一次调用同时完成
+@@ -2164,6 +2236,9 @@ def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int
+ 
+     仍开着的持仓留在 `cache` 里供下一轮继续推进；已平仓、已找不到、缺合约规格的一律移出，
+     避免同一笔被反复重试。**不重写任何止损/退出口径**，只重排调用时机。
++
++    `run_state`（AUDIT-003-PATCH / BLK-01）：退出推进异常或平仓被拒时，**必须**把整次
++    运行标成 FAILED。原实现只记一条 `drive_error` 就继续跑，上层照样算胜率 ⇒ 带病出报告。
+     """
+     out: List[dict] = []
+     for scheme in schemes:
+@@ -2175,21 +2250,36 @@ def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int
+                                         legacy_4h_exit=legacy_4h_exit, store=store)
+             except Exception as exc:                          # noqa: BLE001
+                 keep.append(int(pid))
+-                out.append({"ok": False, "scheme": scheme, "position_id": int(pid),
+-                            "reason": "drive_error", "error": repr(exc)})
++                rec = {"ok": False, "scheme": scheme, "position_id": int(pid),
++                       "reason": "drive_error", "error": repr(exc),
++                       "until_ms": int(until_ms)}
++                out.append(rec)
++                # ① 异常 ⇒ 运行无效（不再「记一笔就当没事」）
++                mark_run_invalid(run_state, INVALID_EXIT_DRIVE_ERROR, rec)
++                continue
++            # ② 平仓被引擎拒（价格越界 / 缺高低价 / 缺规格）⇒ 不是退出，仓位仍 open
++            if r.get("close_rejected"):
++                out.append(r)
++                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
++                continue
++            # ③ 引擎明确失败且原因属执行有效性 ⇒ 运行无效
++            if r.get("ok") is False and str(r.get("reason") or "") in _EXIT_INVALID_REASONS:
++                out.append(r)
++                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
+                 continue
+-            if "exit_ts" in r:
++            if r.get("exit_ts") is not None:
+                 out.append(r)                                 # 已平仓
+             elif r.get("reason") == "open_at_window_end":
+                 keep.append(int(pid))                         # 仍开着，继续推进
+             else:
+-                out.append(r)                                 # 已平/找不到/缺规格：不再重试
++                out.append(r)                                 # 找不到/已平：不再重试
+         cache[scheme] = keep
+     return out
+ 
+ 
+ def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
+                      schemes=SCHEMES, store, legacy_4h_exit: bool = False,
++                     run_state: Optional[dict] = None,
+                      ) -> Tuple[List[dict], dict]:
+     """统一时间轴回放：同一时刻先退出释放槽位，再分配槽位开新仓。
+ 
+@@ -2227,7 +2317,7 @@ def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
+             exits.extend(_advance_open_positions(
+                 feed, cfg=cfg, schemes=schemes_at[e["t"]],
+                 until_ms=e["t"], legacy_4h_exit=legacy_4h_exit,
+-                store=store, cache=cache))
++                store=store, cache=cache, run_state=run_state))
+             last_t = e["t"]
+         res = try_open(e["scheme"], e["symbol"], e["cand"], cfg, store)
+         e["cand"]["open_result"] = res
+@@ -2239,7 +2329,9 @@ def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
+ 
+     stats = {"events": len(events), "opened": opened,
+              "distinct_timestamps": len({e["t"] for e in events}),
+-             "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid"}
++             "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid",
++             "run_status": (run_state or {}).get("status", RUN_STATUS_OK),
++             "invalid_reasons": list((run_state or {}).get("invalid_reasons") or [])}
+     return exits, stats
+ 
+ 
+@@ -2276,12 +2368,16 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms:
+     fd = feed or DataFeed()
+     # 两段式只在「真的会开仓」且调用方没显式要求旧行为时启用
+     use_timeline = bool(open_candidates and timeline_entries)
++    # [AUDIT-003-PATCH] 运行可信度：任何退出推进异常/平仓被拒都会把它打成 FAILED，
++    # 上层绩效汇总入口必须据此**拒绝产出收益与胜率**（BLK-01）。
++    run_state = new_run_state()
+     out = {"identity": run_identity(cfg, fd),
+            "config": {k: v for k, v in cfg.items() if k != "doc"},
+            "window": {"start_utc": _iso(start_ms), "end_utc": _iso(end_ms),
+                       "start_ms": int(start_ms), "end_ms": int(end_ms)},
+            "symbols": list(symbols), "per_symbol": [], "exits": [],
+            "ledgers": {}, "errors": [],
++           "run_status": RUN_STATUS_OK, "invalid_reasons": [],
+            "flags": {"open_candidates": bool(open_candidates),
+                      "drive_exits": bool(drive_exits),
+                      "legacy_4h_exit": bool(legacy_4h_exit),
+@@ -2308,24 +2404,30 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms:
+             try:
+                 tl_exits, tl_stats = _replay_timeline(
+                     fd, cfg=cfg, per_symbol=out["per_symbol"], schemes=schemes,
+-                    store=st, legacy_4h_exit=legacy_4h_exit)
++                    store=st, legacy_4h_exit=legacy_4h_exit, run_state=run_state)
+                 out["exits"] = tl_exits
+                 out["timeline"] = tl_stats
+             except Exception as exc:                          # noqa: BLE001
+                 out["errors"].append({"stage": "timeline_replay", "error": repr(exc)})
++                # [AUDIT-003-PATCH] 回放整体崩掉 ⇒ 运行无效（原来只记 errors，照样出成绩）
++                mark_run_invalid(run_state, INVALID_TIMELINE_REPLAY_ERROR,
++                                 {"stage": "timeline_replay", "error": repr(exc)})
+ 
+         # ── 收尾：把仍开着的持仓推进到窗口末（两段式与旧行为共用）──────────
+         if drive_exits:
+             try:
+                 tail = drive_all_exits(
+                     fd, cfg=cfg, end_ms=int(end_ms) + int(walk_days) * DAY,
+-                    schemes=schemes, legacy_4h_exit=legacy_4h_exit, store=st)
++                    schemes=schemes, legacy_4h_exit=legacy_4h_exit, store=st,
++                    run_state=run_state)
+                 if use_timeline:
+                     out["exits"].extend(tail)
+                 else:
+                     out["exits"] = tail
+             except Exception as exc:                          # noqa: BLE001
+                 out["errors"].append({"stage": "drive_exits", "error": repr(exc)})
++                mark_run_invalid(run_state, INVALID_DRIVE_EXITS_ERROR,
++                                 {"stage": "drive_exits", "error": repr(exc)})
+         for scheme in schemes:
+             try:
+                 out["ledgers"][scheme] = ledger_snapshot(scheme)
+@@ -2337,6 +2439,14 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms:
+             fd.close()
+         if own_store:
+             st.close()
++    # ── [AUDIT-003-PATCH] 把运行可信度摊到返回值顶层，绩效入口直接读 ──────────
++    out["run_status"] = run_state["status"]
++    out["invalid_reasons"] = list(run_state["invalid_reasons"])
++    out["run_problems"] = list(run_state["problems"])[:50]
++    if run_state["status"] != RUN_STATUS_OK:
++        out["run_invalid_note"] = (
++            "本次运行被标记为 FAILED：退出推进出现异常或平仓被拒 ⇒ 账本与行情不自洽，"
++            "禁止用本次结果计算收益率/胜率/回撤；必须先修数据或代码再重跑。")
+     return out
+ 
+ 
+diff --git "a/\346\241\206\346\236\266/backend/backtest_metrics.py" "b/\346\241\206\346\236\266/backend/backtest_metrics.py"
+index 86e7ef3f..253c9703 100644
+--- "a/\346\241\206\346\236\266/backend/backtest_metrics.py"
++++ "b/\346\241\206\346\236\266/backend/backtest_metrics.py"
+@@ -51,6 +51,8 @@ __all__ = [
+     "compute_metrics",
+     "compute_benchmark",
+     "compute_monthly_returns",
++    # [AUDIT-003-PATCH] 运行可信度门禁
++    "load_run_status",
+ ]
+ 
+ WIN_LOSS_BASIS = "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平"
+@@ -150,12 +152,81 @@ def _sharpe_sqrt365(eq_rows: List[dict]) -> Tuple[Optional[float], Optional[int]
+     return mean / math.sqrt(var) * math.sqrt(365.0), n, SHARPE_BASIS
+ 
+ 
++def load_run_status(run_dir) -> Optional[dict]:
++    """读 run 的可信度标记（AUDIT-003-PATCH）。
++
++    契约：回测运行方在 `run_dir` 下写 `run_status.json`
++    `{"status": "OK"|"FAILED", "invalid_reasons": [...], "note": "..."}`。
++    文件不存在 ⇒ 返回 None（= 未标记，沿用既有行为，不阻断历史 run）。
++    只有**被明确标记为 FAILED/INVALID** 的运行才会被阻断 —— 与工单
++    「凡标记为异常/无效的运行，直接阻止产出正常收益与胜率指标」一致。
++    """
++    try:
++        import json
++        p = Path(run_dir) / "run_status.json"
++        if not p.exists():
++            return None
++        doc = json.loads(p.read_text(encoding="utf-8"))
++        if not isinstance(doc, dict):
++            return None
++        st = str(doc.get("status") or "").strip().upper()
++        if not st:
++            return None
++        return {"status": st,
++                "invalid_reasons": list(doc.get("invalid_reasons") or []),
++                "note": doc.get("note")}
++    except Exception:                                       # noqa: BLE001
++        return None
++
++
++_INVALID_STATUSES = frozenset({"FAILED", "INVALID", "ERROR", "ABORTED"})
++
++
+ def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[dict, List[str]]:
+     """按真实账本计算指标。返回 (metrics, notes)。
+ 
+     绝不读 `summary.json` 里不存在的字段来「凑」数字；每一处缺失都在 `notes` 里写明原因。
++
++    **AUDIT-003-PATCH（BLK-01）**：入口先查 `run_dir/run_status.json`。
++    运行被标记为 FAILED/INVALID ⇒ 直接返回「阻断态」指标：所有收益/胜率/回撤/
++    PF/夏普一律 `None`，并带 `invalid=True` + `invalid_reasons`，**不允许**再算出一份
++    看起来正常的成绩单。这正是审计复现的「带病产出有效绩效报告」漏洞的堵点。
+     """
+     notes: List[str] = []
++    _st = load_run_status(run_dir)
++    if _st is not None and _st["status"] in _INVALID_STATUSES:
++        reason = ",".join(_st["invalid_reasons"]) or _st["status"]
++        notes.append(f"该 run 已被标记为 {_st['status']}（{reason}）⇒ "
++                     "绩效指标全部阻断，不输出收益率/胜率/回撤/PF/夏普")
++        if _st.get("note"):
++            notes.append(str(_st["note"]))
++        blocked: Dict[str, Any] = {
++            "invalid": True,
++            "status": _st["status"],
++            "invalid_reasons": _st["invalid_reasons"],
++            "blocked_by": "run_status_gate",
++            "initial_equity": None, "final_equity": None,
++            "net_pnl": None, "net_return_pct": None, "gross_pnl": None,
++            "total_entry_fee": None, "total_exit_fee": None, "total_fees": None,
++            "total_funding_fee": None,
++            "trades_count": None, "wins": None, "losses": None, "flats": None,
++            "win_rate_pct": None, "win_rate_basis": WR_BASIS,
++            "win_loss_basis": WIN_LOSS_BASIS,
++            "avg_win": None, "avg_loss": None, "avg_win_loss_ratio": None,
++            "avg_win_loss_ratio_basis": AWLR_BASIS,
++            "profit_factor": None, "profit_factor_basis": PF_BASIS,
++            "expectancy_usd": None,
++            "max_drawdown_pct": None, "max_drawdown_basis": MDD_BASIS,
++            "max_drawdown_detail": None,
++            "sharpe_annualized_sqrt365": None, "sharpe_basis": SHARPE_BASIS,
++            "daily_points": None, "equity_points": None,
++            "open_positions_remaining": None,
++            "funding_events_total": None,
++            "note": ("运行被标记为无效 ⇒ 指标一律不产出（不是 0，是「无意义」）。"
++                     "必须修掉 invalid_reasons 指向的问题后重跑。"),
++        }
++        return blocked, notes
++
+     facts = load_ledger_facts(run_dir, run_id)
+ 
+     rows = facts.trade_rows
+diff --git "a/\346\241\206\346\236\266/backend/live_worker.py" "b/\346\241\206\346\236\266/backend/live_worker.py"
+index 2cf2ee88..c7ca9796 100644
+--- "a/\346\241\206\346\236\266/backend/live_worker.py"
++++ "b/\346\241\206\346\236\266/backend/live_worker.py"
+@@ -132,7 +132,12 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
+       ④ 预约信号退出 ⇒ 本根开盘（冻结 Donchian 退出事件 + 已批准 15m 延迟）；
+       ⑤ bar 内触 stop ⇒ 按 stop 价成交（止损优先于同根其它价量事件）。
+ 
+-    返回 `(raw_price, bar_open_time, bar_close_time, reason, exit_ts, decision_ctx)`；无出场 ⇒ None。
++    返回 `(raw_price, bar_open_time, bar_close_time, reason, exit_ts, decision_ctx,
++    bar_low, bar_high)`；无出场 ⇒ None。
++
++    [AUDIT-003-PATCH] 末尾追加 `bar_low` / `bar_high`：`paper_engine.close_at_price()`
++    现在**强制**要求出场 K 线高低价（缺则拒单 `MISSING_BAR_RANGE`），调用方必须把
++    决策所在那根 bar 的区间一并带出来。追加在末尾是为了不破坏按索引取值的既有调用。
+     """
+     entry_ts = int(p["entry_ts"])
+     direction = (p.get("direction") or "long")
+@@ -163,14 +168,17 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
+         if stop is not None and op is not None:
+             if direction == "long" and op <= stop:
+                 return (op, ot, ct, "stop_loss", ot,
+-                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op})
++                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op},
++                        lo, hi)
+             if direction == "short" and op >= stop:
+                 return (op, ot, ct, "stop_loss", ot,
+-                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op})
++                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op},
++                        lo, hi)
+         # ③ 720h 到期（已彻底移除/禁用）
+         if due_expiry is not None and ot >= due_expiry:
+             return (op, ot, ct, "max_holding_720h_at_first_15m_open", ot,
+-                    {"due_ms": due_expiry, "rule": "entry_plus_720h_first_15m_open"})
++                    {"due_ms": due_expiry, "rule": "entry_plus_720h_first_15m_open"},
++                    lo, hi)
+         # ④ 预约信号退出：本根开盘（信号事件 + 延迟 <= 本根开盘）
+         for ex in arm_exits:
+             ex_ot = int(ex["open_time"])
+@@ -179,15 +187,17 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
+             if ex_ot + delay_ms <= ot:
+                 return (op, ot, ct, "signal_exit_donchian", ot,
+                         {"signal_event_open_time": ex_ot, "delay_ms": delay_ms,
+-                         "rule": "signal_exit_at_15m_open"})
++                         "rule": "signal_exit_at_15m_open"}, lo, hi)
+         # ⑤ bar 内触 stop
+         if stop is not None:
+             if direction == "long" and lo is not None and lo <= stop:
+                 return (stop, ot, ct, "stop_loss", ot,
+-                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_low": lo})
++                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_low": lo},
++                        lo, hi)
+             if direction == "short" and hi is not None and hi >= stop:
+                 return (stop, ot, ct, "stop_loss", ot,
+-                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_high": hi})
++                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_high": hi},
++                        lo, hi)
+     return None
+ 
+ 
+@@ -426,10 +436,12 @@ def advance_paper(*, T=None, log=print) -> dict:
+                                               bars_1h=bars_1h, params=params, T=T)
+                     if hit is None:
+                         continue
+-                    raw, bot, bct, why, exit_ts, dctx = hit
++                    raw, bot, bct, why, exit_ts, dctx, b_lo, b_hi = hit
+                     r = PE.close_at_price(arm, int(p["position_id"]), raw_price=raw, now_ms=T,
+                                           reason=why, bar_open_time=bot, bar_close_time=bct,
+-                                          exit_ts=exit_ts, decision_context=dctx)
++                                          exit_ts=exit_ts, decision_context=dctx,
++                                          # [AUDIT-003-PATCH] 出场 K 线高低价（缺失 ⇒ 引擎拒单）
++                                          bar_low=b_lo, bar_high=b_hi)
+                     exits.append(r)
+             finally:
+                 mkt.close()
+diff --git "a/\346\241\206\346\236\266/backend/paper_engine.py" "b/\346\241\206\346\236\266/backend/paper_engine.py"
+index eaf5ccd4..bbd81c00 100644
+--- "a/\346\241\206\346\236\266/backend/paper_engine.py"
++++ "b/\346\241\206\346\236\266/backend/paper_engine.py"
+@@ -1226,6 +1226,33 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
+         notional = float(rr["notional"])
+         planned_risk = float(rr["planned_risk"])
+ 
++        # ── [AUDIT-003-PATCH] 成交价必须落在成交 K 线的 [low, high] 内 ──────────────
++        # AUDIT-003 BLK-02：FIX-002 的 `validate_execution_price_in_bar` 只进了单测和
++        # `scan_exit`，**正式撮合（本函数）根本没接入** ⇒ 例如 tick 回退把 0.00001234
++        # 取整成 0.00、或拿错 bar 的价格，都能静默落库进账本。
++        # 现在在**写任何表之前**强制校验，三条路径（自动/手工/挂单推进）都经过这里：
++        #   · 缺 low/high（bar 不完整）⇒ `MISSING_BAR_RANGE` 拒单；
++        #   · 成交价越界            ⇒ `EXEC_PRICE_OUT_OF_RANGE` 拒单。
++        # 拒单落 `paper_order(status=rejected)` + `paper_blocked`，原因码可对账。
++        # 容差 0.1% 覆盖已批准滑点（3bps/5bps）+ 价格步进取整，不会误杀正常成交。
++        import replay_calc as _RC
++        _bar_low = _f(bar["low"]) if "low" in bar.keys() else None
++        _bar_high = _f(bar["high"]) if "high" in bar.keys() else None
++        _range_gate = _RC.require_bar_range(_bar_low, _bar_high,
++                                            where="paper_engine.open_position")
++        if _range_gate is not None:
++            return _reject(arm, symbol, signal_uid, _RC.REJECT_MISSING_BAR_RANGE,
++                           detail=_range_gate.get("detail"))
++        _px_ok, _px_dev, _px_code = _RC.validate_execution_price_in_bar(
++            fill, _bar_low, _bar_high)
++        if not _px_ok:
++            return _reject(arm, symbol, signal_uid, _px_code,
++                           detail={"fill_price": fill, "raw_price": raw,
++                                   "bar_low": _bar_low, "bar_high": _bar_high,
++                                   "deviation": _px_dev,
++                                   "bar_open_time": bar_open,
++                                   "where": "paper_engine.open_position"})
++
+         # 附加闸门：持仓数上限 10 与 DD 20% 锁止，以及全组合复核
+         ok, why = pre_open_check(con, arm, symbol, notional, stop_dist, qty, con_mkt, params)
+         if not ok:
+@@ -1393,7 +1420,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
+         con_mkt.close()
+ 
+ 
+-def _reject(arm, symbol, signal_uid, reason):
++def _reject(arm, symbol, signal_uid, reason, detail=None):
+     con = L.paper_conn(arm)
+     try:
+         # 幂等：同一 event_uid 重复拒单不报错（`event_uid` 有 UNIQUE 约束）
+@@ -1417,7 +1444,10 @@ def _reject(arm, symbol, signal_uid, reason):
+         con.commit()
+     finally:
+         con.close()
+-    return {"ok": False, "reason": reason, "symbol": symbol, "signal_uid": signal_uid}
++    out = {"ok": False, "reason": reason, "symbol": symbol, "signal_uid": signal_uid}
++    if detail:
++        out["detail"] = detail
++    return out
+ 
+ 
+ # ── 资金费：**结算事件经过时即时记账**（幂等）────────────────────────────────
+@@ -1749,13 +1779,16 @@ def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual")
+                           now_ms=now_ms, reason=reason,
+                           bar_open_time=int(row["open_time"]),
+                           bar_close_time=int(row["close_time"]),
++                          # [AUDIT-003-PATCH] 必须给出场 K 线真实高低价，否则价格校验无边界
++                          bar_low=_f(row["low"]), bar_high=_f(row["high"]),
+                           # 手工平仓成交在该 bar 的**收盘** ⇒ 经济出场时刻 = close_time
+                           exit_ts=int(row["close_time"]))
+ 
+ 
+ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason="manual",
+                    bar_open_time=None, bar_close_time=None, exit_ts=None,
+-                   decision_context=None, bar_source: str = None) -> dict:
++                   decision_context=None, bar_source: str = None,
++                   bar_low=None, bar_high=None, tol: float = 0.001) -> dict:
+     """按**给定原始价**平仓（stop/信号退出等确定性触发用；滑点按已批准值不利方向）。
+ 
+     `exit_ts` = **经济出场时刻**（出场 bar 的 open 或 close，由调用方按口径给）。
+@@ -1765,9 +1798,25 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
+     `bar_source`（ACCUM-EARLY-03-B）：出场 bar 的来源标签。合并读取下出场 bar 可能来自
+     冷档，其 `available_at` 无证据 ⇒ 调用方应传 `_source_label(bar)`，让账本自带
+     `available_at_unproven` 标记。缺省 `None` ⇒ 沿用 `MARKET_SOURCE`（与改前一致）。
++
++    `bar_low` / `bar_high`（AUDIT-003-PATCH，**必填**）：出场执行 K 线的真实高低价。
++    AUDIT-003 BLK-02：FIX-002 的价格区间校验完全没接入本函数 ⇒ 平仓价可以随便给。
++    现在：
++      · 缺任一 ⇒ `MISSING_BAR_RANGE` 拒单（不写任何表、仓位保持 open）；
++      · 出场成交价（含滑点与步进取整后的 `fill`）越出 `[low, high]`（容差 `tol`）
++        ⇒ `EXEC_PRICE_OUT_OF_RANGE` 拒单（不写任何表、仓位保持 open）。
++    两条都**不会**静默放行：调用方必须把结果里的 `ok=False` 当作「本次运行无效」处理。
+     """
+     params = approved_params()
+     src = bar_source or MARKET_SOURCE
++    # ── [AUDIT-003-PATCH] 高低价先判：这是调用链契约，必须在**任何副作用之前** ────
++    # 放在开连接之前，缺参数时既不建库也不读行情，杜绝「先写半条再拒」。
++    import replay_calc as _RC
++    _range_gate = _RC.require_bar_range(bar_low, bar_high,
++                                        where="paper_engine.close_at_price")
++    if _range_gate is not None:
++        return {"ok": False, "reason": _RC.REJECT_MISSING_BAR_RANGE,
++                "position_id": position_id, "detail": _range_gate.get("detail")}
+     con = L.paper_conn(arm)
+     con_mkt = open_market()
+     try:
+@@ -1791,6 +1840,21 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
+             return {"ok": False, "reason": "MISSING_CONTRACT_SPEC"}
+         fill = float(price_breakdown(raw_price=raw, is_buy=direction == "short",
+                      price_step=limits["price_step"], slippage_rate=slip)["post_round_price"])
++        # ── [AUDIT-003-PATCH] 出场成交价必须落在出场 K 线的 [low, high] 内 ────────
++        # 校验 `fill`（真正写进账本的价），不是 `raw`：越界来源有两类，都要拦 ——
++        #   ① 调用方给了一个不属于这根 bar 的价格（拿错 bar / 前视 / 编造）；
++        #   ② 价格步长过粗把成交价取整到区间外（FIX-002 的 0.00 病根）。
++        # 缺高低价已在函数入口拒过，这里无条件校验，不存在「静默跳过」分支。
++        _px_ok, _px_dev, _px_code = _RC.validate_execution_price_in_bar(
++            fill, bar_low, bar_high, tol=tol)
++        if not _px_ok:
++            return {"ok": False, "reason": _px_code, "position_id": position_id,
++                    "symbol": pos["symbol"], "raw_price": raw, "fill_price": fill,
++                    "bar_low": bar_low, "bar_high": bar_high, "deviation": _px_dev,
++                    "bar_open_time": bar_open_time,
++                    "detail": {"where": "paper_engine.close_at_price",
++                               "note": "出场成交价越界 ⇒ 不落账、仓位保持 open；"
++                                       "调用方必须把本次运行标记为无效"}}
+         if direction == "short":
+             # fill 已含不利滑点与价格步长取整。
+             qty = float(pos["qty"])
+@@ -2021,6 +2085,8 @@ def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
+                                now_ms=T, reason="drawdown_liquidation_next_15m_open",
+                                bar_open_time=int(nxt["open_time"]),
+                                bar_close_time=int(nxt["close_time"]),
++                               # [AUDIT-003-PATCH] 清仓 K 线真实高低价
++                               bar_low=_f(nxt["low"]), bar_high=_f(nxt["high"]),
+                                exit_ts=int(nxt["open_time"]),
+                                decision_context={"rule": "drawdown_liquidation_next_15m_open",
+                                                  "drawdown": st.get("drawdown"),
+@@ -2474,6 +2540,9 @@ def check_position_exit_on_bar(arm: str, position_id: int, bar_detail: dict, *,
+             arm, position_id, raw_price=cur_stop, now_ms=dec_ms,
+             reason=reason, bar_open_time=ref_open_ms,
+             bar_close_time=ref_close_ms, exit_ts=ref_open_ms,
++            # [AUDIT-003-PATCH] 出场 bar 真实高低价（cur_stop 是决策价，须对照本 bar 校验）
++            bar_low=low_p,
++            bar_high=float(bar_detail["high"]),
+             bar_source=_source_label(bar_detail)
+         )
+ 
+diff --git "a/\346\241\206\346\236\266/backend/replay_calc.py" "b/\346\241\206\346\236\266/backend/replay_calc.py"
+index efb47d9c..c264768f 100644
+--- "a/\346\241\206\346\236\266/backend/replay_calc.py"
++++ "b/\346\241\206\346\236\266/backend/replay_calc.py"
+@@ -125,6 +125,8 @@ REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
+ REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
+ REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
+ REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
++# [AUDIT-003-PATCH] 调用方没传执行 K 线高低价 ⇒ 不得再「条件分支跳过」，直接拒单
++REJECT_MISSING_BAR_RANGE = "MISSING_BAR_RANGE"
+ 
+ 
+ def validate_execution_price_in_bar(fill_price: float, bar_low: float, bar_high: float,
+@@ -145,14 +147,56 @@ def validate_execution_price_in_bar(fill_price: float, bar_low: float, bar_high:
+     return True, 0.0, None
+ 
+ 
++def require_bar_range(bar_low, bar_high, *, where: str = "") -> Optional[dict]:
++    """[AUDIT-003-PATCH] 统一「高低价必须给」的判定；返回 None = 合格，否则返回拒单 dict。
++
++    为什么单独抽出来：这条约束在 `plan_entry` / `paper_engine.open_position` /
++    `paper_engine.close_at_price` 三处都要执行，且必须给**同一个原因码**，
++    否则对账时按码统计会把同一类漏传拆成三种。
++    """
++    if bar_low is None or bar_high is None:
++        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
++                "code": REJECT_MISSING_BAR_RANGE,
++                "detail": {"bar_low": bar_low, "bar_high": bar_high, "where": where},
++                "说明": "调用方未提供执行 K 线的高低价格区间 ⇒ 无法校验成交价是否可成交，"
++                        "按 fail-closed 拒单（严禁静默跳过校验）"}
++    try:
++        lo = float(bar_low)
++        hi = float(bar_high)
++    except (TypeError, ValueError):
++        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
++                "code": REJECT_MISSING_BAR_RANGE,
++                "detail": {"bar_low": bar_low, "bar_high": bar_high, "where": where},
++                "说明": "执行 K 线高低价无法解析为数值 ⇒ 拒单"}
++    if not (math.isfinite(lo) and math.isfinite(hi)) or lo <= 0 or hi <= 0 or hi < lo:
++        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
++                "code": REJECT_MISSING_BAR_RANGE,
++                "detail": {"bar_low": lo, "bar_high": hi, "where": where},
++                "说明": "执行 K 线高低价非法（非有限数 / 非正 / high<low）⇒ 拒单"}
++    return None
++
++
++def check_price_in_bar(fill_price, bar_low, bar_high, *,
++                       tol: float = 0.001) -> tuple[bool, float, Optional[str]]:
++    """[AUDIT-003-PATCH] 单事件回放用的组合门禁：**先判高低价存在性，再判越界**。
++
++    为什么不直接用 `validate_execution_price_in_bar`：那个函数把「缺高低价」和
++    「价格越界」都返回 `EXEC_PRICE_OUT_OF_RANGE`，会把两类完全不同的缺陷
++    （调用链漏传 vs 数据/模型问题）统计成一类，整改时无法区分。
++    """
++    if require_bar_range(bar_low, bar_high, where="check_price_in_bar") is not None:
++        return False, 0.0, REJECT_MISSING_BAR_RANGE
++    return validate_execution_price_in_bar(fill_price, bar_low, bar_high, tol=tol)
++
++
+ # ══════════════════════════ ① 入场（唯一实现）══════════════════════════
+ 
+ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[float],
+                equity: float, gross_open_notional: float, free_cash: float,
+                portfolio_risk_open: float, caliber: dict,
+                direction: str = "long",
+-               bar_low: Optional[float] = None,
+-               bar_high: Optional[float] = None,
++               bar_low: float,
++               bar_high: float,
+                tol: float = 0.001) -> dict:
+     """入场计划：价 / 止损 / 数量 / 名义额 / 手续费，**一次算完**。
+ 
+@@ -164,11 +208,23 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
+         ⑤ 最小量、最小金额、单笔与组合风险复核 ⇒ 任一超限**整单拒绝**
+         ⑥ [FIX-002] 强门禁：成交价格与对应执行 K 线区间 [bar_low, bar_high] 核对
+ 
++    **`bar_low` / `bar_high` 是必填参数（无默认值）**——AUDIT-003 BLK-02：原实现
++    给它们 `None` 默认值，生产调用点 `replay_one` 没传，于是 `if bar_low is not None`
++    分支永不进入，价格校验被**静默穿透**。现在漏传会在调用处直接 TypeError；
++    显式传 `None` 也会被 `require_bar_range()` 拒单并给 `MISSING_BAR_RANGE`。
++
+     所以「两套滑点各自完整执行」是**结构保证**的：换一个滑点值，止损、数量、
+     名义额、手续费会一起变，不可能出现「价变了但数量没变」的分叉。
+     """
+     from strategies.wx_execution import apply_order_rounding
+ 
++    # [AUDIT-003-PATCH] 第一步先判「高低价到底给没给」：这是调用链契约，
++    # 比规格/取整更基础 —— 没有边界就无法判断任何成交价是否成立。
++    _rng = require_bar_range(bar_low, bar_high, where="replay_calc.plan_entry")
++    if _rng is not None:
++        _rng["symbol"] = symbol
++        return _rng
++
+     limits = _limits_for(symbol)
+     if limits is None or float(limits.get("price_step") or 0.0) <= 0 or float(limits.get("quantity_step") or 0.0) <= 0:
+         return {"status": "rejected", "reject": REJECT_MISSING_CONTRACT_SPEC,
+@@ -214,16 +270,17 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
+                 "code": REJECT_INVALID_QTY_PRECISION, "symbol": symbol,
+                 "detail": {"qty": qty}, "说明": "下单数量非正或非有限数"}
+ 
+-    # [FIX-002] 强门禁：成交价格落在对应执行 K 线区间 [low, high] 校验
+-    if bar_low is not None and bar_high is not None:
+-        valid_px, dev, rej_px_code = validate_execution_price_in_bar(
+-            entry_price, bar_low, bar_high, tol=tol)
+-        if not valid_px:
+-            return {"status": "rejected", "reject": rej_px_code, "code": rej_px_code,
+-                    "symbol": symbol,
+-                    "detail": {"entry_price": entry_price, "bar_low": bar_low,
+-                               "bar_high": bar_high, "deviation": dev},
+-                    "说明": f"成交价格 {entry_price} 超出执行 K 线范围 [{bar_low}, {bar_high}]"}
++    # [FIX-002 / AUDIT-003-PATCH] 强门禁：成交价格落在对应执行 K 线区间 [low, high] 校验
++    # 原实现是 `if bar_low is not None and bar_high is not None:` —— 条件式 ⇒ 可被静默穿透。
++    # 现在前置 `require_bar_range()` 已保证两者非空且合法，这里**无条件**执行。
++    valid_px, dev, rej_px_code = validate_execution_price_in_bar(
++        entry_price, bar_low, bar_high, tol=tol)
++    if not valid_px:
++        return {"status": "rejected", "reject": rej_px_code, "code": rej_px_code,
++                "symbol": symbol,
++                "detail": {"entry_price": entry_price, "bar_low": bar_low,
++                           "bar_high": bar_high, "deviation": dev},
++                "说明": f"成交价格 {entry_price} 超出执行 K 线范围 [{bar_low}, {bar_high}]"}
+ 
+     notional = float(rr["notional"])
+     fee = notional * float(caliber["fee_each_side"])
+@@ -351,6 +408,10 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
+     path = sorted(stop_path, key=lambda x: x["effective_ms"])
+     pi = 0
+     cur_stop = float(initial_stop)
++    # [AUDIT-003-PATCH] 缺 low 的 bar 无法判「盘中是否触及」⇒ 仍是跳过，但必须**计数上报**，
++    # 不能像原来那样静默跳过。调用方看到 n_bars_no_low>0 就知道这条回放的退出判定不完整。
++    n_bars_no_open = 0
++    n_bars_no_low = 0
+     for b in bars_15m or []:
+         ot = int(b["open_time"])
+         if ot < int(entry_bar_ms):
+@@ -359,9 +420,13 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
+             cur_stop = float(path[pi]["stop"])
+             pi += 1
+         o, lo, hi = _f(b.get("open")), _f(b.get("low")), _f(b.get("high"))
+-        if o is None or lo is None:
++        if o is None:
++            n_bars_no_open += 1
+             continue
+-        bar_hi = hi if hi is not None else max(o, cur_stop)
++        # [AUDIT-003-PATCH] 原实现是 `bar_hi = hi if hi is not None else max(o, cur_stop)`
++        # —— 缺 high 时**伪造**一个上界，于是校验永远通过。这正是"静默跳过校验"的另一种写法。
++        # 现在原样传 None，交给 check_price_in_bar 判 MISSING_BAR_RANGE。
++        bar_hi = hi
+         if o <= cur_stop:
+             if gap_model == "bar_open":
+                 fill = o
+@@ -369,7 +434,7 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
+                 fill = (o + cur_stop) / 2.0
+             else:
+                 fill = cur_stop
+-            valid_px, dev, rej_px_code = validate_execution_price_in_bar(fill, lo, bar_hi, tol=tol)
++            valid_px, dev, rej_px_code = check_price_in_bar(fill, lo, bar_hi, tol=tol)
+             return {"hit": True, "kind": "gap",
+                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
+                     "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
+@@ -381,11 +446,17 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
+                     "price_valid": valid_px,
+                     "price_deviation": dev,
+                     "reject_code": rej_px_code,
++                    "n_bars_no_open": n_bars_no_open,
++                    "n_bars_no_low": n_bars_no_low,
+                     "note": ("开盘已越过止损 ⇒ 跳空；成交价由跳空模型决定"
+                              if gap_model != "stop_price"
+                              else "开盘已越过止损，但按止损价成交（默认口径，偏乐观）")}
+-        if lo <= cur_stop:
+-            valid_px, dev, rej_px_code = validate_execution_price_in_bar(cur_stop, lo, bar_hi, tol=tol)
++        if lo is None:
++            # 开盘没穿止损、又缺 low ⇒ **无法判定**盘中是否触及。这不是"没触及"，
++            # 只是查不了。计数上报，让调用方知道这条回放的退出判定不完整。
++            n_bars_no_low += 1
++        elif lo <= cur_stop:
++            valid_px, dev, rej_px_code = check_price_in_bar(cur_stop, lo, bar_hi, tol=tol)
+             return {"hit": True, "kind": "intrabar",
+                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
+                     "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
+@@ -397,10 +468,15 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
+                     "price_valid": valid_px,
+                     "price_deviation": dev,
+                     "reject_code": rej_px_code,
++                    "n_bars_no_open": n_bars_no_open,
++                    "n_bars_no_low": n_bars_no_low,
+                     "note": "盘中触及 ⇒ 按止损价成交"}
+     return {"hit": False, "kind": "no_exit_in_window",
+             "price_valid": True, "reject_code": None,
+-            "note": "窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值"}
++            "n_bars_no_open": n_bars_no_open,
++            "n_bars_no_low": n_bars_no_low,
++            "note": ("窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值"
++                     + ("；但存在缺 low 的 bar，盘中触及可能被漏判" if n_bars_no_low else ""))}
+ 
+ 
+ def classify_exit_reason(*, kind: str, stop_kind: str) -> str:
+@@ -563,6 +639,11 @@ def gap_sensitivity(*, entry_price: float, entry_fee: float, qty: float,
+         out[m] = {"hit": True, "kind": ex["kind"],
+                   "exit_fill": ex["exit_fill"], "stop_used": ex["stop_used"],
+                   "bar_open": ex["bar_open"], "gap_size": ex["gap_size"],
++                  # [AUDIT-003-PATCH] 把可成交性摆到敏感性表上：
++                  # `price_valid=False` 的模型给出的净额是**物理上不可能成交**的，
++                  # 不能和另外两个模型并列当"三个可选方案"。
++                  "price_valid": ex.get("price_valid"),
++                  "reject_code": ex.get("reject_code"),
+                   "realized_net": p.get("realized_net")}
+     nets = {k: v.get("realized_net") for k, v in out.items() if v.get("hit")}
+     return {
+@@ -605,6 +686,10 @@ def replay_one(*, symbol: str, entry_bar: dict, prev_bar: Optional[dict],
+                        gross_open_notional=gross_open_notional,
+                        free_cash=eq, portfolio_risk_open=portfolio_risk_open,
+                        caliber=cal,
++                       # [AUDIT-003-PATCH] 必须传当前执行 K 线的真实高低价。
++                       # 原来这里没传 ⇒ plan_entry 的条件分支把校验整段跳过（BLK-02）。
++                       bar_low=entry_bar.get("low"),
++                       bar_high=entry_bar.get("high"),
+                        direction=("long" if int(direction) == 1 else "short"))
+     if entry.get("status") != "ok":
+         return {"caliber": caliber_name, "caliber_params": cal,
+@@ -648,6 +733,28 @@ def replay_one(*, symbol: str, entry_bar: dict, prev_bar: Optional[dict],
+                            bars_15m=bars_15m, entry_bar_ms=entry_ms,
+                            stop_path=stop_path, initial_stop=initial_stop)
+ 
++    # ── [AUDIT-003-PATCH] 单事件回放的**退出价**同样必须落在执行 K 线内 ──────────
++    # 工单要求「检查所有单事件回放与撮合调用点」。入场侧已由 plan_entry 拒单；
++    # 退出侧原来只把 `price_valid=False` 写进返回 dict，**调用方根本不读** ⇒ 等于没有。
++    # 现在 fail-closed：只要 hit 且校验不过，整条回放判无效，不产出任何净额。
++    if ex.get("hit"):
++        _exit_ok = bool(ex.get("price_valid"))
++        _exit_code = ex.get("reject_code")
++        if not _exit_ok:
++            return {
++                "status": "invalid_exit_price",
++                "reason": _exit_code or REJECT_EXEC_PRICE_OUT_OF_RANGE,
++                "caliber": caliber_name, "caliber_params": cal,
++                "entry": entry,
++                "exit": {**ex, "exit_reason": reason, "exit_utc": _iso(exit_ms)},
++                "已实现净额": None, "未实现净额": None, "盈亏": None,
++                "跳空敏感性": sens,
++                "说明": (f"退出成交价 {ex.get('exit_fill')} 不落在执行 K 线 "
++                         f"[{ex.get('bar_low')}, {ex.get('bar_high')}] 内（原因码 {_exit_code}）"
++                         "⇒ 本次单事件回放判无效，不得产出净额/胜率；"
++                         "必须先裁决 gap_model 或修数据再重跑"),
++            }
++
+     return {
+         "status": "ok", "caliber": caliber_name, "caliber_params": cal,
+         "entry": entry,
+@@ -681,4 +788,9 @@ __all__ = [
+     "FUNDING_ORDER_UNCERTAIN_MS",
+     "plan_entry", "build_stop_path", "scan_exit", "classify_exit_reason",
+     "settle_funding_events", "pnl_breakdown", "gap_sensitivity", "replay_one",
++    # [FIX-002 / AUDIT-003-PATCH] 价格区间门禁
++    "REJECT_MISSING_CONTRACT_SPEC", "REJECT_FALLBACK_TICK_BLOCKED",
++    "REJECT_EXEC_PRICE_OUT_OF_RANGE", "REJECT_INVALID_QTY_PRECISION",
++    "REJECT_MISSING_BAR_RANGE",
++    "validate_execution_price_in_bar", "require_bar_range", "check_price_in_bar",
+ ]
+diff --git "a/\347\255\226\347\225\245/WyckoffMaster/event_trend_v0_1/tests/test_fix002_precision_and_gates.py" "b/\347\255\226\347\225\245/WyckoffMaster/event_trend_v0_1/tests/test_fix002_precision_and_gates.py"
+index 0b51baa6..fad79bc9 100644
+--- "a/\347\255\226\347\225\245/WyckoffMaster/event_trend_v0_1/tests/test_fix002_precision_and_gates.py"
++++ "b/\347\255\226\347\225\245/WyckoffMaster/event_trend_v0_1/tests/test_fix002_precision_and_gates.py"
+@@ -125,6 +125,10 @@ def test_replay_calc_missing_contract_spec_gate(monkeypatch):
+         free_cash=2000.0,
+         portfolio_risk_open=0.0,
+         caliber=caliber,
++        # [AUDIT-003-PATCH] bar_low/bar_high 已改为必填（无默认值）：
++        # 漏传会在调用处直接 TypeError，显式传 None 会被 MISSING_BAR_RANGE 拒单。
++        bar_low=99.5,
++        bar_high=100.5,
+     )
+     assert res["status"] == "rejected"
+     assert res["reject"] == REJECT_MISSING_CONTRACT_SPEC
+@@ -264,6 +268,9 @@ def test_invalid_qty_precision_handling(monkeypatch):
+         free_cash=2000.0,
+         portfolio_risk_open=0.0,
+         caliber=caliber,
++        # [AUDIT-003-PATCH] 同上：高低价必填
++        bar_low=99.5,
++        bar_high=100.5,
+     )
+     assert res["status"] == "rejected"
+     assert res["reject"] == REJECT_INVALID_QTY_PRECISION
+diff --git "a/\347\255\226\347\225\245/WyckoffMaster/trading_core/rejects.py" "b/\347\255\226\347\225\245/WyckoffMaster/trading_core/rejects.py"
+index 91ced204..bda628d9 100644
+--- "a/\347\255\226\347\225\245/WyckoffMaster/trading_core/rejects.py"
++++ "b/\347\255\226\347\225\245/WyckoffMaster/trading_core/rejects.py"
+@@ -66,6 +66,9 @@ REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
+ REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
+ REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
+ REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
++# [AUDIT-003-PATCH] 调用方未传执行 K 线高低价 —— 与「越界」分开记：
++# 越界是数据/模型问题，缺高低价是**调用链漏传**问题，两者的整改动作不同。
++REJECT_MISSING_BAR_RANGE = "MISSING_BAR_RANGE"
+ 
+ FIX002_VALIDITY_REASONS = frozenset({
+     REJECT_MISSING_CONTRACT_SPEC,
+@@ -77,6 +80,8 @@ FIX002_VALIDITY_REASONS = frozenset({
+     "exec_price_out_of_range",
+     REJECT_INVALID_QTY_PRECISION,
+     "invalid_qty_precision",
++    REJECT_MISSING_BAR_RANGE,
++    "missing_bar_range",
+ })
+ 
+ # ── 策略 / 风控取消（**不得**判无效）──
+@@ -157,6 +162,7 @@ __all__ = [
+     "UNREGISTERED_KNOWN_REASONS", "FIX002_VALIDITY_REASONS",
+     "REJECT_MISSING_CONTRACT_SPEC", "REJECT_FALLBACK_TICK_BLOCKED",
+     "REJECT_EXEC_PRICE_OUT_OF_RANGE", "REJECT_INVALID_QTY_PRECISION",
++    "REJECT_MISSING_BAR_RANGE",
+     "classify_reject", "is_execution_validity", "mark_if_execution_invalid",
+     "invalid_reason_stages",
+ ]

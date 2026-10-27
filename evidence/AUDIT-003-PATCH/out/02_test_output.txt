@@ -1,0 +1,101 @@
+====================================================================
+AUDIT-003-PATCH 回归测试：价格区间门禁全链路 + 退出异常阻断绩效
+====================================================================
+
+T1 close_at_price 缺 bar_low/bar_high ⇒ 拒单且零写入
+  [通过] T1.1 缺高低价 ⇒ ok=False  实际=MISSING_BAR_RANGE
+  [通过] T1.2 原因码 MISSING_BAR_RANGE  实际=MISSING_BAR_RANGE
+  [通过] T1.3 仓位仍为 open（未被静默平掉）  实际=open
+  [通过] T1.4 未写 paper_realized  0 → 0
+  [通过] T1.5 未写 paper_order  0 → 0
+  [通过] T1.6 只给 bar_low 不给 bar_high 同样拒单  实际=MISSING_BAR_RANGE
+  [通过] T1.7 high<low 的非法区间同样拒单  实际=MISSING_BAR_RANGE
+
+T2 close_at_price 成交价越界 ⇒ 拒单，仓位保持 open
+  [通过] T2.1 越界 ⇒ ok=False  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T2.2 原因码 EXEC_PRICE_OUT_OF_RANGE  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T2.3 仓位仍为 open  实际=open
+  [通过] T2.4 未写 paper_realized（不带病落账）  0 → 0
+  [通过] T2.5 返回里带 bar_low/bar_high/deviation 供对账  detail={'where': 'paper_engine.close_at_price', 'note': '出场成交价越界 ⇒ 不落账、仓位保持 open；调用方必须把本次运行标记为无效'}
+
+T3 负向对照：合法区间 ⇒ 正常平仓（证明 T2 不是一律拒绝）
+  [通过] T3.1 合法区间 ⇒ 平仓成功  实际=closed
+  [通过] T3.2 仓位变 closed  实际=closed
+  [通过] T3.3 落了 paper_realized  实际=1
+
+T4 open_position 成交价越界 ⇒ 拒单
+  [通过] T4.1 越界 ⇒ ok=False  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T4.2 原因码 EXEC_PRICE_OUT_OF_RANGE  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T4.3 未落持仓  实际=0
+  [通过] T4.4 负向对照：合法区间 ⇒ 开仓成功  实际=filled
+
+T5 open_position 成交 K 线缺 high ⇒ MISSING_BAR_RANGE
+  [通过] T5.1 缺 high ⇒ ok=False  实际=MISSING_BAR_RANGE
+  [通过] T5.2 原因码 MISSING_BAR_RANGE  实际=MISSING_BAR_RANGE
+  [通过] T5.3 未落持仓  实际=0
+
+T6 plan_entry 高低价必填（漏传 TypeError / 显式 None 拒单）
+  [通过] T6.1 完全漏传高低价 ⇒ TypeError（不再有 None 默认值）
+  [通过] T6.2 显式传 None ⇒ MISSING_BAR_RANGE  实际=MISSING_BAR_RANGE
+  [通过] T6.3 负向对照：合法区间 ⇒ 进入正常计算（不是恒拒）  实际=ok
+
+T7 replay_one 真的把 entry_bar 高低价传下去了
+  [通过] T7.1 越界 entry_bar ⇒ 入场被拒（不是静默跳过）  实际 status=rejected
+  [通过] T7.2 原因码 EXEC_PRICE_OUT_OF_RANGE  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T7.3 entry_bar 缺 low/high ⇒ MISSING_BAR_RANGE  实际=MISSING_BAR_RANGE
+
+T12 replay_one 退出价越界 ⇒ 整条回放判无效（不照常出净额）
+  [通过] T12.1 状态为 invalid_exit_price  实际=invalid_exit_price reason=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T12.2 原因码 EXEC_PRICE_OUT_OF_RANGE  实际=EXEC_PRICE_OUT_OF_RANGE
+  [通过] T12.3 已实现净额被阻断为 None  实际=None
+  [通过] T12.4 未实现净额被阻断为 None  实际=None
+  [通过] T12.5 负向对照：高覆盖止损价 ⇒ 正常出净额（证明 T12 不是恒拒）  实际 status=ok 已实现净额=-10.187198000000016
+
+T13 scan_exit 缺 high ⇒ MISSING_BAR_RANGE（不再伪造上界）
+  [通过] T13.1 hit=True（开盘已穿止损，不因缺 high 就漏判成「未触及」）  实际 hit=True kind=gap
+  [通过] T13.2 price_valid=False  实际=False
+  [通过] T13.3 原因码 MISSING_BAR_RANGE（不是 EXEC_PRICE_OUT_OF_RANGE）  实际=MISSING_BAR_RANGE
+  [通过] T13.4 bar_high 不再被伪造成 max(open, stop)  实际=None
+  [通过] T13.5 负向对照：有 high 且价格在区间内 ⇒ price_valid=True  实际=True
+  [通过] T13.6 stop_price 模型被标 price_valid=False（该价 bar 上不存在）  实际={'hit': True, 'kind': 'gap', 'exit_fill': 95.0, 'stop_used': 95.0, 'bar_open': 90.0, 'gap_size': 5.0, 'price_valid': False, 'reject_code': 'EXEC_PRICE_OUT_OF_RANGE', 'realized_net': -5.0975}
+  [通过] T13.7 bar_open 模型被标 price_valid=True（开盘价一定存在）  实际={'hit': True, 'kind': 'gap', 'exit_fill': 90.0, 'stop_used': 95.0, 'bar_open': 90.0, 'gap_size': 5.0, 'price_valid': True, 'reject_code': None, 'realized_net': -10.095}
+  [通过] T13.8 midpoint 模型同样越界（92.5 > high 90.5）  实际={'hit': True, 'kind': 'gap', 'exit_fill': 92.5, 'stop_used': 95.0, 'bar_open': 90.0, 'gap_size': 5.0, 'price_valid': False, 'reject_code': 'EXEC_PRICE_OUT_OF_RANGE', 'realized_net': -7.5962499999999995}
+
+T8 退出推进异常 ⇒ run_status=FAILED 且登记 EXIT_DRIVE_ERROR
+  [通过] T8.1 run_status == FAILED  实际=FAILED
+  [通过] T8.2 invalid_reasons 含 EXIT_DRIVE_ERROR  实际=['EXIT_DRIVE_ERROR']
+  [通过] T8.3 带 run_invalid_note（明确禁止引用本次结果）  实际=本次运行被标记为 FAILED：退出推进出现异常或平仓被拒 ⇒ 账本与行情不自洽，禁止用本次结果计算收益率/胜率/回撤；必须先修数据或代码再重跑。
+  [通过] T8.4 timeline stats 也反映 FAILED  实际=FAILED
+
+T9 负向对照：退出正常 ⇒ run_status=OK（证明 T8 不是恒失败）
+  [通过] T9.1 run_status == OK  实际=OK
+  [通过] T9.2 invalid_reasons 为空  实际=[]
+
+T10 跑分器绩效入口：无效运行不得产出收益/胜率
+  [通过] T10.1 负向对照：未标记 ⇒ 正常出数（有胜率）  实际=1.0
+  [通过] T10.2 无效运行 ⇒ win_rate 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ net_pnl 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ profit_factor 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ max_drawdown 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ range_return 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ annualized_return 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ payoff_ratio 为 None  实际=None
+  [通过] T10.2 无效运行 ⇒ n_trades 为 None  实际=None
+  [通过] T10.3 无效运行 ⇒ invalid=True 且带原因码  实际=True/['EXIT_DRIVE_ERROR']
+
+T11 生产绩效入口 compute_metrics：run_status.json=FAILED ⇒ 阻断
+  [通过] T11.1 无标记文件 ⇒ 不阻断（blocked_by 不存在）  实际=None
+  [通过] T11.2 标记 FAILED ⇒ invalid=True  实际=True
+  [通过] T11.3 blocked_by == run_status_gate  实际=run_status_gate
+  [通过] T11.4 net_return_pct 被阻断为 None  实际=None
+  [通过] T11.4 win_rate_pct 被阻断为 None  实际=None
+  [通过] T11.4 profit_factor 被阻断为 None  实际=None
+  [通过] T11.4 max_drawdown_pct 被阻断为 None  实际=None
+  [通过] T11.4 sharpe_annualized_sqrt365 被阻断为 None  实际=None
+  [通过] T11.4 net_pnl 被阻断为 None  实际=None
+  [通过] T11.5 notes 里写明阻断原因  实际=['该 run 已被标记为 FAILED（EXIT_CLOSE_REJECTED）⇒ 绩效指标全部阻断，不输出收益率/胜率/回撤/PF/夏普', 'unit test']
+  [通过] T11.6 标记 OK ⇒ 不阻断  实际=None
+
+====================================================================
+全部通过
+====================================================================

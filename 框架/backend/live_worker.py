@@ -132,7 +132,12 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
       ④ 预约信号退出 ⇒ 本根开盘（冻结 Donchian 退出事件 + 已批准 15m 延迟）；
       ⑤ bar 内触 stop ⇒ 按 stop 价成交（止损优先于同根其它价量事件）。
 
-    返回 `(raw_price, bar_open_time, bar_close_time, reason, exit_ts, decision_ctx)`；无出场 ⇒ None。
+    返回 `(raw_price, bar_open_time, bar_close_time, reason, exit_ts, decision_ctx,
+    bar_low, bar_high)`；无出场 ⇒ None。
+
+    [AUDIT-003-PATCH] 末尾追加 `bar_low` / `bar_high`：`paper_engine.close_at_price()`
+    现在**强制**要求出场 K 线高低价（缺则拒单 `MISSING_BAR_RANGE`），调用方必须把
+    决策所在那根 bar 的区间一并带出来。追加在末尾是为了不破坏按索引取值的既有调用。
     """
     entry_ts = int(p["entry_ts"])
     direction = (p.get("direction") or "long")
@@ -163,14 +168,17 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
         if stop is not None and op is not None:
             if direction == "long" and op <= stop:
                 return (op, ot, ct, "stop_loss", ot,
-                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op})
+                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op},
+                        lo, hi)
             if direction == "short" and op >= stop:
                 return (op, ot, ct, "stop_loss", ot,
-                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op})
+                        {"rule": "gap_open_worse_than_stop", "stop": stop, "bar_open": op},
+                        lo, hi)
         # ③ 720h 到期（已彻底移除/禁用）
         if due_expiry is not None and ot >= due_expiry:
             return (op, ot, ct, "max_holding_720h_at_first_15m_open", ot,
-                    {"due_ms": due_expiry, "rule": "entry_plus_720h_first_15m_open"})
+                    {"due_ms": due_expiry, "rule": "entry_plus_720h_first_15m_open"},
+                    lo, hi)
         # ④ 预约信号退出：本根开盘（信号事件 + 延迟 <= 本根开盘）
         for ex in arm_exits:
             ex_ot = int(ex["open_time"])
@@ -179,15 +187,17 @@ def _scan_position_exit(p, *, mkt, arm_exits, bars_1h, params, T, trail_mode=TRA
             if ex_ot + delay_ms <= ot:
                 return (op, ot, ct, "signal_exit_donchian", ot,
                         {"signal_event_open_time": ex_ot, "delay_ms": delay_ms,
-                         "rule": "signal_exit_at_15m_open"})
+                         "rule": "signal_exit_at_15m_open"}, lo, hi)
         # ⑤ bar 内触 stop
         if stop is not None:
             if direction == "long" and lo is not None and lo <= stop:
                 return (stop, ot, ct, "stop_loss", ot,
-                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_low": lo})
+                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_low": lo},
+                        lo, hi)
             if direction == "short" and hi is not None and hi >= stop:
                 return (stop, ot, ct, "stop_loss", ot,
-                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_high": hi})
+                        {"rule": "stop_price_touched_intrabar", "stop": stop, "bar_high": hi},
+                        lo, hi)
     return None
 
 
@@ -426,10 +436,12 @@ def advance_paper(*, T=None, log=print) -> dict:
                                               bars_1h=bars_1h, params=params, T=T)
                     if hit is None:
                         continue
-                    raw, bot, bct, why, exit_ts, dctx = hit
+                    raw, bot, bct, why, exit_ts, dctx, b_lo, b_hi = hit
                     r = PE.close_at_price(arm, int(p["position_id"]), raw_price=raw, now_ms=T,
                                           reason=why, bar_open_time=bot, bar_close_time=bct,
-                                          exit_ts=exit_ts, decision_context=dctx)
+                                          exit_ts=exit_ts, decision_context=dctx,
+                                          # [AUDIT-003-PATCH] 出场 K 线高低价（缺失 ⇒ 引擎拒单）
+                                          bar_low=b_lo, bar_high=b_hi)
                     exits.append(r)
             finally:
                 mkt.close()

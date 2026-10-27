@@ -1,0 +1,104 @@
+=== [1] FIX-001 集成回归（统一时间轴 + 仓位释放，不得回归） ===
+$ /usr/bin/python3 evidence/FIX-001/scripts/test_fix001_timeline.py --integration
+
+T1 统一时间轴排序：与输入币种顺序无关
+  [通过] T1.1 排序键为 (时间戳, symbol, scheme, signal_uid)
+  [通过] T1.2 同一时间戳内按 symbol 字母升序
+  [通过] T1.3 打乱输入顺序 50 次，事件序列逐条一致
+  [通过] T1.4 缺 entry_bar_open_ms/earliest_entry_ms 的候选被跳过
+
+T2 槽位释放：A 占满 → A 平仓 → 后续时刻 B 成功入场
+  [通过] T2.1 A 在 T 时刻占满唯一槽位
+  [通过] T2.2 同刻 B 因槽位已满被拒
+  [通过] T2.3 A 平仓后 B 在后续时间戳成功入场
+  [通过] T2.4 本次共开仓 2 笔（A + B）
+  [通过] T2.5 同一时间戳内先推进退出、后尝试入场
+  [通过] T2.6 负向对照：退出不推进时 B 进不来（证明本测试能识别旧缺陷）
+
+T2b 编排结果与输入币种顺序无关
+  [通过] T2b.1 打乱输入顺序 20 次，成交集合与时刻逐条一致
+  [通过] T2b.2 T 时刻 3 抢 2：只成交字母序前 2 个
+  [通过] T2b.3 退出释放槽位后，后一时刻的 2 个候选全部成交
+  [通过] T2b.4 合计成交 4 笔（槽位被复用，而不是只成交 2 笔）
+
+T3 真实数据端到端：打乱顺序结果一致 + 旧行为对照
+  [通过] T3.1 打乱币种顺序后持仓逐字段一致（含 symbol/entry_ts/exit_ts/net_pnl）
+  [通过] T3.2 两次运行的候选数一致（扫描不受输入顺序影响）
+  [通过] T3.3 修正后成交笔数严格多于旧行为（槽位真的被释放）
+  [记录] 候选=53，timeline 成交=20 笔，legacy 成交=5 笔
+
+==============================================================
+通过 17 项，失败 0 项
+==============================================================
+[exit=0]
+
+=== [2] 后端单测：accum_early_entry + business（本单改动直接触及的模块） ===
+$ python -m pytest 框架/backend/tests/test_accum_early_entry.py 框架/backend/tests/test_business.py -q
+..............ss.............ss..........ssssssssssssss...s......ssss... [ 71%]
+.............................                                            [100%]
+78 passed, 23 skipped in 5.26s
+
+=== [3] event_trend_v0_1 全量单测 ===
+$ python -m pytest 策略/WyckoffMaster/event_trend_v0_1/tests -q
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_run_artifacts.py:188: AssertionError
+=========================== short test summary info ============================
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_adversarial_candidate_unique_binding_and_field_mapping
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_max_holding_10_days_expiry_exit
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py::test_exit_failure_keeps_position_open_and_marks_run_invalid
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_run_artifacts.py::test_fingerprints_cover_rules_code_config_inputs
+4 failed, 122 passed in 20.88s
+
+=== [4] FIX-002 精度门禁单测（plan_entry 签名变更后仍须全过） ===
+$ python -m pytest 策略/WyckoffMaster/event_trend_v0_1/tests/test_fix002_precision_and_gates.py -q
+...........                                                              [100%]
+11 passed in 0.69s
+
+=== [5] 历史适用性单测 ===
+$ python -m pytest 策略/WyckoffMaster/event_trend_v0_1/tests/test_spec_historical_applicability.py -q
+...................................                                      [100%]
+35 passed in 2.50s
+
+=== [6] 已知基线失败：test_paper_live_01（本单改动前后一致失败） ===
+[bootstrap] {'universe': 1, 'ready': 1, 'skipped': 0, 'skipped_reasons': {}, 'history_candidates_discarded': 0, 'discarded_detail': [], 'discarded_detail_n': 0, 'discarded_detail_consistent': True, 'recovered_candidates': 0, 'recovered_detail': [], 'recovery_gate': 'execution_earliest_ms + MAX_FILL_LAG_MS(3600s) >= upto_ms；是否真能成交仍由 paper_engine.FILL_POLICY 决定', '_window_hours': 498037.0, 'data_source': 'hot_only', 'history': None, 'used': {'replay_window_hours': 2880.0, 'replay_window_start_utc': '2026-06-27T13:00:00Z', 'declared_window_hours': 1160.0, 'state_replay_hours': 2880, 'atr_prewarm_bars_min': 0, 'atr_prewarm_bars_max': 0, 'bars_4h_min': 52, 'bars_4h_max': 52, 'bars_1h_min': 208, 'bars_1h_max': 208, 'box_bars': 42, 'er_bars': 42, 'breakout_vol_lookback': 20}, 'watermark_clamped': False, 'watermark_note': None, 'elapsed_sec': 0.2}
+=========================== short test summary info ============================
+FAILED 框架/backend/tests/test_paper_live_01.py::TestPaperLive01::test_03_isolated_end_to_end_trade_closure
+1 failed, 4 passed in 3.17s
+
+--------------------------------------------------------------------
+说明（不属于测试输出，是对上文的解释）
+--------------------------------------------------------------------
+[A] 解释器差异（重要，勿混用）
+    - 跑「独立脚本」用 /usr/bin/python3（有 numpy 2.0.2 / pandas 2.3.3）；
+      托管 python3.13.12 无 numpy，会让 close_at_price 内部的
+      `from 策略.WyckoffMaster.trading_core.fill import price_breakdown`
+      抛 ModuleNotFoundError ⇒ 会把 T2/T3/T10 误判成失败。
+    - 跑 pytest 用 /Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python
+      （pytest 9.1.1 + numpy 2.5.4）。/usr/bin/python3 无 pytest。
+    - pytest 的 --basetemp 必须落在项目内目录（沙箱不允许写 /tmp）。
+
+[B] [3] 的 4 项失败 = 已证基线失败，非本单引入
+    失败项：test_event_trend_closure::test_adversarial_candidate_unique_binding_and_field_mapping
+            test_event_trend_closure::test_max_holding_10_days_expiry_exit
+            test_fill_precision::test_exit_failure_keeps_position_open_and_marks_run_invalid
+            test_run_artifacts::test_fingerprints_cover_rules_code_config_inputs
+    判定手法：备份本单 8 个改动文件 → `git checkout --` 回退到 HEAD(38eaa83b)
+              → 同一命令复跑 → 同样 4 failed / 122 passed
+              → 按 sha256 逐字节还原（8/8 OK）。
+    典型报错是 `assert None == 10`（max_holding_days），属配置视图口径差异，
+    与本单的价格门禁/运行状态无关。
+
+[C] [6] test_paper_live_01::test_03 同样是基线既有失败
+    同一「备份 → 回退 → 复跑」手法验证：回退后 1 failed / 4 passed，与带本单改动时一致。
+    成因：该测试的退出判定只按 `low <= stop` 触发，而 gap_model=stop_price 在开盘跳空时
+    给出的成交价落在当根 bar 之外；门禁把它判为 EXEC_PRICE_OUT_OF_RANGE ⇒ exits_triggered=0。
+    这不是门禁误杀，而是 [D] 里同一个未批准默认口径的另一种表现。
+
+[D] 结论性判断（与 README 的 DEC-01 对应）
+    `gap_model=stop_price`（现行默认、未获批准）在跳空时给出「当根 bar 从未到过」的价格。
+    本单按工单约束 2 不改默认口径，只把违规成交显式拒单/标记无效。
+    定量示例（测试 T13，单笔 1 单位、止损 95、跳空 bar=[89, 90.5]、开盘 90）：
+        stop_price 成交 95.0  ⇒ 净额 -5.10   ← price_valid=False（该价 bar 上不存在）
+        midpoint   成交 92.5  ⇒ 净额 -7.60   ← price_valid=False
+        bar_open   成交 90.0  ⇒ 净额 -10.10  ← price_valid=True
+    默认口径把这一笔的亏损少算了约 50%。

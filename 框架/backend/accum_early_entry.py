@@ -1741,6 +1741,48 @@ def ledger_snapshot(scheme: str) -> dict:
 # ══════════════════════════════════════════════════════════════════════════
 # 八、退出驱动（**本单的核心修正**）
 # ══════════════════════════════════════════════════════════════════════════
+
+# ── [AUDIT-003-PATCH] 运行状态与失效原因码（BLK-01）────────────────────────
+# AUDIT-003 实测：退出推进抛异常时，原实现只往 `out` 里塞一条 `drive_error`，
+# 回放继续跑，`research_run` 照常 `ledger_snapshot`，上层跑分器照常算胜率/收益率
+# ⇒ **带病产出有效绩效报告**。现在把「运行是否可信」变成一等公民：
+#   · 任何一次退出推进异常 / 平仓被拒 ⇒ `run_state["status"] = FAILED`；
+#   · `research_run` 把状态写进 `out["run_status"]`，绩效汇总入口据此**阻断指标产出**。
+RUN_STATUS_OK = "OK"
+RUN_STATUS_FAILED = "FAILED"
+
+INVALID_EXIT_DRIVE_ERROR = "EXIT_DRIVE_ERROR"          # 退出推进抛异常
+INVALID_EXIT_CLOSE_REJECTED = "EXIT_CLOSE_REJECTED"    # 平仓被引擎拒（越界/缺高低价/缺规格）
+INVALID_TIMELINE_REPLAY_ERROR = "TIMELINE_REPLAY_ERROR"
+INVALID_DRIVE_EXITS_ERROR = "DRIVE_EXITS_ERROR"
+
+#: 这些退出原因属于「执行有效性错误」⇒ 一旦出现，整次运行不可用于出成绩
+_EXIT_INVALID_REASONS = frozenset({
+    "missing_contract_spec",
+    "MISSING_CONTRACT_SPEC",
+    "EXEC_PRICE_OUT_OF_RANGE",
+    "MISSING_BAR_RANGE",
+    "INVALID_QTY_PRECISION",
+})
+
+
+def new_run_state() -> dict:
+    """一次回测运行的可信度状态。`status` 只有 OK / FAILED 两态。"""
+    return {"status": RUN_STATUS_OK, "invalid_reasons": [], "problems": []}
+
+
+def mark_run_invalid(run_state: Optional[dict], code: str, detail: Optional[dict] = None) -> None:
+    """把运行标记为 FAILED 并登记原因码（幂等：同一原因码只记一次）。"""
+    if run_state is None:
+        return
+    run_state["status"] = RUN_STATUS_FAILED
+    reasons = run_state.setdefault("invalid_reasons", [])
+    if code not in reasons:
+        reasons.append(code)
+    if detail is not None:
+        run_state.setdefault("problems", []).append(detail)
+
+
 def _bar_label(bar: dict, base: str = "binance_um") -> str:
     """写进账本的来源标签：层 + 「可得时刻有没有证据」。"""
     layer = bar.get("source")
@@ -1811,10 +1853,15 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
         cls = ("initial" if abs(stop_used - initial_stop) < 1e-12 else "trailing") \
             + ("_stop_gap" if gap else "_stop_loss")
         exit_ts = int(bar["open_time"])
+        # [AUDIT-003-PATCH] 必须把出场 K 线的真实高低价交给引擎：`close_at_price`
+        # 现在缺高低价直接拒单（MISSING_BAR_RANGE），越界则 EXEC_PRICE_OUT_OF_RANGE。
+        # 引擎拒单时**不得**当成已平仓（原来只看 `exit_ts` 是否存在，会把拒单
+        # 误记成一次退出，仓位却仍 open ⇒ 既漏记又带病出成绩）。
         res = PE.close_at_price(
             scheme, int(position_id), raw_price=float(raw), now_ms=exit_ts,
             reason=cls, bar_open_time=int(bar["open_time"]),
             bar_close_time=int(bar["close_time"]), exit_ts=exit_ts,
+            bar_low=float(bar["low"]), bar_high=float(bar["high"]),
             bar_source=_bar_label(bar))
         row = {"ok": bool(res.get("ok")), "scheme": scheme,
                "position_id": int(position_id), "symbol": symbol,
@@ -1828,7 +1875,14 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
                "detail": {"close_result": res, "updates": updates,
                           "bar_open_time": int(bar["open_time"]),
                           "bar_low": float(bar["low"]),
+                          "bar_high": float(bar["high"]),
                           "bar_open": float(bar["open"])}}
+        if not res.get("ok"):
+            # 平仓被拒 ⇒ 这不是一次退出。带出原因码，交给上层把整次运行判无效。
+            row["reason"] = res.get("reason") or "exit_close_rejected"
+            row["close_rejected"] = True
+            row["exit_ts"] = None
+            row["net_pnl"] = None
         if store is not None:
             record_exit(store, row)
         return row
@@ -1889,14 +1943,31 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
 
 
 def drive_all_exits(feed: DataFeed, *, cfg: dict, end_ms: int, schemes=SCHEMES,
-                    legacy_4h_exit: bool = False, store=None) -> List[dict]:
+                    legacy_4h_exit: bool = False, store=None,
+                    run_state: Optional[dict] = None) -> List[dict]:
+    """收尾：把所有仍开着的持仓推进到窗口末。
+
+    `run_state`（AUDIT-003-PATCH）：单笔失败不能只记一条就放过——平仓被拒或引擎
+    明确失败都说明账本与行情不自洽 ⇒ 整次运行标 FAILED，绩效汇总入口据此阻断。
+    """
     out = []
     for scheme in schemes:
         for pos in open_positions(scheme):
-            r = drive_position_exit(scheme, int(pos["position_id"]), feed,
-                                    cfg=cfg, end_ms=end_ms,
-                                    legacy_4h_exit=legacy_4h_exit, store=store)
+            pid = int(pos["position_id"])
+            try:
+                r = drive_position_exit(scheme, pid, feed,
+                                        cfg=cfg, end_ms=end_ms,
+                                        legacy_4h_exit=legacy_4h_exit, store=store)
+            except Exception as exc:                          # noqa: BLE001
+                rec = {"ok": False, "scheme": scheme, "position_id": pid,
+                       "reason": "drive_error", "error": repr(exc)}
+                out.append(rec)
+                mark_run_invalid(run_state, INVALID_DRIVE_EXITS_ERROR, rec)
+                continue
             out.append(r)
+            if r.get("close_rejected") or (r.get("ok") is False
+                                           and str(r.get("reason") or "") in _EXIT_INVALID_REASONS):
+                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
     return out
 
 
@@ -2154,7 +2225,8 @@ def _timeline_events(per_symbol: Sequence[dict]) -> List[dict]:
 
 def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int,
                             legacy_4h_exit: bool = False, store=None,
-                            cache: Dict[str, List[int]]) -> List[dict]:
+                            cache: Dict[str, List[int]],
+                            run_state: Optional[dict] = None) -> List[dict]:
     """把各方案存量持仓推进到 `until_ms`（含），返回本次新增的退出记录。
 
     `drive_position_exit` 每根 15m 先上移 4h 跟踪止损、再判退出，所以一次调用同时完成
@@ -2164,6 +2236,9 @@ def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int
 
     仍开着的持仓留在 `cache` 里供下一轮继续推进；已平仓、已找不到、缺合约规格的一律移出，
     避免同一笔被反复重试。**不重写任何止损/退出口径**，只重排调用时机。
+
+    `run_state`（AUDIT-003-PATCH / BLK-01）：退出推进异常或平仓被拒时，**必须**把整次
+    运行标成 FAILED。原实现只记一条 `drive_error` 就继续跑，上层照样算胜率 ⇒ 带病出报告。
     """
     out: List[dict] = []
     for scheme in schemes:
@@ -2175,21 +2250,36 @@ def _advance_open_positions(feed: DataFeed, *, cfg: dict, schemes, until_ms: int
                                         legacy_4h_exit=legacy_4h_exit, store=store)
             except Exception as exc:                          # noqa: BLE001
                 keep.append(int(pid))
-                out.append({"ok": False, "scheme": scheme, "position_id": int(pid),
-                            "reason": "drive_error", "error": repr(exc)})
+                rec = {"ok": False, "scheme": scheme, "position_id": int(pid),
+                       "reason": "drive_error", "error": repr(exc),
+                       "until_ms": int(until_ms)}
+                out.append(rec)
+                # ① 异常 ⇒ 运行无效（不再「记一笔就当没事」）
+                mark_run_invalid(run_state, INVALID_EXIT_DRIVE_ERROR, rec)
                 continue
-            if "exit_ts" in r:
+            # ② 平仓被引擎拒（价格越界 / 缺高低价 / 缺规格）⇒ 不是退出，仓位仍 open
+            if r.get("close_rejected"):
+                out.append(r)
+                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
+                continue
+            # ③ 引擎明确失败且原因属执行有效性 ⇒ 运行无效
+            if r.get("ok") is False and str(r.get("reason") or "") in _EXIT_INVALID_REASONS:
+                out.append(r)
+                mark_run_invalid(run_state, INVALID_EXIT_CLOSE_REJECTED, r)
+                continue
+            if r.get("exit_ts") is not None:
                 out.append(r)                                 # 已平仓
             elif r.get("reason") == "open_at_window_end":
                 keep.append(int(pid))                         # 仍开着，继续推进
             else:
-                out.append(r)                                 # 已平/找不到/缺规格：不再重试
+                out.append(r)                                 # 找不到/已平：不再重试
         cache[scheme] = keep
     return out
 
 
 def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
                      schemes=SCHEMES, store, legacy_4h_exit: bool = False,
+                     run_state: Optional[dict] = None,
                      ) -> Tuple[List[dict], dict]:
     """统一时间轴回放：同一时刻先退出释放槽位，再分配槽位开新仓。
 
@@ -2227,7 +2317,7 @@ def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
             exits.extend(_advance_open_positions(
                 feed, cfg=cfg, schemes=schemes_at[e["t"]],
                 until_ms=e["t"], legacy_4h_exit=legacy_4h_exit,
-                store=store, cache=cache))
+                store=store, cache=cache, run_state=run_state))
             last_t = e["t"]
         res = try_open(e["scheme"], e["symbol"], e["cand"], cfg, store)
         e["cand"]["open_result"] = res
@@ -2239,7 +2329,9 @@ def _replay_timeline(feed: DataFeed, *, cfg: dict, per_symbol: Sequence[dict],
 
     stats = {"events": len(events), "opened": opened,
              "distinct_timestamps": len({e["t"] for e in events}),
-             "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid"}
+             "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid",
+             "run_status": (run_state or {}).get("status", RUN_STATUS_OK),
+             "invalid_reasons": list((run_state or {}).get("invalid_reasons") or [])}
     return exits, stats
 
 
@@ -2276,12 +2368,16 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms: 
     fd = feed or DataFeed()
     # 两段式只在「真的会开仓」且调用方没显式要求旧行为时启用
     use_timeline = bool(open_candidates and timeline_entries)
+    # [AUDIT-003-PATCH] 运行可信度：任何退出推进异常/平仓被拒都会把它打成 FAILED，
+    # 上层绩效汇总入口必须据此**拒绝产出收益与胜率**（BLK-01）。
+    run_state = new_run_state()
     out = {"identity": run_identity(cfg, fd),
            "config": {k: v for k, v in cfg.items() if k != "doc"},
            "window": {"start_utc": _iso(start_ms), "end_utc": _iso(end_ms),
                       "start_ms": int(start_ms), "end_ms": int(end_ms)},
            "symbols": list(symbols), "per_symbol": [], "exits": [],
            "ledgers": {}, "errors": [],
+           "run_status": RUN_STATUS_OK, "invalid_reasons": [],
            "flags": {"open_candidates": bool(open_candidates),
                      "drive_exits": bool(drive_exits),
                      "legacy_4h_exit": bool(legacy_4h_exit),
@@ -2308,24 +2404,30 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms: 
             try:
                 tl_exits, tl_stats = _replay_timeline(
                     fd, cfg=cfg, per_symbol=out["per_symbol"], schemes=schemes,
-                    store=st, legacy_4h_exit=legacy_4h_exit)
+                    store=st, legacy_4h_exit=legacy_4h_exit, run_state=run_state)
                 out["exits"] = tl_exits
                 out["timeline"] = tl_stats
             except Exception as exc:                          # noqa: BLE001
                 out["errors"].append({"stage": "timeline_replay", "error": repr(exc)})
+                # [AUDIT-003-PATCH] 回放整体崩掉 ⇒ 运行无效（原来只记 errors，照样出成绩）
+                mark_run_invalid(run_state, INVALID_TIMELINE_REPLAY_ERROR,
+                                 {"stage": "timeline_replay", "error": repr(exc)})
 
         # ── 收尾：把仍开着的持仓推进到窗口末（两段式与旧行为共用）──────────
         if drive_exits:
             try:
                 tail = drive_all_exits(
                     fd, cfg=cfg, end_ms=int(end_ms) + int(walk_days) * DAY,
-                    schemes=schemes, legacy_4h_exit=legacy_4h_exit, store=st)
+                    schemes=schemes, legacy_4h_exit=legacy_4h_exit, store=st,
+                    run_state=run_state)
                 if use_timeline:
                     out["exits"].extend(tail)
                 else:
                     out["exits"] = tail
             except Exception as exc:                          # noqa: BLE001
                 out["errors"].append({"stage": "drive_exits", "error": repr(exc)})
+                mark_run_invalid(run_state, INVALID_DRIVE_EXITS_ERROR,
+                                 {"stage": "drive_exits", "error": repr(exc)})
         for scheme in schemes:
             try:
                 out["ledgers"][scheme] = ledger_snapshot(scheme)
@@ -2337,6 +2439,14 @@ def research_run(*, config=None, symbols: Sequence[str], start_ms: int, end_ms: 
             fd.close()
         if own_store:
             st.close()
+    # ── [AUDIT-003-PATCH] 把运行可信度摊到返回值顶层，绩效入口直接读 ──────────
+    out["run_status"] = run_state["status"]
+    out["invalid_reasons"] = list(run_state["invalid_reasons"])
+    out["run_problems"] = list(run_state["problems"])[:50]
+    if run_state["status"] != RUN_STATUS_OK:
+        out["run_invalid_note"] = (
+            "本次运行被标记为 FAILED：退出推进出现异常或平仓被拒 ⇒ 账本与行情不自洽，"
+            "禁止用本次结果计算收益率/胜率/回撤；必须先修数据或代码再重跑。")
     return out
 
 

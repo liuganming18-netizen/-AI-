@@ -125,6 +125,8 @@ REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
 REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
 REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
 REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
+# [AUDIT-003-PATCH] 调用方没传执行 K 线高低价 ⇒ 不得再「条件分支跳过」，直接拒单
+REJECT_MISSING_BAR_RANGE = "MISSING_BAR_RANGE"
 
 
 def validate_execution_price_in_bar(fill_price: float, bar_low: float, bar_high: float,
@@ -145,14 +147,56 @@ def validate_execution_price_in_bar(fill_price: float, bar_low: float, bar_high:
     return True, 0.0, None
 
 
+def require_bar_range(bar_low, bar_high, *, where: str = "") -> Optional[dict]:
+    """[AUDIT-003-PATCH] 统一「高低价必须给」的判定；返回 None = 合格，否则返回拒单 dict。
+
+    为什么单独抽出来：这条约束在 `plan_entry` / `paper_engine.open_position` /
+    `paper_engine.close_at_price` 三处都要执行，且必须给**同一个原因码**，
+    否则对账时按码统计会把同一类漏传拆成三种。
+    """
+    if bar_low is None or bar_high is None:
+        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
+                "code": REJECT_MISSING_BAR_RANGE,
+                "detail": {"bar_low": bar_low, "bar_high": bar_high, "where": where},
+                "说明": "调用方未提供执行 K 线的高低价格区间 ⇒ 无法校验成交价是否可成交，"
+                        "按 fail-closed 拒单（严禁静默跳过校验）"}
+    try:
+        lo = float(bar_low)
+        hi = float(bar_high)
+    except (TypeError, ValueError):
+        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
+                "code": REJECT_MISSING_BAR_RANGE,
+                "detail": {"bar_low": bar_low, "bar_high": bar_high, "where": where},
+                "说明": "执行 K 线高低价无法解析为数值 ⇒ 拒单"}
+    if not (math.isfinite(lo) and math.isfinite(hi)) or lo <= 0 or hi <= 0 or hi < lo:
+        return {"status": "rejected", "reject": REJECT_MISSING_BAR_RANGE,
+                "code": REJECT_MISSING_BAR_RANGE,
+                "detail": {"bar_low": lo, "bar_high": hi, "where": where},
+                "说明": "执行 K 线高低价非法（非有限数 / 非正 / high<low）⇒ 拒单"}
+    return None
+
+
+def check_price_in_bar(fill_price, bar_low, bar_high, *,
+                       tol: float = 0.001) -> tuple[bool, float, Optional[str]]:
+    """[AUDIT-003-PATCH] 单事件回放用的组合门禁：**先判高低价存在性，再判越界**。
+
+    为什么不直接用 `validate_execution_price_in_bar`：那个函数把「缺高低价」和
+    「价格越界」都返回 `EXEC_PRICE_OUT_OF_RANGE`，会把两类完全不同的缺陷
+    （调用链漏传 vs 数据/模型问题）统计成一类，整改时无法区分。
+    """
+    if require_bar_range(bar_low, bar_high, where="check_price_in_bar") is not None:
+        return False, 0.0, REJECT_MISSING_BAR_RANGE
+    return validate_execution_price_in_bar(fill_price, bar_low, bar_high, tol=tol)
+
+
 # ══════════════════════════ ① 入场（唯一实现）══════════════════════════
 
 def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[float],
                equity: float, gross_open_notional: float, free_cash: float,
                portfolio_risk_open: float, caliber: dict,
                direction: str = "long",
-               bar_low: Optional[float] = None,
-               bar_high: Optional[float] = None,
+               bar_low: float,
+               bar_high: float,
                tol: float = 0.001) -> dict:
     """入场计划：价 / 止损 / 数量 / 名义额 / 手续费，**一次算完**。
 
@@ -164,10 +208,22 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
         ⑤ 最小量、最小金额、单笔与组合风险复核 ⇒ 任一超限**整单拒绝**
         ⑥ [FIX-002] 强门禁：成交价格与对应执行 K 线区间 [bar_low, bar_high] 核对
 
+    **`bar_low` / `bar_high` 是必填参数（无默认值）**——AUDIT-003 BLK-02：原实现
+    给它们 `None` 默认值，生产调用点 `replay_one` 没传，于是 `if bar_low is not None`
+    分支永不进入，价格校验被**静默穿透**。现在漏传会在调用处直接 TypeError；
+    显式传 `None` 也会被 `require_bar_range()` 拒单并给 `MISSING_BAR_RANGE`。
+
     所以「两套滑点各自完整执行」是**结构保证**的：换一个滑点值，止损、数量、
     名义额、手续费会一起变，不可能出现「价变了但数量没变」的分叉。
     """
     from strategies.wx_execution import apply_order_rounding
+
+    # [AUDIT-003-PATCH] 第一步先判「高低价到底给没给」：这是调用链契约，
+    # 比规格/取整更基础 —— 没有边界就无法判断任何成交价是否成立。
+    _rng = require_bar_range(bar_low, bar_high, where="replay_calc.plan_entry")
+    if _rng is not None:
+        _rng["symbol"] = symbol
+        return _rng
 
     limits = _limits_for(symbol)
     if limits is None or float(limits.get("price_step") or 0.0) <= 0 or float(limits.get("quantity_step") or 0.0) <= 0:
@@ -214,16 +270,17 @@ def plan_entry(*, symbol: str, raw_open: float, prev_quote_volume: Optional[floa
                 "code": REJECT_INVALID_QTY_PRECISION, "symbol": symbol,
                 "detail": {"qty": qty}, "说明": "下单数量非正或非有限数"}
 
-    # [FIX-002] 强门禁：成交价格落在对应执行 K 线区间 [low, high] 校验
-    if bar_low is not None and bar_high is not None:
-        valid_px, dev, rej_px_code = validate_execution_price_in_bar(
-            entry_price, bar_low, bar_high, tol=tol)
-        if not valid_px:
-            return {"status": "rejected", "reject": rej_px_code, "code": rej_px_code,
-                    "symbol": symbol,
-                    "detail": {"entry_price": entry_price, "bar_low": bar_low,
-                               "bar_high": bar_high, "deviation": dev},
-                    "说明": f"成交价格 {entry_price} 超出执行 K 线范围 [{bar_low}, {bar_high}]"}
+    # [FIX-002 / AUDIT-003-PATCH] 强门禁：成交价格落在对应执行 K 线区间 [low, high] 校验
+    # 原实现是 `if bar_low is not None and bar_high is not None:` —— 条件式 ⇒ 可被静默穿透。
+    # 现在前置 `require_bar_range()` 已保证两者非空且合法，这里**无条件**执行。
+    valid_px, dev, rej_px_code = validate_execution_price_in_bar(
+        entry_price, bar_low, bar_high, tol=tol)
+    if not valid_px:
+        return {"status": "rejected", "reject": rej_px_code, "code": rej_px_code,
+                "symbol": symbol,
+                "detail": {"entry_price": entry_price, "bar_low": bar_low,
+                           "bar_high": bar_high, "deviation": dev},
+                "说明": f"成交价格 {entry_price} 超出执行 K 线范围 [{bar_low}, {bar_high}]"}
 
     notional = float(rr["notional"])
     fee = notional * float(caliber["fee_each_side"])
@@ -351,6 +408,10 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
     path = sorted(stop_path, key=lambda x: x["effective_ms"])
     pi = 0
     cur_stop = float(initial_stop)
+    # [AUDIT-003-PATCH] 缺 low 的 bar 无法判「盘中是否触及」⇒ 仍是跳过，但必须**计数上报**，
+    # 不能像原来那样静默跳过。调用方看到 n_bars_no_low>0 就知道这条回放的退出判定不完整。
+    n_bars_no_open = 0
+    n_bars_no_low = 0
     for b in bars_15m or []:
         ot = int(b["open_time"])
         if ot < int(entry_bar_ms):
@@ -359,9 +420,13 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
             cur_stop = float(path[pi]["stop"])
             pi += 1
         o, lo, hi = _f(b.get("open")), _f(b.get("low")), _f(b.get("high"))
-        if o is None or lo is None:
+        if o is None:
+            n_bars_no_open += 1
             continue
-        bar_hi = hi if hi is not None else max(o, cur_stop)
+        # [AUDIT-003-PATCH] 原实现是 `bar_hi = hi if hi is not None else max(o, cur_stop)`
+        # —— 缺 high 时**伪造**一个上界，于是校验永远通过。这正是"静默跳过校验"的另一种写法。
+        # 现在原样传 None，交给 check_price_in_bar 判 MISSING_BAR_RANGE。
+        bar_hi = hi
         if o <= cur_stop:
             if gap_model == "bar_open":
                 fill = o
@@ -369,7 +434,7 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
                 fill = (o + cur_stop) / 2.0
             else:
                 fill = cur_stop
-            valid_px, dev, rej_px_code = validate_execution_price_in_bar(fill, lo, bar_hi, tol=tol)
+            valid_px, dev, rej_px_code = check_price_in_bar(fill, lo, bar_hi, tol=tol)
             return {"hit": True, "kind": "gap",
                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
                     "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
@@ -381,11 +446,17 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
                     "price_valid": valid_px,
                     "price_deviation": dev,
                     "reject_code": rej_px_code,
+                    "n_bars_no_open": n_bars_no_open,
+                    "n_bars_no_low": n_bars_no_low,
                     "note": ("开盘已越过止损 ⇒ 跳空；成交价由跳空模型决定"
                              if gap_model != "stop_price"
                              else "开盘已越过止损，但按止损价成交（默认口径，偏乐观）")}
-        if lo <= cur_stop:
-            valid_px, dev, rej_px_code = validate_execution_price_in_bar(cur_stop, lo, bar_hi, tol=tol)
+        if lo is None:
+            # 开盘没穿止损、又缺 low ⇒ **无法判定**盘中是否触及。这不是"没触及"，
+            # 只是查不了。计数上报，让调用方知道这条回放的退出判定不完整。
+            n_bars_no_low += 1
+        elif lo <= cur_stop:
+            valid_px, dev, rej_px_code = check_price_in_bar(cur_stop, lo, bar_hi, tol=tol)
             return {"hit": True, "kind": "intrabar",
                     "bar_open_ms": ot, "bar_open_utc": _iso(ot),
                     "bar_open": o, "bar_low": lo, "bar_high": bar_hi,
@@ -397,10 +468,15 @@ def scan_exit(*, bars_15m: List[dict], entry_ms: int, entry_bar_ms: int,
                     "price_valid": valid_px,
                     "price_deviation": dev,
                     "reject_code": rej_px_code,
+                    "n_bars_no_open": n_bars_no_open,
+                    "n_bars_no_low": n_bars_no_low,
                     "note": "盘中触及 ⇒ 按止损价成交"}
     return {"hit": False, "kind": "no_exit_in_window",
             "price_valid": True, "reject_code": None,
-            "note": "窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值"}
+            "n_bars_no_open": n_bars_no_open,
+            "n_bars_no_low": n_bars_no_low,
+            "note": ("窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值"
+                     + ("；但存在缺 low 的 bar，盘中触及可能被漏判" if n_bars_no_low else ""))}
 
 
 def classify_exit_reason(*, kind: str, stop_kind: str) -> str:
@@ -563,6 +639,11 @@ def gap_sensitivity(*, entry_price: float, entry_fee: float, qty: float,
         out[m] = {"hit": True, "kind": ex["kind"],
                   "exit_fill": ex["exit_fill"], "stop_used": ex["stop_used"],
                   "bar_open": ex["bar_open"], "gap_size": ex["gap_size"],
+                  # [AUDIT-003-PATCH] 把可成交性摆到敏感性表上：
+                  # `price_valid=False` 的模型给出的净额是**物理上不可能成交**的，
+                  # 不能和另外两个模型并列当"三个可选方案"。
+                  "price_valid": ex.get("price_valid"),
+                  "reject_code": ex.get("reject_code"),
                   "realized_net": p.get("realized_net")}
     nets = {k: v.get("realized_net") for k, v in out.items() if v.get("hit")}
     return {
@@ -605,6 +686,10 @@ def replay_one(*, symbol: str, entry_bar: dict, prev_bar: Optional[dict],
                        gross_open_notional=gross_open_notional,
                        free_cash=eq, portfolio_risk_open=portfolio_risk_open,
                        caliber=cal,
+                       # [AUDIT-003-PATCH] 必须传当前执行 K 线的真实高低价。
+                       # 原来这里没传 ⇒ plan_entry 的条件分支把校验整段跳过（BLK-02）。
+                       bar_low=entry_bar.get("low"),
+                       bar_high=entry_bar.get("high"),
                        direction=("long" if int(direction) == 1 else "short"))
     if entry.get("status") != "ok":
         return {"caliber": caliber_name, "caliber_params": cal,
@@ -648,6 +733,28 @@ def replay_one(*, symbol: str, entry_bar: dict, prev_bar: Optional[dict],
                            bars_15m=bars_15m, entry_bar_ms=entry_ms,
                            stop_path=stop_path, initial_stop=initial_stop)
 
+    # ── [AUDIT-003-PATCH] 单事件回放的**退出价**同样必须落在执行 K 线内 ──────────
+    # 工单要求「检查所有单事件回放与撮合调用点」。入场侧已由 plan_entry 拒单；
+    # 退出侧原来只把 `price_valid=False` 写进返回 dict，**调用方根本不读** ⇒ 等于没有。
+    # 现在 fail-closed：只要 hit 且校验不过，整条回放判无效，不产出任何净额。
+    if ex.get("hit"):
+        _exit_ok = bool(ex.get("price_valid"))
+        _exit_code = ex.get("reject_code")
+        if not _exit_ok:
+            return {
+                "status": "invalid_exit_price",
+                "reason": _exit_code or REJECT_EXEC_PRICE_OUT_OF_RANGE,
+                "caliber": caliber_name, "caliber_params": cal,
+                "entry": entry,
+                "exit": {**ex, "exit_reason": reason, "exit_utc": _iso(exit_ms)},
+                "已实现净额": None, "未实现净额": None, "盈亏": None,
+                "跳空敏感性": sens,
+                "说明": (f"退出成交价 {ex.get('exit_fill')} 不落在执行 K 线 "
+                         f"[{ex.get('bar_low')}, {ex.get('bar_high')}] 内（原因码 {_exit_code}）"
+                         "⇒ 本次单事件回放判无效，不得产出净额/胜率；"
+                         "必须先裁决 gap_model 或修数据再重跑"),
+            }
+
     return {
         "status": "ok", "caliber": caliber_name, "caliber_params": cal,
         "entry": entry,
@@ -681,4 +788,9 @@ __all__ = [
     "FUNDING_ORDER_UNCERTAIN_MS",
     "plan_entry", "build_stop_path", "scan_exit", "classify_exit_reason",
     "settle_funding_events", "pnl_breakdown", "gap_sensitivity", "replay_one",
+    # [FIX-002 / AUDIT-003-PATCH] 价格区间门禁
+    "REJECT_MISSING_CONTRACT_SPEC", "REJECT_FALLBACK_TICK_BLOCKED",
+    "REJECT_EXEC_PRICE_OUT_OF_RANGE", "REJECT_INVALID_QTY_PRECISION",
+    "REJECT_MISSING_BAR_RANGE",
+    "validate_execution_price_in_bar", "require_bar_range", "check_price_in_bar",
 ]

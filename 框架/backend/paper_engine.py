@@ -1226,6 +1226,33 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         notional = float(rr["notional"])
         planned_risk = float(rr["planned_risk"])
 
+        # ── [AUDIT-003-PATCH] 成交价必须落在成交 K 线的 [low, high] 内 ──────────────
+        # AUDIT-003 BLK-02：FIX-002 的 `validate_execution_price_in_bar` 只进了单测和
+        # `scan_exit`，**正式撮合（本函数）根本没接入** ⇒ 例如 tick 回退把 0.00001234
+        # 取整成 0.00、或拿错 bar 的价格，都能静默落库进账本。
+        # 现在在**写任何表之前**强制校验，三条路径（自动/手工/挂单推进）都经过这里：
+        #   · 缺 low/high（bar 不完整）⇒ `MISSING_BAR_RANGE` 拒单；
+        #   · 成交价越界            ⇒ `EXEC_PRICE_OUT_OF_RANGE` 拒单。
+        # 拒单落 `paper_order(status=rejected)` + `paper_blocked`，原因码可对账。
+        # 容差 0.1% 覆盖已批准滑点（3bps/5bps）+ 价格步进取整，不会误杀正常成交。
+        import replay_calc as _RC
+        _bar_low = _f(bar["low"]) if "low" in bar.keys() else None
+        _bar_high = _f(bar["high"]) if "high" in bar.keys() else None
+        _range_gate = _RC.require_bar_range(_bar_low, _bar_high,
+                                            where="paper_engine.open_position")
+        if _range_gate is not None:
+            return _reject(arm, symbol, signal_uid, _RC.REJECT_MISSING_BAR_RANGE,
+                           detail=_range_gate.get("detail"))
+        _px_ok, _px_dev, _px_code = _RC.validate_execution_price_in_bar(
+            fill, _bar_low, _bar_high)
+        if not _px_ok:
+            return _reject(arm, symbol, signal_uid, _px_code,
+                           detail={"fill_price": fill, "raw_price": raw,
+                                   "bar_low": _bar_low, "bar_high": _bar_high,
+                                   "deviation": _px_dev,
+                                   "bar_open_time": bar_open,
+                                   "where": "paper_engine.open_position"})
+
         # 附加闸门：持仓数上限 10 与 DD 20% 锁止，以及全组合复核
         ok, why = pre_open_check(con, arm, symbol, notional, stop_dist, qty, con_mkt, params)
         if not ok:
@@ -1393,7 +1420,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         con_mkt.close()
 
 
-def _reject(arm, symbol, signal_uid, reason):
+def _reject(arm, symbol, signal_uid, reason, detail=None):
     con = L.paper_conn(arm)
     try:
         # 幂等：同一 event_uid 重复拒单不报错（`event_uid` 有 UNIQUE 约束）
@@ -1417,7 +1444,10 @@ def _reject(arm, symbol, signal_uid, reason):
         con.commit()
     finally:
         con.close()
-    return {"ok": False, "reason": reason, "symbol": symbol, "signal_uid": signal_uid}
+    out = {"ok": False, "reason": reason, "symbol": symbol, "signal_uid": signal_uid}
+    if detail:
+        out["detail"] = detail
+    return out
 
 
 # ── 资金费：**结算事件经过时即时记账**（幂等）────────────────────────────────
@@ -1749,13 +1779,16 @@ def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual") 
                           now_ms=now_ms, reason=reason,
                           bar_open_time=int(row["open_time"]),
                           bar_close_time=int(row["close_time"]),
+                          # [AUDIT-003-PATCH] 必须给出场 K 线真实高低价，否则价格校验无边界
+                          bar_low=_f(row["low"]), bar_high=_f(row["high"]),
                           # 手工平仓成交在该 bar 的**收盘** ⇒ 经济出场时刻 = close_time
                           exit_ts=int(row["close_time"]))
 
 
 def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason="manual",
                    bar_open_time=None, bar_close_time=None, exit_ts=None,
-                   decision_context=None, bar_source: str = None) -> dict:
+                   decision_context=None, bar_source: str = None,
+                   bar_low=None, bar_high=None, tol: float = 0.001) -> dict:
     """按**给定原始价**平仓（stop/信号退出等确定性触发用；滑点按已批准值不利方向）。
 
     `exit_ts` = **经济出场时刻**（出场 bar 的 open 或 close，由调用方按口径给）。
@@ -1765,9 +1798,25 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
     `bar_source`（ACCUM-EARLY-03-B）：出场 bar 的来源标签。合并读取下出场 bar 可能来自
     冷档，其 `available_at` 无证据 ⇒ 调用方应传 `_source_label(bar)`，让账本自带
     `available_at_unproven` 标记。缺省 `None` ⇒ 沿用 `MARKET_SOURCE`（与改前一致）。
+
+    `bar_low` / `bar_high`（AUDIT-003-PATCH，**必填**）：出场执行 K 线的真实高低价。
+    AUDIT-003 BLK-02：FIX-002 的价格区间校验完全没接入本函数 ⇒ 平仓价可以随便给。
+    现在：
+      · 缺任一 ⇒ `MISSING_BAR_RANGE` 拒单（不写任何表、仓位保持 open）；
+      · 出场成交价（含滑点与步进取整后的 `fill`）越出 `[low, high]`（容差 `tol`）
+        ⇒ `EXEC_PRICE_OUT_OF_RANGE` 拒单（不写任何表、仓位保持 open）。
+    两条都**不会**静默放行：调用方必须把结果里的 `ok=False` 当作「本次运行无效」处理。
     """
     params = approved_params()
     src = bar_source or MARKET_SOURCE
+    # ── [AUDIT-003-PATCH] 高低价先判：这是调用链契约，必须在**任何副作用之前** ────
+    # 放在开连接之前，缺参数时既不建库也不读行情，杜绝「先写半条再拒」。
+    import replay_calc as _RC
+    _range_gate = _RC.require_bar_range(bar_low, bar_high,
+                                        where="paper_engine.close_at_price")
+    if _range_gate is not None:
+        return {"ok": False, "reason": _RC.REJECT_MISSING_BAR_RANGE,
+                "position_id": position_id, "detail": _range_gate.get("detail")}
     con = L.paper_conn(arm)
     con_mkt = open_market()
     try:
@@ -1791,6 +1840,21 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
             return {"ok": False, "reason": "MISSING_CONTRACT_SPEC"}
         fill = float(price_breakdown(raw_price=raw, is_buy=direction == "short",
                      price_step=limits["price_step"], slippage_rate=slip)["post_round_price"])
+        # ── [AUDIT-003-PATCH] 出场成交价必须落在出场 K 线的 [low, high] 内 ────────
+        # 校验 `fill`（真正写进账本的价），不是 `raw`：越界来源有两类，都要拦 ——
+        #   ① 调用方给了一个不属于这根 bar 的价格（拿错 bar / 前视 / 编造）；
+        #   ② 价格步长过粗把成交价取整到区间外（FIX-002 的 0.00 病根）。
+        # 缺高低价已在函数入口拒过，这里无条件校验，不存在「静默跳过」分支。
+        _px_ok, _px_dev, _px_code = _RC.validate_execution_price_in_bar(
+            fill, bar_low, bar_high, tol=tol)
+        if not _px_ok:
+            return {"ok": False, "reason": _px_code, "position_id": position_id,
+                    "symbol": pos["symbol"], "raw_price": raw, "fill_price": fill,
+                    "bar_low": bar_low, "bar_high": bar_high, "deviation": _px_dev,
+                    "bar_open_time": bar_open_time,
+                    "detail": {"where": "paper_engine.close_at_price",
+                               "note": "出场成交价越界 ⇒ 不落账、仓位保持 open；"
+                                       "调用方必须把本次运行标记为无效"}}
         if direction == "short":
             # fill 已含不利滑点与价格步长取整。
             qty = float(pos["qty"])
@@ -2021,6 +2085,8 @@ def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
                                now_ms=T, reason="drawdown_liquidation_next_15m_open",
                                bar_open_time=int(nxt["open_time"]),
                                bar_close_time=int(nxt["close_time"]),
+                               # [AUDIT-003-PATCH] 清仓 K 线真实高低价
+                               bar_low=_f(nxt["low"]), bar_high=_f(nxt["high"]),
                                exit_ts=int(nxt["open_time"]),
                                decision_context={"rule": "drawdown_liquidation_next_15m_open",
                                                  "drawdown": st.get("drawdown"),
@@ -2474,6 +2540,9 @@ def check_position_exit_on_bar(arm: str, position_id: int, bar_detail: dict, *,
             arm, position_id, raw_price=cur_stop, now_ms=dec_ms,
             reason=reason, bar_open_time=ref_open_ms,
             bar_close_time=ref_close_ms, exit_ts=ref_open_ms,
+            # [AUDIT-003-PATCH] 出场 bar 真实高低价（cur_stop 是决策价，须对照本 bar 校验）
+            bar_low=low_p,
+            bar_high=float(bar_detail["high"]),
             bar_source=_source_label(bar_detail)
         )
 

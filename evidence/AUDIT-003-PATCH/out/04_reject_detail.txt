@@ -1,0 +1,41 @@
+ARM A（gap_model=stop_price，现行默认、未获批准）被门禁拒平仓明细
+来源: evidence/AUDIT-003-PATCH/out/回测_甲乙丙对比.json → identity.run_problems
+共 20 条 run_problems，去重后 16 笔持仓（同一持仓可能被拒多次）
+
+列说明：
+  stop_used      = 跳空模型给出的止损成交价（= raw_price）
+  fill           = 经取整/滑点后的实际送检成交价（门禁校验的就是它，不是 raw）
+  bar_low/high   = 该根执行 K 线的真实高低价
+  超出high%      = (fill / bar_high - 1) * 100
+  超幅(×bar幅)   = (fill - bar_high) / (bar_high - bar_low)，即超出几倍 bar 自身振幅
+
+scheme symbol        pos    stop_used        fill      bar_low     bar_high    超出high%      超幅×  exit_class
+-----------------------------------------------------------------------------------------------------------
+4a     ACTUSDT        50     0.011355    0.011349     0.010168     0.010263     10.582    11.43  trailing_stop_gap
+4a     CFXUSDT        48       0.0463     0.04627      0.04237      0.04267      8.437    12.00  trailing_stop_gap
+4a     GTCUSDT         7      0.07561     0.07557       0.0706        0.072      4.958     2.55  trailing_stop_gap
+4a     HMSTRUSDT      34    0.0001816   0.0001815     0.000166    0.0001668      8.813    18.38  trailing_stop_gap
+4a     HOTUSDT        55    0.0003617   0.0003615    0.0003346    0.0003363      7.493    14.82  trailing_stop_gap
+4a     HYPEUSDT       52       71.013      70.977       59.156       59.417     19.456    44.29  trailing_stop_gap
+4a     METUSDT        65       0.2454      0.2452       0.2281       0.2297      6.748     9.69  trailing_stop_gap
+4a     VIRTUALUSDT    56       0.6537      0.6533       0.5846       0.5876     11.181    21.90  trailing_stop_gap
+4a     VTHOUSDT       53    0.0003515   0.0003513    0.0003095    0.0003097     13.432   208.00  trailing_stop_gap
+4a     ZORAUSDT       54     0.006323    0.006319     0.004862     0.004984     26.786    10.94  trailing_stop_gap
+4b     GTCUSDT         6      0.07561     0.07557       0.0722      0.07277      3.848     4.91  trailing_stop_gap
+4b     METUSDT        64       0.2454      0.2452       0.2273       0.2284      7.356    15.27  trailing_stop_gap
+4c     FLUXUSDT       30       0.0405     0.04047      0.03896      0.03907      3.583    12.73  trailing_stop_gap
+4c     GTCUSDT         6      0.07561     0.07557       0.0722      0.07277      3.848     4.91  trailing_stop_gap
+4c     HMSTRUSDT      32    0.0001834   0.0001833     0.000166    0.0001671      9.695    14.73  trailing_stop_gap
+4c     METUSDT        67       0.2454      0.2452       0.2273       0.2284      7.356    15.27  trailing_stop_gap
+
+按 scheme: {'4a': 10, '4b': 2, '4c': 4}
+全部 gap=True            : True
+全部 trailing_stop_gap   : True
+全部 fill > bar_high     : True
+全部 fill > bar_high*(1+tol=0.1%%): True
+最小超出 high 百分比     : 3.583%
+最大超出 high 百分比     : 26.786%
+
+判据：fill 全部严格高于当根 bar 的 high，且全部超过 0.1% 容差上限 ⇒
+      该根 K 线从未到过这个价格；旧实现照样按该价平仓并写入 paper_realized ⇒ 系统性偏乐观。
+      这不是门禁误杀：门禁放行的条件是 px <= high*(1+0.1%)，这些记录连最宽松的容差都过不去。

@@ -125,6 +125,10 @@ def test_replay_calc_missing_contract_spec_gate(monkeypatch):
         free_cash=2000.0,
         portfolio_risk_open=0.0,
         caliber=caliber,
+        # [AUDIT-003-PATCH] bar_low/bar_high 已改为必填（无默认值）：
+        # 漏传会在调用处直接 TypeError，显式传 None 会被 MISSING_BAR_RANGE 拒单。
+        bar_low=99.5,
+        bar_high=100.5,
     )
     assert res["status"] == "rejected"
     assert res["reject"] == REJECT_MISSING_CONTRACT_SPEC
@@ -264,6 +268,9 @@ def test_invalid_qty_precision_handling(monkeypatch):
         free_cash=2000.0,
         portfolio_risk_open=0.0,
         caliber=caliber,
+        # [AUDIT-003-PATCH] 同上：高低价必填
+        bar_low=99.5,
+        bar_high=100.5,
     )
     assert res["status"] == "rejected"
     assert res["reject"] == REJECT_INVALID_QTY_PRECISION

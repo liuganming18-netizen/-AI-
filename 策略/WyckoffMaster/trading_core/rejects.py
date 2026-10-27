@@ -66,6 +66,9 @@ REJECT_MISSING_CONTRACT_SPEC = "MISSING_CONTRACT_SPEC"
 REJECT_FALLBACK_TICK_BLOCKED = "FALLBACK_TICK_BLOCKED"
 REJECT_EXEC_PRICE_OUT_OF_RANGE = "EXEC_PRICE_OUT_OF_RANGE"
 REJECT_INVALID_QTY_PRECISION = "INVALID_QTY_PRECISION"
+# [AUDIT-003-PATCH] 调用方未传执行 K 线高低价 —— 与「越界」分开记：
+# 越界是数据/模型问题，缺高低价是**调用链漏传**问题，两者的整改动作不同。
+REJECT_MISSING_BAR_RANGE = "MISSING_BAR_RANGE"
 
 FIX002_VALIDITY_REASONS = frozenset({
     REJECT_MISSING_CONTRACT_SPEC,
@@ -77,6 +80,8 @@ FIX002_VALIDITY_REASONS = frozenset({
     "exec_price_out_of_range",
     REJECT_INVALID_QTY_PRECISION,
     "invalid_qty_precision",
+    REJECT_MISSING_BAR_RANGE,
+    "missing_bar_range",
 })
 
 # ── 策略 / 风控取消（**不得**判无效）──
@@ -157,6 +162,7 @@ __all__ = [
     "UNREGISTERED_KNOWN_REASONS", "FIX002_VALIDITY_REASONS",
     "REJECT_MISSING_CONTRACT_SPEC", "REJECT_FALLBACK_TICK_BLOCKED",
     "REJECT_EXEC_PRICE_OUT_OF_RANGE", "REJECT_INVALID_QTY_PRECISION",
+    "REJECT_MISSING_BAR_RANGE",
     "classify_reject", "is_execution_validity", "mark_if_execution_invalid",
     "invalid_reason_stages",
 ]
