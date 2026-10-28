@@ -25,6 +25,7 @@ import {
   type ISeriesApi,
   type SeriesMarker,
   type Time,
+  type UTCTimestamp,
 } from 'lightweight-charts';
 import {
   CandleVolumeChart,

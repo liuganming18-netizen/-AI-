@@ -1849,7 +1849,7 @@ export const BacktestWorkbench: React.FC = () => {
     }
     if (equityPoints && equityPoints.length > 0) {
       for (const p of equityPoints) {
-        set.add(Math.floor(p.t / 1000));
+        set.add(Math.floor(p.ts_ms / 1000));
       }
     }
     if (set.size === 0) return undefined;

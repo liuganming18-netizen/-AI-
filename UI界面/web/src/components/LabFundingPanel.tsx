@@ -491,8 +491,8 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
       const from = Math.floor(targetViewportRef.current.fromMs / 1000);
       const to = Math.ceil(targetViewportRef.current.toMs / 1000);
       const ts = chart.timeScale();
-      const fromIdx = ts.timeToIndex(from);
-      const toIdx = ts.timeToIndex(to);
+      const fromIdx = ts.timeToIndex(from as UTCTimestamp);
+      const toIdx = ts.timeToIndex(to as UTCTimestamp);
       if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
         ts.setVisibleLogicalRange({ from: fromIdx, to: toIdx });
       } else {
@@ -593,8 +593,8 @@ export const LabFundingPanel: React.FC<LabFundingPanelProps> = ({
         // 静默 500ms：接收主图视窗广播落位期间不反向触发 reportView 回环
         programmaticQuietUntilRef.current = performance.now() + 500;
         const ts = chart.timeScale();
-        const fromIdx = ts.timeToIndex(from);
-        const toIdx = ts.timeToIndex(to);
+        const fromIdx = ts.timeToIndex(from as UTCTimestamp);
+        const toIdx = ts.timeToIndex(to as UTCTimestamp);
         if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
           ts.setVisibleLogicalRange({ from: fromIdx, to: toIdx });
         } else {

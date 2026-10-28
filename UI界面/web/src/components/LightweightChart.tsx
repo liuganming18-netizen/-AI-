@@ -62,6 +62,7 @@ import {
   type ISeriesApi,
   type ISeriesMarkersPluginApi,
   type LineData,
+  type Logical,
   type LogicalRange,
   type MouseEventParams,
   type SeriesMarker,
@@ -1262,7 +1263,7 @@ function useChartLifecycle(
         const fromIdx = ts.timeToIndex(fromSec);
         const toIdx = ts.timeToIndex(toSec);
         if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
-          return applyLogicalRangeTo(member, { from: fromIdx, to: toIdx });
+          return applyLogicalRangeTo(member, { from: fromIdx as unknown as Logical, to: toIdx as unknown as Logical });
         }
         return applyTimeRangeTo(member, fromSec, toSec);
       },
@@ -1388,7 +1389,7 @@ function applyInitialViewport(
         const fromIdx = ts.timeToIndex(fromSec);
         const toIdx = ts.timeToIndex(toSec);
         if (typeof fromIdx === 'number' && typeof toIdx === 'number' && toIdx > fromIdx) {
-          applied = applyLogicalRangeTo(member, { from: fromIdx, to: toIdx });
+          applied = applyLogicalRangeTo(member, { from: fromIdx as unknown as Logical, to: toIdx as unknown as Logical });
         } else {
           applied = applyTimeRangeTo(member, fromSec, toSec);
         }
@@ -1428,8 +1429,8 @@ function applyInitialViewport(
       if (totalPoints > targetBars) {
         // 数据总根数较多（超 90 根）：采用交易所标准首屏落位最新 90 根，保证蜡烛饱满（约 8-10px 黄金柱宽）
         landedOnOwnDomain = applyLogicalRangeTo(member, {
-          from: totalPoints - targetBars,
-          to: totalPoints + RIGHT_OFFSET_BARS,
+          from: (totalPoints - targetBars) as Logical,
+          to: (totalPoints + RIGHT_OFFSET_BARS) as Logical,
         });
       } else {
         landedOnOwnDomain = applyTimeRangeTo(member, domain.from, domain.to);

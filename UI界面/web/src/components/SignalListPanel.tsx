@@ -452,6 +452,7 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
     const barClose = s.barCloseTime ? new Date(s.barCloseTime).toISOString().slice(0, 16).replace('T', ' ') : null;
     return {
       structure: {
+        filled: Boolean(barOpen || barClose),
         text: kindName(s),
         bar: barOpen || barClose ? `结构bar ${barOpen ?? '—'}→${barClose ?? '—'} UTC` : '结构bar 无记录',
       },
