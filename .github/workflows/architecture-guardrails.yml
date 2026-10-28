@@ -1,0 +1,61 @@
+name: Architecture guardrails
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend typecheck and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: UI界面/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: UI界面/web/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+      - run: npm run build
+
+  python-syntax:
+    name: Backend Python syntax and agent paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify agent handoff paths
+        run: python -m unittest discover -s tests -p 'test_agent_paths.py' -v
+      - name: Parse critical backend modules
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          root = Path("框架/backend")
+          names = (
+              "paper_engine.py",
+              "live_api.py",
+              "live_store.py",
+              "unified_runtime.py",
+              "wyckoff_factor_resonance.py",
+          )
+          for name in names:
+              path = root / name
+              if not path.is_file():
+                  raise FileNotFoundError(path)
+              ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+              print(f"syntax OK: {path}")
+          PY
