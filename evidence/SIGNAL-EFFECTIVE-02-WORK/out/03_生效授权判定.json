@@ -1,0 +1,117 @@
+{
+  "ticket": "SIGNAL-EFFECTIVE-02-WORK",
+  "step": "2 厘清生效授权",
+  "generated_at_utc": "2026-10-27T15:50:00Z",
+  "verdict": {
+    "boundary_kind": "same_strategy_normal_restart",
+    "authorized_epoch_ms": 1792748844240,
+    "authorized_epoch_utc": "2026-10-23T09:47:24Z",
+    "epoch_source": "live_run.live_start_ms（持久化既有值，未被本次重启改写）",
+    "do_reset_epoch": false,
+    "do_write_live_run": false,
+    "reason_short": "三水位 updated_at 均非 2026-10-27 ⇒ 重启未写水位；策略版本/配置哈希/账户身份均未变 ⇒ 属正常重启，沿用既有起点。"
+  },
+  "epochs": {
+    "paper_epoch_ms": {
+      "value": 1791939600000,
+      "utc": "2026-10-14T01:00:00Z",
+      "local": "2026-10-14 09:00:00 +08:00",
+      "updated_at_utc": "2026-10-23T03:42:02Z",
+      "authority": "live_store.py:882-894 硬编码常量 PAPER_EPOCH_MS，注释逐字记载用户指令「北京时间 2026-10-14：开仓必须不早于今天 09:00」",
+      "meaning": "策略本轮启用边界（用户授权）",
+      "is_water_mark": true
+    },
+    "live_start_ms": {
+      "value": 1792748844240,
+      "utc": "2026-10-23T09:47:24Z",
+      "updated_at_utc": "2026-10-23T09:47:24Z",
+      "authority": "live_store.py:833-840 ensure_live_start_ms() 首次调用落定（幂等，不覆盖）",
+      "meaning": "展示/因果水位（防前视），进程级事实而非策略授权",
+      "is_water_mark": true,
+      "note": "代码注释写「2026-10-13 的展示/因果水位」，实际值 2026-10-23T09:47:24Z ⇒ 文档与值不一致，属历史注释未更新；updated_at 与值同毫秒 ⇒ 证明是 ensure 首次落定，非手工指定。"
+    },
+    "state_anchor_ms": {
+      "value": 1782542715686,
+      "utc": "2026-06-27T06:45:15Z",
+      "updated_at_utc": "2026-10-25T06:45:20Z",
+      "authority": "live_store.py:862-869 ensure_state_anchor_ms(depth) = now - depth，幂等不覆盖",
+      "meaning": "状态重建的绝对锚点（不是水位，不参与生效判定）",
+      "is_water_mark": false
+    },
+    "effective_floor_ms": {
+      "value": 1792748844240,
+      "utc": "2026-10-23T09:47:24Z",
+      "formula": "max(live_start_ms, paper_epoch_ms)",
+      "authority": "live_store.py:918-920 effective_floor_ms()",
+      "meaning": "自动开仓 / 挂单推进 / 当前信号 API 共用的唯一有效下限",
+      "is_water_mark": true
+    }
+  },
+  "time_layers": [
+    {
+      "layer": "1. 结构发生时刻",
+      "key": "structure_event_time / box_* / sweep_time",
+      "constrained_by_epoch": false,
+      "note": "4h 箱体与 1h 扫低的行情时刻，可远早于水位；历史数据允许用于预热与结构计算"
+    },
+    {
+      "layer": "2. 候选确认时刻",
+      "key": "confirmed_at",
+      "constrained_by_epoch": true,
+      "rule": "signal_bar_right_ms(confirmed_at)=confirmed_at+1 < epoch ⇒ before_paper_epoch_no_backfill",
+      "note": "库里 close_time 存闭区间右端 −1ms，故按 +1 比较，避免把正常闭合误判为边界前"
+    },
+    {
+      "layer": "3. 真实可得时刻",
+      "key": "available_at",
+      "constrained_by_epoch": true,
+      "rule": "NULL 即 NULL，不得用 confirmed_at 顶替（01 改动⑥）",
+      "note": "289 条历史信号 available_at 全为 NULL"
+    },
+    {
+      "layer": "4. 策略启用时刻",
+      "key": "paper_epoch_ms",
+      "constrained_by_epoch": null,
+      "note": "用户 2026-10-14 指令的「开仓不早于 09:00」；硬编码常量，库内只允许不降"
+    },
+    {
+      "layer": "5. 进程重启时刻",
+      "key": "pid.create_time",
+      "constrained_by_epoch": false,
+      "note": "2026-10-27T13:59:14Z（api 68764）/ 13:59:15Z（worker 68775）/ 13:59:16Z（runtime 68802）；只换进程，不产生新授权"
+    }
+  ],
+  "identity_unchanged_evidence": {
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "view_sha256": "82dec362c182",
+    "account": "paper43_3a",
+    "collector_pid": 42278,
+    "collector_started_utc": "2026-10-23T09:00:16Z",
+    "collector_continuous": true,
+    "live_run_updated_at_all_not_2026_10_27": true,
+    "conclusion": "策略版本、配置生效视图哈希、账户身份、采集器进程四者自 10-23 起均未变 ⇒ 10-27 只是同一策略的正常重启"
+  },
+  "boundary_rules": {
+    "first_enable": "新策略/新账户首次启用：必须同时具备 ①用户授权原话 ②新身份依据（策略版本或配置哈希变化）。缺一不得落新 epoch。",
+    "normal_restart": "同一策略、同一配置哈希、同一账户：沿用库内既有 epoch，不改值、不重置。本次属此类。",
+    "version_change": "策略版本或 view_sha256 变化 ⇒ 归入「新策略首次启用」，须有对应授权后才能落新 epoch；不得因进程重启自动推进。",
+    "insufficient_evidence": "依据不足时只阻塞依赖新起点的动作，保留已有合法挂单/持仓管理，不猜测、不补单。"
+  },
+  "disagreement_with_antigravity": {
+    "their_proposal": "方案A：本次重载时把 live_run.live_start_ms 改为 2026-10-27T13:59:16Z（1793109556649）",
+    "my_decision": "不执行，采用方案B（保持 10-23T09:47:24Z）",
+    "reasons": [
+      "用户约定《用户要求与决策.md:7》原文：「正常进程重启应沿用可信的既有策略生效起点；新策略首次启用须有对应授权和身份依据。10 月 23 日持久起点与 10 月 27 日进程启动不能仅凭时间新旧任选。」方案A 正是「凭时间新旧任选」。",
+      "本单工单禁止：「不任意重置 epoch、不把当前进程启动时间自动当新授权。」",
+      "方案A 无安全增量：反重力自己已承认「无论取 10-23 还是 10-27，289 条历史信号均被拦截」。",
+      "方案A 的证据是推断（「用户的心智模型是将 10-27 作为正式生效起点」），不是用户原话。用户原话是「从策略启动时生效」，而策略启动（采集器+水位落定）就在 10-23，不在 10-27。",
+      "改 live_start_ms 会改变当前区 51 条已确认候选、4 条挂单的边界判定，属「追加行为变更」，超出本单「只让 01 修复生效」的范围。"
+    ],
+    "factual_correction": "反重力报告第 50 行称代码层有「origin IN ('live','recovered') 硬拦截」，实测不成立：unified_runtime.py:2200-2228 的 _scan_actionable 中 origin 是**可选参数**（`if origin: where.append(\"origin=?\")`），调用方不传就不限 origin。当前真正的屏障是 5 条独立谓词（executable_state / role / arm / approved / available_at），详见 out/07_隔离断言.md。"
+  },
+  "escalate_to_user": {
+    "item": "是否把生效起点从 10-23T09:47:24Z 改为 10-27T13:59:16Z",
+    "my_position": "不建议改；如需改必须由用户明确指令，并由主代理另开单执行（本单无权）。",
+    "impact_if_changed": "当前区可见候选会从 51 条（历史确认）收紧到 10-27 之后新确认的候选（现为 0 条）；4 条既有挂单中落在 10-23~10-27 的会被判 before_paper_epoch_no_backfill。"
+  }
+}

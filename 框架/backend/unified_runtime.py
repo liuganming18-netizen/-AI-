@@ -1061,7 +1061,12 @@ class MultiSymbolSignalEngine:
         # 无法核对的口号。现在逐条留身份与不可执行原因，进 bootstrap_stats →
         # 状态文件 → /paper/status → 页面，数量与明细必须能对上。
         discarded_detail: List[dict] = []
-        _epoch_ms = int(L.get_paper_epoch_ms())
+        # SIGNAL-NOW-01-WORK（2026-10-28）：这里原来用 `L.get_paper_epoch_ms()`
+        # （= paper_epoch，2026-10-14T01:00:00Z），与 `open_position` 实际使用的
+        # `L.effective_floor_ms()`（= max(live_start, paper_epoch) = 2026-10-23T09:47:24Z）
+        # 不一致 ⇒ 丢弃明细里给出的 `before_paper_epoch_no_backfill` **原因说明会偏 9 天 8 小时**。
+        # 只改「原因文案的口径」，不改任何判定（真正拦单的仍是 `open_position` 里的门禁）。
+        _epoch_ms = int(L.effective_floor_ms())
 
         def _discard_reasons(c) -> List[str]:
             """**复用既有判据**给出不可执行原因（不新增门槛、不改判定）。"""
@@ -1823,28 +1828,26 @@ class MultiSymbolSignalEngine:
                 lvl = H + c.breakout_buffer_atr * A
                 conds.append({
                     "key": "breakout_cross",
-                    "text": f"首次上穿 {lvl:.8g}（前一根 close <= 门槛、当前 close > 门槛）",
+                    "text": f"突破门槛 {lvl:.6g}",
                     "threshold": f"H+{c.breakout_buffer_atr}A",
                     "actual": (None if last is None
-                               else f"prev={last['prev_close']} cur={last['close']}"),
+                               else f"{last['close']:.6g}"),
                     "ok": (None if (last is None or last["prev_close"] is None) else bool(
                         last["prev_close"] <= lvl and last["close"] > lvl)),
                 })
                 conds.append({
                     "key": "breakout_volume",
-                    "text": f"突破根量 >= {c.breakout_vol_multiplier} × V20"
-                            f"（仅在该根首次穿越时才评估）",
-                    "threshold": f">= {c.breakout_vol_multiplier} × 前 "
-                                 f"{c.breakout_vol_lookback} 根中位量",
-                    "actual": None if last is None else last["volume"],
-                    "ok": None,   # 未穿越就没有 V20 评估对象，不预设结论
+                    "text": f"放量突破 (>= {c.breakout_vol_multiplier}x V20)",
+                    "threshold": f">= {c.breakout_vol_multiplier} × V20",
+                    "actual": None if last is None else f"{last['volume']:.2f}",
+                    "ok": None,
                 })
                 conds.append({
                     "key": "breakout_oi",
-                    "text": f"OI 6h 增长 >= {c.oi_min_growth_pct * 100:g}%（仅穿越时评估）",
+                    "text": f"OI放量增仓 (>= {c.oi_min_growth_pct * 100:g}%)",
                     "threshold": f">= {c.oi_min_growth_pct}",
                     "actual": None,
-                    "ok": None,   # OI 时点合格性由决策时判定，观察区不替代
+                    "ok": None,
                 })
                 deadline = min(
                     int(ev.retest_time_ms) + int(c.breakout_max_hours_after_retest) * 3600 * 1000,
@@ -1900,6 +1903,10 @@ class MultiSymbolSignalEngine:
                 "deadline_utc": _iso(deadline),
                 "remaining_hours": remaining_h,
                 "expired": (None if deadline is None else bool(updated > deadline)),
+                "last_price": (None if last is None else last["close"]),
+                "breakout_target": (round(H + c.breakout_buffer_atr * A, 8) if st == "RETEST" else round(H, 8)),
+                "gap_pct": (round((H + c.breakout_buffer_atr * A - last["close"]) / last["close"] * 100, 2)
+                            if (last is not None and last.get("close") and last["close"] > 0) else None),
                 # ── 市场结构证据（ACCUM-EARLY-02）──────────────────────────
                 # 工单要求：主动买卖、三类多空比、阶段均价必须进入每个观察事件的
                 # **结构化证据记录**（实际读取值 / 时间范围 / 来源 / 缺失），
@@ -2128,10 +2135,39 @@ class SignalPersistenceAndRouter:
         now = int(now_ms or time.time() * 1000)
         con = L.live_conn()
         try:
+            import wyckoff_factor_resonance as WFR
             for c in candidates:
-                payload = json.dumps(
-                    {**c.to_dict(), "role": ARM_ENTRY_ROLE, "arm": self.arm},
-                    ensure_ascii=False, default=str)
+                # ── 威科夫多因子全数据共振决策评估 ──
+                try:
+                    res_eval = WFR.evaluate_resonance(
+                        symbol=c.symbol,
+                        decision_ms=int(c.available_at_ms or now),
+                        current_price=float(c.breakout_close),
+                        box_low=float(c.box_low_l),
+                        box_high=float(c.box_high_h),
+                        box_atr=float(c.box_atr_a),
+                        oi_growth_6h=getattr(c, "oi_growth_6h", None),
+                        current_oi=getattr(c, "oi_breakout", None),
+                    )
+                except Exception as _eval_err:
+                    res_eval = {
+                        "resonance_score": 60.0,
+                        "position_multiplier": 1.0,
+                        "grade": "基础",
+                        "summary": f"威科夫4h箱体突破(评估兜底: {_eval_err})",
+                        "factors": {},
+                    }
+
+                cand_dict = c.to_dict()
+                cand_dict.update({
+                    "role": ARM_ENTRY_ROLE,
+                    "arm": self.arm,
+                    "resonance_score": res_eval["resonance_score"],
+                    "position_multiplier": res_eval["position_multiplier"],
+                    "resonance_summary": res_eval["summary"],
+                    "factor_details": res_eval["factors"],
+                })
+                payload = json.dumps(cand_dict, ensure_ascii=False, default=str)
                 sig_uid = c.candidate_id
                 exists = con.execute(
                     "SELECT 1 FROM live_signal WHERE signal_uid=?", (sig_uid,)).fetchone()
@@ -2179,6 +2215,14 @@ class SignalPersistenceAndRouter:
             "json_extract(payload_json,'$.role')=?",
             "json_extract(payload_json,'$.arm')=?",
             "confirmed_at IS NOT NULL AND available_at IS NOT NULL",
+            # ── 已批准规则的缺失实现（SIGNAL-EFFECTIVE-01-WORK）───────────────────
+            # 「approved=false 的配置不得用于任何执行行为」是已批准规则（06-02 待决清单），
+            # 但改动前它**只写在 executable_reason 文案里，没有任何代码读取**。
+            # 实测后果：研究回测行被改成 origin='recovered'/executable_state='enterable' 后，
+            # 只剩「payload.arm 与运行臂不等」这一个数据值在挡（隔离复现 12 条被登记挂单）。
+            # 这里补上唯一的代码级判据：payload.approved 明确为 false ⇒ 不进可执行扫描。
+            # 对真实实时信号无影响（它们的 payload 没有 approved 字段 ⇒ COALESCE 取 1）。
+            "COALESCE(json_extract(payload_json,'$.approved'),1)<>0",
         ]
         args: List[Any] = [EXCHANGE, MARKET, TIMEFRAME, ARM_ENTRY_ROLE, self.arm]
         if origin:
@@ -2287,7 +2331,7 @@ class UnifiedExecutionDaemon:
         self.arm = arm
         self.account_id = f"paper43_{arm}"
 
-    def execute_cycle(self, now_ms: int) -> dict:
+    def execute_cycle(self, now_ms: int, process_start_ms: int | None = None) -> dict:
         res = {
             "pending_matched": 0,
             "trailing_updates": 0,
@@ -2296,8 +2340,12 @@ class UnifiedExecutionDaemon:
         }
 
         # 1. 推进挂单撮合成交
+        # SIGNAL-NOW-01-WORK（2026-10-28）：把**本进程启动时刻**交给 `advance_pending`，
+        # 让它能判定「该挂单的应成交 bar 是否在本进程启动前就已收盘」⇒ 停机期间的执行点
+        # 不追补、不回填。不传则退回旧行为（只靠 MAX_FILL_LAG_MS）。
         try:
-            match_res = PE.advance_pending(T=now_ms, log=lambda *args: None)
+            match_res = PE.advance_pending(T=now_ms, log=lambda *args: None,
+                                           process_start_ms=process_start_ms)
             arm_stat = match_res.get("by_arm", {}).get(self.arm, {})
             res["pending_matched"] = arm_stat.get("filled", 0)
         except Exception as exc:
@@ -2411,7 +2459,7 @@ class UnifiedRuntime:
 
     def __init__(self, arm: str = "3a", symbols: Optional[List[str]] = None,
                  poll_interval_sec: float = 1.0,
-                 lock_dir: Optional[Path] = None, enable_oi_filter: bool = True):
+                 lock_dir: Optional[Path] = None, enable_oi_filter: Optional[bool] = None):
         self.arm = arm
         # 全池口径：默认用唯一事实源 `live_pool.scope_symbols()`（scope_crypto_v1，526 个），
         # 不再写死单标的。单标的调试仍可传 `symbols=["BTCUSDT"]`。
@@ -2425,10 +2473,20 @@ class UnifiedRuntime:
         self.pid = os.getpid()
         self.started_at_ms = int(time.time() * 1000)
 
+        # ── OI 门槛：**恢复已批准的默认值**（SIGNAL-EFFECTIVE-01-WORK）──────────
+        # 2026-10-27 的「多因子共振」改动曾把默认值强制改成 False（WYCKOFF_RESONANCE
+        # 缺省即关），等于**静默去掉一条已批准策略条件**（EventTrendConfig.enable_oi_filter
+        # 默认 True）。那属于改规则，不是修实现，且无任何批准依据 ⇒ 此处还原为
+        # 「未显式传参就跟随策略配置默认值」，需要关掉时必须显式传 enable_oi_filter=False。
+        if enable_oi_filter is None:
+            enable_oi = None          # ⇒ MultiSymbolSignalEngine 回落到 config.enable_oi_filter
+        else:
+            enable_oi = bool(enable_oi_filter)
+
         # 核心子组件装配
         self.watcher = MarketDataWatcher(symbol=self.symbols[0])
         self.signal_engine = MultiSymbolSignalEngine(self.symbols,
-                                                     enable_oi_filter=enable_oi_filter)
+                                                     enable_oi_filter=enable_oi)
         self.router = SignalPersistenceAndRouter(arm=arm)
         self.execution = UnifiedExecutionDaemon(arm=arm)
 
@@ -2831,7 +2889,8 @@ class UnifiedRuntime:
 
         # 4. 执行守护与撮合/止损/退出
         try:
-            e_res = self.execution.execute_cycle(now)
+            e_res = self.execution.execute_cycle(
+                now, process_start_ms=getattr(self, "started_at_ms", None))
             summary["matched"] = e_res["pending_matched"]
             summary["trailing_updates"] = e_res["trailing_updates"]
             summary["exits"] = e_res["exits_triggered"]

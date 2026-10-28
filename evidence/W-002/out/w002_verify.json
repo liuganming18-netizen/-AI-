@@ -1,0 +1,668 @@
+{
+  "A_熔断": {
+    "造出的持仓": {
+      "scheme": "4a",
+      "position_id": 1,
+      "entry_ts": 1699999100000
+    },
+    "run_status": "FAILED",
+    "invalid_reasons": [
+      "EXIT_DRIVE_ERROR"
+    ],
+    "drive_position_exit_调用次数": 6,
+    "try_open_调用次数": 6,
+    "构造的时间戳数": 6,
+    "首次异常后仍进入开仓入口的次数": 6,
+    "try_open_明细": [
+      {
+        "symbol": "S0USDT",
+        "entry_bar_open_ms": 1700000000000,
+        "run_status_at_call": "FAILED"
+      },
+      {
+        "symbol": "S1USDT",
+        "entry_bar_open_ms": 1700000900000,
+        "run_status_at_call": "FAILED"
+      },
+      {
+        "symbol": "S2USDT",
+        "entry_bar_open_ms": 1700001800000,
+        "run_status_at_call": "FAILED"
+      },
+      {
+        "symbol": "S3USDT",
+        "entry_bar_open_ms": 1700002700000,
+        "run_status_at_call": "FAILED"
+      },
+      {
+        "symbol": "S4USDT",
+        "entry_bar_open_ms": 1700003600000,
+        "run_status_at_call": "FAILED"
+      },
+      {
+        "symbol": "S5USDT",
+        "entry_bar_open_ms": 1700004500000,
+        "run_status_at_call": "FAILED"
+      }
+    ],
+    "timeline_stats": {
+      "events": 6,
+      "opened": 0,
+      "distinct_timestamps": 6,
+      "order_key": "entry_bar_open_ms,symbol,scheme,signal_uid",
+      "run_status": "FAILED",
+      "invalid_reasons": [
+        "EXIT_DRIVE_ERROR"
+      ]
+    },
+    "异常记录条数": 6,
+    "判据": {
+      "熔断是否成立": false,
+      "说明": "try_open_调用次数=0 ⇒ 异常后不再进入开仓入口（真熔断）；>0 ⇒ 只打了 FAILED 标记、事件循环继续，开仓入口仍被调用（未熔断）"
+    }
+  },
+  "B_价格校验覆盖": {
+    "写账本SQL": [
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 880,
+        "func": "_resolve_pending",
+        "tables": [
+          "paper_pending"
+        ],
+        "sql_head": "UPDATE paper_pending SET status=?, reason=?, resolved_at=?, fill_position_id=? WHERE pendi"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 829,
+        "func": "_register_pending",
+        "tables": [
+          "paper_pending"
+        ],
+        "sql_head": "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1312,
+        "func": "open_position",
+        "tables": [
+          "paper_stop_history"
+        ],
+        "sql_head": "INSERT OR IGNORE INTO paper_stop_history(account_id,position_id,old_stop,new_stop,reason,r"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1427,
+        "func": "_reject",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR IGNORE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,status"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1884,
+        "func": "close_at_price",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "UPDATE paper_position SET status='closed', exit_ts=?, exit_reason=?, exit_price=?, exit_fe"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1887,
+        "func": "close_at_price",
+        "tables": [
+          "paper_realized"
+        ],
+        "sql_head": "INSERT INTO paper_realized(account_id,position_id,symbol,qty,entry_price,exit_price,gross_"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2356,
+        "func": "record_stop_update",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "UPDATE paper_position SET stop_price=? WHERE position_id=?"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2358,
+        "func": "record_stop_update",
+        "tables": [
+          "paper_stop_history"
+        ],
+        "sql_head": "INSERT OR IGNORE INTO paper_stop_history(account_id, position_id, old_stop, new_stop, reas"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 846,
+        "func": "_register_pending",
+        "tables": [
+          "paper_pending"
+        ],
+        "sql_head": "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 862,
+        "func": "_register_pending",
+        "tables": [
+          "paper_pending"
+        ],
+        "sql_head": "INSERT INTO paper_pending(account_id,arm,symbol,direction,signal_uid,origin,atr,stop_price"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1269,
+        "func": "open_position",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,exit_ts,exit_"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1321,
+        "func": "open_position",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1359,
+        "func": "open_position",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1905,
+        "func": "close_at_price",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1939,
+        "func": "close_at_price",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1284,
+        "func": "open_position",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,exit_ts,exit_"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1299,
+        "func": "open_position",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,exit_ts,exit_"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1334,
+        "func": "open_position",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1347,
+        "func": "open_position",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1374,
+        "func": "open_position",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1388,
+        "func": "open_position",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1565,
+        "func": "accrue_funding",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "UPDATE paper_position SET funding_paid=? WHERE position_id=?"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1651,
+        "func": "backfill_closed_funding",
+        "tables": [
+          "paper_position"
+        ],
+        "sql_head": "UPDATE paper_position SET funding_paid=? WHERE position_id=?"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1916,
+        "func": "close_at_price",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1927,
+        "func": "close_at_price",
+        "tables": [
+          "paper_order"
+        ],
+        "sql_head": "INSERT OR REPLACE INTO paper_order(account_id,event_uid,symbol,side,qty,price,fee,ts,statu"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1952,
+        "func": "close_at_price",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1965,
+        "func": "close_at_price",
+        "tables": [
+          "paper_fill"
+        ],
+        "sql_head": "INSERT INTO paper_fill(account_id,order_id,position_id,signal_uid,symbol,action,qty,raw_pr"
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1645,
+        "func": "backfill_closed_funding",
+        "tables": [
+          "paper_realized"
+        ],
+        "sql_head": "UPDATE paper_realized SET net_pnl=net_pnl-?, funding_paid=funding_paid+? WHERE id=?"
+      }
+    ],
+    "撮合调用点": [
+      {
+        "file": "框架/backend/unified_runtime.py",
+        "line": 2247,
+        "func": "open_position",
+        "caller": "route_pending_orders",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "available_at",
+          "direction",
+          "event_time",
+          "now_ms",
+          "origin",
+          "requested_at",
+          "signal_uid"
+        ]
+      },
+      {
+        "file": "框架/backend/verify_exec_wiring.py",
+        "line": 166,
+        "func": "open_position",
+        "caller": "probe",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "atr",
+          "now_ms",
+          "signal_uid"
+        ]
+      },
+      {
+        "file": "框架/backend/live_worker.py",
+        "line": 354,
+        "func": "open_position",
+        "caller": "advance_paper",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "atr",
+          "available_at",
+          "direction",
+          "entry_mode",
+          "epoch_ms",
+          "event_time",
+          "first_request_ms",
+          "now_ms",
+          "origin",
+          "requested_at",
+          "signal_uid",
+          "stop_mode",
+          "struct_low",
+          "trailing_mode"
+        ]
+      },
+      {
+        "file": "框架/backend/live_worker.py",
+        "line": 440,
+        "func": "close_at_price",
+        "caller": "advance_paper",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_close_time",
+          "bar_high",
+          "bar_low",
+          "bar_open_time",
+          "decision_context",
+          "exit_ts",
+          "now_ms",
+          "raw_price",
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/replay_calc.py",
+        "line": 684,
+        "func": "plan_entry",
+        "caller": "replay_one",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_high",
+          "bar_low",
+          "caliber",
+          "direction",
+          "equity",
+          "free_cash",
+          "gross_open_notional",
+          "portfolio_risk_open",
+          "prev_quote_volume",
+          "raw_open",
+          "symbol"
+        ]
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1667,
+        "func": "open_position",
+        "caller": "try_open",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "available_at",
+          "direction",
+          "epoch_ms",
+          "event_time",
+          "now_ms",
+          "origin",
+          "requested_at",
+          "signal_uid"
+        ]
+      },
+      {
+        "file": "框架/backend/accum_early_entry.py",
+        "line": 1860,
+        "func": "close_at_price",
+        "caller": "_exit",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_close_time",
+          "bar_high",
+          "bar_low",
+          "bar_open_time",
+          "bar_source",
+          "exit_ts",
+          "now_ms",
+          "raw_price",
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 1778,
+        "func": "close_at_price",
+        "caller": "close_position",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_close_time",
+          "bar_high",
+          "bar_low",
+          "bar_open_time",
+          "exit_ts",
+          "now_ms",
+          "raw_price",
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2539,
+        "func": "close_at_price",
+        "caller": "check_position_exit_on_bar",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_close_time",
+          "bar_high",
+          "bar_low",
+          "bar_open_time",
+          "bar_source",
+          "exit_ts",
+          "now_ms",
+          "raw_price",
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 925,
+        "func": "open_position",
+        "caller": "advance_pending",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "atr",
+          "available_at",
+          "config_fingerprint",
+          "direction",
+          "epoch_ms",
+          "event_time",
+          "first_request_ms",
+          "model_version",
+          "now_ms",
+          "origin",
+          "pending_id",
+          "requested_at",
+          "signal_uid",
+          "stop_price",
+          "stoploss_s",
+          "trail_d"
+        ]
+      },
+      {
+        "file": "框架/backend/paper_engine.py",
+        "line": 2084,
+        "func": "close_at_price",
+        "caller": "enforce_drawdown",
+        "has_bar_low": true,
+        "has_bar_high": true,
+        "kwargs": [
+          "bar_close_time",
+          "bar_high",
+          "bar_low",
+          "bar_open_time",
+          "decision_context",
+          "exit_ts",
+          "now_ms",
+          "raw_price",
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/live_api.py",
+        "line": 1124,
+        "func": "open_position",
+        "caller": "paper_order_post",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "atr",
+          "available_at",
+          "direction",
+          "event_time",
+          "now_ms",
+          "origin",
+          "requested_at",
+          "signal_uid",
+          "stop_price",
+          "stoploss_s"
+        ]
+      },
+      {
+        "file": "框架/backend/live_api.py",
+        "line": 1157,
+        "func": "close_position",
+        "caller": "paper_order_post",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": [
+          "reason"
+        ]
+      },
+      {
+        "file": "框架/backend/strategies/wx_execution.py",
+        "line": 3024,
+        "func": "open_position",
+        "caller": "reject",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": []
+      },
+      {
+        "file": "框架/backend/strategies/wx_execution.py",
+        "line": 2304,
+        "func": "close_position",
+        "caller": "close_pos",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": []
+      },
+      {
+        "file": "框架/backend/strategies/wx_execution.py",
+        "line": 2965,
+        "func": "open_position",
+        "caller": "reject",
+        "has_bar_low": false,
+        "has_bar_high": false,
+        "kwargs": []
+      }
+    ],
+    "容差": {
+      "validate_execution_price_in_bar_默认tol": 0.001,
+      "close_at_price_默认tol": 0.001,
+      "scan_exit_默认tol": 0.001
+    },
+    "写账本所在文件数": 1,
+    "写账本所在函数": [
+      "框架/backend/paper_engine.py::_register_pending",
+      "框架/backend/paper_engine.py::_reject",
+      "框架/backend/paper_engine.py::_resolve_pending",
+      "框架/backend/paper_engine.py::accrue_funding",
+      "框架/backend/paper_engine.py::backfill_closed_funding",
+      "框架/backend/paper_engine.py::close_at_price",
+      "框架/backend/paper_engine.py::open_position",
+      "框架/backend/paper_engine.py::record_stop_update"
+    ],
+    "close_at_price调用点总数": 5,
+    "close_at_price_缺高低价的调用点": [],
+    "plan_entry调用点总数": 1,
+    "plan_entry_缺高低价的调用点": [],
+    "open_position调用点总数": 8,
+    "说明_open_position": "open_position 的高低价由函数内部从成交 bar 读取，调用点无需传参；需核的是函数体内门禁位置"
+  },
+  "D_缺low不阻断": {
+    "scan_exit返回": {
+      "hit": false,
+      "kind": "no_exit_in_window",
+      "price_valid": true,
+      "n_bars_no_low": 1,
+      "n_bars_no_open": 0,
+      "note": "窗口内未触及止损 ⇒ 期末未平仓，只计未实现估值；但存在缺 low 的 bar，盘中触及可能被漏判"
+    },
+    "n_bars_no_low_出现位置": [
+      {
+        "line": 412,
+        "text": "# 不能像原来那样静默跳过。调用方看到 n_bars_no_low>0 就知道这条回放的退出判定不完整。"
+      },
+      {
+        "line": 414,
+        "text": "n_bars_no_low = 0"
+      },
+      {
+        "line": 450,
+        "text": "\"n_bars_no_low\": n_bars_no_low,"
+      },
+      {
+        "line": 457,
+        "text": "n_bars_no_low += 1"
+      },
+      {
+        "line": 472,
+        "text": "\"n_bars_no_low\": n_bars_no_low,"
+      },
+      {
+        "line": 477,
+        "text": "\"n_bars_no_low\": n_bars_no_low,"
+      },
+      {
+        "line": 479,
+        "text": "+ (\"；但存在缺 low 的 bar，盘中触及可能被漏判\" if n_bars_no_low else \"\"))}"
+      }
+    ],
+    "判据": {
+      "缺low是否被判成未触及": true,
+      "是否阻断结论": false,
+      "说明": "hit=False 且 reject_code=None ⇒ 缺 low 的 bar 被当作「没触及」，运行仍可判 OK；只有 note 文本提示，调用方不读该字段即不阻断"
+    }
+  },
+  "结论": {
+    "A_是否已熔断": false,
+    "A_try_open调用次数": 6,
+    "B_close_at_price缺参调用点数": 0,
+    "B_plan_entry缺参调用点数": 0,
+    "B_写账本文件数": 1,
+    "D_缺low是否阻断": false
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "generated_at_utc": "2026-10-27T15:17:26Z",
+  "layers": [
+    {
+      "name": "live_start_ms",
+      "value_ms": 1792748844240,
+      "value_utc": "2026-10-23T09:47:24Z",
+      "persisted_at": "live_run.live_start_ms",
+      "persisted_updated_at_utc": null,
+      "written_by": "live_store.ensure_live_start_ms()（首次落定，不覆盖）",
+      "definition_file": "框架/backend/live_store.py",
+      "definition_line": 826,
+      "semantics": "展示/因果水位：进程首次启动时刻；早于它的信号只展示、不自动开仓",
+      "role": "有效下限的**候选之一**（与 paper_epoch 取 max）"
+    },
+    {
+      "name": "paper_epoch_ms",
+      "value_ms": 1791939600000,
+      "value_utc": "2026-10-14T01:00:00Z",
+      "persisted_at": "live_run.paper_epoch_ms",
+      "written_by": "live_store.ensure_paper_epoch_ms()（幂等，只允许不降）",
+      "definition_file": "框架/backend/live_store.py",
+      "definition_line": 891,
+      "constant_in_code_ms": 1791939600000,
+      "constant_matches_persisted": true,
+      "semantics": "本轮模拟盘启用边界 = 2026-10-14 09:00 北京时间（用户明确指令）",
+      "role": "有效下限的**候选之一**（与 live_start 取 max）"
+    },
+    {
+      "name": "state_anchor_ms",
+      "value_ms": 1782542715686,
+      "value_utc": "2026-06-27T06:45:15Z",
+      "persisted_at": "live_run.state_anchor_ms",
+      "definition_file": "框架/backend/live_store.py",
+      "definition_line": 851,
+      "semantics": "状态重建的**绝对锚点**：重启与持续运行从同一时刻回放，保证终态恒等；只落一次、不随后移",
+      "role": "**不是**开仓水位，不进 effective_floor；只决定重建起点",
+      "note": "⚠ 该值与 live_start 相差约 118 天，若被误当水位会造成大规模追补；本单核对它不参与任何开仓判定"
+    },
+    {
+      "name": "effective_floor_ms",
+      "value_ms": 1792748844240,
+      "value_utc": "2026-10-23T09:47:24Z",
+      "formula": "max(live_start_ms, paper_epoch_ms)",
+      "definition_file": "框架/backend/live_store.py",
+      "definition_line": 918,
+      "semantics": "自动开仓 / 挂单推进 / 当前信号 API 共用的**同一下限**",
+      "derived_from": [
+        "live_start_ms",
+        "paper_epoch_ms"
+      ]
+    }
+  ],
+  "call_chain": [
+    {
+      "file": "框架/backend/live_api.py",
+      "line": 316,
+      "what": "当前区 API：start_ms / epoch_ms / floor_ms 三者各自取值，floor 缺失即如实空态"
+    },
+    {
+      "file": "框架/backend/unified_runtime.py",
+      "line": 2956,
+      "what": "运行时启动时落定 live_start（幂等，不覆盖既有值）"
+    },
+    {
+      "file": "框架/backend/unified_runtime.py",
+      "line": 1070,
+      "what": "bootstrap 历史候选的逐条不可执行原因（回放期候选不落单）"
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "line": 973,
+      "what": "开仓 epoch 门禁①：信号确认 bar 真实右边界 < epoch ⇒ 终态拒单"
+    },
+    {
+      "file": "框架/backend/paper_engine.py",
+      "line": 1146,
+      "what": "开仓 epoch 门禁②：成交 bar 开盘 < epoch ⇒ 终态拒单（双保险）"
+    }
+  ],
+  "consistency_findings": [
+    {
+      "id": "E-1",
+      "level": "一致",
+      "fact": "effective_floor = max(2026-10-23T09:47:24Z, 2026-10-14T01:00:00Z) = 2026-10-23T09:47:24Z；代码常量与库内持久值逐位相等",
+      "evidence": "constant_matches_persisted = true"
+    },
+    {
+      "id": "E-2",
+      "level": "一致",
+      "fact": "四臂 / 挂单推进 / 自动开仓 / 当前区 API 共用 effective_floor，无第二套时钟",
+      "evidence": "live_store.effective_floor_ms 为唯一实现，调用点见 call_chain"
+    },
+    {
+      "id": "E-3",
+      "level": "边界口径需注意",
+      "fact": "库里 close_time 存「闭区间右端 −1ms」，比较时必须用 +1 的真实右边界；原始值不得改写",
+      "evidence": "live_store.signal_bar_right_ms 文档 + 实测 14 条边界样本"
+    },
+    {
+      "id": "E-4",
+      "level": "缺陷（本单要修）",
+      "fact": "`_scan_actionable` 扫可执行信号时**没有** epoch 条件，epoch 只在 open_position 里挡 ⇒ 老信号会被扫进路由再被终态拒单",
+      "evidence": "unified_runtime.py:2200"
+    },
+    {
+      "id": "E-5",
+      "level": "未验证",
+      "fact": "策略版本/获准配置变化时是否开新 epoch —— 代码里没有自动开新边界的路径，只有人工落定",
+      "evidence": "live_store.ensure_paper_epoch_ms 只落常量，无版本判定"
+    }
+  ],
+  "definitions": {
+    "结构形成时间": "4h 箱体/扫低/回踩的 K 线时刻，可以早于 epoch（预热允许）",
+    "候选确认时刻 confirmed_at": "1h 确认 bar 收盘时刻（闭区间右端 −1ms）",
+    "真实可得时刻 available_at": "该信号在现实中可被决策者取到的时刻，必须有可审计证据",
+    "进程启动时刻": "started_at_ms / live_start_ms",
+    "账户生效时刻": "paper_epoch_ms（用户授权的本轮启用边界）"
+  },
+  "restart_and_version_rules": {
+    "正常重启": "沿用库内 live_start / paper_epoch / state_anchor，幂等恢复挂单与持仓，水位不倒退",
+    "首次启用": "按现有持久化语义落定；已存在即不覆盖",
+    "版本/配置变化": "代码无自动新边界路径 ⇒ 需人工落定；本单不改"
+  }
+}

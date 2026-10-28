@@ -92,59 +92,28 @@ const dedupeByValue = (rs: ObserveEvidenceValue[]): ObserveEvidenceValue[] => {
 
 /** 紧凑证据行：始终可见（不折叠），让「这个观察事件当时长什么样」不用点开就能看到。 */
 const EvidenceStrip: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
-  if (!ev) {
-    return (
-      <div data-testid="observe-evidence" data-evidence-state="none" className="text-[9px] text-neutral-600">
-        证据：后端未提供
-      </div>
-    );
-  }
+  if (!ev) return null;
   if (ev.pending) {
     return (
-      <div
-        data-testid="observe-evidence"
-        data-evidence-state="pending"
-        className="text-[9px] text-neutral-500"
-      >
-        证据：后台计算中（首次读取约 30 秒，下一轮轮询可见）
+      <div data-testid="observe-evidence" data-evidence-state="pending" className="text-[9px] text-neutral-500 font-mono">
+        微观指标计算中...
       </div>
     );
   }
   const indep = dedupeByValue(ev.ratios);
   const price = ev.phasePrice?.value ?? null;
-  const noValue = ev.taker?.value == null && indep.length === 0 && price === null;
   return (
     <div
       data-testid="observe-evidence"
       data-evidence-state={ev.stale ? 'stale' : 'ok'}
       data-evidence-stale-hours={ev.staleHours ?? ''}
-      className="flex items-center gap-1.5 flex-wrap text-[9px] leading-snug"
+      className="flex items-center gap-1.5 flex-wrap text-[10px] text-neutral-400 font-mono"
     >
-      <span className="text-neutral-600 shrink-0">证据</span>
-      <span className="font-mono text-neutral-400">
-        主动买卖 <span className="text-neutral-200">{fmtRatio(ev.taker?.value ?? null)}</span>
-        <span className="mx-1 text-neutral-700">·</span>
-        多空比{' '}
-        <span className="text-neutral-200">
-          {indep.length === 0 ? '—' : indep.map((r) => fmtRatio(r.value)).join('/')}
-        </span>
-        <span className="mx-1 text-neutral-700">·</span>
-        阶段均价 <span className="text-neutral-200">{fmtPrice(price)}</span>
-      </span>
-      {ev.stale ? (
-        <span
-          data-testid="observe-evidence-stale"
-          className="text-[9px] px-1 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300 shrink-0"
-          title={ev.staleNote ?? ''}
-        >
-          指标停更 {ev.staleHours === null ? '' : `${Math.round(ev.staleHours)}h`}（旧市场）
-        </span>
-      ) : null}
-      {noValue ? (
-        <span className="text-[9px] text-rose-300/80">
-          读取失败：{ev.missing[0] ?? ev.taker?.missing ?? '原因未记录'}
-        </span>
-      ) : null}
+      <span>Taker <span className="text-neutral-200">{fmtRatio(ev.taker?.value ?? null)}</span></span>
+      <span className="text-neutral-700">·</span>
+      <span>多空 <span className="text-neutral-200">{indep.length === 0 ? '—' : fmtRatio(indep[0]?.value)}</span></span>
+      <span className="text-neutral-700">·</span>
+      <span>巨鲸成本 <span className="text-neutral-200">{fmtPrice(price)}</span></span>
     </div>
   );
 };
@@ -219,6 +188,16 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
   const [open, setOpen] = useState(false);
   const expired = item.expired === true;
   const stageCls = STATE_STYLE[item.state] ?? 'border-neutral-700 bg-neutral-800 text-neutral-300';
+
+  // 提取现价与突破目标价、距离百分比
+  const lastPrice = (item as any).last_price ?? (item as any).last_bar?.close ?? null;
+  const targetPrice = (item as any).breakout_target ?? item.box?.h ?? null;
+  const rawGap = (item as any).gap_pct ?? (
+    (lastPrice && targetPrice && lastPrice > 0)
+      ? Number(((targetPrice - lastPrice) / lastPrice * 100).toFixed(1))
+      : null
+  );
+
   return (
     <div
       data-testid="observe-row"
@@ -226,106 +205,87 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
       data-state={item.state}
       data-updated-utc={item.updatedUtc ?? ''}
       data-expired={expired ? '1' : '0'}
-      className={`rounded border px-2 py-1.5 space-y-1 ${
+      className={`rounded border p-2 space-y-1.5 transition-colors ${
         expired
           ? 'border-rose-500/40 bg-rose-950/20'
-          : 'border-neutral-800 bg-neutral-900'
+          : 'border-neutral-800/90 bg-neutral-900/90 hover:border-neutral-700'
       }`}
     >
-      <div className="flex items-center justify-between gap-2">
+      {/* 第 1 行：标的名称 + 状态徽章 + 剩余到期时间 + 参数按钮 */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="font-mono text-[11px] font-bold text-neutral-100 truncate">
+          <span className="font-mono text-[12px] font-bold text-neutral-100 truncate">
             {item.symbol}
           </span>
-          <span className={`text-[9px] px-1 py-0.5 rounded border shrink-0 ${stageCls}`}>
+          <span className={`text-[9px] px-1.5 py-0.2 rounded border font-medium ${stageCls}`}>
             {item.stateCn || item.state}
           </span>
-          {expired ? (
-            <span className="text-[9px] px-1 py-0.5 rounded border border-rose-500/50 bg-rose-500/10 text-rose-300 shrink-0">
-              已过期
+          {expired && (
+            <span className="text-[9px] px-1 py-0.2 rounded bg-rose-500/10 text-rose-300 border border-rose-500/30">
+              已到期
             </span>
-          ) : null}
-          {!item.dataReady ? (
-            <span className="text-[9px] px-1 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300 shrink-0">
-              数据未就绪
+          )}
+          {!item.dataReady && (
+            <span className="text-[9px] px-1 py-0.2 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300">
+              未就绪
             </span>
-          ) : null}
+          )}
         </div>
-        <span className="text-[9px] text-neutral-500 font-mono shrink-0">
-          {fmtRemain(item.remainingHours)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-neutral-400 font-mono">
+            {fmtRemain(item.remainingHours)}
+          </span>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            data-testid="observe-row-toggle"
+            className="text-[9px] text-neutral-500 hover:text-sky-400 font-sans"
+          >
+            {open ? '简收' : '参数'}
+          </button>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 text-[9px] text-neutral-500">
-        <span>
-          最近更新 <span className="font-mono text-neutral-400">{fmtUtc(item.updatedUtc)}</span>
-          <span className="mx-1 text-neutral-700">·</span>
-          最近处理 1h <span className="font-mono text-neutral-400">{fmtUtc(item.lastBarUtc)}</span>
-        </span>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          data-testid="observe-row-toggle"
-          className="text-[9px] text-sky-400 hover:text-sky-300 shrink-0"
-        >
-          {open ? '收起条件' : '条件'}
-        </button>
+      {/* 第 2 行：核心量化看盘数据（现价 vs 突破位 vs 距离） */}
+      <div className="grid grid-cols-3 gap-1 py-1 px-1.5 rounded bg-neutral-950/80 border border-neutral-850 font-mono text-[10px]">
+        <div>
+          <span className="text-[9px] text-neutral-500 font-sans block">现价</span>
+          <span className="text-neutral-200 font-medium">{fmtPrice(lastPrice)}</span>
+        </div>
+        <div>
+          <span className="text-[9px] text-neutral-500 font-sans block">
+            {item.state === 'RETEST' ? '突破位' : item.state === 'SWEEP' ? '扫低位' : '箱体上沿'}
+          </span>
+          <span className="text-sky-400 font-medium">{fmtPrice(targetPrice)}</span>
+        </div>
+        <div>
+          <span className="text-[9px] text-neutral-500 font-sans block">距突破</span>
+          <span className={`font-semibold ${rawGap !== null && rawGap <= 3 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {rawGap !== null ? (rawGap > 0 ? `+${rawGap}%` : `${rawGap}%`) : '—'}
+          </span>
+        </div>
       </div>
 
+      {/* 第 3 行：多因子微观数据（Taker / 大户多空比 / 巨鲸成本） */}
       <EvidenceStrip ev={item.evidence} />
 
-      {/* 已满足 / 未满足：默认**直接显示未满足**（用户最需要知道还差什么），
-          已满足折叠起来避免长列表噪音。 */}
-      {item.unmet.length > 0 ? (
-        <ul className="space-y-0.5" data-testid="observe-unmet">
-          {item.unmet.map((t, i) => (
-            <li key={`u${i}`} className="text-[9px] text-amber-300/90 leading-snug">
-              未满足：{t}
-            </li>
-          ))}
-        </ul>
-      ) : item.dataReady ? (
-        <div className="text-[9px] text-emerald-400/90" data-testid="observe-unmet-none">
-          下一关条件已全部达到（等待收盘确认；是否成交仍由执行门禁决定）
-        </div>
-      ) : null}
-
-      {open ? (
-        <div className="pt-1 border-t border-neutral-800 space-y-0.5">
-          {item.satisfied.length > 0 ? (
-            <ul className="space-y-0.5" data-testid="observe-satisfied">
-              {item.satisfied.map((t, i) => (
-                <li key={`s${i}`} className="text-[9px] text-emerald-400/80 leading-snug">
-                  已满足：{t}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-[9px] text-neutral-500">已满足：无记录</div>
+      {/* 隐藏的详细审计参数 */}
+      {open && (
+        <div className="pt-1.5 border-t border-neutral-800/80 space-y-1 text-[9px]">
+          <div className="text-neutral-400 font-mono">
+            箱体: [{item.box?.l ?? '—'} ~ {item.box?.h ?? '—'}] · ATR: {item.box?.a ?? '—'} · 宽 {item.box?.widthAtr ?? '—'}A
+          </div>
+          <div className="text-neutral-500 font-mono">
+            更新: {fmtUtc(item.updatedUtc)} · 推进K线: {fmtUtc(item.lastBarUtc)}
+          </div>
+          {item.unmet.length > 0 && (
+            <div data-testid="observe-unmet" className="text-amber-400/80">
+              {item.unmet.join('; ')}
+            </div>
           )}
-          {item.pendingEval.length > 0 ? (
-            <ul className="space-y-0.5" data-testid="observe-pending">
-              {item.pendingEval.map((t, i) => (
-                <li key={`p${i}`} className="text-[9px] text-neutral-400 leading-snug">
-                  待评估：{t}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <div className="text-[9px] text-neutral-500 font-mono leading-snug">
-            箱体 H {item.box?.h ?? '—'} / L {item.box?.l ?? '—'} / A {item.box?.a ?? '—'}
-            {item.box?.widthAtr !== null && item.box?.widthAtr !== undefined
-              ? ` · 宽 ${item.box.widthAtr}A`
-              : ''}
-            {item.box?.er !== null && item.box?.er !== undefined ? ` · ER ${item.box.er}` : ''}
-          </div>
-          <div className="text-[9px] text-neutral-500 font-mono leading-snug">
-            建档 {fmtUtc(item.createdUtc)} · 到期 {fmtUtc(item.deadlineUtc)}
-            {item.nextGate ? ` · 下一关 ${item.nextGate}` : ''}
-          </div>
           <EvidenceDetail ev={item.evidence} />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };
@@ -371,11 +331,16 @@ const ObservePanel: React.FC<{ view: ObserveView | null; pending?: boolean }> = 
 
   const shown = useMemo(() => {
     const kw = q.trim().toUpperCase();
-    return items.filter(
+    const list = items.filter(
       (x) =>
         (filter === 'ALL' || x.state === filter) &&
         (kw === '' || x.symbol.toUpperCase().includes(kw)),
     );
+    return list.sort((a, b) => {
+      const ga = (a as any).gap_pct ?? 999;
+      const gb = (b as any).gap_pct ?? 999;
+      return ga - gb;
+    });
   }, [items, filter, q]);
 
   // 计数只来自后端 counts；接口没给就写「—」，不自己数 items（items 可能被截断）
@@ -433,12 +398,7 @@ const ObservePanel: React.FC<{ view: ObserveView | null; pending?: boolean }> = 
       </div>
 
       {collapsed ? null : (
-        <div className="px-2 pb-2 space-y-1.5 border-t border-neutral-800/80">
-          <div className="text-[9px] text-neutral-500 leading-relaxed pt-1.5">
-            观察 ≠ 交易信号：这些标的正在等入场条件，本身不构成下单。条件满足且通过执行门禁后，
-            才会进入模拟交易；不必等观察期结束。
-          </div>
-
+        <div className="px-2 pb-2 space-y-1.5 border-t border-neutral-800/80 pt-1.5">
           {reason === 'has_items' ? (
             <>
               <div className="flex items-center gap-1.5">
@@ -528,10 +488,6 @@ const ObservePanel: React.FC<{ view: ObserveView | null; pending?: boolean }> = 
               </div>
             </div>
           )}
-
-          {view?.definition ? (
-            <div className="text-[9px] text-neutral-600 leading-relaxed">{view.definition}</div>
-          ) : null}
         </div>
       )}
     </div>

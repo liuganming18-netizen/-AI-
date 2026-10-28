@@ -355,9 +355,15 @@ def advance_paper(*, T=None, log=print) -> dict:
                                   direction=direction, atr=float(atr),
                                   now_ms=T,
                                   event_time=int(d["confirmed_at"]),
-                                  available_at=int(d.get("available_at") or d["confirmed_at"]),
+                                  # available_at **不得**用 confirmed_at 填补
+                                  # （SIGNAL-EFFECTIVE-01-WORK 第四节第 4 条）：
+                                  # 库里为空就如实传 None，由 open_position 按
+                                  # max(事件时刻, 真实首次请求) 推进；不伪造「当时可得」。
+                                  available_at=(None if d.get("available_at") is None
+                                                else int(d["available_at"])),
                                   requested_at=anchor, origin="live",
-                                  epoch_ms=epoch, first_request_ms=anchor,
+                                  # 与扫描/API 共用同一有效下限（原为 paper_epoch，差 9 天）
+                                  epoch_ms=floor_ms, first_request_ms=anchor,
                                   stop_mode=payload.get("stop_mode"),
                                   entry_mode=payload.get("entry_mode"),
                                   struct_low=payload.get("struct_low"),

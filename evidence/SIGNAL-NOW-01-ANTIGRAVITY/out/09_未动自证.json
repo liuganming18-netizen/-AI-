@@ -1,0 +1,226 @@
+{
+  "ticket": "SIGNAL-NOW-01-ANTIGRAVITY",
+  "step": "9 未动生产 / 未动 Work / 未动交接自证",
+  "at_utc": "2026-10-27T20:21:26Z",
+  "ticket_started_utc": "2026-10-27T18:46:02Z",
+  "readonly_connections": [
+    {
+      "script": "01_identity_and_load.py",
+      "line": 244,
+      "call": "con = sqlite3.connect(f\"file:{BACKEND}/live/live_signals.sqlite3?mode=ro\",",
+      "has_mode_ro": true,
+      "has_query_only": false,
+      "verdict": "只读连接"
+    },
+    {
+      "script": "02_uid_penetration.py",
+      "line": 37,
+      "call": "return sqlite3.connect(f\"file:{p}?mode=ro\", uri=True, timeout=25)",
+      "has_mode_ro": true,
+      "has_query_only": false,
+      "verdict": "只读连接"
+    },
+    {
+      "script": "03_isolation_recompute.py",
+      "line": 120,
+      "call": "con = sqlite3.connect(str(path))",
+      "has_mode_ro": false,
+      "has_query_only": false,
+      "verdict": "可写连接 —— 仅允许指向 iso/ 下的隔离副本"
+    },
+    {
+      "script": "03_isolation_recompute.py",
+      "line": 629,
+      "call": "mc = sqlite3.connect(str(market_db))",
+      "has_mode_ro": false,
+      "has_query_only": false,
+      "verdict": "可写连接 —— 仅允许指向 iso/ 下的隔离副本"
+    },
+    {
+      "script": "04_time_chain_audit.py",
+      "line": 59,
+      "call": "con = sqlite3.connect(\"file:%s?mode=ro\" % p, uri=True, timeout=15)",
+      "has_mode_ro": true,
+      "has_query_only": true,
+      "verdict": "只读连接"
+    },
+    {
+      "script": "05_runtime_observe.py",
+      "line": 86,
+      "call": "con = sqlite3.connect(\"file:%s?mode=ro\" % p, uri=True, timeout=15)",
+      "has_mode_ro": true,
+      "has_query_only": true,
+      "verdict": "只读连接"
+    },
+    {
+      "script": "06_uid_ledger_impact.py",
+      "line": 47,
+      "call": "con = sqlite3.connect(\"file:%s?mode=ro\" % p, uri=True, timeout=15)",
+      "has_mode_ro": true,
+      "has_query_only": true,
+      "verdict": "只读连接"
+    },
+    {
+      "script": "09_untouched_proof.py",
+      "line": 62,
+      "call": "\"\"\"静态扫描：把每个 sqlite3.connect(...) 调用连同其 mode=ro 判定列出来。\"\"\"",
+      "has_mode_ro": true,
+      "has_query_only": true,
+      "verdict": "只读连接"
+    }
+  ],
+  "iso_guard": {
+    "iso_root_definition": "ROOT / \"iso\"",
+    "writable_calls": [
+      {
+        "line": 120,
+        "call": "con = sqlite3.connect(str(path))"
+      },
+      {
+        "line": 629,
+        "call": "mc = sqlite3.connect(str(market_db))"
+      }
+    ],
+    "variable_chain": {
+      "iso_root_定义在_ROUTE_iso": true,
+      "临时目录建在_iso_root_下": true,
+      "market_db_建在临时目录下": true
+    },
+    "chain_all_ok": true,
+    "note": "两处可写连接的目标都是 `market_db`，它由 `tmp = mkdtemp(dir=iso_root)` 派生，`iso_root = ROOT/'iso'` ⇒ 落在本单证据目录的 iso/ 下，不碰生产库。生产库在该脚本里只以 mode=ro 打开，前后 sha256 对撞已在 03 产物里。"
+  },
+  "readonly_summary": {
+    "total_connect_calls": 8,
+    "readonly_calls": 6,
+    "writable_calls": 2,
+    "writable_only_in_step3": true,
+    "verdict": "生产库连接全部 mode=ro；可写连接只出现在步骤 3 的隔离副本脚本里"
+  },
+  "work_dir": {
+    "path": "evidence/SIGNAL-NOW-01-WORK",
+    "file_count": 201,
+    "max_mtime_utc": "2026-10-27T18:43:49Z",
+    "max_mtime_before_ticket_start": true,
+    "note": "写文件必然刷新 mtime ⇒ 最大 mtime 早于本单开始时刻，即本单没写过 Work 目录。"
+  },
+  "handover": {
+    "path": "docs/用户约定/当前交接.md",
+    "size": 63608,
+    "sha256": "5ebbc036443c283dd2d008971d49909b1aaf837cbd397172717eede6243547d0",
+    "mtime_utc": "2026-10-27T17:33:43Z",
+    "mtime_before_ticket_start": true
+  },
+  "source_now": {
+    "框架/backend/paper_engine.py": {
+      "sha256": "a99f8af00d4d82ca47acde9ffd494ef547395a29793ee2cd67e0f86f813a52d1",
+      "size": 166937,
+      "mtime_utc": "2026-10-27T17:48:50Z"
+    },
+    "框架/backend/unified_runtime.py": {
+      "sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "size": 183290,
+      "mtime_utc": "2026-10-27T17:39:40Z"
+    },
+    "框架/backend/live_api.py": {
+      "sha256": "585c97272b11feecc817c95676f6840b45b37a2622a3c262a8299ead03d7d07a",
+      "size": 117295,
+      "mtime_utc": "2026-10-27T15:05:48Z"
+    }
+  },
+  "source_compare": {
+    "框架/backend/paper_engine.py": {
+      "before": "a99f8af00d4d82ca47acde9ffd494ef547395a29793ee2cd67e0f86f813a52d1",
+      "now": "a99f8af00d4d82ca47acde9ffd494ef547395a29793ee2cd67e0f86f813a52d1",
+      "same": true
+    },
+    "框架/backend/unified_runtime.py": {
+      "before": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "now": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "same": true
+    },
+    "框架/backend/live_api.py": {
+      "before": "585c97272b11feecc817c95676f6840b45b37a2622a3c262a8299ead03d7d07a",
+      "now": "585c97272b11feecc817c95676f6840b45b37a2622a3c262a8299ead03d7d07a",
+      "same": true
+    }
+  },
+  "prod_db_now": {
+    "live_signals": {
+      "sha256": "257829a509a1087d35f72f33ca4825ee4e843051a06a002f2803f39959ebd590",
+      "size": 1912832,
+      "mtime_utc": "2026-10-27T15:10:25Z",
+      "wal_size": null,
+      "shm_size": null,
+      "wal_mtime_utc": null
+    },
+    "paper_3a": {
+      "sha256": "ac384c7fe9620a72317a749fe1f83c8eeebc8b725f5b750d0fd86f3c1358898c",
+      "size": 163840,
+      "mtime_utc": "2026-10-27T16:30:18Z",
+      "wal_size": 0,
+      "shm_size": 32768,
+      "wal_mtime_utc": "2026-10-27T20:21:24Z"
+    },
+    "paper_3b": {
+      "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+      "size": 163840,
+      "mtime_utc": "2026-10-23T03:13:44Z",
+      "wal_size": 0,
+      "shm_size": 32768,
+      "wal_mtime_utc": "2026-10-27T20:21:24Z"
+    },
+    "paper_3c": {
+      "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+      "size": 163840,
+      "mtime_utc": "2026-10-23T03:13:44Z",
+      "wal_size": 0,
+      "shm_size": 32768,
+      "wal_mtime_utc": "2026-10-27T20:21:24Z"
+    },
+    "paper_3d": {
+      "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+      "size": 163840,
+      "mtime_utc": "2026-10-23T03:13:44Z",
+      "wal_size": 0,
+      "shm_size": 32768,
+      "wal_mtime_utc": "2026-10-27T20:21:24Z"
+    }
+  },
+  "prod_db_compare": {
+    "live_signals": {
+      "before_sha": "257829a509a1087d35f72f33ca4825ee4e843051a06a002f2803f39959ebd590",
+      "now_sha": "257829a509a1087d35f72f33ca4825ee4e843051a06a002f2803f39959ebd590",
+      "same": true
+    },
+    "paper_3a": {
+      "before_sha": "ac384c7fe9620a72317a749fe1f83c8eeebc8b725f5b750d0fd86f3c1358898c",
+      "now_sha": "ac384c7fe9620a72317a749fe1f83c8eeebc8b725f5b750d0fd86f3c1358898c",
+      "same": true
+    },
+    "paper_3b": {
+      "before_sha": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+      "now_sha": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+      "same": true
+    },
+    "paper_3c": {
+      "before_sha": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+      "now_sha": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+      "same": true
+    },
+    "paper_3d": {
+      "before_sha": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+      "now_sha": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+      "same": true
+    }
+  },
+  "prod_db_reading": "生产库被运行时进程持续写入（WAL）。**哈希相同**只说明本单读库前后该库没有落盘变化；**哈希不同**也不能归因于本单 —— 归因依据是上面的只读连接静态证明，不是哈希。本单不用哈希变化/不变作为「没写库」的唯一证据。**补一条旁证**：同时记录了 `-wal` 文件大小。若 `-wal` 为 0 字节且主库 mtime 未变，则「没有未 checkpoint 的写入」成立 ⇒ 此时「哈希不变」才可以读成「确实没有新写入」；若 `-wal` 非 0，则哈希不变**什么都不能证明**（写入还压在 WAL 里没落主库）。",
+  "checks": {
+    "生产库连接全部只读": true,
+    "可写连接只在步骤3隔离副本": true,
+    "可写连接目标经变量链落在 iso/ 下": true,
+    "Work 目录 mtime 早于本单开始": true,
+    "统一交接 mtime 早于本单开始": true,
+    "三个源码哈希与本单开始时一致": true
+  },
+  "verdict": "全部通过"
+}

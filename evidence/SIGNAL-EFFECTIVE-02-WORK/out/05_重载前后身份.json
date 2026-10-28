@@ -1,0 +1,466 @@
+{
+  "ticket": "SIGNAL-EFFECTIVE-02-WORK",
+  "step": "3-4 受控重载与加载证明",
+  "started_at_utc": "2026-10-27T16:12:08Z",
+  "actions": [
+    {
+      "action": "sigterm_runtime",
+      "pid": 68802,
+      "at_utc": "2026-10-27T16:12:08Z"
+    },
+    {
+      "action": "runtime_exit",
+      "pid": 68802,
+      "gone": true,
+      "at_utc": "2026-10-27T16:12:16Z"
+    },
+    {
+      "action": "sigterm_api",
+      "pid": 68764,
+      "at_utc": "2026-10-27T16:12:16Z"
+    },
+    {
+      "action": "api_exit",
+      "pid": 68764,
+      "gone": true,
+      "at_utc": "2026-10-27T16:12:17Z"
+    },
+    {
+      "action": "start_sh",
+      "rc": 0,
+      "stdout_tail": "[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验\n[✔] 交易链配置契约校验通过（版本: FT-LOW4H-EXP-V2.2, 规则: FT-LOW4H）\n[*] 启动 API 服务 (端口 8787)...\n[✔] API 服务已就绪: pid=14857, 端口: 8787\n[✔] 实时采集器已在运行且心跳健康（复用 pid=42278）\n[*] 启动隔离交易链进程 unified_runtime (Arm: 3a, Symbol: all)...\n[✔] 交易链 unified_runtime 已就绪: pid=14879\n",
+      "stderr_tail": "",
+      "at_utc": "2026-10-27T16:12:23Z"
+    }
+  ],
+  "errors": [],
+  "watch_files": {
+    "框架/backend/paper_engine.py": {
+      "mtime_utc": "2026-10-27T15:04:48Z",
+      "mtime": 1793113488.659641,
+      "sha256": "d08586fff89b6e1579c808d4fc8ded856dfbdaf73418f89d36d07466242d8880",
+      "size": 161802
+    },
+    "框架/backend/unified_runtime.py": {
+      "mtime_utc": "2026-10-27T15:05:09Z",
+      "mtime": 1793113509.665853,
+      "sha256": "8e6306124f1b47cf6ad540fbb924ed3b309f8dac34877ac9590ffb7bea1c1543",
+      "size": 182265
+    },
+    "框架/backend/live_api.py": {
+      "mtime_utc": "2026-10-27T15:05:48Z",
+      "mtime": 1793113548.8277335,
+      "sha256": "585c97272b11feecc817c95676f6840b45b37a2622a3c262a8299ead03d7d07a",
+      "size": 117295
+    },
+    "框架/backend/live_worker.py": {
+      "mtime_utc": "2026-10-27T15:06:06Z",
+      "mtime": 1793113566.3005517,
+      "sha256": "9ac5600e5c7f433e9aa0290d78d0432b1277388af74511b5000bbb0244be94dc",
+      "size": 34107
+    }
+  },
+  "newest_source_mtime_utc": "2026-10-27T15:06:06Z",
+  "before": {
+    "procs": {
+      "api": {
+        "pid": 68764,
+        "create_time_utc": "2026-10-27T13:59:14Z",
+        "create_time": 1793109554.589258,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "worker": {
+        "pid": 68775,
+        "create_time_utc": "2026-10-27T13:59:15Z",
+        "create_time": 1793109555.215853,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "runtime": {
+        "pid": 68802,
+        "create_time_utc": "2026-10-27T13:59:16Z",
+        "create_time": 1793109556.378352,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "create_time": 1792746016.284061,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "others": [
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "create_time": 1792826890.832155,
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_test_04_ipqsy2ry/jobs/",
+          "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+        }
+      ]
+    },
+    "api_sig": {
+      "http": "200",
+      "top_keys": [
+        "account_id",
+        "as_of",
+        "data_version",
+        "evidence_level",
+        "exec_core_crosscheck",
+        "has_more",
+        "items",
+        "ledger_source",
+        "limit",
+        "missing_reason",
+        "mode",
+        "next_cursor",
+        "param_hash",
+        "param_hash_basis",
+        "params_source",
+        "quality",
+        "rule_version",
+        "rule_view_available",
+        "rule_view_spec_version",
+        "run_id",
+        "source_url",
+        "strategy_version",
+        "time",
+        "total"
+      ],
+      "quality_keys": [
+        "age_seconds",
+        "effective_floor_ms",
+        "excluded_breakdown",
+        "excluded_n",
+        "live_start_ms",
+        "n_arm_rows",
+        "n_cards",
+        "note",
+        "paper_epoch_ms",
+        "paper_ledger_attached_arms",
+        "scope",
+        "status"
+      ],
+      "excluded_n": 289,
+      "excluded_breakdown": {
+        "db_rows_total": 289,
+        "kept": 0,
+        "excluded": 289,
+        "by_reason": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "by_reason_keys": [
+        "before_effective_floor",
+        "missing_time",
+        "not_arm_entry_role",
+        "not_current_origin",
+        "not_enterable",
+        "test_synthetic"
+      ],
+      "has_unapproved_config": false,
+      "unapproved_config": null,
+      "total": 0,
+      "has_more": false,
+      "missing_reason": null,
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "param_hash": "82dec362c182",
+      "ledger_source": {
+        "kind": "live_signal_db",
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "paper_ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "paper_ledger_present": true
+      },
+      "as_of": null,
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000,
+      "effective_floor_ms": 1792748844240
+    },
+    "item_probe": {
+      "http": "200",
+      "total": 1,
+      "item_keys": [
+        "actionable",
+        "actionable_reason",
+        "admission",
+        "arm",
+        "available_at",
+        "bar_close_time",
+        "bar_open_time",
+        "breakout_price",
+        "config_hash",
+        "confirmed_at",
+        "created_at",
+        "current_direction",
+        "data_version",
+        "detection_atr",
+        "detection_low",
+        "direction",
+        "display_state",
+        "event_time",
+        "exchange",
+        "executable_state",
+        "execution_label",
+        "expires_at",
+        "factor_details",
+        "market_id",
+        "origin",
+        "position_multiplier",
+        "price",
+        "reason",
+        "research",
+        "resonance_score",
+        "resonance_summary",
+        "role",
+        "signal_id",
+        "source_id",
+        "source_masks",
+        "status",
+        "stop_loss",
+        "strategy_key",
+        "strategy_version",
+        "strength",
+        "structural_kind",
+        "symbol",
+        "timeframe",
+        "trigger_price"
+      ],
+      "has_resonance_fields": true,
+      "has_research_block": true
+    },
+    "at_utc": "2026-10-27T16:12:08Z"
+  },
+  "health_ok": true,
+  "after": {
+    "procs": {
+      "api": {
+        "pid": 14857,
+        "create_time_utc": "2026-10-27T16:12:19Z",
+        "create_time": 1793117539.761201,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "worker": {
+        "pid": 68775,
+        "create_time_utc": "2026-10-27T13:59:15Z",
+        "create_time": 1793109555.215853,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "runtime": {
+        "pid": 14879,
+        "create_time_utc": "2026-10-27T16:12:21Z",
+        "create_time": 1793117541.452258,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "create_time": 1792746016.284061,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "others": [
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "create_time": 1792826890.832155,
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_test_04_ipqsy2ry/jobs/",
+          "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+        }
+      ]
+    },
+    "at_utc": "2026-10-27T16:12:23Z",
+    "api_sig": {
+      "http": "200",
+      "top_keys": [
+        "account_id",
+        "as_of",
+        "data_version",
+        "evidence_level",
+        "exec_core_crosscheck",
+        "has_more",
+        "items",
+        "ledger_source",
+        "limit",
+        "missing_reason",
+        "mode",
+        "next_cursor",
+        "param_hash",
+        "param_hash_basis",
+        "params_source",
+        "quality",
+        "rule_version",
+        "rule_view_available",
+        "rule_view_spec_version",
+        "run_id",
+        "source_url",
+        "strategy_version",
+        "time",
+        "total"
+      ],
+      "quality_keys": [
+        "age_seconds",
+        "effective_floor_ms",
+        "excluded_breakdown",
+        "excluded_n",
+        "live_start_ms",
+        "n_arm_rows",
+        "n_cards",
+        "note",
+        "paper_epoch_ms",
+        "paper_ledger_attached_arms",
+        "scope",
+        "status"
+      ],
+      "excluded_n": 289,
+      "excluded_breakdown": {
+        "db_rows_total": 289,
+        "kept": 0,
+        "excluded": 289,
+        "by_reason": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0,
+          "unapproved_config": 289
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "by_reason_keys": [
+        "before_effective_floor",
+        "missing_time",
+        "not_arm_entry_role",
+        "not_current_origin",
+        "not_enterable",
+        "test_synthetic",
+        "unapproved_config"
+      ],
+      "has_unapproved_config": true,
+      "unapproved_config": 289,
+      "total": 0,
+      "has_more": false,
+      "missing_reason": null,
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "param_hash": "82dec362c182",
+      "ledger_source": {
+        "kind": "live_signal_db",
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "paper_ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "paper_ledger_present": true
+      },
+      "as_of": null,
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000,
+      "effective_floor_ms": 1792748844240
+    },
+    "item_probe": {
+      "http": "200",
+      "total": 1,
+      "item_keys": [
+        "actionable",
+        "actionable_reason",
+        "admission",
+        "arm",
+        "available_at",
+        "bar_close_time",
+        "bar_open_time",
+        "breakout_price",
+        "config_hash",
+        "confirmed_at",
+        "created_at",
+        "current_direction",
+        "data_version",
+        "detection_atr",
+        "detection_low",
+        "direction",
+        "display_state",
+        "event_time",
+        "exchange",
+        "executable_state",
+        "execution_label",
+        "expires_at",
+        "factor_details",
+        "market_id",
+        "origin",
+        "position_multiplier",
+        "price",
+        "reason",
+        "research",
+        "resonance_score",
+        "resonance_summary",
+        "role",
+        "signal_id",
+        "source_id",
+        "source_masks",
+        "status",
+        "stop_loss",
+        "strategy_key",
+        "strategy_version",
+        "strength",
+        "structural_kind",
+        "symbol",
+        "timeframe",
+        "trigger_price"
+      ],
+      "has_resonance_fields": true,
+      "has_research_block": true
+    }
+  },
+  "load_proof": {
+    "newest_source_mtime_utc": "2026-10-27T15:06:06Z",
+    "api_pid": 14857,
+    "api_create_time_utc": "2026-10-27T16:12:19Z",
+    "api_started_after_source_change": true,
+    "api_loaded": true,
+    "api_why": "进程启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本已加载",
+    "runtime_pid": 14879,
+    "runtime_create_time_utc": "2026-10-27T16:12:21Z",
+    "runtime_started_after_source_change": true,
+    "runtime_loaded": true,
+    "runtime_why": "进程启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本已加载",
+    "worker_pid_unchanged": true,
+    "collector_pid_unchanged": true,
+    "api_has_unapproved_config_before": false,
+    "api_has_unapproved_config_after": true,
+    "api_unapproved_config_counter": 289,
+    "api_by_reason_keys_before": [
+      "before_effective_floor",
+      "missing_time",
+      "not_arm_entry_role",
+      "not_current_origin",
+      "not_enterable",
+      "test_synthetic"
+    ],
+    "api_by_reason_keys_after": [
+      "before_effective_floor",
+      "missing_time",
+      "not_arm_entry_role",
+      "not_current_origin",
+      "not_enterable",
+      "test_synthetic",
+      "unapproved_config"
+    ],
+    "behavior_changed": true,
+    "item_has_research_block_after": true,
+    "item_has_resonance_fields_after": true
+  },
+  "levels_after_reload": {
+    "paper_epoch_ms": 1791939600000,
+    "live_start_ms": 1792748844240,
+    "state_anchor_ms": 1782542715686
+  },
+  "levels_unchanged": true,
+  "finished_at_utc": "2026-10-27T16:12:24Z"
+}

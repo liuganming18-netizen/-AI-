@@ -1,0 +1,181 @@
+--- evidence/SIGNAL-NOW-01-WORK/baseline/src_before/paper_engine.py	2026-10-28 01:38:08
++++ 框架/backend/paper_engine.py	2026-10-28 01:48:50
+@@ -115,11 +115,19 @@
+     "defined_by": "work_2026-10-13",
+     "ratification_status": "pending_human_ratification",
+     "fill_price": "open_of_first_closed_15m_bar_at_or_after(order_request_ms + delay)",
+-    "no_fill_before": "max(signal.event_time, signal.available_at, 真实请求时刻)",
++    # SIGNAL-NOW-01-WORK（2026-10-28）更正：原写 max(..., 真实请求时刻)，
++    # 该 max 会把**旧信号**续期到首次请求时刻。现改为「有信号时刻取信号时刻」。
++    "no_fill_before": "max(signal.event_time, signal.available_at)；无信号时刻（手工请求）"
++                      "才取真实请求时刻",
+     "future_fill": "paper_pending_advanced_by_real_process_clock",
+     "on_missed_moment": "reject_missed_fill_moment_no_backfill",
++    # 新增（本单）：执行点是否在**本进程启动前**就已收盘 ⇒ 停机期间过去的执行点不追补。
++    "on_fill_point_before_process_start": "reject_fill_point_closed_before_process_start",
+     "max_fill_lag_seconds": 3600,
+     "approved_delay_rule_kept": True,
++    "known_gap": "bar 必须 is_closed=1 才取得到 ⇒ 执行动作**从未在 bar 开盘时刻真实发生**，"
++                 "成交一律是「闭 bar 后回读该 bar 的 open」，entry_ts 恒早于实际处理 15~30 分钟。"
++                 "要做到「现实执行点成交」需要 bar 开盘瞬间的实时报价，本单**不自选**新成交模型。",
+     "note": "本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）"
+             "逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。",
+ }
+@@ -752,8 +760,12 @@
+ def first_request_anchor(arm: str, signal_uid, default_ms) -> int:
+     """返回该信号**真实首次请求墙钟**（毫秒）。
+ 
+-    2026-10-14 09 契约：`order_request_ms = max(信号事件/可用时刻, **真实首次请求**)`；
+-    **每轮重试不得刷新首次请求**（否则成交 bar 会随重试时钟往前漂、等价于回填旧价）。
++    SIGNAL-NOW-01-WORK（2026-10-28）更正：这里原写
++    `order_request_ms = max(信号事件/可用时刻, **真实首次请求**)`，而该 max 会让
++    **旧信号被首次请求时刻续期**（4 天前确认的信号在今天被请求 ⇒ 经济请求时刻被推到今天）。
++    现已改为：**有信号时刻 ⇒ 取信号自身时刻**；只有**无信号时刻（手工请求）**才取首次请求墙钟。
++    「首次请求」的职责收窄为两条：①「成交不得早于请求」的下界；②审计用的真实请求时刻。
++    **每轮重试仍不得刷新首次请求**（否则成交 bar 会随重试时钟往前漂、等价于回填旧价）。
+     实现：独立表 `paper_request_anchor` 用 `INSERT OR IGNORE` 只落**第一次**的值。
+     `signal_uid` 为空（手工请求）⇒ 无稳定事件身份，直接返回 `default_ms`（调用方一次一请求）。
+     """
+@@ -895,8 +907,15 @@
+         con.close()
+ 
+ 
+-def advance_pending(*, T=None, log=print) -> dict:
+-    """用**真实进程时钟**推进挂单：到点才成交；没到点继续等；错过了就拒单（不回填）。"""
++def advance_pending(*, T=None, log=print, process_start_ms=None) -> dict:
++    """用**真实进程时钟**推进挂单：到点才成交；没到点继续等；错过了就拒单（不回填）。
++
++    `process_start_ms`（SIGNAL-NOW-01-WORK 新增，默认 None = 旧行为）：
++      **本进程启动时刻**，原样透传给 `open_position`。它让 `open_position` 能判定
++      「该挂单的应成交 15m bar 是否在本进程启动之前就已收盘」⇒ 停机期间的执行点
++      不追补、不回填（工单第 3 条「进程停机后旧执行点过期不追补」）。
++      判据实现只在 `open_position` 一处（三层开仓共用入口），本函数**不加**任何判据。
++    """
+     T = int(T) if T else L.now_ms()
+     out = {"filled": [], "rejected": [], "still_pending": 0, "by_arm": {}}
+     for arm in L.ARMS:
+@@ -936,7 +955,9 @@
+                 first_request_ms=(None if row.get("first_request_ms") is None
+                                   else int(row["first_request_ms"])),
+                 stoploss_s=s_val, trail_d=d_val,
+-                model_version=m_ver, config_fingerprint=c_fp)
++                model_version=m_ver, config_fingerprint=c_fp,
++                # SIGNAL-NOW-01-WORK：停机期间的执行点不追补（判据在 open_position 内）
++                process_start_ms=process_start_ms)
+             if res.get("ok"):
+                 n_f += 1
+                 out["filled"].append(res)
+@@ -960,7 +981,8 @@
+                   origin="signal", pending_id=None, epoch_ms=None,
+                   first_request_ms=None, entry_mode=None, stop_mode=None,
+                   struct_low=None, trailing_mode=None, stoploss_s=None,
+-                  trail_d=None, config_fingerprint=None, model_version=None) -> dict:
++                  trail_d=None, config_fingerprint=None, model_version=None,
++                  process_start_ms=None) -> dict:
+     """按已批准模型开一笔**模拟多仓**。返回结果 dict（含 ok/reason/明细）。
+ 
+     成交时钟见模块头 `FILL_POLICY`。要点：
+@@ -1115,9 +1137,21 @@
+             _resolve_pending(con, pending_id, "rejected", "position_already_open_no_add", T=attempt_ms)
+             return _reject(arm, symbol, signal_uid, "position_already_open_no_add")
+         delay_ms = int(params["signal_execution_delay_minutes"]) * MIN
+-        # ① 经济请求时刻 = max(信号事件/可用时刻, 真实首次请求墙钟)
++        # ① 经济请求时刻 = 信号自身的事件/可用时刻；**只有无信号时刻（页面手工请求）**
++        #    才以真实首次请求墙钟作为经济请求时刻。
++        # SIGNAL-NOW-01-WORK（2026-10-28）实测缺陷：原实现是
++        # `order_request_ms = max(eco + [first_req])`，这让**旧信号被首次请求时刻续期**。
++        # 证据（evidence/SIGNAL-NOW-01-WORK/out/02_test_probe_succ_溯源.json）：
++        #   `test_probe_succ` 的 event_time = 2026-10-23T09:47:25.240Z，
++        #   首次请求 = 2026-10-27T15:46:47.361Z（相差 4.2496 天），
++        #   取 max 后经济请求时刻被推到 10-27，于是**一笔 4 天前的确认在 10-27 入场**。
++        #   若按信号自身时刻，earliest_fill = 10-23T10:02:25Z，处理时刻滞后 4.27 天
++        #   ⇒ 本应拒单 `missed_fill_moment_no_backfill`。
++        # 用户口径「按现实时间不能按历史时间」⇒ 经济请求时刻必须取信号自身时刻；
++        # 首次请求墙钟只承担两个职责：①「成交不得早于请求」的下界（下方严格因果校验）；
++        # ②审计用的真实请求时刻。它不是续期工具。
+         eco = [int(x) for x in (event_time, available_at) if x is not None]
+-        order_request_ms = max(eco + [first_req])
++        order_request_ms = max(eco) if eco else int(first_req)
+         # ② 最早可成交时刻（已批准延迟规则，逐字保留）
+         earliest_fill_ms = order_request_ms + delay_ms
+         # 严格因果校验：日常实例下最早成交下限绝不得早于首次请求挂钟
+@@ -1142,6 +1176,30 @@
+                     "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）"
+                             "⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"}
+         bar_open = int(bar["open_time"])
++        # ── 停机不追补：应成交 bar 是否在**本进程启动之前**就已收盘 ────────────────
++        # SIGNAL-NOW-01-WORK（2026-10-28）。为什么必须单列这条：
++        #   `bar_at_or_after` 要求 `is_closed=1`，所以 `attempt_ms - bar_open` 的最小值
++        #   恒为一根 15m 的长度；`MAX_FILL_LAG_MS`（1 小时）里实际只有 45 分钟是「真迟到」
++        #   容忍 ⇒ **停机 44 分钟后重启，仍会用 44 分钟前开盘的 bar 成交，并把 `entry_ts`
++        #   回填到过去**。这正是工单第 3 条禁止的「伪造当时可成交或回填历史 entry_ts/价格」。
++        # 判据只用「本进程启动时刻」这一个客观事实，**不新增数值阈值**，也不放宽原 1 小时门禁。
++        # 正常重启不受影响：既有挂单的应成交 bar 若在本进程启动后才收盘，照样正常推进
++        # （`test_probe_succ`：bar_close 16:29:59.999Z > 进程启动 16:12:21Z ⇒ 放行）。
++        if process_start_ms is not None:
++            try:
++                _bc = int(bar["close_time"])
++            except (KeyError, IndexError, TypeError):
++                _bc = None
++            if _bc is not None and _bc < int(process_start_ms):
++                _resolve_pending(con, pending_id, "rejected",
++                                 "fill_point_closed_before_process_start", T=attempt_ms)
++                r = _reject(arm, symbol, signal_uid,
++                            "fill_point_closed_before_process_start")
++                r.update({"bar_open_time": bar_open, "bar_close_time": _bc,
++                          "process_start_ms": int(process_start_ms),
++                          "note": "应成交 bar 在本进程启动前已收盘 ⇒ 该现实执行点已过期；"
++                                  "不追补、不回填历史 entry_ts/价格，也不顺延到下一根"})
++                return r
+         # ── epoch 门禁 ②：成交 bar 早于 epoch ⇒ 拒单（双保险）────────────────────
+         if bar_open < epoch:
+             _resolve_pending(con, pending_id, "rejected", "before_paper_epoch_no_backfill",
+--- evidence/SIGNAL-NOW-01-WORK/baseline/src_before/unified_runtime.py	2026-10-28 01:38:08
++++ 框架/backend/unified_runtime.py	2026-10-28 01:39:40
+@@ -1061,7 +1061,12 @@
+         # 无法核对的口号。现在逐条留身份与不可执行原因，进 bootstrap_stats →
+         # 状态文件 → /paper/status → 页面，数量与明细必须能对上。
+         discarded_detail: List[dict] = []
+-        _epoch_ms = int(L.get_paper_epoch_ms())
++        # SIGNAL-NOW-01-WORK（2026-10-28）：这里原来用 `L.get_paper_epoch_ms()`
++        # （= paper_epoch，2026-10-14T01:00:00Z），与 `open_position` 实际使用的
++        # `L.effective_floor_ms()`（= max(live_start, paper_epoch) = 2026-10-23T09:47:24Z）
++        # 不一致 ⇒ 丢弃明细里给出的 `before_paper_epoch_no_backfill` **原因说明会偏 9 天 8 小时**。
++        # 只改「原因文案的口径」，不改任何判定（真正拦单的仍是 `open_position` 里的门禁）。
++        _epoch_ms = int(L.effective_floor_ms())
+ 
+         def _discard_reasons(c) -> List[str]:
+             """**复用既有判据**给出不可执行原因（不新增门槛、不改判定）。"""
+@@ -2326,7 +2331,7 @@
+         self.arm = arm
+         self.account_id = f"paper43_{arm}"
+ 
+-    def execute_cycle(self, now_ms: int) -> dict:
++    def execute_cycle(self, now_ms: int, process_start_ms: int | None = None) -> dict:
+         res = {
+             "pending_matched": 0,
+             "trailing_updates": 0,
+@@ -2335,8 +2340,12 @@
+         }
+ 
+         # 1. 推进挂单撮合成交
++        # SIGNAL-NOW-01-WORK（2026-10-28）：把**本进程启动时刻**交给 `advance_pending`，
++        # 让它能判定「该挂单的应成交 bar 是否在本进程启动前就已收盘」⇒ 停机期间的执行点
++        # 不追补、不回填。不传则退回旧行为（只靠 MAX_FILL_LAG_MS）。
+         try:
+-            match_res = PE.advance_pending(T=now_ms, log=lambda *args: None)
++            match_res = PE.advance_pending(T=now_ms, log=lambda *args: None,
++                                           process_start_ms=process_start_ms)
+             arm_stat = match_res.get("by_arm", {}).get(self.arm, {})
+             res["pending_matched"] = arm_stat.get("filled", 0)
+         except Exception as exc:
+@@ -2880,7 +2889,8 @@
+ 
+         # 4. 执行守护与撮合/止损/退出
+         try:
+-            e_res = self.execution.execute_cycle(now)
++            e_res = self.execution.execute_cycle(
++                now, process_start_ms=getattr(self, "started_at_ms", None))
+             summary["matched"] = e_res["pending_matched"]
+             summary["trailing_updates"] = e_res["trailing_updates"]
+             summary["exits"] = e_res["exits_triggered"]

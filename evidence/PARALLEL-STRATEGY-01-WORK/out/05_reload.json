@@ -1,0 +1,423 @@
+{
+  "generated_at_utc": "2026-10-28T01:04:30Z",
+  "steps": [
+    {
+      "action": "sigterm_runtime",
+      "pid": 43827,
+      "at_utc": "2026-10-28T01:04:30Z"
+    },
+    {
+      "action": "runtime_exit",
+      "pid": 43827,
+      "gone": true,
+      "at_utc": "2026-10-28T01:04:32Z"
+    },
+    {
+      "action": "sigterm_api",
+      "pid": 43819,
+      "at_utc": "2026-10-28T01:04:32Z"
+    },
+    {
+      "action": "api_exit",
+      "pid": 43819,
+      "gone": true,
+      "at_utc": "2026-10-28T01:04:33Z"
+    },
+    {
+      "action": "start",
+      "rc": 0,
+      "stdout_tail": "[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验\n[✔] 交易链配置契约校验通过（版本: FT-LOW4H-EXP-V2.2, 规则: FT-LOW4H）\n[*] 启动 API 服务 (端口 8787)...\n[✔] API 服务已就绪: pid=77425, 端口: 8787\n[✔] 实时采集器已在运行且心跳健康（复用 pid=42278）\n[*] 启动隔离交易链进程 unified_runtime (Arm: 3a, Symbol: all)...\n[✔] 交易链 unified_runtime 已就绪: pid=77433\n",
+      "stderr_tail": "",
+      "at_utc": "2026-10-28T01:04:38Z"
+    }
+  ],
+  "errors": [],
+  "watch_files": {
+    "框架/backend/paper_engine.py": {
+      "sha256": "bae9d93489ebf792d61d150a68efe43af97b627b792817ef52ab44fb6a517a5e",
+      "mtime_utc": "2026-10-28T00:55:11Z"
+    },
+    "框架/backend/live_store.py": {
+      "sha256": "ba85a66d3b49f89934e4836d5687a01da0f97ee9d0f50a1fbb0ddb98ede120d6",
+      "mtime_utc": "2026-10-28T00:43:39Z"
+    },
+    "框架/backend/live_api.py": {
+      "sha256": "94302c968efe2fe5ed1cb6fe8bdc6b035bd97010bd2ff61c656524d36b0f7fa2",
+      "mtime_utc": "2026-10-28T00:58:32Z"
+    }
+  },
+  "newest_source_mtime_utc": "2026-10-28T00:58:32Z",
+  "before": {
+    "procs": {
+      "api": {
+        "pid": 43819,
+        "create_time_utc": "2026-10-27T18:19:01Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py"
+      },
+      "workers": [
+        {
+          "pid": 68775,
+          "create_time_utc": "2026-10-27T13:59:15Z",
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner se"
+        },
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_te"
+        }
+      ],
+      "runtime": {
+        "pid": 43827,
+        "create_time_utc": "2026-10-27T18:19:01Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py"
+      },
+      "worker_pids": [
+        68775,
+        88794
+      ],
+      "psutil": true
+    },
+    "api": {
+      "path": "/api/v1/paper/accounts",
+      "http": "200",
+      "fill_policy": {
+        "defined_by": "work_2026-10-13",
+        "ratification_status": "pending_human_ratification",
+        "fill_price": "open_of_first_closed_15m_bar_at_or_after(order_request_ms + delay)",
+        "no_fill_before": "max(signal.event_time, signal.available_at)；无信号时刻（手工请求）才取真实请求时刻",
+        "future_fill": "paper_pending_advanced_by_real_process_clock",
+        "on_missed_moment": "reject_missed_fill_moment_no_backfill",
+        "on_fill_point_before_process_start": "reject_fill_point_closed_before_process_start",
+        "max_fill_lag_seconds": 3600,
+        "approved_delay_rule_kept": true,
+        "known_gap": "bar 必须 is_closed=1 才取得到 ⇒ 执行动作**从未在 bar 开盘时刻真实发生**，成交一律是「闭 bar 后回读该 bar 的 open」，entry_ts 恒早于实际处理 15~30 分钟。要做到「现实执行点成交」需要 bar 开盘瞬间的实时报价，本单**不自选**新成交模型。",
+        "note": "本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。"
+      },
+      "note": "服务端纸面账本（四臂各 5000U 初始）；成交模型见 model_version。成交时钟：**第一根 `open_time >= max(信号确认时刻,信号可用时刻,真实请求时刻)+15m` 的已闭合 15m bar 的 open**；尚未到点 ⇒ 登记挂单（`pending`），由真实进程时钟推进；错过成交时刻 ⇒ 拒单，**不用旧价回填**。资金费按 `funding_history` **真实结算事件逐笔记账**（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。**新开仓是否允许以服务端 `new_entry_gate.allow_new_entries` 为准**；退出/费用/资金费/健康采集不受影响；既有持仓为**旧版/未验收**，已排除正式策略表现。",
+      "keys": [
+        "approved_delay_rule_kept",
+        "defined_by",
+        "fill_price",
+        "future_fill",
+        "known_gap",
+        "max_fill_lag_seconds",
+        "no_fill_before",
+        "note",
+        "on_fill_point_before_process_start",
+        "on_missed_moment",
+        "ratification_status"
+      ],
+      "tried": [
+        {
+          "path": "/api/v1/paper/accounts",
+          "http": "200",
+          "has_fill_policy": true
+        }
+      ]
+    },
+    "rt": {
+      "file_mtime_utc": "2026-10-28T01:04:27Z",
+      "pid": 43827,
+      "status": "running",
+      "overall_health": "healthy",
+      "started_at_ms": 1793125142508,
+      "started_at_utc": "2026-10-27T18:19:02Z",
+      "cycle_count": 4581,
+      "universe": 526,
+      "watermark_1h_utc": "2026-10-28T00:00:00Z",
+      "watermark_4h_utc": "2026-10-27T20:00:00Z",
+      "pending_in_db": 0,
+      "allow_new_entries": true,
+      "open_positions": 1,
+      "pending_matched_total": 0,
+      "trailing_updates_total": 1,
+      "exits_triggered_total": 0
+    },
+    "ledger": {
+      "positions": [
+        {
+          "position_id": 1,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 82033.1,
+          "entry_ts": 1792666800000,
+          "stop_price": 81200.0,
+          "signal_uid": "sig_closeloop_btc_1792668586",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 2,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 81970.0,
+          "entry_ts": 1792667700000,
+          "stop_price": 80470.0,
+          "signal_uid": "sig_closeloop_btc_1792668605",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 3,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 81970.0,
+          "entry_ts": 1792667700000,
+          "stop_price": 80470.0,
+          "signal_uid": "sig_ui_test_1792668684487",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 4,
+          "symbol": "BTCUSDT",
+          "status": "open",
+          "entry_price": 80469.5,
+          "entry_ts": 1793117700000,
+          "stop_price": 76566.2,
+          "signal_uid": "test_probe_succ",
+          "voided": 0,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        }
+      ],
+      "counts": {
+        "paper_position": 4,
+        "paper_order": 15,
+        "paper_pending": 4,
+        "paper_processed": 4
+      },
+      "has_reality_columns": false,
+      "wal_bytes": 0
+    },
+    "at_utc": "2026-10-28T01:04:30Z"
+  },
+  "after": {
+    "procs": {
+      "api": {
+        "pid": 77425,
+        "create_time_utc": "2026-10-28T01:04:35Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py"
+      },
+      "workers": [
+        {
+          "pid": 68775,
+          "create_time_utc": "2026-10-27T13:59:15Z",
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner se"
+        },
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_te"
+        }
+      ],
+      "runtime": {
+        "pid": 77433,
+        "create_time_utc": "2026-10-28T01:04:36Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py"
+      },
+      "worker_pids": [
+        68775,
+        88794
+      ],
+      "psutil": true
+    },
+    "api": {
+      "path": "/api/v1/paper/accounts",
+      "http": "200",
+      "fill_policy": {
+        "defined_by": "work_2026-10-13",
+        "ratification_status": "pending_human_ratification",
+        "fill_price": "open_of_the_15m_bar_at_or_after(order_request_ms + delay)：默认在 bar **开盘瞬间**从 `realtime_klines` 读（reality_fill=1，与闭 bar 后的 open 逐位相同，已实测）；仅 legacy 模式才等 is_closed=1",
+        "no_fill_before": "max(signal.event_time, signal.available_at)；无信号时刻（手工请求）才取真实请求时刻",
+        "future_fill": "paper_pending_advanced_by_real_process_clock",
+        "on_missed_moment": "reject_missed_fill_moment_no_backfill",
+        "on_fill_point_before_process_start": "reject_fill_point_closed_before_process_start",
+        "max_fill_lag_seconds": 3600,
+        "approved_delay_rule_kept": true,
+        "realtime_fill_mode": "realtime_only|prefer_realtime|legacy（默认 realtime_only，见 WX_REALITY_FILL_MODE）",
+        "realtime_fill_price": "open_of_the_same_15m_bar_read_at_bar_open_from_realtime_klines",
+        "reality_fill_flag": "1=执行点当场成交；0/NULL=闭 bar 后补记（不再伪装成当时成交）",
+        "on_exec_point_already_passed": "reject_fill_point_passed_no_backfill（不回填、不顺延到下一根）",
+        "known_gap": "已修复（PARALLEL-STRATEGY-01-WORK）：执行点那根 15m bar 的 open 现在在 bar **刚开盘**就从 `realtime_klines` 读到，撮合发生在执行点；执行点已过则拒单，不再用闭 bar 的 open 冒充当时成交。（修复前的原文见 `known_gap_history`）",
+        "known_gap_history": "bar 必须 is_closed=1 才取得到 ⇒ 执行动作**从未在 bar 开盘时刻真实发生**，成交一律是「闭 bar 后回读该 bar 的 open」，entry_ts 恒早于实际处理 15~30 分钟。（本条为 PARALLEL-STRATEGY-01-WORK 修复前的历史缺陷记录，保留备查）",
+        "note": "本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。",
+        "effective_mode_runtime": "realtime_only"
+      },
+      "note": "服务端纸面账本（四臂各 5000U 初始）；成交模型见 model_version。成交时钟：**执行点 = max(信号确认时刻,信号可用时刻)+15m**（无信号的手工请求取真实请求时刻）；执行点那根 15m bar 的 `open` 在 bar **刚开盘**就从实时行情读到 ⇒ 撮合发生在执行点（`reality_fill=1`）；执行点已过 ⇒ 拒单 `fill_point_passed_no_backfill`，**不用闭 bar 的 open 冒充当时成交，也不顺延到下一根**；尚未到点 ⇒ 登记挂单（`pending`），由真实进程时钟推进。资金费按 `funding_history` **真实结算事件逐笔记账**（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。**新开仓是否允许以服务端 `new_entry_gate.allow_new_entries` 为准**；退出/费用/资金费/健康采集不受影响；既有持仓为**旧版/未验收**，已排除正式策略表现。",
+      "keys": [
+        "approved_delay_rule_kept",
+        "defined_by",
+        "effective_mode_runtime",
+        "fill_price",
+        "future_fill",
+        "known_gap",
+        "known_gap_history",
+        "max_fill_lag_seconds",
+        "no_fill_before",
+        "note",
+        "on_exec_point_already_passed",
+        "on_fill_point_before_process_start",
+        "on_missed_moment",
+        "ratification_status",
+        "reality_fill_flag",
+        "realtime_fill_mode",
+        "realtime_fill_price"
+      ],
+      "tried": [
+        {
+          "path": "/api/v1/paper/accounts",
+          "http": "200",
+          "has_fill_policy": true
+        }
+      ]
+    },
+    "rt": {
+      "file_mtime_utc": "2026-10-28T01:04:40Z",
+      "pid": 77433,
+      "status": "running",
+      "overall_health": "healthy",
+      "started_at_ms": 1793149477309,
+      "started_at_utc": "2026-10-28T01:04:37Z",
+      "cycle_count": 0,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null,
+      "pending_in_db": 0,
+      "allow_new_entries": true,
+      "open_positions": 1,
+      "pending_matched_total": 0,
+      "trailing_updates_total": 0,
+      "exits_triggered_total": 0
+    },
+    "ledger": {
+      "positions": [
+        {
+          "position_id": 1,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 82033.1,
+          "entry_ts": 1792666800000,
+          "stop_price": 81200.0,
+          "signal_uid": "sig_closeloop_btc_1792668586",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 2,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 81970.0,
+          "entry_ts": 1792667700000,
+          "stop_price": 80470.0,
+          "signal_uid": "sig_closeloop_btc_1792668605",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 3,
+          "symbol": "BTCUSDT",
+          "status": "closed",
+          "entry_price": 81970.0,
+          "entry_ts": 1792667700000,
+          "stop_price": 80470.0,
+          "signal_uid": "sig_ui_test_1792668684487",
+          "voided": 1,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        },
+        {
+          "position_id": 4,
+          "symbol": "BTCUSDT",
+          "status": "open",
+          "entry_price": 80469.5,
+          "entry_ts": 1793117700000,
+          "stop_price": 76566.2,
+          "signal_uid": "test_probe_succ",
+          "voided": 0,
+          "market_source": "binance.um.candles_15m.is_closed.open",
+          "reality_fill": null,
+          "fill_source": null
+        }
+      ],
+      "counts": {
+        "paper_position": 4,
+        "paper_order": 15,
+        "paper_pending": 4,
+        "paper_processed": 4
+      },
+      "has_reality_columns": true,
+      "wal_bytes": 0
+    },
+    "at_utc": "2026-10-28T01:04:51Z"
+  },
+  "checks": {
+    "runtime_pid_changed": true,
+    "api_pid_changed": true,
+    "worker_pids_unchanged": true,
+    "collector_pid_unchanged": true,
+    "fill_policy_has_new_keys": true,
+    "api_note_mentions_exec_point": true,
+    "runtime_status_running": true,
+    "runtime_health_healthy": true,
+    "runtime_started_after_source_mtime": true,
+    "universe_526": false,
+    "existing_btc_position_intact": true,
+    "position_count_unchanged": true,
+    "allow_new_entries_still_true": true
+  },
+  "all_pass": false,
+  "after_bootstrap": {
+    "at_utc": "2026-10-28T01:11:11Z",
+    "status": {
+      "file_mtime_utc": "2026-10-28T01:11:08Z",
+      "pid": 77433,
+      "status": "running",
+      "overall_health": "healthy",
+      "started_at_utc": "2026-10-28T01:04:37Z",
+      "cycle_count": 3,
+      "universe": 526,
+      "watermark_1h_utc": "2026-10-28T00:00:00Z",
+      "watermark_4h_utc": "2026-10-27T20:00:00Z",
+      "pending_in_db": 0,
+      "allow_new_entries": true,
+      "open_positions": 1,
+      "pending_matched_total": 0,
+      "trailing_updates_total": 0,
+      "exits_triggered_total": 0
+    },
+    "checks": {
+      "universe_526": true,
+      "cycle_count_grew_from_zero": true,
+      "watermark_present": true,
+      "runtime_status_running": true,
+      "runtime_health_healthy": true,
+      "allow_new_entries_still_true": true
+    },
+    "all_pass": true,
+    "samples": 25,
+    "note": "05 的 `universe_526` 是在 bootstrap 完成前取的样 ⇒ 必然为 0。本条为 bootstrap 完成后的复查，不覆盖 05 原始 checks。"
+  }
+}

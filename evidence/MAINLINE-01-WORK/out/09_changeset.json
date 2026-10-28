@@ -1,0 +1,243 @@
+{
+  "generated_utc": "2026-10-28T03:18:04.107700+00:00",
+  "changed": {
+    "框架/backend/paper_engine.py": {
+      "sha_before": "bae9d93489ebf792d61d150a68efe43af97b627b792817ef52ab44fb6a517a5e",
+      "sha_after": "cbbde84a7f4da986f49a8732d78f9030cacbd7ff5a87d205a5cd3a37b46e9fba",
+      "size_before": 183116,
+      "size_after": 190554,
+      "lines_before": 3130,
+      "lines_after": 3215,
+      "diff_added": 103,
+      "diff_removed": 18,
+      "diff_lines": 225,
+      "baseline_matches_freeze": true,
+      "changed": true,
+      "diff_file": "09_paper_engine.diff"
+    },
+    "框架/backend/live_store.py": {
+      "sha_before": "ba85a66d3b49f89934e4836d5687a01da0f97ee9d0f50a1fbb0ddb98ede120d6",
+      "sha_after": "bcea899ffd7d7988eb9aa39c9690ee26a8b10b76180dc10b2bf10e18a12eef6c",
+      "size_before": 47123,
+      "size_after": 48606,
+      "lines_before": 1008,
+      "lines_after": 1025,
+      "diff_added": 17,
+      "diff_removed": 0,
+      "diff_lines": 26,
+      "baseline_matches_freeze": true,
+      "changed": true,
+      "diff_file": "09_live_store.diff"
+    },
+    "框架/backend/live_api.py": {
+      "sha_before": "94302c968efe2fe5ed1cb6fe8bdc6b035bd97010bd2ff61c656524d36b0f7fa2",
+      "sha_after": "94302c968efe2fe5ed1cb6fe8bdc6b035bd97010bd2ff61c656524d36b0f7fa2",
+      "size_before": 117757,
+      "size_after": 117757,
+      "lines_before": 2223,
+      "lines_after": 2223,
+      "diff_added": 0,
+      "diff_removed": 0,
+      "diff_lines": 0,
+      "baseline_matches_freeze": true,
+      "changed": false,
+      "diff_file": "09_live_api.diff"
+    }
+  },
+  "unchanged_expected": {
+    "框架/backend/unified_runtime.py": {
+      "sha_now": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "sha_before": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "unchanged": true
+    },
+    "策略/WyckoffMaster/event_trend_v0_1/config.py": {
+      "sha_now": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+      "sha_before": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+      "unchanged": true
+    }
+  },
+  "configs": {
+    "框架/backend/live/paper_new_entry_gate.json": {
+      "sha_now": "f4691db2c7f66c81d01de3b1d4aa116a9be582518614ec9b8fa9c55c2dd7fce5",
+      "sha_before": null,
+      "mtime_utc": "2026-10-23T11:05:32.432901+00:00",
+      "unchanged": true,
+      "evidence": "before 快照未记录该文件哈希（路径笔误）；按 mtime 早于本单开始判定",
+      "content": {
+        "allow_new_entries": true,
+        "reason": "user_ui_resumed",
+        "set_by": "user_ui_control",
+        "since_ms": 1792753532432,
+        "scope": "server_side_new_entry_only",
+        "note": "前端交互切换模拟盘运行/暂停状态；开始允许开仓，暂停拒绝新开仓并保持已有仓位与退出监控。"
+      }
+    },
+    "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json": {
+      "sha_now": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+      "sha_before": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+      "mtime_utc": "2026-10-22T16:26:41.991710+00:00",
+      "unchanged": true,
+      "content": {
+        "schema_version": "research_policy_2.2",
+        "spec_version": "F_WX_v2.2_project_closure_user_5000_shared_ft_low4h",
+        "strategy_version": "FT-LOW4H-EXP-V2.2",
+        "model_version": "FT-LOW4H-EXP-V2.2",
+        "purpose": "paper_isolated_execution",
+        "production_config": false,
+        "live_trading_authorized": false,
+        "research_policy_frozen": true,
+        "execution": {
+          "detail_timeframe": "15m",
+          "signal_execution_delay_minutes": 15,
+          "fee_each_side": 0.0005,
+          "slippage_each_side": 0.0005,
+          "signal_exit_delay_minutes": 15
+        },
+        "stops": {
+          "rule": "FT-LOW4H",
+          "stoploss_s": 0.05,
+          "trail_d": 0.05,
+          "uniform": "actual_entry_minus_s_and_4h_low_minus_d",
+          "max_holding_hours": 240,
+          "trailing_enabled": true
+        },
+        "risk": {
+          "initial_equity_USDT": 5000,
+          "risk_per_trade_equity_fraction": 0.005,
+          "leverage": 1,
+          "max_positions": 10,
+          "single_name_notional_equity_cap": 0.1,
+          "gross_long_notional_equity_cap": 0.8,
+          "cash_or_free_margin_reserve_fraction": 0.2,
+          "portfolio_initial_stop_risk_cap": 0.05,
+          "entry_participation_previous_15m_quote_cap": 0.01,
+          "maximum_account_drawdown_fraction": 0.2,
+          "short_enabled": false
+        }
+      }
+    }
+  },
+  "ledgers_before": {
+    "3a": {
+      "sha256": "ab3bb03274f35ca0d9ea9f337432ec3751a101d016559b9acc10cf84f9b87714",
+      "size": 163840,
+      "paper_position": 4,
+      "paper_order": 15,
+      "paper_fill": 7,
+      "paper_pending": 4,
+      "paper_processed": 4,
+      "paper_blocked": 13,
+      "position4": {
+        "position_id": 4,
+        "symbol": "BTCUSDT",
+        "status": "open",
+        "entry_ts": 1793117700000,
+        "entry_price": 80469.5,
+        "voided": 0,
+        "signal_uid": "test_probe_succ"
+      }
+    },
+    "3b": {
+      "sha256": "1c7f5714c3b7aa532e89e251babbc449cfcc2c9ce8fe66633920de67a736af7e",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {}
+    },
+    "3c": {
+      "sha256": "bfb6695214ac3797e8ede8428f7faa040a6c47e465db45fbddf299f140fee824",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {}
+    },
+    "3d": {
+      "sha256": "04a34fecd27adba17c1f3a88f106bd1d9ec4e55cd347bd4bf3cdde3cc0a4a6ef",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {}
+    }
+  },
+  "ledgers_after": {
+    "3a": {
+      "sha256": "b48d66c44aa64850397b793c198b1ebb9c53b339dcf727a189f165932e21dba8",
+      "size": 163840,
+      "paper_position": 4,
+      "paper_order": 15,
+      "paper_fill": 7,
+      "paper_pending": 4,
+      "paper_processed": 4,
+      "paper_blocked": 13,
+      "position4": {
+        "position_id": 4,
+        "symbol": "BTCUSDT",
+        "status": "open",
+        "entry_ts": 1793117700000,
+        "entry_price": 80469.5,
+        "voided": 0,
+        "signal_uid": "test_probe_succ"
+      },
+      "has_read_matched_columns": true
+    },
+    "3b": {
+      "sha256": "483a0a292e075883e120c62b2f4fe39fa10ef12dedfc2fa42bfbbab79997412a",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {},
+      "has_read_matched_columns": true
+    },
+    "3c": {
+      "sha256": "bd80fc031a7af0b61b33153f67d372091aef4ad5376c754ac9b3067d18eae994",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {},
+      "has_read_matched_columns": true
+    },
+    "3d": {
+      "sha256": "1f109cbd1fcfa7b9e74c4bc34481406ea4a1ca922c0b08ded5d2025ec3516369",
+      "size": 163840,
+      "paper_position": 0,
+      "paper_order": 0,
+      "paper_fill": 0,
+      "paper_pending": 0,
+      "paper_processed": 0,
+      "paper_blocked": 0,
+      "position4": {},
+      "has_read_matched_columns": true
+    }
+  },
+  "checks": {
+    "all_three_baselines_verified": true,
+    "exactly_two_files_changed": true,
+    "unified_runtime_untouched": true,
+    "frozen_config_untouched": true,
+    "configs_untouched": true,
+    "position_4_unrewritten": true,
+    "ledger_got_time_split_columns": true,
+    "position_count_unchanged": true
+  },
+  "all_pass": true
+}

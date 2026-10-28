@@ -341,6 +341,11 @@ def live_signals(params) -> dict:
         args.append(int(floor_ms))
         where.append("json_extract(payload_json,'$.role')=?")
         args.append(ARM_ENTRY_ROLE)
+        # ── approved=false 不进当前区（SIGNAL-EFFECTIVE-01-WORK）───────────────────
+        # 「未批准的配置不得用于任何执行行为」是已批准规则，改动前只有文案、没有代码。
+        # 补上与 `unified_runtime._scan_actionable` **同一条**判据，保证「页面看得到」
+        # 与「路由扫得到」永远是同一个集合。真实实时信号无 approved 字段 ⇒ COALESCE 取 1。
+        where.append("COALESCE(json_extract(payload_json,'$.approved'),1)<>0")
         # 排除测试合成信号，防止污染日常工作台信号区（SYSTEM-CLOSELOOP-02 P0-2）
         where.append("signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'")
     if origin:
@@ -421,7 +426,9 @@ def live_signals(params) -> dict:
                     "                ELSE confirmed_at END)+1 < ? THEN 1 ELSE 0 END),"
                     " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.role'),'')<>? THEN 1 ELSE 0 END),"
                     " SUM(CASE WHEN signal_uid LIKE 'sig_closeloop_%'"
-                    "           OR signal_uid LIKE 'sig_ui_test_%' THEN 1 ELSE 0 END) "
+                    "           OR signal_uid LIKE 'sig_ui_test_%' THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.approved'),1)=0"
+                    "          THEN 1 ELSE 0 END) "
                     "FROM live_signal", (int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
                 excluded_breakdown = {
                     "db_rows_total": int(all_n),
@@ -434,6 +441,7 @@ def live_signals(params) -> dict:
                         "before_effective_floor": int(row[3] or 0),
                         "not_arm_entry_role": int(row[4] or 0),
                         "test_synthetic": int(row[5] or 0),
+                        "unapproved_config": int(row[6] or 0),
                     },
                     "note": ("一行可同时命中多条原因，故各项之和 ≥ excluded；"
                              "`before_effective_floor` 的下限 = max(live_start, paper epoch)，"
@@ -493,6 +501,16 @@ def live_signals(params) -> dict:
             "admission": d.get("admission"),
             # ── 事件角色（当前区判据之一）：`enterable_arm_entry` = 真实臂入场 ──
             "role": payload.get("role"),
+            # ── 威科夫多因子全数据共振（OI/聪明钱/Taker/多空比）──
+            "resonance_score": payload.get("resonance_score"),
+            "position_multiplier": payload.get("position_multiplier"),
+            "resonance_summary": payload.get("resonance_summary"),
+            "factor_details": payload.get("factor_details"),
+            "reason": payload.get("resonance_summary") or d.get("executable_reason"),
+            "price": payload.get("price") or (payload.get("raw_candidate") or {}).get("entry_ref_price") or (payload.get("raw_candidate") or {}).get("breakout_close"),
+            "breakout_price": payload.get("breakout_price") or (payload.get("raw_candidate") or {}).get("resistance"),
+            "trigger_price": payload.get("trigger_price") or payload.get("breakout_price") or (payload.get("raw_candidate") or {}).get("resistance"),
+            "stop_loss": payload.get("stop_loss") or (payload.get("raw_candidate") or {}).get("initial_stop_price"),
         }
         # ── 09-WORK：研究信号的可追溯身份（**只给 historical_research 行加子对象**）──
         # 为什么单开一个 `research` 子对象而不是平铺：平铺会在 live 行上多出十几个
@@ -781,14 +799,19 @@ def _paper_accounts_legacy() -> dict:
                              "n_after_watermark": n_auto,
                              "n_pending_orders": sum(int(s.get("n_pending") or 0)
                                                      for s in snap.values()),
-                             "fill_policy": PE.FILL_POLICY,
+                             "fill_policy": {**PE.FILL_POLICY,
+                                             "effective_mode_runtime": PE.realtime_fill_mode()},
                              "new_entry_gate": PE.new_entry_gate(),
                              "legacy_ledger": _legacy_ledger_state(),
                              "note": "服务端纸面账本（四臂各 5000U 初始）；成交模型见 "
-                                     "model_version。成交时钟：**第一根 `open_time >= "
-                                     "max(信号确认时刻,信号可用时刻,真实请求时刻)+15m` 的已闭合 "
-                                     "15m bar 的 open**；尚未到点 ⇒ 登记挂单（`pending`），由真实"
-                                     "进程时钟推进；错过成交时刻 ⇒ 拒单，**不用旧价回填**。"
+                                     "model_version。成交时钟：**执行点 = "
+                                     "max(信号确认时刻,信号可用时刻)+15m**（无信号的手工请求取"
+                                     "真实请求时刻）；执行点那根 15m bar 的 `open` 在 bar "
+                                     "**刚开盘**就从实时行情读到 ⇒ 撮合发生在执行点"
+                                     "（`reality_fill=1`）；执行点已过 ⇒ 拒单 "
+                                     "`fill_point_passed_no_backfill`，**不用闭 bar 的 open "
+                                     "冒充当时成交，也不顺延到下一根**；尚未到点 ⇒ 登记挂单"
+                                     "（`pending`），由真实进程时钟推进。"
                                      "资金费按 `funding_history` **真实结算事件逐笔记账**"
                                      "（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。"
                                      "**新开仓是否允许以服务端 `new_entry_gate.allow_new_entries` 为准**；"

@@ -1,0 +1,507 @@
+{
+  "meta": {
+    "generated_at_utc": "2026-10-28T00:49:22.125000+00:00",
+    "now_ms": 1793148562125,
+    "current_bar": {
+      "symbol": "BTCUSDT",
+      "open_time": 1793148300000,
+      "open_time_utc": "2026-10-28T00:45:00+00:00",
+      "close_time": 1793149199999,
+      "close_time_utc": "2026-10-28T00:59:59.999000+00:00",
+      "open": "80711.30",
+      "is_closed": 0,
+      "received_at": 1793148555633,
+      "received_at_utc": "2026-10-28T00:49:15.633000+00:00",
+      "event_time_utc": "2026-10-28T00:49:15.543000+00:00"
+    },
+    "bar_still_forming": true,
+    "realtime_symbols_n": 522
+  },
+  "total": 10,
+  "passed": 10,
+  "failed": [],
+  "cases": [
+    {
+      "case": "P1 现实成交",
+      "expected": "执行点那根 bar 正在形成 ⇒ 当场用它的 open 成交，reality_fill=1",
+      "actual": "ok=True reality_fill=True fill_source=realtime_15m_open bar_open=2026-10-28T00:45:00+00:00 lag_ms=262126",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P1",
+          "action": "open",
+          "symbol": "ETHUSDT",
+          "uid": "iso_p1_1793148562126",
+          "event_time": 1793147400000,
+          "available_at": 1793147400000,
+          "requested_at": 1793147400000,
+          "attempt_ms": 1793148562126,
+          "origin": "test"
+        },
+        "result": {
+          "ok": true,
+          "reason": "filled",
+          "position_id": 5,
+          "order_id": 24,
+          "qty": 0.213,
+          "entry_price": 2347.05,
+          "raw_price": 2345.87,
+          "stop_price": 2229.69,
+          "initial_stop_price": 2229.69,
+          "stop_dist": 117.36000000000013,
+          "planned_risk": 24.997680000000027,
+          "notional": 499.92165,
+          "fee": 0.249960825,
+          "slippage_cost": 0.25134000000006196,
+          "bar_open_time": 1793148300000,
+          "bar_close_time": 1793149199999,
+          "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+          "signal_uid": "iso_p1_1793148562126",
+          "origin": "test",
+          "event_time": 1793147400000,
+          "available_at": 1793147400000,
+          "requested_at": 1793147400000,
+          "earliest_fill_ms": 1793148300000,
+          "filled_at": 1793148300000,
+          "fill_lag_ms": 262126,
+          "market_source": "binance.um.realtime_klines_15m.open|reality=1|fill_source=realtime_15m_open|data_avail_ms=1793148555907",
+          "bar_provenance": {
+            "layer": "realtime_15m",
+            "available_at": 1793148555907,
+            "available_at_proven": true,
+            "reality_fill": true,
+            "fill_source": "realtime_15m_open"
+          },
+          "reality_fill": true,
+          "fill_source": "realtime_15m_open",
+          "data_available_at": 1793148555907,
+          "expected_open_time": 1793148300000,
+          "reality_fill_mode": "realtime_only",
+          "timeline": {
+            "signal_confirmed_at": 1793147400000,
+            "signal_available_at": 1793147400000,
+            "order_requested_at": 1793147400000,
+            "first_request_at": 1793147400000,
+            "planned_exec_at": 1793148300000,
+            "matched_at": 1793148562126,
+            "exec_bar_open_at": 1793148300000,
+            "exec_bar_close_at": 1793149199999,
+            "data_available_at": 1793148555907,
+            "matched_minus_planned_ms": 262126
+          }
+        },
+        "position_row": [
+          {
+            "position_id": 5,
+            "symbol": "ETHUSDT",
+            "status": "open",
+            "entry_price": 2347.05,
+            "entry_ts": 1793148300000,
+            "signal_uid": "iso_p1_1793148562126",
+            "voided": 0,
+            "reality_fill": 1,
+            "fill_source": "realtime_15m_open",
+            "data_available_at": 1793148555907,
+            "market_source": "binance.um.realtime_klines_15m.open|reality=1|fill_source=realtime_15m_open|data_avail_ms=1793148555907"
+          }
+        ],
+        "realtime_bar_at_case_start": {
+          "open_time_utc": "2026-10-28T00:45:00+00:00",
+          "is_closed": 0,
+          "open": "2345.87"
+        },
+        "timeline": {
+          "signal_confirmed_at": 1793147400000,
+          "signal_available_at": 1793147400000,
+          "order_requested_at": 1793147400000,
+          "first_request_at": 1793147400000,
+          "planned_exec_at": 1793148300000,
+          "matched_at": 1793148562126,
+          "exec_bar_open_at": 1793148300000,
+          "exec_bar_close_at": 1793149199999,
+          "data_available_at": 1793148555907,
+          "matched_minus_planned_ms": 262126
+        }
+      }
+    },
+    {
+      "case": "P2 执行点已过不回填",
+      "expected": "实时表已切到更晚的一根 ⇒ 拒单 fill_point_passed_no_backfill，不写持仓、不用闭 bar 的 open",
+      "actual": "ok=False reason=fill_point_passed_no_backfill expected_open=2026-10-28T00:30:00+00:00 realtime_open=2026-10-28T00:45:00+00:00 新增持仓=0",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P2",
+          "action": "open",
+          "symbol": "SOLUSDT",
+          "uid": "iso_p2_1793148562125",
+          "event_time": 1793146500000,
+          "available_at": 1793146500000,
+          "requested_at": 1793146500000,
+          "attempt_ms": 1793148562125,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "fill_point_passed_no_backfill",
+          "symbol": "SOLUSDT",
+          "signal_uid": "iso_p2_1793148562125",
+          "expected_open_time": 1793147400000,
+          "realtime_open_time": 1793148300000,
+          "closed_bar_open_time": null,
+          "reality_fill_mode": "realtime_only",
+          "earliest_fill_ms": 1793147400000,
+          "attempt_ms": 1793148562125,
+          "note": "执行点那根 15m bar 已经过去（实时表已切到更晚的一根，或它已闭合）⇒ 拒单：不用闭 bar 的 open 冒充当时成交，也不顺延到下一根。该信号照常展示。"
+        }
+      }
+    },
+    {
+      "case": "P3 执行点未到 ⇒ 挂单",
+      "expected": "earliest_fill(now+15m) 晚于现在 ⇒ pending_future_fill，登记挂单，不成交",
+      "actual": "ok=False reason=pending_future_fill pending_id=5 earliest=2026-10-28T01:04:22.125000+00:00",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P3",
+          "action": "open",
+          "symbol": "BNBUSDT",
+          "uid": "iso_p3_1793148562125",
+          "event_time": 1793148562125,
+          "available_at": 1793148562125,
+          "requested_at": 1793148562125,
+          "attempt_ms": 1793148562125,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "pending_future_fill",
+          "pending_id": 5,
+          "symbol": "BNBUSDT",
+          "signal_uid": "iso_p3_1793148562125",
+          "origin": "test",
+          "requested_at": 1793148562125,
+          "first_request_ms": 1793148562125,
+          "order_request_ms": 1793148562125,
+          "earliest_fill_ms": 1793149462125,
+          "epoch_ms": 1792748844240,
+          "attempt_ms": 1793148562125,
+          "expected_open_time": 1793150100000,
+          "reality_fill_mode": "realtime_only",
+          "note": "应成交时刻尚未到达（真实时钟还没到执行点）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+        },
+        "pending_row": [
+          {
+            "pending_id": 5,
+            "symbol": "BNBUSDT",
+            "signal_uid": "iso_p3_1793148562125",
+            "status": "pending",
+            "reason": null,
+            "earliest_fill_ms": 1793149462125
+          }
+        ]
+      }
+    },
+    {
+      "case": "P4 旧行为对照（legacy）",
+      "expected": "同 P1 场景下旧口径必须等 bar 闭合 ⇒ 只能挂单，无法当场成交",
+      "actual": "ok=False reason=pending_future_fill mode=legacy bar_is_closed=0",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P4",
+          "action": "open",
+          "symbol": "XRPUSDT",
+          "uid": "iso_p4_1793148562477",
+          "event_time": 1793147400000,
+          "available_at": 1793147400000,
+          "requested_at": 1793147400000,
+          "attempt_ms": 1793148562477,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "pending_future_fill",
+          "pending_id": 5,
+          "symbol": "XRPUSDT",
+          "signal_uid": "iso_p4_1793148562477",
+          "origin": "test",
+          "requested_at": 1793147400000,
+          "first_request_ms": 1793147400000,
+          "order_request_ms": 1793147400000,
+          "earliest_fill_ms": 1793148300000,
+          "epoch_ms": 1792748844240,
+          "attempt_ms": 1793148562477,
+          "expected_open_time": 1793148300000,
+          "reality_fill_mode": "legacy",
+          "note": "应成交时刻尚未到达（执行点那根 15m bar 还没开始）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+        },
+        "realtime_bar_at_case_start": {
+          "open_time_utc": "2026-10-28T00:45:00+00:00",
+          "is_closed": 0
+        }
+      }
+    },
+    {
+      "case": "P5 回退明确标记（prefer_realtime）",
+      "expected": "执行点已过且允许回退 ⇒ 用闭 bar 的 open 成交，但 reality_fill=0、fill_source=closed_15m_open",
+      "actual": "闭 bar 存在=True ok=True reality_fill=False fill_source=closed_15m_open reason=filled",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P5",
+          "action": "open",
+          "symbol": "ADAUSDT",
+          "uid": "iso_p5_1793148562125",
+          "event_time": 1793146500000,
+          "available_at": 1793146500000,
+          "requested_at": 1793146500000,
+          "attempt_ms": 1793148562125,
+          "origin": "test"
+        },
+        "result": {
+          "ok": true,
+          "reason": "filled",
+          "position_id": 5,
+          "order_id": 24,
+          "qty": 2427.0,
+          "entry_price": 0.2056,
+          "raw_price": 0.2054,
+          "stop_price": 0.1953,
+          "initial_stop_price": 0.1953,
+          "stop_dist": 0.010300000000000004,
+          "planned_risk": 24.998100000000008,
+          "notional": 498.9912,
+          "fee": 0.2494956,
+          "slippage_cost": 0.48540000000001393,
+          "bar_open_time": 1793147400000,
+          "bar_close_time": 1793148299999,
+          "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+          "signal_uid": "iso_p5_1793148562125",
+          "origin": "test",
+          "event_time": 1793146500000,
+          "available_at": 1793146500000,
+          "requested_at": 1793146500000,
+          "earliest_fill_ms": 1793147400000,
+          "filled_at": 1793147400000,
+          "fill_lag_ms": 1162125,
+          "market_source": "binance.um.candles_15m.is_closed.open|reality=0|fill_source=closed_15m_open",
+          "bar_provenance": {
+            "layer": null,
+            "available_at": null,
+            "available_at_proven": false,
+            "reality_fill": false,
+            "fill_source": "closed_15m_open"
+          },
+          "reality_fill": false,
+          "fill_source": "closed_15m_open",
+          "data_available_at": null,
+          "expected_open_time": 1793147400000,
+          "reality_fill_mode": "prefer_realtime",
+          "timeline": {
+            "signal_confirmed_at": 1793146500000,
+            "signal_available_at": 1793146500000,
+            "order_requested_at": 1793146500000,
+            "first_request_at": 1793146500000,
+            "planned_exec_at": 1793147400000,
+            "matched_at": 1793148562125,
+            "exec_bar_open_at": 1793147400000,
+            "exec_bar_close_at": 1793148299999,
+            "data_available_at": null,
+            "matched_minus_planned_ms": 1162125
+          }
+        },
+        "closed_bar_exists": true
+      }
+    },
+    {
+      "case": "P6 无实时行情不伪造",
+      "expected": "1000000BOBUSDT 不在 realtime 表 ⇒ realtime_only 下不得用闭 bar 的 open 成交",
+      "actual": "ok=False reason=fill_point_closed_without_realtime",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P6",
+          "action": "open",
+          "symbol": "1000000BOBUSDT",
+          "uid": "iso_p6_1793148562125",
+          "event_time": 1793146500000,
+          "available_at": 1793146500000,
+          "requested_at": 1793146500000,
+          "attempt_ms": 1793148562125,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "fill_point_closed_without_realtime",
+          "symbol": "1000000BOBUSDT",
+          "signal_uid": "iso_p6_1793148562125",
+          "expected_open_time": 1793147400000,
+          "realtime_open_time": null,
+          "closed_bar_open_time": 1793147400000,
+          "reality_fill_mode": "realtime_only",
+          "earliest_fill_ms": 1793147400000,
+          "attempt_ms": 1793148562125,
+          "note": "执行点那根 15m bar 已经过去（实时表已切到更晚的一根，或它已闭合）⇒ 拒单：不用闭 bar 的 open 冒充当时成交，也不顺延到下一根。该信号照常展示。"
+        },
+        "symbol_in_realtime": false
+      }
+    },
+    {
+      "case": "P7 幂等（同一 signal_uid 不重开）",
+      "expected": "同一 signal_uid 第二次调用 ⇒ duplicate_signal_uid，不新增持仓",
+      "actual": "ok=False reason=duplicate_signal_uid",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P1",
+          "action": "open",
+          "symbol": "ETHUSDT",
+          "uid": "iso_p1_1793148562126",
+          "event_time": 1793147400000,
+          "available_at": 1793147400000,
+          "requested_at": 1793147400000,
+          "attempt_ms": 1793148562126,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "duplicate_signal_uid",
+          "signal_uid": "iso_p1_1793148562126"
+        }
+      }
+    },
+    {
+      "case": "P8 epoch 门禁",
+      "expected": "确认时刻早于本轮 paper 启用下限 ⇒ before_paper_epoch_no_backfill",
+      "actual": "ok=False reason=before_paper_epoch_no_backfill",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P8",
+          "action": "open",
+          "symbol": "DOGEUSDT",
+          "uid": "iso_p8_1793148562125",
+          "event_time": 1792741644240,
+          "available_at": 1792741644240,
+          "requested_at": 1792741644240,
+          "attempt_ms": 1793148562125,
+          "origin": "test"
+        },
+        "result": {
+          "ok": false,
+          "reason": "before_paper_epoch_no_backfill",
+          "symbol": "DOGEUSDT",
+          "signal_uid": "iso_p8_1793148562125",
+          "signal_bar_right_ms": 1792741644241,
+          "epoch_ms": 1792748844240,
+          "note": "该信号确认时刻早于本轮 paper 启用下限 ⇒ 拒单；不搬到启用时刻补开，也不用旧价回填。"
+        }
+      }
+    },
+    {
+      "case": "P9 停机后不追补（legacy）",
+      "expected": "应成交 bar 在本进程启动前已收盘 ⇒ fill_point_closed_before_process_start",
+      "actual": "ok=False reason=fill_point_closed_before_process_start bar_close=2026-10-28T00:44:59.999000+00:00 process_start=2026-10-28T00:46:00+00:00",
+      "pass": true,
+      "evidence": {
+        "cfg": {
+          "name": "P9",
+          "action": "open",
+          "symbol": "LINKUSDT",
+          "uid": "iso_p9_1793148562125",
+          "event_time": 1793146500000,
+          "available_at": 1793146500000,
+          "requested_at": 1793146500000,
+          "attempt_ms": 1793148562125,
+          "origin": "test",
+          "process_start_ms": 1793148360000
+        },
+        "result": {
+          "ok": false,
+          "reason": "fill_point_closed_before_process_start",
+          "symbol": "LINKUSDT",
+          "signal_uid": "iso_p9_1793148562125",
+          "bar_open_time": 1793147400000,
+          "bar_close_time": 1793148299999,
+          "process_start_ms": 1793148360000,
+          "note": "应成交 bar 在本进程启动前已收盘 ⇒ 该现实执行点已过期；不追补、不回填历史 entry_ts/价格，也不顺延到下一根"
+        }
+      }
+    },
+    {
+      "case": "P10 重启不丢账（复制生产账本）",
+      "expected": "跑一轮 advance_pending 后，持仓/挂单/订单/已处理条数与内容逐项不变",
+      "actual": "持仓同=True 计数同=True position_ids=[1, 2, 3, 4] advance={'filled': [], 'rejected': [], 'still_pending': 0, 'by_arm': {'3a': {'pending_total': 0, 'filled': 0, 'rejected': 0, 'still_pending': 0}, '3b': {'pending_total': 0, 'filled': 0, 'rejected': 0, 'still_pending': 0}, '3c': {'pending_total': 0, 'filled': 0, 'rejected': 0, 'still_pending': 0}, '3d': {'pending_total': 0, 'filled': 0, 'rejected': 0, 'still_pending': 0}}}",
+      "pass": true,
+      "evidence": {
+        "before_counts": {
+          "paper_position": 4,
+          "paper_order": 15,
+          "paper_pending": 4,
+          "paper_processed": 4
+        },
+        "after_counts": {
+          "paper_position": 4,
+          "paper_order": 15,
+          "paper_pending": 4,
+          "paper_processed": 4
+        },
+        "positions_after": [
+          {
+            "position_id": 1,
+            "symbol": "BTCUSDT",
+            "status": "closed",
+            "entry_price": 82033.1,
+            "entry_ts": 1792666800000,
+            "signal_uid": "sig_closeloop_btc_1792668586",
+            "voided": 1,
+            "reality_fill": null,
+            "fill_source": null,
+            "data_available_at": null,
+            "market_source": "binance.um.candles_15m.is_closed.open"
+          },
+          {
+            "position_id": 2,
+            "symbol": "BTCUSDT",
+            "status": "closed",
+            "entry_price": 81970.0,
+            "entry_ts": 1792667700000,
+            "signal_uid": "sig_closeloop_btc_1792668605",
+            "voided": 1,
+            "reality_fill": null,
+            "fill_source": null,
+            "data_available_at": null,
+            "market_source": "binance.um.candles_15m.is_closed.open"
+          },
+          {
+            "position_id": 3,
+            "symbol": "BTCUSDT",
+            "status": "closed",
+            "entry_price": 81970.0,
+            "entry_ts": 1792667700000,
+            "signal_uid": "sig_ui_test_1792668684487",
+            "voided": 1,
+            "reality_fill": null,
+            "fill_source": null,
+            "data_available_at": null,
+            "market_source": "binance.um.candles_15m.is_closed.open"
+          },
+          {
+            "position_id": 4,
+            "symbol": "BTCUSDT",
+            "status": "open",
+            "entry_price": 80469.5,
+            "entry_ts": 1793117700000,
+            "signal_uid": "test_probe_succ",
+            "voided": 0,
+            "reality_fill": null,
+            "fill_source": null,
+            "data_available_at": null,
+            "market_source": "binance.um.candles_15m.is_closed.open"
+          }
+        ]
+      }
+    }
+  ]
+}

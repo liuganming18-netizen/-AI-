@@ -1,0 +1,813 @@
+{
+  "ticket": "SIGNAL-NOW-01-WORK",
+  "step": "7 受控重载与加载证明",
+  "started_at_utc": "2026-10-27T17:48:14Z",
+  "actions": [
+    {
+      "action": "sigterm_runtime",
+      "pid": 14879,
+      "at_utc": "2026-10-27T17:48:14Z"
+    },
+    {
+      "action": "runtime_exit",
+      "pid": 14879,
+      "gone": true,
+      "at_utc": "2026-10-27T17:48:22Z"
+    },
+    {
+      "action": "sigterm_api",
+      "pid": 14857,
+      "at_utc": "2026-10-27T17:48:22Z"
+    },
+    {
+      "action": "api_exit",
+      "pid": 14857,
+      "gone": true,
+      "at_utc": "2026-10-27T17:48:22Z"
+    },
+    {
+      "action": "start_sh",
+      "rc": 0,
+      "stdout_tail": "[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验\n[✔] 交易链配置契约校验通过（版本: FT-LOW4H-EXP-V2.2, 规则: FT-LOW4H）\n[*] 启动 API 服务 (端口 8787)...\n[✔] API 服务已就绪: pid=41446, 端口: 8787\n[✔] 实时采集器已在运行且心跳健康（复用 pid=42278）\n[*] 启动隔离交易链进程 unified_runtime (Arm: 3a, Symbol: all)...\n[✔] 交易链 unified_runtime 已就绪: pid=41453\n",
+      "stderr_tail": "",
+      "at_utc": "2026-10-27T17:48:29Z"
+    }
+  ],
+  "errors": [],
+  "watch_files": {
+    "框架/backend/paper_engine.py": {
+      "mtime_utc": "2026-10-27T17:40:35Z",
+      "mtime": 1793122835.9023423,
+      "sha256": "dd084d71905d975ae9b11693886ed99ca35814aa12be3e171537416b45f46bae",
+      "size": 165620
+    },
+    "框架/backend/unified_runtime.py": {
+      "mtime_utc": "2026-10-27T17:39:40Z",
+      "mtime": 1793122780.9210525,
+      "sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "size": 183290
+    }
+  },
+  "newest_source_mtime_utc": "2026-10-27T17:40:35Z",
+  "diff_vs_backup": {
+    "paper_engine.py": {
+      "before_sha256": "d08586fff89b6e1579c808d4fc8ded856dfbdaf73418f89d36d07466242d8880",
+      "now_sha256": "dd084d71905d975ae9b11693886ed99ca35814aa12be3e171537416b45f46bae",
+      "changed": true
+    },
+    "unified_runtime.py": {
+      "before_sha256": "8e6306124f1b47cf6ad540fbb924ed3b309f8dac34877ac9590ffb7bea1c1543",
+      "now_sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "changed": true
+    }
+  },
+  "before": {
+    "procs": {
+      "api": {
+        "pid": 14857,
+        "create_time_utc": "2026-10-27T16:12:19Z",
+        "create_time": 1793117539.761201,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "worker": {
+        "pid": 68775,
+        "create_time_utc": "2026-10-27T13:59:15Z",
+        "create_time": 1793109555.215853,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "runtime": {
+        "pid": 14879,
+        "create_time_utc": "2026-10-27T16:12:21Z",
+        "create_time": 1793117541.452258,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "create_time": 1792746016.284061,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "others": [
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "create_time": 1792826890.832155,
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_test_04_ipqsy2ry/jobs/",
+          "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+        }
+      ]
+    },
+    "api_sig": {
+      "http": "200",
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule_version": "FT-LOW4H",
+      "param_hash": "82dec362c182",
+      "total": 0,
+      "excluded_n": 289,
+      "by_reason": {
+        "not_current_origin": 289,
+        "not_enterable": 289,
+        "missing_time": 289,
+        "before_effective_floor": 0,
+        "not_arm_entry_role": 289,
+        "test_synthetic": 0,
+        "unapproved_config": 289
+      },
+      "effective_floor_ms": 1792748844240,
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000
+    },
+    "rt_status": {
+      "status": "ok",
+      "file_mtime_utc": "2026-10-27T17:48:13Z",
+      "pid": 14879,
+      "started_at": 1793117542485,
+      "started_at_utc": "2026-10-27T16:12:22Z",
+      "cycle_count": 778,
+      "overall_health": "healthy",
+      "signal_engine": {
+        "cycles": null,
+        "watermark_1h": 1793116800000,
+        "watermark_4h": 1793102400000,
+        "universe": 526,
+        "watermark_1h_utc": null,
+        "watermark_4h_utc": null
+      },
+      "order_processing": {
+        "current_pending_in_db": 0,
+        "processed_total": null,
+        "registered_total": null
+      },
+      "execution_daemon": {
+        "status": "running",
+        "open_positions": 1,
+        "pending_matched_total": 1,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null
+      }
+    },
+    "at_utc": "2026-10-27T17:48:14Z"
+  },
+  "health_ok": true,
+  "after": {
+    "procs": {
+      "api": {
+        "pid": 41446,
+        "create_time_utc": "2026-10-27T17:48:24Z",
+        "create_time": 1793123304.860643,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/adapter.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "worker": {
+        "pid": 68775,
+        "create_time_utc": "2026-10-27T13:59:15Z",
+        "create_time": 1793109555.215853,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /Users/boos/Desktop/威科夫因子共振趋势/数据/任务队列/jobs.sqlite3 --owner service_manager_8787",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "runtime": {
+        "pid": 41453,
+        "create_time_utc": "2026-10-27T17:48:26Z",
+        "create_time": 1793123306.435775,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/unified_runtime.py --arm 3a --symbol all --interval 2.0",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time_utc": "2026-10-23T09:00:16Z",
+        "create_time": 1792746016.284061,
+        "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/versions/3.13.12/bin/python3 /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/realtime_collector.py",
+        "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+      },
+      "others": [
+        {
+          "pid": 88794,
+          "create_time_utc": "2026-10-24T07:28:10Z",
+          "create_time": 1792826890.832155,
+          "cmdline": "/Users/boos/.workbuddy-ai/binaries/python/envs/default/bin/python /Users/boos/Desktop/威科夫因子共振趋势/框架/backend/workers/backtest_worker.py --db /var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/isolation_test_04_ipqsy2ry/jobs/",
+          "cwd": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend"
+        }
+      ]
+    },
+    "at_utc": "2026-10-27T17:48:29Z",
+    "rt_status": {
+      "status": "ok",
+      "file_mtime_utc": "2026-10-27T18:18:28Z",
+      "pid": 41453,
+      "started_at": 1793123307694,
+      "started_at_utc": "2026-10-27T17:48:27Z",
+      "cycle_count": 196,
+      "overall_health": "healthy",
+      "signal_engine": {
+        "cycles": null,
+        "watermark_1h": 1793120400000,
+        "watermark_4h": 1793102400000,
+        "universe": 526,
+        "watermark_1h_utc": null,
+        "watermark_4h_utc": null
+      },
+      "order_processing": {
+        "current_pending_in_db": 0,
+        "processed_total": null,
+        "registered_total": null
+      },
+      "execution_daemon": {
+        "status": "running",
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null
+      }
+    }
+  },
+  "load_proof": {
+    "newest_source_mtime_utc": "2026-10-27T17:40:35Z",
+    "api_pid": 41446,
+    "api_create_time_utc": "2026-10-27T17:48:24Z",
+    "api_started_after_source_change": true,
+    "api_loaded": true,
+    "api_why": "进程启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本已加载",
+    "runtime_pid": 41453,
+    "runtime_create_time_utc": "2026-10-27T17:48:26Z",
+    "runtime_started_after_source_change": true,
+    "runtime_loaded": true,
+    "runtime_why": "进程启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本已加载",
+    "worker_pid_unchanged": true,
+    "collector_pid_unchanged": true,
+    "api_sig_after": {
+      "http": "200",
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule_version": "FT-LOW4H",
+      "param_hash": "82dec362c182",
+      "total": 0,
+      "excluded_n": 289,
+      "by_reason": {
+        "not_current_origin": 289,
+        "not_enterable": 289,
+        "missing_time": 289,
+        "before_effective_floor": 0,
+        "not_arm_entry_role": 289,
+        "test_synthetic": 0,
+        "unapproved_config": 289
+      },
+      "effective_floor_ms": 1792748844240,
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000
+    }
+  },
+  "warmup_samples": [
+    {
+      "at_utc": "2026-10-27T17:48:30Z",
+      "pid": 14879,
+      "cycle_count": 778,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:49:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:49:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:50:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:50:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:51:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:51:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:52:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:52:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:53:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:53:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:54:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:54:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:55:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:55:30Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:56:00Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:56:31Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:57:01Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:57:31Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:58:01Z",
+      "pid": 41453,
+      "cycle_count": 0,
+      "cycles": null,
+      "universe": 0,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:58:31Z",
+      "pid": 41453,
+      "cycle_count": 4,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:59:01Z",
+      "pid": 41453,
+      "cycle_count": 8,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T17:59:31Z",
+      "pid": 41453,
+      "cycle_count": 15,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:00:01Z",
+      "pid": 41453,
+      "cycle_count": 19,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:00:31Z",
+      "pid": 41453,
+      "cycle_count": 23,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:01:01Z",
+      "pid": 41453,
+      "cycle_count": 24,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:01:31Z",
+      "pid": 41453,
+      "cycle_count": 28,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:02:01Z",
+      "pid": 41453,
+      "cycle_count": 34,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:02:31Z",
+      "pid": 41453,
+      "cycle_count": 37,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:03:01Z",
+      "pid": 41453,
+      "cycle_count": 40,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:03:31Z",
+      "pid": 41453,
+      "cycle_count": 44,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:04:01Z",
+      "pid": 41453,
+      "cycle_count": 49,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:04:31Z",
+      "pid": 41453,
+      "cycle_count": 54,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:05:01Z",
+      "pid": 41453,
+      "cycle_count": 61,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:05:31Z",
+      "pid": 41453,
+      "cycle_count": 65,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:06:01Z",
+      "pid": 41453,
+      "cycle_count": 72,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:06:31Z",
+      "pid": 41453,
+      "cycle_count": 75,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:07:01Z",
+      "pid": 41453,
+      "cycle_count": 81,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:07:31Z",
+      "pid": 41453,
+      "cycle_count": 84,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:08:01Z",
+      "pid": 41453,
+      "cycle_count": 91,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:08:31Z",
+      "pid": 41453,
+      "cycle_count": 96,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:09:01Z",
+      "pid": 41453,
+      "cycle_count": 100,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:09:31Z",
+      "pid": 41453,
+      "cycle_count": 104,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:10:01Z",
+      "pid": 41453,
+      "cycle_count": 109,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:10:31Z",
+      "pid": 41453,
+      "cycle_count": 113,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:11:01Z",
+      "pid": 41453,
+      "cycle_count": 119,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:11:31Z",
+      "pid": 41453,
+      "cycle_count": 124,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:12:01Z",
+      "pid": 41453,
+      "cycle_count": 130,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:12:31Z",
+      "pid": 41453,
+      "cycle_count": 136,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:13:01Z",
+      "pid": 41453,
+      "cycle_count": 141,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:13:31Z",
+      "pid": 41453,
+      "cycle_count": 147,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:14:01Z",
+      "pid": 41453,
+      "cycle_count": 153,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:14:31Z",
+      "pid": 41453,
+      "cycle_count": 160,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:15:01Z",
+      "pid": 41453,
+      "cycle_count": 163,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:15:31Z",
+      "pid": 41453,
+      "cycle_count": 168,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:16:01Z",
+      "pid": 41453,
+      "cycle_count": 171,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:16:31Z",
+      "pid": 41453,
+      "cycle_count": 176,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:17:01Z",
+      "pid": 41453,
+      "cycle_count": 180,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:17:31Z",
+      "pid": 41453,
+      "cycle_count": 185,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    },
+    {
+      "at_utc": "2026-10-27T18:18:01Z",
+      "pid": 41453,
+      "cycle_count": 189,
+      "cycles": null,
+      "universe": 526,
+      "watermark_1h_utc": null,
+      "watermark_4h_utc": null
+    }
+  ],
+  "levels_after_reload": {
+    "paper_epoch_ms": 1791939600000,
+    "live_start_ms": 1792748844240,
+    "state_anchor_ms": 1782542715686
+  },
+  "levels_unchanged": true,
+  "finished_at_utc": "2026-10-27T18:18:31Z"
+}

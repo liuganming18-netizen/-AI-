@@ -1,0 +1,36 @@
+{
+  "live_run_state": {
+    "paper_epoch_ms": {
+      "value": "1791939600000",
+      "value_int": 1791939600000,
+      "value_utc": "2026-10-14 01:00:00 UTC",
+      "updated_at_ms": 1792726922076,
+      "updated_at_utc": "2026-10-23 03:42:02 UTC"
+    },
+    "live_start_ms": {
+      "value": "1792748844240",
+      "value_int": 1792748844240,
+      "value_utc": "2026-10-23 09:47:24 UTC",
+      "updated_at_ms": 1792748844343,
+      "updated_at_utc": "2026-10-23 09:47:24 UTC"
+    },
+    "state_anchor_ms": {
+      "value": "1782542715686",
+      "value_int": 1782542715686,
+      "value_utc": "2026-06-27 06:45:15 UTC",
+      "updated_at_ms": 1792910720092,
+      "updated_at_utc": "2026-10-25 06:45:20 UTC"
+    }
+  },
+  "runtime_process_state": {
+    "pid": 68802,
+    "started_at_ms": 1793109556649,
+    "started_at_utc": "2026-10-27 13:59:16 UTC",
+    "status": "running"
+  },
+  "boundary_relationship_analysis": {
+    "is_normal_reboot_or_new_launch": "双重语义共存：技术实现上属于同一模型版本(FT-LOW4H-EXP-V2.2)的正常重启，因而代码沿用了10-23的持久水位；但业务语义上是用户于10-27首次下达'上线系统'的实盘模拟启用。",
+    "effective_floor_evaluation": "由于 10-23 至 10-26 之间的所有历史研究信号已被彻底恢复为 origin='historical_research' 且 approved=false，无论将生效边界定为 10-23 还是 10-27，所有 289 条历史信号均被双重硬门禁彻底拦截，均不会产生任何当前挂单或坏账。",
+    "formal_verdict": "边界安全性已达标；最终是否将持久化 live_start_ms 正式推进重置为 2026-10-27，保留为提请用户/主代理裁决项。"
+  }
+}

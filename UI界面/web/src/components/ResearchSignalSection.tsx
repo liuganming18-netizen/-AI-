@@ -76,6 +76,7 @@ const Field: React.FC<{ k: string; v: React.ReactNode; mono?: boolean; title?: s
 );
 
 const ResearchRow: React.FC<{ s: ResearchSignal }> = ({ s }) => {
+  const [showDetail, setShowDetail] = useState(false);
   const m = s.research;
   const approvedText = m ? (m.approved === false ? 'false（未批准）' : String(m.approved)) : '未提供';
   const blockers = (m?.approval_blockers ?? []).filter(Boolean);
@@ -93,61 +94,57 @@ const ResearchRow: React.FC<{ s: ResearchSignal }> = ({ s }) => {
       data-available-at={s.available_at ?? ''}
       data-available-status={m?.available_at_status ?? ''}
       data-config-hash={s.config_hash ?? ''}
-      className="rounded border border-neutral-800 bg-neutral-950 px-2 py-1.5 space-y-1"
+      className="rounded border border-neutral-800/80 bg-neutral-950 p-2 space-y-1 hover:border-neutral-700 transition-colors"
     >
-      {/* 第 1 行：标的 + 来源 + 角色 + 可执行态（三个标签必须同时可见） */}
-      <div className="flex items-start justify-between gap-1">
-        <span className="text-[11px] text-neutral-100 font-medium break-all">{s.symbol}</span>
-        <span className="flex flex-wrap items-center justify-end gap-1 shrink-0 max-w-[70%]">
-          <span className="text-[9px] px-1 rounded bg-sky-500/10 text-sky-300 border border-sky-500/30">
+      {/* 顶栏：标的与状态徽章 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[12px] text-neutral-100 font-semibold font-mono">{s.symbol}</span>
+          <span className="text-[9px] px-1 py-0.2 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-sans">
             历史研究
           </span>
-          <span className="text-[9px] px-1 rounded bg-neutral-800 text-neutral-400 border border-neutral-700 break-all">
-            {s.role ?? '未提供'}
+          <span className="text-[9px] px-1 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-sans">
+            不可执行
           </span>
-          <span className="text-[9px] px-1 rounded bg-rose-500/10 text-rose-300 border border-rose-500/30 break-all">
-            {s.executable_state ?? '未提供'}
-          </span>
+        </div>
+        <div className="text-[10px] text-neutral-400 font-mono">
+          {fmtIso(s.event_time)}
+        </div>
+      </div>
+
+      {/* 中栏：方案与拦截说明 */}
+      <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-0.5">
+        <span className="truncate max-w-[60%]">
+          方案: <span className="text-neutral-300 font-mono">{m?.scheme ?? s.arm ?? '—'}</span>
+          {blockers.length > 0 && <span className="text-amber-400/90 ml-1.5">({blockers.join(';')})</span>}
         </span>
+        <button
+          type="button"
+          onClick={() => setShowDetail((v) => !v)}
+          className="text-[9px] text-neutral-500 hover:text-neutral-300 font-sans underline"
+        >
+          {showDetail ? '简收' : '审计参数'}
+        </button>
       </div>
 
-      {/* 第 2 行：确定性 uid（与 API 逐条对齐的键） */}
-      <div className="text-[10px] text-neutral-500 font-mono break-all">{s.signal_id}</div>
+      {/* 不可执行原因单行紧凑 */}
+      {s.actionable_reason && (
+        <div className="text-[9px] text-rose-300/80 truncate" title={s.actionable_reason}>
+          原因: {s.actionable_reason}
+        </div>
+      )}
 
-      {/* 第 3 行：运行 / 配置 / 方案身份（单列：面板很窄，两列会把值截成省略号） */}
-      <div className="grid grid-cols-1 gap-y-0.5">
-        <Field k="来源" v={s.origin ?? '未提供'} />
-        <Field k="角色" v={s.role ?? '未提供'} />
-        <Field k="运行" v={m?.run_id ?? '未提供'} />
-        <Field k="方案" v={m?.scheme ?? s.arm ?? '—'} />
-        <Field k="策略" v={s.strategy_key ?? '—'} />
-        <Field k="规则版本" v={s.strategy_version ?? '—'} />
-        <Field k="配置哈希" v={short(s.config_hash)} title={s.config_hash ?? ''} />
-        <Field k="配置类型" v={m?.config_kind ?? '未提供'} />
-        <Field k="引擎视图" v={short(m?.engine_view_sha256)} title={m?.engine_view_sha256 ?? ''} />
-        <Field k="批准" v={approvedText} mono={false} />
-      </div>
-
-      {/* 第 4 行：四个时刻（互不替代）+ 可得性 */}
-      <div className="grid grid-cols-1 gap-y-0.5 pt-0.5 border-t border-neutral-800/80">
-        <Field k="事件" v={fmtIso(s.event_time)} />
-        <Field k="确认" v={fmtIso(s.confirmed_at)} />
-        <Field k="可得" v={s.available_at ? fmtIso(s.available_at) : `空（${m?.available_at_status ?? '未提供'}）`} />
-        <Field k="确认bar" v={`${fmtMs(s.bar_open_time)} → ${fmtMs(s.bar_close_time)}`} />
-        <Field k="入场bar开盘" v={m?.entry_bar_open_ms ? fmtMs(m.entry_bar_open_ms) : '未提供'} />
-        <Field k="数据版本" v={s.data_version ?? '空（未编造）'} />
-      </div>
-
-      {/* 第 5 行：不可执行原因 + 批准阻塞项（逐条可读，不做摘要省略） */}
-      <div className="pt-0.5 border-t border-neutral-800/80 space-y-0.5">
-        <div className="text-[9px] text-neutral-500">不可执行原因</div>
-        <div className="text-[10px] text-rose-300/90 leading-relaxed">{s.actionable_reason ?? '未提供'}</div>
-        {blockers.length > 0 && (
-          <div className="text-[9px] text-neutral-500 leading-relaxed">
-            批准阻塞：{blockers.join('；')}
-          </div>
-        )}
-      </div>
+      {/* 展开的精细审计字段 */}
+      {showDetail && (
+        <div className="pt-1 mt-1 border-t border-neutral-900 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px] text-neutral-500">
+          <Field k="信号ID" v={short(s.signal_id, 10)} title={s.signal_id} />
+          <Field k="运行ID" v={short(m?.run_id, 10)} title={m?.run_id ?? ''} />
+          <Field k="配置类型" v={m?.config_kind ?? '未提供'} />
+          <Field k="批准" v={approvedText} mono={false} />
+          <Field k="确认时间" v={fmtIso(s.confirmed_at)} />
+          <Field k="配置哈希" v={short(s.config_hash, 8)} title={s.config_hash ?? ''} />
+        </div>
+      )}
     </div>
   );
 };
@@ -225,34 +222,27 @@ export const ResearchSignalSection: React.FC = () => {
       </summary>
 
       <div className="px-2 pb-2 space-y-1.5 max-h-[46vh] overflow-y-auto">
-        {/* 语义声明：这一段不是交易信号，不能被当成当前可交易区 */}
-        <div className="flex items-start gap-1.5 rounded border border-amber-500/25 bg-amber-500/10 px-2 py-1">
-          <ShieldAlert className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
-          <div className="text-[10px] text-amber-300/90 leading-relaxed">
-            研究信号：来源 <span className="font-mono">historical_research</span>、角色{' '}
-            <span className="font-mono">research_only</span>、可执行态{' '}
-            <span className="font-mono">historical_not_executable</span>、批准{' '}
-            <span className="font-mono">false</span>。
-            历史记录不冒充自然实时信号，不进入当前交易区，也不构成下单依据。
-          </div>
+        {/* 顶部紧凑语义声明 */}
+        <div className="flex items-center gap-1.5 rounded border border-neutral-800 bg-neutral-950/80 px-2 py-1 text-[10px] text-neutral-400">
+          <ShieldAlert className="w-3 h-3 text-amber-500 shrink-0" />
+          <span>历史研究信号仅作回溯比对，不进入当前实盘交易区</span>
         </div>
 
         {error && (
-          <div data-testid="research-signals-error" className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-1.5 text-[10px] text-rose-300">
-            研究信号读取失败：{error}
+          <div data-testid="research-signals-error" className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[10px] text-rose-300">
+            读取失败：{error}
           </div>
         )}
 
         {identityMissing && (
-          <div data-testid="research-identity-missing" className="rounded border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-[10px] text-neutral-400 leading-relaxed">
-            运行/配置身份字段未提供：当前后端进程尚未加载本单新增的字段映射（进程未重启）。
-            其余字段（uid/来源/角色/可执行态/时刻/原因）来自既有字段，可直接核对。
+          <div data-testid="research-identity-missing" className="rounded border border-neutral-850 bg-neutral-950 px-2 py-1 text-[10px] text-neutral-500">
+            未加载扩展审计映射（按既有基础字段展示）
           </div>
         )}
 
         {!loading && loaded && count === 0 && (
-          <div className="rounded border border-dashed border-neutral-800 bg-neutral-950 px-2 py-3 text-center text-[10px] text-neutral-500">
-            库里没有历史研究信号（空是真实结果，不是读取失败）
+          <div className="rounded border border-dashed border-neutral-850 bg-neutral-950 px-2 py-2 text-center text-[10px] text-neutral-500">
+            暂无历史研究记录
           </div>
         )}
 

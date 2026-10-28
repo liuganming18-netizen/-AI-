@@ -1,0 +1,230 @@
+{
+  "ticket": "SIGNAL-NOW-01-ANTIGRAVITY",
+  "step": "7 进程环境与网络暴露面（只读）",
+  "at_utc": "2026-10-27T19:16:32Z",
+  "method": "psutil.Process.environ()/net_connections()（本机沙箱禁 `ps`）；退化为 ps eww / lsof",
+  "procs": {
+    "runtime": {
+      "pid": 43827,
+      "alive": true,
+      "n_env": 197,
+      "env_source": "psutil",
+      "tcp_source": "psutil",
+      "watched_env": {
+        "HTTP_PROXY": "http://127.0.0.1:53528",
+        "HTTPS_PROXY": "http://127.0.0.1:53528",
+        "NO_PROXY": "127.0.0.1,localhost,::1",
+        "http_proxy": "http://127.0.0.1:53528",
+        "https_proxy": "http://127.0.0.1:53528",
+        "no_proxy": "127.0.0.1,localhost,::1",
+        "CODEBUDDY_SESSION_ID": "c553f37c-8a77-456d-a4a3-5820747e3657",
+        "CODEBUDDY_SAFE_DELETE_SANDBOX": "1",
+        "CODEBUDDY_TOYBOX_SANDBOX_PROFILE": "/Users/boos/Desktop/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/vendor/toybox-macos/toybox.sb",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+        "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper"
+      },
+      "tcp": {
+        "n_established": 0,
+        "n_listen": 0,
+        "established": [],
+        "listen": [],
+        "other": []
+      }
+    },
+    "api": {
+      "pid": 43819,
+      "alive": true,
+      "n_env": 197,
+      "env_source": "psutil",
+      "tcp_source": "psutil",
+      "watched_env": {
+        "HTTP_PROXY": "http://127.0.0.1:53528",
+        "HTTPS_PROXY": "http://127.0.0.1:53528",
+        "NO_PROXY": "127.0.0.1,localhost,::1",
+        "http_proxy": "http://127.0.0.1:53528",
+        "https_proxy": "http://127.0.0.1:53528",
+        "no_proxy": "127.0.0.1,localhost,::1",
+        "CODEBUDDY_SESSION_ID": "c553f37c-8a77-456d-a4a3-5820747e3657",
+        "CODEBUDDY_SAFE_DELETE_SANDBOX": "1",
+        "CODEBUDDY_TOYBOX_SANDBOX_PROFILE": "/Users/boos/Desktop/WorkBuddy AI.app/Contents/Resources/app.asar.unpacked/cli/vendor/toybox-macos/toybox.sb",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+        "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper"
+      },
+      "tcp": {
+        "n_established": 0,
+        "n_listen": 2,
+        "established": [],
+        "listen": [
+          {
+            "fd": 3,
+            "local": "127.0.0.1:8787",
+            "remote": null,
+            "status": "LISTEN"
+          },
+          {
+            "fd": 4,
+            "local": "::1:8787",
+            "remote": null,
+            "status": "LISTEN"
+          }
+        ],
+        "other": []
+      }
+    },
+    "worker": {
+      "pid": 68775,
+      "alive": true,
+      "n_env": 61,
+      "env_source": "psutil",
+      "tcp_source": "psutil",
+      "watched_env": {
+        "NO_PROXY": "127.0.0.1,localhost,::1",
+        "no_proxy": "127.0.0.1,localhost,::1",
+        "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+        "LIVE_DB": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper"
+      },
+      "tcp": {
+        "n_established": 0,
+        "n_listen": 0,
+        "established": [],
+        "listen": [],
+        "other": []
+      }
+    },
+    "collector": {
+      "pid": 42278,
+      "alive": true,
+      "n_env": 57,
+      "env_source": "psutil",
+      "tcp_source": "psutil",
+      "watched_env": {
+        "NO_PROXY": "127.0.0.1,localhost,::1",
+        "no_proxy": "127.0.0.1,localhost,::1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+        "PAPER_LEDGER_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper"
+      },
+      "tcp": {
+        "n_established": 14,
+        "n_listen": 0,
+        "established": [
+          {
+            "fd": 5,
+            "local": "198.18.0.1:58295",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 6,
+            "local": "198.18.0.1:65093",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 7,
+            "local": "198.18.0.1:51747",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 8,
+            "local": "198.18.0.1:62859",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 9,
+            "local": "198.18.0.1:64780",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 10,
+            "local": "198.18.0.1:54582",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 11,
+            "local": "198.18.0.1:49494",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 12,
+            "local": "198.18.0.1:52859",
+            "remote": "198.18.0.20:8443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 14,
+            "local": "198.18.0.1:49498",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 16,
+            "local": "198.18.0.1:49490",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 18,
+            "local": "198.18.0.1:52926",
+            "remote": "198.18.0.20:8443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 19,
+            "local": "198.18.0.1:49506",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 20,
+            "local": "198.18.0.1:49528",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          },
+          {
+            "fd": 25,
+            "local": "198.18.0.1:49576",
+            "remote": "198.18.0.21:443",
+            "status": "ESTABLISHED"
+          }
+        ],
+        "listen": [],
+        "other": []
+      }
+    }
+  },
+  "env_inheritance": {
+    "runtime_n_env": 197,
+    "api_n_env": 197,
+    "worker_n_env": 61,
+    "collector_n_env": 57,
+    "restarted_have_proxy": true,
+    "not_restarted_have_proxy": false,
+    "restarted_have_codebuddy_markers": [
+      "CODEBUDDY_SAFE_DELETE_SANDBOX",
+      "CODEBUDDY_SESSION_ID",
+      "CODEBUDDY_TOYBOX_SANDBOX_PROFILE"
+    ],
+    "reading": "重载后的 Runtime/API 继承了启动它们那个 shell 的环境（含代理与沙箱标记）；未重启的 Worker/采集器保留原始精简环境。⇒ 这是**重载方式**带来的差异，不是代码差异。"
+  },
+  "network_exposure": {
+    "runtime_established": 0,
+    "api_established": 0,
+    "worker_established": 0,
+    "collector_established": 14,
+    "runtime_listen": 0,
+    "api_listen": 2,
+    "reading": "Runtime/API 的 ESTABLISHED 数为 0 ⇒ 当前没有外网长连接，代理变量此刻不产生实际影响；采集器有 ESTABLISHED ⇒ 它在直连行情源。**本单不据此断言「代理配置无害」**，只说「此刻未观察到影响」。"
+  },
+  "risk_note": "若下次重载继承到会拦截外网的代理配置，采集/下单链路可能被静默打断；建议重载时显式清理 HTTP(S)_PROXY 等变量。属运维动作，本单不动。"
+}

@@ -469,6 +469,11 @@ export interface RawSignal {
   arm_count?: number | null;
   /** 命中臂列表（如 ["3a","3c","3d"]），顺序与 `arms[]` 一致 */
   arms_hit?: string[] | null;
+  // ── 威科夫多因子全数据共振（OI/聪明钱/Taker/多空比）──
+  reason?: string | null;
+  resonance_score?: number | null;
+  position_multiplier?: number | null;
+  resonance_summary?: string | null;
 }
 
 /** 合卡后卡上「某一臂」的身份与去向（字段原样来自后端，不推断）。 */

@@ -1,0 +1,605 @@
+{
+  "audit_metadata": {
+    "date": "2026-10-27",
+    "adapter_file": "evidence/ACCUM-EARLY-06-06/adapter/funding_events_adapter.py",
+    "adapter_version": "funding-adapter-06/v1",
+    "standard": "ACCUM-EARLY-09 资金费复用核验规范"
+  },
+  "pool_and_window_comparison": {
+    "arm_symbols_count": 40,
+    "manifest_06_symbols_count": 48,
+    "intersection_count": 3,
+    "intersection_symbols": [
+      "HYPERUSDT",
+      "METUSDT",
+      "PIXELUSDT"
+    ],
+    "difference_08_not_in_06_count": 37,
+    "difference_08_not_in_06": [
+      "ACTUSDT",
+      "API3USDT",
+      "ARKUSDT",
+      "AVAUSDT",
+      "AXLUSDT",
+      "CFXUSDT",
+      "CTRUSDT",
+      "DIAUSDT",
+      "DOLOUSDT",
+      "FLUXUSDT",
+      "GTCUSDT",
+      "HMSTRUSDT",
+      "HOTUSDT",
+      "HYPEUSDT",
+      "IDUSDT",
+      "IOTAUSDT",
+      "JOEUSDT",
+      "LISTAUSDT",
+      "LSKUSDT",
+      "MAVUSDT",
+      "MINAUSDT",
+      "ONGUSDT",
+      "POLYXUSDT",
+      "POPCATUSDT",
+      "RPLUSDT",
+      "SEIUSDT",
+      "SENTUSDT",
+      "SKYUSDT",
+      "TREEUSDT",
+      "UMAUSDT",
+      "VIRTUALUSDT",
+      "VTHOUSDT",
+      "WAXPUSDT",
+      "XTZUSDT",
+      "ZENUSDT",
+      "ZETAUSDT",
+      "ZORAUSDT"
+    ],
+    "difference_06_not_in_08_count": 45,
+    "window_start_utc": "2026-06-27T08:00:00Z",
+    "window_end_utc": "2026-10-26T09:00:00Z",
+    "window_matched": true,
+    "conclusion": "06-06 母集 48 静态文件仅含 3 个交集标的，不能直接覆盖 40 标的；但 06-06 适配器为通用读取器，底层 40 标的 Parquet 冷档全部存在，可在隔离环境动态调用。"
+  },
+  "adapter_40_symbols_scan_summary": {
+    "total_events": 26735,
+    "observed_both": 20674,
+    "observed_hot_only": 2598,
+    "observed_cold_only": 3463,
+    "resolved": 26735,
+    "pending_conflict": 0,
+    "pending_missing": 0,
+    "hot_path_leaked_cold": 3463
+  },
+  "paper_funding_reconciliation_747_events": {
+    "total_events_in_ledger": 747,
+    "exact_rate_and_mark_matches": 747,
+    "rate_differences_count": 0,
+    "mark_differences_count": 0,
+    "transmission_amount_residual": 0.0,
+    "observed_in_breakdown": {
+      "both": 714,
+      "hot": 33,
+      "cold": 0
+    },
+    "impact_on_pnl_and_equity": "0.00 U (在 ARM B 4a 实际成交的 96 笔平仓与 1 笔未平仓中，发生的 747 次结算在冷热合并与热库原始之间无数值差异)"
+  },
+  "availability_assessment": {
+    "cold_parquet_availability": "unproven (parquet 仅有桶时间 funding_time，无发布时点与抓取时点)",
+    "hot_db_availability": "unproven (2026-10-15 前数据系 binance.archive.fundingRate+mark1h 离线批量回补，fetched_at 为 2026-10-15 03:31:44 UTC)",
+    "cold_coverage_end": "2026-10-14T12:00:00Z (之后冷档截止，仅由热库单源提供)",
+    "historical_backfill_warning": "历史补齐不等于当时可得，严禁宣称当时已证实可得"
+  },
+  "per_symbol_scan": [
+    {
+      "symbol": "XTZUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "FLUXUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "DOLOUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ZORAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "GTCUSDT",
+      "in_06_manifest": false,
+      "events": 432,
+      "observed_both": 361,
+      "observed_hot_only": 71,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "POLYXUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ONGUSDT",
+      "in_06_manifest": false,
+      "events": 1143,
+      "observed_both": 767,
+      "observed_hot_only": 71,
+      "observed_cold_only": 305,
+      "hot_path_leaked_cold": 305,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 305 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ZETAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "TREEUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "SKYUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "LISTAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "VIRTUALUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "METUSDT",
+      "in_06_manifest": true,
+      "events": 727,
+      "observed_both": 560,
+      "observed_hot_only": 73,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791950400005 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "HOTUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ARKUSDT",
+      "in_06_manifest": false,
+      "events": 953,
+      "observed_both": 626,
+      "observed_hot_only": 107,
+      "observed_cold_only": 220,
+      "hot_path_leaked_cold": 220,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 220 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "AXLUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "SENTUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "CTRUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "IOTAUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ZENUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "API3USDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "MINAUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "CFXUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "IDUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "JOEUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "UMAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "MAVUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "SEIUSDT",
+      "in_06_manifest": false,
+      "events": 364,
+      "observed_both": 328,
+      "observed_hot_only": 36,
+      "observed_cold_only": 0,
+      "hot_path_leaked_cold": 0,
+      "notes": [
+        "cold_ends_before_window_end: 冷档最后一条 1791964800001 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "WAXPUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "LSKUSDT",
+      "in_06_manifest": false,
+      "events": 939,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 306,
+      "hot_path_leaked_cold": 306,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 306 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "PIXELUSDT",
+      "in_06_manifest": true,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "POPCATUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "RPLUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "HMSTRUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "DIAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "ACTUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "AVAUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "VTHOUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "HYPERUSDT",
+      "in_06_manifest": true,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    },
+    {
+      "symbol": "HYPEUSDT",
+      "in_06_manifest": false,
+      "events": 727,
+      "observed_both": 562,
+      "observed_hot_only": 71,
+      "observed_cold_only": 94,
+      "hot_path_leaked_cold": 94,
+      "notes": [
+        "hot_path_leaked_cold: prefer=hot 结果中 94 行 fetched_at 为空，判为冷档混入（未计入热库原始）",
+        "cold_ends_before_window_end: 冷档最后一条 1791979200000 < end_ms 1793005200000，该段只能靠热库，不能声明「合并后全窗口完整」"
+      ]
+    }
+  ]
+}

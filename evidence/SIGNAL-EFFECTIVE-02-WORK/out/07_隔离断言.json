@@ -1,0 +1,348 @@
+{
+  "generated_at_utc": "2026-10-27T17:16:43Z",
+  "paper_epoch_ms": 1791939600000,
+  "effective_floor_ms": 1792748844240,
+  "floor_utc": "2026-10-23T09:47:24Z",
+  "production_writes": 0,
+  "cases": {
+    "A_边界闭区间": {
+      "A1_边界前2ms": {
+        "event_utc": "2026-10-23T09:47:24Z",
+        "expected": "expect_reject",
+        "reason": "before_paper_epoch_no_backfill",
+        "ok_flag": false,
+        "pass_epoch_gate": false,
+        "assert_pass": true,
+        "exc": null,
+        "detail": ""
+      },
+      "A2_闭区间右端_边界前1ms": {
+        "event_utc": "2026-10-23T09:47:24Z",
+        "expected": "expect_pass_epoch_gate",
+        "reason": "pending_future_fill",
+        "ok_flag": false,
+        "pass_epoch_gate": true,
+        "assert_pass": true,
+        "exc": null,
+        "detail": ""
+      },
+      "A3_恰在边界": {
+        "event_utc": "2026-10-23T09:47:24Z",
+        "expected": "expect_pass_epoch_gate",
+        "reason": "pending_future_fill",
+        "ok_flag": false,
+        "pass_epoch_gate": true,
+        "assert_pass": true,
+        "exc": null,
+        "detail": ""
+      },
+      "A4_边界后1h": {
+        "event_utc": "2026-10-23T10:47:24Z",
+        "expected": "expect_pass_epoch_gate",
+        "reason": "pending_future_fill",
+        "ok_flag": false,
+        "pass_epoch_gate": true,
+        "assert_pass": true,
+        "exc": null,
+        "detail": ""
+      }
+    },
+    "B_结构早于水位": {
+      "构造": {
+        "box_start_utc": "2026-10-20T09:47:24Z",
+        "B1_confirmed_utc": "2026-10-27T17:14:59Z",
+        "B2_confirmed_utc": "2026-10-23T08:47:24Z",
+        "水位_utc": "2026-10-23T09:47:24Z"
+      },
+      "route_first": {
+        "processed": 2,
+        "registered": 1,
+        "rejected": 1,
+        "waiting_gate": 0,
+        "terminal": 1,
+        "errors": []
+      },
+      "route_second": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      },
+      "B1_pending": [
+        {
+          "pending_id": 1,
+          "symbol": "BTCUSDT",
+          "signal_uid": "iso02_B1_struct_early_confirm_late",
+          "status": "pending",
+          "event_time": 1793121299999,
+          "available_at": 1793121299999,
+          "epoch_ms": 1792748844240
+        }
+      ],
+      "B2_pending": [],
+      "断言_B1能正常响应": true,
+      "断言_B2被拒且不登记": true,
+      "error": null,
+      "stderr_tail": null
+    },
+    "F_未批准不进路由": {
+      "route_first": {
+        "processed": 2,
+        "registered": 2,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      },
+      "pending_uids": [
+        "iso02_F2_approved_true",
+        "iso02_F3_approved_missing"
+      ],
+      "断言_F1_approved_false_无挂单": true,
+      "断言_F2_approved_true_有挂单": true,
+      "断言_F3_缺字段_默认放行": true,
+      "error": null
+    },
+    "C_重启沿用与幂等": {
+      "levels_before": {
+        "paper_epoch_ms": 1791939600000,
+        "live_start_ms": 1792748844240,
+        "state_anchor_ms": 1782542715686
+      },
+      "levels_mid": {
+        "paper_epoch_ms": 1791939600000,
+        "live_start_ms": 1792748844240,
+        "state_anchor_ms": 1782542715686
+      },
+      "levels_after": {
+        "paper_epoch_ms": 1791939600000,
+        "live_start_ms": 1792748844240,
+        "state_anchor_ms": 1782542715686
+      },
+      "断言_三水位未变": true,
+      "断言_水位等于核定值": true,
+      "first": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      },
+      "second": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      },
+      "断言_第二次不重复登记": true,
+      "pending_n": 0,
+      "error": null,
+      "stderr_tail": null
+    },
+    "D_既有挂单持仓保持": {
+      "before": {
+        "pending_n": 1,
+        "position_n": 1
+      },
+      "after": {
+        "pending_n": 1,
+        "position_n": 1
+      },
+      "kept_pending": [
+        {
+          "pending_id": 90001,
+          "signal_uid": "iso02_D_preexisting",
+          "status": "rejected"
+        }
+      ],
+      "kept_position": [
+        {
+          "position_id": 90002,
+          "symbol": "BTCUSDT",
+          "signal_uid": "iso02_D_position",
+          "status": "open",
+          "qty": 0.02,
+          "entry_price": 81000.0,
+          "stop_price": 76950.0,
+          "planned_risk": 81.0,
+          "voided": 0
+        }
+      ],
+      "advance": {
+        "filled": [],
+        "rejected": [
+          {
+            "pending_id": 90001,
+            "reason": "position_already_open_no_add"
+          }
+        ],
+        "still_pending": 0,
+        "by_arm": {
+          "3a": {
+            "pending_total": 1,
+            "filled": 0,
+            "rejected": 1,
+            "still_pending": 0
+          },
+          "3b": {
+            "pending_total": 0,
+            "filled": 0,
+            "rejected": 0,
+            "still_pending": 0
+          },
+          "3c": {
+            "pending_total": 0,
+            "filled": 0,
+            "rejected": 0,
+            "still_pending": 0
+          },
+          "3d": {
+            "pending_total": 0,
+            "filled": 0,
+            "rejected": 0,
+            "still_pending": 0
+          }
+        }
+      },
+      "断言_挂单未被删": true,
+      "断言_持仓仍在且open": true,
+      "断言_止损不下移": true,
+      "error": null,
+      "stderr_tail": null
+    },
+    "E_仓位倍数": {
+      "E1_pm0.5_未批准": {
+        "reason": "filled",
+        "planned_risk": 24.28740000000005,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "BTCUSDT",
+            "qty": 0.006,
+            "entry_price": 80956.70000000001,
+            "stop_price": 76908.8,
+            "planned_risk": 24.28740000000005,
+            "status": "open"
+          }
+        ]
+      },
+      "E2_pm0.5_已批准": {
+        "reason": "filled",
+        "planned_risk": 12.143700000000026,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "BTCUSDT",
+            "qty": 0.003,
+            "entry_price": 80956.70000000001,
+            "stop_price": 76908.8,
+            "planned_risk": 12.143700000000026,
+            "status": "open"
+          }
+        ]
+      },
+      "E3_pm1.0_基准": {
+        "reason": "filled",
+        "planned_risk": 24.28740000000005,
+        "positions": [
+          {
+            "position_id": 1,
+            "symbol": "BTCUSDT",
+            "qty": 0.006,
+            "entry_price": 80956.70000000001,
+            "stop_price": 76908.8,
+            "planned_risk": 24.28740000000005,
+            "status": "open"
+          }
+        ]
+      },
+      "断言_未批准不改变下单量": true,
+      "断言_已批准确实减半": true,
+      "exc": [
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "summary": {
+    "total": 17,
+    "passed": 17,
+    "failed": [],
+    "items": [
+      {
+        "assert": "A/A1_边界前2ms",
+        "pass": true
+      },
+      {
+        "assert": "A/A2_闭区间右端_边界前1ms",
+        "pass": true
+      },
+      {
+        "assert": "A/A3_恰在边界",
+        "pass": true
+      },
+      {
+        "assert": "A/A4_边界后1h",
+        "pass": true
+      },
+      {
+        "assert": "B/断言_B1能正常响应",
+        "pass": true
+      },
+      {
+        "assert": "B/断言_B2被拒且不登记",
+        "pass": true
+      },
+      {
+        "assert": "F/断言_F1_approved_false_无挂单",
+        "pass": true
+      },
+      {
+        "assert": "F/断言_F2_approved_true_有挂单",
+        "pass": true
+      },
+      {
+        "assert": "F/断言_F3_缺字段_默认放行",
+        "pass": true
+      },
+      {
+        "assert": "C/断言_三水位未变",
+        "pass": true
+      },
+      {
+        "assert": "C/断言_水位等于核定值",
+        "pass": true
+      },
+      {
+        "assert": "C/断言_第二次不重复登记",
+        "pass": true
+      },
+      {
+        "assert": "D/断言_挂单未被删",
+        "pass": true
+      },
+      {
+        "assert": "D/断言_持仓仍在且open",
+        "pass": true
+      },
+      {
+        "assert": "D/断言_止损不下移",
+        "pass": true
+      },
+      {
+        "assert": "E/断言_未批准不改变下单量",
+        "pass": true
+      },
+      {
+        "assert": "E/断言_已批准确实减半",
+        "pass": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,692 @@
+{
+  "ticket": "SIGNAL-NOW-01-ANTIGRAVITY",
+  "step": "8 段 A / 段 B 采样对比（只读两份原始产物）",
+  "at_utc": "2026-10-27T20:18:51Z",
+  "inputs": {
+    "A": {
+      "file": "05_运行采样_A.json",
+      "sha256": "c6e149d2072659136139c53ecef61d10ab0b56caa0532911a52989b1fd6fd1cb",
+      "size": 353506,
+      "span": {
+        "n": 40,
+        "first_ts": "2026-10-27T19:08:28Z",
+        "last_ts": "2026-10-27T19:27:59Z",
+        "span_sec": 1171.2
+      },
+      "verdict": {
+        "cycles_advanced": true,
+        "watermark_1h_advanced": false,
+        "watermark_4h_advanced": false,
+        "natural_candidates_in_window": 0,
+        "new_positions_in_window": false,
+        "new_fills_in_window": false,
+        "any_process_restarted": false,
+        "health_last": "healthy"
+      },
+      "script_sha256": null
+    },
+    "B": {
+      "file": "05_运行采样_B.json",
+      "sha256": "2d30fff38f3042bf7f9d7cf0c5aed33a9a771d9977cc569b4728ac46493b733a",
+      "size": 612211,
+      "span": {
+        "n": 100,
+        "first_ts": "2026-10-27T19:28:32Z",
+        "last_ts": "2026-10-27T20:18:04Z",
+        "span_sec": 2972.5
+      },
+      "verdict": {
+        "cycles_advanced": true,
+        "watermark_1h_advanced": true,
+        "watermark_4h_advanced": true,
+        "natural_candidates_in_window": 0,
+        "new_positions_in_window": false,
+        "new_fills_in_window": false,
+        "any_process_restarted": false,
+        "health_last": "healthy",
+        "trailing_stop_updated_in_window": false
+      },
+      "script_sha256": "a9453a87940ede72c088f36e5c7cd7fb3c87fde578d7bea4e25047324bf84777"
+    }
+  },
+  "script_version_note": "段 A 由脚本 r1 产出，无 script_sha256 / 跟踪止损字段；段 B 由 r2 产出。两段字段不完全同构，对比时缺项输出 None，不补 0。",
+  "per_segment": {
+    "A": {
+      "cycle_count": {
+        "first": 358,
+        "last": 520,
+        "advanced": true,
+        "n_distinct": 40
+      },
+      "watermark_1h_utc": {
+        "first": "2026-10-27T18:00:00.000Z",
+        "last": "2026-10-27T18:00:00.000Z",
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "watermark_4h_utc": {
+        "first": "2026-10-27T12:00:00.000Z",
+        "last": "2026-10-27T12:00:00.000Z",
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "latest_15m_close_utc": {
+        "first": "2026-10-27T18:59:59.999Z",
+        "last": "2026-10-27T19:14:59.999Z",
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "latest_4h_close_utc": {
+        "first": "2026-10-27T15:59:59.999Z",
+        "last": "2026-10-27T15:59:59.999Z",
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "candidates_since_start": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "funnel_since_start": {
+        "first": {
+          "BOX": 0,
+          "SWEEP": 0,
+          "RETEST": 1,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 0,
+          "MISSED_WITHOUT_RETEST": 0
+        },
+        "last": {
+          "BOX": 0,
+          "SWEEP": 0,
+          "RETEST": 1,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 0,
+          "MISSED_WITHOUT_RETEST": 0
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "state_counter": {
+        "first": {
+          "IDLE": 217,
+          "BOX": 274,
+          "RETEST": 27,
+          "SWEEP": 8
+        },
+        "last": {
+          "IDLE": 217,
+          "BOX": 274,
+          "RETEST": 27,
+          "SWEEP": 8
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "live_signal_total": {
+        "first": 289,
+        "last": 289,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "pending_status": {
+        "first": {
+          "filled": 1,
+          "rejected": 3
+        },
+        "last": {
+          "filled": 1,
+          "rejected": 3
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "position_status": {
+        "first": {
+          "closed": 3,
+          "open": 1
+        },
+        "last": {
+          "closed": 3,
+          "open": 1
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "fill_count": {
+        "first": 7,
+        "last": 7,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "position_max_id": {
+        "first": 4,
+        "last": 4,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "orders_routed_total": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "trailing_updates_total": {
+        "first": null,
+        "last": null,
+        "advanced": null,
+        "absent": true
+      },
+      "stop_history_total": {
+        "first": null,
+        "last": null,
+        "advanced": null,
+        "absent": true
+      },
+      "open_position_stops": {
+        "first": null,
+        "last": null,
+        "advanced": null,
+        "absent": true
+      },
+      "scan_errors_total": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      }
+    },
+    "B": {
+      "cycle_count": {
+        "first": 525,
+        "last": 995,
+        "advanced": true,
+        "n_distinct": 99
+      },
+      "watermark_1h_utc": {
+        "first": "2026-10-27T18:00:00.000Z",
+        "last": "2026-10-27T19:00:00.000Z",
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "watermark_4h_utc": {
+        "first": "2026-10-27T12:00:00.000Z",
+        "last": "2026-10-27T16:00:00.000Z",
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "latest_15m_close_utc": {
+        "first": "2026-10-27T19:14:59.999Z",
+        "last": "2026-10-27T20:14:59.999Z",
+        "advanced": true,
+        "n_distinct": 5
+      },
+      "latest_4h_close_utc": {
+        "first": "2026-10-27T15:59:59.999Z",
+        "last": "2026-10-27T19:59:59.999Z",
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "candidates_since_start": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "funnel_since_start": {
+        "first": {
+          "BOX": 0,
+          "SWEEP": 0,
+          "RETEST": 1,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 0,
+          "MISSED_WITHOUT_RETEST": 0
+        },
+        "last": {
+          "BOX": 21,
+          "SWEEP": 0,
+          "RETEST": 1,
+          "CANDIDATE": 0,
+          "VOLUME_REJECTED": 0,
+          "OI_UNAVAILABLE": 0,
+          "OI_REJECTED": 0,
+          "INVALIDATED": 0,
+          "EXPIRED": 7,
+          "MISSED_WITHOUT_RETEST": 0
+        },
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "state_counter": {
+        "first": {
+          "IDLE": 217,
+          "BOX": 274,
+          "RETEST": 27,
+          "SWEEP": 8
+        },
+        "last": {
+          "IDLE": 203,
+          "BOX": 288,
+          "RETEST": 27,
+          "SWEEP": 8
+        },
+        "advanced": true,
+        "n_distinct": 2
+      },
+      "live_signal_total": {
+        "first": 289,
+        "last": 289,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "pending_status": {
+        "first": {
+          "filled": 1,
+          "rejected": 3
+        },
+        "last": {
+          "filled": 1,
+          "rejected": 3
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "position_status": {
+        "first": {
+          "closed": 3,
+          "open": 1
+        },
+        "last": {
+          "closed": 3,
+          "open": 1
+        },
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "fill_count": {
+        "first": 7,
+        "last": 7,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "position_max_id": {
+        "first": 4,
+        "last": 4,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "orders_routed_total": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "trailing_updates_total": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "stop_history_total": {
+        "first": 1,
+        "last": 1,
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "open_position_stops": {
+        "first": [
+          {
+            "position_id": 4,
+            "symbol": "BTCUSDT",
+            "status": "open",
+            "stop_price": 76446.0,
+            "initial_stop_price": 76446.0,
+            "stop_history_n": 1
+          }
+        ],
+        "last": [
+          {
+            "position_id": 4,
+            "symbol": "BTCUSDT",
+            "status": "open",
+            "stop_price": 76446.0,
+            "initial_stop_price": 76446.0,
+            "stop_history_n": 1
+          }
+        ],
+        "advanced": false,
+        "n_distinct": 1
+      },
+      "scan_errors_total": {
+        "first": 0,
+        "last": 0,
+        "advanced": false,
+        "n_distinct": 1
+      }
+    }
+  },
+  "boundary": {
+    "target_utc": "2026-10-27T20:00:00Z",
+    "B_window": [
+      "2026-10-27T19:28:32Z",
+      "2026-10-27T20:18:04Z"
+    ],
+    "B_crosses_1h_and_4h_boundary": true,
+    "why": "19:00Z 开盘的 1h bar 与 16:00Z 开盘的 4h bar 都在 20:00Z 收盘 ⇒ 跨过这一点的窗口才能同时检验两个水位。"
+  },
+  "compare_rows": [
+    {
+      "item": "cycle_count",
+      "A_first": 358,
+      "A_last": 520,
+      "A_advanced": true,
+      "A_absent": false,
+      "B_first": 525,
+      "B_last": 995,
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "watermark_1h_utc",
+      "A_first": "2026-10-27T18:00:00.000Z",
+      "A_last": "2026-10-27T18:00:00.000Z",
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": "2026-10-27T18:00:00.000Z",
+      "B_last": "2026-10-27T19:00:00.000Z",
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "watermark_4h_utc",
+      "A_first": "2026-10-27T12:00:00.000Z",
+      "A_last": "2026-10-27T12:00:00.000Z",
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": "2026-10-27T12:00:00.000Z",
+      "B_last": "2026-10-27T16:00:00.000Z",
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "latest_15m_close_utc",
+      "A_first": "2026-10-27T18:59:59.999Z",
+      "A_last": "2026-10-27T19:14:59.999Z",
+      "A_advanced": true,
+      "A_absent": false,
+      "B_first": "2026-10-27T19:14:59.999Z",
+      "B_last": "2026-10-27T20:14:59.999Z",
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "latest_4h_close_utc",
+      "A_first": "2026-10-27T15:59:59.999Z",
+      "A_last": "2026-10-27T15:59:59.999Z",
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": "2026-10-27T15:59:59.999Z",
+      "B_last": "2026-10-27T19:59:59.999Z",
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "candidates_since_start",
+      "A_first": 0,
+      "A_last": 0,
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": 0,
+      "B_last": 0,
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "state_counter",
+      "A_first": {
+        "IDLE": 217,
+        "BOX": 274,
+        "RETEST": 27,
+        "SWEEP": 8
+      },
+      "A_last": {
+        "IDLE": 217,
+        "BOX": 274,
+        "RETEST": 27,
+        "SWEEP": 8
+      },
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": {
+        "IDLE": 217,
+        "BOX": 274,
+        "RETEST": 27,
+        "SWEEP": 8
+      },
+      "B_last": {
+        "IDLE": 203,
+        "BOX": 288,
+        "RETEST": 27,
+        "SWEEP": 8
+      },
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "funnel_since_start",
+      "A_first": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 1,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "A_last": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 1,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": {
+        "BOX": 0,
+        "SWEEP": 0,
+        "RETEST": 1,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 0,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "B_last": {
+        "BOX": 21,
+        "SWEEP": 0,
+        "RETEST": 1,
+        "CANDIDATE": 0,
+        "VOLUME_REJECTED": 0,
+        "OI_UNAVAILABLE": 0,
+        "OI_REJECTED": 0,
+        "INVALIDATED": 0,
+        "EXPIRED": 7,
+        "MISSED_WITHOUT_RETEST": 0
+      },
+      "B_advanced": true,
+      "B_absent": false
+    },
+    {
+      "item": "live_signal_total",
+      "A_first": 289,
+      "A_last": 289,
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": 289,
+      "B_last": 289,
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "pending_status",
+      "A_first": {
+        "filled": 1,
+        "rejected": 3
+      },
+      "A_last": {
+        "filled": 1,
+        "rejected": 3
+      },
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": {
+        "filled": 1,
+        "rejected": 3
+      },
+      "B_last": {
+        "filled": 1,
+        "rejected": 3
+      },
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "position_status",
+      "A_first": {
+        "closed": 3,
+        "open": 1
+      },
+      "A_last": {
+        "closed": 3,
+        "open": 1
+      },
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": {
+        "closed": 3,
+        "open": 1
+      },
+      "B_last": {
+        "closed": 3,
+        "open": 1
+      },
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "fill_count",
+      "A_first": 7,
+      "A_last": 7,
+      "A_advanced": false,
+      "A_absent": false,
+      "B_first": 7,
+      "B_last": 7,
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "trailing_updates_total",
+      "A_first": null,
+      "A_last": null,
+      "A_advanced": null,
+      "A_absent": true,
+      "B_first": 0,
+      "B_last": 0,
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "stop_history_total",
+      "A_first": null,
+      "A_last": null,
+      "A_advanced": null,
+      "A_absent": true,
+      "B_first": 1,
+      "B_last": 1,
+      "B_advanced": false,
+      "B_absent": false
+    },
+    {
+      "item": "open_position_stops",
+      "A_first": null,
+      "A_last": null,
+      "A_advanced": null,
+      "A_absent": true,
+      "B_first": [
+        {
+          "position_id": 4,
+          "symbol": "BTCUSDT",
+          "status": "open",
+          "stop_price": 76446.0,
+          "initial_stop_price": 76446.0,
+          "stop_history_n": 1
+        }
+      ],
+      "B_last": [
+        {
+          "position_id": 4,
+          "symbol": "BTCUSDT",
+          "status": "open",
+          "stop_price": 76446.0,
+          "initial_stop_price": 76446.0,
+          "stop_history_n": 1
+        }
+      ],
+      "B_advanced": false,
+      "B_absent": false
+    }
+  ],
+  "process_health": {
+    "A_restarted": {
+      "runtime": false,
+      "api": false,
+      "worker": false,
+      "collector": false
+    },
+    "B_restarted": {
+      "runtime": false,
+      "api": false,
+      "worker": false,
+      "collector": false
+    },
+    "A_health": "healthy",
+    "B_health": "healthy"
+  },
+  "natural_behavior": {
+    "A_candidates": 0,
+    "B_candidates": 0,
+    "A_new_positions": false,
+    "B_new_positions": false,
+    "A_new_fills": false,
+    "B_new_fills": false,
+    "reading": "两段都是 0 就记 0。**不得**用隔离正例、也不得用段 B 跨了边界就推断「策略一定能出候选」。跨边界只说明这次观测**有机会**看到候选。"
+  },
+  "not_observed": [
+    "自然候选→建单→成交闭环：若两段均未出现自然候选，则该项仍为**未验证**。",
+    "真实挂钟自动成交：仍只有 1 笔既有挂单成交（test_probe_succ），非自然候选产生。"
+  ]
+}

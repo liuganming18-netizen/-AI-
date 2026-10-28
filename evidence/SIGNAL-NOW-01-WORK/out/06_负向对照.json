@@ -1,0 +1,36 @@
+{
+  "ticket": "SIGNAL-NOW-01-WORK",
+  "step": "6 负向对照（旧 paper_engine 同批用例）",
+  "generated_at_utc": "2026-10-27T18:20:09.602Z",
+  "old_paper_engine": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-NOW-01-WORK/baseline/src_before/paper_engine.py",
+  "rows": [
+    {
+      "case": "G1b 4天前确认+今日请求",
+      "old_module": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-NOW-01-WORK/baseline/src_before/paper_engine.py",
+      "old_ok": true,
+      "old_reason": "filled",
+      "new_reason": "missed_fill_moment_no_backfill",
+      "expected_difference": true,
+      "differs": true
+    },
+    {
+      "case": "G3a 停机期间收盘的执行点",
+      "old_status": "filled",
+      "old_reason": null,
+      "old_positions": 1,
+      "new_status": "rejected / fill_point_closed_before_process_start",
+      "expected_difference": true,
+      "differs": true
+    },
+    {
+      "case": "G2c 正常确认+正常处理",
+      "old_ok": true,
+      "old_reason": "filled",
+      "new_ok": true,
+      "expected_difference": false,
+      "differs": false
+    }
+  ],
+  "verdict": "通过：新判据对两条缺陷用例产生差异、对正常用例无差异",
+  "ok": true
+}

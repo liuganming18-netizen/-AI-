@@ -109,6 +109,10 @@ export interface CryptoSignal {
   armCount?: number | null;
   /** 命中臂名称列表（如 ["3a","3c","3d"]），顺序与 `arms[]` 一致 */
   armsHit?: string[] | null;
+  // ── 威科夫多因子全数据共振（OI/聪明钱/Taker/多空比）──
+  resonanceScore?: number | null;
+  positionMultiplier?: number | null;
+  resonanceSummary?: string | null;
 }
 
 /** 合卡卡面上「某一臂」的身份与去向（字段原样来自后端）。 */

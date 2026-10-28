@@ -1,0 +1,27 @@
+--- a/框架/backend/live_store.py
++++ b/框架/backend/live_store.py
+@@ -508,8 +508,24 @@
+     ("paper_realized", "void_reason", "TEXT"),
+     # `paper_equity.voided=1` = 该快照**落在被纠错区间内**（含已作废持仓的估值），
+     # 消费方应排除；**不删除、不改写**原快照（历史证据原样保留，只加标记）。
+     ("paper_equity", "voided", "INTEGER DEFAULT 0"),
++    # ── 现实时间撮合（PARALLEL-STRATEGY-01-WORK，2026-10-28）───────────────────────
++    # 缺陷背景：成交 bar 强制 `is_closed=1` ⇒ 执行动作**从未在执行点真实发生**，
++    #   一律是「闭 bar 后回读该 bar 的 open」，`entry_ts` 恒早于实际处理 15~30 分钟。
++    # 三列语义（全部**加性**，历史行保持 NULL，不改写任何既有成交）：
++    #   `reality_fill`     = 1 该笔在**执行点当场**用实时行情成交；0 或 NULL 不是当场。
++    #   `data_available_at`= 成交所用行情在库里的**可得时刻**（实时行 received_at）。
++    #   `fill_source`      = 取数路径：realtime_15m_open / closed_15m_open。
++    ("paper_position", "reality_fill", "INTEGER"),
++    ("paper_position", "data_available_at", "INTEGER"),
++    ("paper_position", "fill_source", "TEXT"),
++    ("paper_order", "reality_fill", "INTEGER"),
++    ("paper_order", "data_available_at", "INTEGER"),
++    ("paper_order", "fill_source", "TEXT"),
++    ("paper_fill", "reality_fill", "INTEGER"),
++    ("paper_fill", "data_available_at", "INTEGER"),
++    ("paper_fill", "fill_source", "TEXT"),
+ )
+ 
+ 
+ def ledger_path(arm: str) -> Path:

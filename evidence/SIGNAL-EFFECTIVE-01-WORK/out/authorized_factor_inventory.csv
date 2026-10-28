@@ -1,0 +1,8 @@
+﻿因子,分值区间,阈值,数据来源,当时可得性证据,批准来源,批准版本,是否影响本次执行,位置,裁决
+OI 持仓量（6h 增长率）,-4 ~ 15,≥5%→15；≥2%→12；≥0→8；≥-3%→4；否则 -4；缺失→中性 6,"metrics_feed.read_metrics_tail(symbol, decision_ms, 3)",无（metrics_feed 是否 PIT 未验证；本单未取证）,**未找到**,—,是（进 payload；经 position_multiplier 影响下单量）,wyckoff_factor_resonance.py:51,待裁决；本单已使其不改变下单量
+聪明钱阶段 VWAP 成本,-4 ~ 15,溢价 0~5%→15；5~12%→11；-3~0%→8；>12%→5；否则 -4；缺失→中性 6,"metrics_feed.phase_avg_price(symbol, decision_ms-42d, decision_ms)",无,**未找到**,—,是（同上）,wyckoff_factor_resonance.py:109,待裁决；本单已使其不改变下单量
+主动买卖量比 Taker,-4 ~ 15,≥1.20→15；≥1.05→12；≥0.95→7；≥0.85→3；否则 -4；缺失→中性 6,"metrics_feed.latest_metrics(symbol, decision_ms)['主动买卖量比']",无,**未找到**,—,是（同上）,wyckoff_factor_resonance.py:157,待裁决；本单已使其不改变下单量
+大户/散户多空比,-4 ~ 15,≥1.20→15；≥1.05→11；≥0.95→6；否则 -4；缺失→中性 6,metrics_feed.latest_metrics()['多空比']['top_position_ls_ratio'],无,**未找到**,—,是（同上）,wyckoff_factor_resonance.py:204,待裁决；本单已使其不改变下单量
+基础形态分 base_score,固定 40,固定常量（无参数化）,硬编码,不适用,**未找到**,—,是（决定总分落档）,wyckoff_factor_resonance.py:43,待裁决
+共振分档位,0~100,≥80 强共振；≥65 健康；≥50 基础；<50 偏弱,五项求和后截断,不适用,**未找到**,—,间接（决定倍数档）,wyckoff_factor_resonance.py:255,待裁决
+仓位倍数 position_multiplier,0.5 / 0.8 / 1.0 / 1.3,按总分四档；**四项全缺失时总分 64 ⇒ 0.8x**,同上四项之和 + 40 基础分,不适用（但缺数据仍给 0.8x，等于无依据缩仓）,**未找到**（用户仅要求「所有已采集数据参与分析」，不等于批准权重/阈值/动态仓位系数）,—,**是**：paper_engine 直接乘 risk_per_trade,paper_engine.py:1211 adj_risk_fraction,待裁决；本单已改为「无显式批准标记则恒等于 1.0」

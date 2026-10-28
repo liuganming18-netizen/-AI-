@@ -1,0 +1,77 @@
+{
+  "test_name": "WYCKOFF-ALL-DATA-01",
+  "timestamp": "2026-10-27 13:24:00 UTC",
+  "assertions": [
+    {
+      "name": "强共振得分处于高分带(>=80分)",
+      "passed": true,
+      "detail": "score=100.0, mult=1.3"
+    },
+    {
+      "name": "强共振仓位倍数扩大至1.3x",
+      "passed": true,
+      "detail": "multiplier=1.3"
+    },
+    {
+      "name": "四类因子全部包含在 factors 输出中",
+      "passed": true,
+      "detail": "factors keys=['oi', 'whale_cost', 'taker_ratio', 'long_short']"
+    },
+    {
+      "name": "背离与减仓时得分明显走低",
+      "passed": true,
+      "detail": "weak_score=24.0 vs strong=100.0"
+    },
+    {
+      "name": "偏弱时仓位乘数防守下调至0.5x",
+      "passed": true,
+      "detail": "weak_multiplier=0.5"
+    },
+    {
+      "name": "未知代币缺失外部指标时不崩溃且给出基准分",
+      "passed": true,
+      "detail": "neutral_score=64.0, grade=基础达标"
+    },
+    {
+      "name": "中性缺失时仓位乘数为标准1.0x或0.8x",
+      "passed": true,
+      "detail": "neutral_mult=0.8"
+    },
+    {
+      "name": "强共振仓位计算成功",
+      "passed": true,
+      "detail": "strong_qty=0.079, notional=5137.5675"
+    },
+    {
+      "name": "防守乘数相比强共振有效按比例收缩仓位规模",
+      "passed": true,
+      "detail": "half_qty=0.03 vs strong_qty=0.079"
+    },
+    {
+      "name": "强共振与防守仓位均严格受控于单票 30% 敞口上限",
+      "passed": true,
+      "detail": "strong_notional=5137.5675, half_notional=1950.975"
+    },
+    {
+      "name": "真实标的 BTCUSDT 多因子共振计算成功",
+      "passed": true,
+      "detail": "共振分56(基础达标) · OI平稳+0.0% · 跌破成本 · Taker中性 · 多空比中性"
+    },
+    {
+      "name": "真实标的 ETHUSDT 多因子共振计算成功",
+      "passed": true,
+      "detail": "共振分65(健康共振) · OI平稳+0.0% · 稍偏离成本 · Taker中性 · 多空比中性"
+    },
+    {
+      "name": "真实标的 SOLUSDT 多因子共振计算成功",
+      "passed": true,
+      "detail": "共振分65(健康共振) · OI平稳+0.0% · 稍偏离成本 · Taker中性 · 多空比中性"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "pass_rate": "100.0%"
+  }
+}

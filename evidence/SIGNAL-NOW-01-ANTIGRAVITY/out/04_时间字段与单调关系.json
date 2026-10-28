@@ -1,0 +1,582 @@
+{
+  "ticket": "SIGNAL-NOW-01-ANTIGRAVITY",
+  "step": "4 逐字段时间来源与单调关系（生产只读）",
+  "at_utc": "2026-10-27T19:06:38.515Z",
+  "mode": "全部生产库 mode=ro + query_only；只新增本目录产物",
+  "prod_before": {
+    "live_signals": {
+      "sha256": "257829a509a1087d35f72f33ca4825ee4e843051a06a002f2803f39959ebd590",
+      "size": 1912832
+    },
+    "paper_3a": {
+      "sha256": "ac384c7fe9620a72317a749fe1f83c8eeebc8b725f5b750d0fd86f3c1358898c",
+      "size": 163840
+    },
+    "paper_3b": {
+      "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+      "size": 163840
+    },
+    "paper_3c": {
+      "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+      "size": 163840
+    },
+    "paper_3d": {
+      "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+      "size": 163840
+    }
+  },
+  "field_semantics": {
+    "event_time": {
+      "表": "paper_position / paper_fill / paper_order",
+      "写入点": "open_position(... event_time=...) 原样透传自信号",
+      "语义": "信号**事件/确认时刻**（bar 收盘那一刻），不是发现时刻",
+      "缺证据时": "NULL（不得用别的时刻代替）"
+    },
+    "available_at": {
+      "表": "paper_position / paper_fill",
+      "写入点": "open_position(... available_at=...) 原样透传自信号",
+      "语义": "该信号在**当时**确实可得的时刻；研究行无证据 ⇒ NULL",
+      "缺证据时": "NULL + payload.timestamps.available_at_status='unproven'"
+    },
+    "first_request_ms": {
+      "表": "paper_position / paper_fill / paper_order / paper_pending / paper_request_anchor",
+      "写入点": "paper_request_anchor 的 INSERT OR IGNORE（只落首次墙钟）",
+      "语义": "**现实发现时刻** = 第一次真正请求这笔单的服务端挂钟",
+      "缺证据时": "不会为空：缺失时取本次 attempt"
+    },
+    "paper_pending.created_at": {
+      "表": "paper_pending",
+      "写入点": "_register_pending(... L.now_ms())",
+      "语义": "**下单登记时刻**（挂单行落库的挂钟）",
+      "缺证据时": "不会为空"
+    },
+    "earliest_fill_ms": {
+      "表": "paper_position / paper_fill / paper_pending",
+      "写入点": "order_request_ms + signal_execution_delay_minutes×60s",
+      "语义": "**计划执行下限**（不是实际成交时刻）",
+      "缺证据时": "不会为空"
+    },
+    "bar_open_time / bar_close_time": {
+      "表": "paper_position(entry_ts) / paper_fill / paper_order",
+      "写入点": "bar_at_or_after(earliest_fill_ms) 取到的**第一根已闭合 15m bar**",
+      "语义": "**计划执行 bar**；entry_ts 回填为 bar_open_time",
+      "缺证据时": "不会为空（取不到 bar 就登记挂单）"
+    },
+    "fill_ts": {
+      "表": "paper_fill",
+      "写入点": "attempt_ms（挂单推进时为推进时钟 T，日常开仓时为真实挂钟）",
+      "语义": "**实际撮合/处理时刻**（挂钟），审计用；不等于 entry_ts",
+      "缺证据时": "不会为空"
+    },
+    "paper_order.ts / paper_processed.ts / paper_pending.resolved_at": {
+      "表": "对应三表",
+      "写入点": "同上 attempt_ms / T",
+      "语义": "同一处理时刻的镜像，应逐位相等",
+      "缺证据时": "不会为空"
+    }
+  },
+  "ledger_row_counts": {
+    "3a": {
+      "paper_position": 4,
+      "paper_fill": 7,
+      "paper_order": 15,
+      "paper_pending": 4,
+      "paper_realized": 3,
+      "paper_processed": 4,
+      "paper_request_anchor": 9
+    },
+    "3b": {
+      "paper_position": 0,
+      "paper_fill": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_realized": 0,
+      "paper_processed": 0,
+      "paper_request_anchor": 0
+    },
+    "3c": {
+      "paper_position": 0,
+      "paper_fill": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_realized": 0,
+      "paper_processed": 0,
+      "paper_request_anchor": 0
+    },
+    "3d": {
+      "paper_position": 0,
+      "paper_fill": 0,
+      "paper_order": 0,
+      "paper_pending": 0,
+      "paper_realized": 0,
+      "paper_processed": 0,
+      "paper_request_anchor": 0
+    }
+  },
+  "ledger_note": "3b/3c/3d 三臂当前**全表 0 行**（从未落过任何持仓/成交/挂单）；全部账本活动集中在 3a。这是当前事实，不代表历史上没跑过回放。",
+  "time_chains": [
+    {
+      "chain": "3a/pos1/sig_closeloop_btc_1792668586",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "uid": "sig_closeloop_btc_1792668586",
+      "status": "closed",
+      "voided": 1,
+      "origin": "manual",
+      "event_time": 1792665900000,
+      "event_utc": "2026-10-22T10:45:00.000Z",
+      "available_at": 1792665900000,
+      "available_utc": "2026-10-22T10:45:00.000Z",
+      "first_request_ms": 1792665900000,
+      "first_request_utc": "2026-10-22T10:45:00.000Z",
+      "anchor_first_request_ms": 1792665900000,
+      "anchor_first_request_utc": "2026-10-22T10:45:00.000Z",
+      "anchor_created_at": 1792668586609,
+      "anchor_created_utc": "2026-10-22T11:29:46.609Z",
+      "pending_created_at": null,
+      "pending_created_utc": null,
+      "earliest_fill_ms": 1792666800000,
+      "earliest_fill_utc": "2026-10-22T11:00:00.000Z",
+      "entry_ts": 1792666800000,
+      "entry_utc": "2026-10-22T11:00:00.000Z",
+      "bar_close_time": 1792667699999,
+      "bar_close_utc": "2026-10-22T11:14:59.999Z",
+      "fill_ts": 1792666860000,
+      "fill_utc": "2026-10-22T11:01:00.000Z",
+      "order_ts": 1792666860000,
+      "order_ts_utc": "2026-10-22T11:01:00.000Z",
+      "pending_resolved_at": null,
+      "pending_resolved_utc": null,
+      "processed_ts": 1792666860000,
+      "processed_ts_utc": "2026-10-22T11:01:00.000Z",
+      "market_bar": {
+        "open_time": 1792666800000,
+        "close_time": 1792667699999,
+        "open": "81992.10",
+        "is_closed": 1,
+        "available_at": 1792667700142
+      },
+      "market_bar_available_utc": "2026-10-22T11:15:00.142Z",
+      "recomputed_first_closed_bar_open": 1792666800000,
+      "recomputed_first_closed_bar_open_utc": "2026-10-22T11:00:00.000Z",
+      "raw_price": 81992.1,
+      "entry_price": 82033.1,
+      "planned_risk": null,
+      "exit_ts": 1792667699999,
+      "exit_utc": "2026-10-22T11:14:59.999Z",
+      "qty": 0.006,
+      "deltas": {
+        "event→available": 0,
+        "event→first_request": 0,
+        "first_request→pending_created": null,
+        "pending_created→earliest_fill": null,
+        "earliest_fill→bar_open": 0,
+        "bar_open→bar_close": 899999,
+        "bar_close→fill_ts": -839999,
+        "bar_open→fill_ts(回填量)": 60000,
+        "event→fill_ts": 960000
+      },
+      "fill_lag_vs_bar_open_ms": 60000,
+      "within_max_fill_lag": true
+    },
+    {
+      "chain": "3a/pos2/sig_closeloop_btc_1792668605",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "uid": "sig_closeloop_btc_1792668605",
+      "status": "closed",
+      "voided": 1,
+      "origin": "manual",
+      "event_time": 1792666800000,
+      "event_utc": "2026-10-22T11:00:00.000Z",
+      "available_at": 1792666800000,
+      "available_utc": "2026-10-22T11:00:00.000Z",
+      "first_request_ms": 1792666800000,
+      "first_request_utc": "2026-10-22T11:00:00.000Z",
+      "anchor_first_request_ms": 1792666800000,
+      "anchor_first_request_utc": "2026-10-22T11:00:00.000Z",
+      "anchor_created_at": 1792668605988,
+      "anchor_created_utc": "2026-10-22T11:30:05.988Z",
+      "pending_created_at": null,
+      "pending_created_utc": null,
+      "earliest_fill_ms": 1792667700000,
+      "earliest_fill_utc": "2026-10-22T11:15:00.000Z",
+      "entry_ts": 1792667700000,
+      "entry_utc": "2026-10-22T11:15:00.000Z",
+      "bar_close_time": 1792668599999,
+      "bar_close_utc": "2026-10-22T11:29:59.999Z",
+      "fill_ts": 1792667760000,
+      "fill_utc": "2026-10-22T11:16:00.000Z",
+      "order_ts": 1792667760000,
+      "order_ts_utc": "2026-10-22T11:16:00.000Z",
+      "pending_resolved_at": null,
+      "pending_resolved_utc": null,
+      "processed_ts": 1792667760000,
+      "processed_ts_utc": "2026-10-22T11:16:00.000Z",
+      "market_bar": {
+        "open_time": 1792667700000,
+        "close_time": 1792668599999,
+        "open": "81929.00",
+        "is_closed": 1,
+        "available_at": 1792668600105
+      },
+      "market_bar_available_utc": "2026-10-22T11:30:00.105Z",
+      "recomputed_first_closed_bar_open": 1792667700000,
+      "recomputed_first_closed_bar_open_utc": "2026-10-22T11:15:00.000Z",
+      "raw_price": 81929.0,
+      "entry_price": 81970.0,
+      "planned_risk": null,
+      "exit_ts": 1792668599999,
+      "exit_utc": "2026-10-22T11:29:59.999Z",
+      "qty": 0.006,
+      "deltas": {
+        "event→available": 0,
+        "event→first_request": 0,
+        "first_request→pending_created": null,
+        "pending_created→earliest_fill": null,
+        "earliest_fill→bar_open": 0,
+        "bar_open→bar_close": 899999,
+        "bar_close→fill_ts": -839999,
+        "bar_open→fill_ts(回填量)": 60000,
+        "event→fill_ts": 960000
+      },
+      "fill_lag_vs_bar_open_ms": 60000,
+      "within_max_fill_lag": true
+    },
+    {
+      "chain": "3a/pos3/sig_ui_test_1792668684487",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "uid": "sig_ui_test_1792668684487",
+      "status": "closed",
+      "voided": 1,
+      "origin": "manual",
+      "event_time": 1792666800000,
+      "event_utc": "2026-10-22T11:00:00.000Z",
+      "available_at": 1792666800000,
+      "available_utc": "2026-10-22T11:00:00.000Z",
+      "first_request_ms": 1792666800000,
+      "first_request_utc": "2026-10-22T11:00:00.000Z",
+      "anchor_first_request_ms": 1792666800000,
+      "anchor_first_request_utc": "2026-10-22T11:00:00.000Z",
+      "anchor_created_at": 1792668684527,
+      "anchor_created_utc": "2026-10-22T11:31:24.527Z",
+      "pending_created_at": null,
+      "pending_created_utc": null,
+      "earliest_fill_ms": 1792667700000,
+      "earliest_fill_utc": "2026-10-22T11:15:00.000Z",
+      "entry_ts": 1792667700000,
+      "entry_utc": "2026-10-22T11:15:00.000Z",
+      "bar_close_time": 1792668599999,
+      "bar_close_utc": "2026-10-22T11:29:59.999Z",
+      "fill_ts": 1792667760000,
+      "fill_utc": "2026-10-22T11:16:00.000Z",
+      "order_ts": 1792667760000,
+      "order_ts_utc": "2026-10-22T11:16:00.000Z",
+      "pending_resolved_at": null,
+      "pending_resolved_utc": null,
+      "processed_ts": 1792667760000,
+      "processed_ts_utc": "2026-10-22T11:16:00.000Z",
+      "market_bar": {
+        "open_time": 1792667700000,
+        "close_time": 1792668599999,
+        "open": "81929.00",
+        "is_closed": 1,
+        "available_at": 1792668600105
+      },
+      "market_bar_available_utc": "2026-10-22T11:30:00.105Z",
+      "recomputed_first_closed_bar_open": 1792667700000,
+      "recomputed_first_closed_bar_open_utc": "2026-10-22T11:15:00.000Z",
+      "raw_price": 81929.0,
+      "entry_price": 81970.0,
+      "planned_risk": null,
+      "exit_ts": 1792668599999,
+      "exit_utc": "2026-10-22T11:29:59.999Z",
+      "qty": 0.006,
+      "deltas": {
+        "event→available": 0,
+        "event→first_request": 0,
+        "first_request→pending_created": null,
+        "pending_created→earliest_fill": null,
+        "earliest_fill→bar_open": 0,
+        "bar_open→bar_close": 899999,
+        "bar_close→fill_ts": -839999,
+        "bar_open→fill_ts(回填量)": 60000,
+        "event→fill_ts": 960000
+      },
+      "fill_lag_vs_bar_open_ms": 60000,
+      "within_max_fill_lag": true
+    },
+    {
+      "chain": "3a/pos4/test_probe_succ",
+      "arm": "3a",
+      "symbol": "BTCUSDT",
+      "uid": "test_probe_succ",
+      "status": "open",
+      "voided": 0,
+      "origin": "signal",
+      "event_time": 1792748845240,
+      "event_utc": "2026-10-23T09:47:25.240Z",
+      "available_at": null,
+      "available_utc": null,
+      "first_request_ms": 1793116007361,
+      "first_request_utc": "2026-10-27T15:46:47.361Z",
+      "anchor_first_request_ms": 1793116007361,
+      "anchor_first_request_utc": "2026-10-27T15:46:47.361Z",
+      "anchor_created_at": 1793116007361,
+      "anchor_created_utc": "2026-10-27T15:46:47.361Z",
+      "pending_created_at": 1793116007363,
+      "pending_created_utc": "2026-10-27T15:46:47.363Z",
+      "earliest_fill_ms": 1793116907361,
+      "earliest_fill_utc": "2026-10-27T16:01:47.361Z",
+      "entry_ts": 1793117700000,
+      "entry_utc": "2026-10-27T16:15:00.000Z",
+      "bar_close_time": 1793118599999,
+      "bar_close_utc": "2026-10-27T16:29:59.999Z",
+      "fill_ts": 1793118614728,
+      "fill_utc": "2026-10-27T16:30:14.728Z",
+      "order_ts": 1793118614728,
+      "order_ts_utc": "2026-10-27T16:30:14.728Z",
+      "pending_resolved_at": 1793118614728,
+      "pending_resolved_utc": "2026-10-27T16:30:14.728Z",
+      "processed_ts": 1793118614728,
+      "processed_ts_utc": "2026-10-27T16:30:14.728Z",
+      "market_bar": {
+        "open_time": 1793117700000,
+        "close_time": 1793118599999,
+        "open": "80429.20",
+        "is_closed": 1,
+        "available_at": 1793118616461
+      },
+      "market_bar_available_utc": "2026-10-27T16:30:16.461Z",
+      "recomputed_first_closed_bar_open": 1793117700000,
+      "recomputed_first_closed_bar_open_utc": "2026-10-27T16:15:00.000Z",
+      "raw_price": 80429.2,
+      "entry_price": 80469.5,
+      "planned_risk": 24.141000000000002,
+      "exit_ts": null,
+      "exit_utc": null,
+      "qty": 0.006,
+      "deltas": {
+        "event→available": null,
+        "event→first_request": 367162121,
+        "first_request→pending_created": 2,
+        "pending_created→earliest_fill": 899998,
+        "earliest_fill→bar_open": 792639,
+        "bar_open→bar_close": 899999,
+        "bar_close→fill_ts": 14729,
+        "bar_open→fill_ts(回填量)": 914728,
+        "event→fill_ts": 369769488
+      },
+      "fill_lag_vs_bar_open_ms": 914728,
+      "within_max_fill_lag": true
+    }
+  ],
+  "monotonic_violations": [
+    {
+      "chain": "3a/pos1/sig_closeloop_btc_1792668586",
+      "assert": "bar_close < fill_ts（成交不得早于 bar 收盘）",
+      "detail": "bar_close=2026-10-22T11:14:59.999Z fill_ts=2026-10-22T11:01:00.000Z"
+    },
+    {
+      "chain": "3a/pos2/sig_closeloop_btc_1792668605",
+      "assert": "bar_close < fill_ts（成交不得早于 bar 收盘）",
+      "detail": "bar_close=2026-10-22T11:29:59.999Z fill_ts=2026-10-22T11:16:00.000Z"
+    },
+    {
+      "chain": "3a/pos3/sig_ui_test_1792668684487",
+      "assert": "bar_close < fill_ts（成交不得早于 bar 收盘）",
+      "detail": "bar_close=2026-10-22T11:29:59.999Z fill_ts=2026-10-22T11:16:00.000Z"
+    }
+  ],
+  "monotonic_summary": {
+    "chains": 4,
+    "violations": 3,
+    "note": "每条 chain 上最多 16 条单调/一致性断言，四臂全量行，不是抽样"
+  },
+  "violation_reading": {
+    "rows": [
+      "3a/pos1/sig_closeloop_btc_1792668586",
+      "3a/pos2/sig_closeloop_btc_1792668605",
+      "3a/pos3/sig_ui_test_1792668684487"
+    ],
+    "all_are_voided_synthetic": true,
+    "what_it_means": "三条违规全部落在 `voided=1 / void_reason=synthetic_test_isolation` 的旧手工闭环测试行（`origin=manual`、`model_version=paper_exec_v1_...`）。它们的 `fill_ts` 比所记执行 bar 的收盘时刻**早约 14 分钟**，且该 bar 的 `available_at` 也在 fill_ts 之后约 14 分钟 ⇒ 用**当前**行情数据无法复原「当时是拿哪一根 bar 成交的」。",
+    "consequence": "这三行**不能**作为「实时成交」的证据；做任何成绩统计时必须按 `voided` 排除。同时它们正面印证了步骤 3 的 D4 结论：只要 bar 带着 `is_closed=1` 出现在库里，引擎就会用它成交，代码层没有 `bar_close <= attempt` 的第二道校验。",
+    "not_a_claim_about_now": "本单**不**据此说当前 FT-LOW4H 路径也在提前成交 —— 当前唯一非作废成交（`test_probe_succ`）的 `fill_ts` 晚于该 bar 收盘 14.729 秒。"
+  },
+  "bar_availability_audit": [
+    {
+      "chain": "3a/pos1/sig_closeloop_btc_1792668586",
+      "symbol": "BTCUSDT",
+      "open_time_utc": "2026-10-22T11:00:00.000Z",
+      "bar_close_utc": "2026-10-22T11:14:59.999Z",
+      "bar_available_at_utc": "2026-10-22T11:15:00.142Z",
+      "fill_ts_utc": "2026-10-22T11:01:00.000Z",
+      "available_at_minus_close_ms": 143,
+      "fill_ts_minus_available_at_ms": -840142,
+      "same_open_time_symbols": 528,
+      "same_open_time_is_closed_before_close": 0,
+      "same_open_time_available_at_null": 0
+    },
+    {
+      "chain": "3a/pos2/sig_closeloop_btc_1792668605",
+      "symbol": "BTCUSDT",
+      "open_time_utc": "2026-10-22T11:15:00.000Z",
+      "bar_close_utc": "2026-10-22T11:29:59.999Z",
+      "bar_available_at_utc": "2026-10-22T11:30:00.105Z",
+      "fill_ts_utc": "2026-10-22T11:16:00.000Z",
+      "available_at_minus_close_ms": 106,
+      "fill_ts_minus_available_at_ms": -840105,
+      "same_open_time_symbols": 528,
+      "same_open_time_is_closed_before_close": 0,
+      "same_open_time_available_at_null": 0
+    },
+    {
+      "chain": "3a/pos3/sig_ui_test_1792668684487",
+      "symbol": "BTCUSDT",
+      "open_time_utc": "2026-10-22T11:15:00.000Z",
+      "bar_close_utc": "2026-10-22T11:29:59.999Z",
+      "bar_available_at_utc": "2026-10-22T11:30:00.105Z",
+      "fill_ts_utc": "2026-10-22T11:16:00.000Z",
+      "available_at_minus_close_ms": 106,
+      "fill_ts_minus_available_at_ms": -840105,
+      "same_open_time_symbols": 528,
+      "same_open_time_is_closed_before_close": 0,
+      "same_open_time_available_at_null": 0
+    },
+    {
+      "chain": "3a/pos4/test_probe_succ",
+      "symbol": "BTCUSDT",
+      "open_time_utc": "2026-10-27T16:15:00.000Z",
+      "bar_close_utc": "2026-10-27T16:29:59.999Z",
+      "bar_available_at_utc": "2026-10-27T16:30:16.461Z",
+      "fill_ts_utc": "2026-10-27T16:30:14.728Z",
+      "available_at_minus_close_ms": 16462,
+      "fill_ts_minus_available_at_ms": -1733,
+      "same_open_time_symbols": 528,
+      "same_open_time_is_closed_before_close": 0,
+      "same_open_time_available_at_null": 0
+    }
+  ],
+  "fill_earlier_than_bar_available_at": {
+    "count": 4,
+    "items": [
+      {
+        "chain": "3a/pos1/sig_closeloop_btc_1792668586",
+        "symbol": "BTCUSDT",
+        "open_time_utc": "2026-10-22T11:00:00.000Z",
+        "bar_close_utc": "2026-10-22T11:14:59.999Z",
+        "bar_available_at_utc": "2026-10-22T11:15:00.142Z",
+        "fill_ts_utc": "2026-10-22T11:01:00.000Z",
+        "available_at_minus_close_ms": 143,
+        "fill_ts_minus_available_at_ms": -840142,
+        "same_open_time_symbols": 528,
+        "same_open_time_is_closed_before_close": 0,
+        "same_open_time_available_at_null": 0
+      },
+      {
+        "chain": "3a/pos2/sig_closeloop_btc_1792668605",
+        "symbol": "BTCUSDT",
+        "open_time_utc": "2026-10-22T11:15:00.000Z",
+        "bar_close_utc": "2026-10-22T11:29:59.999Z",
+        "bar_available_at_utc": "2026-10-22T11:30:00.105Z",
+        "fill_ts_utc": "2026-10-22T11:16:00.000Z",
+        "available_at_minus_close_ms": 106,
+        "fill_ts_minus_available_at_ms": -840105,
+        "same_open_time_symbols": 528,
+        "same_open_time_is_closed_before_close": 0,
+        "same_open_time_available_at_null": 0
+      },
+      {
+        "chain": "3a/pos3/sig_ui_test_1792668684487",
+        "symbol": "BTCUSDT",
+        "open_time_utc": "2026-10-22T11:15:00.000Z",
+        "bar_close_utc": "2026-10-22T11:29:59.999Z",
+        "bar_available_at_utc": "2026-10-22T11:30:00.105Z",
+        "fill_ts_utc": "2026-10-22T11:16:00.000Z",
+        "available_at_minus_close_ms": 106,
+        "fill_ts_minus_available_at_ms": -840105,
+        "same_open_time_symbols": 528,
+        "same_open_time_is_closed_before_close": 0,
+        "same_open_time_available_at_null": 0
+      },
+      {
+        "chain": "3a/pos4/test_probe_succ",
+        "symbol": "BTCUSDT",
+        "open_time_utc": "2026-10-27T16:15:00.000Z",
+        "bar_close_utc": "2026-10-27T16:29:59.999Z",
+        "bar_available_at_utc": "2026-10-27T16:30:16.461Z",
+        "fill_ts_utc": "2026-10-27T16:30:14.728Z",
+        "available_at_minus_close_ms": 16462,
+        "fill_ts_minus_available_at_ms": -1733,
+        "same_open_time_symbols": 528,
+        "same_open_time_is_closed_before_close": 0,
+        "same_open_time_available_at_null": 0
+      }
+    ],
+    "unresolved": true,
+    "why_unresolved": "同一根 bar 上 `fill_ts` 早于 `available_at`。两者必有一个不能当作「当时可得的时刻」。候选解释（**均未证实，不采信**）：①`available_at` 取自帧接收时刻而落库更晚（`sources.imported_at` 比它晚 0.257 秒）；②挂单推进路径 `is_replay=True` 使 `attempt_ms` 取调用方传入的 T 而不是真实挂钟；③两个写入者/两个时钟。在独立时钟证据到位前，本单**不把 `available_at` 当作可得性证明**，也**不把 `fill_ts` 当作「当时确实拿得到」的证明**。"
+  },
+  "fill_ts_semantics": {
+    "conclusion": "挂单推进路径上 `paper_fill.fill_ts` = **本轮的循环起始时刻**，不是「真正读到该 bar 并完成撮合的那一刻」。",
+    "code_path": [
+      "unified_runtime.py:2831  step_once(): `now = int(now_ms or time.time()*1000)` —— 在函数入口取一次，之后整轮复用",
+      "unified_runtime.py:2852  signal_engine.step(now, ...) —— 全池 528 标的扫描在中间执行",
+      "unified_runtime.py:2893  execution.execute_cycle(now, process_start_ms=...) —— 把同一个 now 传下去",
+      "unified_runtime.py:2347  PE.advance_pending(T=now_ms, ...)",
+      "paper_engine.py:920      T = int(T) if T else L.now_ms()",
+      "paper_engine.py:1093     is_replay = (origin in ('replay','test') or pending_id is not None) ⇒ **挂单推进时恒为 True**",
+      "paper_engine.py:1094     attempt_ms = int(now_ms) if (is_replay and now_ms is not None) else real_wall_ms ⇒ 取调用方传入的 T，不取真实挂钟",
+      "paper_engine.py:1461     paper_fill.fill_ts = attempt_ms"
+    ],
+    "empirical_corroboration": "test_probe_succ：fill_ts=2026-10-27T16:30:14.728Z，而该 bar 的 `available_at`=2026-10-27T16:30:16.461Z、`sources.imported_at`=16:30:16.718Z ⇒ 该行落库晚于 fill_ts 约 2.0 秒。同一 open_time 全池 528 个标的里「is_closed=1 且 available_at < close_time」的条数 = 0，即真实数据里不存在「bar 未收盘就被标成已闭合」的情形 ⇒ 唯一自洽的解释是 fill_ts 早于真正读到该 bar 的时刻（循环起始 vs 撮合完成）。",
+    "strength": "强推断（代码路径逐行可查 + 实测时序对撞），不是受控实验；未做「人为拖慢单轮耗时再观测 fill_ts」的对照。",
+    "impact": [
+      "`fill_ts` 只能当「本轮开始处理」的下界，不能当「当时确实拿得到该 bar」的证明；",
+      "`fill_ts - bar_close` 会**低估**真实成交延迟（真实延迟 ≥ 记录值）；",
+      "`MAX_FILL_LAG_MS` 用的是同一个 attempt_ms ⇒ 长轮次下「滞后」会被低估；",
+      "`bar_open > attempt_ms` 的前视判据用的是同一个 attempt_ms ⇒ 该判据偏严不偏松。"
+    ],
+    "not_a_defect_claim": "本单**不**据此宣布「成交用了未来数据」。bar 确实已收盘（全部 528 个标的 available_at 均晚于 close_time），成交价取自已收盘 bar 的 open。本条只否定「fill_ts 可作可得性证明」这一用法。"
+  },
+  "research_rows_time_fields": {
+    "count": 289,
+    "available_at_null": 289,
+    "available_at_nonnull": 0,
+    "confirmed_at_null": 0,
+    "available_at_status": {
+      "unproven": 289
+    },
+    "violations": []
+  },
+  "prod_after": {
+    "live_signals": {
+      "sha256": "257829a509a1087d35f72f33ca4825ee4e843051a06a002f2803f39959ebd590",
+      "size": 1912832
+    },
+    "paper_3a": {
+      "sha256": "ac384c7fe9620a72317a749fe1f83c8eeebc8b725f5b750d0fd86f3c1358898c",
+      "size": 163840
+    },
+    "paper_3b": {
+      "sha256": "49d08d3923f7f3f71936a2449308871349f0ce0e210dd83838dfcb61dad158df",
+      "size": 163840
+    },
+    "paper_3c": {
+      "sha256": "6c9fffd77e2da5b85ef62ad1902ba0f20034e0148566f48c72dee9be77126b3b",
+      "size": 163840
+    },
+    "paper_3d": {
+      "sha256": "b169aa30f19bfbf006ab496a667ed9c5e70a07afc807c91447d88aa3cd0d59c5",
+      "size": 163840
+    }
+  },
+  "prod_untouched": {
+    "live_signals": true,
+    "paper_3a": true,
+    "paper_3b": true,
+    "paper_3c": true,
+    "paper_3d": true
+  }
+}

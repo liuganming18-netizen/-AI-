@@ -1,0 +1,231 @@
+{
+  "generated_at_utc": "2026-10-27T15:02:47Z",
+  "purpose": "隔离复现：把运行臂改成与 payload.arm 匹配后，被改身份的历史研究行是否真的会登记挂单",
+  "production_writes": 0,
+  "cases": [
+    {
+      "case": "A 对照：arm=3a（生产实际臂）",
+      "workspace": {
+        "root": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/A_arm3a_control",
+        "live": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/A_arm3a_control/live_signals.sqlite3",
+        "ledger": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/A_arm3a_control/ledger",
+        "gate": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/A_arm3a_control/locks/paper_new_entry_gate.json"
+      },
+      "route": {
+        "processed": 0,
+        "registered": 0,
+        "rejected": 0,
+        "waiting_gate": 0,
+        "terminal": 0,
+        "errors": []
+      },
+      "pending_n": 0,
+      "orders_n": 0,
+      "positions_n": 0,
+      "ledger_rows": {
+        "4a": "no_db",
+        "3a": {
+          "paper_pending": 0,
+          "paper_order": 0,
+          "paper_fill": 0,
+          "paper_position": 0,
+          "paper_realized": 0,
+          "paper_processed": 0
+        }
+      },
+      "error": null,
+      "stderr_tail": null
+    },
+    {
+      "case": "B 实验：arm=4a（唯一屏障「臂号不匹配」被移除）",
+      "workspace": {
+        "root": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/B_arm4a_barrier_removed",
+        "live": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/B_arm4a_barrier_removed/live_signals.sqlite3",
+        "ledger": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/B_arm4a_barrier_removed/ledger",
+        "gate": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/SIGNAL-EFFECTIVE-01-WORK/iso/B_arm4a_barrier_removed/locks/paper_new_entry_gate.json"
+      },
+      "route": {
+        "processed": 105,
+        "registered": 12,
+        "rejected": 93,
+        "waiting_gate": 0,
+        "terminal": 93,
+        "errors": []
+      },
+      "pending_n": 12,
+      "orders_n": 93,
+      "positions_n": 0,
+      "pending_detail": [
+        {
+          "pending_id": 1,
+          "symbol": "XTZUSDT",
+          "signal_uid": "accum05_4a_XTZUSDT_1792087199999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792087199999,
+          "available_at": 1792087199999,
+          "earliest_fill_ms": 1793114269687,
+          "requested_at": 1793113369687,
+          "created_at": 1793113369688
+        },
+        {
+          "pending_id": 2,
+          "symbol": "GTCUSDT",
+          "signal_uid": "accum05_4a_GTCUSDT_1792295999999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792295999999,
+          "available_at": 1792295999999,
+          "earliest_fill_ms": 1793114269691,
+          "requested_at": 1793113369691,
+          "created_at": 1793113369694
+        },
+        {
+          "pending_id": 3,
+          "symbol": "AXLUSDT",
+          "signal_uid": "accum05_4a_AXLUSDT_1792313999999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792313999999,
+          "available_at": 1792313999999,
+          "earliest_fill_ms": 1793114269699,
+          "requested_at": 1793113369699,
+          "created_at": 1793113369701
+        },
+        {
+          "pending_id": 4,
+          "symbol": "ZETAUSDT",
+          "signal_uid": "accum05_4a_ZETAUSDT_1792569599999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792569599999,
+          "available_at": 1792569599999,
+          "earliest_fill_ms": 1793114269710,
+          "requested_at": 1793113369710,
+          "created_at": 1793113369711
+        },
+        {
+          "pending_id": 5,
+          "symbol": "LISTAUSDT",
+          "signal_uid": "accum05_4a_LISTAUSDT_1792583999999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792583999999,
+          "available_at": 1792583999999,
+          "earliest_fill_ms": 1793114269714,
+          "requested_at": 1793113369714,
+          "created_at": 1793113369715
+        },
+        {
+          "pending_id": 6,
+          "symbol": "GTCUSDT",
+          "signal_uid": "accum05_4a_GTCUSDT_1792717199999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792717199999,
+          "available_at": 1792717199999,
+          "earliest_fill_ms": 1793114269718,
+          "requested_at": 1793113369718,
+          "created_at": 1793113369719
+        },
+        {
+          "pending_id": 7,
+          "symbol": "ARKUSDT",
+          "signal_uid": "accum05_4a_ARKUSDT_1792731599999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792731599999,
+          "available_at": 1792731599999,
+          "earliest_fill_ms": 1793114269722,
+          "requested_at": 1793113369722,
+          "created_at": 1793113369722
+        },
+        {
+          "pending_id": 8,
+          "symbol": "TREEUSDT",
+          "signal_uid": "accum05_4a_TREEUSDT_1792753199999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792753199999,
+          "available_at": 1792753199999,
+          "earliest_fill_ms": 1793114269724,
+          "requested_at": 1793113369724,
+          "created_at": 1793113369725
+        },
+        {
+          "pending_id": 9,
+          "symbol": "HYPERUSDT",
+          "signal_uid": "accum05_4a_HYPERUSDT_1792771199999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792771199999,
+          "available_at": 1792771199999,
+          "earliest_fill_ms": 1793114269728,
+          "requested_at": 1793113369728,
+          "created_at": 1793113369729
+        },
+        {
+          "pending_id": 10,
+          "symbol": "AVAUSDT",
+          "signal_uid": "accum05_4a_AVAUSDT_1792792799999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792792799999,
+          "available_at": 1792792799999,
+          "earliest_fill_ms": 1793114269731,
+          "requested_at": 1793113369731,
+          "created_at": 1793113369731
+        },
+        {
+          "pending_id": 11,
+          "symbol": "ZORAUSDT",
+          "signal_uid": "accum05_4a_ZORAUSDT_1792807199999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792807199999,
+          "available_at": 1792807199999,
+          "earliest_fill_ms": 1793114269734,
+          "requested_at": 1793113369734,
+          "created_at": 1793113369735
+        },
+        {
+          "pending_id": 12,
+          "symbol": "MAVUSDT",
+          "signal_uid": "accum05_4a_MAVUSDT_1792994399999",
+          "origin": "recovered",
+          "status": "pending",
+          "reason": null,
+          "event_time": 1792994399999,
+          "available_at": 1792994399999,
+          "earliest_fill_ms": 1793114269737,
+          "requested_at": 1793113369737,
+          "created_at": 1793113369738
+        }
+      ],
+      "ledger_rows": {
+        "4a": {
+          "paper_pending": 12,
+          "paper_order": 93,
+          "paper_fill": 0,
+          "paper_position": 0,
+          "paper_realized": 0,
+          "paper_processed": 93
+        },
+        "3a": "no_db"
+      },
+      "error": null,
+      "stderr_tail": null
+    }
+  ]
+}

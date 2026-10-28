@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-10-27T12:43:46Z",
+  "total": 25,
+  "passed": 25,
+  "residual_pnl": 0.0,
+  "details": [
+    {
+      "name": "初始资金配置为 5000 USDT",
+      "pass": true
+    },
+    {
+      "name": "最大持仓数配置为 10",
+      "pass": true
+    },
+    {
+      "name": "初始止损比例 stoploss_s = 0.05 (95% 保护)",
+      "pass": true
+    },
+    {
+      "name": "4h 跟踪比例 trail_d = 0.05 (最低价 × 95%)",
+      "pass": true
+    },
+    {
+      "name": "隔离账本 paper_3a.sqlite3 初始化成功",
+      "pass": true
+    },
+    {
+      "name": "初始账面现金严格等于 5000.00 U",
+      "pass": true
+    },
+    {
+      "name": "在 paper_epoch (1791939600000) 之后成功提取真实 15m K 线",
+      "pass": true
+    },
+    {
+      "name": "主策略挂单成功持久化至 paper_pending (pending_id=1)",
+      "pass": true
+    },
+    {
+      "name": "挂单在 15m 开盘时刻成功撮合成交: [{'ok': True, 'reason': 'filled', 'position_id': 1, 'order_id': 1, 'qty': 0.005, 'entry_price': 83780.20000000001, 'raw_price': 83738.3, 'stop_price': 79591.1, 'initial_stop_price': 79591.1, 'stop_dist': 4189.100000000006, 'planned_risk': 20.94550000000003, 'notional': 418.90100000000007, 'fee': 0.20945050000000004, 'slippage_cost': 0.20950000000004365, 'bar_open_time': 1791948600000, 'bar_close_time': 1791949499999, 'model_version': 'paper_exec_v1_derived_from_effective_view_20261013', 'signal_uid': 'sig_wyckoff_main_test_1791947700000', 'origin': 'test', 'event_time': 1791947700000, 'available_at': 1791947700000, 'requested_at': 1791947700000, 'earliest_fill_ms': 1791948600000, 'filled_at': 1791948600000, 'fill_lag_ms': 0, 'market_source': 'binance.um.candles_15m.is_closed.open', 'bar_provenance': {'layer': None, 'available_at': None, 'available_at_proven': False}}]",
+      "pass": true
+    },
+    {
+      "name": "持仓成功写入 paper_position，状态为 open",
+      "pass": true
+    },
+    {
+      "name": "初始止损严格为成交价(83780.20000000001) × 95% = 79591.19 (实测: 79591.1)",
+      "pass": true
+    },
+    {
+      "name": "开仓手续费精确扣减: 0.20945050000000004 U",
+      "pass": true
+    },
+    {
+      "name": "第一根 4h 收盘推进跟踪止损成功: {'ok': True, 'position_id': 1, 'symbol': 'BTCUSDT', 'entry_price': 83780.20000000001, 'old_stop': 79591.1, 'candidate_stop': 80275.0, 'effective_stop': 80275.0, 'confirm_ms': 1791963000000, 'effective_at': 1791963900000, 'stop_updated': True, 'ref_candle_open_time': 1791948600000, 'ref_candle_close_time': 1791962999999, 'available_at': 1791962999999, 'available_at_proven': False, 'available_at_source': 'fallback_close_time', 'decision_at': 1791963000000, 'effective_at_source': 'confirm_ms_plus_15m', 'exit_triggered': False, 'exit_result': None, 'rule': 'FT-LOW4H', 'trail_d': 0.05}",
+      "pass": true
+    },
+    {
+      "name": "跟踪止损成功抬升: 79591.1 -> 80275.0",
+      "pass": true
+    },
+    {
+      "name": "抬升值符合最低价 × 95% = 80275.0",
+      "pass": true
+    },
+    {
+      "name": "第二根 4h 回调推进跟踪止损成功: {'ok': True, 'position_id': 1, 'symbol': 'BTCUSDT', 'entry_price': 83780.20000000001, 'old_stop': 80275.0, 'candidate_stop': 78850.0, 'effective_stop': 80275.0, 'confirm_ms': 1791977400000, 'effective_at': 1791978300000, 'stop_updated': False, 'ref_candle_open_time': 1791963000000, 'ref_candle_close_time': 1791977399999, 'available_at': 1791977399999, 'available_at_proven': False, 'available_at_source': 'fallback_close_time', 'decision_at': 1791977400000, 'effective_at_source': 'confirm_ms_plus_15m', 'exit_triggered': False, 'exit_result': None, 'rule': 'FT-LOW4H', 'trail_d': 0.05}",
+      "pass": true
+    },
+    {
+      "name": "止损线严格单调上移、不下移: 80275.0 == 80275.0",
+      "pass": true
+    },
+    {
+      "name": "paper_stop_history 精确记录了止损调整流水 (2 笔)",
+      "pass": true
+    },
+    {
+      "name": "资金费流水写入 paper_funding，持仓与账户累计扣减 0.05 U",
+      "pass": true
+    },
+    {
+      "name": "触损平仓执行成功: {'ok': True, 'reason': 'closed', 'position_id': 1, 'order_id': 2, 'symbol': 'BTCUSDT', 'exit_price': 80234.8, 'raw_price': 80275.0, 'qty': 0.005, 'gross_pnl': -17.727000000000043, 'entry_fee': 0.20945050000000004, 'exit_fee': 0.20058700000000002, 'funding_paid': 0.056382607709915634, 'funding_paid_this_close': 0.006382607709915632, 'n_funding_events': 2, 'n_funding_events_this_close': 1, 'funding_events': [{'funding_time': 1791964800001, 'funding_rate': 1.528e-05, 'mark_price': 83541.98573188, 'qty': 0.005, 'amount': 0.006382607709915632, 'late_backfill': False, 'recorded_at': 1793105026732}], 'funding_gaps': [], 'amount_sign_convention': 'expense_positive', 'net_pnl': -18.193420107709958, 'entry_ts': 1791948600000, 'exit_ts': 1791978299999, 'exit_reason': 'stop_loss', 'model_version': 'paper_exec_v1_derived_from_effective_view_20261013', 'ledger_model_version': 'paper_exec_v1_legacy_retired_in_work04b', 'market_source': 'binance.um.candles_15m.is_closed.open'}",
+      "pass": true
+    },
+    {
+      "name": "持仓状态成功更新为 closed",
+      "pass": true
+    },
+    {
+      "name": "平仓记录成功持久化至 paper_realized",
+      "pass": true
+    },
+    {
+      "name": "净盈亏对账残差严格为 0.00 U: net(-18.193420107709958) == calc(-18.193420107709958), residual=0.0",
+      "pass": true
+    },
+    {
+      "name": "断点恢复自检成功: None",
+      "pass": true
+    },
+    {
+      "name": "断点恢复后账户现金无缝继承: actual(4981.80658) == expected(4981.80658)",
+      "pass": true
+    }
+  ]
+}

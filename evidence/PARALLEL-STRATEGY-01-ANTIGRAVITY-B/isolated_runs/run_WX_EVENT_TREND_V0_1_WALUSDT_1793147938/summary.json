@@ -1,0 +1,202 @@
+{
+  "ablation_run": false,
+  "execution_rule": "FT-LOW4H",
+  "formal_pass_allowed": false,
+  "formal_pass_allowed_components": {
+    "instrument_spec": false,
+    "pit": false
+  },
+  "formal_pass_block_reasons": [
+    "instrument_spec_unproven",
+    "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+  ],
+  "funnel": {
+    "boxes": 6,
+    "breakouts": 0,
+    "candidates": 0,
+    "executed_trades": 0,
+    "expired": 4,
+    "invalidated": 0,
+    "oi_rejected": 0,
+    "oi_unavailable": 1,
+    "retests": 1,
+    "sweeps": 1,
+    "volume_rejected": 0
+  },
+  "identity": {
+    "candidates_executed": 0,
+    "candidates_total": 0,
+    "chain_ok": true,
+    "identity_breaks": [],
+    "orphan_trades": [],
+    "trades_matched_by_identity": 0,
+    "trades_total": 0
+  },
+  "instrument_spec": {
+    "applicability": "unverified_historical",
+    "applicability_note": "没有任何快照的 serverTime 早于窗口开始 1788220800000 ⇒ 窗口起点之前无证据",
+    "blocking": true,
+    "change_evidence": [],
+    "contradiction_samples": [],
+    "coverage": {
+      "chain": [
+        {
+          "file_mtime_ms": 1791176008347,
+          "file_saved_ms": 1791176008000,
+          "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+          "request_fetched_ms": 1791173366032,
+          "role": "anchor",
+          "same_as_anchor": true,
+          "sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+          "snapshot_server_ms": 1790941589242,
+          "spec_signature": "price_step=0.00001|qty_step=1|min_qty=1|max_qty=3000000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+        }
+      ],
+      "change_evidence": [],
+      "note": "没有任何快照的 serverTime 早于窗口开始 1788220800000 ⇒ 窗口起点之前无证据",
+      "numeric_source": null,
+      "reason": "no_snapshot_before_window_start",
+      "verdict": "unverified_historical"
+    },
+    "evidence_chain": [
+      {
+        "file_mtime_ms": 1791176008347,
+        "file_saved_ms": 1791176008000,
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+        "request_fetched_ms": 1791173366032,
+        "role": "anchor",
+        "same_as_anchor": true,
+        "sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+        "snapshot_server_ms": 1790941589242,
+        "spec_signature": "price_step=0.00001|qty_step=1|min_qty=1|max_qty=3000000|min_notional=5|src=LOT_SIZE:1;MARKET_LOT_SIZE:1;MIN_NOTIONAL:5"
+      }
+    ],
+    "evidence_path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池/exchangeInfo_futures_2026-10-05T045328Z.json",
+    "evidence_sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+    "fetched_at_ms": 1791173366032,
+    "file_mtime_ms": 1791176008347,
+    "file_saved_ms": 1791176008000,
+    "formal_pass_allowed": false,
+    "market": "um",
+    "max_qty": "3000000",
+    "min_notional": "5",
+    "min_qty": "1",
+    "onboard_ms": 1743089400000,
+    "order_type": "MARKET",
+    "price_precision": 7,
+    "price_step": "0.00001",
+    "qty_constraints": [
+      {
+        "applies": "always",
+        "filter": "LOT_SIZE",
+        "max": "20000000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "market_only",
+        "filter": "MARKET_LOT_SIZE",
+        "max": "3000000",
+        "min": "1",
+        "step": "1"
+      },
+      {
+        "applies": "always",
+        "filter": "MIN_NOTIONAL",
+        "notional": "5"
+      }
+    ],
+    "qty_step": "1",
+    "quantity_precision": 0,
+    "request_fetched_ms": 1791173366032,
+    "snapshot_server_ms": 1790941589242,
+    "source_kind": "exchange_public_rest:exchangeInfo",
+    "source_url": "https://fapi.binance.com/fapi/v1/exchangeInfo",
+    "spec_effective_ms": null,
+    "symbol": "WALUSDT",
+    "venue": "binance",
+    "window_end_ms": 1792260000000,
+    "window_start_ms": 1788220800000
+  },
+  "oi_filter_enabled": true,
+  "pit_audit_sha256": "336c2a0fe72f20c821742ec2d7e1ff5c81d111f68d03c8403a31c3e8e05130bd",
+  "pit_qualified": false,
+  "precision": {
+    "audit": [],
+    "audit_count": 0,
+    "invalid_reasons": [],
+    "price_steps": {
+      "WALUSDT": "0.00001"
+    },
+    "rejects": [],
+    "rejects_count": 0,
+    "run_valid": true,
+    "spec_status": "spec_applied",
+    "specs": {
+      "WALUSDT": {
+        "applicability": "unverified_historical",
+        "evidence_sha256": "e0ecf7bdfb50c3c04798dd2d7cd2144208004e94649b66223233a8ef9e28e835",
+        "market": "um",
+        "min_notional": "5",
+        "min_qty": "1",
+        "order_type": "MARKET",
+        "price_step": "0.00001",
+        "qty_step": "1",
+        "symbol": "WALUSDT",
+        "venue": "binance"
+      }
+    },
+    "unclosed_positions": []
+  },
+  "reconcile": {
+    "cash_identity_ok": true,
+    "equity_curve_tail_matches_final": true,
+    "equity_identity_ok": true,
+    "expected_cash": 2000.0,
+    "fee_model": {
+      "maker_fee_rate": 0.0002,
+      "taker_fee_rate": 0.0005,
+      "tier": "Binance_VIP0"
+    },
+    "final_cash": 2000.0,
+    "final_equity": 2000.0,
+    "funding_settlement_model": "real_events",
+    "initial_equity": 2000.0,
+    "risk_model": {
+      "max_concurrent_trades": 3,
+      "max_leverage": 1.0,
+      "max_portfolio_margin_pct": 0.9,
+      "risk_per_trade": 0.005
+    },
+    "slippage_split_ok": true,
+    "sum_entry_fee": 0.0,
+    "sum_exit_fee": 0.0,
+    "sum_fees": 0.0,
+    "sum_funding_fee": 0.0,
+    "sum_gross_pnl": 0.0,
+    "sum_net_pnl_closed": 0.0,
+    "sum_rounding_loss": 0.0,
+    "sum_slippage_loss": 0.0,
+    "sum_slippage_loss_pure": 0.0,
+    "unrealized_net_open": 0.0
+  },
+  "run_id": "run_WX_EVENT_TREND_V0_1_WALUSDT_1793147938",
+  "spec_status": "spec_applied",
+  "symbol": "WALUSDT",
+  "trading_summary": {
+    "fee_total": 0.0,
+    "final_equity": 2000.0,
+    "formal_pass_allowed": false,
+    "funding_total": 0.0,
+    "initial_equity": 2000.0,
+    "net_pnl": 0.0,
+    "order_count": 0,
+    "rounding_total": 0.0,
+    "slippage_pure_total": 0.0,
+    "slippage_split_ok": true,
+    "slippage_total": 0.0,
+    "spec_status": "spec_applied",
+    "trade_count": 0
+  },
+  "variant": "B"
+}

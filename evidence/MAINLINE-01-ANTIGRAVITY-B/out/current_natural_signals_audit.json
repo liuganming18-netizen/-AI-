@@ -1,0 +1,131 @@
+{
+  "audit_target": "current_natural_signals",
+  "timestamp_utc": "2026-10-28T02:23:45Z",
+  "api_response_default": {
+    "items_count": 0,
+    "total": 0,
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "quality": {
+      "status": "ok",
+      "age_seconds": null,
+      "scope": "current",
+      "live_start_ms": 1792748844240,
+      "paper_epoch_ms": 1791939600000,
+      "effective_floor_ms": 1792748844240,
+      "paper_ledger_attached_arms": [
+        "3a",
+        "3b",
+        "3c",
+        "3d"
+      ],
+      "n_arm_rows": 0,
+      "n_cards": 0,
+      "excluded_n": 289,
+      "excluded_breakdown": {
+        "db_rows_total": 289,
+        "kept": 0,
+        "excluded": 289,
+        "by_reason": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0,
+          "unapproved_config": 289
+        },
+        "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+      },
+      "note": "当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 289 条（仍保留在库/审计通道）"
+    },
+    "raw_body": {
+      "mode": null,
+      "account_id": null,
+      "run_id": null,
+      "strategy_version": "FT-LOW4H-EXP-V2.2",
+      "rule_version": "FT-LOW4H",
+      "param_hash": "82dec362c182",
+      "data_version": null,
+      "as_of": null,
+      "quality": {
+        "status": "ok",
+        "age_seconds": null,
+        "scope": "current",
+        "live_start_ms": 1792748844240,
+        "paper_epoch_ms": 1791939600000,
+        "effective_floor_ms": 1792748844240,
+        "paper_ledger_attached_arms": [
+          "3a",
+          "3b",
+          "3c",
+          "3d"
+        ],
+        "n_arm_rows": 0,
+        "n_cards": 0,
+        "excluded_n": 289,
+        "excluded_breakdown": {
+          "db_rows_total": 289,
+          "kept": 0,
+          "excluded": 289,
+          "by_reason": {
+            "not_current_origin": 289,
+            "not_enterable": 289,
+            "missing_time": 289,
+            "before_effective_floor": 0,
+            "not_arm_entry_role": 289,
+            "test_synthetic": 0,
+            "unapproved_config": 289
+          },
+          "note": "一行可同时命中多条原因，故各项之和 ≥ excluded；`before_effective_floor` 的下限 = max(live_start, paper epoch)，按真实区间右边界(+1ms)比较"
+        },
+        "note": "当前交易信号区（scope=current）：origin∈{live,recovered} + enterable + 真实 bar 右边界不早于有效下限 + 真实臂入场(payload.role=enterable_arm_entry) + 排除已终态拒单；合并后 0 张卡（原始 0 条臂行）；已从本区移出 289 条（仍保留在库/审计通道）"
+      },
+      "source_url": null,
+      "evidence_level": null,
+      "missing_reason": null,
+      "time": {
+        "event_time": null,
+        "available_at": null,
+        "received_at": null,
+        "fetched_at": null
+      },
+      "items": [],
+      "has_more": false,
+      "next_cursor": null,
+      "total": 0,
+      "limit": 200,
+      "param_hash_basis": "frozen_view_sha256",
+      "params_source": "frozen_view_10_研究参数生效视图_v2_2_user5000_shared",
+      "rule_view_available": true,
+      "rule_view_spec_version": "F_WX_v2.2_project_closure_user_5000_shared_ft_low4h",
+      "exec_core_crosscheck": {
+        "available": false,
+        "ok": null,
+        "mismatch_n": 0,
+        "mismatches": []
+      },
+      "ledger_source": {
+        "kind": "live_signal_db",
+        "path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+        "paper_ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper",
+        "paper_ledger_present": true
+      }
+    }
+  },
+  "database_audit": {
+    "live_signals_db_path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+    "total_rows": 289,
+    "origin_counts": {
+      "historical_research": 289
+    },
+    "natural_live_rows_count": 0,
+    "market_v2_signals_count": 0
+  },
+  "runtime_engine_status": {
+    "status": "running",
+    "cycle_count": 746,
+    "universe": 526,
+    "active_gate": "unified_runtime 3a enable_oi_filter=True"
+  },
+  "conclusion": "自然信号在生成端、持久化库、API与前端展示层确为严格的 0 条。策略未生成新的符合条件的 CANDIDATE。"
+}

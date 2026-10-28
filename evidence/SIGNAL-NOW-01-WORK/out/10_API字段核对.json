@@ -1,0 +1,153 @@
+{
+  "ticket": "SIGNAL-NOW-01-WORK",
+  "step": "10 重载后 API 字段核对（只读）",
+  "at_utc": "2026-10-27T18:43:49Z",
+  "api": "http://127.0.0.1:8787",
+  "current_scope": {
+    "http": "200",
+    "total": 0,
+    "items_n": 0,
+    "excluded_n": 289,
+    "by_reason": {
+      "not_current_origin": 289,
+      "not_enterable": 289,
+      "missing_time": 289,
+      "before_effective_floor": 0,
+      "not_arm_entry_role": 289,
+      "test_synthetic": 0,
+      "unapproved_config": 289
+    },
+    "by_reason_sum": 1445,
+    "effective_floor_ms": 1792748844240,
+    "live_start_ms": 1792748844240,
+    "paper_epoch_ms": 1791939600000,
+    "origins_in_current": {},
+    "strategy_version": "FT-LOW4H-EXP-V2.2",
+    "rule_version": "FT-LOW4H",
+    "param_hash": "82dec362c182"
+  },
+  "research_scope": {
+    "http": "200",
+    "total": 289,
+    "has_more": false,
+    "items_n": 289,
+    "origin": {
+      "historical_research": 289
+    },
+    "executable_state": {
+      "historical_not_executable": 289
+    },
+    "role": {
+      "research_only": 289
+    },
+    "actionable": {
+      "false": 289
+    },
+    "research_approved": {
+      "false": 289
+    },
+    "available_at_null_n": 289,
+    "arm": {
+      "4c": 97,
+      "4a": 105,
+      "4b": 87
+    },
+    "position_multiplier": {
+      "1.0": 200,
+      "0.8": 89
+    },
+    "actionable_reason_unique_n": 1,
+    "actionable_reason_sample": "approved=false｜研究/未批准配置（反重力 fixture 配置，G01–G05 全 pending）⇒ 只展示、不可执行、不进入当前交易区",
+    "uid_sample": [
+      "accum05_4c_MAVUSDT_1793005199999",
+      "accum05_4a_MAVUSDT_1792994399999",
+      "accum05_4b_ZORAUSDT_1792821599999"
+    ],
+    "field_name_facts": {
+      "可执行态字段名": "executable_state（不是 execution_state）",
+      "批准字段名": "research.approved（顶层没有 approved）",
+      "研究段字段": [
+        "run_id",
+        "scheme",
+        "approved",
+        "config_kind",
+        "config_sha256",
+        "engine_view_sha256",
+        "code_hashes_n",
+        "code_drift",
+        "approval_blockers",
+        "gaps",
+        "available_at_status",
+        "available_at_reason",
+        "entry_bar_open_ms",
+        "data_version_note",
+        "source_file",
+        "source_file_sha256"
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "assert": "current 区 0 条",
+      "ok": true,
+      "detail": "total=0"
+    },
+    {
+      "assert": "current 区无研究行污染",
+      "ok": true,
+      "detail": "{}"
+    },
+    {
+      "assert": "excluded_n = 289",
+      "ok": true,
+      "detail": "excluded_n=289"
+    },
+    {
+      "assert": "by_reason 各项之和 ≥ excluded_n（多因命中，不冒充唯一原因）",
+      "ok": true,
+      "detail": "sum=1445 excluded_n=289"
+    },
+    {
+      "assert": "effective_floor_ms = live_start_ms = 1792748844240",
+      "ok": true,
+      "detail": "floor=1792748844240 live=1792748844240"
+    },
+    {
+      "assert": "研究行 289 条且 has_more=false",
+      "ok": true,
+      "detail": "total=289 has_more=False"
+    },
+    {
+      "assert": "研究行 origin 全为 historical_research",
+      "ok": true,
+      "detail": "{'historical_research': 289}"
+    },
+    {
+      "assert": "研究行可执行态全为 historical_not_executable",
+      "ok": true,
+      "detail": "{'historical_not_executable': 289}"
+    },
+    {
+      "assert": "研究行 role 全为 research_only",
+      "ok": true,
+      "detail": "{'research_only': 289}"
+    },
+    {
+      "assert": "研究行 actionable 全为 false",
+      "ok": true,
+      "detail": "{False: 289}"
+    },
+    {
+      "assert": "研究行 approved 全为 false",
+      "ok": true,
+      "detail": "{False: 289}"
+    },
+    {
+      "assert": "研究行 available_at 全为 null（不伪填）",
+      "ok": true,
+      "detail": "null=289/289"
+    }
+  ],
+  "passed": 12,
+  "total_assertions": 12
+}

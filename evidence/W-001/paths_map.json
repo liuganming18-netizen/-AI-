@@ -1,0 +1,759 @@
+{
+  "meta": {
+    "ticket": "W-001",
+    "receiver": "Luna",
+    "executor": "Work",
+    "branch": "wyckoff-v3.1-main",
+    "base_commit": "9e3bc14b",
+    "purpose": "V3.1 新产物文件路径 ↔ 前端/代码现存旧路径 的逐条映射对照",
+    "path_base": "工程根 /Users/boos/Desktop/威科夫因子共振趋势（下称 <ROOT>），所有路径均相对 <ROOT>",
+    "status_enum": [
+      "在用",
+      "存在但非权威",
+      "旧路径仍在磁盘但已不被读取",
+      "死常量（定义后无第二处引用）",
+      "死路径（目标不存在）",
+      "目标缺失",
+      "文案/注释过期（与实际不符）"
+    ],
+    "warning": "本清单只做「路径对照」，不判定业务是否通过。凡涉及成绩、通过与否，一律不引用本清单。"
+  },
+  "A_data": [
+    {
+      "id": "D-01",
+      "artifact": "纸面账本（四臂 3a/3b/3c/3d）",
+      "new_path": "数据/paper/paper_3a.sqlite3",
+      "new_path_pattern": "数据/paper/paper_{3a,3b,3c,3d}.sqlite3（另各带 -wal / -shm）",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/纸面模拟43/paper_{3a,3b,3c,3d}.sqlite3",
+      "refs": [
+        "框架/backend/live_store.py:31 （常量 W43，全仓无第二处引用）",
+        "框架/backend/live_store.py:11 （docstring 仍写 纸面模拟43/paper_{arm}.sqlite3）",
+        "框架/backend/paper_engine.py:32 （docstring 仍写 纸面模拟43/paper_{arm}.sqlite3）"
+      ],
+      "authority": "live_store.get_ledger_dir()：环境变量 PAPER_LEDGER_DIR 优先；缺省 <ROOT>/数据/paper（live_store.py:48-54）",
+      "status": "旧路径仍在磁盘但已不被读取",
+      "note": "旧目录 4 个库文件仍在（各 151,552 B，mtime 2026-10-15），已无代码读取；W43 是死常量；两处 docstring 文案过期。缺库时 live_store 抛 LedgerUnavailable，不会自动建库、不会换目录。"
+    },
+    {
+      "id": "D-02",
+      "artifact": "账本身份声明",
+      "new_path": "数据/paper/ledger_identity.json",
+      "old_path": null,
+      "refs": [
+        "框架/backend/live_store.py:57 （LEDGER_MANIFEST = LEDGER_DIR / ledger_identity.json）"
+      ],
+      "authority": "同上（随 LEDGER_DIR 走）",
+      "status": "目标缺失",
+      "note": "数据/paper 目录内只有 4 个 sqlite3 + 4 个 -wal + 4 个 -shm，无 ledger_identity.json。代码把它当账本身份的权威声明并与库内 paper_state/paper_account.account_id 交叉核对。"
+    },
+    {
+      "id": "D-03",
+      "artifact": "实时信号库",
+      "new_path": "框架/backend/live/live_signals.sqlite3",
+      "old_path": "框架/backend/live/live_signals_legacy_backup.sqlite3",
+      "refs": [
+        "框架/backend/live_store.py:66 （LIVE_DIR，环境变量 LIVE_DIR 可覆盖）",
+        "框架/backend/live_store.py:67 （LIVE_DB，环境变量 LIVE_DB 可覆盖）"
+      ],
+      "authority": "LIVE_DB；缺省 HERE/live/live_signals.sqlite3",
+      "status": "在用",
+      "note": "旧备份 93,130,752 B（mtime 2026-10-15）与新库同目录并存，不参与读取；同目录另有 paper_legacy_audit.sqlite3 20,480 B。"
+    },
+    {
+      "id": "D-04",
+      "artifact": "热层行情库",
+      "new_path": "数据/市场数据/db/market_v2.sqlite3",
+      "old_path": "（旧绝对路径已随旧工作区清理，代码注释明示不再作为默认）",
+      "refs": [
+        "框架/backend/live_store.py:70-71 （MARKET_DB，环境变量 MARKET_DB 可覆盖）",
+        "UI界面/web/src/components/DataCenterView.tsx:2296 （页面写 market_v2.sqlite3 (6.0 GB)）",
+        "UI界面/web/src/components/StrategyManagementView.tsx:437 （页面写 存储路径: 数据/市场数据/db/market_v2.sqlite3）"
+      ],
+      "authority": "MARKET_DB；缺省 <ROOT>/数据/市场数据/db/market_v2.sqlite3",
+      "status": "在用",
+      "note": "StrategyManagementView 的目录写法正确；DataCenterView 的容量数字过期（实际约 13 GiB，另带约 434 MB 的 -wal）。容量以 verify_paths.py 实测为准。"
+    },
+    {
+      "id": "D-05",
+      "artifact": "冻结参数生效视图 v2.2",
+      "new_path": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+      "refs": [
+        "框架/backend/project_paths.py:73-79 （EFFECTIVE_VIEW_RELPATH / EFFECTIVE_VIEW）",
+        "框架/backend/live_pool.py:121-124 （FROZEN_VIEW）",
+        "框架/backend/strategy_contracts.py:131-136 （DEFAULT_VIEW_PATH）"
+      ],
+      "authority": "EFFECTIVE_VIEW 环境变量优先；三处缺省都指向 数据/研究输入/ 下的新位置",
+      "status": "在用",
+      "note": "同名不同根：路径串里仍带旧目录名「最新唐奇安威科夫接通与收尾_2026-10-11」，但根已从「框架/」换成「数据/研究输入/」。旧根下该文件不存在。"
+    },
+    {
+      "id": "D-06",
+      "artifact": "研究输入（外部迁移件）",
+      "new_path": "数据/研究输入/外部迁移_2026-10-16/",
+      "old_path": "（原外部工作树检出目录，已整体迁入工程）",
+      "refs": [
+        "框架/backend/project_paths.py:58 （RESEARCH_INPUT_DIR）",
+        "框架/backend/project_paths.py:60 （EXTERNAL_MIGRATION_DIR）",
+        "框架/backend/project_paths.py:63-69 （LEGACY_DECISION_DIR / LEGACY_DISPATCH_DIR / LEGACY_RULES_DIR / LEGACY_REVIEW_DIR）"
+      ],
+      "authority": "RESEARCH_INPUT_DIR 环境变量优先；缺省 <ROOT>/数据/研究输入",
+      "status": "在用",
+      "note": "下含 6 个子目录：Work派工_2026-10-11、Work派工_2026-10-13、本次离线决策_2026-10-12、策略与回测规则_2026-10-11、项目闭环审查_2026-10-11、小时资金费与中文币离线答复_2026-10-12。"
+    },
+    {
+      "id": "D-07",
+      "artifact": "quote_sidecar（375 报价旁路）",
+      "new_path": null,
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/回测输入收口/quote_sidecar",
+      "refs": [
+        "框架/backend/strategies/wx_daily_375.py:66-67 （SIDECAR）"
+      ],
+      "authority": "无（硬编码相对推导，不可用环境变量覆盖）",
+      "status": "死路径（目标不存在）",
+      "note": "旧根下现存内容只有 量价信号接入与模拟历史并行43/纸面模拟43/，没有 5000U收尾与回测条件终验6/ 这一层。"
+    },
+    {
+      "id": "D-08",
+      "artifact": "375 逐日名单",
+      "new_path": null,
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/375逐日名单与实际输入接通27/02_375逐日名单_{panel}.json",
+      "refs": [
+        "框架/backend/strategies/wx_daily_375.py:792 （daily_doc_path）"
+      ],
+      "authority": "无（硬编码相对推导）",
+      "status": "死路径（目标不存在）",
+      "note": "同上，375逐日名单与实际输入接通27/ 目录在旧根下不存在。"
+    },
+    {
+      "id": "D-09",
+      "artifact": "G01–G05 运行绑定台账",
+      "new_path": null,
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/接线路整改3/运行绑定_G01_G05.json",
+      "refs": [
+        "框架/backend/strategies/wx_gate.py:78-82 （SUITE_DIR / DEFAULT_BINDING_PATH）"
+      ],
+      "authority": "无（wx_gate.py:74-77 显式声明不读环境变量）",
+      "status": "死路径（目标不存在）",
+      "note": "代码自带语义：文件不存在即视为全部 pending。"
+    },
+    {
+      "id": "D-10",
+      "artifact": "旧 v3.1 核心逐字节封存",
+      "new_path": "策略/WyckoffMaster/_legacy_archive_v31/",
+      "old_path": null,
+      "refs": [
+        "框架/backend/strategies/registry.py:162 （对外输出的字符串常量）",
+        "框架/backend/strategies/registry.py:186 （对外输出的字符串常量）",
+        "框架/backend/legacy_retirement.py:63 （LEGACY_SOURCE_DIRS 元组成员，只读保留）"
+      ],
+      "authority": "PROJECT_ROOT / 策略 / WyckoffMaster / _legacy_archive_v31",
+      "status": "在用",
+      "note": "目录存在，含 ARCHIVE_MANIFEST.json、core.py、execution.py、verify.py、test_execution.py 等 16 项。"
+    },
+    {
+      "id": "D-11",
+      "artifact": "运行时状态与锁",
+      "new_path": "框架/backend/locks/",
+      "old_path": null,
+      "refs": [
+        "框架/backend/api/routes.py:76-81 （观察明细独立落盘的理由说明）",
+        "框架/backend/api/routes.py:50-70 （_paper_daemon_status 读取 unified_runtime_status / paper_runtime_status）"
+      ],
+      "authority": "固定相对 HERE/locks",
+      "status": "在用",
+      "note": "含 paper_runtime_3a_observe.json（观察明细）、paper_runtime_3a_status.json（2 秒全量重写）、unified_runtime_status_3a.json、paper_exec_3a.lock、paper_runtime_3a.lock。routes.py:78 注释写观察明细「约 346 条、约 221 KB」，实测 observe.json 已近 2 MB ⇒ 量级注释过期。"
+    },
+    {
+      "id": "D-12",
+      "artifact": "行情快照（public-extras / smart-money）",
+      "new_path": "框架/backend/快照/public_extras/",
+      "new_path_alt": "框架/backend/快照/smart_money/",
+      "old_path": null,
+      "refs": [
+        "框架/backend/api/routes.py:199-201 （public-extras 只读本机快照）",
+        "框架/backend/api/routes.py:252-255 （smart-money 只读本机快照）"
+      ],
+      "authority": "固定相对 HERE/快照",
+      "status": "在用",
+      "note": "public_extras 含 _index.json 与逐标的 json；目录内有一个 2026-10-07 的 .tmp 残留文件。"
+    },
+    {
+      "id": "D-13",
+      "artifact": "新开仓闸门文件",
+      "new_path": "框架/backend/live/paper_new_entry_gate.json",
+      "old_path": null,
+      "refs": [
+        "框架/backend/paper_engine.py:252 （GATE_FILE，环境变量 PAPER_GATE_FILE 可覆盖）",
+        "框架/backend/paper_engine.py:259",
+        "框架/backend/live_api.py:1272 （PE.GATE_FILE）"
+      ],
+      "authority": "PAPER_GATE_FILE 环境变量优先；缺省 HERE/live/paper_new_entry_gate.json",
+      "status": "在用",
+      "note": "307 B，mtime 2026-10-23。"
+    },
+    {
+      "id": "D-14",
+      "artifact": "冻结历史回测账本目录",
+      "new_path": "回测日志/回测资源改造_2026-10-14/ledgers_ra",
+      "new_path_alt": "回测日志/全池真实费用回测_2026-10-13/ledgers",
+      "old_path": null,
+      "refs": [
+        "框架/backend/live_store.py:60-64 （BACKTEST_LEDGER_DIRS）"
+      ],
+      "authority": "固定相对 PROJECT_ROOT",
+      "status": "存在性见 PATH-CHECK",
+      "note": "代码自带语义：不存在 ⇒ 缺失态，不创建。"
+    }
+  ],
+  "B_code": [
+    {
+      "id": "C-01",
+      "artifact": "旧工作区站点根注入机制（live_worker）",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/",
+      "refs": [
+        "框架/backend/live_worker.py:33-45"
+      ],
+      "new_mechanism": "外部站点根只来自环境变量 LEGACY_SITE_DIR；未设置 ⇒ BASE=None ⇒ ROOT/W37/W43 全为 None，不注入任何工程外路径",
+      "status": "仅注释/条件路径",
+      "note": "LEGACY_SITE_DIR 未设时 W43=None；live_worker 里 W43 只用于 sys.path 注入，有 None 跳过守卫，不会崩。"
+    },
+    {
+      "id": "C-02",
+      "artifact": "旧工作区站点根注入机制（live_signal_engine）",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43/",
+      "refs": [
+        "框架/backend/live_signal_engine.py:52-62 （同上机制）",
+        "框架/backend/live_signal_engine.py:528 （_sha256_file(W43 / '_warmup43.py')，无 None 守卫）",
+        "框架/backend/live_signal_engine.py:658 （import_historical_research(W43 / '12_实时结构提示_43.jsonl')，无 None 守卫）"
+      ],
+      "new_mechanism": "同 C-01",
+      "status": "死路径（目标不存在）",
+      "note": "LEGACY_SITE_DIR 未设时 W43=None，528/658 两处直接做路径拼接，未见 None 守卫 ⇒ 走到即 TypeError。另：第 69/73 行赋值的 LEGACY_PIPELINE_AVAILABLE 全文件再无读取点（写入型标志，注释称「见下方 LEGACY_PIPELINE_AVAILABLE」实际无消费者）。"
+    },
+    {
+      "id": "C-03",
+      "artifact": "纸面账本旧目录常量",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/量价信号接入与模拟历史并行43",
+      "refs": [
+        "框架/backend/live_store.py:31"
+      ],
+      "new_mechanism": "账本改由 get_ledger_dir() 解析（D-01）",
+      "status": "死常量（定义后无第二处引用）",
+      "note": "全仓 grep W43 仅命中定义行与 live_worker / live_signal_engine 的同名局部变量，live_store.W43 无任何使用点。"
+    },
+    {
+      "id": "C-04",
+      "artifact": "迁移表指向说明（自检脚本提示语）",
+      "old_path": "框架/最新唐奇安威科夫接通与收尾_2026-10-11/",
+      "refs": [
+        "框架/backend/verify_exec_wiring.py:97-99"
+      ],
+      "new_mechanism": "无（纯提示文案）",
+      "status": "仅注释",
+      "note": "出现在 blocked_missing_frozen_modules 的 unblocked_by 建议里，不影响执行。"
+    },
+    {
+      "id": "C-05",
+      "artifact": "研究成本口径的来源标注（字符串）",
+      "old_path": "数据/研究输入/最新唐奇安威科夫接通与收尾_2026-10-11/5000U收尾与回测条件终验6/10_研究参数生效视图_v2_2_user5000_shared.json",
+      "refs": [
+        "框架/backend/accum_research.py:143-145 （COST_MODELS.effective_view.source）",
+        "框架/backend/replay_calc.py:58-59 （CALIBERS.生效视图_5bps.来源）"
+      ],
+      "new_mechanism": "已是新根（数据/研究输入/），仅作来源标注字符串",
+      "status": "在用",
+      "note": "这两处不是路径解析，是写进结果的溯源字符串；根已正确。"
+    }
+  ],
+  "C_ui_text": [
+    {
+      "id": "U-01",
+      "ref": "UI界面/web/src/components/DataCenterView.tsx:2296",
+      "text": "热层行情数据库：market_v2.sqlite3 (6.0 GB)",
+      "problem": "容量数字过期（实测约 13 GiB），且未给目录",
+      "correct": "数据/市场数据/db/market_v2.sqlite3（容量以实测为准）",
+      "status": "文案/注释过期（与实际不符）"
+    },
+    {
+      "id": "U-02",
+      "ref": "UI界面/web/src/components/StrategyManagementView.tsx:287",
+      "text": "数据隔离：实时库 live_signals.sqlite3 · 纸面账本 paper_*.sqlite3",
+      "problem": "只给文件名不给目录，两处同名库无法据此定位（旧根下也有 paper_*.sqlite3）",
+      "correct": "实时库 框架/backend/live/live_signals.sqlite3 · 纸面账本 数据/paper/paper_*.sqlite3",
+      "status": "文案/注释过期（与实际不符）"
+    },
+    {
+      "id": "U-03",
+      "ref": "UI界面/web/src/components/StrategyManagementView.tsx:437",
+      "text": "存储路径: 数据/市场数据/db/market_v2.sqlite3",
+      "problem": "无（与权威路径一致）",
+      "correct": "同上",
+      "status": "在用"
+    },
+    {
+      "id": "U-04",
+      "ref": "框架/backend/api/routes.py:236",
+      "text": "旧单数接口（前端 client.ts 仍在调用）",
+      "problem": "前端已不再调用 /api/v1/strategy：client.ts 全文无该路径，src 下也无 apiGet('/strategy') 调用点",
+      "correct": "该路由现为无前端落点的遗留兼容接口",
+      "status": "文案/注释过期（与实际不符）"
+    },
+    {
+      "id": "U-05",
+      "ref": "框架/backend/api/routes.py:78-80",
+      "text": "全池观察中事件约 346 条、约 221 KB",
+      "problem": "观察明细文件实测已近 2 MB，量级注释过期",
+      "correct": "以 verify_paths.py 实测 locks/paper_runtime_3a_observe.json 为准",
+      "status": "文案/注释过期（与实际不符）"
+    },
+    {
+      "id": "U-06",
+      "ref": "框架/backend/project_paths.py:79-81",
+      "text": "冻结参数生效视图 v2.2 已随旧工作区一并删除，全盘无副本；不得伪造",
+      "problem": "与事实相反：该文件已存在（D-05），且其 sha256 与实验身份里的 view_sha256 前缀一致",
+      "correct": "文件在 数据/研究输入/ 下；注释应改为「旧根下已删除，工程内新根已恢复」",
+      "status": "文案/注释过期（与实际不符）"
+    },
+    {
+      "id": "U-07",
+      "ref": "UI界面/web/src/components/BacktestWorkbench.tsx:1039",
+      "text": "旧实现用 fetch('/all_trades.json') 把一份旧批次的 70 行静态快照当「全市场成交」",
+      "problem": "无（描述的是已删旧实现，仅作历史说明）",
+      "correct": "—",
+      "status": "仅注释"
+    }
+  ],
+  "D_api": {
+    "prefix_rule": "前端所有相对路径由 client.ts 的 API_PREFIX='/api/v1' 拼接（client.ts:12,42,88）；vite dev 由 proxy '/api' 转发到 API_PROXY_TARGET（缺省 http://127.0.0.1:8787），见 vite.config.ts:30-34。",
+    "called": [
+      {
+        "id": "A-01",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:676",
+        "frontend_path": "/health",
+        "method": "GET",
+        "resolved": "/api/v1/health",
+        "route_ref": "框架/backend/api/routes.py:216",
+        "handler": "adapter.v1_health",
+        "data_source": "多源：market_v2.sqlite3 + live_signals.sqlite3 + 心跳"
+      },
+      {
+        "id": "A-02",
+        "frontend_ref": "UI界面/web/src/App.tsx:142；UI界面/web/src/api/liveTrading.ts:917",
+        "frontend_path": "/signals/observe?arm=3a",
+        "method": "GET",
+        "resolved": "/api/v1/signals/observe",
+        "route_ref": "框架/backend/api/routes.py:247",
+        "handler": "api/routes.py::_signals_observe → unified_runtime.get_observe_events",
+        "data_source": "框架/backend/locks/paper_runtime_3a_observe.json"
+      },
+      {
+        "id": "A-03",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:702",
+        "frontend_path": "/signals?scope=current&limit=500",
+        "method": "GET",
+        "resolved": "/api/v1/signals",
+        "route_ref": "框架/backend/api/routes.py:242",
+        "handler": "adapter._v1_signals_merged → live_api.live_signals",
+        "data_source": "live_signals.sqlite3（实时层）+ market_v2.sqlite3 的 signals 表（仅审计通道）"
+      },
+      {
+        "id": "A-04",
+        "frontend_ref": "UI界面/web/src/components/ResearchSignalSection.tsx:171,178",
+        "frontend_path": "/signals?scope=all&origin=historical_research&limit=N",
+        "method": "GET",
+        "resolved": "/api/v1/signals",
+        "route_ref": "框架/backend/api/routes.py:242",
+        "handler": "同 A-03（origin 过滤在 live_api 内）",
+        "data_source": "live_signals.sqlite3（origin=historical_research 行）"
+      },
+      {
+        "id": "A-05",
+        "frontend_ref": "UI界面/web/src/api/liveTrading.ts:504",
+        "frontend_path": "/signals/clear",
+        "method": "POST",
+        "resolved": "/api/v1/signals/clear",
+        "route_ref": "框架/backend/adapter.py:3810（POST 特判）",
+        "handler": "live_api.clear_signals",
+        "data_source": "live_signals.sqlite3"
+      },
+      {
+        "id": "A-06",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:605",
+        "frontend_path": "/markets",
+        "method": "GET",
+        "resolved": "/api/v1/markets",
+        "route_ref": "框架/backend/api/routes.py:222",
+        "handler": "adapter.v1_markets",
+        "data_source": "market_v2.sqlite3"
+      },
+      {
+        "id": "A-07",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:468,809；UI界面/web/src/components/InlineExpandedChart.tsx:471",
+        "frontend_path": "/markets/{ex}/{mid}/candles?timeframe=&limit=&no_rest_tail=1",
+        "method": "GET",
+        "resolved": "/api/v1/markets/{exchange}/{market_id}/candles",
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "handler": "api/routes.py::_market_tail → adapter.v1_candles",
+        "data_source": "market_v2.sqlite3"
+      },
+      {
+        "id": "A-08",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:494",
+        "frontend_path": "/markets/{ex}/{mid}/oi?period=auto&limit=",
+        "method": "GET",
+        "resolved": "/api/v1/markets/{exchange}/{market_id}/oi",
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "handler": "adapter.v1_oi",
+        "data_source": "market_v2.sqlite3（oi_history / snapshot）"
+      },
+      {
+        "id": "A-09",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:904",
+        "frontend_path": "/markets/{ex}/{mid}/funding?limit=",
+        "method": "GET",
+        "resolved": "/api/v1/markets/{exchange}/{market_id}/funding",
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "handler": "adapter.v1_funding",
+        "data_source": "market_v2.sqlite3（funding_history）"
+      },
+      {
+        "id": "A-10",
+        "frontend_ref": "UI界面/web/src/api/useMarketData.ts:982",
+        "frontend_path": "/markets/{ex}/{mid}/public-extras?period=&fields=",
+        "method": "GET",
+        "resolved": "/api/v1/markets/{exchange}/{market_id}/public-extras",
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "handler": "adapter.v1_public_extras",
+        "data_source": "框架/backend/快照/public_extras/"
+      },
+      {
+        "id": "A-11",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:377",
+        "frontend_path": "/markets/{ex}/{sym}/metrics?period=",
+        "method": "GET",
+        "resolved": "/api/v1/markets/{exchange}/{symbol}/metrics",
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "handler": "metrics_api.handle_metrics",
+        "data_source": "归档 parquet + 本机快照 + 只读库"
+      },
+      {
+        "id": "A-12",
+        "frontend_ref": "UI界面/web/src/api/liveTrading.ts:319；UI界面/web/src/components/StrategyManagementView.tsx:62",
+        "frontend_path": "/paper/accounts",
+        "method": "GET",
+        "resolved": "/api/v1/paper/accounts",
+        "route_ref": "框架/backend/api/routes.py:261",
+        "handler": "live_api.paper_accounts",
+        "data_source": "数据/paper/paper_{3a,3b,3c,3d}.sqlite3"
+      },
+      {
+        "id": "A-13",
+        "frontend_ref": "UI界面/web/src/components/StrategyManagementView.tsx:63；UI界面/web/src/api/liveTrading.ts:967",
+        "frontend_path": "/paper/execution_daemon/status?arm=3a",
+        "method": "GET",
+        "resolved": "/api/v1/paper/execution_daemon/status",
+        "route_ref": "框架/backend/api/routes.py:279",
+        "handler": "api/routes.py::_paper_daemon_status → unified_runtime.get_unified_runtime_status",
+        "data_source": "框架/backend/locks/unified_runtime_status_3a.json + paper_runtime_3a_status.json"
+      },
+      {
+        "id": "A-14",
+        "frontend_ref": "UI界面/web/src/components/SignalListPanel.tsx:65,804（读取 signal_engine 块）",
+        "frontend_path": "/paper/status（同 A-13 的别名）",
+        "method": "GET",
+        "resolved": "/api/v1/paper/status",
+        "route_ref": "框架/backend/api/routes.py:276",
+        "handler": "api/routes.py::_paper_daemon_status",
+        "data_source": "同 A-13"
+      },
+      {
+        "id": "A-15",
+        "frontend_ref": "UI界面/web/src/api/liveTrading.ts:408（open）,452（close）",
+        "frontend_path": "/paper/orders",
+        "method": "POST",
+        "resolved": "/api/v1/paper/orders",
+        "route_ref": "框架/backend/adapter.py:3792（POST 特判）",
+        "handler": "live_api.paper_order_post",
+        "data_source": "数据/paper/"
+      },
+      {
+        "id": "A-16",
+        "frontend_ref": "UI界面/web/src/api/liveTrading.ts:484",
+        "frontend_path": "/paper/toggle_gate",
+        "method": "POST",
+        "resolved": "/api/v1/paper/toggle_gate",
+        "route_ref": "框架/backend/live_api.py:1264",
+        "handler": "live_api.paper_toggle_gate",
+        "data_source": "框架/backend/live/paper_new_entry_gate.json"
+      },
+      {
+        "id": "A-17",
+        "frontend_ref": "UI界面/web/src/components/PositionPanel.tsx:195（硬编码 /api/v1 前缀，绕过 client.ts）",
+        "frontend_path": "/api/v1/paper/stops/{posId}?arm={arm}",
+        "method": "GET",
+        "resolved": "/api/v1/paper/stops/{position_id}",
+        "route_ref": "框架/backend/api/routes.py:282",
+        "handler": "api/routes.py::_paper_stops → live.PE.get_stop_history",
+        "data_source": "数据/paper/"
+      },
+      {
+        "id": "A-18",
+        "frontend_ref": "UI界面/web/src/api/liveTrading.ts:362",
+        "frontend_path": "/accounts",
+        "method": "GET",
+        "resolved": "/api/v1/accounts",
+        "route_ref": "框架/backend/api/routes.py:290",
+        "handler": "live_api.live_accounts",
+        "data_source": "live_signals.sqlite3（live_account_snapshot）"
+      },
+      {
+        "id": "A-19",
+        "frontend_ref": "UI界面/web/src/api/labBacktest.ts:843,908；UI界面/web/src/api/backtestReview.ts:500；UI界面/web/src/components/BacktestReviewView.tsx:161",
+        "frontend_path": "/backtests（GET 列表 / POST 新建）",
+        "method": "GET/POST",
+        "resolved": "/api/v1/backtests",
+        "route_ref": "框架/backend/api/routes.py:296-298",
+        "handler": "backtest_api.route / route_post",
+        "data_source": "回测运行库（研究回测通道）"
+      },
+      {
+        "id": "A-20",
+        "frontend_ref": "UI界面/web/src/api/labBacktest.ts:847-871,901-905；UI界面/web/src/api/backtestReview.ts:504-524；UI界面/web/src/components/BacktestReviewView.tsx:172-174",
+        "frontend_path": "/backtests/{id} 及 /metrics /chart /trades /rejected /orders /equity /fills /quality /trades/{tid}",
+        "method": "GET",
+        "resolved": "/api/v1/backtests/{id}/…",
+        "route_ref": "框架/backend/api/routes.py:296-298",
+        "handler": "backtest_api.route",
+        "data_source": "回测运行库"
+      },
+      {
+        "id": "A-21",
+        "frontend_ref": "UI界面/web/src/api/backtestReview.ts:477-493",
+        "frontend_path": "/backtests/batches、/batches/{id}/summary|runs|trades",
+        "method": "GET",
+        "resolved": "/api/v1/backtests/batches/…",
+        "route_ref": "框架/backend/api/routes.py:296-298",
+        "handler": "backtest_api.route",
+        "data_source": "回测批次库"
+      },
+      {
+        "id": "A-22",
+        "frontend_ref": "UI界面/web/src/api/labBacktest.ts:943",
+        "frontend_path": "/pool",
+        "method": "GET",
+        "resolved": "/api/v1/pool",
+        "route_ref": "框架/backend/api/routes.py:224",
+        "handler": "adapter.v1_pool",
+        "data_source": "market_v2.sqlite3（数据总池；eligibility 恒 null）"
+      },
+      {
+        "id": "A-23",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:364",
+        "frontend_path": "/pool/status",
+        "method": "GET",
+        "resolved": "/api/v1/pool/status",
+        "route_ref": "框架/backend/api/routes.py:226",
+        "handler": "adapter.v1_pool_status",
+        "data_source": "market_v2.sqlite3 + 下载任务状态"
+      },
+      {
+        "id": "A-24",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:361",
+        "frontend_path": "/data/status",
+        "method": "GET",
+        "resolved": "/api/v1/data/status",
+        "route_ref": "框架/backend/api/routes.py:305",
+        "handler": "adapter.v1_data_status",
+        "data_source": "market_v2.sqlite3 库级状态"
+      },
+      {
+        "id": "A-25",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:362",
+        "frontend_path": "/data/feeds",
+        "method": "GET",
+        "resolved": "/api/v1/data/feeds",
+        "route_ref": "框架/backend/api/routes.py:325",
+        "handler": "api/routes.py::_dc_feeds → datacenter.get_data_feeds_status",
+        "data_source": "数据中心（采集器状态）"
+      },
+      {
+        "id": "A-26",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:363",
+        "frontend_path": "/data/whitelist",
+        "method": "GET",
+        "resolved": "/api/v1/data/whitelist",
+        "route_ref": "框架/backend/api/routes.py:350",
+        "handler": "datacenter.get_backfill_and_whitelist_summary",
+        "data_source": "—"
+      },
+      {
+        "id": "A-27",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:365",
+        "frontend_path": "/data/import-plan",
+        "method": "GET",
+        "resolved": "/api/v1/data/import-plan",
+        "route_ref": "框架/backend/api/routes.py:311",
+        "handler": "adapter.v1_import_plan",
+        "data_source": "导入计划"
+      },
+      {
+        "id": "A-28",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:368",
+        "frontend_path": "/data/all-in-one?limit=150",
+        "method": "GET",
+        "resolved": "/api/v1/data/all-in-one",
+        "route_ref": "框架/backend/api/routes.py:322",
+        "handler": "datacenter.get_all_in_one_table",
+        "data_source": "合并表"
+      },
+      {
+        "id": "A-29",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:369",
+        "frontend_path": "/data/oi?limit=150",
+        "method": "GET",
+        "resolved": "/api/v1/data/oi",
+        "route_ref": "框架/backend/api/routes.py:313",
+        "handler": "datacenter.get_oi_items",
+        "data_source": "market_v2.sqlite3（oi）"
+      },
+      {
+        "id": "A-30",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:370",
+        "frontend_path": "/data/funding?limit=150",
+        "method": "GET",
+        "resolved": "/api/v1/data/funding",
+        "route_ref": "框架/backend/api/routes.py:316",
+        "handler": "datacenter.get_funding_items",
+        "data_source": "market_v2.sqlite3（funding_history）"
+      },
+      {
+        "id": "A-31",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:371",
+        "frontend_path": "/data/smart-money?limit=150",
+        "method": "GET",
+        "resolved": "/api/v1/data/smart-money",
+        "route_ref": "框架/backend/api/routes.py:319",
+        "handler": "datacenter.get_smart_money_items",
+        "data_source": "框架/backend/快照/smart_money/"
+      },
+      {
+        "id": "A-32",
+        "frontend_ref": "UI界面/web/src/components/DataCenterView.tsx:380",
+        "frontend_path": "/data/pool-scope",
+        "method": "GET",
+        "resolved": "/api/v1/data/pool-scope",
+        "route_ref": "框架/backend/api/routes.py:328",
+        "handler": "metrics_api.handle_pool_scope",
+        "data_source": "官方分类口径池分母"
+      },
+      {
+        "id": "A-33",
+        "frontend_ref": "UI界面/web/src/api/smartMoney.ts:107-130（后端代理优先，404 降级 bapi）",
+        "frontend_path": "/smart-money/{exchange}/{market_id}",
+        "method": "GET",
+        "resolved": "/api/v1/smart-money/{exchange}/{market_id}",
+        "route_ref": "框架/backend/api/routes.py:252",
+        "handler": "smart_money.v1_smart_money",
+        "data_source": "框架/backend/快照/smart_money/"
+      },
+      {
+        "id": "A-34",
+        "frontend_ref": "UI界面/web/src/api/smartMoney.ts:47,86（仅开发期）",
+        "frontend_path": "/bapi/futures/v1/public/future/smart-money/signal/{overview|details/stats|details/list}",
+        "method": "GET",
+        "resolved": "由 vite proxy '/bapi' 转发到 https://www.binance.bh",
+        "route_ref": "UI界面/web/vite.config.ts:40-43",
+        "handler": "无后端参与",
+        "data_source": "币安公开无鉴权接口；生产构建下该路径不存在，前端降级为空态"
+      }
+    ],
+    "backend_only": [
+      {
+        "route_ref": "框架/backend/api/routes.py:218",
+        "path": "/api/v1/overview",
+        "note": "总数与数据健康摘要，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:230",
+        "path": "/api/v1/strategies",
+        "note": "策略列表，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:232",
+        "path": "/api/v1/strategies/registered",
+        "note": "18 套配置生效身份，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:235",
+        "path": "/api/v1/strategy",
+        "note": "旧单数接口，routes.py 注释称前端仍在调用，实测前端无调用点（见 U-04）"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:237",
+        "path": "/api/v1/strategies/{strategy_id}",
+        "note": "单策略详情，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:258",
+        "path": "/api/v1/paper/identity",
+        "note": "执行身份权威映射链，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:264",
+        "path": "/api/v1/paper/positions",
+        "note": "纸面持仓；前端改用 /paper/accounts 内嵌持仓"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:270",
+        "path": "/api/v1/paper/funding-audit",
+        "note": "资金费符号口径 + 迟到补记缺口，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:273",
+        "path": "/api/v1/paper/legacy-audit",
+        "note": "旧版/未验收/规则违规只读清单，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:285",
+        "path": "/api/v1/live/health",
+        "note": "实时层健康，无前端调用点（前端用 /health）"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:299",
+        "path": "/api/v1/reviews/*",
+        "note": "旧复盘契约，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:307",
+        "path": "/api/v1/data/coverage",
+        "note": "覆盖矩阵（完整约 7.6MB，?agg=1 只返计数），无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:333",
+        "path": "/api/v1/data/field-contract",
+        "note": "机器可读字段契约，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:338",
+        "path": "/api/v1/data/cold-archive-status",
+        "note": "冷层索引摘要，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:344",
+        "path": "/api/v1/system-flow/paper-reconciliation",
+        "note": "历史样本逐笔对账证据，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:355",
+        "path": "/api/v1/data/backfill",
+        "note": "同 whitelist，无前端调用点"
+      },
+      {
+        "route_ref": "框架/backend/api/routes.py:365-368",
+        "path": "/api/v1/markets/{exchange}/{symbol}/rule-snapshots",
+        "note": "规则快照，无前端调用点"
+      }
+    ]
+  }
+}

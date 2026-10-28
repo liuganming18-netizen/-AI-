@@ -509,6 +509,39 @@ PAPER_COLUMNS = (
     # `paper_equity.voided=1` = 该快照**落在被纠错区间内**（含已作废持仓的估值），
     # 消费方应排除；**不删除、不改写**原快照（历史证据原样保留，只加标记）。
     ("paper_equity", "voided", "INTEGER DEFAULT 0"),
+    # ── 现实时间撮合（PARALLEL-STRATEGY-01-WORK，2026-10-28）───────────────────────
+    # 缺陷背景：成交 bar 强制 `is_closed=1` ⇒ 执行动作**从未在执行点真实发生**，
+    #   一律是「闭 bar 后回读该 bar 的 open」，`entry_ts` 恒早于实际处理 15~30 分钟。
+    # 三列语义（全部**加性**，历史行保持 NULL，不改写任何既有成交）：
+    #   `reality_fill`     = 1 该笔在**执行点当场**用实时行情成交；0 或 NULL 不是当场。
+    #   `data_available_at`= 成交所用行情在库里的**可得时刻**（实时行 received_at）。
+    #   `fill_source`      = 取数路径：realtime_15m_open / closed_15m_open。
+    ("paper_position", "reality_fill", "INTEGER"),
+    ("paper_position", "data_available_at", "INTEGER"),
+    ("paper_position", "fill_source", "TEXT"),
+    ("paper_order", "reality_fill", "INTEGER"),
+    ("paper_order", "data_available_at", "INTEGER"),
+    ("paper_order", "fill_source", "TEXT"),
+    ("paper_fill", "reality_fill", "INTEGER"),
+    ("paper_fill", "data_available_at", "INTEGER"),
+    ("paper_fill", "fill_source", "TEXT"),
+    # ── 三时刻分离（MAINLINE-01-WORK，2026-10-28）─────────────────────────────────
+    # 缺陷背景：上一单把「什么时候取价」改成执行点当场，但**没有把三个时刻分开落库**：
+    #   `entry_ts` 是价格事件时刻（bar 开盘），`fill_ts` 却是**本轮循环起始时刻**
+    #   （`step_once` 入口取一次 `now`，扫完 526 标的才撮合）⇒ 账本里既读不到
+    #   「行情实际拿到手的时刻」，也读不到「撮合真正完成的时刻」。
+    #   于是「成交时刻」只能靠报告补记 —— 那正是本单要消灭的东西。
+    # 两列语义（加性，历史行保持 NULL，不改写任何既有成交）：
+    #   `read_at_ms`    = 读到成交所用行情那一刻的**真实挂钟**（决策输入时刻）。
+    #                     恒满足 `data_available_at <= read_at_ms`（否则前视，见 paper_engine 校验）。
+    #   `matched_at_ms` = 撮合**完成**那一刻的真实挂钟（写库前取）。
+    #                     恒满足 `read_at_ms <= matched_at_ms`；`paper_fill.fill_ts` 新行取此值。
+    ("paper_position", "read_at_ms", "INTEGER"),
+    ("paper_position", "matched_at_ms", "INTEGER"),
+    ("paper_order", "read_at_ms", "INTEGER"),
+    ("paper_order", "matched_at_ms", "INTEGER"),
+    ("paper_fill", "read_at_ms", "INTEGER"),
+    ("paper_fill", "matched_at_ms", "INTEGER"),
 )
 
 

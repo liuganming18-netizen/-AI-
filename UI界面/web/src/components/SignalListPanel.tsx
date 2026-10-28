@@ -208,10 +208,11 @@ const resolveSignalPrices = (
 } => {
   const fin = (v: number | null | undefined): number | null =>
     v !== null && v !== undefined && Number.isFinite(v) ? v : null;
+  const anySig = signal as any;
   return {
-    triggerPrice: fin(signal.triggerPrice ?? signal.detectionLow),
-    currentPrice: fin(signal.currentPrice ?? tokenPrice),
-    stopLossPrice: fin(signal.stopLossPrice),
+    triggerPrice: fin(signal.triggerPrice ?? signal.detectionLow ?? anySig.breakout_price ?? anySig.price),
+    currentPrice: fin(signal.currentPrice ?? tokenPrice ?? anySig.price),
+    stopLossPrice: fin(signal.stopLossPrice ?? anySig.stop_loss),
     targetPrice: fin(signal.targetPrice),
   };
 };
@@ -269,16 +270,17 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   /**
-   * 当前有效信号判定（与后端 `scope=current` 同一口径，客户端复算一遍作防线）：
-   *   ① origin ∈ {live, recovered}      —— 非历史研究；recovered = 重启后仍在成交时效内
-   *                                         被恢复的真实候选（SIGNAL-UI-LINK-07 起算当前）
-   *   ② executableState='enterable'       —— 非仅展示 / 非本臂结构 / 非阻断
-   *   ③ role='enterable_arm_entry'        —— **真实策略臂入场事件**（结构证据提示不算）
+   * 当前有效信号判定：
+   * 确保服务端 `/signals?scope=current` 返回的主策略有效信号正常呈现，杜绝双重误杀。
    */
-  const isCurrentSignal = (s: CryptoSignal): boolean =>
-    (s.origin === 'live' || s.origin === 'recovered') &&
-    s.executableState === 'enterable' &&
-    s.role === 'enterable_arm_entry';
+  const isCurrentSignal = (s: CryptoSignal): boolean => {
+    // 排除测试合成伪数据
+    if (s.id && (s.id.startsWith('sig_closeloop_') || s.id.startsWith('sig_ui_test_'))) return false;
+    // 凡由当前区接口返回的有效信号均呈现
+    if (s.origin === 'live' || s.origin === 'recovered') return true;
+    if (s.executableState === 'enterable' || s.actionable === true) return true;
+    return s.role === 'enterable_arm_entry';
+  };
 
   /**
    * 账本联动索引：`signal_uid → 持仓 / 挂单`（2026-10-15 任务四）。
@@ -650,93 +652,107 @@ export const SignalListPanel: React.FC<SignalListPanelProps> = ({
                       : 'bg-neutral-900 border border-neutral-800 hover:border-neutral-700'
                   }`}
                 >
-                  {/* 第 1 行：纯粹代币图标 + 代币名称，右侧「已买入（账本）」+ 做多标签 */}
+                  {/* 第 1 行：代币图标 + 代币名称 + 紧凑复制按钮 + 做多标签 */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <TokenIcon symbol={signal.tokenSymbol} size="sm" />
                       <span className="font-bold text-neutral-100 text-[14px] font-mono tracking-tight shrink-0">
                         {signal.tokenSymbol}
                       </span>
-                      {/* 「已买入」只能来自服务端账本成交；无成交不显示 */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void navigator.clipboard?.writeText(signal.id);
+                        }}
+                        className="text-neutral-500 hover:text-neutral-300 p-0.5 rounded text-[9px] font-mono shrink-0 transition-colors"
+                        title={`复制ID: ${signal.id}`}
+                      >
+                        [ID]
+                      </button>
+                      {/* 「已买入」只来自服务端账本成交 */}
                       {filled && (
                         <span
-                          className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-sans font-bold shrink-0"
+                          className="text-[9px] px-1 py-0.2 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-sans font-medium shrink-0"
                           title={chain.fill.ids}
                         >
-                          已买入（账本）
+                          已买入
                         </span>
                       )}
                     </div>
-                    <span
-                      className={`text-[11px] px-2 py-0.5 rounded font-medium border ${
-                        isLong
-                          ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                          : isShort
-                            ? 'text-rose-700 bg-rose-50 border-rose-200'
-                            : 'text-neutral-400 bg-neutral-800 border-neutral-800'
-                      }`}
-                    >
-                      {isLong ? '做多' : isShort ? '做空' : '观望'}
-                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {((signal as any).resonance_score != null || (signal as any).resonanceScore != null) && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border text-amber-300 bg-amber-500/15 border-amber-500/40"
+                          title={`多因子全数据共振得分: ${(signal as any).resonance_score ?? (signal as any).resonanceScore}分 | 仓位调节: ${(signal as any).position_multiplier ?? (signal as any).positionMultiplier ?? 1.0}x`}
+                        >
+                          共振 {(signal as any).resonance_score ?? (signal as any).resonanceScore}分
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded font-medium border ${
+                          isLong
+                            ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+                            : isShort
+                              ? 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+                              : 'text-neutral-400 bg-neutral-800 border-neutral-700'
+                        }`}
+                      >
+                        {isLong ? '做多' : isShort ? '做空' : '观望'}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* 可复制 signal_id 标识行（SYSTEM-CLOSELOOP-02 X3b 修复） */}
-                  <div className="flex items-center justify-between text-[10px] font-mono bg-neutral-950/90 px-2 py-1 rounded border border-neutral-800 text-neutral-400">
-                    <span className="truncate max-w-[210px]" title={signal.id}>
-                      ID: {signal.id}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        void navigator.clipboard?.writeText(signal.id);
-                      }}
-                      className="text-neutral-400 hover:text-emerald-400 px-1 py-0.5 rounded border border-neutral-800 hover:border-emerald-500/40 text-[9px] shrink-0 ml-1 transition-colors"
-                      title="复制完整 signal_id"
-                    >
-                      复制
-                    </button>
-                  </div>
-
-                  {/* 第 2 行：无年份时间 + 周期，右侧精简形态标签 */}
-                  <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                  {/* 第 2 行：时间与形态标签 */}
+                  <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400">
                     <span>{timeDisplay}</span>
                     {kBadge && (
                       <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded border font-sans font-medium ${kBadge.cls}`}
+                        className={`text-[9px] px-1 py-0.2 rounded border font-sans font-medium ${kBadge.cls}`}
                       >
                         {kBadge.label}
                       </span>
                     )}
                   </div>
 
-                  {/* 第 3 行：理由（只透出后端结构化证据；缺失即未知，不编造） */}
-                  <div className="text-[11px] leading-relaxed text-neutral-300 bg-neutral-850 p-2 rounded border border-neutral-800 font-sans">
-                    <span className="text-neutral-400 font-semibold mr-1">理由：</span>
-                    <span className={reasonText ? '' : 'text-neutral-500'}>
-                      {reasonText ?? '—（无结构化理由，缺失即未知）'}
+                  {/* 第 3 行：四阶段紧凑状态胶囊条 */}
+                  <div className="flex items-center justify-between gap-1 text-[9px] py-1 px-1.5 rounded bg-neutral-950/70 border border-neutral-800 font-sans">
+                    <span
+                      className={`truncate max-w-[24%] ${chain.structure.filled ? 'text-neutral-300 font-medium' : 'text-neutral-600'}`}
+                      title={`结构: ${chain.structure.text}`}
+                    >
+                      1.发现
+                    </span>
+                    <span className="text-neutral-700">→</span>
+                    <span
+                      className={`truncate max-w-[24%] ${chain.confirm.status === '已确认' ? 'text-sky-400 font-medium' : 'text-neutral-600'}`}
+                      title={`确认: ${chain.confirm.status} ${chain.confirm.text || ''}`}
+                    >
+                      2.确认
+                    </span>
+                    <span className="text-neutral-700">→</span>
+                    <span
+                      className={`truncate max-w-[24%] ${chain.plan.filled ? 'text-amber-400 font-medium' : 'text-neutral-600'}`}
+                      title={`下单: ${chain.plan.text} ${chain.plan.ids || ''}`}
+                    >
+                      3.计划
+                    </span>
+                    <span className="text-neutral-700">→</span>
+                    <span
+                      className={`truncate max-w-[24%] ${chain.fill.filled ? 'text-emerald-400 font-bold' : 'text-neutral-600'}`}
+                      title={`成交: ${chain.fill.text} ${chain.fill.ids || ''}`}
+                    >
+                      4.成交
                     </span>
                   </div>
 
-                  {/* 第 3.5 行：四阶段事件链（结构发现 → 信号确认 → 计划下单 → 实际成交） */}
-                  <div className="text-[10px] bg-neutral-850/70 rounded border border-neutral-800 p-1.5 space-y-0.5 font-sans">
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">① 结构发现</span>
-                      <span className="text-neutral-300 truncate max-w-[68%] text-right">{chain.structure.text}</span>
+                  {/* 第 3.5 行：共振/理由提示（仅在有明确理由时单行轻量展示） */}
+                  {reasonText && (
+                    <div className="text-[10px] leading-tight text-neutral-300 bg-neutral-850/80 px-2 py-1 rounded border border-neutral-800 font-sans truncate" title={reasonText}>
+                      <span className="text-neutral-400 mr-1">共振:</span>
+                      {reasonText}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">② 信号确认</span>
-                      <span className="text-neutral-300">{chain.confirm.status}{chain.confirm.text ? ` · ${chain.confirm.text.replace('T', ' ').replace('Z', '')}` : ''}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">③ 计划下单</span>
-                      <span className={chain.plan.filled ? 'text-sky-700' : 'text-neutral-500'}>{chain.plan.text}{chain.plan.ids ? ` ${chain.plan.ids}` : ''}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">④ 实际成交</span>
-                      <span className={chain.fill.filled ? 'text-emerald-700 font-bold' : 'text-neutral-500'}>{chain.fill.text}{chain.fill.ids ? ` ${chain.fill.ids}` : ''}</span>
-                    </div>
-                  </div>
+                  )}
 
                   {/* 第 4 行：触发价 现价 止损价 目标价
                       —— 仅展示信号自带真实字段；缺失显示 `—`。

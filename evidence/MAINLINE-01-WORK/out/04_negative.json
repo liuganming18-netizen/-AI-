@@ -1,0 +1,255 @@
+{
+  "generated_utc": "2026-10-28T02:27:21.729945+00:00",
+  "meta": {
+    "synthetic_market": {
+      "table": 26,
+      "view": 1,
+      "index": 16,
+      "trigger": 0,
+      "failed": [],
+      "db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/synth_market/market_synth.sqlite3",
+      "size": 274432
+    },
+    "exec_point_ms": 1793153700000,
+    "exec_point_utc": "2026-10-28T02:15:00+00:00",
+    "event_time_ms": 1793152800000,
+    "event_time_utc": "2026-10-28T02:00:00+00:00",
+    "attempt_ms": 1793154440845,
+    "attempt_utc": "2026-10-28T02:27:20.845000+00:00",
+    "note": "合成行情库只复制 schema；realtime_klines 行是本脚本插入的**合成行**"
+  },
+  "cases": [
+    {
+      "case": "N0_forward_control",
+      "tag": "n0_forward",
+      "expect": "filled",
+      "actual": "filled",
+      "pass": true,
+      "note": "同一套合成构造下判据不误杀 —— 没有这条，N1/N2 的拒绝就无法排除「构造本身有问题」",
+      "synthetic_row": {
+        "open_time": 1793153700000,
+        "open_time_utc": "2026-10-28T02:15:00+00:00",
+        "received_at": 1793154435845,
+        "received_at_utc": "2026-10-28T02:27:15.845000+00:00",
+        "open": 2500.0
+      },
+      "result": {
+        "ok": true,
+        "reason": "filled",
+        "position_id": 5,
+        "order_id": 24,
+        "qty": 0.199,
+        "entry_price": 2501.25,
+        "raw_price": 2500.0,
+        "stop_price": 2376.18,
+        "initial_stop_price": 2376.18,
+        "stop_dist": 125.07000000000016,
+        "planned_risk": 24.888930000000034,
+        "notional": 497.74875000000003,
+        "fee": 0.248874375,
+        "slippage_cost": 0.24875000000000003,
+        "bar_open_time": 1793153700000,
+        "bar_close_time": 1793154599999,
+        "model_version": "paper_exec_v1_derived_from_effective_view_20261013",
+        "signal_uid": "mainline01_n0_forward_1793154440845",
+        "origin": "test",
+        "event_time": 1793152800000,
+        "available_at": 1793152800000,
+        "requested_at": 1793154440845,
+        "earliest_fill_ms": 1793153700000,
+        "filled_at": 1793153700000,
+        "fill_lag_ms": 740845,
+        "market_source": "binance.um.realtime_klines_15m.open|reality=1|fill_source=realtime_15m_open|data_avail_ms=1793154435845|read_ms=1793154441030",
+        "bar_provenance": {
+          "layer": "realtime_15m",
+          "available_at": 1793154435845,
+          "available_at_proven": true,
+          "reality_fill": true,
+          "fill_source": "realtime_15m_open"
+        },
+        "reality_fill": true,
+        "fill_source": "realtime_15m_open",
+        "data_available_at": 1793154435845,
+        "expected_open_time": 1793153700000,
+        "reality_fill_mode": "realtime_only",
+        "read_at_ms": 1793154441030,
+        "matched_at_ms": 1793154441055,
+        "filled_wall_at": 1793154441055,
+        "timeline": {
+          "signal_confirmed_at": 1793152800000,
+          "signal_available_at": 1793152800000,
+          "order_requested_at": 1793154440845,
+          "first_request_at": 1793154440845,
+          "planned_exec_at": 1793153700000,
+          "price_event_at": 1793153700000,
+          "data_available_at": 1793154435845,
+          "read_at": 1793154441030,
+          "matched_at": 1793154441055,
+          "attempt_cycle_start_at": 1793154440845,
+          "exec_bar_open_at": 1793153700000,
+          "exec_bar_close_at": 1793154599999,
+          "matched_minus_planned_ms": 741055,
+          "matched_minus_price_event_ms": 741055,
+          "read_minus_data_available_ms": 5185
+        }
+      },
+      "resolved": {
+        "realtime_fill_mode_env": "realtime_only",
+        "effective_fill_mode": "realtime_only",
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n0_forward/ledger",
+        "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n0_forward/market_synth.sqlite3",
+        "effective_floor_ms": 1792748844240,
+        "paper_engine_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py"
+      },
+      "error": null
+    },
+    {
+      "case": "N1_no_available_time",
+      "tag": "n1_no_avail",
+      "expect": "realtime_fill_without_available_time",
+      "actual": "realtime_fill_without_available_time",
+      "pass": true,
+      "note": "",
+      "synthetic_row": {
+        "open_time": 1793153700000,
+        "open_time_utc": "2026-10-28T02:15:00+00:00",
+        "received_at": null,
+        "received_at_utc": null,
+        "open": 2500.0
+      },
+      "result": {
+        "ok": false,
+        "reason": "realtime_fill_without_available_time",
+        "symbol": "ETHUSDT",
+        "signal_uid": "mainline01_n1_no_avail_1793154440845",
+        "bar_open_time": 1793153700000,
+        "read_at_ms": 1793154441223,
+        "note": "实时行情行没有 received_at ⇒ 无法证明「这个价当时已经拿得到」，不得声称现实成交；拒单，不回填闭 bar 的 open。"
+      },
+      "resolved": {
+        "realtime_fill_mode_env": "realtime_only",
+        "effective_fill_mode": "realtime_only",
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n1_no_avail/ledger",
+        "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n1_no_avail/market_synth.sqlite3",
+        "effective_floor_ms": 1792748844240,
+        "paper_engine_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py"
+      },
+      "error": null
+    },
+    {
+      "case": "N2_available_in_future",
+      "tag": "n2_future_avail",
+      "expect": "data_available_after_read_no_lookahead",
+      "actual": "data_available_after_read_no_lookahead",
+      "pass": true,
+      "note": "",
+      "synthetic_row": {
+        "open_time": 1793153700000,
+        "open_time_utc": "2026-10-28T02:15:00+00:00",
+        "received_at": 1793158040845,
+        "received_at_utc": "2026-10-28T03:27:20.845000+00:00",
+        "open": 2500.0
+      },
+      "result": {
+        "ok": false,
+        "reason": "data_available_after_read_no_lookahead",
+        "symbol": "ETHUSDT",
+        "signal_uid": "mainline01_n2_future_avail_1793154440845",
+        "bar_open_time": 1793153700000,
+        "data_available_at": 1793158040845,
+        "read_at_ms": 1793154441391,
+        "note": "行情可得时刻晚于读取时刻 ⇒ 读到的是读取之后才写进来的行（前视/时钟倒挂）；拒单，不回填。"
+      },
+      "resolved": {
+        "realtime_fill_mode_env": "realtime_only",
+        "effective_fill_mode": "realtime_only",
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n2_future_avail/ledger",
+        "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n2_future_avail/market_synth.sqlite3",
+        "effective_floor_ms": 1792748844240,
+        "paper_engine_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py"
+      },
+      "error": null
+    },
+    {
+      "case": "N3_exec_point_passed",
+      "tag": "n3_passed",
+      "expect": "fill_point_passed_no_backfill",
+      "actual": "fill_point_passed_no_backfill",
+      "pass": true,
+      "note": "",
+      "synthetic_row": {
+        "open_time": 1793154600000,
+        "open_time_utc": "2026-10-28T02:30:00+00:00",
+        "received_at": 1793154439845,
+        "received_at_utc": "2026-10-28T02:27:19.845000+00:00",
+        "open": 2500.0
+      },
+      "result": {
+        "ok": false,
+        "reason": "fill_point_passed_no_backfill",
+        "symbol": "ETHUSDT",
+        "signal_uid": "mainline01_n3_passed_1793154440845",
+        "expected_open_time": 1793153700000,
+        "realtime_open_time": 1793154600000,
+        "closed_bar_open_time": null,
+        "reality_fill_mode": "realtime_only",
+        "earliest_fill_ms": 1793153700000,
+        "attempt_ms": 1793154440845,
+        "note": "执行点那根 15m bar 已经过去（实时表已切到更晚的一根，或它已闭合）⇒ 拒单：不用闭 bar 的 open 冒充当时成交，也不顺延到下一根。该信号照常展示。"
+      },
+      "resolved": {
+        "realtime_fill_mode_env": "realtime_only",
+        "effective_fill_mode": "realtime_only",
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n3_passed/ledger",
+        "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n3_passed/market_synth.sqlite3",
+        "effective_floor_ms": 1792748844240,
+        "paper_engine_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py"
+      },
+      "error": null
+    },
+    {
+      "case": "N4_no_realtime_row",
+      "tag": "n4_no_row",
+      "expect": "pending_future_fill",
+      "actual": "pending_future_fill",
+      "pass": true,
+      "note": "",
+      "synthetic_row": {
+        "open_time": null,
+        "open_time_utc": null,
+        "received_at": null,
+        "received_at_utc": null,
+        "open": 2500.0
+      },
+      "result": {
+        "ok": false,
+        "reason": "pending_future_fill",
+        "pending_id": 5,
+        "symbol": "ETHUSDT",
+        "signal_uid": "mainline01_n4_no_row_1793154440845",
+        "origin": "test",
+        "requested_at": 1793154440845,
+        "first_request_ms": 1793154440845,
+        "order_request_ms": 1793152800000,
+        "earliest_fill_ms": 1793153700000,
+        "epoch_ms": 1792748844240,
+        "attempt_ms": 1793154440845,
+        "expected_open_time": 1793153700000,
+        "reality_fill_mode": "realtime_only",
+        "note": "应成交时刻尚未到达（执行点那根 15m bar 还没开始）⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"
+      },
+      "resolved": {
+        "realtime_fill_mode_env": "realtime_only",
+        "effective_fill_mode": "realtime_only",
+        "ledger_dir": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n4_no_row/ledger",
+        "market_db": "/Users/boos/Desktop/威科夫因子共振趋势/evidence/MAINLINE-01-WORK/isolated/n4_no_row/market_synth.sqlite3",
+        "effective_floor_ms": 1792748844240,
+        "paper_engine_file": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/paper_engine.py"
+      },
+      "error": null
+    }
+  ],
+  "verdict": "PASS",
+  "pass_n": 5,
+  "total_n": 5
+}

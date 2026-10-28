@@ -1,0 +1,29 @@
+--- a/框架/backend/live_api.py (改动前)
++++ b/框架/backend/live_api.py (本单改动后)
+@@ -798,16 +798,21 @@
+                              "n_pre_watermark_display_only": n_pre,
+                              "n_after_watermark": n_auto,
+                              "n_pending_orders": sum(int(s.get("n_pending") or 0)
+                                                      for s in snap.values()),
+-                             "fill_policy": PE.FILL_POLICY,
++                             "fill_policy": {**PE.FILL_POLICY,
++                                             "effective_mode_runtime": PE.realtime_fill_mode()},
+                              "new_entry_gate": PE.new_entry_gate(),
+                              "legacy_ledger": _legacy_ledger_state(),
+                              "note": "服务端纸面账本（四臂各 5000U 初始）；成交模型见 "
+-                                     "model_version。成交时钟：**第一根 `open_time >= "
+-                                     "max(信号确认时刻,信号可用时刻,真实请求时刻)+15m` 的已闭合 "
+-                                     "15m bar 的 open**；尚未到点 ⇒ 登记挂单（`pending`），由真实"
+-                                     "进程时钟推进；错过成交时刻 ⇒ 拒单，**不用旧价回填**。"
++                                     "model_version。成交时钟：**执行点 = "
++                                     "max(信号确认时刻,信号可用时刻)+15m**（无信号的手工请求取"
++                                     "真实请求时刻）；执行点那根 15m bar 的 `open` 在 bar "
++                                     "**刚开盘**就从实时行情读到 ⇒ 撮合发生在执行点"
++                                     "（`reality_fill=1`）；执行点已过 ⇒ 拒单 "
++                                     "`fill_point_passed_no_backfill`，**不用闭 bar 的 open "
++                                     "冒充当时成交，也不顺延到下一根**；尚未到点 ⇒ 登记挂单"
++                                     "（`pending`），由真实进程时钟推进。"
+                                      "资金费按 `funding_history` **真实结算事件逐笔记账**"
+                                      "（事件经过时即更新账户/权益；不固定 8h、不补 0、不倒填）。"
+                                      "**新开仓是否允许以服务端 `new_entry_gate.allow_new_entries` 为准**；"
+                                      "退出/费用/资金费/健康采集不受影响；既有持仓为"

@@ -1130,6 +1130,8 @@ def metrics_history(exchange, symbol):
         r = con.execute(sql).fetchone()
     except Exception as exc:                                     # noqa: BLE001
         return {"available": False, "reason": f"metrics 归档查询失败：{type(exc).__name__}"}
+    if not r:
+        return {"available": False, "reason": "metrics 归档无记录"}
     rows = int(r[0] or 0)
     out = {
         "available": rows > 0, "rows": rows,

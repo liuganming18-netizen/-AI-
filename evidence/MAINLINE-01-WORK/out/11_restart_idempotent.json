@@ -1,0 +1,103 @@
+{
+  "generated_utc": "2026-10-28T03:11:25.886861+00:00",
+  "cases": [
+    {
+      "case": "R1_restart_keeps_everything",
+      "expect": "四表行数与内容逐项不变",
+      "actual": "same",
+      "pass": true,
+      "extra": {
+        "counts_before": {
+          "paper_position": 4,
+          "paper_order": 15,
+          "paper_fill": 7,
+          "paper_pending": 4,
+          "paper_processed": 4,
+          "paper_blocked": 13
+        },
+        "counts_after": {
+          "paper_position": 4,
+          "paper_order": 15,
+          "paper_fill": 7,
+          "paper_pending": 4,
+          "paper_processed": 4,
+          "paper_blocked": 13
+        },
+        "advance_result": {
+          "filled": [],
+          "rejected": [],
+          "still_pending": 0,
+          "by_arm": {
+            "3a": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            },
+            "3b": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            },
+            "3c": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            },
+            "3d": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "R2_duplicate_signal_uid",
+      "expect": "duplicate_signal_uid",
+      "actual": "duplicate_signal_uid",
+      "pass": true,
+      "extra": {
+        "positions_before": 4,
+        "positions_after": 4
+      }
+    },
+    {
+      "case": "R2_no_new_position",
+      "expect": "持仓数不变",
+      "actual": 4,
+      "pass": true,
+      "extra": null
+    },
+    {
+      "case": "R3_expired_no_backfill",
+      "expect": "missed_fill_moment_no_backfill",
+      "actual": "missed_fill_moment_no_backfill",
+      "pass": true,
+      "extra": {
+        "event_time": "2026-10-28T00:11:25.036000+00:00",
+        "lag_hours": 3.0,
+        "lag_ms": 9685036
+      }
+    },
+    {
+      "case": "R4_process_start_no_backfill",
+      "expect": "fill_point_closed_before_process_start",
+      "actual": "fill_point_closed_before_process_start",
+      "pass": true,
+      "extra": {
+        "event_time": "2026-10-28T02:11:25.036000+00:00",
+        "bar_close_time": "2026-10-28T02:44:59.999000+00:00",
+        "process_start_ms": 1793157085036,
+        "bar_close_before_start": true
+      }
+    }
+  ],
+  "verdict": "PASS",
+  "pass_n": 5,
+  "total_n": 5
+}

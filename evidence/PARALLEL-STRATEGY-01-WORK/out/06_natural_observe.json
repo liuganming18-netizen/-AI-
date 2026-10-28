@@ -1,0 +1,3084 @@
+{
+  "summary": {
+    "samples": 28,
+    "window_utc": [
+      "2026-10-28T01:12:44.759482+00:00",
+      "2026-10-28T01:26:15.115506+00:00"
+    ],
+    "runtime_pid_stable": true,
+    "pid": 77433,
+    "cycle_delta": 170,
+    "watermark_1h_moved": false,
+    "watermark_4h_moved": false,
+    "watermark_1h": [
+      "2026-10-28T00:00:00+00:00",
+      "2026-10-28T00:00:00+00:00"
+    ],
+    "watermark_4h": [
+      "2026-10-27T20:00:00+00:00",
+      "2026-10-27T20:00:00+00:00"
+    ],
+    "natural_signals": {
+      "start": 0,
+      "end": 0
+    },
+    "live_signal_by_origin_end": {
+      "historical_research": 289
+    },
+    "ledger": {
+      "pending_pending": [
+        0,
+        0
+      ],
+      "position_open": [
+        1,
+        1
+      ],
+      "order_filled": [
+        4,
+        4
+      ],
+      "order_rejected": [
+        11,
+        11
+      ],
+      "position_reality_fill_1": [
+        0,
+        0
+      ],
+      "has_reality_columns": true
+    },
+    "errors": [],
+    "honest_zero": {
+      "natural_signal_zero": true,
+      "natural_order_zero": true,
+      "note": "自然信号/成交为零就如实记零；隔离注入与既有测试探针不算自然成交。"
+    }
+  },
+  "series": [
+    {
+      "at_utc": "2026-10-28T01:12:44.759482+00:00",
+      "at_ms": 1793149964759,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 19,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:12:43.602000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:13:14.774760+00:00",
+      "at_ms": 1793149994774,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 27,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:13:14.731000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:13:44.784911+00:00",
+      "at_ms": 1793150024784,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 31,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:13:41.786000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:14:14.798158+00:00",
+      "at_ms": 1793150054798,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 38,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:14:10.246000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:14:44.807586+00:00",
+      "at_ms": 1793150084807,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 42,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:14:40.615000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:15:14.821914+00:00",
+      "at_ms": 1793150114821,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 50,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:15:13.242000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:15:44.836414+00:00",
+      "at_ms": 1793150144836,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 54,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:15:41.872000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:16:14.849363+00:00",
+      "at_ms": 1793150174849,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 61,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:16:10.378000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:16:44.856331+00:00",
+      "at_ms": 1793150204856,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 68,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:16:42.074000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:17:14.869314+00:00",
+      "at_ms": 1793150234869,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 76,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:17:13.628000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:17:44.883480+00:00",
+      "at_ms": 1793150264883,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 79,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:17:40.021000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:18:14.898299+00:00",
+      "at_ms": 1793150294898,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 86,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:18:11.457000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:18:44.914089+00:00",
+      "at_ms": 1793150324914,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 93,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:18:43.308000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:19:14.927436+00:00",
+      "at_ms": 1793150354927,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 100,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:19:13.761000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:19:44.941331+00:00",
+      "at_ms": 1793150384941,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 105,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:19:44.649000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:20:14.953704+00:00",
+      "at_ms": 1793150414953,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 112,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:20:13.090000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:20:44.969522+00:00",
+      "at_ms": 1793150444969,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 119,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:20:42.884000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:21:14.981538+00:00",
+      "at_ms": 1793150474981,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 127,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:21:14.348000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:21:44.995579+00:00",
+      "at_ms": 1793150504995,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 131,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:21:40.920000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:22:15.012372+00:00",
+      "at_ms": 1793150535012,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 139,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:22:12.614000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:22:45.019396+00:00",
+      "at_ms": 1793150565019,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 145,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:22:41.536000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:23:15.025923+00:00",
+      "at_ms": 1793150595026,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 151,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:23:10.401000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:23:45.041050+00:00",
+      "at_ms": 1793150625041,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 156,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:23:42.856000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:24:15.062134+00:00",
+      "at_ms": 1793150655062,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 163,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:24:13.315000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:24:45.074859+00:00",
+      "at_ms": 1793150685074,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 168,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:24:44.959000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:25:15.087166+00:00",
+      "at_ms": 1793150715087,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 175,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:25:14.551000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:25:45.102746+00:00",
+      "at_ms": 1793150745102,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 182,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:25:43.121000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    },
+    {
+      "at_utc": "2026-10-28T01:26:15.115506+00:00",
+      "at_ms": 1793150775115,
+      "runtime": {
+        "pid": 77433,
+        "status": "running",
+        "overall_health": "healthy",
+        "started_at_utc": "2026-10-28T01:04:37.309000+00:00",
+        "cycle_count": 189,
+        "watermark_1h_utc": "2026-10-28T00:00:00+00:00",
+        "watermark_4h_utc": "2026-10-27T20:00:00+00:00",
+        "universe": 526,
+        "pending_in_db": 0,
+        "allow_new_entries": true,
+        "open_positions": 1,
+        "pending_matched_total": 0,
+        "trailing_updates_total": 0,
+        "exits_triggered_total": 0,
+        "last_error": null,
+        "status_file_mtime_utc": "2026-10-28T01:26:10.532000+00:00"
+      },
+      "live_signal_by_origin": {
+        "historical_research": 289
+      },
+      "live_signal_natural": 0,
+      "live_signal_total": 289,
+      "live_signal_last_confirmed_utc": null,
+      "ledger": {
+        "position_total": 4,
+        "position_open": 1,
+        "position_reality_fill_1": 0,
+        "pending_pending": 0,
+        "pending_total": 4,
+        "order_total": 15,
+        "order_filled": 4,
+        "order_rejected": 11,
+        "processed_total": 4,
+        "has_reality_columns": true
+      },
+      "recent_reject_reasons": [
+        {
+          "event_uid": "test_probe",
+          "symbol": "BTCUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-27T15:46:41.859000+00:00"
+        },
+        {
+          "event_uid": "cand_20261002_velvet_01",
+          "symbol": "VELVETUSDT",
+          "reason": "before_paper_epoch_no_backfill",
+          "ts_utc": "2026-10-24T08:40:56.684000+00:00"
+        },
+        {
+          "event_uid": "sig_no_bar_001",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-23T02:54:23.839000+00:00"
+        },
+        {
+          "event_uid": "sig_override",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: external_param_override_rejected: 请求体 stoploss_s=0.2 试图覆盖正式配置 (0.05)",
+          "ts_utc": "2026-10-22T17:40:19.571000+00:00"
+        },
+        {
+          "event_uid": "sig_wrong_fp",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: config_fingerprint_mismatch: 期望指纹 deadbeef9999 与当前生效指纹 80943cb3bb88 不匹配",
+          "ts_utc": "2026-10-22T17:40:19.568000+00:00"
+        },
+        {
+          "event_uid": "sig_test_bad",
+          "symbol": "BTCUSDT",
+          "reason": "rejected_by_config_contract: missing_required_parameters: 配置缺少必需参数: stops.stoploss_s (初始止损比例)",
+          "ts_utc": "2026-10-22T17:40:19.564000+00:00"
+        },
+        {
+          "event_uid": "s1",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:28.323000+00:00"
+        },
+        {
+          "event_uid": "sig_test_miss",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T17:39:24.682000+00:00"
+        },
+        {
+          "event_uid": "sig_ui_test_1792668631241",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.188000+00:00"
+        },
+        {
+          "event_uid": "sig_closeloop_btc_1792668513",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.185000+00:00"
+        },
+        {
+          "event_uid": "sig_test_closeloop_01",
+          "symbol": "BTCUSDT",
+          "reason": "new_entry_blocked_pending_closure_review",
+          "ts_utc": "2026-10-22T15:10:42.182000+00:00"
+        }
+      ]
+    }
+  ]
+}

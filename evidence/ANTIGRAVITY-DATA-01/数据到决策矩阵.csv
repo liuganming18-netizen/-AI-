@@ -1,0 +1,18 @@
+字段/数据项,底层来源/表或文件,时间语义,币池覆盖,可得性证据状态,代码读取位置,去向层次,策略影响机制,语义校正与限制说明
+4h K线 (OHLCV),market_v2.sqlite3 (realtime_klines) + Parquet 冷档,"桶起点 (ts)，收盘 ts + 4h",100% 覆盖 (526 币),部分可得 (热库实时/冷档归档),"wyckoff_factor_resonance.py / accum_early_entry.py",影响观察/候选判断,识别 4h 级别底部箱体、阻力位、支撑位与蓄势完成度,无缺失；强依赖固定周期边界
+1h K线 (OHLCV),market_v2.sqlite3 + Parquet 冷档,"桶起点 (ts)，收盘 ts + 1h",100% 覆盖,部分可得 (热库实时/冷档归档),"unified_runtime.py / RealSignalEngine",影响观察/候选判断,用于 1h 级别放量确认与突破信号触发，驱动生成入场候选信号,形态确认核心
+15m K线 (OHLCV),market_v2.sqlite3 + Parquet 冷档,"桶起点 (ts)，收盘 ts + 15m",100% 覆盖,部分可得 (热库实时/冷档归档),"paper_engine.py / advance_pending",影响下单数量/风控,驱动 15m 现实时间撮合、跟踪止损逐 bar 步进检测与退出撮合,执行层核心周期
+5m K线 (OHLCV),market_v2.sqlite3 + Parquet 冷档,"桶起点 (ts)，收盘 ts + 5m",100% 覆盖,部分可得,"metrics_feed.py / phase_avg_price",仅展示/间接衍生,用于计算阶段均价 VWAP 等中间变量，不直接产生交易信号,不作为入场门槛
+持仓量 5m 历史 (OI),oi_history (period='5m') + Parquet metrics,"桶起点 (ts)，收盘 ts + 5m",526 币,"无发布确证，available_at=null (unproven)","oi_feed.py / wyckoff_factor_resonance.py",影响观察/候选判断 (硬门槛),既有策略 3a 作为前置硬门槛过滤；共振模块作为 6h 增幅评分 (最高15分),币安官方 5m 历史端点延迟中位 51.83 分钟；99.30% 超过 15m
+持仓量实时快照 (OI Snapshot),oi_history (period='snapshot'),抓取时刻毫秒 (ts),526 币,实时采集记录 (fetched_at - ts 中位 3.99m),未接入策略开仓链路 (仅存库),已采集/已存储,采集器正常落库，但 oi_feed.py 默认写死 5m 未对接快照,时效极佳但未接通策略
+聪明钱阶段均价 (VWAP),metrics_feed.py::phase_avg_price,区间成交量加权平均价,526 币,随 5m K线计算,"wyckoff_factor_resonance.py:117",仅展示 (软性评分),现价与阶段均价偏离度打分 (最高15分)；未获批动态仓位倍数锁定为 1.0x,严谨校正：仅为区间成交量加权均价，绝不等于“巨鲸持仓成本”
+主动买卖量比 (Taker Ratio),Parquet metrics + realtime_collector,5分钟桶或快照,526 币,"无发布确证，available_at=null","wyckoff_factor_resonance.py:165",仅展示 (软性评分),Taker 买卖比打分 (最高15分)；展示在前端卡片胶囊,严谨校正：吃单买卖比值，不识别交易者身份，非净买入净资金流(CVD)
+大户持仓多空比 (top_position_ls_ratio),Parquet metrics::sum_toptrader_long_short_ratio,5分钟桶起点,526 币,"无发布确证，available_at=null","wyckoff_factor_resonance.py:215",仅展示 (软性评分),多空比打分 (最高15分)；展示在前端卡片胶囊,严谨校正：持仓排名前20%账户多头与空头比例，非净流入资金
+大户账户数多空比 (count_toptrader_long_short_ratio),Parquet metrics,5分钟桶起点,526 币,"无发布确证，available_at=null",metrics_feed.py,已采集/已存储,仅在 metrics 数据层解析，未接入主决策链,排名前20%账户数量比
+散户账户多空比 (retail_account_ls_ratio),Parquet metrics (衍生计算),5分钟桶起点,526 币,"无发布确证，available_at=null","wyckoff_factor_resonance.py:243",仅展示,展示在详情悬停，不参与硬过滤,非交易所原生字段，系衍生近似
+资金费率 (funding_rate),market_v2.sqlite3::funding_history,每 8h / 4h 结算时刻毫秒,526 币,结算时刻记录,"paper_engine.py::_settle_funding",影响下单数量/风控 (结算扣除),仅在持仓期间计算资金费扣除 (amount = qty * mark * rate),不改变开仓或退出信号
+标记价格 (mark_price),funding_history 表伴随记录,结算时刻标记价格,526 币,结算时刻记录,"paper_engine.py::_settle_funding",影响下单数量/风控 (结算计价),资金费结算名义乘数计算 funding_paid,非撮合价格
+合约规格 (min_notional / stepSize),07_526币保守执行近似规格.csv,2026-10-11 单点快照,526 币,单点快照固定,"paper_engine.py / apply_order_rounding",影响下单数量/风控,对候选开仓订单名义金额与下单数量精度进行截断,缺乏历史演化序列
+前置 15m 成交额 (quote_cap),15m K线 quote_volume,入场前一根 15m,100% 覆盖,随 15m K线,"paper_engine.py::economic_engine",影响下单数量/风控,单笔名义金额不超过前一根 15m 成交额的 1% 上限,流动性风控上限保护
+盘口挂单/深度 (L2 Depth),无本地持久化,实时盘口,0%,完全不可得,未接入,未接入/不可得,回测采用 bar_open 模拟撮合，未接入盘口深度,不支持真实挂单撮合还原
+市值与板块 (Supply & Classification),market_v2.sqlite3::symbol_supply / classification,静态快照,526 币,静态表格,未接入策略决策,仅展示,页面资产总览与板块标签展示,未参与动态选币

@@ -1,0 +1,118 @@
+{
+  "task": "MAINLINE-01-ANTIGRAVITY-B",
+  "timestamp_utc": "2026-10-28T02:25:31.999867+00:00",
+  "layers": {
+    "layer_1_strategy_output": {
+      "name": "策略输出层（状态机与统一运行时）",
+      "runtime_pid": 77433,
+      "status": "running",
+      "cycle_count": 755,
+      "symbols_universe": 526,
+      "observing_counts": {
+        "BOX": 299,
+        "SWEEP": 7,
+        "RETEST": 26
+      },
+      "observing_total": 332,
+      "natural_signals_generated_in_current_run": 0,
+      "diagnosis": "策略引擎正在活跃轮转中（332个标的在观察中，其中26个待突破），但当前时刻全池无标的突破并同时通过STAGE-5量比与STAGE-6持仓量门禁，策略输出端产生0条候选",
+      "first_failure_layer": true,
+      "first_failure_reason": "策略没有生成（Strategy did not generate candidates）"
+    },
+    "layer_2_persistence": {
+      "name": "持久化层（数据库存储）",
+      "db_path": "/Users/boos/Desktop/威科夫因子共振趋势/框架/backend/live/live_signals.sqlite3",
+      "total_rows": 289,
+      "origin_distribution": {
+        "historical_research": 289
+      },
+      "natural_live_rows": 0,
+      "historical_research_rows": 289,
+      "market_v2_signals_table_rows": 0,
+      "persistence_mechanism": "unified_runtime.py:persist_candidates -> INSERT INTO live_signal (signal_uid=c.candidate_id)",
+      "uid_retention": "主键 signal_uid 保持策略输出 candidate_id，无截断、无哈希覆盖",
+      "mechanical_verification_sample": {
+        "dataset_type": "historical_research（历史研究记录，非自然生产信号）",
+        "signal_uid": "accum05_4c_MAVUSDT_1793005199999",
+        "origin": "historical_research",
+        "source": "antigravity_08_backtest",
+        "symbol": "MAVUSDT",
+        "event_time": 1793005199999,
+        "confirmed_at": 1793005199999,
+        "available_at": null,
+        "display_state": "displayable",
+        "executable_state": "historical_not_executable",
+        "role": "research_only",
+        "resonance_score": 68.0
+      },
+      "diagnosis": "持久化层未发生丢失或阻断。由于层1产出为0，自然生产记录入库数为0；已有研究数据存储完备"
+    },
+    "layer_3_api": {
+      "name": "API 契约与查询层",
+      "current_scope_endpoint": "GET /api/v1/signals?scope=current",
+      "current_scope_result": {
+        "items_count": 0,
+        "total": 0,
+        "strategy_version": "FT-LOW4H-EXP-V2.2",
+        "rule_version": "FT-LOW4H",
+        "param_hash": "82dec362c182",
+        "quality_status": "ok",
+        "excluded_n": 289,
+        "excluded_reasons": {
+          "not_current_origin": 289,
+          "not_enterable": 289,
+          "missing_time": 289,
+          "before_effective_floor": 0,
+          "not_arm_entry_role": 289,
+          "test_synthetic": 0,
+          "unapproved_config": 289
+        }
+      },
+      "audit_scope_endpoint": "GET /api/v1/signals?scope=all",
+      "audit_scope_result": {
+        "quality_status": "ok",
+        "first_item_signal_id": "accum05_4c_MAVUSDT_1793005199999",
+        "first_item_origin": "historical_research",
+        "first_item_actionable": false
+      },
+      "single_uid_endpoint": "GET /api/v1/signals/accum05_4c_MAVUSDT_1793005199999",
+      "single_uid_result": {
+        "returned_uid": "accum05_4c_MAVUSDT_1793005199999",
+        "status": "undecided",
+        "direction": "long",
+        "display_state": "displayable",
+        "executable_state": "historical_not_executable",
+        "actionable_reason": "approved=false｜研究/未批准配置（反重力 fixture 配置，G01–G05 全 pending）⇒ 只展示、不可执行、不进入当前交易区"
+      },
+      "uid_retention": "API 层将数据库 signal_uid 映射为字典键 signal_id，字符串完全一致，无丢失截断",
+      "filtering_logic_check": "当前交易区 scope=current 过滤 289 条研究数据属预期隔离行为，防止研究数据污染生产交易区；单条与审计接口完全支持读取"
+    },
+    "layer_4_ui": {
+      "name": "页面展示与用户交互层",
+      "components": [
+        {
+          "file": "UI界面/web/src/components/SignalListPanel.tsx",
+          "area": "当前交易信号区",
+          "data_source": "GET /api/v1/signals?scope=current",
+          "dom_uid_binding": "data-signal-uid={signal.id}",
+          "key_binding": "key={signal.id}",
+          "ledger_wiring": "posBySignalUid.get(s.id), pendBySignalUid.get(s.id)",
+          "display_when_zero": "展示正常空状态『暂无实时信号』，同时常显 ObservePanel（332 个标的观察状态）"
+        },
+        {
+          "file": "UI界面/web/src/components/ResearchSignalSection.tsx",
+          "area": "历史研究信号只读折叠区",
+          "data_source": "GET /api/v1/signals?scope=all&origin=historical_research",
+          "dom_uid_binding": "data-signal-uid={s.signal_id}, data-testid='research-signal-row'",
+          "field_display": "Field k='信号ID' v={short(s.signal_id, 10)} title={s.signal_id}",
+          "mechanical_verification_status": "已在历史研究区成功映射 accum05_4c_MAVUSDT_1793005199999，显示『不可执行』与『历史研究』标签"
+        }
+      ],
+      "diagnosis": "前端 UI 组件定义了精确的 data-signal-uid 挂载与字段渲染逻辑；当前区空显示系真实反映数据 0 条，非前端丢弃或渲染错位"
+    }
+  },
+  "conclusion": {
+    "verdict": "链路逐层一致无截断，首个具体故障位于【策略输出层】（策略没有生成自然突破候选）",
+    "summary": "1. 当前自然信号在全链路均为严格的 0 条；2. 策略引擎运行正常但在当前市场行情与时效门禁下未产出自然 CANDIDATE；3. 持久化、API 与前端的 UID 映射与过滤机制完全正确；4. 已有历史研究记录在隔离机械验证中 100% 逐层对齐保留。"
+  }
+}

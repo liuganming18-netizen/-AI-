@@ -1,0 +1,141 @@
+{
+  "ticket": "SIGNAL-NOW-01-WORK",
+  "step": "9 收尾最小重载（磁盘==运行）",
+  "started_at_utc": "2026-10-27T18:18:54Z",
+  "actions": [
+    {
+      "action": "sigterm_runtime",
+      "pid": 41453,
+      "at_utc": "2026-10-27T18:18:54Z"
+    },
+    {
+      "action": "runtime_exit",
+      "pid": 41453,
+      "gone": true,
+      "at_utc": "2026-10-27T18:18:58Z"
+    },
+    {
+      "action": "sigterm_api",
+      "pid": 41446,
+      "at_utc": "2026-10-27T18:18:58Z"
+    },
+    {
+      "action": "api_exit",
+      "pid": 41446,
+      "gone": true,
+      "at_utc": "2026-10-27T18:18:58Z"
+    },
+    {
+      "action": "start_sh",
+      "rc": 0,
+      "stdout_tail": "[*] 检测到明确启用隔离模拟交易链 (Arm: 3a)... 开始参数契约强验\n[✔] 交易链配置契约校验通过（版本: FT-LOW4H-EXP-V2.2, 规则: FT-LOW4H）\n[*] 启动 API 服务 (端口 8787)...\n[✔] API 服务已就绪: pid=43819, 端口: 8787\n[✔] 实时采集器已在运行且心跳健康（复用 pid=42278）\n[*] 启动隔离交易链进程 unified_runtime (Arm: 3a, Symbol: all)...\n[✔] 交易链 unified_runtime 已就绪: pid=43827\n",
+      "at_utc": "2026-10-27T18:19:03Z"
+    }
+  ],
+  "errors": [],
+  "watch_files": {
+    "框架/backend/paper_engine.py": {
+      "mtime_utc": "2026-10-27T17:48:50Z",
+      "mtime": 1793123330.7686415,
+      "sha256": "a99f8af00d4d82ca47acde9ffd494ef547395a29793ee2cd67e0f86f813a52d1",
+      "size": 166937
+    },
+    "框架/backend/unified_runtime.py": {
+      "mtime_utc": "2026-10-27T17:39:40Z",
+      "mtime": 1793122780.9210525,
+      "sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "size": 183290
+    }
+  },
+  "newest_source_mtime_utc": "2026-10-27T17:48:50Z",
+  "newest_source_mtime": 1793123330.7686415,
+  "before": {
+    "procs": {
+      "api": {
+        "pid": 41446,
+        "create_time": 1793123304.860643,
+        "create_time_utc": "2026-10-27T17:48:24Z"
+      },
+      "worker": {
+        "pid": 88794,
+        "create_time": 1792826890.832155,
+        "create_time_utc": "2026-10-24T07:28:10Z"
+      },
+      "runtime": {
+        "pid": 41453,
+        "create_time": 1793123306.435775,
+        "create_time_utc": "2026-10-27T17:48:26Z"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time": 1792746016.284061,
+        "create_time_utc": "2026-10-23T09:00:16Z"
+      }
+    },
+    "rt_status": {
+      "pid": 41453,
+      "started_at": 1793123307694,
+      "cycle_count": 198,
+      "universe": 526,
+      "watermark_1h": 1793120400000,
+      "watermark_4h": 1793102400000
+    },
+    "at_utc": "2026-10-27T18:18:54Z"
+  },
+  "health_ok": true,
+  "after": {
+    "procs": {
+      "api": {
+        "pid": 43819,
+        "create_time": 1793125141.025152,
+        "create_time_utc": "2026-10-27T18:19:01Z"
+      },
+      "worker": {
+        "pid": 88794,
+        "create_time": 1792826890.832155,
+        "create_time_utc": "2026-10-24T07:28:10Z"
+      },
+      "runtime": {
+        "pid": 43827,
+        "create_time": 1793125141.880506,
+        "create_time_utc": "2026-10-27T18:19:01Z"
+      },
+      "collector": {
+        "pid": 42278,
+        "create_time": 1792746016.284061,
+        "create_time_utc": "2026-10-23T09:00:16Z"
+      }
+    },
+    "at_utc": "2026-10-27T18:19:03Z"
+  },
+  "load_proof": {
+    "newest_source_mtime_utc": "2026-10-27T17:48:50Z",
+    "api_pid": 43819,
+    "api_create_time_utc": "2026-10-27T18:19:01Z",
+    "api_started_after_source_change": true,
+    "api_loaded": true,
+    "api_why": "启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本即运行版本",
+    "runtime_pid": 43827,
+    "runtime_create_time_utc": "2026-10-27T18:19:01Z",
+    "runtime_started_after_source_change": true,
+    "runtime_loaded": true,
+    "runtime_why": "启动时刻晚于全部改动文件 mtime ⇒ 磁盘版本即运行版本",
+    "worker_pid_unchanged": true,
+    "collector_pid_unchanged": true
+  },
+  "levels_after": {
+    "paper_epoch_ms": 1791939600000,
+    "live_start_ms": 1792748844240,
+    "state_anchor_ms": 1782542715686
+  },
+  "levels_unchanged": true,
+  "rt_status_after": {
+    "pid": 41453,
+    "started_at": 1793123307694,
+    "cycle_count": 199,
+    "universe": 526,
+    "watermark_1h": 1793120400000,
+    "watermark_4h": 1793102400000
+  },
+  "finished_at_utc": "2026-10-27T18:19:03Z"
+}

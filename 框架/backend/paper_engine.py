@@ -114,18 +114,213 @@ QUOTE_FRESHNESS = {
 FILL_POLICY = {
     "defined_by": "work_2026-10-13",
     "ratification_status": "pending_human_ratification",
-    "fill_price": "open_of_first_closed_15m_bar_at_or_after(order_request_ms + delay)",
-    "no_fill_before": "max(signal.event_time, signal.available_at, 真实请求时刻)",
+    "fill_price": "open_of_the_15m_bar_at_or_after(order_request_ms + delay)"
+                  "：默认在 bar **开盘瞬间**从 `realtime_klines` 读（reality_fill=1，"
+                  "与闭 bar 后的 open 逐位相同，已实测）；仅 legacy 模式才等 is_closed=1",
+    # SIGNAL-NOW-01-WORK（2026-10-28）更正：原写 max(..., 真实请求时刻)，
+    # 该 max 会把**旧信号**续期到首次请求时刻。现改为「有信号时刻取信号时刻」。
+    "no_fill_before": "max(signal.event_time, signal.available_at)；无信号时刻（手工请求）"
+                      "才取真实请求时刻",
     "future_fill": "paper_pending_advanced_by_real_process_clock",
     "on_missed_moment": "reject_missed_fill_moment_no_backfill",
+    # 新增（本单）：执行点是否在**本进程启动前**就已收盘 ⇒ 停机期间过去的执行点不追补。
+    "on_fill_point_before_process_start": "reject_fill_point_closed_before_process_start",
     "max_fill_lag_seconds": 3600,
     "approved_delay_rule_kept": True,
+    # ── PARALLEL-STRATEGY-01-WORK（2026-10-28）：现实时间撮合 ────────────────────
+    # 原 `known_gap` 描述的缺陷**已修**（原文保留在 `known_gap_history` 备查）。
+    # 键名 `known_gap` 保留不删，避免既有观测脚本（`has_known_gap`）误判。
+    # 价格仍取**执行点那根 15m bar 的 open**（已批准 `market_at_eligible_detail_open`
+    # 口径**未改**），但改为在 bar **刚开盘**就从 `realtime_klines`（采集器 ws 实时写入）
+    # 取该 open，而不是等它 `is_closed=1` 之后回读 ⇒ 撮合真的发生在执行点。
+    "realtime_fill_mode": "realtime_only|prefer_realtime|legacy（默认 realtime_only，见 WX_REALITY_FILL_MODE）",
+    "realtime_fill_price": "open_of_the_same_15m_bar_read_at_bar_open_from_realtime_klines",
+    "reality_fill_flag": "1=执行点当场成交；0/NULL=闭 bar 后补记（不再伪装成当时成交）",
+    "on_exec_point_already_passed": "reject_fill_point_passed_no_backfill（不回填、不顺延到下一根）",
+    # ── 三时刻分离（MAINLINE-01-WORK，2026-10-28）─────────────────────────────────
+    # 上一单只改「什么时候取价」，账本仍无法区分三个时刻 ⇒ 本单落库并强制顺序。
+    "timestamps_split": {
+        "price_event_at": "entry_ts = 执行那根 15m bar 的 open_time（价格代表哪个时点）",
+        "data_available_at": "该行情在库里可被读到的时刻（实时行 received_at）",
+        "read_at": "读到该行情那一刻的真实挂钟（决策输入时刻）",
+        "matched_at": "撮合完成那一刻的真实挂钟（实际执行时刻）",
+        "invariant": "data_available_at <= read_at <= matched_at = fill_ts；"
+                     "entry_ts（价格事件时刻）必然早于它们，不得当作成交时刻",
+    },
+    "fill_ts_semantics": "撮合完成时刻（matched_at_ms）。MAINLINE-01 前为「本轮循环起始时刻」，"
+                         "会低估真实延迟；新行不再如此，历史行不改写（其 fill_ts 原样保留）。",
+    "on_lookahead_detected": "reject_data_available_after_read_no_lookahead"
+                             "（可得时刻晚于读取时刻 ⇒ 前视，拒单）",
+    "on_realtime_without_available_time": "reject_realtime_fill_without_available_time"
+                                          "（声称当场成交却拿不出可得时刻 ⇒ 拒单）",
+    "known_gap": "已修复（PARALLEL-STRATEGY-01-WORK）：执行点那根 15m bar 的 open 现在在 bar "
+                 "**刚开盘**就从 `realtime_klines` 读到，撮合发生在执行点；"
+                 "执行点已过则拒单，不再用闭 bar 的 open 冒充当时成交。"
+                 "（修复前的原文见 `known_gap_history`）",
+    "known_gap_history": "bar 必须 is_closed=1 才取得到 ⇒ 执行动作**从未在 bar 开盘时刻真实发生**，"
+                         "成交一律是「闭 bar 后回读该 bar 的 open」，entry_ts 恒早于实际处理 15~30 分钟。"
+                         "（本条为 PARALLEL-STRATEGY-01-WORK 修复前的历史缺陷记录，保留备查）",
     "note": "本窗口**显式定义**并如实报告；已批准信号延迟规则（signal_execution_delay_minutes）"
             "逐字保留；无信号的手工请求同样遵守同一延迟，不提前、不回填。",
 }
 MAX_FILL_LAG_MS = 3600_000
 MARKET_SOURCE = "binance.um.candles_15m.is_closed.open"
+# 现实撮合的行情来源标签（`realtime_klines` 是采集器 ws 实时写入的「当前那根」15m bar）
+REALTIME_SOURCE = "binance.um.realtime_klines_15m.open"
 FUNDING_SOURCE = "funding_history.settled"
+
+# ── 现实撮合模式（PARALLEL-STRATEGY-01-WORK，2026-10-28）───────────────────────
+# 为什么要有开关而不是直接替换：成交价口径（该 bar 的 open）是**已批准**的，本单不动；
+# 本单只改「什么时候能拿到这个 open」。三种模式：
+#   · `realtime_only`（**默认**）：只接受在执行点当场从实时行情读到的 open。
+#     执行点那根 bar 已经过去（被下一根覆盖）⇒ **拒单**，绝不回填闭 bar 的 open。
+#     这是用户口径「按现实时间入场 / 无有效当时行情不得伪造成交」的直接实现。
+#   · `prefer_realtime`：优先实时；实时缺失时回退闭 bar，但 `reality_fill=0` 明确标记。
+#     仅在确认「实时源整段不可用」时才应切到这里，否则等于默认允许回填。
+#   · `legacy`：完全旧行为（只读闭 bar），用于隔离对照与回滚，**不作为生产默认**。
+REALTIME_FILL_ENV = "WX_REALITY_FILL_MODE"
+REALTIME_FILL_MODES = ("realtime_only", "prefer_realtime", "legacy")
+REALTIME_FILL_DEFAULT = "realtime_only"
+M15 = 900_000
+
+
+def realtime_fill_mode() -> str:
+    """当前现实撮合模式（环境变量优先；非法值 ⇒ 回落到默认，不静默放行回填）。"""
+    v = str(os.environ.get(REALTIME_FILL_ENV, "")).strip().lower()
+    return v if v in REALTIME_FILL_MODES else REALTIME_FILL_DEFAULT
+
+
+def effective_fill_mode(origin: str | None = None) -> str:
+    """按**调用来源**决定实际撮合模式。
+
+    为什么要分来源而不是一刀切：回放/隔离测试用的全是**历史**行情，实时表里
+    根本不会有那根 bar。若对它们也强制 `realtime_only`，历史上「挂单→撮合」的
+    回放与既有隔离测试会全部变成「拒单」——那是把「现实撮合」误当成「不许回放」。
+    用户口径「按现实时间入场」约束的是**生产实时实例**，不是历史回放。
+
+    优先级：
+      ① 环境变量显式设定（`WX_REALITY_FILL_MODE`）—— 隔离取证与回滚用；
+      ② `origin in ('replay','test')` ⇒ `legacy`（历史回放按旧口径，`reality_fill=0`）；
+      ③ 其余（生产 `live` / `signal` / `manual`）⇒ 默认 `realtime_only`。
+    """
+    v = str(os.environ.get(REALTIME_FILL_ENV, "")).strip().lower()
+    if v in REALTIME_FILL_MODES:
+        return v
+    if origin in ("replay", "test"):
+        return "legacy"
+    return REALTIME_FILL_DEFAULT
+
+
+def align_15m_up(ts_ms: int) -> int:
+    """`ts_ms` 之后（含）第一根 15m bar 的 open_time。
+
+    与 `bar_at_or_after` 的 `open_time >= ts` 语义**逐位一致**，因此实时路径与闭 bar
+    路径选中的是同一根 bar —— 这是「换取数时刻不换价格口径」的前提。
+    """
+    ts = int(ts_ms)
+    return ((ts + M15 - 1) // M15) * M15
+
+
+def realtime_15m_bar(con, symbol: str):
+    """读该标的**当前那根** 15m 实时 bar（`realtime_klines`，采集器 ws 写入）。
+
+    关键性质：`realtime_klines` 主键是 `(exchange,market,symbol,timeframe)` ⇒
+    每个标的每个周期**只有一行**，永远是「正在形成的那一根」。
+    于是它天然满足本单要的语义：
+      · bar 一开盘就存在（只要有成交）⇒ 执行点当场就能读到它的 `open`；
+      · 一旦它闭合、下一根开始，这一行就被**覆盖** ⇒ 事后**拿不到**它
+        ⇒ 「错过执行点」在数据层就体现为「查不到」，不需要靠时间差推断。
+
+    返回 dict（补 `available_at = received_at`，让 `_bar_provenance` 能判「有可得证据」）；
+    取不到（标的不在表里 / 表不可用 / 非 sqlite 门面）⇒ None。
+    """
+    try:
+        cur = con.execute(
+            "SELECT open_time,close_time,open,high,low,close,quote_volume,is_closed,"
+            "event_time,received_at,source,transport "
+            "FROM realtime_klines WHERE exchange='binance' AND market='um' "
+            "AND symbol=? AND timeframe='15m'", (symbol,))
+        row = cur.fetchone()
+    except Exception:                                        # noqa: BLE001
+        return None
+    if row is None:
+        return None
+    keys = ["open_time", "close_time", "open", "high", "low", "close", "quote_volume",
+            "is_closed", "event_time", "received_at", "source", "transport"]
+    if hasattr(row, "keys"):
+        d = {k: row[k] for k in keys if k in row.keys()}
+    else:
+        d = dict(zip(keys, row))
+    d["available_at"] = d.get("received_at")
+    d["_layer"] = "realtime_15m"
+    return d
+
+
+def resolve_fill_bar(con_mkt, symbol: str, earliest_fill_ms: int, *,
+                     mode: str | None = None, origin: str | None = None):
+    """决定「成交用哪根 bar + 从哪条路取到的」，返回 `(bar, info)`。
+
+    `bar is None` 时 `info['reason']` 说明为什么：
+      · `pending_future_fill`             —— 执行点还没到（登记挂单，等真实时钟）
+      · `fill_point_passed_no_backfill`   —— 执行点那根 bar 已经过去，且不允许回填 ⇒ 拒单
+      · `fill_point_closed_without_realtime` —— 只允许现实成交，但那根已闭合 ⇒ 拒单
+
+    `info` 恒定含 `expected_open`（= 执行点那根 bar 的 open_time），便于账本核对。
+    """
+    mode = mode or effective_fill_mode(origin)
+    expected_open = align_15m_up(earliest_fill_ms)
+    info = {"mode": mode, "expected_open": expected_open,
+            "fill_source": None, "reality_fill": False,
+            "data_available_at": None, "reason": None,
+            # MAINLINE-01-WORK：读到行情那一刻的真实挂钟（决策输入时刻）。
+            # 读之前取，因此 `data_available_at <= read_at_ms` 若能成立，
+            # 就证明「这个价在我们读它之前就已经在库里」，不是读取之后才写进来的。
+            "read_at_ms": int(L.now_ms())}
+
+    # 合并门面（隔离回放 / 冷热合并）没有实时表 ⇒ 只能走闭 bar；回放不需要现实撮合。
+    # `legacy` 模式**完全跳过**实时路径：它是「改动前行为」的对照臂，必须逐字走旧口径，
+    # 否则「旧实现无法当场成交」这条对照就失去意义（本单隔离用例 P4 实测踩过这个坑）。
+    merged = _is_merged_market(con_mkt)
+
+    if not merged and mode != "legacy":
+        rt = realtime_15m_bar(con_mkt, symbol)
+        if rt is not None:
+            rt_open = int(rt["open_time"])
+            if rt_open == expected_open:
+                # ★ 现实路径：执行点那根正在形成，`open` 在 bar 开盘时已确定且不再变化
+                info.update({"fill_source": "realtime_15m_open", "reality_fill": True,
+                             "data_available_at": (int(rt["received_at"])
+                                                   if rt.get("received_at") else None)})
+                return rt, info
+            if rt_open > expected_open:
+                # 实时表已经是更晚的一根 ⇒ 执行点那根已经闭合、被覆盖 ⇒ 执行点已过
+                info["reason"] = "fill_point_passed_no_backfill"
+                info["realtime_open_time"] = rt_open
+                if mode == "realtime_only":
+                    return None, info
+                # prefer_realtime / legacy 才允许落到闭 bar 回填
+            else:
+                # 实时表还停在更早的一根 ⇒ 执行点还没到
+                info["reason"] = "pending_future_fill"
+                info["realtime_open_time"] = rt_open
+                return None, info
+
+    # 闭 bar 路径（旧行为；`realtime_only` 下不作为成交来源）
+    cbar = bar_at_or_after(con_mkt, symbol, earliest_fill_ms)
+    if cbar is None:
+        info["reason"] = info["reason"] or "pending_future_fill"
+        return None, info
+    try:
+        cbar_open = int(cbar["open_time"])
+    except Exception:                                        # noqa: BLE001
+        cbar_open = None
+    if mode == "realtime_only":
+        info["reason"] = "fill_point_closed_without_realtime"
+        info["closed_bar_open_time"] = cbar_open
+        return None, info
+    info.update({"fill_source": "closed_15m_open", "reality_fill": False,
+                 "data_available_at": None})
+    return cbar, info
 
 # ══════════════════════════════════════════════════════════════════════════
 # 行情来源模式（ACCUM-EARLY-03-B｜成交链路的冷+热合并接线）
@@ -752,8 +947,12 @@ def _record_equity(con, arm, eq_row):
 def first_request_anchor(arm: str, signal_uid, default_ms) -> int:
     """返回该信号**真实首次请求墙钟**（毫秒）。
 
-    2026-10-14 09 契约：`order_request_ms = max(信号事件/可用时刻, **真实首次请求**)`；
-    **每轮重试不得刷新首次请求**（否则成交 bar 会随重试时钟往前漂、等价于回填旧价）。
+    SIGNAL-NOW-01-WORK（2026-10-28）更正：这里原写
+    `order_request_ms = max(信号事件/可用时刻, **真实首次请求**)`，而该 max 会让
+    **旧信号被首次请求时刻续期**（4 天前确认的信号在今天被请求 ⇒ 经济请求时刻被推到今天）。
+    现已改为：**有信号时刻 ⇒ 取信号自身时刻**；只有**无信号时刻（手工请求）**才取首次请求墙钟。
+    「首次请求」的职责收窄为两条：①「成交不得早于请求」的下界；②审计用的真实请求时刻。
+    **每轮重试仍不得刷新首次请求**（否则成交 bar 会随重试时钟往前漂、等价于回填旧价）。
     实现：独立表 `paper_request_anchor` 用 `INSERT OR IGNORE` 只落**第一次**的值。
     `signal_uid` 为空（手工请求）⇒ 无稳定事件身份，直接返回 `default_ms`（调用方一次一请求）。
     """
@@ -895,8 +1094,15 @@ def pending_orders(arm: str, *, status="pending"):
         con.close()
 
 
-def advance_pending(*, T=None, log=print) -> dict:
-    """用**真实进程时钟**推进挂单：到点才成交；没到点继续等；错过了就拒单（不回填）。"""
+def advance_pending(*, T=None, log=print, process_start_ms=None) -> dict:
+    """用**真实进程时钟**推进挂单：到点才成交；没到点继续等；错过了就拒单（不回填）。
+
+    `process_start_ms`（SIGNAL-NOW-01-WORK 新增，默认 None = 旧行为）：
+      **本进程启动时刻**，原样透传给 `open_position`。它让 `open_position` 能判定
+      「该挂单的应成交 15m bar 是否在本进程启动之前就已收盘」⇒ 停机期间的执行点
+      不追补、不回填（工单第 3 条「进程停机后旧执行点过期不追补」）。
+      判据实现只在 `open_position` 一处（三层开仓共用入口），本函数**不加**任何判据。
+    """
     T = int(T) if T else L.now_ms()
     out = {"filled": [], "rejected": [], "still_pending": 0, "by_arm": {}}
     for arm in L.ARMS:
@@ -936,7 +1142,9 @@ def advance_pending(*, T=None, log=print) -> dict:
                 first_request_ms=(None if row.get("first_request_ms") is None
                                   else int(row["first_request_ms"])),
                 stoploss_s=s_val, trail_d=d_val,
-                model_version=m_ver, config_fingerprint=c_fp)
+                model_version=m_ver, config_fingerprint=c_fp,
+                # SIGNAL-NOW-01-WORK：停机期间的执行点不追补（判据在 open_position 内）
+                process_start_ms=process_start_ms)
             if res.get("ok"):
                 n_f += 1
                 out["filled"].append(res)
@@ -960,7 +1168,8 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                   origin="signal", pending_id=None, epoch_ms=None,
                   first_request_ms=None, entry_mode=None, stop_mode=None,
                   struct_low=None, trailing_mode=None, stoploss_s=None,
-                  trail_d=None, config_fingerprint=None, model_version=None) -> dict:
+                  trail_d=None, config_fingerprint=None, model_version=None,
+                  process_start_ms=None) -> dict:
     """按已批准模型开一笔**模拟多仓**。返回结果 dict（含 ok/reason/明细）。
 
     成交时钟见模块头 `FILL_POLICY`。要点：
@@ -1071,7 +1280,16 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         is_replay = (origin in ("replay", "test") or pending_id is not None)
         attempt_ms = int(now_ms) if (is_replay and now_ms is not None) else real_wall_ms
         req_ms = int(requested_at) if (is_replay and requested_at is not None) else attempt_ms
-        epoch = int(epoch_ms if epoch_ms is not None else L.get_paper_epoch_ms())
+        # ── 生效下限：**必须**与 API / 挂单推进 / 四臂共用同一下限 ────────────────
+        # SIGNAL-EFFECTIVE-01-WORK（2026-10-27）实测缺陷：此处原为
+        # `L.get_paper_epoch_ms()`（= 2026-10-14T01:00:00Z），而
+        # `live_store.effective_floor_ms()` = max(live_start, paper_epoch)
+        # = 2026-10-23T09:47:24Z。两者相差 9 天 8 小时 ⇒
+        # 落在 [10-14T01:00, 10-23T09:47) 的**启动前**信号能穿过门禁①，
+        # 被登记成真实挂单（隔离复现见 evidence/SIGNAL-EFFECTIVE-01-WORK/）。
+        # live_store 的文档语义本就是「四臂、挂单推进、自动/手工开仓、当前信号 API
+        # 共用同一有效下限」，此处改为**照文档实现**，只会更严、不会更松。
+        epoch = int(epoch_ms if epoch_ms is not None else L.effective_floor_ms())
 
         # **真实首次请求墙钟**：复用持久锚（只落第一次挂钟），不得由调用方回填
         if signal_uid:
@@ -1106,17 +1324,33 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
             _resolve_pending(con, pending_id, "rejected", "position_already_open_no_add", T=attempt_ms)
             return _reject(arm, symbol, signal_uid, "position_already_open_no_add")
         delay_ms = int(params["signal_execution_delay_minutes"]) * MIN
-        # ① 经济请求时刻 = max(信号事件/可用时刻, 真实首次请求墙钟)
+        # ① 经济请求时刻 = 信号自身的事件/可用时刻；**只有无信号时刻（页面手工请求）**
+        #    才以真实首次请求墙钟作为经济请求时刻。
+        # SIGNAL-NOW-01-WORK（2026-10-28）实测缺陷：原实现是
+        # `order_request_ms = max(eco + [first_req])`，这让**旧信号被首次请求时刻续期**。
+        # 证据（evidence/SIGNAL-NOW-01-WORK/out/02_test_probe_succ_溯源.json）：
+        #   `test_probe_succ` 的 event_time = 2026-10-23T09:47:25.240Z，
+        #   首次请求 = 2026-10-27T15:46:47.361Z（相差 4.2496 天），
+        #   取 max 后经济请求时刻被推到 10-27，于是**一笔 4 天前的确认在 10-27 入场**。
+        #   若按信号自身时刻，earliest_fill = 10-23T10:02:25Z，处理时刻滞后 4.27 天
+        #   ⇒ 本应拒单 `missed_fill_moment_no_backfill`。
+        # 用户口径「按现实时间不能按历史时间」⇒ 经济请求时刻必须取信号自身时刻；
+        # 首次请求墙钟只承担两个职责：①「成交不得早于请求」的下界（下方严格因果校验）；
+        # ②审计用的真实请求时刻。它不是续期工具。
         eco = [int(x) for x in (event_time, available_at) if x is not None]
-        order_request_ms = max(eco + [first_req])
+        order_request_ms = max(eco) if eco else int(first_req)
         # ② 最早可成交时刻（已批准延迟规则，逐字保留）
         earliest_fill_ms = order_request_ms + delay_ms
         # 严格因果校验：日常实例下最早成交下限绝不得早于首次请求挂钟
         if not is_replay and earliest_fill_ms < first_req:
             return _reject(arm, symbol, signal_uid, "earliest_fill_before_first_request_clock")
-        # ③ 第一根合格已闭合 15m bar
-        bar = bar_at_or_after(con_mkt, symbol, earliest_fill_ms)
-        if bar is None:
+        # ③ 合格 15m bar —— **现实优先**（PARALLEL-STRATEGY-01-WORK，2026-10-28）
+        # 旧实现 `bar_at_or_after` 强制 `is_closed=1` ⇒ 必须等执行点那根 bar 收盘才能取到，
+        # 于是「执行」永远发生在 15 分钟之后，而 `entry_ts` 却写成 bar 开盘时刻。
+        # 现在改为 `resolve_fill_bar`：价格口径**仍是那根 bar 的 open**（已批准口径未改），
+        # 但改在 bar **刚开盘**就从采集器的实时表取 ⇒ 撮合真的发生在执行点。
+        if earliest_fill_ms > attempt_ms:
+            # 时钟还没到执行点（两条路径都不该有 bar）⇒ 挂单，等真实时钟
             pid = _register_pending(con, arm=arm, symbol=symbol, signal_uid=signal_uid,
                                     direction=direction, atr=atr, stop_price=stop_price,
                                     event_time=event_time, available_at=available_at,
@@ -1130,9 +1364,97 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                     "order_request_ms": order_request_ms,
                     "earliest_fill_ms": earliest_fill_ms, "epoch_ms": epoch,
                     "attempt_ms": attempt_ms,
-                    "note": "应成交时刻尚未到达（第一根合格已闭合 15m bar 还不存在）"
+                    "expected_open_time": align_15m_up(earliest_fill_ms),
+                    "reality_fill_mode": effective_fill_mode(origin),
+                    "note": "应成交时刻尚未到达（真实时钟还没到执行点）"
                             "⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"}
+        bar, _fill = resolve_fill_bar(con_mkt, symbol, earliest_fill_ms, origin=origin)
+        if bar is None:
+            _why = _fill.get("reason") or "pending_future_fill"
+            if _why == "pending_future_fill":
+                pid = _register_pending(con, arm=arm, symbol=symbol, signal_uid=signal_uid,
+                                        direction=direction, atr=atr, stop_price=stop_price,
+                                        event_time=event_time, available_at=available_at,
+                                        requested_at=req_ms, earliest_fill_ms=earliest_fill_ms,
+                                        origin=origin, epoch_ms=epoch, first_request_ms=first_req,
+                                        stoploss_s=s_val, trail_d=d_val,
+                                        model_version=m_ver, config_fingerprint=c_fp)
+                return {"ok": False, "reason": "pending_future_fill", "pending_id": pid,
+                        "symbol": symbol, "signal_uid": signal_uid, "origin": origin,
+                        "requested_at": req_ms, "first_request_ms": first_req,
+                        "order_request_ms": order_request_ms,
+                        "earliest_fill_ms": earliest_fill_ms, "epoch_ms": epoch,
+                        "attempt_ms": attempt_ms,
+                        "expected_open_time": _fill.get("expected_open"),
+                        "reality_fill_mode": _fill.get("mode"),
+                        "note": "应成交时刻尚未到达（执行点那根 15m bar 还没开始）"
+                                "⇒ 登记挂单，由真实进程时钟推进；不提前、不回填。"}
+            # 执行点已过 / 那根已闭合且本模式不允许回填 ⇒ 拒单（不伪造、不顺延到下一根）
+            _resolve_pending(con, pending_id, "rejected", _why, T=attempt_ms)
+            r = _reject(arm, symbol, signal_uid, _why)
+            r.update({"expected_open_time": _fill.get("expected_open"),
+                      "realtime_open_time": _fill.get("realtime_open_time"),
+                      "closed_bar_open_time": _fill.get("closed_bar_open_time"),
+                      "reality_fill_mode": _fill.get("mode"),
+                      "earliest_fill_ms": earliest_fill_ms,
+                      "attempt_ms": attempt_ms,
+                      "note": "执行点那根 15m bar 已经过去（实时表已切到更晚的一根，"
+                              "或它已闭合）⇒ 拒单：不用闭 bar 的 open 冒充当时成交，"
+                              "也不顺延到下一根。该信号照常展示。"})
+            return r
         bar_open = int(bar["open_time"])
+        # ── 前视保护：所用价格必须在**我们读它之前**就已经在库里（MAINLINE-01-WORK）───
+        # 为什么必须单列：上一单只把「取价时刻」提前到执行点，代码层却**没有**任何
+        # `data_available_at <= 读取时刻` 的校验（反重力 D4 已实证）。理论上采集器
+        # 可以在我们读完这一行之后才把 `received_at` 写进来（或时钟超前），
+        # 于是账本会出现「数据可得时刻晚于撮合时刻」——那就是用还没到手的价格成交。
+        # 两条判据都只用客观事实，不新增数值阈值：
+        #   ① 声称现实成交（reality_fill=1）却拿不出可得时刻 ⇒ 无法证明当时拿得到 ⇒ 拒；
+        #   ② 可得时刻晚于读取时刻 ⇒ 读到的是「未来」⇒ 拒。
+        _data_avail_pre = _fill.get("data_available_at")
+        _read_at = _fill.get("read_at_ms")
+        if _fill.get("reality_fill"):
+            if _data_avail_pre is None:
+                _resolve_pending(con, pending_id, "rejected",
+                                 "realtime_fill_without_available_time", T=attempt_ms)
+                r = _reject(arm, symbol, signal_uid, "realtime_fill_without_available_time")
+                r.update({"bar_open_time": bar_open, "read_at_ms": _read_at,
+                          "note": "实时行情行没有 received_at ⇒ 无法证明「这个价当时已经拿得到」，"
+                                  "不得声称现实成交；拒单，不回填闭 bar 的 open。"})
+                return r
+            if _read_at is not None and int(_data_avail_pre) > int(_read_at):
+                _resolve_pending(con, pending_id, "rejected",
+                                 "data_available_after_read_no_lookahead", T=attempt_ms)
+                r = _reject(arm, symbol, signal_uid, "data_available_after_read_no_lookahead")
+                r.update({"bar_open_time": bar_open, "data_available_at": int(_data_avail_pre),
+                          "read_at_ms": int(_read_at),
+                          "note": "行情可得时刻晚于读取时刻 ⇒ 读到的是读取之后才写进来的行"
+                                  "（前视/时钟倒挂）；拒单，不回填。"})
+                return r
+        # ── 停机不追补：应成交 bar 是否在**本进程启动之前**就已收盘 ────────────────
+        # SIGNAL-NOW-01-WORK（2026-10-28）。为什么必须单列这条：
+        #   `bar_at_or_after` 要求 `is_closed=1`，所以 `attempt_ms - bar_open` 的最小值
+        #   恒为一根 15m 的长度；`MAX_FILL_LAG_MS`（1 小时）里实际只有 45 分钟是「真迟到」
+        #   容忍 ⇒ **停机 44 分钟后重启，仍会用 44 分钟前开盘的 bar 成交，并把 `entry_ts`
+        #   回填到过去**。这正是工单第 3 条禁止的「伪造当时可成交或回填历史 entry_ts/价格」。
+        # 判据只用「本进程启动时刻」这一个客观事实，**不新增数值阈值**，也不放宽原 1 小时门禁。
+        # 正常重启不受影响：既有挂单的应成交 bar 若在本进程启动后才收盘，照样正常推进
+        # （`test_probe_succ`：bar_close 16:29:59.999Z > 进程启动 16:12:21Z ⇒ 放行）。
+        if process_start_ms is not None:
+            try:
+                _bc = int(bar["close_time"])
+            except (KeyError, IndexError, TypeError):
+                _bc = None
+            if _bc is not None and _bc < int(process_start_ms):
+                _resolve_pending(con, pending_id, "rejected",
+                                 "fill_point_closed_before_process_start", T=attempt_ms)
+                r = _reject(arm, symbol, signal_uid,
+                            "fill_point_closed_before_process_start")
+                r.update({"bar_open_time": bar_open, "bar_close_time": _bc,
+                          "process_start_ms": int(process_start_ms),
+                          "note": "应成交 bar 在本进程启动前已收盘 ⇒ 该现实执行点已过期；"
+                                  "不追补、不回填历史 entry_ts/价格，也不顺延到下一根"})
+                return r
         # ── epoch 门禁 ②：成交 bar 早于 epoch ⇒ 拒单（双保险）────────────────────
         if bar_open < epoch:
             _resolve_pending(con, pending_id, "rejected", "before_paper_epoch_no_backfill",
@@ -1167,8 +1489,22 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         # 为什么必须写：合并读取会把冷档 bar 带进来，而冷档 `available_at` 填充率为 0。
         # 「计算时没用未来 K 线」**不等于**「当时确实拿得到这根 bar」；缺证明的结果
         # 不得进入严格有效性成绩，所以这个标记必须能从账本本身读出来，而不是靠报告补记。
-        src_label = _source_label(bar)
-        bar_prov = _bar_provenance(bar)
+        # PARALLEL-STRATEGY-01-WORK：现在还要能从账本读出「这笔是不是**当场成交**」，
+        # 因此 `reality=0/1` 与数据可得时刻一并写进同一个标签（零 schema 侵入地可查）。
+        _reality = bool(_fill.get("reality_fill"))
+        _data_avail = _fill.get("data_available_at")
+        _fsrc = _fill.get("fill_source") or "closed_15m_open"
+        if _reality:
+            src_label = (f"{REALTIME_SOURCE}|reality=1|fill_source={_fsrc}"
+                         f"|data_avail_ms={_data_avail if _data_avail is not None else 'null'}"
+                         f"|read_ms={_read_at if _read_at is not None else 'null'}")
+            bar_prov = {"layer": "realtime_15m", "available_at": _data_avail,
+                        "available_at_proven": _data_avail is not None,
+                        "reality_fill": True, "fill_source": _fsrc}
+        else:
+            src_label = _source_label(bar) + f"|reality=0|fill_source={_fsrc}"
+            bar_prov = dict(_bar_provenance(bar))
+            bar_prov.update({"reality_fill": False, "fill_source": _fsrc})
         if atr is None and stop_price is None and s_val is None and params.get("stoploss_s") is None:
             return _reject(arm, symbol, signal_uid, "missing_atr_and_stop")
         slip = float(params["slippage_each_side"])
@@ -1193,12 +1529,38 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                                                and "quote_volume" in prev_bar.keys()) else None
         part = float(params.get("entry_participation_previous_15m_quote_cap") or 0.0)
 
+        # ── 多因子共振「动态仓位倍数」：**未获批准 ⇒ 不改变下单量** ──────────────
+        # SIGNAL-EFFECTIVE-01-WORK（2026-10-27）：
+        # 用户「所有已采集数据参与分析」的要求**不等于**批准评分权重、阈值或动态仓位系数。
+        # 该倍数的来源、四档阈值（0.5/0.8/1.0/1.3）以及「四项因子全缺失时算得 0.8x」
+        # 的兜底，均无批准依据 ⇒ 列为待裁决。
+        # 因此在 payload 显式带 `position_multiplier_approved=true` 之前，
+        # 一律按 1.0 处理（= 冻结口径 `risk_budget_per_trade` 0.5%/笔）；
+        # 原始倍数仍留在 payload 里供审计与页面展示，不删除、不改写。
+        pos_mult = 1.0
+        _pm_src = None
+        if signal_payload and isinstance(signal_payload, dict):
+            _pm_src = signal_payload
+        elif signal_uid:
+            try:
+                _con_l = L.live_conn(ro=True)
+                _p_row = _con_l.execute("SELECT payload_json FROM live_signal WHERE signal_uid=?", (signal_uid,)).fetchone()
+                _con_l.close()
+                if _p_row and _p_row[0]:
+                    _pm_src = json.loads(_p_row[0])
+            except Exception:
+                _pm_src = None
+        if isinstance(_pm_src, dict) and _pm_src.get("position_multiplier_approved") is True:
+            pos_mult = float(_pm_src.get("position_multiplier") or 1.0)
+
+        adj_risk_fraction = float(params["risk_per_trade_equity_fraction"]) * pos_mult
+
         # 调用统一的 apply_order_rounding：同时传入 stoploss_s 与 FT-LOW4H 策略身份
         rr = _apply_order_rounding(
             raw_open=raw,
             atr=(float(atr) if atr is not None else None),
             limits=limits,
-            risk_per_trade_fraction=float(params["risk_per_trade_equity_fraction"]),
+            risk_per_trade_fraction=adj_risk_fraction,
             equity=e,
             stop_atr_mult=stop_mult,
             slippage_each_side=slip,
@@ -1259,10 +1621,29 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
             return _reject(arm, symbol, signal_uid, why)
         fee = notional * fee_rate
         slip_cost = qty * (fill - raw)
+        # ── 三时刻分离（MAINLINE-01-WORK，2026-10-28）───────────────────────────────
+        # ① **价格事件时刻** = `bar_open`（这根 15m bar 的开盘）。它是「这个价格代表
+        #    哪个时点」的答案，**必然早于**数据可得时刻（bar 先开盘，采集器后写入）
+        #    —— 这不是缺陷，而是价格的定义时刻。它继续作为 `entry_ts` 用于
+        #    退出扫描区间、资金费计费窗 `(entry_ts, exit_ts]` 与最长持仓计时，**不改**。
+        # ② **数据可得时刻** = `data_available_at`（实时行 `received_at`）。
+        # ③ **实际执行时刻** = `matched_at_ms`（下面这一行，撮合完成时的真实挂钟）。
+        #    工单要求「不得以 bar.open_time 冒充实际成交时刻」⇒ `fill_ts` 与
+        #    `paper_order.ts` 一律写 ③，不再写本轮循环起始时刻 `attempt_ms`。
+        #    为什么 ③ 而不是 `attempt_ms`：`attempt_ms` 是 `step_once` 入口取的 `now`，
+        #    扫完 526 标的才轮到撮合 ⇒ 它只是「本轮开始处理」的下界，会**低估**真实延迟。
+        #    顺序由构造保证：data_available_at <= read_at_ms <= matched_at_ms
+        #    （read_at_ms 在 resolve_fill_bar 里读行之前取；本行在其后取）。
+        matched_at_ms = int(L.now_ms())
+        if _read_at is not None and matched_at_ms < int(_read_at):
+            # 时钟回拨（NTP 校正等）⇒ 时刻链不成立，不得写入一个自相矛盾的成交
+            return _reject(arm, symbol, signal_uid, "matched_before_read_clock_skew",
+                           detail={"read_at_ms": int(_read_at), "matched_at_ms": matched_at_ms})
         # **经济入场时刻 = 入场 bar 的开盘时刻**（不是挂钟 `attempt_ms`）。
         # 为什么必须这样：① 退出扫描 `closed_15m(sym, entry_ts, T)` 覆盖区间；
         # ② 资金费计费窗 `(entry_ts, exit_ts]` 起点；③ `max_holding_hours=720` 的计时起点。
-        # 挂钟记账时刻保留在 `paper_order.ts` / `paper_fill.fill_ts`（审计用）。
+        # 挂钟记账时刻：`fill_ts` / `paper_order.ts` = `matched_at_ms`（实际执行时刻），
+        # `paper_stop_history.decision_at` 仍为 `attempt_ms`（本轮决策开始时刻）。
         entry_bar_ts = bar_open
         pos_cols = {r[1] for r in con.execute("PRAGMA table_info(paper_position)")}
         if "initial_stop_price" in pos_cols:
@@ -1324,7 +1705,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "stoploss_s,trail_d,config_fingerprint,config_source,initial_stop_price,planned_risk) "
                         "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
-                         attempt_ms, fill, notional, bar_open, m_ver,
+                         matched_at_ms, fill, notional, bar_open, m_ver,
                          (None if event_time is None else int(event_time)), req_ms, src_label,
                          first_req, epoch,
                          (None if s_val is None else float(s_val)),
@@ -1337,7 +1718,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "stoploss_s,trail_d,config_fingerprint,config_source) "
                         "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
-                         attempt_ms, fill, notional, bar_open, m_ver,
+                         matched_at_ms, fill, notional, bar_open, m_ver,
                          (None if event_time is None else int(event_time)), req_ms, src_label,
                          first_req, epoch,
                          (None if s_val is None else float(s_val)),
@@ -1349,7 +1730,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "event_time,requested_at,market_source,first_request_ms,epoch_ms) "
                         "VALUES(?,?,?,'buy',?,?,?,?,'filled',NULL,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", signal_uid or f"manual:{req_ms}", symbol, qty, fill, fee,
-                         attempt_ms, fill, notional, bar_open, m_ver,
+                         matched_at_ms, fill, notional, bar_open, m_ver,
                          (None if event_time is None else int(event_time)), req_ms, src_label,
                          first_req, epoch))
         oid = con.execute("SELECT last_insert_rowid()").fetchone()[0]
@@ -1363,7 +1744,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "initial_stop_price,planned_risk) "
                         "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
-                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         slip_cost, bar_open, int(bar["close_time"]), matched_at_ms, m_ver,
                          (None if event_time is None else int(event_time)),
                          (None if available_at is None else int(available_at)),
                          req_ms, src_label, first_req, epoch,
@@ -1377,7 +1758,7 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "market_source,first_request_ms,epoch_ms,stoploss_s,trail_d,config_fingerprint) "
                         "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
-                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         slip_cost, bar_open, int(bar["close_time"]), matched_at_ms, m_ver,
                          (None if event_time is None else int(event_time)),
                          (None if available_at is None else int(available_at)),
                          req_ms, src_label, first_req, epoch,
@@ -1391,10 +1772,24 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                         "market_source,first_request_ms,epoch_ms) "
                         "VALUES(?,?,?,?,?,'open',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (f"paper43_{arm}", oid, pid, signal_uid, symbol, qty, raw, fill, notional, fee,
-                         slip_cost, bar_open, int(bar["close_time"]), attempt_ms, m_ver,
+                         slip_cost, bar_open, int(bar["close_time"]), matched_at_ms, m_ver,
                          (None if event_time is None else int(event_time)),
                          (None if available_at is None else int(available_at)),
                          req_ms, src_label, first_req, epoch))
+        # ── 现实撮合三列（PARALLEL-STRATEGY-01-WORK）───────────────────────────────
+        # 用 UPDATE 补写刚插入的新行，而不是改上面 9 条 INSERT 分支：
+        # ① 改动局部化，审查面小；② 不触碰任何既有列与历史行；③ 三列由
+        # `live_store.PAPER_COLUMNS` 加性迁移保证存在（`paper_conn(ro=False)` 每次都会补）。
+        _rf = 1 if _reality else 0
+        con.execute("UPDATE paper_position SET reality_fill=?,data_available_at=?,fill_source=?,"
+                    "read_at_ms=?,matched_at_ms=? WHERE position_id=?",
+                    (_rf, _data_avail, _fsrc, _read_at, matched_at_ms, pid))
+        con.execute("UPDATE paper_order SET reality_fill=?,data_available_at=?,fill_source=?,"
+                    "read_at_ms=?,matched_at_ms=? WHERE order_id=?",
+                    (_rf, _data_avail, _fsrc, _read_at, matched_at_ms, oid))
+        con.execute("UPDATE paper_fill SET reality_fill=?,data_available_at=?,fill_source=?,"
+                    "read_at_ms=?,matched_at_ms=? WHERE order_id=? AND action='open'",
+                    (_rf, _data_avail, _fsrc, _read_at, matched_at_ms, oid))
         _set_cash(con, f"paper43_{arm}", cash=-fee, fees=fee)
         if signal_uid:
             con.execute("INSERT OR REPLACE INTO paper_processed(signal_uid,arm,action,detail,ts) "
@@ -1414,7 +1809,38 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                 "origin": origin, "event_time": event_time, "available_at": available_at,
                 "requested_at": req_ms, "earliest_fill_ms": earliest_fill_ms,
                 "filled_at": bar_open, "fill_lag_ms": lag_ms, "market_source": src_label,
-                "bar_provenance": bar_prov}
+                "bar_provenance": bar_prov,
+                # 现实撮合（PARALLEL-STRATEGY-01-WORK）：逐项给出可核对的时间链
+                "reality_fill": _reality, "fill_source": _fsrc,
+                "data_available_at": _data_avail,
+                "expected_open_time": _fill.get("expected_open"),
+                "reality_fill_mode": _fill.get("mode"),
+                # 三时刻分离（MAINLINE-01-WORK）：价格事件 / 数据可得 / 实际执行，各自独立
+                "read_at_ms": _read_at,
+                "matched_at_ms": matched_at_ms,
+                "filled_wall_at": matched_at_ms,
+                "timeline": {
+                    "signal_confirmed_at": (int(event_time) if event_time is not None else None),
+                    "signal_available_at": (int(available_at) if available_at is not None else None),
+                    "order_requested_at": int(req_ms),
+                    "first_request_at": int(first_req),
+                    "planned_exec_at": int(earliest_fill_ms),
+                    # ① 价格事件时刻：这根 15m bar 的开盘（价格代表哪个时点）
+                    "price_event_at": int(bar_open),
+                    # ② 数据可得时刻：该行情在库里可被读到的时刻（received_at）
+                    "data_available_at": _data_avail,
+                    # ③ 读取/决策时刻与撮合完成时刻（真实挂钟）
+                    "read_at": _read_at,
+                    "matched_at": matched_at_ms,
+                    # 本轮循环起始时刻（只是「开始处理」的下界，不是成交时刻）
+                    "attempt_cycle_start_at": int(attempt_ms),
+                    "exec_bar_open_at": int(bar_open),
+                    "exec_bar_close_at": int(bar["close_time"]),
+                    "matched_minus_planned_ms": matched_at_ms - int(earliest_fill_ms),
+                    "matched_minus_price_event_ms": matched_at_ms - int(bar_open),
+                    "read_minus_data_available_ms": (None if _data_avail is None or _read_at is None
+                                                     else int(_read_at) - int(_data_avail)),
+                }}
     finally:
         con.close()
         con_mkt.close()

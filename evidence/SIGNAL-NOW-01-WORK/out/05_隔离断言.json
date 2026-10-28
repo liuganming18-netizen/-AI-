@@ -1,0 +1,293 @@
+{
+  "ticket": "SIGNAL-NOW-01-WORK",
+  "step": "5 隔离验证",
+  "generated_at_utc": "2026-10-27T17:54:45.415Z",
+  "env": {
+    "FLOOR": 1792748844240,
+    "T_CONFIRM": 1792749600000,
+    "T_BAR": 1792750500000,
+    "T_BAR_CLOSE": 1792751399999,
+    "T_NORMAL": 1792751404999,
+    "T_LATE": 1792758599999,
+    "T_RESTART": 1792753199999
+  },
+  "total": 18,
+  "passed": 18,
+  "failed": 0,
+  "results": [
+    {
+      "group": "G1",
+      "name": "正例_确认于水位后+正常处理⇒成交",
+      "pass": true,
+      "detail": {
+        "reason": "filled",
+        "fill": null,
+        "exc": null
+      }
+    },
+    {
+      "group": "G1",
+      "name": "反例_4天前确认+今日请求⇒拒(不续期)",
+      "pass": true,
+      "detail": {
+        "reason": "missed_fill_moment_no_backfill",
+        "res": {
+          "bar_open_time": 1792750500000,
+          "lag_ms": 368114728,
+          "note": "已错过应成交时刻（滞后超过容忍值）⇒ 拒单；该信号仍照常展示，但不自动回填旧价。"
+        }
+      }
+    },
+    {
+      "group": "G1",
+      "name": "反例_确认早于水位⇒拒",
+      "pass": true,
+      "detail": {
+        "reason": "before_paper_epoch_no_backfill"
+      }
+    },
+    {
+      "group": "G2",
+      "name": "确认+15min⇒应成交bar开盘",
+      "pass": true,
+      "detail": {
+        "bar_open_time": "2026-10-23T10:15:00.000Z",
+        "expect": "2026-10-23T10:15:00.000Z"
+      }
+    },
+    {
+      "group": "G2",
+      "name": "应成交bar尚不存在⇒pending_future_fill(不提前成交)",
+      "pass": true,
+      "detail": {
+        "reason": "pending_future_fill",
+        "fills": 0,
+        "earliest_fill_ms": 1793124580486
+      }
+    },
+    {
+      "group": "G2",
+      "name": "闭bar后处理: entry_ts=bar开盘 / fill_ts=处理时刻 / 两者可分辨",
+      "pass": true,
+      "detail": {
+        "bar_open": "2026-10-23T10:15:00.000Z",
+        "bar_close": "2026-10-23T10:29:59.999Z",
+        "fill_ts": "2026-10-23T10:30:04.999Z",
+        "entry_ts": "2026-10-23T10:15:00.000Z",
+        "lag_after_close_ms": 5000
+      }
+    },
+    {
+      "group": "G2",
+      "name": "迟到>1h⇒拒(不回填旧bar)",
+      "pass": true,
+      "detail": {
+        "reason": "missed_fill_moment_no_backfill",
+        "lag_ms": 8099999
+      }
+    },
+    {
+      "group": "G2",
+      "name": "available_at 晚 10min⇒应成交bar顺延到 10:30 那根",
+      "pass": true,
+      "detail": {
+        "bar_open_time": "2026-10-23T10:30:00.000Z",
+        "expect": "2026-10-23T10:30:00.000Z"
+      }
+    },
+    {
+      "group": "G3",
+      "name": "停机期间收盘的执行点⇒拒(不追补)",
+      "pass": true,
+      "detail": {
+        "pending": [
+          {
+            "pending_id": 1,
+            "signal_uid": "iso_now01_g3a",
+            "status": "rejected",
+            "reason": "fill_point_closed_before_process_start",
+            "resolved_at": 1792753199999
+          }
+        ],
+        "adv": {
+          "filled": [],
+          "rejected": [
+            {
+              "pending_id": 1,
+              "reason": "fill_point_closed_before_process_start"
+            }
+          ],
+          "still_pending": 0,
+          "by_arm": {
+            "3a": {
+              "pending_total": 1,
+              "filled": 0,
+              "rejected": 1,
+              "still_pending": 0
+            },
+            "3b": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            },
+            "3c": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            },
+            "3d": {
+              "pending_total": 0,
+              "filled": 0,
+              "rejected": 0,
+              "still_pending": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "group": "G3",
+      "name": "进程在bar收盘前已运行⇒正常成交",
+      "pass": true,
+      "detail": {
+        "pending": [
+          {
+            "pending_id": 1,
+            "signal_uid": "iso_now01_g3b",
+            "status": "filled",
+            "reason": null,
+            "resolved_at": 1792751404999
+          }
+        ],
+        "positions": 1,
+        "fill_ts": "2026-10-23T10:30:04.999Z",
+        "bar_close": "2026-10-23T10:29:59.999Z"
+      }
+    },
+    {
+      "group": "G3",
+      "name": "连续推进两次⇒只成交一次(幂等)",
+      "pass": true,
+      "detail": {
+        "filled_total": 1,
+        "positions": 1
+      }
+    },
+    {
+      "group": "G3",
+      "name": "生产快照: 既有挂单/持仓保留且不重单",
+      "pass": true,
+      "detail": {
+        "probe_before": [
+          {
+            "pending_id": 4,
+            "signal_uid": "test_probe_succ",
+            "status": "filled",
+            "fill_position_id": 4
+          }
+        ],
+        "probe_after": [
+          {
+            "pending_id": 4,
+            "signal_uid": "test_probe_succ",
+            "status": "filled",
+            "fill_position_id": 4
+          }
+        ],
+        "pos4_before": [
+          {
+            "position_id": 4,
+            "signal_uid": "test_probe_succ",
+            "status": "open",
+            "qty": 0.006,
+            "stop_price": 76446.0
+          }
+        ],
+        "pos4_after": [
+          {
+            "position_id": 4,
+            "signal_uid": "test_probe_succ",
+            "status": "open",
+            "qty": 0.006,
+            "stop_price": 76446.0
+          }
+        ],
+        "order_fill_counts": [
+          15,
+          7,
+          15,
+          7
+        ]
+      }
+    },
+    {
+      "group": "G3",
+      "name": "approved=false⇒不进路由(registered=0)",
+      "pass": true,
+      "detail": {
+        "route": {
+          "registered": 0,
+          "rejected": 0,
+          "processed": 0,
+          "waiting_gate": 0,
+          "errors": []
+        },
+        "pending": []
+      }
+    },
+    {
+      "group": "G3",
+      "name": "未批准0.5x⇒下单量等于基准(风险不变)",
+      "pass": true,
+      "detail": {
+        "base_planned_risk": 24.546600000000037,
+        "unapproved_pm_planned_risk": 24.546600000000037
+      }
+    },
+    {
+      "group": "G4",
+      "name": "成交价/止损/名义/手续费/计划风险可逐项复算",
+      "pass": true,
+      "detail": {
+        "fill_gt_raw_不利方向": true,
+        "fill_within_5bps_plus_tick": true,
+        "stop_eq_floor_fill_095": true,
+        "notional_eq_qty_fill": true,
+        "fee_eq_notional_5bps": true,
+        "risk_eq_qty_times_stopdist": true
+      }
+    },
+    {
+      "group": "G4",
+      "name": "无 available_at 证据⇒成交/持仓仍为 NULL(不伪填)",
+      "pass": true,
+      "detail": {
+        "fill_available_at": null,
+        "position_available_at": null
+      }
+    },
+    {
+      "group": "G4",
+      "name": "四时刻语义有序: event<bar_open=entry_ts<bar_close<fill_ts",
+      "pass": true,
+      "detail": {
+        "event_time": "2026-10-23T10:00:00.000Z",
+        "bar_open_time": "2026-10-23T10:15:00.000Z",
+        "entry_ts": "2026-10-23T10:15:00.000Z",
+        "bar_close_time": "2026-10-23T10:29:59.999Z",
+        "fill_ts": "2026-10-23T10:30:04.999Z"
+      }
+    },
+    {
+      "group": "G4",
+      "name": "订单登记时刻=处理挂钟(≠entry_ts)",
+      "pass": true,
+      "detail": {
+        "order_ts": "2026-10-23T10:30:04.999Z",
+        "entry_ts": "2026-10-23T10:15:00.000Z"
+      }
+    }
+  ]
+}
