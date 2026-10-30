@@ -1752,9 +1752,11 @@ def annotations_for(exchange, mid, tf, window_start, window_end, limit=2000):
         if rt is not None and window_start <= rt <= window_end:
             retests.append({"time": iso(rt), "price": None, "note": "独立回踩确认",
                             "signal_id": sid})
+        event_time = r["event_time"]
         ca = r["confirmed_at"]
-        if ca is not None and window_start <= ca <= window_end:
-            confirms.append({"time": iso(ca), "price": None, "note": "信号确认",
+        if event_time is not None and window_start <= event_time <= window_end:
+            confirms.append({"time": iso(event_time), "available_at": iso(ca),
+                             "price": None, "note": "信号触发",
                              "signal_id": sid, "status": r["status"],
                              "strategy_key": r["strategy_key"],
                              "source_masks": ev.get("source_masks"),

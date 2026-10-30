@@ -1811,6 +1811,33 @@ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
         chart["oi_meta"] = {"error": f"{type(exc).__name__}: {exc}"}
     # 元数据收口：K 线有了就别说「K 线为空」（WORK-DYNAMIC-BT-02）
     chart = _finalize_chart_meta(chart, doc, req_sym=req_sym, req_tf=req_tf)
+    # 只读透传状态机档案和成交事实；不从 candles 推断事件。事件按当前图表时间窗裁剪。
+    try:
+        event_symbol = str(chart.get("symbol") or req_sym or "")
+        chart_events = CH.events_from_run_dir(S.read_run_dir(run_id), event_symbol, run_id)
+        window = chart.get("window") or {}
+        lo, hi = window.get("start_ms"), window.get("end_ms")
+        for trade in chart.get("trades") or []:
+            tid = trade.get("trade_id")
+            for kind, point in (("entry", trade.get("entry") or {}),
+                                ("exit", trade.get("exit") or {})):
+                t, price = point.get("t"), point.get("price")
+                if isinstance(t, (int, float)) and t > 0:
+                    chart_events.append({"event_id": f"{tid}:{kind}",
+                        "event_type": "entry" if kind == "entry" else "close",
+                        "symbol": trade.get("symbol") or event_symbol,
+                        "timeframe": req_tf, "event_time": int(t), "available_at": int(t),
+                        "price": price, "trade_id": tid, "backtest_job_id": run_id,
+                        "source": "trades.jsonl", "source_record_id": tid,
+                        "reason": point.get("reason")})
+        chart["events"] = [e for e in chart_events
+            if (not isinstance(lo, (int, float)) or e["event_time"] >= lo)
+            and (not isinstance(hi, (int, float)) or e["event_time"] <= hi)]
+        chart["events_status"] = "available" if chart["events"] else "empty_or_unrecorded"
+    except Exception as exc:  # noqa: BLE001
+        chart["events"] = []
+        chart["events_status"] = "unavailable"
+        chart["events_error"] = f"{type(exc).__name__}: {exc}"
     # 上下文行情（可选，默认 0 = 保持原口径）：把时间窗扩到 run 消费区间之外
     _ctx_days = _parse_context_days(params)
     if _ctx_days:

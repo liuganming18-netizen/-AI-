@@ -947,6 +947,7 @@ interface SharedChartProps {
   onViewportChange: (viewport: ChartViewport, viewKey: string) => void;
   onHover: (hover: ChartHover | null) => void;
   onReady: (handle: ChartHandle) => void;
+  onTimeClick?: (timeMs: number) => void;
   syncHub: ChartSyncHub;
   /** 两图共享的真实时间点并集（UTC 秒）：本图补纯 whitespace 锚点补齐到它 */
   gridTimes: number[];
@@ -1489,6 +1490,7 @@ const CandleVolumeChartInner: React.FC<CandleVolumeChartProps> = ({
   viewKey,
   initialViewport,
   onViewportChange,
+  onTimeClick,
   onHover,
   onReady,
   syncHub,
@@ -1593,6 +1595,16 @@ const CandleVolumeChartInner: React.FC<CandleVolumeChartProps> = ({
     hideTimeAxis,
     'candle',
   );
+
+  useEffect(() => {
+    const chart = lifecycle.chartRef.current;
+    if (!chart || !onTimeClick) return;
+    const onClick = (param: MouseEventParams<Time>) => {
+      if (typeof param.time === 'number') onTimeClick(param.time * 1000);
+    };
+    chart.subscribeClick(onClick);
+    return () => chart.unsubscribeClick(onClick);
+  }, [lifecycle, onTimeClick]);
 
   const createdPriceLinesRef = useRef<IPriceLine[]>([]);
 

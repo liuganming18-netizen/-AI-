@@ -381,12 +381,12 @@ function buildAnnotationIndex(ann: RawAnnotations | null | undefined): Map<numbe
     if (Number.isNaN(ms)) return;
     if (!idx.has(ms)) idx.set(ms, tag);
   };
-  for (const m of ann.breakouts ?? []) put(m.time, '突破');
-  for (const m of ann.retests ?? []) put(m.time, '回踩');
+  // Market K-lines show trade events only. Structural annotations remain available to
+  // research views, but must never leak into the live market chart.
   for (const m of ann.signals ?? []) {
     if (m.time) {
       const ms = Date.parse(m.time);
-      if (!Number.isNaN(ms)) idx.set(ms, '确认'); // 确认标记优先覆盖突破/回踩
+      if (!Number.isNaN(ms)) idx.set(ms, '信号触发');
     }
   }
   return idx;

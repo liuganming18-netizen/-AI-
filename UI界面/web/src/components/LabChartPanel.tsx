@@ -40,7 +40,7 @@ import {
 } from './LightweightChart';
 import type { Candle, OIPoint, Timeframe } from '../types/crypto';
 import { alignOiToTimeframe } from '../api/adapters';
-import type { LabChart, LabChartTrade, LabOrderRow } from '../api/labBacktest';
+import type { LabChart, LabChartEvent, LabChartTrade, LabOrderRow } from '../api/labBacktest';
 import { useChartPalette, withAlpha, type ChartPalette } from '../design/chartTheme';
 /* K 线归一化：数组元组 / 对象两种线上形态都收，唯一实现在 utils/candles.ts */
 import { normalizeCandle } from '../utils/candles';
@@ -251,6 +251,28 @@ function buildTradeMarkers(
     }
   }
   return out;
+}
+
+/** Stored event ledger only: no candle-pattern inference or fallback timestamps. */
+function buildEventMarkers(events: LabChartEvent[], palette: ChartPalette, tf: Timeframe): SeriesMarker<Time>[] {
+  const styles: Record<string, { color: string; shape: 'square' | 'arrowDown' | 'arrowUp' | 'circle'; position: 'aboveBar' | 'belowBar'; label: string }> = {
+    box: { color: palette.forming, shape: 'square', position: 'aboveBar', label: '箱体' },
+    sweep_low: { color: palette.signalMarker, shape: 'arrowDown', position: 'belowBar', label: '扫低' },
+    sweep_high: { color: palette.exit, shape: 'arrowUp', position: 'aboveBar', label: '扫高' },
+    retest: { color: palette.confirmMarker, shape: 'circle', position: 'belowBar', label: '回踩' },
+    breakout: { color: palette.entry, shape: 'square', position: 'aboveBar', label: '突破确认' },
+    signal_triggered: { color: palette.signalMarker, shape: 'circle', position: 'aboveBar', label: '信号触发' },
+    signal_invalidated: { color: palette.exit, shape: 'circle', position: 'aboveBar', label: '信号失效' },
+    entry: { color: palette.entry, shape: 'arrowUp', position: 'belowBar', label: '入场' },
+    close: { color: palette.exit, shape: 'arrowDown', position: 'aboveBar', label: '平仓' },
+  };
+  return events.flatMap((event) => {
+    const style = styles[event.event_type];
+    // Existing trade and signal builders already draw these with selected-trade styling.
+    if (!style || ['entry', 'close', 'signal_triggered'].includes(event.event_type) || !Number.isFinite(event.event_time) || event.event_time <= 0) return [];
+    return [{ id: event.event_id, time: alignTimeToTf(event.event_time, tf) as unknown as Time,
+      position: style.position, shape: style.shape, color: style.color, text: style.label, size: 1 }];
+  });
 }
 
 /**
@@ -572,6 +594,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
   /** OI 副图自己的悬停（不能和 K 线悬停共用一个 state，否则互相清空） */
   const [hoverOi, setHoverOi] = useState<OIPoint | null>(null);
   const [locateInfo, setLocateInfo] = useState<{ fromMs: number; toMs: number; ok: boolean } | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<LabChartEvent | null>(null);
   /**
    * 「停手后才把视窗交给父组件」的定时器与待写值（BACKTEST-CHART-JITTER-FIX-01）。
    *
@@ -938,11 +961,16 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
       ...buildSignalMarkers(chart, palette, tf),
       ...buildConfirmMarkers(chart, palette, tf),
       ...buildTradeMarkers(chart, selectedTrade, idOf, palette, tf),
+      ...buildEventMarkers(chart?.events ?? [], palette, tf),
       ...buildOrderMarkers(orders, palette, tf, currentSymbolNorm),
       ...buildRunRangeMarkers(chart, palette, tf),
     ],
     [chart, selectedTrade, idOf, orders, tf, palette, currentSymbolNorm],
   );
+  const onChartTimeClick = useCallback((timeMs: number) => {
+    const event = (chart?.events ?? []).find((item) => alignTimeToTf(item.event_time, tf) === Math.floor(timeMs / 1000) * 1000);
+    if (event) setSelectedEvent(event);
+  }, [chart?.events, tf]);
 
   /* ── 止损轨迹叠加：用现有 onReady 句柄加官方 LineSeries，不重写 K 线引擎 ── */
   const overlayRef = useRef<ISeriesApi<'Line'>[]>([]);
@@ -1540,6 +1568,15 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
         className={`relative w-full ${isExpanded ? 'h-[460px]' : 'h-[280px]'} bg-white transition-all duration-200`}
         title="悬停看该根真实 OHLC / 原始成交量 / 信号；点击下方明细行或图上开/平仓标记 ⇒ 定位该笔 entry/exit 区间并高亮"
       >
+        {selectedEvent && (
+          <div className="absolute right-2 top-2 z-20 max-w-[360px] rounded border border-neutral-600 bg-neutral-950/95 p-2 text-[11px] text-neutral-100 shadow-lg" role="status">
+            <button className="float-right ml-2 text-neutral-400" onClick={() => setSelectedEvent(null)} aria-label="关闭事件详情">×</button>
+            <b>{selectedEvent.event_type}</b> · {fmtUtc(selectedEvent.event_time)} UTC
+            <div>价格 {fmtPrice(selectedEvent.price)} · 来源 {selectedEvent.source}</div>
+            <div>信号 {selectedEvent.signal_id ?? '—'} · 交易 {selectedEvent.trade_id ?? '—'}</div>
+            {selectedEvent.reason && <div>{selectedEvent.reason}</div>}
+          </div>
+        )}
         {bars.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-neutral-500 gap-1">
             <span>{loading ? '正在读取真实图表载荷…' : '无真实 K 线数据（不绘制任何合成 K 线 / 静态 demo）'}</span>
@@ -1554,6 +1591,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
             viewKey={viewKey}
             initialViewport={computedInitialViewport}
             onViewportChange={onViewportChange}
+            onTimeClick={onChartTimeClick}
             onHover={onHover}
             onReady={onReady}
             syncHub={syncHub}
@@ -1566,6 +1604,21 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
           />
         )}
       </div>
+
+      {(chart?.events?.length ?? 0) > 0 && (
+        <div className="max-h-28 overflow-auto border-t border-neutral-800 bg-neutral-950/90 px-2 py-1" aria-label="回测事件时间线">
+          {chart!.events!.map((event) => (
+            <button key={event.event_id} className="mr-1 mb-1 rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] text-neutral-200 hover:bg-neutral-800"
+              onClick={() => {
+                setSelectedEvent(event);
+                const span = (TF_MS[tf] ?? 3_600_000) * 30;
+                handle?.setViewport(event.event_time - span / 2, event.event_time + span / 2);
+              }}>
+              {event.event_type} · {fmtUtc(event.event_time)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ── 成交量（独立一条，设计稿 84px）──────────────────────────────────
           设计稿在 K 线与 OI 之间还有一条独立「成交量」，自带左标签与右轴刻度。

@@ -64,6 +64,7 @@ __all__ = [
     "CANDLE_KEYS", "PRICE_ONLY_COST_MODEL",
     "chart_dumps", "write_chart_json", "normalize_candle", "candles_from_frame",
     "normalize_stop_trace", "trades_from_run_dir", "signals_from_run_dir",
+    "events_from_run_dir",
     "funding_events_from_run_dir", "equity_from_run_dir", "benchmark_from_frame",
     "build_chart", "generate_chart_payload",
 ]
@@ -193,6 +194,65 @@ def trades_from_run_dir(run_dir, symbol: str, run_id: Optional[str] = None) -> L
             "exit_reason": t.get("exit_reason"),
         })
     return out
+
+
+def events_from_run_dir(run_dir, symbol: str, run_id: Optional[str] = None) -> List[dict]:
+    """把状态机档案、候选快照和成交账本映射为只读图表事件；不从 K 线重算事件。"""
+    root = Path(run_dir)
+    try:
+        import ledger_links as LL
+        dossiers = LL.read_jsonl(root / "events.jsonl")
+        candidates = LL.read_jsonl(root / "candidates.jsonl")
+    except Exception:  # noqa: BLE001
+        dossiers, candidates = [], []
+    out: List[dict] = []
+    def add(event_id, kind, t, price=None, **fields):
+        if not isinstance(t, (int, float)) or t <= 0:
+            return
+        out.append({"event_id": str(event_id), "event_type": kind, "symbol": symbol,
+                    "timeframe": "1h", "event_time": int(t), "price": price,
+                    "source": "events.jsonl" if kind in {"box", "sweep", "retest", "breakout", "invalidation"} else "candidates.jsonl",
+                    "backtest_job_id": run_id, **fields})
+    for d in dossiers:
+        if not isinstance(d, dict): continue
+        if d.get("symbol") and symbol and str(d["symbol"]).upper() != str(symbol).upper(): continue
+        eid = d.get("event_id") or ""
+        box = d.get("box") or {}
+        formation = box.get("formation_time_ms") or d.get("created_at_ms")
+        end = d.get("ended_at_ms")
+        add(f"{eid}:box", "box", formation, range_start_time=formation,
+            range_end_time=end, price_upper=box.get("high_h"), price_lower=box.get("low_l"),
+            available_at=formation, timeframe=box.get("timeframe") or "4h",
+            status=d.get("current_state"), source_record_id=eid, symbol=d.get("symbol") or symbol)
+        transitions = d.get("history") or []
+        by_state = {x.get("to_state"): x for x in transitions if isinstance(x, dict)}
+        sw = d.get("sweep_time_ms")
+        if sw:
+            add(f"{eid}:sweep", "sweep_low", sw, d.get("sweep_low_s"),
+                available_at=(by_state.get("SWEPT") or {}).get("available_at_ms"), source_record_id=eid)
+        rt = d.get("retest_time_ms")
+        if rt:
+            add(f"{eid}:retest", "retest", rt, d.get("retest_low_lr"),
+            available_at=(by_state.get("RETEST") or {}).get("available_at_ms"), source_record_id=eid)
+        bt = d.get("breakout_time_ms")
+        if bt:
+            add(f"{eid}:breakout", "breakout", bt, d.get("breakout_close_price"),
+            available_at=(by_state.get("CANDIDATE") or {}).get("available_at_ms"), source_record_id=eid)
+        inv = by_state.get("INVALIDATED")
+        if inv:
+            add(inv.get("transition_id") or f"{eid}:invalidation", "signal_invalidated",
+                inv.get("trigger_bar_close_ms"), reason=inv.get("reason"),
+                available_at=inv.get("available_at_ms"), signal_id=d.get("candidate_id"), source_record_id=eid)
+    for c in candidates:
+        if not isinstance(c, dict): continue
+        if c.get("symbol") and symbol and str(c["symbol"]).upper() != str(symbol).upper(): continue
+        add(c.get("candidate_id"), "signal_triggered", c.get("snapshot_time_ms"),
+            c.get("breakout_close"), available_at=c.get("available_at_ms"),
+            signal_id=c.get("candidate_id"), source_record_id=c.get("candidate_id"),
+            status="confirmed")
+    for e in out:
+        e.setdefault("available_at", None)
+    return sorted(out, key=lambda e: (e["event_time"], e["event_id"]))
 
 
 # ── 信号 ──────────────────────────────────────────────────────────────────
