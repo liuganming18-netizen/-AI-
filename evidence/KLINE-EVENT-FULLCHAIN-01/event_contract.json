@@ -1,0 +1,27 @@
+{
+  "version": "kline_event_v1",
+  "read_only": true,
+  "time_unit": "unix_milliseconds_utc",
+  "event_types": ["box", "sweep_low", "sweep_high", "retest", "breakout", "signal_triggered", "signal_invalidated", "entry", "close"],
+  "fields": {
+    "event_id": "stable source event or transition id",
+    "event_type": "enum",
+    "symbol": "market symbol",
+    "timeframe": "source event timeframe",
+    "event_time": "actual occurrence time; never ingestion time",
+    "available_at": "time the system could first know the event",
+    "price": "event price when recorded",
+    "price_upper": "box upper bound when recorded",
+    "price_lower": "box lower bound when recorded",
+    "range_start_time": "box effective start when recorded",
+    "range_end_time": "box end when recorded; null if still open or unknown",
+    "signal_id": "candidate or signal identity when available",
+    "trade_id": "ledger trade identity when available",
+    "backtest_job_id": "backtest run id when available",
+    "status": "source lifecycle state when available",
+    "reason": "source transition or exit reason when available",
+    "source": "source file or table",
+    "source_record_id": "source record identity"
+  },
+  "missing_values": "remain null; never inferred from candles"
+}

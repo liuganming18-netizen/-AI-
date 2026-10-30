@@ -1,0 +1,7 @@
+# KLINE-EVENT-FULLCHAIN-01
+
+**Status: PARTIAL / NOT PASS.** This delivery exposes persisted backtest state-machine events and actual ledger entry/close times, adds event markers and a clickable event timeline to `LabChartPanel`, and moves the market chart's signal annotation to the stored `event_time` while suppressing structural breakouts/retests on that chart. TypeScript, production build, Python compile, and focused source-mapping tests pass.
+
+The full criteria are not met. Backtest boxes are represented by timestamped events and bounds in the API, but the frontend does not yet draw the bounded rectangle across the interval. Market invalidation time/reason, and market fills joined to a chart symbol/timeframe, are not exposed by existing lifecycle/market endpoints. The market signal annotation has no recorded price. No real-data browser session or screenshot was available in this execution, so browser interaction acceptance remains incomplete. No simulated event screenshot is included.
+
+The source inventory records each producer and missing field. `4002bde0` contains the previously implemented jitter fix and real-browser evidence; it was integrated with this change. Feature commit `e79efa1e3adbf3de5ba7813bfc71e8aaaf0ddf6a` was pushed normally to `wyckoff-v3.1-main`, and the observed remote HEAD matches. The original desktop checkout's uncommitted files were not copied or changed.
