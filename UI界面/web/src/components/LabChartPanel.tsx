@@ -103,13 +103,31 @@ const TF_MS: Record<Timeframe, number> = {
   '1d': 86_400_000,
 };
 
+/**
+ * 「用户停手多久之后，才把当前视窗当成用户视窗回写给父组件」。
+ *
+ * 400ms 的取值依据（BACKTEST-CHART-JITTER-FIX-01）：
+ *  · 视窗上报本身已经是 250ms 去抖（`LightweightChart.scheduleReport`）；
+ *  · 再留 400ms ⇒ 连续拖动/滚轮期间不会有任何回写，手指停下 0.65s 后才落一次；
+ *  · 不影响深链恢复（`?vf=&vt=`）与「手动视窗已恢复」徽标，它们只在停手后更新。
+ */
+const VIEWPORT_SETTLE_MS = 400;
+
+/**
+ * 判定「当前视窗已经是目标视窗」的容差（毫秒）。
+ *
+ * `manualViewport` 的取值就是本图 `visibleRange()` 上报出去的那两个毫秒值，理论上
+ * 逐位相等；留 500ms 只是吸收「上报 → 存储 → 回传」链路上可能出现的时间戳取整
+ * （`getVisibleRange()` 只精确到整秒），不引入任何可见偏差。
+ */
+const VIEWPORT_SAME_TOLERANCE_MS = 500;
+
 export interface LabChartTfOption {
   value: Timeframe;
   label: string;
   enabled: boolean;
   reason?: string;
 }
-
 /** 周期选项：日线 → 5分线（与全站 `Timeframe` 同一套值，不做第二套命名）。 */
 export const LAB_CHART_TF_OPTIONS: LabChartTfOption[] = [
   { value: '1d', label: '日线', enabled: true },
@@ -553,8 +571,25 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
   }, []);
   /** OI 副图自己的悬停（不能和 K 线悬停共用一个 state，否则互相清空） */
   const [hoverOi, setHoverOi] = useState<OIPoint | null>(null);
-  const [viewport, setViewport] = useState<ChartViewport | null>(null);
   const [locateInfo, setLocateInfo] = useState<{ fromMs: number; toMs: number; ok: boolean } | null>(null);
+  /**
+   * 「停手后才把视窗交给父组件」的定时器与待写值（BACKTEST-CHART-JITTER-FIX-01）。
+   *
+   * 为什么必须延迟：父组件把 `onManualViewportChange` 的入参存成 `manualViewport`
+   * state，本组件又有一个「`manualViewport` 一变就 `handle.setViewport(...)`」的
+   * 恢复 effect ⇒ **上报即回写**形成闭环。而官方时间轴写入是**取整到整根**的
+   * （`setViewport` 走 `timeToIndex()` ⇒ 整数逻辑索引），250ms 去抖的上报永远比
+   * 手指落后一截 ⇒ 每次回写都把视窗往旧位置拽。
+   * 实测（一次 45 步的快速甩动）：应用层在拖动过程中写了 **18 次**时间轴
+   * （9 组 setVisibleRange + setVisibleLogicalRange），逐帧采样出现 **8 次方向反转**、
+   * 每次回跳 **5–6 根**（≈45–54px）；慢速拖动 3.6 秒同样写了 54 次。
+   * 现在改为「最后一次上报之后 400ms 才写一次」，拖动/缩放期间一次都不写。
+   */
+  const manualViewportTimerRef = useRef<number | null>(null);
+  const pendingManualViewportRef = useRef<{ fromMs: number; toMs: number } | null>(null);
+  /** 父组件当前持有的手动视窗：用来判断「这个视窗它已经知道了，不必再说一次」。 */
+  const manualViewportRef = useRef(manualViewport);
+  manualViewportRef.current = manualViewport;
 
   /**
    * 「首屏落位让位」标记（BT-KLINE-CONTEXT-01）。
@@ -638,19 +673,78 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
   }, []);
   /* 视窗变化同时推给净值 / 回撤两张图。
      不推的话，K 线的时点常常落在净值图可见范围之外，十字线会被官方库挡掉，
-     观感上就是「点了没反应」。 */
+     观感上就是「点了没反应」。
+
+     **回写给父组件的那一棒必须延迟到「停手」之后**（BACKTEST-CHART-JITTER-FIX-01）：
+     父组件一收到就 `setManualViewport`，本组件的恢复 effect 立刻 `setViewport`，
+     而官方时间轴写入取整到整根 ⇒ 拖动过程中每 250ms 把视窗往旧位置拽一次。
+     延迟 400ms 后：拖动/滚轮期间**零次**回写，停手后只写一次（且下面恢复 effect
+     会判定「已经在目标视窗」而不再落位）。视窗广播（`emitViewport`）仍即时发出，
+     净值/回撤图的联动观感不变。 */
   const onViewportChange = useCallback(
     (v: ChartViewport) => {
-      setViewport(v);
-      if (performance.now() >= programmaticQuietUntilRef.current) {
-        const barSpanMs = TF_MS[tf] ?? 3600_000;
-        crosshairBus?.emitViewport('lab-chart', v.fromMs, v.toMs + barSpanMs);
-        if (Date.now() >= programmaticFocusLockRef.current && onManualViewportChange) {
-          onManualViewportChange(v.fromMs, v.toMs);
-        }
+      if (performance.now() < programmaticQuietUntilRef.current) return;
+      const barSpanMs = TF_MS[tf] ?? 3600_000;
+      crosshairBus?.emitViewport('lab-chart', v.fromMs, v.toMs + barSpanMs);
+      if (!onManualViewportChange) return;
+      if (Date.now() < programmaticFocusLockRef.current) return;
+      pendingManualViewportRef.current = { fromMs: v.fromMs, toMs: v.toMs };
+      if (manualViewportTimerRef.current !== null) {
+        window.clearTimeout(manualViewportTimerRef.current);
       }
+      manualViewportTimerRef.current = window.setTimeout(() => {
+        manualViewportTimerRef.current = null;
+        const pending = pendingManualViewportRef.current;
+        if (!pending) return;
+        /**
+         * 计时到了还要再核一次「是不是真的停住了」：
+         * 若此刻的可见范围与待写值不一致 ⇒ 这 400ms 里手指还在动（上报比手慢半拍）
+         * ⇒ **这一轮不写**，直接丢掉。丢不丢得起？丢得起 —— 范围变了就必然再派发一次
+         * 范围事件、再调度一次上报，待写值会被刷成最新，计时器重新起算。
+         * 这样「拖动中写一次旧窗口」的窗口期被彻底关掉，而不是只缩短。
+         */
+        const cur = candleHandleRef.current?.visibleRange();
+        if (
+          cur &&
+          (Math.abs(cur.fromMs - pending.fromMs) >= VIEWPORT_SAME_TOLERANCE_MS ||
+            Math.abs(cur.toMs - pending.toMs) >= VIEWPORT_SAME_TOLERANCE_MS)
+        ) {
+          return;
+        }
+        /**
+         * 父组件**已经持有同一个视窗** ⇒ 一个字都不必再说。
+         *
+         * 这道守卫断的是一条会自己转下去的环（实测：页面完全空闲、鼠标不动，
+         * 主图时间轴仍然每 ~840ms 被写一次，10 秒 12 次，直到页面关掉）：
+         *   上报 → `setManualViewport({...})` 新建对象（**即使数值完全没变**）
+         *   → `manualViewport` 引用变化 → `computedInitialViewport` 重算成新对象
+         *   → 图表数据 effect 重跑 → 把「当前可见范围」按整秒再写回一次
+         *   → 官方库派发一次范围事件 → 又调度一次上报 …… 如此往复。
+         * 数值比较通过就不再上报，环在「父组件已知」这一步断开。
+         */
+        const known = manualViewportRef.current;
+        if (
+          known &&
+          Math.abs(known.fromMs - pending.fromMs) < VIEWPORT_SAME_TOLERANCE_MS &&
+          Math.abs(known.toMs - pending.toMs) < VIEWPORT_SAME_TOLERANCE_MS
+        ) {
+          return;
+        }
+        onManualViewportChange(pending.fromMs, pending.toMs);
+      }, VIEWPORT_SETTLE_MS);
     },
     [crosshairBus, onManualViewportChange, tf],
+  );
+
+  /** 卸载时清掉待写定时器（切 run / 切页面不留悬挂回调）。 */
+  useEffect(
+    () => () => {
+      if (manualViewportTimerRef.current !== null) {
+        window.clearTimeout(manualViewportTimerRef.current);
+        manualViewportTimerRef.current = null;
+      }
+    },
+    [],
   );
 
   /* 接收资金图反向视窗广播（双向联动） */
@@ -927,11 +1021,28 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
     return { fromMs, toMs, followLatest: false };
   }, [manualViewport, focusTimeMs, selectedTrade, bars, tf]);
 
-  /* ── 手动视窗恢复：优先落位并广播给资金图 ── */
+  /* ── 手动视窗恢复：优先落位并广播给资金图 ──
+   *
+   * 两道守卫（BACKTEST-CHART-JITTER-FIX-01）：
+   *  ① **已经在目标视窗 ⇒ 一次都不写**。`manualViewport` 的值本来就是本图上报出去的，
+   *     停手后父组件把它存回来时，图已经停在那个位置；此时再 `setViewport` 只会
+   *     用「取整到整根」的索引把用户刚刚调好的窗口重新吸附一遍（观感即抖动）。
+   *  ② 真需要落位时先进入静默窗：这次写入派发的范围事件不得再被当成「用户视窗」
+   *     上报出去，否则又回到「写 → 报 → 再写」的闭环。
+   */
   useEffect(() => {
     if (!manualViewport || !handle) return;
     if (!Number.isFinite(manualViewport.fromMs) || !Number.isFinite(manualViewport.toMs)) return;
     if (manualViewport.toMs <= manualViewport.fromMs) return;
+    const cur = handle.visibleRange();
+    if (
+      cur &&
+      Math.abs(cur.fromMs - manualViewport.fromMs) < VIEWPORT_SAME_TOLERANCE_MS &&
+      Math.abs(cur.toMs - manualViewport.toMs) < VIEWPORT_SAME_TOLERANCE_MS
+    ) {
+      return;
+    }
+    programmaticQuietUntilRef.current = performance.now() + 500;
     handle.setViewport(manualViewport.fromMs, manualViewport.toMs);
     const stepMs = TF_MS[tf] ?? 3_600_000;
     crosshairBus?.emitViewport('lab-chart', manualViewport.fromMs, manualViewport.toMs + stepMs);
