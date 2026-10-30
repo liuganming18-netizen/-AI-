@@ -1,0 +1,28 @@
+{
+  "measured_at_utc": "2026-10-30T04:05:00Z",
+  "method": "git ls-remote origin refs/heads/wyckoff-v3.1-main",
+  "pushes": [
+    {
+      "seq": 1,
+      "what": "BF-01 最小实现（engine_adapter.py，183 增 2 删）",
+      "sha": "7c625c51ad7f4a2a4ed1f086987dc7abed840ef0",
+      "range": "bcd72806..7c625c51",
+      "result": "success"
+    },
+    {
+      "seq": 2,
+      "what": "证据提交（evidence/BF-01-CLOSE，7 个文件）",
+      "sha": "004a5b87b292a6aaf360e5b52e7249765ef2c90d",
+      "range": "7c625c51..004a5b87",
+      "result": "success"
+    }
+  ],
+  "remote_head_after_second_push": "004a5b87b292a6aaf360e5b52e7249765ef2c90d",
+  "local_head_at_measure": "004a5b87b292a6aaf360e5b52e7249765ef2c90d",
+  "consistent": true,
+  "self_reference_note": "本文件所在的第三个提交（回填提交）会让远程 HEAD 再前移一格；它的 SHA 无法写进自己，以 `git log -1 --format=%H` 与回复正文的实测值为准。两次推送均为普通推送，未使用 --force。",
+  "final_verification": {
+    "command": "git rev-parse HEAD && git ls-remote origin refs/heads/wyckoff-v3.1-main",
+    "expectation": "两行输出必须相同"
+  }
+}
