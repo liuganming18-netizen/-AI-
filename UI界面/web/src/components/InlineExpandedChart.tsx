@@ -309,7 +309,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
   const [paperEvents, setPaperEvents] = useState<PaperTradeEvent[]>([]);
   const [openPaperEvents, setOpenPaperEvents] = useState<PaperTradeEvent[]>([]);
   const [eventFilter, setEventFilter] = useState<'all' | 'signal_triggered' | 'signal_invalidated' | 'entry' | 'close'>('all');
-  const [eventDetail, setEventDetail] = useState<PaperTradeEvent | { eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; tradeId: string; reason: string | null; signalId?: string | null } | null>(null);
+  const [eventDetail, setEventDetail] = useState<PaperTradeEvent | { eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; positionId?: number; tradeId: string | null; signalId?: string | null; sourceRecordId?: string | null; reason: string | null } | null>(null);
   /**
    * 重新挂载（收起→再展开）时用模块级缓存预热「已加载历史根 + 分页游标」。
    * 只在本次挂载的首帧计算一次，不参与后续重渲染。
@@ -660,7 +660,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
       setOpenPaperEvents(ledger.positions.filter((p) => p.symbol.toUpperCase() === symbol).map((p) => ({
         eventId: `${p.key}:entry`, eventType: 'entry' as const, symbol: p.symbol, eventTime: p.entryTs,
         price: p.entryPrice, accountId: p.accountId, runMode: 'paper' as const, positionId: p.positionId,
-        tradeId: `paper:${p.arm}:${p.positionId}`, reason: null, signalId: p.signalUid,
+        tradeId: null, reason: null, signalId: p.signalUid, sourceRecordId: null,
       })));
     }).catch(() => { if (!controller.signal.aborted) setOpenPaperEvents([]); });
     return () => controller.abort();
@@ -676,11 +676,11 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [token.id, marketWindow?.fromMs, marketWindow?.toMs]);
   const marketEventRows = useMemo(() => {
-    const rows: Array<{ eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; tradeId: string; reason: string | null; signalId?: string | null }> = [...openPaperEvents, ...paperEvents];
+    const rows: Array<{ eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; positionId?: number; tradeId: string | null; reason: string | null; signalId?: string | null; sourceRecordId?: string | null }> = [...openPaperEvents, ...paperEvents];
     // eventTime is occurrence time. triggerTime may be confirmed_at and must not be used as a fallback.
     const signalMs = activeSignal?.eventTime ? Date.parse(activeSignal.eventTime) : NaN;
     if (Number.isFinite(signalMs) && activeSignal) rows.push({ eventId: `signal:${activeSignal.id}:trigger`, eventType: 'signal_triggered', eventTime: signalMs,
-      price: null, accountId: '—', runMode: 'signal', tradeId: '—', reason: null, signalId: activeSignal.id });
+      price: null, accountId: '—', runMode: 'signal', positionId: undefined, tradeId: null, sourceRecordId: null, reason: null, signalId: activeSignal.id });
     const unique = new Map(rows.map((row) => [row.eventId, row]));
     return [...unique.values()].filter((e) => eventFilter === 'all' || e.eventType === eventFilter)
       .sort((a, b) => a.eventTime - b.eventTime || a.eventId.localeCompare(b.eventId));
@@ -1076,7 +1076,7 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
             <button className="float-right ml-2 text-neutral-400" onClick={() => setEventDetail(null)} aria-label="关闭事件详情">×</button>
             <b>{eventDetail.eventType}</b> · {new Date(eventDetail.eventTime).toISOString()}<br />
             价格：{eventDetail.price == null ? '不可用（源记录未提供）' : eventDetail.price} · 模式：{eventDetail.runMode}<br />
-            账户：{eventDetail.accountId || '—'} · 信号/交易：{eventDetail.signalId ?? eventDetail.tradeId}
+            账户：{eventDetail.accountId || '—'} · 信号 ID：{eventDetail.signalId ?? '不可关联'} · 交易 ID：{eventDetail.tradeId ?? '源未提供'} · 账本行：{eventDetail.sourceRecordId ?? '—'} · 持仓 ID：{eventDetail.positionId ?? '—'}
             {eventDetail.reason && <div>原因：{eventDetail.reason}</div>}
           </div>}
           <CandleVolumeChart

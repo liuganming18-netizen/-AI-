@@ -360,7 +360,8 @@ export async function fetchPaperLedger(signal?: AbortSignal): Promise<PaperLedge
 export interface PaperTradeEvent {
   eventId: string; eventType: 'entry' | 'close'; symbol: string; eventTime: number;
   price: number | null; accountId: string; runMode: 'paper'; positionId: number;
-  tradeId: string; reason: string | null; signalId?: string | null;
+  /** The realized ledger does not persist a trade/signal ID; never synthesize one from position_id. */
+  tradeId: string | null; signalId: string | null; sourceRecordId: string | null; reason: string | null;
 }
 
 /** Read-only realized paper fills, bounded by symbol and chart time window. */
@@ -371,13 +372,16 @@ export async function fetchPaperTradeEvents(symbol: string, fromMs: number, toMs
   for (const block of Array.isArray(env?.items) ? env.items : []) {
     for (const trade of Array.isArray(block?.trades) ? block.trades : []) {
       const positionId = Number(trade.position_id);
-      const tradeId = `paper:${block.arm}:${positionId}`;
+      const accountId = String(block.account_id ?? '');
+      const sourceRecordId = String(trade.id ?? '');
+      if (!sourceRecordId) continue;
+      const eventId = `paper:${accountId}:ledger:${sourceRecordId}`;
       for (const [kind, time, price] of [['entry', trade.entry_ts, trade.entry_price], ['close', trade.exit_ts, trade.exit_price]] as const) {
         const eventTime = Number(time);
         if (!Number.isFinite(positionId) || !Number.isFinite(eventTime) || eventTime < fromMs || eventTime > toMs) continue;
-        out.push({ eventId: `${tradeId}:${kind}`, eventType: kind, symbol: String(trade.symbol ?? symbol),
+        out.push({ eventId: `${eventId}:${kind}`, eventType: kind, symbol: String(trade.symbol ?? symbol),
           eventTime, price: typeof price === 'number' && Number.isFinite(price) ? price : null,
-          accountId: String(block.account_id ?? ''), runMode: 'paper', positionId, tradeId,
+          accountId, runMode: 'paper', positionId, tradeId: null, signalId: null, sourceRecordId,
           reason: kind === 'close' ? (trade.exit_reason ?? null) : null });
       }
     }
