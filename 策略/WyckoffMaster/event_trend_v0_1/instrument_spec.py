@@ -569,8 +569,16 @@ class SpecBook:
     只读、确定性：同一目录同一批文件 ⇒ 同一结果（与文件枚举顺序无关）。
     """
 
-    def __init__(self, contracts_dir: Optional[Path] = None):
-        self.dir = Path(contracts_dir or os.environ.get("CONTRACTS_DIR") or DEFAULT_CONTRACTS_DIR)
+    def __init__(self, contracts_dir: Optional[Path] = None, *,
+                 strict: Optional[bool] = None):
+        # BACKTEST-REPAIR-01（任务 A）：**显式指定**的快照目录若不存在，必须明确报错。
+        # 原实现无条件 `return`（空规格簿），后果是每个标的都变成
+        # `APPLICABILITY_MISSING`——看起来像「这些币当时还没上市」，实际是「目录指错了」。
+        # 生产默认路径（既没传参也没设 CONTRACTS_DIR）保持旧行为，只记录 `missing_reason`。
+        explicit = contracts_dir if contracts_dir is not None else os.environ.get("CONTRACTS_DIR")
+        self.dir = Path(explicit or DEFAULT_CONTRACTS_DIR)
+        self.strict = bool(explicit) if strict is None else bool(strict)
+        self.missing_reason: Optional[str] = None
         self._snapshots: List[_Snapshot] = []
         self._changes: List[SpecChangeRecord] = []
         self._meta_index: Dict[str, Dict[str, Any]] = {}
@@ -578,6 +586,11 @@ class SpecBook:
 
     def _load(self) -> None:
         if not self.dir.exists():
+            self.missing_reason = (
+                f"contracts_dir_missing:{self.dir}"
+                "（历史回测请用环境变量 CONTRACTS_DIR 指向只读快照目录）")
+            if self.strict:
+                raise FileNotFoundError(self.missing_reason)
             return
         self._meta_index = _load_meta_index(self.dir)
         for p in sorted(self.dir.glob("exchangeInfo_futures_*.json")):
@@ -1094,9 +1107,13 @@ _BOOK_CACHE: Dict[str, SpecBook] = {}
 
 
 def get_spec_book(contracts_dir: Optional[Path] = None) -> SpecBook:
+    # BACKTEST-REPAIR-01（任务 A）：这里必须把「用户是否真的指定了目录」原样传给
+    # `SpecBook`，否则 `Path(key)` 一传进去就变成「显式指定」，默认路径缺失时也会抛错，
+    # 把生产默认行为改坏。
+    explicit = contracts_dir is not None or bool(os.environ.get("CONTRACTS_DIR"))
     key = str(Path(contracts_dir or os.environ.get("CONTRACTS_DIR") or DEFAULT_CONTRACTS_DIR))
     if key not in _BOOK_CACHE:
-        _BOOK_CACHE[key] = SpecBook(Path(key))
+        _BOOK_CACHE[key] = SpecBook(Path(key), strict=explicit)
     return _BOOK_CACHE[key]
 
 

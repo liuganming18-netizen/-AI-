@@ -47,6 +47,21 @@ def _paper(ns: dict[str, Any], name: str, params: dict[str, list[str]],
     return (fn(params) if takes_params else fn()), 200
 
 
+def _paper_http(ns: dict[str, Any], name: str,
+                params: dict[str, list[str]]) -> tuple[Any, int]:
+    """D03-R1：**保留处理器自己返回的状态码**（200 / 404 / 503）。
+
+    与 `_paper` 的区别：`_paper` 恒把状态码钉成 200，只适合「缺什么就在 body 里说」
+    的读接口。交易/权益两条契约要求用 **HTTP 状态码**区分
+    「账户不存在(404)」「账本不可用(503)」「账户在但零成交(200)」，
+    因此这里必须原样透传，不能统一改写成 200。
+    """
+    live = ns.get("live")
+    if live is None:
+        return ns["_live_missing"](f"实时/纸面模块导入失败：{ns['_LIVE_IMPORT_ERROR']}"), 503
+    return getattr(live, name)(params)
+
+
 def _paper_daemon_status(ns: dict[str, Any], params: dict[str, list[str]]) -> tuple[Any, int]:
     live = ns.get("live")
     if live is None:
@@ -267,6 +282,14 @@ def build(ns: dict[str, Any]) -> Router:
         Route("/api/v1/paper/orders",
               lambda c: _paper(ns, "paper_orders", c["params"]),
               group="light", note="只读订单/挂单/成交查询；写入口是 POST"),
+        # D03-R1 ①②③④：已平仓逐笔。零交易 200 / 未知臂·未知持仓号 404 / 账本不可用 503
+        Route("/api/v1/paper/trades",
+              lambda c: _paper_http(ns, "paper_trades", c["params"]),
+              group="light", note="D03-R1 已平仓逐笔（零交易/404/503 契约）"),
+        # D03-R1 ⑤③④：权益曲线。`format=jsonl` 时附 NDJSON 文本
+        Route("/api/v1/paper/equity",
+              lambda c: _paper_http(ns, "paper_equity", c["params"]),
+              group="light", note="D03-R1 权益曲线（JSONL 可选）"),
         Route("/api/v1/paper/funding-audit",
               lambda c: _paper(ns, "paper_funding_audit", c["params"]),
               group="light", note="资金费符号口径 + 迟到补记缺口"),

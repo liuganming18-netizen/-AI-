@@ -36,6 +36,7 @@
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -76,11 +77,74 @@ def _iso(ms) -> Optional[str]:
 
 
 def default_hot_db() -> Path:
+    """热库路径：**环境变量 `MARKET_DB` 优先**，否则工程内正式路径。
+
+    BACKTEST-REPAIR-01（任务 A）
+    ────────────────────────────
+    原实现只有 `Path(__file__).parents[2] / "数据" / ...` 一条路，即「按本文件位置
+    推算工程根」。在隔离工作树里 `parents[2]` 指向那棵裸树，`数据/市场数据/db/`
+    根本不存在 ⇒ 每个标的每轮都抛 `unable to open database file`，
+    历史回测拿不到任何 OI（实测 726 次/单标的），却因为异常被捕获而**看不出是路径问题**。
+
+    现在与 `project_paths.MARKET_DB` 同一口径：显式环境变量优先，缺省仍是工程内正式路径
+    （生产行为不变）。路径解析不依赖当前工作目录。
+    """
+    env = os.environ.get("MARKET_DB")
+    if env:
+        return Path(env).expanduser().resolve()
     return Path(__file__).resolve().parents[2] / "数据" / "市场数据" / "db" / "market_v2.sqlite3"
 
 
+def resolve_hot_db(hot_db=None) -> Path:
+    """把「显式路径 / 环境变量 / 工程默认」收敛成一个绝对路径（**不做存在性兜底**）。"""
+    if hot_db is not None:
+        return Path(hot_db).expanduser().resolve()
+    return default_hot_db()
+
+
+def probe_hot_db(hot_db=None) -> dict:
+    """热库可读性诊断（**不抛异常**，供回测入口/测试显式报告）。
+
+    返回 `{path, source, exists, readable, has_oi_history, error}`。
+    `source` 说明这个路径是「显式传入 / 环境变量 MARKET_DB / 工程默认」哪一个来的，
+    避免「跑起来没报错但读的是另一个库」。
+    """
+    explicit = hot_db is not None
+    path = resolve_hot_db(hot_db)
+    src = "explicit_arg" if explicit else (
+        "env:MARKET_DB" if os.environ.get("MARKET_DB") else "project_default")
+    out = {"path": str(path), "source": src, "exists": path.exists(),
+           "readable": False, "has_oi_history": False, "error": None}
+    if not out["exists"]:
+        out["error"] = "hot_db_missing"
+        return out
+    try:
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            row = con.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='oi_history'"
+            ).fetchone()
+            out["has_oi_history"] = bool(row)
+            out["readable"] = True
+        finally:
+            con.close()
+    except Exception as exc:                                  # noqa: BLE001
+        out["error"] = f"{type(exc).__name__}: {exc}"
+    return out
+
+
 def _connect(hot_db=None):
-    db = str(hot_db or default_hot_db())
+    """只读连接。**库不存在就明确报错**，绝不静默换一个数据源。
+
+    原实现直接把不存在的路径交给 sqlite3，得到的是
+    `sqlite3.OperationalError: unable to open database file` —— 看不出是「路径配错」
+    还是「库损坏」，调用方只能一律吞掉。现在先判存在性，给出可定位的错误。
+    """
+    db = resolve_hot_db(hot_db)
+    if not db.exists():
+        raise FileNotFoundError(
+            f"hot_db_missing:{db}"
+            "（历史回测请用环境变量 MARKET_DB 指向只读历史库）")
     return sqlite3.connect(f"file:{db}?mode=ro", uri=True)
 
 

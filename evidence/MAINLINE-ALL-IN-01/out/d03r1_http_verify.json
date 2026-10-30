@@ -1,0 +1,84 @@
+{
+  "generated_at_utc": "2026-10-30T02:13:30Z",
+  "transport": "http://127.0.0.1:64019（随机端口，仅回环）",
+  "ledger_dir": "/private/tmp/allin-tmp-now/d03r1http-lcaby4mp/ledger",
+  "production_ledger_touched": false,
+  "cases": [
+    {
+      "case": "① 交易API·真实交易",
+      "ok": true,
+      "detail": {
+        "http": 200,
+        "total": 4,
+        "closed_count": 1,
+        "realized_pnl_sum": -21.743079223257155
+      }
+    },
+    {
+      "case": "② 零交易契约",
+      "ok": true,
+      "detail": {
+        "http": 200,
+        "total": 0,
+        "no_trades": true
+      }
+    },
+    {
+      "case": "③a 404·未知臂",
+      "ok": true,
+      "detail": {
+        "http": 404,
+        "note": "unknown_arm",
+        "missing_reason": "未知臂 '9z'（应为 ['3a', '3b', '3c', '3d']）"
+      }
+    },
+    {
+      "case": "③b 404·未知持仓号",
+      "ok": true,
+      "detail": {
+        "http": 404,
+        "note": "unknown_position_id"
+      }
+    },
+    {
+      "case": "⑤a 权益曲线",
+      "ok": true,
+      "detail": {
+        "http": 200,
+        "points": 8,
+        "last": {
+          "ts": 1793320205572,
+          "cash": 4978.256920776743,
+          "unrealized": 0.0,
+          "equity": 4978.256920776743
+        }
+      }
+    },
+    {
+      "case": "⑤b 权益 JSONL",
+      "ok": true,
+      "detail": {
+        "http": 200,
+        "lines": 8,
+        "content_type": "application/x-ndjson"
+      }
+    },
+    {
+      "case": "④a 503·交易API账本缺失",
+      "ok": true,
+      "detail": {
+        "http": 503
+      }
+    },
+    {
+      "case": "④b 503·权益API账本缺失",
+      "ok": true,
+      "detail": {
+        "http": 503
+      }
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "total": 8
+}

@@ -25,6 +25,7 @@ import os
 import shutil
 import sys
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -106,15 +107,45 @@ def _jsonl_text(rows: List[dict]) -> str:
                    for r in rows)
 
 
+def _default_base_dir() -> str:
+    """工程根目录解析（BACKTEST-REPAIR-01 · 任务 A）。
+
+    优先级：`WX_PROJECT_ROOT` → `DATA_HUB_PROJECT` → 由本文件位置上溯推导。
+    全程不读当前工作目录、不含本机绝对路径 ⇒ 换机器 / 换检出目录 / 在隔离
+    工作树里跑，解析结果都跟着代码走，不跟着 shell 的 `pwd` 走。
+    """
+    env = os.environ.get("WX_PROJECT_ROOT") or os.environ.get("DATA_HUB_PROJECT")
+    if env:
+        return str(Path(env).expanduser().resolve())
+    # runner.py → event_trend_v0_1 → WyckoffMaster → 策略 → 工程根
+    return str(Path(__file__).resolve().parents[3])
+
+
+def _default_parquet_base(base_dir: str) -> str:
+    """历史行情根目录：`MARKET_ARCHIVE` 优先，否则落在工程根下。"""
+    env = os.environ.get("MARKET_ARCHIVE")
+    if env:
+        return str(Path(env).expanduser().resolve())
+    return os.path.join(base_dir, "数据", "市场数据", "parquet")
+
+
+def _default_runs_base(base_dir: str) -> str:
+    """回测产物根目录：`WX_RUNS_BASE` 优先（隔离工作树可指向树外）。"""
+    env = os.environ.get("WX_RUNS_BASE")
+    if env:
+        return str(Path(env).expanduser().resolve())
+    return os.path.join(base_dir, "回测日志", "event_trend_v0_1", "runs")
+
+
 class EventTrendRunner:
     """真实多标的事件趋势回测与对账执行器。"""
 
-    def __init__(self, base_dir: str = "/Users/boos/Desktop/威科夫因子共振趋势",
+    def __init__(self, base_dir: Optional[str] = None,
                  pit_mode: str = "declared_assumption",
                  oi_declared_lag_ms: Optional[int] = None):
-        self.base_dir = base_dir
-        self.parquet_base = os.path.join(base_dir, "数据/市场数据/parquet")
-        self.runs_base = os.path.join(base_dir, "回测日志/event_trend_v0_1/runs")
+        self.base_dir = str(base_dir) if base_dir is not None else _default_base_dir()
+        self.parquet_base = _default_parquet_base(self.base_dir)
+        self.runs_base = _default_runs_base(self.base_dir)
         os.makedirs(self.runs_base, exist_ok=True)
         # ── PIT 口径（FRAME-PIT-01）──
         # strict：OI 无发布时点证据 ⇒ 拒用（OI_UNAVAILABLE，不出候选）
@@ -123,6 +154,69 @@ class EventTrendRunner:
         self.oi_declared_lag_ms = oi_declared_lag_ms
 
     # ══════════════════════ 指纹 ══════════════════════
+
+    def data_paths_report(self) -> dict:
+        """三条历史数据路径的**显式**诊断（BACKTEST-REPAIR-01 · 任务 A）。
+
+        动机：原来三条路径各自静默兜底 —— OI 热库不存在时每标的抛一次异常被吞、
+        合约快照目录不存在时直接返回空规格簿、parquet 不存在时 glob 返回空列表。
+        三种情况下回测都能「跑完」，产物看起来只是「没有候选」，无法区分
+        「策略没信号」和「数据没接上」。这里把路径来源与存在性一次性摊开。
+
+        返回 `{base_dir, parquet, market_db, contracts, ok, problems}`。
+        `problems` 为空才代表三条路径都接上了。
+        """
+        problems: List[str] = []
+        parquet = {"path": self.parquet_base, "exists": os.path.isdir(self.parquet_base),
+                   "source": "env:MARKET_ARCHIVE" if os.environ.get("MARKET_ARCHIVE")
+                             else "project_default"}
+        if not parquet["exists"]:
+            problems.append(f"parquet_archive_missing:{self.parquet_base}")
+        else:
+            sym_root = os.path.join(self.parquet_base, "candles", "binance", "um")
+            parquet["symbol_dirs"] = (len(os.listdir(sym_root))
+                                      if os.path.isdir(sym_root) else 0)
+            oi_root = os.path.join(self.parquet_base, "oi", "binance", "um")
+            parquet["oi_symbol_dirs"] = (len(os.listdir(oi_root))
+                                         if os.path.isdir(oi_root) else 0)
+
+        market_db = {"path": None, "exists": False, "source": None, "error": None}
+        try:
+            # 只在缺的时候插一次，别把 sys.path 撑成重复项
+            _be = os.path.join(self.base_dir, "框架", "backend")
+            if _be not in sys.path:
+                sys.path.insert(0, _be)
+            import oi_feed as _oi_feed
+            market_db = _oi_feed.probe_hot_db()
+            if not market_db.get("exists"):
+                problems.append(f"hot_db_missing:{market_db.get('path')}")
+            elif market_db.get("error"):
+                problems.append(f"hot_db_unreadable:{market_db.get('error')}")
+        except Exception as exc:                              # noqa: BLE001
+            market_db["error"] = f"{type(exc).__name__}: {exc}"
+            problems.append(f"hot_db_probe_failed:{market_db['error']}")
+
+        contracts = {"path": None, "exists": False, "source": None,
+                     "missing_reason": None, "snapshots": None}
+        try:
+            from .instrument_spec import DEFAULT_CONTRACTS_DIR, SpecBook
+            cdir = Path(os.environ.get("CONTRACTS_DIR") or DEFAULT_CONTRACTS_DIR)
+            contracts["path"] = str(cdir)
+            contracts["source"] = ("env:CONTRACTS_DIR" if os.environ.get("CONTRACTS_DIR")
+                                   else "project_default")
+            contracts["exists"] = cdir.exists()
+            if contracts["exists"]:
+                book = SpecBook(cdir, strict=False)
+                contracts["snapshots"] = len(book._snapshots)
+            else:
+                contracts["missing_reason"] = f"contracts_dir_missing:{cdir}"
+                problems.append(contracts["missing_reason"])
+        except Exception as exc:                              # noqa: BLE001
+            contracts["missing_reason"] = f"{type(exc).__name__}: {exc}"
+            problems.append(f"contracts_probe_failed:{contracts['missing_reason']}")
+
+        return {"base_dir": self.base_dir, "parquet": parquet, "market_db": market_db,
+                "contracts": contracts, "ok": not problems, "problems": problems}
 
     def code_fingerprint(self) -> dict:
         files: Dict[str, Optional[str]] = {}
@@ -334,16 +428,21 @@ class EventTrendRunner:
         enable_oi_filter: bool = True,
         chunk_size: Optional[int] = None,
         inject_duplicates: bool = False,
-        pit_mode: Optional[str] = None
+        pit_mode: Optional[str] = None,
+        cfg: Optional[EventTrendConfig] = None
     ) -> EventStateMachine:
         """运行确定性事件状态机。支持流式逐条、分块批量或注入重复。
 
         PIT 受控读取（FRAME-PIT-01）：
         · 每根 1h bar 用于决策前，校验 `close_time + 1ms <= decision_time`（未收盘即抛错）；
         · OI 只取「决策时刻已可得」的观测，可得时刻未证时按 `pit_mode` 拒用或判不合格。
+
+        `cfg`（BACKTEST-REPAIR-01 新增，默认 None = 旧行为）：
+        显式传入调用方的 `EventTrendConfig`，避免「回测按 A 配置跑执行、却按默认配置
+        跑判定」这种两个事实源。默认值仍是 `EventTrendConfig()`，既有调用方零影响。
         """
         sm = EventStateMachine(
-            config=EventTrendConfig(), enable_oi_filter=enable_oi_filter,
+            config=(cfg or EventTrendConfig()), enable_oi_filter=enable_oi_filter,
             pit_mode=(pit_mode or self.pit_mode),
             oi_declared_lag_ms=self.oi_declared_lag_ms,
         )
@@ -637,23 +736,53 @@ class EventTrendRunner:
         # 规格缺失/无法证明适用于该窗口 ⇒ formal_pass_allowed=False（不得当正式回测通过）。
         spec = self._resolve_spec(symbol, df_15m, cfg)
         if cfg.rule == "FT-LOW4H":
-            # 与模拟盘使用同一流式信号入口；B 变体不要求 OI。
-            import unified_runtime as U
-            engine = U.RealSignalEngine(symbol=symbol, enable_oi_filter=cfg.enable_oi_filter)
-            engine.history_floor_ms = 0
-            # C02-R1：把 `load_symbol_data` 已加载（并已计入输入指纹）的 OI 行交给状态机。
-            # 原来这条分支不调 `run_state_machine_simulation`，`register_oi(oi_ts, oi_vals)`
-            # 在 FT-LOW4H 下根本执行不到 ⇒ 加载了十几万行、状态机一行没见过。
-            # 只交接数据，不改任何阈值/判定顺序：逐行 `fetched_at` 缺就是缺，仍由门禁拒用。
-            engine.oi_preseed_rows = getattr(self, "oi_rows", None)
-            watcher = U._MemWatcher(df_4h.to_dict("records"), df_1h.to_dict("records"))
-            for bar in df_4h.to_dict("records"):
-                engine.process_market(int(bar["close_time"]), watcher)
-            sm_a = sm_b = engine.sm
-            res_a = res_b = res_c = run_event_trend_backtest(
+            # ══════════════════════════════════════════════════════════════════
+            # BACKTEST-REPAIR-01（任务 B）· 接线修复
+            # ──────────────────────────────────────────────────────────────────
+            # 原实现：走 `unified_runtime.RealSignalEngine` + `_MemWatcher`，
+            #         OI 由引擎自己从**实时热库**取（`OF.load_oi_rows`），
+            #         而传入本函数的 parquet OI（`oi_ts` / `oi_vals`）只进了
+            #         `input_fingerprint`，**从未喂给状态机**。
+            #
+            # 为什么那条路在历史回测里必然出 0 候选（不是「策略没信号」）：
+            #   `RealSignalEngine._load_oi_window` 把每行的可得时刻取成 `fetched_at`，
+            #   无 `fetched_at` ⇒ `NaN` ⇒ `_oi_slice_as_of` 全部排除，
+            #   且该函数**没有** `declared_assumption` 分支（只有 `PitBridge` 有）。
+            #   历史 parquet OI 的 `fetched_at` 全为空 ⇒ 每个决策点都「当时读不到 OI」
+            #   ⇒ 状态机走 `OI_UNAVAILABLE` ⇒ 突破永不成立 ⇒ 候选恒 0。
+            #   实测：`rows_loaded=0 / decisions_with_oi=0 / decisions_without_oi=2904`。
+            #
+            # 现在：改用回测自有驱动 `run_state_machine_simulation` + **parquet OI**。
+            #   · 判定规则不变：同一个 `EventStateMachine`、同一份 `cfg`（逐字段相同）；
+            #   · OI 可得性走 `PitBridge` 的 `declared_assumption`：不伪造发布时刻，
+            #     只把「桶结束」显式登记为假设，并让整次运行判不合格（`qualified=False`）；
+            #   · 每根 bar 过 `pit.assert_candles_closed` 硬闸，4h 箱体只用已收盘 bar；
+            #   · A/B/C 三个变体恢复各自语义（原来 `sm_a = sm_b` 且三次都用 variant="B"）。
+            # ══════════════════════════════════════════════════════════════════
+            # A: 完整版（OI 门槛开）
+            sm_a = self.run_state_machine_simulation(
+                symbol, df_4h, df_1h, oi_ts, oi_vals,
+                enable_oi_filter=bool(cfg.enable_oi_filter), cfg=cfg)
+            # B: 关 OI 门槛（消融）
+            sm_b = self.run_state_machine_simulation(
+                symbol, df_4h, df_1h, oi_ts, oi_vals,
+                enable_oi_filter=False, cfg=cfg)
+
+            res_a = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_a.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="A", initial_equity=initial_equity,
+                config=cfg, instrument_spec=spec)
+            res_b = run_event_trend_backtest(
                 symbol=symbol, df_1h=df_1h, df_15m=df_15m,
                 candidates=sm_b.candidates, funding_events=funding_events,
                 df_4h=df_4h, variant="B", initial_equity=initial_equity,
+                config=cfg, instrument_spec=spec)
+            # C: 成本压力（同一批候选，费率/滑点加压）
+            res_c = run_event_trend_backtest(
+                symbol=symbol, df_1h=df_1h, df_15m=df_15m,
+                candidates=sm_a.candidates, funding_events=funding_events,
+                df_4h=df_4h, variant="C", initial_equity=initial_equity,
                 config=cfg, instrument_spec=spec)
         else:
             # A: 完整版 (开 OI)

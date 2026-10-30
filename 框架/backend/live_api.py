@@ -1051,6 +1051,212 @@ def _paper_orders_legacy(params=None) -> dict:
                                      "POST /api/v1/paper/orders"})
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# D03-R1 · 纸面「交易 / 权益」只读契约（五条，缺一条不算集成）
+# ───────────────────────────────────────────────────────────────────────────
+#   ① 交易 API        —— `GET /api/v1/paper/trades`（已平仓逐笔，来源 `paper_realized`）
+#   ② 零交易契约      —— 有账户但**零笔已平仓** ⇒ **200** + `items=[]` + `no_trades=True`；
+#                        不得用 404/500 表达「还没成交」，也不得拿空列表冒充「接口坏了」
+#   ③ 404 契约        —— 未知 `arm`、未知 `position_id` ⇒ **404**（不是 200 空列表）
+#   ④ 503 契约        —— 账本缺失 / 身份不符 ⇒ **503**（沿用 `_ledger_unavailable`，fail-closed）
+#   ⑤ 权益曲线        —— `GET /api/v1/paper/equity`（来源 `paper_equity`），
+#                        `format=jsonl` 时附 NDJSON 文本（逐行一条权益点）
+#
+# 纪律：全程 `ro=True` 只读连接；**不建库、不换库、不写任何行**；
+#       账户不存在与「账户在但零成交」是两件事，必须用不同状态码区分。
+# ═══════════════════════════════════════════════════════════════════════════
+
+_TRADE_COLS = ("id", "position_id", "symbol", "qty", "entry_price", "exit_price",
+               "gross_pnl", "entry_fee", "exit_fee", "funding_paid", "net_pnl",
+               "entry_ts", "exit_ts", "exit_reason", "voided")
+
+
+def _unknown_arm(arm: str, ident: dict, ledger: dict, *, mode: str) -> dict:
+    """未知臂的统一 404 响应体（与 503 明确区分：**请求错了**，不是服务不可用）。"""
+    return envelope(items=[], total=0, mode=mode, **ident, ledger_source=ledger,
+                    missing_reason=f"未知臂 {arm!r}（应为 {list(L.ARMS)}）",
+                    quality={"status": "not_found", "age_seconds": None,
+                             "note": "unknown_arm"})
+
+
+def _trades_block(arm: str, con: sqlite3.Connection, limit: int,
+                  position_id=None) -> dict:
+    """单臂已平仓交易块。`no_trades=True` 只表示「账户在、但这段时间没有平仓记录」。"""
+    acc = f"paper43_{arm}"
+    cols = {r[1] for r in con.execute("PRAGMA table_info(paper_realized)")}
+    if not cols:
+        raise sqlite3.OperationalError("paper_realized 表缺失")
+    sel = ",".join(c for c in _TRADE_COLS if c in cols)
+    sql = f"SELECT {sel} FROM paper_realized WHERE account_id=?"
+    args: list = [acc]
+    if position_id is not None:
+        sql += " AND position_id=?"
+        args.append(int(position_id))
+    order = "exit_ts" if "exit_ts" in cols else ("ts" if "ts" in cols else "id")
+    sql += f" ORDER BY {order} DESC, id DESC LIMIT ?"
+    args.append(int(limit))
+    rows = [dict(r) for r in con.execute(sql, tuple(args))]
+    agg = con.execute(
+        "SELECT COUNT(*), COALESCE(SUM(net_pnl),0), "
+        "COALESCE(SUM(entry_fee + exit_fee),0), COALESCE(SUM(funding_paid),0) "
+        "FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
+        (acc,)).fetchone()
+    return {"arm": arm, "account_id": acc, "available": True,
+            "trades": rows, "total": len(rows),
+            "no_trades": len(rows) == 0,
+            "closed_count": int(agg[0] or 0),
+            "realized_pnl_sum": float(agg[1] or 0.0),
+            "fees_sum": float(agg[2] or 0.0),
+            "funding_sum": float(agg[3] or 0.0)}
+
+
+def paper_trades(params=None) -> tuple[dict, int]:
+    """D03-R1 ① ② ③ ④：已平仓逐笔交易（只读）。"""
+    params = params or {}
+    ident = _runtime_identity()
+    ledger = _ledger_source()
+    arm = (params.get("arm") or [None])[0]
+    raw_pos = (params.get("position_id") or [None])[0]
+    try:
+        limit = int((params.get("limit") or ["500"])[0])
+    except (TypeError, ValueError):
+        limit = 500
+    limit = max(1, min(limit, 5000))
+
+    if arm and arm not in L.ARMS:                                   # ③ 404：未知臂
+        return _unknown_arm(arm, ident, ledger, mode="paper_read_only"), 404
+    position_id = None
+    if raw_pos not in (None, "", "null"):
+        try:
+            position_id = int(raw_pos)
+        except (TypeError, ValueError):
+            return envelope(items=[], total=0, mode="paper_read_only", **ident,
+                            ledger_source=ledger,
+                            missing_reason=f"position_id 非法：{raw_pos!r}",
+                            quality={"status": "bad_request", "age_seconds": None,
+                                     "note": "invalid_position_id"}), 400
+
+    arms = [arm] if arm else list(L.ARMS)
+    blocks, unavailable = [], []
+    for a in arms:
+        try:
+            con = L.paper_conn(a, ro=True)
+        except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+            continue
+        except Exception as exc:                                   # noqa: BLE001
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+            continue
+        try:
+            blocks.append(_trades_block(a, con, limit, position_id))
+        except Exception as exc:                                   # noqa: BLE001
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+        finally:
+            con.close()
+
+    if not blocks:                                                 # ④ 503：账本不可用
+        try:
+            raise L.LedgerUnavailable("; ".join(u["reason"] for u in unavailable)
+                                      or "四臂账本均不可用")
+        except L.LedgerUnavailable as exc:
+            return _ledger_unavailable(ident, ledger, exc,
+                                       mode="paper_read_only"), 503
+
+    # ③ 404：显式点名一个持仓号，但该臂没有这笔已平仓记录
+    if position_id is not None and arm and blocks[0]["total"] == 0:
+        return envelope(items=[], total=0, mode="paper_read_only", **ident,
+                        ledger_source=ledger,
+                        missing_reason=(f"臂 {arm} 下不存在已平仓记录 "
+                                        f"position_id={position_id}"),
+                        quality={"status": "not_found", "age_seconds": None,
+                                 "note": "unknown_position_id"}), 404
+
+    total = sum(b["total"] for b in blocks)
+    zero = total == 0 and not unavailable
+    return envelope(items=blocks, total=total, mode="paper_read_only",
+                    **ident, ledger_source=ledger,
+                    quality={"status": "ok", "age_seconds": None,
+                             "no_trades": zero,
+                             "unavailable_arms": unavailable,
+                             "note": ("零交易：账户可用但窗口内无已平仓记录（非错误）"
+                                      if zero else
+                                      "已平仓逐笔（来源 paper_realized；只读）")}), 200
+
+
+def paper_equity(params=None) -> tuple[dict, int]:
+    """D03-R1 ⑤ ③ ④：权益曲线（只读）。`format=jsonl` 时附 NDJSON 文本。"""
+    params = params or {}
+    ident = _runtime_identity()
+    ledger = _ledger_source()
+    arm = (params.get("arm") or [None])[0]
+    fmt = ((params.get("format") or [""])[0] or "").lower()
+    try:
+        limit = int((params.get("limit") or ["2000"])[0])
+    except (TypeError, ValueError):
+        limit = 2000
+    limit = max(1, min(limit, 20000))
+
+    if arm and arm not in L.ARMS:                                  # ③ 404
+        return _unknown_arm(arm, ident, ledger, mode="paper_read_only"), 404
+
+    arms = [arm] if arm else list(L.ARMS)
+    blocks, unavailable = [], []
+    for a in arms:
+        try:
+            con = L.paper_conn(a, ro=True)
+        except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+            continue
+        except Exception as exc:                                   # noqa: BLE001
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+            continue
+        try:
+            acc = f"paper43_{a}"
+            cols = {r[1] for r in con.execute("PRAGMA table_info(paper_equity)")}
+            if not cols:
+                raise sqlite3.OperationalError("paper_equity 表缺失")
+            voided = " AND COALESCE(voided,0)=0" if "voided" in cols else ""
+            pts = [dict(r) for r in con.execute(
+                "SELECT ts,cash,unrealized,equity FROM paper_equity "
+                f"WHERE account_id=?{voided} ORDER BY ts DESC LIMIT ?", (acc, limit))]
+            pts.reverse()                                          # 曲线按时间升序
+            init = con.execute("SELECT initial_equity FROM paper_account "
+                               "WHERE account_id=?", (acc,)).fetchone()
+            blocks.append({"arm": a, "account_id": acc, "available": True,
+                           "initial_equity": (float(init[0]) if init and init[0] is not None
+                                              else None),
+                           "points": pts, "total": len(pts),
+                           "no_points": len(pts) == 0,
+                           "last": (pts[-1] if pts else None)})
+        except Exception as exc:                                   # noqa: BLE001
+            unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
+        finally:
+            con.close()
+
+    if not blocks:                                                 # ④ 503
+        try:
+            raise L.LedgerUnavailable("; ".join(u["reason"] for u in unavailable)
+                                      or "四臂账本均不可用")
+        except L.LedgerUnavailable as exc:
+            return _ledger_unavailable(ident, ledger, exc,
+                                       mode="paper_read_only"), 503
+
+    out = envelope(items=blocks, total=sum(b["total"] for b in blocks),
+                   mode="paper_read_only", **ident, ledger_source=ledger,
+                   quality={"status": "ok", "age_seconds": None,
+                            "unavailable_arms": unavailable,
+                            "note": "权益曲线（来源 paper_equity；只读，按 ts 升序）"})
+    if fmt == "jsonl":
+        lines = []
+        for b in blocks:
+            for p in b["points"]:
+                lines.append(json.dumps({"arm": b["arm"], "account_id": b["account_id"],
+                                         **p}, ensure_ascii=False, sort_keys=True))
+        out["jsonl"] = "\n".join(lines) + ("\n" if lines else "")
+        out["content_type"] = "application/x-ndjson"
+    return out, 200
+
+
 def paper_funding_audit(params=None) -> dict:
     """**已退役（WORK-04）**：Paper 未接新核心 ⇒ `NOT_CONNECTED`（不返回旧 3a–3d 资金费对账）。"""
     return _not_connected(

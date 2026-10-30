@@ -1,0 +1,117 @@
+{
+  "generated_at_utc": "2026-10-30T02:09:47Z",
+  "isolation": {
+    "ledger_dir": "/private/tmp/allin-tmp-now/d03r1-_t1frtg7/ledger",
+    "source": "/Users/boos/Desktop/威科夫因子共振趋势/数据/paper/paper_3a.sqlite3",
+    "production_ledger_touched": false
+  },
+  "cases": [
+    {
+      "case": "① 交易API·真实交易(arm=3a)",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "total": 4,
+        "closed_count": 1,
+        "realized_pnl_sum": -21.743079223257155,
+        "first_trade_keys": [
+          "entry_fee",
+          "entry_price",
+          "entry_ts",
+          "exit_fee",
+          "exit_price",
+          "exit_reason",
+          "exit_ts",
+          "funding_paid"
+        ],
+        "no_trades": false
+      }
+    },
+    {
+      "case": "② 零交易契约(arm=3b)",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "total": 0,
+        "no_trades": true,
+        "quality_status": "ok"
+      }
+    },
+    {
+      "case": "③a 404·未知臂",
+      "ok": true,
+      "detail": {
+        "status": 404,
+        "quality_note": "unknown_arm",
+        "missing_reason": "未知臂 '9z'（应为 ['3a', '3b', '3c', '3d']）"
+      }
+    },
+    {
+      "case": "③b 404·未知持仓号",
+      "ok": true,
+      "detail": {
+        "status": 404,
+        "quality_note": "unknown_position_id",
+        "missing_reason": "臂 3a 下不存在已平仓记录 position_id=99999999"
+      }
+    },
+    {
+      "case": "⑤a 权益曲线(arm=3a)",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "points": 8,
+        "ascending": true,
+        "initial_equity": null,
+        "last": {
+          "ts": 1793320205572,
+          "cash": 4978.256920776743,
+          "unrealized": 0.0,
+          "equity": 4978.256920776743
+        }
+      }
+    },
+    {
+      "case": "⑤b 权益 JSONL(arm=3a)",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "lines": 8,
+        "parse_ok": true,
+        "content_type": "application/x-ndjson",
+        "sample": "{\"account_id\": \"paper43_3a\", \"arm\": \"3a\", \"cash\": 4999.7539007, \"equity\": 4999.1293006999995, \"ts\": 1792668586625, \"unrealized\": -0.6246000000000349}"
+      }
+    },
+    {
+      "case": "④a 503·交易API账本缺失",
+      "ok": true,
+      "detail": {
+        "status": 503,
+        "actual_ledger_dir": "/private/tmp/allin-tmp-now/d03r1-_t1frtg7/empty_ledger",
+        "db_exists": false,
+        "quality_note": "纸面账本缺失（臂 3a,3b,3c,3d）于 /Users/boos/Desktop/威科夫因子共振趋势/数据/paper；**拒绝自动创建空账户冒充原账户**。原账本须按迁移清单 M002–M005 受控迁入；误建空库保留为回归证据，不被本服务读取。"
+      }
+    },
+    {
+      "case": "④b 503·权益API账本缺失",
+      "ok": true,
+      "detail": {
+        "status": 503,
+        "actual_ledger_dir": "/private/tmp/allin-tmp-now/d03r1-_t1frtg7/empty_ledger",
+        "db_exists": false,
+        "quality_note": "纸面账本缺失（臂 3a,3b,3c,3d）于 /Users/boos/Desktop/威科夫因子共振趋势/数据/paper；**拒绝自动创建空账户冒充原账户**。原账本须按迁移清单 M002–M005 受控迁入；误建空库保留为回归证据，不被本服务读取。"
+      }
+    },
+    {
+      "case": "反例·404 与零交易不可混同",
+      "ok": true,
+      "detail": {
+        "unknown_arm_status": 404,
+        "zero_trade_status": 200
+      }
+    }
+  ],
+  "passed": 9,
+  "failed": 0,
+  "total": 9
+}

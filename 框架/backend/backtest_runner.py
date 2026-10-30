@@ -857,12 +857,21 @@ def _run_event_trend(run_id: str, doc: dict) -> dict:
     net_pnl = float(summary_data.get("net_pnl") or (final_eq - initial_equity))
     ret_pct = float(summary_data.get("net_return_pct") or ((net_pnl / initial_equity * 100.0) if initial_equity else 0.0))
     trade_cnt = int(summary_data.get("trade_count") or 0)
-    # ⚠ `summary` 里**根本没有** `win_count`/`loss_count`/`win_rate`/`max_drawdown_pct`。
-    # 用 `or 0` 会把「没统计」伪装成「0 胜 0 负」「回撤 0%」⇒ 项目纪律要求缺就是 None。
-    # 真实值由 `GET /metrics` 从本 run 账本现算（胜负=扣费后 net_pnl；回撤=逐点 total_equity）。
-    win_cnt = summary_data.get("win_count")
-    loss_cnt = summary_data.get("loss_count")
-    win_rate = summary_data.get("win_rate")
+    # BACKTEST-REPAIR-01（任务 C）：`summary` 现在**真的**带这些字段了
+    # （`engine_adapter.compute_summary_metrics` 从成交行与权益曲线推导）。
+    # 口径：胜负按扣费后 `net_pnl`；回撤按逐点 `total_equity` 峰值。
+    # 仍然**不许**用 `or 0` —— 零分母时上游返回 None，这里必须原样保留 None，
+    # 否则「没统计」会被伪装成「0 胜 0 负」「回撤 0%」。
+    # 先读新字段名，再兼容旧名（win_count/loss_count/win_rate），两套都没有才是 None。
+    win_cnt = summary_data.get("wins")
+    if win_cnt is None:
+        win_cnt = summary_data.get("win_count")
+    loss_cnt = summary_data.get("losses")
+    if loss_cnt is None:
+        loss_cnt = summary_data.get("loss_count")
+    win_rate = summary_data.get("win_rate_pct")
+    if win_rate is None:
+        win_rate = summary_data.get("win_rate")
     if win_rate is None and win_cnt is not None and trade_cnt:
         win_rate = float(win_cnt) / trade_cnt * 100.0
     _mdd_raw = summary_data.get("max_drawdown_pct")
@@ -883,6 +892,22 @@ def _run_event_trend(run_id: str, doc: dict) -> dict:
         "max_drawdown_pct": mdd,
         "profit_factor": summary_data.get("profit_factor"),
         "avg_win_loss_ratio": summary_data.get("avg_win_loss_ratio"),
+        # 新增（加性，不改上面任何字段）：成本明细、毛收益、平均盈亏、期初期末权益
+        "gross_pnl": summary_data.get("gross_pnl"),
+        "total_fees": summary_data.get("fee_total"),
+        "total_funding_fee": summary_data.get("funding_total"),
+        "total_slippage": summary_data.get("slippage_total"),
+        "avg_win": summary_data.get("avg_win"),
+        "avg_loss": summary_data.get("avg_loss"),
+        "period_start_equity": summary_data.get("period_start_equity"),
+        "period_end_equity": summary_data.get("period_end_equity"),
+        "flats": summary_data.get("flats"),
+        "equity_curve_points": summary_data.get("equity_curve_points"),
+        "cost_identity_ok": summary_data.get("cost_identity_ok"),
+        "metrics_notes": summary_data.get("metrics_notes"),
+        "win_loss_basis": summary_data.get("win_loss_basis"),
+        "profit_factor_basis": summary_data.get("profit_factor_basis"),
+        "max_drawdown_basis": summary_data.get("max_drawdown_basis"),
     }
 
     win = {
