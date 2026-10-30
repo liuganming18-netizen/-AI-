@@ -209,27 +209,34 @@ def events_from_run_dir(run_dir, symbol: str, run_id: Optional[str] = None) -> L
     def add(event_id, kind, t, price=None, **fields):
         if not isinstance(t, (int, float)) or t <= 0:
             return
+        source = fields.pop("source", "events.jsonl" if kind in {"box", "sweep_low", "sweep_high", "retest", "breakout", "signal_invalidated"} else "candidates.jsonl")
         out.append({"event_id": str(event_id), "event_type": kind, "symbol": symbol,
                     "timeframe": "1h", "event_time": int(t), "price": price,
-                    "source": "events.jsonl" if kind in {"box", "sweep", "retest", "breakout", "invalidation"} else "candidates.jsonl",
+                    "source": source,
                     "backtest_job_id": run_id, **fields})
     for d in dossiers:
         if not isinstance(d, dict): continue
         if d.get("symbol") and symbol and str(d["symbol"]).upper() != str(symbol).upper(): continue
         eid = d.get("event_id") or ""
         box = d.get("box") or {}
-        formation = box.get("formation_time_ms") or d.get("created_at_ms")
+        # Never substitute dossier/DB creation time for when the structure formed.
+        formation = box.get("formation_time_ms")
         end = d.get("ended_at_ms")
-        add(f"{eid}:box", "box", formation, range_start_time=formation,
-            range_end_time=end, price_upper=box.get("high_h"), price_lower=box.get("low_l"),
-            available_at=formation, timeframe=box.get("timeframe") or "4h",
-            status=d.get("current_state"), source_record_id=eid, symbol=d.get("symbol") or symbol)
         transitions = d.get("history") or []
         by_state = {x.get("to_state"): x for x in transitions if isinstance(x, dict)}
+        box_transition = by_state.get("BOX") or {}
+        confirmed_at = box_transition.get("trigger_bar_close_ms")
+        effective_start = confirmed_at
+        add(f"{eid}:box", "box", formation, range_start_time=effective_start,
+            range_end_time=end, price_upper=box.get("high_h"), price_lower=box.get("low_l"),
+            formation_time=formation, confirmed_at=confirmed_at,
+            effective_start_time=effective_start, available_at=box_transition.get("available_at_ms"),
+            timeframe=box.get("timeframe") or "4h",
+            status=d.get("current_state"), source_record_id=eid, symbol=d.get("symbol") or symbol)
         sw = d.get("sweep_time_ms")
         if sw:
             add(f"{eid}:sweep", "sweep_low", sw, d.get("sweep_low_s"),
-                available_at=(by_state.get("SWEPT") or {}).get("available_at_ms"), source_record_id=eid)
+                available_at=(by_state.get("SWEEP") or {}).get("available_at_ms"), source_record_id=eid)
         rt = d.get("retest_time_ms")
         if rt:
             add(f"{eid}:retest", "retest", rt, d.get("retest_low_lr"),
@@ -253,6 +260,32 @@ def events_from_run_dir(run_dir, symbol: str, run_id: Optional[str] = None) -> L
     for e in out:
         e.setdefault("available_at", None)
     return sorted(out, key=lambda e: (e["event_time"], e["event_id"]))
+
+
+def trade_events_from_rows(trades: List[dict], symbol: str, timeframe: str,
+                           run_id: str) -> List[dict]:
+    """Backtest fills from linked persisted trades; never synthesize IDs or prices."""
+    out: List[dict] = []
+    for trade in trades:
+        trade_id = trade.get("trade_id")
+        if not trade_id:
+            continue
+        if trade.get("symbol") and str(trade["symbol"]).upper() != str(symbol).upper():
+            continue
+        for kind, point in (("entry", trade.get("entry") or {}),
+                            ("close", trade.get("exit") or {})):
+            event_time, price = point.get("t"), point.get("price")
+            if (not isinstance(event_time, (int, float)) or event_time <= 0
+                    or not isinstance(price, (int, float))):
+                continue
+            out.append({"event_id": f"{trade_id}:{kind}", "event_type": kind,
+                        "symbol": trade.get("symbol") or symbol, "timeframe": timeframe,
+                        "event_time": int(event_time), "available_at": int(event_time),
+                        "price": price, "trade_id": trade_id,
+                        "signal_id": trade.get("candidate_id"), "backtest_job_id": run_id,
+                        "source": "trades.jsonl", "source_record_id": trade_id,
+                        "reason": point.get("reason")})
+    return out
 
 
 # ── 信号 ──────────────────────────────────────────────────────────────────

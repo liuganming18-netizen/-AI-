@@ -898,6 +898,7 @@ function alignToLeader(hub: ChartSyncHub, member: ChartSyncMember): boolean {
 /** 图表实例句柄：供调用方做跨图十字线联动与视窗落实。 */
 export interface ChartHandle {
   chart: IChartApi;
+  coordinatesAt(timeSec: UTCTimestamp, price: number): { x: number; y: number } | null;
   /** 时点不在本图可见范围时只清除十字线，不越界定位 */
   crosshairAt(timeSec: UTCTimestamp, price: number | null): void;
   clearCrosshair(): void;
@@ -1231,6 +1232,11 @@ function useChartLifecycle(
 
     onReadyRef.current({
       chart,
+      coordinatesAt: (timeSec, price) => {
+        const x = safeCall(() => chart.timeScale().timeToCoordinate(timeSec));
+        const y = safeCall(() => built.series.priceToCoordinate(price));
+        return typeof x === 'number' && typeof y === 'number' ? { x, y } : null;
+      },
       crosshairAt: (timeSec, price) => {
         if (price === null || !Number.isFinite(price) || member.disposed) {
           safeTimeScaleCall(() => chart.clearCrosshairPosition());

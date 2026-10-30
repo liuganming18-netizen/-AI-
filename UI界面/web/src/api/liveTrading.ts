@@ -357,6 +357,34 @@ export async function fetchPaperLedger(signal?: AbortSignal): Promise<PaperLedge
   };
 }
 
+export interface PaperTradeEvent {
+  eventId: string; eventType: 'entry' | 'close'; symbol: string; eventTime: number;
+  price: number | null; accountId: string; runMode: 'paper'; positionId: number;
+  tradeId: string; reason: string | null; signalId?: string | null;
+}
+
+/** Read-only realized paper fills, bounded by symbol and chart time window. */
+export async function fetchPaperTradeEvents(symbol: string, fromMs: number, toMs: number, signal?: AbortSignal): Promise<PaperTradeEvent[]> {
+  const qs = new URLSearchParams({ symbol, from_ms: String(Math.floor(fromMs)), to_ms: String(Math.ceil(toMs)), limit: '1000' });
+  const env = await apiGet<any>(`/paper/trades?${qs.toString()}`, signal);
+  const out: PaperTradeEvent[] = [];
+  for (const block of Array.isArray(env?.items) ? env.items : []) {
+    for (const trade of Array.isArray(block?.trades) ? block.trades : []) {
+      const positionId = Number(trade.position_id);
+      const tradeId = `paper:${block.arm}:${positionId}`;
+      for (const [kind, time, price] of [['entry', trade.entry_ts, trade.entry_price], ['close', trade.exit_ts, trade.exit_price]] as const) {
+        const eventTime = Number(time);
+        if (!Number.isFinite(positionId) || !Number.isFinite(eventTime) || eventTime < fromMs || eventTime > toMs) continue;
+        out.push({ eventId: `${tradeId}:${kind}`, eventType: kind, symbol: String(trade.symbol ?? symbol),
+          eventTime, price: typeof price === 'number' && Number.isFinite(price) ? price : null,
+          accountId: String(block.account_id ?? ''), runMode: 'paper', positionId, tradeId,
+          reason: kind === 'close' ? (trade.exit_reason ?? null) : null });
+      }
+    }
+  }
+  return out.sort((a, b) => a.eventTime - b.eventTime || a.eventId.localeCompare(b.eventId));
+}
+
 /** `GET /accounts` → 实盘**只读**账户快照。 */
 export async function fetchLiveAccounts(signal?: AbortSignal): Promise<LiveAccountsResult> {
   const env = await apiGet<Envelope<RawLiveAccount>>('/accounts', signal);

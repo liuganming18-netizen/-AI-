@@ -275,6 +275,74 @@ function buildEventMarkers(events: LabChartEvent[], palette: ChartPalette, tf: T
   });
 }
 
+const BacktestBoxOverlay: React.FC<{ events: LabChartEvent[]; bars: Candle[]; handle: ChartHandle | null; tf: Timeframe; lastBarMs: number | null; onEventClick: (event: LabChartEvent) => void }> = ({ events, bars, handle, tf, lastBarMs, onEventClick }) => {
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const [rects, setRects] = useState<Array<{ id: string; x: number; y: number; w: number; h: number }>>([]);
+  const [eventTargets, setEventTargets] = useState<Array<{ event: LabChartEvent; x: number; y: number }>>([]);
+  useEffect(() => {
+    if (!handle) { setRects([]); setEventTargets([]); return; }
+    const update = () => {
+      const host = hostRef.current;
+      if (!host) return;
+      const bounds = host.getBoundingClientRect();
+      const visible = ts.getVisibleRange();
+      if (!visible) { setRects([]); return; }
+      const toSeconds = (time: Time): number => typeof time === 'number'
+        ? time
+        : typeof time === 'string' ? Math.floor(Date.parse(`${time}T00:00:00Z`) / 1000)
+          : Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000);
+      const visibleFrom = toSeconds(visible.from);
+      const visibleTo = toSeconds(visible.to);
+      const next = events.filter((e) => e.event_type === 'box' && Number.isFinite(e.price_upper) && Number.isFinite(e.price_lower) && Number.isFinite(e.range_start_time) && Number.isFinite(e.available_at))
+        .flatMap((e) => {
+          // A historical overlay must not reveal the full finished range before
+          // the persisted state transition says the range was available.
+          const displayStart = Math.max(e.range_start_time!, e.available_at!);
+          const endMs = e.range_end_time ?? lastBarMs;
+          if (!endMs || endMs <= displayStart) return [];
+          // timeToCoordinate returns null outside the current view. Clip the box
+          // to that view so a range that extends beyond it still renders at the edge.
+          const from = Math.max(alignTimeToTf(displayStart, tf), visibleFrom);
+          const to = Math.min(alignTimeToTf(endMs, tf), visibleTo);
+          if (to <= from) return [];
+          const a = handle.coordinatesAt(from as UTCTimestamp, e.price_upper!);
+          const b = handle.coordinatesAt(to as UTCTimestamp, e.price_lower!);
+          if (!a || !b) return [];
+          return [{ id: e.event_id, x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) }]
+            .filter((r) => r.x < bounds.width && r.x + r.w > 0 && r.y < bounds.height && r.y + r.h > 0);
+        });
+      setRects(next);
+      const markerEvents = events.filter((e) => ['box', 'sweep_low', 'sweep_high', 'retest', 'breakout', 'signal_triggered', 'signal_invalidated'].includes(e.event_type));
+      setEventTargets(markerEvents.flatMap((event) => {
+        if (!Number.isFinite(event.event_time) || event.event_time <= 0) return [];
+        const time = alignTimeToTf(event.event_time, tf);
+        const bar = bars.find((item) => alignTimeToTf(item.timestamp, tf) === time);
+        if (!bar) return [];
+        const below = ['sweep_low', 'retest'].includes(event.event_type);
+        const markerPrice = below ? bar.low : bar.high;
+        if (!Number.isFinite(markerPrice)) return [];
+        const point = handle.coordinatesAt(time as UTCTimestamp, markerPrice!);
+        return point && point.x >= 0 && point.x <= bounds.width && point.y >= 0 && point.y <= bounds.height
+          ? [{ event, x: point.x, y: point.y + (below ? 14 : -14) }]
+          : [];
+      }));
+    };
+    const ts = handle.chart.timeScale();
+    ts.subscribeVisibleLogicalRangeChange(update);
+    handle.chart.subscribeCrosshairMove(update);
+    const observer = new ResizeObserver(update);
+    if (hostRef.current) observer.observe(hostRef.current);
+    update();
+    return () => { ts.unsubscribeVisibleLogicalRangeChange(update); handle.chart.unsubscribeCrosshairMove(update); observer.disconnect(); };
+  }, [events, bars, handle, tf, lastBarMs]);
+  return <div ref={hostRef} className="pointer-events-none absolute inset-0 z-[2]" aria-label="回测箱体区间">
+    <svg className="h-full w-full overflow-hidden" data-testid="backtest-box-overlay">
+      {rects.map((r) => <rect key={r.id} x={r.x} y={r.y} width={r.w} height={r.h} fill="rgba(245,158,11,0.08)" stroke="#f59e0b" strokeDasharray="5 3" strokeWidth="1.5" />)}
+    </svg>
+    {eventTargets.map(({ event, x, y }) => <button key={`hit-${event.event_id}`} type="button" aria-label={`查看 ${event.event_type} 事件详情`} title={`查看 ${event.event_type} 事件详情`} className="pointer-events-auto absolute h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent" style={{ left: x, top: y }} onClick={(click) => { click.stopPropagation(); onEventClick(event); }} />)}
+  </div>;
+};
+
 /**
  * 候选信号标记（真实 `chart.signals` ⇒ 官方 markers）。
  *
@@ -968,7 +1036,12 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
     [chart, selectedTrade, idOf, orders, tf, palette, currentSymbolNorm],
   );
   const onChartTimeClick = useCallback((timeMs: number) => {
-    const event = (chart?.events ?? []).find((item) => alignTimeToTf(item.event_time, tf) === Math.floor(timeMs / 1000) * 1000);
+    const clickedTime = Math.floor(timeMs / 1000);
+    const toleranceSec = Math.ceil((TF_MS[tf] ?? 3_600_000) / 1000);
+    const event = (chart?.events ?? [])
+      .map((item) => ({ item, distance: Math.abs(alignTimeToTf(item.event_time, tf) - clickedTime) }))
+      .filter(({ distance }) => distance <= toleranceSec)
+      .sort((a, b) => a.distance - b.distance)[0]?.item;
     if (event) setSelectedEvent(event);
   }, [chart?.events, tf]);
 
@@ -1572,7 +1645,8 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
           <div className="absolute right-2 top-2 z-20 max-w-[360px] rounded border border-neutral-600 bg-neutral-950/95 p-2 text-[11px] text-neutral-100 shadow-lg" role="status">
             <button className="float-right ml-2 text-neutral-400" onClick={() => setSelectedEvent(null)} aria-label="关闭事件详情">×</button>
             <b>{selectedEvent.event_type}</b> · {fmtUtc(selectedEvent.event_time)} UTC
-            <div>价格 {fmtPrice(selectedEvent.price)} · 来源 {selectedEvent.source}</div>
+            <div>价格 {selectedEvent.price == null ? '不可用（源记录未提供）' : fmtPrice(selectedEvent.price)} · 来源 {selectedEvent.source}</div>
+            {selectedEvent.event_type === 'box' && <div>形成 {fmtUtc(selectedEvent.formation_time)} · 确认/可得 {fmtUtc(selectedEvent.confirmed_at ?? selectedEvent.available_at)} · 生效 {fmtUtc(selectedEvent.effective_start_time ?? selectedEvent.range_start_time)} · 结束 {selectedEvent.range_end_time ? fmtUtc(selectedEvent.range_end_time) : '仍有效或结束时间未记录'}</div>}
             <div>信号 {selectedEvent.signal_id ?? '—'} · 交易 {selectedEvent.trade_id ?? '—'}</div>
             {selectedEvent.reason && <div>{selectedEvent.reason}</div>}
           </div>
@@ -1603,6 +1677,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
             hideTimeAxis
           />
         )}
+        <BacktestBoxOverlay events={chart?.events ?? []} bars={bars} handle={handle} tf={tf} lastBarMs={bars.length ? bars[bars.length - 1].timestamp : null} onEventClick={setSelectedEvent} />
       </div>
 
       {(chart?.events?.length ?? 0) > 0 && (
@@ -1619,6 +1694,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
           ))}
         </div>
       )}
+      {(chart?.events_unavailable ?? []).map((item) => <div key={item.event_type} className="px-2 py-1 text-[10px] text-amber-300" data-testid={`event-unavailable-${item.event_type}`}>{item.event_type}：不可用 · {item.reason}</div>)}
 
       {/* ── 成交量（独立一条，设计稿 84px）──────────────────────────────────
           设计稿在 K 线与 OI 之间还有一条独立「成交量」，自带左标签与右轴刻度。

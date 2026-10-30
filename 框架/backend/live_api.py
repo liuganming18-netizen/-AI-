@@ -1080,7 +1080,7 @@ def _unknown_arm(arm: str, ident: dict, ledger: dict, *, mode: str) -> dict:
 
 
 def _trades_block(arm: str, con: sqlite3.Connection, limit: int,
-                  position_id=None) -> dict:
+                  position_id=None, symbol=None, from_ms=None, to_ms=None) -> dict:
     """单臂已平仓交易块。`no_trades=True` 只表示「账户在、但这段时间没有平仓记录」。"""
     acc = f"paper43_{arm}"
     cols = {r[1] for r in con.execute("PRAGMA table_info(paper_realized)")}
@@ -1092,6 +1092,15 @@ def _trades_block(arm: str, con: sqlite3.Connection, limit: int,
     if position_id is not None:
         sql += " AND position_id=?"
         args.append(int(position_id))
+    if symbol and "symbol" in cols:
+        sql += " AND UPPER(symbol)=UPPER(?)"
+        args.append(str(symbol))
+    if from_ms is not None or to_ms is not None:
+        if "entry_ts" not in cols or "exit_ts" not in cols:
+            raise sqlite3.OperationalError("paper_realized 缺 entry_ts/exit_ts，无法按事件时间过滤")
+        lower, upper = int(from_ms or 0), int(to_ms or 2**63 - 1)
+        sql += " AND ((entry_ts>=? AND entry_ts<=?) OR (exit_ts>=? AND exit_ts<=?))"
+        args.extend((lower, upper, lower, upper))
     order = "exit_ts" if "exit_ts" in cols else ("ts" if "ts" in cols else "id")
     sql += f" ORDER BY {order} DESC, id DESC LIMIT ?"
     args.append(int(limit))
@@ -1117,6 +1126,19 @@ def paper_trades(params=None) -> tuple[dict, int]:
     ledger = _ledger_source()
     arm = (params.get("arm") or [None])[0]
     raw_pos = (params.get("position_id") or [None])[0]
+    symbol = (params.get("symbol") or [None])[0]
+    raw_from = (params.get("from_ms") or [None])[0]
+    raw_to = (params.get("to_ms") or [None])[0]
+    try:
+        from_ms = int(raw_from) if raw_from not in (None, "") else None
+        to_ms = int(raw_to) if raw_to not in (None, "") else None
+        if from_ms is not None and to_ms is not None and to_ms < from_ms:
+            raise ValueError("to_ms must be >= from_ms")
+    except (TypeError, ValueError) as exc:
+        return envelope(items=[], total=0, mode="paper_read_only", **ident,
+                        ledger_source=ledger, missing_reason=f"非法事件时间范围：{exc}",
+                        quality={"status": "bad_request", "age_seconds": None,
+                                 "note": "invalid_event_time_range"}), 400
     try:
         limit = int((params.get("limit") or ["500"])[0])
     except (TypeError, ValueError):
@@ -1148,7 +1170,7 @@ def paper_trades(params=None) -> tuple[dict, int]:
             unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
             continue
         try:
-            blocks.append(_trades_block(a, con, limit, position_id))
+            blocks.append(_trades_block(a, con, limit, position_id, symbol, from_ms, to_ms))
         except Exception as exc:                                   # noqa: BLE001
             unavailable.append({"arm": a, "reason": f"{type(exc).__name__}: {exc}"})
         finally:

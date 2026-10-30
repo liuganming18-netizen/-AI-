@@ -1817,23 +1817,14 @@ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
         chart_events = CH.events_from_run_dir(S.read_run_dir(run_id), event_symbol, run_id)
         window = chart.get("window") or {}
         lo, hi = window.get("start_ms"), window.get("end_ms")
-        for trade in chart.get("trades") or []:
-            tid = trade.get("trade_id")
-            for kind, point in (("entry", trade.get("entry") or {}),
-                                ("exit", trade.get("exit") or {})):
-                t, price = point.get("t"), point.get("price")
-                if isinstance(t, (int, float)) and t > 0:
-                    chart_events.append({"event_id": f"{tid}:{kind}",
-                        "event_type": "entry" if kind == "entry" else "close",
-                        "symbol": trade.get("symbol") or event_symbol,
-                        "timeframe": req_tf, "event_time": int(t), "available_at": int(t),
-                        "price": price, "trade_id": tid, "backtest_job_id": run_id,
-                        "source": "trades.jsonl", "source_record_id": tid,
-                        "reason": point.get("reason")})
+        chart_events.extend(CH.trade_events_from_rows(
+            chart.get("trades") or [], event_symbol, req_tf, run_id))
         chart["events"] = [e for e in chart_events
             if (not isinstance(lo, (int, float)) or e["event_time"] >= lo)
             and (not isinstance(hi, (int, float)) or e["event_time"] <= hi)]
         chart["events_status"] = "available" if chart["events"] else "empty_or_unrecorded"
+        chart["events_unavailable"] = [{"event_type": "sweep_high",
+            "reason": "当前 WX_EVENT_TREND 状态机是 long-only，仅产出 sweep_low；无真实扫高事件源"}]
     except Exception as exc:  # noqa: BLE001
         chart["events"] = []
         chart["events_status"] = "unavailable"

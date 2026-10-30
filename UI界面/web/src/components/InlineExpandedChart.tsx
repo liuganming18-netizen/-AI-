@@ -23,10 +23,12 @@ import {
   type ChartViewport,
 } from './LightweightChart';
 import { LineStyle } from 'lightweight-charts';
+import type { SeriesMarker, Time } from 'lightweight-charts';
 import { adaptCandles, alignOiToTimeframe } from '../api/adapters';
 import { apiGet, marketPath } from '../api/client';
 import { useChartPalette } from '../design/chartTheme';
 import type { RawCandlesEnvelope } from '../api/types';
+import { fetchPaperLedger, fetchPaperTradeEvents, type PaperTradeEvent } from '../api/liveTrading';
 import type { PublicExtrasView } from '../api/useMarketData';
 import { formatWanYi, formatAmountWanYi, formatOiQuantityUnit } from '../utils/formatters';
 import {
@@ -304,6 +306,10 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
   const [hover, setHover] = useState<ChartHover | null>(null);
   /** 官方库当前视窗（毫秒），仅用于「数据源 / 缺口」状态位的视窗文案 */
   const [viewportState, setViewportState] = useState<{ key: string; viewport: ChartViewport } | null>(null);
+  const [paperEvents, setPaperEvents] = useState<PaperTradeEvent[]>([]);
+  const [openPaperEvents, setOpenPaperEvents] = useState<PaperTradeEvent[]>([]);
+  const [eventFilter, setEventFilter] = useState<'all' | 'signal_triggered' | 'signal_invalidated' | 'entry' | 'close'>('all');
+  const [eventDetail, setEventDetail] = useState<PaperTradeEvent | { eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; tradeId: string; reason: string | null; signalId?: string | null } | null>(null);
   /**
    * 重新挂载（收起→再展开）时用模块级缓存预热「已加载历史根 + 分页游标」。
    * 只在本次挂载的首帧计算一次，不参与后续重渲染。
@@ -645,6 +651,51 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
    * 用同一条渲染路径交给官方库，未收盘根走 `isClosed === false` 分支（独立琥珀色 + 页面文字标识）。
    */
   const renderBars = useMemo(() => (forming ? [...candles, forming] : candles), [candles, forming]);
+  const marketWindow = viewportState?.key === `${token.id}:${selectedTf}` ? viewportState.viewport
+    : renderBars.length ? { fromMs: renderBars[0].timestamp, toMs: renderBars[renderBars.length - 1].timestamp } : null;
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchPaperLedger(controller.signal).then((ledger) => {
+      const symbol = token.id.split(':').slice(1).join(':').toUpperCase();
+      setOpenPaperEvents(ledger.positions.filter((p) => p.symbol.toUpperCase() === symbol).map((p) => ({
+        eventId: `${p.key}:entry`, eventType: 'entry' as const, symbol: p.symbol, eventTime: p.entryTs,
+        price: p.entryPrice, accountId: p.accountId, runMode: 'paper' as const, positionId: p.positionId,
+        tradeId: `paper:${p.arm}:${p.positionId}`, reason: null, signalId: p.signalUid,
+      })));
+    }).catch(() => { if (!controller.signal.aborted) setOpenPaperEvents([]); });
+    return () => controller.abort();
+  }, [token.id]);
+  useEffect(() => {
+    if (!marketWindow || marketWindow.toMs <= marketWindow.fromMs) { setPaperEvents([]); return; }
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      const symbol = token.id.split(':').slice(1).join(':');
+      fetchPaperTradeEvents(symbol, marketWindow.fromMs, marketWindow.toMs, controller.signal)
+        .then(setPaperEvents).catch(() => { if (!controller.signal.aborted) setPaperEvents([]); });
+    }, 350);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [token.id, marketWindow?.fromMs, marketWindow?.toMs]);
+  const marketEventRows = useMemo(() => {
+    const rows: Array<{ eventId: string; eventType: string; eventTime: number; price: number | null; accountId: string; runMode: string; tradeId: string; reason: string | null; signalId?: string | null }> = [...openPaperEvents, ...paperEvents];
+    // eventTime is occurrence time. triggerTime may be confirmed_at and must not be used as a fallback.
+    const signalMs = activeSignal?.eventTime ? Date.parse(activeSignal.eventTime) : NaN;
+    if (Number.isFinite(signalMs) && activeSignal) rows.push({ eventId: `signal:${activeSignal.id}:trigger`, eventType: 'signal_triggered', eventTime: signalMs,
+      price: null, accountId: '—', runMode: 'signal', tradeId: '—', reason: null, signalId: activeSignal.id });
+    const unique = new Map(rows.map((row) => [row.eventId, row]));
+    return [...unique.values()].filter((e) => eventFilter === 'all' || e.eventType === eventFilter)
+      .sort((a, b) => a.eventTime - b.eventTime || a.eventId.localeCompare(b.eventId));
+  }, [openPaperEvents, paperEvents, activeSignal, eventFilter]);
+  const marketEventMarkers = useMemo<SeriesMarker<Time>[]>(() => marketEventRows.filter((e) => !(e.eventType === 'signal_triggered' && renderBars.some((b) => b.signalTag && toChartSeconds(b.timestamp) === toChartSeconds(e.eventTime)))).map((e) => ({
+    id: e.eventId, time: toChartSeconds(e.eventTime) as Time,
+    position: e.eventType === 'entry' ? 'belowBar' : 'aboveBar',
+    shape: e.eventType === 'entry' ? 'arrowUp' : e.eventType === 'close' ? 'arrowDown' : 'circle',
+    color: e.eventType === 'entry' ? '#38bdf8' : e.eventType === 'close' ? '#f59e0b' : '#a78bfa',
+    text: e.eventType === 'signal_triggered' ? '信号触发' : e.eventType === 'signal_invalidated' ? '信号失效' : e.eventType === 'entry' ? '入场' : '平仓', size: 1,
+  })), [marketEventRows, renderBars]);
+  const handleMarketChartClick = useCallback((timeMs: number) => {
+    const clicked = marketEventRows.find((e) => toChartSeconds(e.eventTime) === toChartSeconds(timeMs));
+    if (clicked) setEventDetail(clicked);
+  }, [marketEventRows]);
 
   /**
    * 两图共享的**真实时间点并集**（UTC 秒）= K 线时间点集 ∪ OI 真实样本时点。
@@ -1016,6 +1067,18 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
           onPointerDown={markUserViewport}
           onTouchStart={markUserViewport}
         >
+          <div className="absolute left-2 top-2 z-20 flex gap-1 rounded bg-neutral-950/90 p-1" aria-label="市场事件类型筛选">
+            {(['all', 'signal_triggered', 'signal_invalidated', 'entry', 'close'] as const).map((kind) => <button key={kind}
+              className={`rounded px-1.5 py-0.5 text-[9px] ${eventFilter === kind ? 'bg-sky-700 text-white' : 'text-neutral-300'}`}
+              onClick={() => setEventFilter(kind)}>{kind === 'all' ? '全部' : kind === 'signal_triggered' ? '触发' : kind === 'signal_invalidated' ? '失效' : kind === 'entry' ? '入场' : '平仓'}</button>)}
+          </div>
+          {eventDetail && <div className="absolute right-2 top-2 z-30 max-w-72 rounded border border-neutral-600 bg-neutral-950/95 p-2 text-[10px] text-white shadow" role="status">
+            <button className="float-right ml-2 text-neutral-400" onClick={() => setEventDetail(null)} aria-label="关闭事件详情">×</button>
+            <b>{eventDetail.eventType}</b> · {new Date(eventDetail.eventTime).toISOString()}<br />
+            价格：{eventDetail.price == null ? '不可用（源记录未提供）' : eventDetail.price} · 模式：{eventDetail.runMode}<br />
+            账户：{eventDetail.accountId || '—'} · 信号/交易：{eventDetail.signalId ?? eventDetail.tradeId}
+            {eventDetail.reason && <div>原因：{eventDetail.reason}</div>}
+          </div>}
           <CandleVolumeChart
             key={viewKey}
             bars={renderBars}
@@ -1025,16 +1088,23 @@ const InlineExpandedChartInner: React.FC<InlineExpandedChartProps> = ({
             viewKey={viewKey}
             initialViewport={initialViewport}
             onViewportChange={handleViewportChange}
+            onTimeClick={handleMarketChartClick}
             onHover={handleHover}
             onReady={handleCandleReady}
             syncHub={syncHub}
+            extraMarkers={marketEventMarkers}
           />
         </div>
 
-        {/* Annotations Note */}
-        <div className="px-1 text-[10px] text-neutral-500 font-mono">
-          <span>区间边界 / 突破 / 独立回踩 / 止损目标标注</span>
+        <div className="flex max-h-16 gap-1 overflow-x-auto px-1 py-1" aria-label="市场事件时间线">
+          {marketEventRows.map((event) => <button key={event.eventId} className="shrink-0 rounded border border-neutral-700 px-1.5 py-0.5 text-[9px] text-neutral-200 hover:bg-neutral-800"
+            onClick={() => { setEventDetail(event); candleHandleRef.current?.setViewport(event.eventTime - TIMEFRAME_MS[selectedTf] * 25, event.eventTime + TIMEFRAME_MS[selectedTf] * 25); }}>
+            {event.eventType} · {new Date(event.eventTime).toISOString().slice(0, 16)}
+          </button>)}
+          {marketEventRows.length === 0 && <span className="text-[9px] text-neutral-500">当前时间范围没有可用交易事件</span>}
         </div>
+        <div className="px-1 text-[9px] text-amber-300">信号失效事件暂不可用：信号生命周期源未提供独立失效时间与原因。已平仓记录来自 paper_realized 只读账本，未成交委托不显示。</div>
+
       </div>
 
       {/* OI Section: total open interest（副图高度 116px） */}

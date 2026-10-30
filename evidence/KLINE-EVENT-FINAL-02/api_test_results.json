@@ -1,0 +1,74 @@
+{
+  "backtest_chart": {
+    "status": "PASS",
+    "http_status": 200,
+    "run_id": "bt_20261018T190047Z_30bf4bb0",
+    "real_candles": 17376,
+    "event_count": 51,
+    "counts": {
+      "box": 30,
+      "signal_invalidated": 15,
+      "sweep_low": 4,
+      "retest": 2
+    },
+    "missing": {
+      "sweep_high": "当前 long-only 状态机没有真实来源",
+      "signal_triggered": "所选 run 无候选",
+      "breakout": "所选 run 无突破记录",
+      "entry": "所选 run 0 成交",
+      "close": "所选 run 0 成交"
+    }
+  },
+  "paper_trades": {
+    "status": "PARTIAL",
+    "sample_http_status": 200,
+    "mode": "paper_read_only",
+    "accounts_returned": 4,
+    "rows_sampled": 4,
+    "valid_nonvoid_rows": 1,
+    "voided_excluded": 3,
+    "account_row_counts": {
+      "3a": 4,
+      "3b": 0,
+      "3c": 0,
+      "3d": 0
+    },
+    "fields_present": [
+      "account_id",
+      "position_id",
+      "symbol",
+      "entry_ts",
+      "entry_price",
+      "exit_ts",
+      "exit_price",
+      "exit_reason",
+      "voided"
+    ],
+    "caveat": "另一次查询返回 503，提示四个账本无法打开；读取不稳定。可读响应中的实际账本行可支持只读事件映射，但前端未能进入市场图表。"
+  },
+  "market_endpoints": {
+    "status": "BLOCKED",
+    "results": [
+      {
+        "path": "/api/v1/markets",
+        "http_status": 500,
+        "detail": "Remote end closed connection without response"
+      },
+      {
+        "path": "/api/v1/signals",
+        "http_status": 500,
+        "detail": "Remote end closed connection without response"
+      },
+      {
+        "path": "/api/v1/paper/accounts",
+        "http_status": 500,
+        "detail": "Remote end closed connection without response"
+      }
+    ]
+  },
+  "signal_lifecycle": {
+    "status": "UNAVAILABLE",
+    "detail": "当前市场信号源不可达，且生命周期没有独立可靠失效时间与原因；不生成失效事件。"
+  },
+  "method": "直接 GET；后端 `paper/trades` 查询只读 paper_realized 并过滤 symbol/时间范围；未修改任何数据库文件。"
+}

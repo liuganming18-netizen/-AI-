@@ -1,0 +1,133 @@
+{
+  "contract_version": "kline-event-readonly-v1",
+  "fields": {
+    "event_id": {
+      "type": "string",
+      "required": true,
+      "meaning": "来自持久化源的稳定记录ID与事件类型组合；不得凭空生成交易身份"
+    },
+    "event_type": {
+      "type": "enum",
+      "values": [
+        "box",
+        "sweep_low",
+        "sweep_high",
+        "retest",
+        "breakout",
+        "signal_triggered",
+        "signal_invalidated",
+        "entry",
+        "close"
+      ]
+    },
+    "symbol": {
+      "type": "string",
+      "required": true
+    },
+    "timeframe": {
+      "type": "string",
+      "required": false
+    },
+    "event_time": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds",
+      "meaning": "事件实际发生时间；不可用创建/写入时间替代"
+    },
+    "available_at": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds",
+      "meaning": "系统首次能知道该事件的时间，PIT 可见性边界"
+    },
+    "recorded_at": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds",
+      "meaning": "持久化时间；仅审计，不能代替 event_time"
+    },
+    "price": {
+      "type": "number|null"
+    },
+    "price_upper": {
+      "type": "number|null"
+    },
+    "price_lower": {
+      "type": "number|null"
+    },
+    "formation_time": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds"
+    },
+    "confirmed_at": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds"
+    },
+    "effective_start_time": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds"
+    },
+    "range_start_time": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds"
+    },
+    "range_end_time": {
+      "type": "integer|null",
+      "unit": "UTC milliseconds"
+    },
+    "signal_id": {
+      "type": "string|null"
+    },
+    "trade_id": {
+      "type": "string|null"
+    },
+    "backtest_job_id": {
+      "type": "string|null"
+    },
+    "status": {
+      "type": "string|null"
+    },
+    "reason": {
+      "type": "string|null"
+    },
+    "source": {
+      "type": "string"
+    },
+    "source_record_id": {
+      "type": "string|null"
+    },
+    "account_id": {
+      "type": "string|null"
+    },
+    "run_mode": {
+      "type": "enum|null",
+      "values": [
+        "paper",
+        "signal",
+        "backtest"
+      ]
+    }
+  },
+  "time_rules": [
+    "event_time=实际发生时间",
+    "available_at=系统可知时间，绘图不能早于该时间",
+    "recorded_at=写入审计时间，不可伪装成事件时间",
+    "必需时间或价格缺失时返回不可用/null，不得以市价/建库时间填充"
+  ],
+  "display_allowlists": {
+    "backtest": [
+      "box",
+      "sweep_low",
+      "sweep_high",
+      "retest",
+      "breakout",
+      "signal_triggered",
+      "signal_invalidated",
+      "entry",
+      "close"
+    ],
+    "market": [
+      "signal_triggered",
+      "signal_invalidated",
+      "entry",
+      "close"
+    ]
+  }
+}

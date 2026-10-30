@@ -1,0 +1,50 @@
+{
+  "typescript": {
+    "status": "PASS",
+    "command": "npx tsc --noEmit",
+    "exit_code": 0
+  },
+  "production_build": {
+    "status": "PASS_WITH_WARNINGS",
+    "command": "npm run build",
+    "exit_code": 0,
+    "warnings": [
+      "Vite configLoader native reports existing __dirname use",
+      "main JS chunk 952.51 kB exceeds 500 kB advisory"
+    ]
+  },
+  "python": {
+    "status": "PASS_TARGETED_ONLY",
+    "command": "PYTHONPATH=backend python3 -m unittest tests.test_kline_event_fullchain -v",
+    "passed": 4,
+    "failed": 0,
+    "full_suite": "NOT_RUN"
+  },
+  "py_compile": {
+    "status": "PASS",
+    "files": [
+      "backend/adapter.py",
+      "backend/live_api.py",
+      "backend/backtest_api.py",
+      "backend/backtest_chart.py"
+    ]
+  },
+  "browser": {
+    "backtest_box_overlay": "PASS_REAL_API_AND_REAL_CANDLES",
+    "chart_event_click_detail": "PASS",
+    "timeline_click_and_viewport_link": "PASS",
+    "wheel_zoom": "PASS",
+    "timeframe_switch": "PASS_1H_TO_4H_AND_BACK",
+    "continuous_drag_30s": "PASS_NO_VISIBLE_LAYOUT_OR_CHART_JITTER",
+    "market_event_whitelist_and_filters": "NOT_VERIFIED_MARKET_PAGE_HAS_NO_TOKENS_DUE_API_500",
+    "market_symbol_switch": "NOT_RUN_DATA_UNAVAILABLE",
+    "viewport_resize": "NOT_RUN",
+    "empty_missing_duplicate_event_page_cases": "NOT_RUN",
+    "refresh_consistency": "BACKTEST_RELOAD_RECOVERED_51_REAL_EVENTS; MARKET_NOT_VERIFIED"
+  },
+  "screenshots": [
+    "interaction_evidence/backtest_event_detail.png",
+    "interaction_evidence/backtest_box_timeline.png",
+    "interaction_evidence/market_workbench_blocked.png"
+  ]
+}
