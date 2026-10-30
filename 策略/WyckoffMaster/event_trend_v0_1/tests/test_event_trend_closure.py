@@ -20,6 +20,7 @@ import json
 import math
 import os
 import sys
+from decimal import Decimal
 import numpy as np
 import pandas as pd
 import pytest
@@ -352,10 +353,22 @@ def test_adversarial_candidate_unique_binding_and_field_mapping():
     # ⇒ 该断言在本次修复前就已是**假失败**。改为按配置推导，既保留数值严格性，又不会随配置漂移。
     assert val_1.executed is True
     assert val_1.executed_qty > 0.0
+    # 2026-10-30（MAINLINE-FINAL-CLOSE-01）：期望手数改为按 **FT-LOW4H 冻结规则**推导。
+    #
+    # 原公式用 `cand.initial_stop_price`（100.1，即 Lr-0.1A 的旧规则止损）当止损，
+    # 再加双边手续费当作单笔风险 —— 那是 WX_EVENT_TREND 时代的算法。
+    # 冻结规则 FT-LOW4H 已改为「初始止损 = 实际入场价 ×(1−stoploss_s)，stoploss_s=0.05」，
+    # 且手数 = 单笔风险预算 / 实际止损距离（止损距离不含手续费，手续费是成本不是风险）。
+    # 参见 `engine_adapter.EventTrendExecutionPolicy.decide_entry` 的 FT-LOW4H 分支。
     _cfg = EventTrendConfig()
-    _stop_fill = 100.1 * (1.0 - 3.0e-4)
-    _unit_risk = abs(111.24 - _stop_fill) + (111.24 + _stop_fill) * 5.0e-4
-    _expect_qty = _cfg.initial_equity * _cfg.risk_budget_per_trade / _unit_risk
+    assert _cfg.rule == "FT-LOW4H" and _cfg.stoploss_s == 0.05
+    _entry_fill = 111.24                       # 入场 bar open 111.2 + 3bps 滑点，向上取整到 0.01
+    _tick = Decimal(SOL_TICK)
+    _stop_px = ((Decimal(str(_entry_fill)) * (Decimal(1) - Decimal(str(_cfg.stoploss_s))))
+                / _tick).to_integral_value(rounding="ROUND_FLOOR") * _tick
+    assert _stop_px == Decimal("105.67")       # 111.24×0.95=105.678 ⇒ 向下取整到 105.67
+    _stop_dist = Decimal(str(_entry_fill)) - _stop_px
+    _expect_qty = _cfg.initial_equity * _cfg.risk_budget_per_trade / float(_stop_dist)
     assert abs(val_1.executed_qty - _expect_qty) < 1e-9
     assert abs(val_1.net_pnl - res["summary"]["net_pnl"]) < 1e-12
     assert val_1.net_pnl > 0.0
@@ -600,7 +613,17 @@ def test_trailing_2r_uses_actual_fill_not_breakout_close():
 
 
 def test_max_holding_10_days_expiry_exit():
-    """【测试项 7】最长持仓 10 个自然日：到期按下一根 15m 开盘退出。"""
+    """【测试项 7】最长持仓到期退出的**机制**，以及冻结默认下**不发生**到期退出。
+
+    2026-10-30（MAINLINE-FINAL-CLOSE-01）：原用例只断言「到期必退」，与冻结规则冲突。
+    冻结规则 FT-LOW4H 已由用户明确取消 10 天自动平仓（`config.py`：
+    `max_holding_days: Optional[int] = None  # 用户决定：取消 10 天自动平仓`）
+    ⇒ 原断言在冻结配置下不可能成立（实测退出原因是 `force_close_eod`）。
+    现在拆成两段，既把「冻结默认不得到期平仓」钉住，也保留到期退出机制的覆盖：
+      ① 冻结默认 `max_holding_days=None` ⇒ 不发生到期退出，末段强平；
+      ② 显式覆盖 `max_holding_days=10` ⇒ 机制仍生效，按下一根 15m 开盘退出。
+    两段都不改冻结参数默认值，只在本用例内显式传配置。
+    """
     t0 = 1788652800000
     t_1h_open = t0 + 24 * HOUR_MS
     t_1h_close = t_1h_open + HOUR_MS
@@ -613,11 +636,22 @@ def test_max_holding_10_days_expiry_exit():
         "timestamp": t_1h_open,
         "open": 105.0, "high": 111.5, "low": 104.8, "close": 111.0, "volume": 2500.0
     }])
-    # 横盘 11 天，价格始终远离止损（100.1），因此只会因到期退出
+    # 横盘 11 天，价格始终远离止损（FT-LOW4H 下止损 = 入场价×0.95），因此不会因止损退出
     df_15m_sim = _bars_15m(t_exec - MIN15_MS, 11 * 96 + 2, open_px=111.2)
 
-    res = _run("SOLUSDT", df_1h_sim, df_15m_sim, [cand], [], variant="A")
-    val = res["validation_results"][0]
+    # ① 冻结默认：不得到期平仓
+    assert EventTrendConfig().max_holding_days is None
+    res_default = _run("SOLUSDT", df_1h_sim, df_15m_sim, [cand], [], variant="A")
+    val_default = res_default["validation_results"][0]
+    assert val_default.executed is True
+    assert val_default.exit_reason != "max_holding_expired"
+    assert val_default.exit_reason == "force_close_eod"
+    assert val_default.holding_duration_hours > 240.0
+
+    # ② 显式覆盖 10 天：机制仍生效（不依赖也不修改冻结默认值）
+    res_override = _run("SOLUSDT", df_1h_sim, df_15m_sim, [cand], [], variant="A",
+                        config=EventTrendConfig(max_holding_days=10))
+    val = res_override["validation_results"][0]
     assert val.executed is True
     assert val.exit_reason == "max_holding_expired"
     assert val.exit_time_ms == t_exec + 10 * DAY_MS

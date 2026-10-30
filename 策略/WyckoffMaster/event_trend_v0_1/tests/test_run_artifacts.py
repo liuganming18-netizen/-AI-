@@ -185,7 +185,12 @@ def test_fingerprints_cover_rules_code_config_inputs():
 
     cfg_fp = runner.config_fingerprint(cfg)
     assert cfg_fp["sha256"] == runner.config_fingerprint(EventTrendConfig())["sha256"]
-    assert cfg_fp["params"]["max_holding_days"] == 10
+    # 2026-10-30（MAINLINE-FINAL-CLOSE-01）：`max_holding_days` 的期望值从 10 改为 None。
+    # 原因不是「让测试过」，而是冻结规则本身改了：FT-LOW4H 由用户明确取消 10 天自动平仓
+    # （`config.py` 注释「用户决定：取消 10 天自动平仓」）。本用例要验的是「指纹覆盖
+    # 配置参数且可复算」，把值钉成 10 会让指纹测试与冻结规则互相矛盾。
+    # 反过来，若这里仍写 10，就等于要求把 `max_holding_days` 改回 10 —— 那是改冻结参数。
+    assert cfg_fp["params"]["max_holding_days"] is None
     assert cfg_fp["params"]["max_participation_of_prev_15m_quote"] == 0.001
 
     oi_ts = np.array([1, 2, 3], dtype=np.int64)

@@ -333,9 +333,26 @@ def test_zero_or_negative_step_is_rejected():
 
 
 def test_exit_failure_keeps_position_open_and_marks_run_invalid():
-    """出场取整后为 0 ⇒ **不得**把仓位当作已平仓；运行标记为无效/未完成。"""
-    # 价格 0.004 + 步长 0.01：入场（买，向上）能成 0.01，出场（卖，向下）必成 0.00
-    cand, df_1h, df_15m = _entry_scenario(0.004, 0.003)
+    """出场取整后为 0 ⇒ **不得**把仓位当作已平仓；运行标记为无效/未完成。
+
+    2026-10-30（MAINLINE-FINAL-CLOSE-01）：场景价格由 0.004 改为 0.019，并在入场后跳空到 0.004。
+
+    原用例用 `_entry_scenario(0.004, 0.003)`，注释写「入场（买，向上）能成 0.01，出场
+    （卖，向下）必成 0.00」。这个前提在冻结规则 FT-LOW4H 下**不再成立**：
+    止损不再是候选里的 `initial_stop_price`，而是 `实际入场价 ×(1−0.05)`。
+    入场价 0.004 在 0.01 的 tick 网格上向上取整为 0.01 ⇒ 止损 0.0095 向下取整成 0.00
+    ⇒ 止损距离退化为 0 ⇒ 入场直接以 `invalid_signal_stop` 被拒，**根本没有持仓**；
+    因此 `open_positions_remaining` 为空是正确结果，不是「把仓位当成已平仓」。
+
+    本用例要验的「出场成交被拒 ⇒ 持仓保留 + 运行判无效」仍然有效，只是需要可达场景：
+    入场价 0.019（取整后 0.02，止损 0.019 取整成 0.01，止损距离 0.01 可表达），
+    随后 bar 跳空到 0.004（卖方向取整成 0.00）⇒ 出场三条路径全部被拒。
+    """
+    cand, df_1h, df_15m = _entry_scenario(0.019, 0.01805)
+    # 入场后第 4 根 bar 起跳空到 0.004：低于 0.01 止损，且卖方向取整后为 0.00
+    for k in range(5, len(df_15m)):
+        df_15m.loc[k, ["open", "high", "low", "close"]] = (0.004, 0.004, 0.004, 0.004)
+
     res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
                                    variant="A", price_step="0.01")
     eng = res["engine_result"]
