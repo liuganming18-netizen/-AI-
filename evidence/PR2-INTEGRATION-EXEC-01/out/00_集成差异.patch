@@ -1,0 +1,1796 @@
+diff --git "a/UI\347\225\214\351\235\242/web/src/api/adapters.ts" "b/UI\347\225\214\351\235\242/web/src/api/adapters.ts"
+index 679bacfb..35e99363 100644
+--- "a/UI\347\225\214\351\235\242/web/src/api/adapters.ts"
++++ "b/UI\347\225\214\351\235\242/web/src/api/adapters.ts"
+@@ -749,7 +749,11 @@ export function adaptSignal(row: RawSignal, symbolByMarketId: Map<string, string
+     direction,
+     timeframe: isTimeframe(row.timeframe) ? row.timeframe : null,
+     // UI05 修复：用**确认时刻**（confirmed_at/event_time）而非 created_at 冒充触发时间。
+-    triggerTime: row.confirmed_at ?? row.event_time ?? row.created_at,
++    // PR2-WO-01 修复 A：`created_at` 是**记录入库时刻**，与信号何时触发没有任何关系。
++    // 旧实现把它当最后一档兜底 ⇒ 缺确认时刻的行会显示一个「看起来很像触发时间」的入库时间，
++    // 读的人会据此判断「信号是刚发生的」。两个真实时刻都缺失时一律给 null，
++    // 由界面显示未知（`fmtSignalTime(null)` ⇒ '—'），**不编造时间**。
++    triggerTime: row.confirmed_at ?? row.event_time ?? null,
+     status: SIGNAL_STATUS_MAP[row.status ?? ''] ?? null,
+     triggerPrice: (row as any).trigger_price ?? (row as any).breakout_price ?? (row as any).price ?? row.detection_low ?? null,
+     currentPrice: (row as any).price ?? null,
+diff --git "a/UI\347\225\214\351\235\242/web/src/components/ObservePanel.tsx" "b/UI\347\225\214\351\235\242/web/src/components/ObservePanel.tsx"
+index 013aa788..98f96dfb 100644
+--- "a/UI\347\225\214\351\235\242/web/src/components/ObservePanel.tsx"
++++ "b/UI\347\225\214\351\235\242/web/src/components/ObservePanel.tsx"
+@@ -69,23 +69,58 @@ const fmtPrice = (v: number | null): string => {
+ };
+ 
+ /**
+- * 同值即别名。
++ * 多空比**显式别名映射**（PR2-WO-01 修复 B）。
+  *
+- * 实测（ACCUM-EARLY-02 §1）：`retail_account_ls_ratio` 与 `count_long_short_ratio`
+- * 逐位相同、`top_position_ls_ratio` 与 `sum_toptrader_long_short_ratio` 逐位相同
+- * ⇒ 库里 5 列多空比只有 3 类独立信息。紧凑行只列独立值，避免「5 个数看着很丰富」的错觉；
+- * 展开详情里仍逐列给全，并标出哪一列是别名。
++ * 旧实现是「同值即别名」：两列读数只要满足 `|a-b| < 1e-9` 就判为同一个指标。
++ * 后果有两层：
++ *   1. 紧凑行把**语义不同**的两列合并成一行 ⇒ 让人以为库里少了一类独立信息；
++ *   2. 展开详情把其中一列标成「与 X 同值＝别名」⇒ 直接给出**错误结论**。
++ * 数值恰好相等只说明这一刻读数撞上了，不说明两列是同一个指标。
++ *
++ * 但也不能「成对就无条件合并」：后端 `metrics_api.py` 专门统计
++ * `retail_account_ls_ratio <> count_long_short_ratio` 与
++ * `top_position_ls_ratio <> sum_toptrader_long_short_ratio` 的行数，
++ * 说明这两对**可能真的分叉**。若无条件合并，分叉时会把真实差异藏起来。
++ *
++ * 故判据 = **已声明成对**（下表）**且本次读数相等**，缺一不可；
++ * 不在表里的列自成一组，永不与任何列合并 —— 即使数值一模一样。
+  */
+-const dedupeByValue = (rs: ObserveEvidenceValue[]): ObserveEvidenceValue[] => {
++export const RATIO_ALIAS_GROUPS: ReadonlyArray<readonly string[]> = [
++  // 零售账户多空比 ←→ 账户数多空比（同一指标的两个列名）
++  ['retail_account_ls_ratio', 'count_long_short_ratio'],
++  // 大户持仓多空比 ←→ 大户持仓量多空比
++  ['top_position_ls_ratio', 'sum_toptrader_long_short_ratio'],
++];
++
++/** 列名 → 别名组代表键（组内第一个）。未声明的列返回自身。 */
++const RATIO_CANONICAL: ReadonlyMap<string, string> = new Map(
++  RATIO_ALIAS_GROUPS.flatMap((g) => g.map((k) => [k, g[0]] as const)),
++);
++
++export const canonicalRatioKey = (key: string): string => RATIO_CANONICAL.get(key) ?? key;
++
++/** 两列是否**被声明**为同一指标的不同列名（不看数值）。 */
++export const isDeclaredRatioAlias = (aKey: string, bKey: string): boolean =>
++  aKey !== bKey && canonicalRatioKey(aKey) === canonicalRatioKey(bKey);
++
++/** 两个读数是否可判定为同值；「未知」不等于「相同」。 */
++const sameReading = (a: number | null, b: number | null): boolean =>
++  a !== null && b !== null && Math.abs(a - b) < 1e-9;
++
++/** 两列是否构成别名：**已声明成对 + 本次读数相等**。任一不满足即视为两列独立信息。 */
++export const isRatioAliasOf = (a: ObserveEvidenceValue, b: ObserveEvidenceValue): boolean =>
++  isDeclaredRatioAlias(a.key, b.key) && sameReading(a.value, b.value);
++
++/**
++ * 紧凑行只列独立值。
++ *
++ * 只折叠「已声明成对且本次同值」的列；其余全部保留 —— 包括值为 null 的列，
++ * 因为「这一列没读到」不等于「它与另一列相同」。
++ */
++export const dedupeRatios = (rs: ObserveEvidenceValue[]): ObserveEvidenceValue[] => {
+   const out: ObserveEvidenceValue[] = [];
+   for (const r of rs) {
+-    const v = r.value;
+-    if (v === null) {
+-      out.push(r);
+-      continue;
+-    }
+-    const dup = out.some((o) => o.value !== null && Math.abs(o.value - v) < 1e-9);
+-    if (!dup) out.push(r);
++    if (!out.some((o) => isRatioAliasOf(o, r))) out.push(r);
+   }
+   return out;
+ };
+@@ -100,7 +135,7 @@ const EvidenceStrip: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
+       </div>
+     );
+   }
+-  const indep = dedupeByValue(ev.ratios);
++  const indep = dedupeRatios(ev.ratios);
+   const price = ev.phasePrice?.value ?? null;
+   return (
+     <div
+@@ -125,9 +160,8 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
+   return (
+     <div data-testid="observe-evidence-detail" className="space-y-0.5 pt-1 border-t border-neutral-800/60">
+       {rows.map((r, i) => {
+-        const aliasOf = rows.findIndex(
+-          (o) => o !== r && o.value !== null && r.value !== null && Math.abs(o.value - r.value) < 1e-9,
+-        );
++        // 只有「已声明成对且本次同值」才标别名；不再仅凭数值相等下结论。
++        const aliasOf = rows.findIndex((o) => isRatioAliasOf(o, r));
+         return (
+           <div key={`${r.key}-${i}`} className="text-[9px] leading-snug">
+             <span className="text-neutral-400 font-mono">{r.key}</span>{' '}
+@@ -135,7 +169,7 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
+             <span className="text-neutral-600">
+               {r.atUtc ? `@${r.atUtc.slice(5, 16).replace('T', ' ')}` : '时刻未知'}
+               {r.fromLatestRow === false ? '（回退值，非最新行）' : ''}
+-              {aliasOf >= 0 ? `（与 ${rows[aliasOf].key} 同值＝别名）` : ''}
++              {aliasOf >= 0 ? `（与 ${rows[aliasOf].key} 同源且同值＝别名）` : ''}
+             </span>
+             {r.missing ? <span className="text-amber-300/80"> 缺失：{r.missing}</span> : null}
+           </div>
+@@ -184,13 +218,103 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
+   );
+ };
+ 
++/* ---------- 观察区价格口径（PR2-WO-01 修复 C）---------- */
++
++/**
++ * 价格来源三态。**只降不升**：确认不到就退回 unknown，绝不默认成实时。
++ */
++export type ObservePriceSource = 'realtime' | 'candle_close' | 'unknown';
++
++export interface ObservePriceDisplay {
++  value: number | null;
++  source: ObservePriceSource;
++  /** 展示用标签：最新价 / K线收盘价 / 来源未确认 / 价格未知 */
++  label: string;
++  /** 该价格对应的时刻（UTC）：实时价=报价时刻；K线=该 bar 收盘时刻；未确认=null */
++  asOfUtc: string | null;
++}
++
++const asNum = (v: unknown): number | null =>
++  typeof v === 'number' && Number.isFinite(v) ? v : null;
++
++const asStr = (v: unknown): string | null => (typeof v === 'string' && v ? v : null);
++
++/**
++ * 解析观察区「价格」的取值与口径。
++ *
++ * 为什么必须区分（修复 C）：
++ *   后端 `unified_runtime.py` 构造观察区载荷时，`last_price` 取的是
++ *   最近一根**已处理 1h bar 的 close**（`"last_price": None if last is None else last["close"]`），
++ *   `last_bar_utc` 是**同一根** bar 的收盘时刻 —— 两者同源，**都不是实时成交价**。
++ *   旧前端一律标「现价」，实时价缺失时还会拿 `last_bar.close` 顶上仍叫「现价」，
++ *   读的人会以为那是当下成交价，据此判断「离突破还差多少」就会算错。
++ *
++ * 判据按「能确认到什么程度」分三档，**只降不升**：
++ *   1. 载荷**显式**声明实时报价（`price_source` 为 realtime/live，或 `realtime.last_price`）
++ *      ⇒ 最新价，时刻取报价时刻；
++ *   2. 只有 bar 收盘价（`last_bar.close` 按字段名即 K 线收盘；
++ *      或后端同源的 `last_price` 且带 `last_bar_utc` 佐证）⇒ K线收盘价，时刻取 bar 收盘时刻；
++ *   3. 有数值但**确认不到来源**（既无实时声明，也无 bar 时刻佐证）
++ *      ⇒ 标「来源未确认」，数值照显（不隐瞒），但**不得**标成实时价；
++ *   都没有 ⇒ 「价格未知」。
++ *
++ * 兼容性：只读既有字段，不要求后端新增任何字段；`realtime` / `price_source`
++ * 目前载荷里没有，属**前瞻分支**（出现时才生效），缺失不报错、不改变现有显示。
++ */
++export function resolveObservePrice(item: ObserveItem): ObservePriceDisplay {
++  const raw = item as unknown as Record<string, any>;
++
++  // ① 显式实时来源
++  const declaredSource = asStr(raw.price_source) ?? asStr(raw.priceSource);
++  const realtimeObj = raw.realtime && typeof raw.realtime === 'object' ? raw.realtime : null;
++  const realtimeValue = asNum(realtimeObj?.last_price);
++  const isDeclaredRealtime = declaredSource === 'realtime' || declaredSource === 'live';
++  const realtimePrice = isDeclaredRealtime ? asNum(raw.last_price) ?? realtimeValue : realtimeValue;
++  if (realtimePrice !== null) {
++    return {
++      value: realtimePrice,
++      source: 'realtime',
++      label: '最新价',
++      asOfUtc: asStr(realtimeObj?.at_utc) ?? asStr(raw.price_at_utc),
++    };
++  }
++
++  // ② K 线收盘价
++  const bar = raw.last_bar && typeof raw.last_bar === 'object' ? raw.last_bar : null;
++  const barClose = asNum(bar?.close);
++  const barCloseUtc = asStr(bar?.close_utc) ?? asStr(bar?.closeTime) ?? asStr(raw.last_bar_utc);
++  if (barClose !== null) {
++    return { value: barClose, source: 'candle_close', label: 'K线收盘价', asOfUtc: barCloseUtc };
++  }
++
++  const lastPrice = asNum(raw.last_price);
++  if (lastPrice !== null) {
++    const lastBarUtc = asStr(raw.last_bar_utc);
++    // 后端 `last_price` 与 `last_bar_utc` 出自同一根 bar ⇒ 有时刻佐证才算「确认是收盘价」
++    if (lastBarUtc !== null) {
++      return {
++        value: lastPrice,
++        source: 'candle_close',
++        label: 'K线收盘价',
++        asOfUtc: lastBarUtc,
++      };
++    }
++    return { value: lastPrice, source: 'unknown', label: '来源未确认', asOfUtc: null };
++  }
++
++  // ③ 没有价格
++  return { value: null, source: 'unknown', label: '价格未知', asOfUtc: null };
++}
++
+ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
+   const [open, setOpen] = useState(false);
+   const expired = item.expired === true;
+   const stageCls = STATE_STYLE[item.state] ?? 'border-neutral-700 bg-neutral-800 text-neutral-300';
+ 
+-  // 提取现价与突破目标价、距离百分比
+-  const lastPrice = (item as any).last_price ?? (item as any).last_bar?.close ?? null;
++  // 价格：取值与口径由 resolveObservePrice 一并给出，**来源与数值不再分开猜**
++  // （修复前：`last_price ?? last_bar.close` 一律标「现价」，见该函数注释）。
++  const price = resolveObservePrice(item);
++  const lastPrice = price.value;
+   const targetPrice = (item as any).breakout_target ?? item.box?.h ?? null;
+   const rawGap = (item as any).gap_pct ?? (
+     (lastPrice && targetPrice && lastPrice > 0)
+@@ -246,11 +370,28 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
+         </div>
+       </div>
+ 
+-      {/* 第 2 行：核心量化看盘数据（现价 vs 突破位 vs 距离） */}
++      {/* 第 2 行：核心量化看盘数据（价格 vs 突破位 vs 距离）
++          价格标签按**实际来源**给（最新价 / K线收盘价 / 来源未确认 / 价格未知），
++          不再一律写「现价」—— 那是本工单要修的误导性展示。 */}
+       <div className="grid grid-cols-3 gap-1 py-1 px-1.5 rounded bg-neutral-950/80 border border-neutral-850 font-mono text-[10px]">
+         <div>
+-          <span className="text-[9px] text-neutral-500 font-sans block">现价</span>
+-          <span className="text-neutral-200 font-medium">{fmtPrice(lastPrice)}</span>
++          <span
++            className="text-[9px] text-neutral-500 font-sans block"
++            data-testid="observe-price-label"
++            data-price-source={price.source}
++            title={
++              price.asOfUtc
++                ? `${price.label} · 对应时刻 ${fmtUtc(price.asOfUtc)}`
++                : price.source === 'unknown'
++                  ? '无法确认该数值的来源，不按实时价展示'
++                  : price.label
++            }
++          >
++            {price.label}
++          </span>
++          <span className="text-neutral-200 font-medium" data-testid="observe-price-value">
++            {fmtPrice(lastPrice)}
++          </span>
+         </div>
+         <div>
+           <span className="text-[9px] text-neutral-500 font-sans block">
+diff --git "a/\346\241\206\346\236\266/backend/live_api.py" "b/\346\241\206\346\236\266/backend/live_api.py"
+index 9d5165a9..9a6a6ac9 100644
+--- "a/\346\241\206\346\236\266/backend/live_api.py"
++++ "b/\346\241\206\346\236\266/backend/live_api.py"
+@@ -224,6 +224,106 @@ ARM_ENTRY_ROLE = "enterable_arm_entry"
+ TERMINAL_REJECT_REASONS = ("missed_fill_moment_no_backfill", "before_paper_epoch_no_backfill")
+ 
+ 
++# ═══════════════════════════════════════════════════════════════════════════
++# 可执行范围判据（PR2-WO-02 fail-closed）—— **读写两侧唯一来源**
++# ═══════════════════════════════════════════════════════════════════════════
++# 为什么集中在这里：改动前「当前区能不能看到」由本文件硬编码的字符串决定，
++# 「路由能不能扫到」由 `unified_runtime._scan_actionable` 另一套字符串决定。
++# 两套判据一旦分叉，就会出现「页面看不到、账本却在开仓」或反过来。
++# 现在：判据只在本文件定义一次，路由侧（`unified_runtime`）**引用同一批常量与
++# 同一个 SQL 片段构造器**，任何一侧的改动都必须同时改变另一侧。
++#
++# 依赖方向说明：`live_api` 是轻量只读模块（只依赖 stdlib + live_store/paper_engine），
++# 由 `unified_runtime` 引用；反向不成立，因此不会形成循环导入。
++
++# 当前可交易信号的来源白名单。`recovered` = 进程重启后仍在成交时效内的真实候选。
++ACTIONABLE_ORIGINS = ("live", "recovered")
++# **永不可执行**的来源：历史研究导入与回放。它们可以在库里、可以被审计读取，
++# 但不得冒充实时信号进入可执行范围（工单 C）。
++NON_ACTIONABLE_ORIGINS = ("historical_research", "replay")
++# 合成测试信号 UID 前缀：无论 origin 写什么、无论从哪条路径扫描，一律不可执行。
++TEST_SIGNAL_UID_PREFIXES = ("sig_closeloop_", "sig_ui_test_")
++
++EXEC_STATE_ENTERABLE = "enterable"
++EXEC_STATE_BLOCKED = "blocked"
++
++# 水位不可用时的**明确原因码**（工单 D：不得静默返回空列表冒充「本轮正常扫描」）
++LIVE_WATERMARK_UNAVAILABLE = "live_watermark_unavailable"
++
++# ── 时间链因果顺序（工单 B）─────────────────────────────────────────────────
++# `event_time <= confirmed_at <= available_at`。
++# **不含** `read_at` / `matched_at`：这两个属于「读取/撮合」阶段，未撮合的候选
++# 本来就没有 `matched_at`，把它写进准入判据会把正常候选全部误杀。
++SIGNAL_TIME_CHAIN_SQL = (
++    "event_time IS NOT NULL AND confirmed_at IS NOT NULL AND available_at IS NOT NULL",
++    "event_time <= confirmed_at",
++    "confirmed_at <= available_at",
++)
++
++# ── 水位右边界（工单 D 的 `+1ms`）────────────────────────────────────────────
++# 依据：K 线 `close_time` 存的是**闭区间右端 −1ms**（如 09:00 收盘存 `...599999`），
++# 见 `live_store.signal_bar_right_ms()` 与行情入库 `close_time = open_time + 周期 - 1`。
++# 若直接用 `confirmed_at >= floor` 比较，会把「恰好压在边界上正常闭合」的信号误判为
++# 边界前。故取**真实右边界** `max(available_at, confirmed_at) + 1` 比较，原值不改。
++# **这是既有口径，本轮只沿用、不放宽**：既没有把 +1 改成 +0，也没有额外加宽。
++FLOOR_RIGHT_EDGE_SQL = ("(CASE WHEN available_at > confirmed_at THEN available_at "
++                        "ELSE confirmed_at END) + 1 >= ?")
++
++# `approved=false` 的配置不得用于任何执行行为（已批准规则；缺字段按 1 处理，
++# 因为真实实时信号的 payload 里本来没有这个键）。
++APPROVED_SQL = "COALESCE(json_extract(payload_json,'$.approved'),1)<>0"
++
++
++def is_test_signal_uid(uid) -> bool:
++    """合成测试信号判定（`sig_closeloop_*` / `sig_ui_test_*`）。"""
++    if not uid:
++        return False
++    s = str(uid)
++    return any(s.startswith(p) for p in TEST_SIGNAL_UID_PREFIXES)
++
++
++def test_signal_uid_sql(column: str = "signal_uid") -> str:
++    return " AND ".join(f"{column} NOT LIKE '{p}%'" for p in TEST_SIGNAL_UID_PREFIXES)
++
++
++def actionable_scope_where(*, with_time_chain: bool = True) -> tuple:
++    """**读写两侧共用**的可执行范围判据（不含臂/交易所/水位等调用方私有条件）。
++
++    返回 `(where_fragments, args)`，可直接拼进 `WHERE ... AND ...`。
++    """
++    placeholders = ",".join("?" for _ in ACTIONABLE_ORIGINS)
++    where = [
++        f"executable_state='{EXEC_STATE_ENTERABLE}'",
++        APPROVED_SQL,
++        test_signal_uid_sql(),
++        f"origin IN ({placeholders})",
++        # 方向：本策略只做多（空头未启用）。方向缺失/非法的行既不展示为「当前可执行」，
++        # 也不得被路由成模拟订单 —— 读写两侧同一条判据（工单第 10 条）。
++        "direction='long'",
++    ]
++    args = list(ACTIONABLE_ORIGINS)
++    if with_time_chain:
++        where.extend(SIGNAL_TIME_CHAIN_SQL)
++    return where, args
++
++
++def resolve_live_floor_ms() -> tuple:
++    """解析有效下限（水位）。返回 `(floor_ms | None, reason | None)`。
++
++    为什么需要这个包装：`live_store.effective_floor_ms()` 在库不可读时会抛异常，
++    原实现要么直接 500、要么（若改成 `or 0`）静默变成「不限下限」。
++    这里把三种失败都收敛成**同一个明确原因码**，让调用方能如实告诉用户
++    「水位不可用」，而不是拿一个空列表冒充「本轮扫过、没有信号」。
++    """
++    try:
++        floor = int(L.effective_floor_ms())
++    except Exception:                                     # noqa: BLE001
++        return None, LIVE_WATERMARK_UNAVAILABLE
++    if floor <= 0:
++        return None, LIVE_WATERMARK_UNAVAILABLE
++    return floor, None
++
++
+ def _scope_of(params) -> str:
+     s = (params.get("scope") or [CURRENT_SCOPE])[0]
+     return (s or CURRENT_SCOPE).strip().lower()
+@@ -315,39 +415,33 @@ def live_signals(params) -> dict:
+         # `max(confirmed_at, available_at) + 1` 比较（**不改原值**）。
+         start_ms = L.get_live_start_ms()
+         epoch_ms = L.get_paper_epoch_ms()
+-        floor_ms = L.effective_floor_ms()
+-        if not floor_ms:
+-            # 下限缺失 ⇒ 无法判定「当前」；**不**用当前时间兜底重置水位，如实空态。
++        # 水位不可用 ⇒ 明确原因码 + 如实空态（PR2-WO-02 工单 D）。
++        # 不再靠 `if not floor_ms` 隐式判断：`effective_floor_ms()` 抛异常时
++        # 原来会直接 500，改成 `or 0` 又会静默变成「不限下限」。
++        floor_ms, floor_reason = resolve_live_floor_ms()
++        if floor_ms is None:
+             return envelope(items=[], has_more=False, total=0, limit=limit,
+                             **ident, ledger_source=ledger,
+-                            missing_reason="有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定",
++                            missing_reason=(f"{floor_reason}：有效下限(paper epoch / live_start)"
++                                            "不可用 ⇒ 当前有效信号无法判定"),
+                             quality={"status": "no_watermark", "age_seconds": None,
+                                      "scope": CURRENT_SCOPE, "live_start_ms": start_ms,
+                                      "paper_epoch_ms": None, "effective_floor_ms": None,
++                                     "reason": floor_reason,
+                                      "note": "下限缺失时如实空态：不用当前时间重置水位、不放行旧信号"})
+-        # ── 当前区的来源白名单（SIGNAL-UI-LINK-07 修复）───────────────────────
+-        # 原写死 `origin='live'`。缺陷实测（本单 04b 探针）：进程短暂停机后重启，
+-        # `bootstrap()` 会把「仍在成交时效内」的真实候选以 `origin='recovered'`
+-        # 落库并交给路由（实测 persisted=1 / registered=1），但本 API 只认 `live`
+-        # ⇒ 库里有一行、账本里有挂单、**信号区却永远看不到**。
+-        # 这是「生成→入库→展示」的断链，不是过滤得对。
+-        # 现在：`recovered` 与 `live` 同为「实时真实臂入场」，一起进当前区；
+-        # `historical_research` / 回放（replay）等仍**一律不进**（它们不是当前可交易信号）。
+-        where.append("origin IN ('live','recovered')")
+-        where.append("executable_state='enterable'")
+-        where.append("confirmed_at IS NOT NULL AND available_at IS NOT NULL")
+-        where.append("(CASE WHEN available_at > confirmed_at THEN available_at "
+-                     "ELSE confirmed_at END) + 1 >= ?")
++        # ── 当前区判据：**与模拟路由同一份定义**（PR2-WO-02）────────────────────
++        # 来源白名单 / enterable / approved / 测试 UID / 时间链因果顺序，
++        # 全部来自 `actionable_scope_where()`，路由侧 `unified_runtime` 引用同一函数
++        # ⇒ 「页面看得到」与「路由扫得到」不可能再分叉（工单 C 第 4 条）。
++        _scope_where, _scope_args = actionable_scope_where()
++        where.extend(_scope_where)
++        args.extend(_scope_args)
++        where.append(FLOOR_RIGHT_EDGE_SQL)
+         args.append(int(floor_ms))
+         where.append("json_extract(payload_json,'$.role')=?")
+         args.append(ARM_ENTRY_ROLE)
+-        # ── approved=false 不进当前区（SIGNAL-EFFECTIVE-01-WORK）───────────────────
+-        # 「未批准的配置不得用于任何执行行为」是已批准规则，改动前只有文案、没有代码。
+-        # 补上与 `unified_runtime._scan_actionable` **同一条**判据，保证「页面看得到」
+-        # 与「路由扫得到」永远是同一个集合。真实实时信号无 approved 字段 ⇒ COALESCE 取 1。
+-        where.append("COALESCE(json_extract(payload_json,'$.approved'),1)<>0")
+-        # 排除测试合成信号，防止污染日常工作台信号区（SYSTEM-CLOSELOOP-02 P0-2）
+-        where.append("signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'")
++        # `approved=false` / 测试合成信号 / 时间链因果顺序三条判据已由
++        # `actionable_scope_where()` 一并给出（与路由侧同一份），此处不再重复硬编码。
+     if origin:
+         where.append("origin=?"); args.append(origin)
+     if symbol:
+@@ -416,20 +510,28 @@ def live_signals(params) -> dict:
+             all_n = con.execute("SELECT COUNT(*) FROM live_signal").fetchone()[0]
+             excluded_n = int(all_n) - int(total)
+             try:
++                _origin_ph = ",".join("?" for _ in ACTIONABLE_ORIGINS)
+                 row = con.execute(
+                     "SELECT "
+-                    " SUM(CASE WHEN origin NOT IN ('live','recovered') THEN 1 ELSE 0 END),"
++                    f" SUM(CASE WHEN origin NOT IN ({_origin_ph}) THEN 1 ELSE 0 END),"
+                     " SUM(CASE WHEN executable_state<>'enterable' THEN 1 ELSE 0 END),"
+-                    " SUM(CASE WHEN confirmed_at IS NULL OR available_at IS NULL THEN 1 ELSE 0 END),"
+-                    " SUM(CASE WHEN confirmed_at IS NOT NULL AND available_at IS NOT NULL"
++                    " SUM(CASE WHEN event_time IS NULL OR confirmed_at IS NULL"
++                    "           OR available_at IS NULL THEN 1 ELSE 0 END),"
++                    " SUM(CASE WHEN event_time IS NOT NULL AND confirmed_at IS NOT NULL"
++                    "           AND available_at IS NOT NULL"
+                     "          AND (CASE WHEN available_at>confirmed_at THEN available_at"
+                     "                ELSE confirmed_at END)+1 < ? THEN 1 ELSE 0 END),"
+                     " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.role'),'')<>? THEN 1 ELSE 0 END),"
+-                    " SUM(CASE WHEN signal_uid LIKE 'sig_closeloop_%'"
+-                    "           OR signal_uid LIKE 'sig_ui_test_%' THEN 1 ELSE 0 END),"
++                    " SUM(CASE WHEN " + test_signal_uid_sql() + " THEN 0 ELSE 1 END),"
+                     " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.approved'),1)=0"
+-                    "          THEN 1 ELSE 0 END) "
+-                    "FROM live_signal", (int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
++                    "          THEN 1 ELSE 0 END),"
++                    # 时间链倒挂（B）：字段齐备但顺序错 ⇒ 与「缺字段」分开计数
++                    " SUM(CASE WHEN event_time IS NOT NULL AND confirmed_at IS NOT NULL"
++                    "           AND available_at IS NOT NULL"
++                    "          AND (event_time > confirmed_at"
++                    "               OR confirmed_at > available_at) THEN 1 ELSE 0 END) "
++                    "FROM live_signal",
++                    (*ACTIONABLE_ORIGINS, int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
+                 excluded_breakdown = {
+                     "db_rows_total": int(all_n),
+                     "kept": int(total),
+@@ -442,10 +544,12 @@ def live_signals(params) -> dict:
+                         "not_arm_entry_role": int(row[4] or 0),
+                         "test_synthetic": int(row[5] or 0),
+                         "unapproved_config": int(row[6] or 0),
++                        "time_chain_violation": int(row[7] or 0),
+                     },
+                     "note": ("一行可同时命中多条原因，故各项之和 ≥ excluded；"
+                              "`before_effective_floor` 的下限 = max(live_start, paper epoch)，"
+-                             "按真实区间右边界(+1ms)比较"),
++                             "按真实区间右边界(+1ms)比较；`time_chain_violation` 指字段齐备但"
++                             "event_time<=confirmed_at<=available_at 被违反"),
+                 }
+             except sqlite3.OperationalError:
+                 excluded_breakdown = None
+@@ -1048,67 +1152,88 @@ def paper_order_post(payload: dict) -> tuple[dict, int]:
+                                      "note": None}), 400
+         atr = payload.get("atr")
+         
+-        # **交易时钟因果防线（SYSTEM-CLOSELOOP-03/04）**：
+-        # 日常模拟下单以服务端真实接收时刻（挂钟 L.now_ms()）为绝对准绳，
+-        # 外部传入的 requested_at、now_ms 一律忽略，绝不得改变成交下限；
+-        # 仅在隔离回放测试（origin=="replay"）下才允许注入可控回放时钟。
+-        origin = payload.get("origin") or "signal"
+-        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
+-        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
+-        req = replay_now if (origin == "replay" and replay_now is not None) else L.now_ms()
+-
+-        # ── 信号可信绑定与伪造/冲突校验 ──────────────────────────────────────
++        # HTTP 请求不能提供回放时钟；隔离回放直接使用内部运行器。
++        if any(payload.get(k) is not None for k in ("now_ms", "requested_at")):
++            return envelope(missing_reason="外部请求不得指定模拟撮合时钟",
++                            quality={"status": "rejected", "note": "external_clock_forbidden"}), 400
++        requested_origin = payload.get("origin")
++        if requested_origin in ("replay", "test"):
++            return envelope(missing_reason="外部请求不得使用回放来源",
++                            quality={"status": "rejected", "note": "external_origin_forbidden"}), 400
++        req = L.now_ms()
+         raw_sig_uid = payload.get("signal_uid")
+-        sig_available_at = None
+-        sig_event_time = None
+-        sig_uid = None
++        sig_available_at = sig_event_time = None
++        direction = payload.get("direction") or "long"
+ 
+         if raw_sig_uid:
++            if not isinstance(raw_sig_uid, str):
++                return envelope(missing_reason="无效的信号身份",
++                                quality={"status": "rejected", "note": "invalid_signal_uid"}), 400
+             try:
+                 con_sig = L.live_conn(ro=True)
+                 try:
+                     sig_row = con_sig.execute(
+-                        "SELECT * FROM live_signal WHERE signal_uid=?", (raw_sig_uid,)
+-                    ).fetchone()
++                        "SELECT *, CASE WHEN json_valid(payload_json) THEN " + APPROVED_SQL +
++                        " ELSE 0 END AS _entry_approved FROM live_signal WHERE signal_uid=?",
++                        (raw_sig_uid,)).fetchone()
+                 finally:
+                     con_sig.close()
+             except Exception:
+-                sig_row = None
+-
+-            if not sig_row:
+-                # 伪造信号身份或库中不存在
+-                if origin != "manual" and not raw_sig_uid.startswith("manual:"):
+-                    return envelope(
+-                        missing_reason=f"未知的不可信信号身份: {raw_sig_uid}，拒绝开仓",
+-                        quality={"status": "rejected", "age_seconds": None, "note": "untrusted_signal_unknown_uid"}
+-                    ), 400
++                return envelope(missing_reason="信号库不可用，无法验证身份",
++                                quality={"status": "rejected", "note": "signal_store_unavailable"}), 503
++            if sig_row is None:
++                import re
++                # 保留已有 manual:<毫秒> 重试身份；新身份也可使用 UUID。
++                if not re.fullmatch(r"manual:(?:[0-9]{13}|[0-9a-f]{32})", raw_sig_uid) or requested_origin not in (None, "", "manual"):
++                    return envelope(missing_reason="未知信号身份，拒绝开仓",
++                                    quality={"status": "rejected", "note": "untrusted_signal_unknown_uid"}), 400
+                 sig_uid = raw_sig_uid
+                 origin = "manual"
+             else:
+                 sd = dict(sig_row)
+-                db_symbol = sd["symbol"]
+-                db_avail = sd.get("available_at")
+-                db_conf = sd.get("confirmed_at")
+-
+-                # 校验标的冲突
+-                if symbol != db_symbol:
+-                    return envelope(
+-                        missing_reason=f"请求标的 {symbol} 与信号标的 {db_symbol} 冲突",
+-                        quality={"status": "rejected", "age_seconds": None, "note": "symbol_mismatch_with_signal"}
+-                    ), 400
+-
+-                # 因果校验：服务端接收时刻绝不得早于信号数据可用时刻（禁止穿梭/提前成交）
+-                if db_avail is not None and req < int(db_avail):
+-                    return envelope(
+-                        missing_reason=f"请求到达时刻 ({req}) 早于信号数据可用时刻 ({db_avail})，拒绝提前成交",
+-                        quality={"status": "rejected", "age_seconds": None, "note": "request_before_signal_available"}
+-                    ), 400
+-
+-                sig_available_at = db_avail
+-                sig_event_time = db_conf
++                # 此处延迟导入：unified_runtime 已引用本模块的共享规则。
++                try:
++                    import unified_runtime as UR
++                    floor, floor_reason = resolve_live_floor_ms()
++                    if floor is None:
++                        raise ValueError(floor_reason)
++                    db_origin = sd.get("origin")
++                    reasons = UR.signal_admission_reasons(sd, origin=db_origin, floor_ms=floor, read_at_ms=req)
++                    if db_origin not in ACTIONABLE_ORIGINS:
++                        reasons.append("origin_not_actionable")
++                    if requested_origin == "manual":
++                        reasons.append("manual_cannot_reference_signal")
++                    if sd.get("symbol") != symbol:
++                        reasons.append("symbol_mismatch_with_signal")
++                    if (sd.get("exchange"), sd.get("market"), sd.get("timeframe")) != (UR.EXCHANGE, UR.MARKET, UR.TIMEFRAME):
++                        reasons.append("signal_market_mismatch")
++                    signal_payload = json.loads(sd.get("payload_json") or "{}")
++                    if not isinstance(signal_payload, dict):
++                        raise ValueError("invalid_signal_payload")
++                    if signal_payload.get("arm") != arm:
++                        reasons.append("arm_mismatch_with_signal")
++                    if payload.get("direction") is not None and payload.get("direction") != sd.get("direction"):
++                        reasons.append("direction_mismatch_with_signal")
++                    # WO-02 SQL 同样是共享契约：approved 缺失或 null 保持默认允许。
++                    if not sd.get("_entry_approved"):
++                        reasons.append("approved_false")
++                except Exception as exc:
++                    return envelope(missing_reason="信号准入校验不可用",
++                                    quality={"status": "rejected", "note": str(exc)}), 400
++                if reasons:
++                    return envelope(missing_reason="信号未通过模拟开仓准入",
++                                    quality={"status": "rejected", "note": ",".join(reasons)}), 400
+                 sig_uid = raw_sig_uid
++                origin = db_origin
++                direction = sd["direction"]
++                sig_event_time = sd["event_time"]
++                sig_available_at = sd["available_at"]
+         else:
+-            sig_uid = f"manual:{req}"
++            if requested_origin not in (None, "", "manual", "signal"):
++                return envelope(missing_reason="无信号引用时只能手动开仓",
++                                quality={"status": "rejected", "note": "manual_origin_required"}), 400
++            import uuid
++            sig_uid = f"manual:{uuid.uuid4().hex}"
+             origin = "manual"
+ 
+         # ── SYSTEM-CONTRACT-01：配置身份有效性检查与防请求体篡改 ───────────────────
+@@ -1139,17 +1264,13 @@ def paper_order_post(payload: dict) -> tuple[dict, int]:
+             except (ValueError, TypeError):
+                 st_price = None
+ 
+-        # 受控回放时钟注入（仅当 origin=="replay" 且在隔离环境允许，日常生产接口严禁注入时钟）
+-        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
+-        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
+-
+         try:
+             r = PE.open_position(arm, symbol, signal_uid=sig_uid,
+-                                 direction=payload.get("direction") or "long",
++                                 direction=direction,
+                                  atr=(None if atr is None else float(atr)),
+                                  stop_price=(None if st_price is None else float(st_price)),
+                                  stoploss_s=s_param,
+-                                 now_ms=replay_now, requested_at=replay_req,
++                                 now_ms=None, requested_at=None,
+                                  event_time=sig_event_time,
+                                  available_at=sig_available_at,
+                                  origin=origin)
+diff --git "a/\346\241\206\346\236\266/backend/tests/test_paper_live_01.py" "b/\346\241\206\346\236\266/backend/tests/test_paper_live_01.py"
+index ecd8f3bd..3ecfbd39 100644
+--- "a/\346\241\206\346\236\266/backend/tests/test_paper_live_01.py"
++++ "b/\346\241\206\346\236\266/backend/tests/test_paper_live_01.py"
+@@ -100,6 +100,39 @@ def create_market_schema(db_path: Path):
+             funding_rate REAL, mark_price REAL, rate_type TEXT, source TEXT, fetched_at INTEGER
+         );
+         """)
++        # PR2-WO-02-REWORK-01（工单 B）：补建 `realtime_klines`（**逐字照抄生产 DDL**）。
++        # 为什么必须补：合法实时来源（`live`/`recovered`）走 `realtime_only` 成交模式，
++        # 成交价只认「执行点当场从实时表读到的那根正在形成的 15m bar」的 `open`；
++        # 隔离库没有这张表 ⇒ `realtime_15m_bar()` 恒返回 None ⇒ 一律
++        # `fill_point_closed_without_realtime`。缺的是**行情数据层**，不是策略或撮合逻辑。
++        # 主键 `(exchange,market,symbol,timeframe)` 与生产一致：每个标每个周期只有一行，
++        # 天然就是「当前那一根」，一闭合就被下一根覆盖 —— 这正是 `realtime_only` 依赖的性质。
++        con.execute("""
++        CREATE TABLE IF NOT EXISTS realtime_klines (
++            exchange               TEXT    NOT NULL,
++            market                 TEXT    NOT NULL,
++            symbol                 TEXT    NOT NULL,
++            timeframe              TEXT    NOT NULL,
++            open_time              INTEGER NOT NULL,
++            close_time             INTEGER,
++            open                   TEXT,
++            high                   TEXT,
++            low                    TEXT,
++            close                  TEXT,
++            volume                 TEXT,
++            quote_volume           TEXT,
++            trade_count            INTEGER,
++            taker_buy_volume       TEXT,
++            taker_buy_quote_volume TEXT,
++            is_closed              INTEGER NOT NULL DEFAULT 0,
++            event_time             INTEGER,
++            received_at            INTEGER,
++            source                 TEXT,
++            transport              TEXT,
++            updated_at             INTEGER NOT NULL,
++            PRIMARY KEY(exchange, market, symbol, timeframe)
++        );
++        """)
+         con.commit()
+     finally:
+         con.close()
+@@ -124,6 +157,37 @@ def insert_bar(db_path: Path, symbol: str, timeframe: str, open_time: int, close
+         con.close()
+ 
+ 
++def insert_realtime_forming_bar(db_path: Path, symbol: str, open_time: int, close_time: int,
++                                o: float, h: float, l: float, c: float,
++                                v: float = 2000.0, qv: float = 10000000.0):
++    """写入「执行点当场正在形成的那根 15m 实时 bar」（`realtime_klines`）。
++
++    PR2-WO-02-REWORK-01（工单 B）。这不是「伪造撮合成功」，而是**补齐合法实时来源
++    所要求的行情数据层**：
++      · `realtime_only` 的成交价只认 `realtime_klines` 里当前那一行的 `open`；
++      · 真实采集器在 bar 一开盘就把这一行写进去（`is_closed=0`，`received_at`=当时挂钟）；
++      · 本函数按同一形状写入，`received_at` 取**真实写入时刻**（`L.now_ms()`），
++        因此 `paper_engine` 的前视保护（`received_at <= read_at_ms`）能通过 ——
++        我们没有把「未来才拿到的价」当成当时可得。
++    每一道判据（lag、前视、epoch、停机不追补）**照旧生效**，没有任何放宽。
++    """
++    now_real = int(L.now_ms())
++    con = sqlite3.connect(str(db_path))
++    try:
++        con.execute(
++            "INSERT OR REPLACE INTO realtime_klines(exchange,market,symbol,timeframe,"
++            "open_time,close_time,open,high,low,close,volume,quote_volume,trade_count,"
++            "taker_buy_volume,taker_buy_quote_volume,is_closed,event_time,received_at,"
++            "source,transport,updated_at) "
++            "VALUES('binance','um',?,'15m',?,?,?,?,?,?,?,?,10,500,50000,0,?,?,'binance.fstream','ws',?)",
++            (symbol, open_time, close_time, str(o), str(h), str(l), str(c),
++             str(v), str(qv), open_time + 1000, now_real, now_real)
++        )
++        con.commit()
++    finally:
++        con.close()
++
++
+ class TestPaperLive01(unittest.TestCase):
+     """PAPER-LIVE-01 模拟实盘持续运行与全生命周期因果验证。"""
+ 
+@@ -318,8 +382,18 @@ class TestPaperLive01(unittest.TestCase):
+         symbol = "BTCUSDT"
+         arm = "3a"
+         # 构造突破形态 K 线：以当前时钟为基准向前排列
++        #
++        # PR2-WO-02-REWORK-01（工单 B）：时间基准改为「最近一根 15m bar 的开盘时刻」。
++        # 原写法 `(now_wall // H1) * H1 - 250 * H1` 让 `now = t0 + 208*H1` 落在 **42 小时前**。
++        # 用 `origin="test"` 时无所谓（旧判据不看来源）；换成合法实时来源 `live` 后，
++        # `paper_engine` 的严格因果校验（`earliest_fill_ms < first_req` ⇒ 拒
++        # `earliest_fill_before_first_request_clock`）会**正确地**拒绝一笔 42 小时前的
++        # 「实时」信号 —— 这不是缺陷，是「成交不得早于首次请求挂钟」的既有纪律。
++        # 本测试要验证的是「实时信号 → 挂单 → 撮合 → 跟踪 → 平仓」，所以信号必须**刚刚发生**：
++        # 取最近一根 15m 开盘（距今 0–15 分钟），`earliest_fill = now + 1s + 15min > 真实挂钟`
++        # 恒成立；同时 208 小时历史完整保留（`t0 = now - 208h`）。
+         now_wall = int(time.time() * 1000)
+-        t0 = (now_wall // H1) * H1 - 250 * H1
++        t0 = (now_wall // M15) * M15 - 208 * H1
+ 
+         # 1. 前 51 根 4h K 线（204 小时）形成 50000~52000 箱体
+         for i in range(51):
+@@ -373,7 +447,15 @@ class TestPaperLive01(unittest.TestCase):
+         )
+ 
+         # 持久化信号到隔离库
+-        runtime.router.persist_candidates([cand], origin="test", now_ms=now + 1000)
++        #
++        # PR2-WO-02-REWORK-01（工单 B）：原来写 `origin="test"`。
++        # `test` 不在可执行来源白名单里（`ACTIONABLE_ORIGINS = ("live","recovered")`），
++        # 它既不是历史/回放来源、也不是测试 UID 前缀，所以**不是**「合成测试信号」的合法
++        # 表达方式，而是「来源不明」—— 被 fail-closed 判据挡掉是对的。
++        # 本测试的意图是「在隔离沙盒里验证完整的交易闭环」，那它要构造的本来就是**实时信号**，
++        # 只是发生在沙盒里（`LIVE_DB`/`MARKET_DB`/`PAPER_LEDGER_DIR` 全部指向临时目录）。
++        # ⇒ 用 `live`，与生产实时信号走同一条准入路径；不扩大白名单、不放宽判据。
++        runtime.router.persist_candidates([cand], origin="live", now_ms=now + 1000)
+ 
+         # 核验隔离 live_signals 库
+         con_iso = sqlite3.connect(str(self.iso_live_db))
+@@ -388,8 +470,8 @@ class TestPaperLive01(unittest.TestCase):
+         finally:
+             con_iso.close()
+ 
+-        # 4. 路由生成挂单
+-        route_res = runtime.router.route_pending_orders(now_ms=now + 2000, origin="test")
++        # 4. 路由生成挂单（来源同上：沙盒内的合法实时来源）
++        route_res = runtime.router.route_pending_orders(now_ms=now + 2000, origin="live")
+         self.assertEqual(route_res["registered"], 1, "必须成功将信号登记为挂单")
+ 
+         con_paper = L.paper_conn(arm, ro=True)
+@@ -411,8 +493,16 @@ class TestPaperLive01(unittest.TestCase):
+ 
+         t_fill = now + 2 * M15
+         insert_bar(self.iso_market_db, symbol, "15m", t_fill, t_fill + M15 - 1, 53000.0, 53300.0, 52900.0, 53100.0, v=2000.0, qv=10000000.0)
+-
+-        exec_res = runtime.execution.execute_cycle(now_ms=t_fill + M15 + 1000)
++        # 执行点当场「正在形成」的那根 15m 实时 bar（`realtime_only` 唯一的合法成交价来源）。
++        # `open` 与上面那根闭 bar 逐字相同（53000.0）⇒ 两条路径的价格口径一致，
++        # 成交价不会因为换了取数层而变，只有「什么时候取得到」这一件事被现实化。
++        insert_realtime_forming_bar(self.iso_market_db, symbol, t_fill, t_fill + M15 - 1,
++                                    53000.0, 53300.0, 52900.0, 53100.0)
++
++        # 时钟推进到**执行点**（不是执行点之后一根）：`realtime_only` 只认「当前那一根」，
++        # 若把时钟推到 `t_fill + M15` 之后，实时表在真实环境里早已被下一根覆盖，
++        # 那样测的就不再是「执行点当场成交」，而是「执行点已过 ⇒ 应当拒单」。
++        exec_res = runtime.execution.execute_cycle(now_ms=t_fill + 1000)
+         self.assertEqual(exec_res["pending_matched"], 1, "挂单必须被成功撮合成交")
+ 
+         # 检查隔离账本持仓
+@@ -445,7 +535,16 @@ class TestPaperLive01(unittest.TestCase):
+             con_paper.close()
+ 
+         # 7. 止损平仓退出：价格跌穿抬高后的止损线
+-        t_exit_bar = t_4h_new + H4 + 2000
++        #
++        # PR2-WO-02-REWORK-01（工单 B）：暴跌 bar 必须落在**跟踪止损已生效之后**。
++        # 原写法 `t_4h_new + H4 + 2000`（4h 确认后 2 秒）不符合既有生效纪律：
++        # `advance_position_trailing` 把 4h 确认时刻 `confirm_ms` 抬高后的新止损记为
++        # `effective_at = confirm_ms + M15`（"确认整点后最早下一根 15m 才生效，严禁回填"），
++        # 所以在 `confirm+2s` 那根 bar 上，`check_position_exit_on_bar` 取到的仍是
++        # **初始止损**（`effective_at <= ref_open_ms` 不成立），价格没击穿它 ⇒ 不平仓。
++        # 这里把暴跌 bar 放到 `confirm + M15`，即「新止损生效的第一根 bar」，
++        # 与真实业务规则一致；断言 `exits_triggered == 1` 未改。
++        t_exit_bar = t_4h_new + H4 + M15
+         crash_price = updated_stop - 200.0
+         insert_bar(self.iso_market_db, symbol, "15m", t_exit_bar, t_exit_bar + M15 - 1, updated_stop + 50.0, updated_stop + 50.0, crash_price - 50.0, crash_price)
+ 
+diff --git "a/\346\241\206\346\236\266/backend/unified_runtime.py" "b/\346\241\206\346\236\266/backend/unified_runtime.py"
+index 637722ae..e06258c9 100644
+--- "a/\346\241\206\346\236\266/backend/unified_runtime.py"
++++ "b/\346\241\206\346\236\266/backend/unified_runtime.py"
+@@ -18,6 +18,7 @@ import fcntl
+ import hashlib
+ import json
+ import logging
++import math
+ import os
+ import signal
+ import sqlite3
+@@ -37,6 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
+     sys.path.insert(0, str(PROJECT_ROOT))
+ 
+ import live_store as L
++import live_api as _SCOPE          # PR2-WO-02：可执行范围判据的**唯一来源**（读写同源）
+ import live_pool as LP
+ import paper_engine as PE
+ import strategy_contracts as SC
+@@ -74,6 +76,32 @@ ARM_ENTRY_ROLE = "enterable_arm_entry"
+ # 其余拒单（仓位已满 / 参数缺失 / 行情库不可用 / 闸门暂停）按 paper_engine 设计**可重试**。
+ TERMINAL_REJECT_REASONS = ("missed_fill_moment_no_backfill", "before_paper_epoch_no_backfill")
+ 
++# ═══════════════════════════════════════════════════════════════════════════
++# PR2-RECOVERED-HARDEN-01 原因码（**唯一来源**；测试与报告只引用这些常量）
++# ═══════════════════════════════════════════════════════════════════════════
++# 工单 A（恢复时效）：recovered 落库前按**实际处理时刻**复核；过期 / 来源不可信 /
++# 时间证据不足一律阻断并留原因码。工单 B（UID 冲突）：冲突更新必须拒绝并留原因码。
++RC_WINDOW_EXPIRED = "recovered_window_expired"
++RC_TIME_EVIDENCE_MISSING = "recovered_time_evidence_missing"
++RC_AVAILABLE_IN_FUTURE = "recovered_available_at_after_processed_at"
++RC_EXEC_POINT_TAMPERED = "recovered_execution_point_tampered"
++RC_ORIGIN_UNTRUSTED = "recovered_origin_untrusted"
++RC_REPLAY_OBJECT = "recovered_replay_object_rejected"
++RC_PROVENANCE_MISSING = "recovered_provenance_missing"
++CF_ORIGIN_MISMATCH = "conflict_origin_mismatch"
++CF_FACT_MISMATCH = "conflict_fact_mismatch"
++CF_UPGRADE_REFUSED = "conflict_upgrade_refused"
++
++# 冲突比较的「关键事实」字段（行级 + payload 级）。
++# 为什么用**白名单式**枚举而不是「除 xx 外全等」：后者每漏一个字段就多一条静默覆盖通道，
++# 而这里的缺陷正是「覆盖发生了但没人知道」。少比一个字段，等于少一道闸。
++CONFLICT_FACT_FIELDS_ROW = ("symbol", "timeframe", "direction",
++                            "event_time", "confirmed_at", "available_at",
++                            "strategy_version")
++CONFLICT_FACT_FIELDS_PAYLOAD = ("event_id", "box_high_h", "box_low_l",
++                               "breakout_close", "initial_stop_price")
++CONFLICT_FACT_FIELDS_INT_ROW = ("event_time", "confirmed_at", "available_at")
++
+ 
+ # 指数 / 合成标的：不参与「可交易币」口径（观察 528 → 允许 526）
+ UNIVERSE_EXCLUDE = ("ALLUSDT", "BTCDOMUSDT")
+@@ -805,6 +833,14 @@ class MultiSymbolSignalEngine:
+         self.bootstrap_stats: dict = {}
+         # 重启恢复的候选（仍在成交时效内，SIGNAL-CLOSURE-06；见 bootstrap docstring）
+         self.recovered_candidates: List[CandidateSnapshot] = []
++        # ── 候选来源凭据（PR2-RECOVERED-HARDEN-01 工单 A）────────────────────
++        # `{candidate_id: {...}}`，逐条记录「这条候选是哪一次预热、用哪个数据源、是不是
++        # 显式回放产生的」。没有它就无法在执行写入前区分「重启恢复」与「历史回放对象」，
++        # 而这两类在可执行性上是相反的 ⇒ 落库前按 fail-closed 一律要求凭据在场。
++        self.recovered_provenance: Dict[str, dict] = {}
++        # `run_replay()` 期间置真：它产生的候选属于**显式回放对象**，
++        # 即使恰好落在成交时效内也不得进入 recovered 可执行写入路径。
++        self.replay_context: bool = False
+         self.recovered_route_stats: dict = {}
+         self.skipped_reasons: Dict[str, str] = {}
+         self.scan_errors: Dict[str, dict] = {}
+@@ -1096,20 +1132,35 @@ class MultiSymbolSignalEngine:
+                 "initial_stop_price": c.initial_stop_price,
+             }
+ 
++        hist = getattr(self, "_hist", None)
++        src = "merged_cold_hot" if hist else "hot_only"
++
+         def _take(c) -> None:
+-            """按既有「成交时效」边界决定进 recovered 还是 discarded（不改判据）。"""
++            """按既有「成交时效」边界决定进 recovered 还是 discarded（不改判据）。
++
++            进 recovered 时**同时登记来源凭据**（PR2-RECOVERED-HARDEN-01 工单 A）：
++            这里判的是「预热截止时刻是否还在窗内」，落库时会用**实际处理时刻**再判一次
++            （`validate_recovered_freshness`），两次判定用同一常量、同一方向。
++            凭据里写清是不是显式回放产生的 —— 回放对象即使落在窗内也不许进可执行路径。
++            """
+             nonlocal discarded
+             if (int(getattr(c, "execution_earliest_ms", 0) or 0)
+                     + PE.MAX_FILL_LAG_MS >= int(upto_ms)):
+                 self.recovered_candidates.append(c)
++                self.recovered_provenance[c.candidate_id] = {
++                    "produced_by": "bootstrap_recovery",
++                    "replay_upto_ms": int(upto_ms),
++                    "data_source": src,
++                    "explicit_replay": bool(self.replay_context),
++                    "kept_by": "execution_earliest_ms+MAX_FILL_LAG_MS>=upto_ms",
++                }
+             else:
+                 discarded += 1
+                 discarded_detail.append(_detail(c, _discard_reasons(c)))
+ 
+         self.recovered_candidates = []
++        self.recovered_provenance = {}
+         self.skipped_reasons.clear()
+-        hist = getattr(self, "_hist", None)
+-        src = "merged_cold_hot" if hist else "hot_only"
+         # 事件重建地板 = 重放深度（SIGNAL-CLOSURE-06），不是声明窗口
+         win_start = self.resolve_replay_floor(upto_ms)
+         used_4h: List[int] = []
+@@ -2108,6 +2159,365 @@ class MultiSymbolSignalEngine:
+                                   "预热期的历史候选按纪律丢弃，不补开历史订单。")}
+ 
+ 
++# ═══════════════════════════════════════════════════════════════════════
++# 2.5 可执行范围 Fail-Closed 判据（PR2-WO-02）
++# ═══════════════════════════════════════════════════════════════════════
++# 缺陷（本轮施工前实测）：`persist_candidates` 里共振评估一旦抛异常，旧实现回退成
++# `resonance_score=60.0 / position_multiplier=1.0 / grade=基础`，而写库时
++# `executable_state` 是**字面量 'enterable'**、payload 里也没有 `approved=false`
++# ⇒ 「评估失败」这件事在数据上完全看不出来，信号照样进可执行扫描、照样登记挂单。
++# 这就是本工单要堵的 fail-open：**评估失败必须留下可执行的阻断痕迹**，而不是伪造一个
++# 看起来正常的分数。
++#
++# 三类情况都要覆盖（工单 A）：异常 / 缺数据 / 非法结果。
++# 判定原则：**只降不升**。任何一项说不清，就落到 blocked，绝不猜一个默认分。
++
++# 候选自身必需字段（缺任一 ⇒ 连共振函数都无法正确调用）
++RESONANCE_REQUIRED_NUMERIC = ("breakout_close", "box_high_h", "box_low_l", "box_atr_a")
++
++
++def _as_finite_number(v) -> Optional[float]:
++    """合法数值（排除 None / 字符串 / NaN / inf）。"""
++    if isinstance(v, bool):
++        return None
++    if not isinstance(v, (int, float)):
++        return None
++    f = float(v)
++    if not math.isfinite(f):
++        return None
++    return f
++
++
++def candidate_input_reasons(c) -> List[str]:
++    """**缺数据**判据：候选自带的决策输入是否齐备。
++
++    注意边界：这里**不**检查外部微观指标（巨鲸成本 / Taker / 多空比）是否可读。
++    那些缺失是 `wyckoff_factor_resonance` 的设计内情形（按中性分处理，不拒杀），
++    把它们算成「缺数据」会让正常信号在指标断流时被全量阻断 —— 那是超出本工单的
++    行为变更。本函数只判断「连打分都打不了」的情形。
++    """
++    reasons: List[str] = []
++    missing = getattr(c, "missing_fields", None) or []
++    if missing:
++        reasons.append("candidate_missing_fields:" + ",".join(str(x) for x in missing))
++    for name in RESONANCE_REQUIRED_NUMERIC:
++        if _as_finite_number(getattr(c, name, None)) is None:
++            reasons.append(f"candidate_field_missing:{name}")
++    hi = _as_finite_number(getattr(c, "box_high_h", None))
++    lo = _as_finite_number(getattr(c, "box_low_l", None))
++    atr = _as_finite_number(getattr(c, "box_atr_a", None))
++    if hi is not None and lo is not None and hi <= lo:
++        reasons.append("candidate_box_invalid:box_high_h<=box_low_l")
++    if atr is not None and atr <= 0:
++        reasons.append("candidate_box_invalid:box_atr_a<=0")
++    # OI 两个入口都空 ⇒ 打分函数无从推导（引擎侧本应已用 OI_UNAVAILABLE 拦掉）
++    if (getattr(c, "oi_growth_6h", None) is None
++            and getattr(c, "oi_breakout", None) is None):
++        reasons.append("candidate_oi_input_missing")
++    return reasons
++
++
++def resonance_result_reasons(res) -> List[str]:
++    """**非法结果**判据：共振函数的返回值是否可用。"""
++    if not isinstance(res, dict):
++        return ["resonance_result_not_mapping"]
++    reasons: List[str] = []
++    score = _as_finite_number(res.get("resonance_score"))
++    if res.get("resonance_score") is None:
++        reasons.append("resonance_score_missing")
++    elif score is None:
++        reasons.append("resonance_score_not_numeric")
++    elif not (0.0 <= score <= 100.0):
++        reasons.append(f"resonance_score_out_of_range:{score}")
++    mult = _as_finite_number(res.get("position_multiplier"))
++    if res.get("position_multiplier") is None:
++        reasons.append("position_multiplier_missing")
++    elif mult is None:
++        reasons.append("position_multiplier_not_numeric")
++    elif mult <= 0.0:
++        reasons.append(f"position_multiplier_out_of_range:{mult}")
++    return reasons
++
++
++def evaluate_resonance_guarded(c) -> dict:
++    """共振评估的**唯一入口**。失败/缺数据/非法结果一律返回 `ok=False` 且不给默认分。
++
++    返回：`{ok, resonance_score, position_multiplier, grade, summary, factors, blocked_reasons}`
++    `ok=False` 时 `resonance_score` / `position_multiplier` 恒为 `None`（不伪造 60 分）。
++    """
++    blocked = {"ok": False, "resonance_score": None, "position_multiplier": None,
++               "grade": None, "factors": {}, "blocked_reasons": []}
++
++    reasons = candidate_input_reasons(c)
++    if reasons:
++        blocked["blocked_reasons"] = reasons
++        blocked["summary"] = "共振评估缺数据 ⇒ 已阻断（fail-closed）"
++        return blocked
++
++    try:
++        import wyckoff_factor_resonance as WFR
++        res = WFR.evaluate_resonance(
++            symbol=c.symbol,
++            decision_ms=int(c.available_at_ms),
++            current_price=float(c.breakout_close),
++            box_low=float(c.box_low_l),
++            box_high=float(c.box_high_h),
++            box_atr=float(c.box_atr_a),
++            oi_growth_6h=getattr(c, "oi_growth_6h", None),
++            current_oi=getattr(c, "oi_breakout", None),
++        )
++    except Exception as exc:                                  # noqa: BLE001
++        blocked["blocked_reasons"] = [f"resonance_eval_exception:{type(exc).__name__}"]
++        blocked["summary"] = f"共振评估异常 ⇒ 已阻断（{type(exc).__name__}）"
++        return blocked
++
++    reasons = resonance_result_reasons(res)
++    if reasons:
++        blocked["blocked_reasons"] = reasons
++        blocked["summary"] = "共振评估结果非法 ⇒ 已阻断（fail-closed）"
++        return blocked
++
++    return {
++        "ok": True,
++        "resonance_score": float(res["resonance_score"]),
++        "position_multiplier": float(res["position_multiplier"]),
++        "grade": res.get("grade"),
++        "summary": res.get("summary") or "",
++        "factors": res.get("factors") or {},
++        "blocked_reasons": [],
++    }
++
++
++def validate_signal_time_chain(*, event_time, confirmed_at, available_at,
++                               read_at_ms=None, matched_at_ms=None) -> List[str]:
++    """信号时钟因果顺序（工单 B）：`event_time <= confirmed_at <= available_at`。
++
++    各字段适用的生命周期阶段不同：
++      · `event_time`     —— 事件发生（突破 K 线收盘）
++      · `confirmed_at`   —— 策略确认
++      · `available_at`   —— 该根 K 线数据在本地真正可读
++      · `read_at_ms`     —— 本轮读取/落库时刻（可选）
++      · `matched_at_ms`  —— 实际撮合时刻（**可选**）
++
++    **`matched_at_ms` 不得被要求预先存在**：尚未撮合的候选本来就没有它，
++    把它当必备字段会把所有正常候选误杀。只有传进来了才校验其顺序。
++    返回违反原因列表；空列表 = 通过。
++    """
++    def _num(v) -> Optional[int]:
++        if v is None or isinstance(v, bool):
++            return None
++        try:
++            return int(v)
++        except (TypeError, ValueError):
++            return None
++
++    reasons: List[str] = []
++    ev, cf, av = _num(event_time), _num(confirmed_at), _num(available_at)
++    if ev is None:
++        reasons.append("event_time_missing")
++    if cf is None:
++        reasons.append("confirmed_at_missing")
++    if av is None:
++        reasons.append("available_at_missing")
++    if reasons:
++        return reasons
++    if ev > cf:
++        reasons.append("event_time_after_confirmed_at")
++    if cf > av:
++        reasons.append("confirmed_at_after_available_at")
++
++    if read_at_ms is not None:
++        ra = _num(read_at_ms)
++        if ra is None:
++            reasons.append("read_at_invalid")
++        elif av > ra:
++            reasons.append("available_at_after_read_at")
++        else:
++            ma = _num(matched_at_ms)
++            if matched_at_ms is not None:
++                if ma is None:
++                    reasons.append("matched_at_invalid")
++                elif ra > ma:
++                    reasons.append("read_at_after_matched_at")
++                elif av > ma:
++                    reasons.append("available_at_after_matched_at")
++    return reasons
++
++
++def signal_admission_reasons(row: dict, *, origin: str, floor_ms: Optional[int] = None,
++                             read_at_ms: Optional[int] = None) -> List[str]:
++    """**最终准入判据**（单条信号 → 不可执行原因列表；空列表 = 可执行）。
++
++    这是「页面看得到」与「路由扫得到」共用的语义层实现：SQL 只做粗筛，
++    真正的准入在这里逐条复核，避免 `LIKE`/`COALESCE` 之类表达式在边界上失真。
++    """
++    reasons: List[str] = []
++    uid = row.get("signal_uid")
++    if _SCOPE.is_test_signal_uid(uid):
++        reasons.append("test_signal_uid")
++    row_origin = (row.get("origin") or "").strip() if isinstance(row.get("origin"), str) \
++        else row.get("origin")
++    if not row_origin:
++        # 来源不明的行**不得**被当作实时记录（工单 C 第 3 条）
++        reasons.append("origin_missing")
++    elif row_origin != origin:
++        reasons.append(f"origin_mismatch:{row_origin}!={origin}")
++    if row_origin in _SCOPE.NON_ACTIONABLE_ORIGINS:
++        reasons.append(f"origin_not_actionable:{row_origin}")
++    if row.get("executable_state") != _SCOPE.EXEC_STATE_ENTERABLE:
++        reasons.append(f"executable_state_not_enterable:{row.get('executable_state')}")
++
++    try:
++        payload = json.loads(row.get("payload_json") or "{}")
++    except (ValueError, TypeError):
++        payload = {}
++    if payload.get("approved") is False:
++        reasons.append("approved_false")
++    if payload.get("role") != ARM_ENTRY_ROLE:
++        reasons.append(f"role_not_arm_entry:{payload.get('role')}")
++
++    # 方向：缺失或非法一律不生成模拟订单（工单第 10 条）
++    direction = row.get("direction")
++    if direction != "long":
++        reasons.append(f"direction_not_long:{direction}")
++
++    reasons.extend(validate_signal_time_chain(
++        event_time=row.get("event_time"), confirmed_at=row.get("confirmed_at"),
++        available_at=row.get("available_at"), read_at_ms=read_at_ms))
++
++    if floor_ms is not None:
++        cf, av = row.get("confirmed_at"), row.get("available_at")
++        try:
++            right_edge = int(max(int(av), int(cf))) + 1
++        except (TypeError, ValueError):
++            right_edge = None
++        if right_edge is None:
++            reasons.append("floor_compare_unavailable")
++        elif right_edge < int(floor_ms):
++            reasons.append("before_effective_floor")
++    return reasons
++
++
++def _as_int(v) -> Optional[int]:
++    """宽松整数化：`None` / 布尔 / 不可转 ⇒ `None`（**不猜、不兜底成 0**）。"""
++    if v is None or isinstance(v, bool):
++        return None
++    try:
++        return int(v)
++    except (TypeError, ValueError):
++        return None
++
++
++def validate_recovered_freshness(candidate, *, origin: str, processed_at_ms: int,
++                                 provenance: Optional[dict] = None) -> List[str]:
++    """`recovered` 落库前的**时效复核**（PR2-RECOVERED-HARDEN-01 工单 A）。
++
++    缺陷背景：`bootstrap()` 用**预热截止时刻**（`upto_ms`）判「候选是否还在成交时效内」，
++    然后把候选放进 `recovered_candidates`，等到 `_route_recovered_candidates()` 才落库。
++    这两步之间隔着整轮全池预热（实测分钟级）。原实现落库时**不再复核**，
++    于是「预热时还新鲜、落库时已过期」的候选照样被写成 `enterable`，再交给路由 ——
++    过期信号靠「晚一点处理」自己续了命。
++
++    本函数只做三件事，**不新增任何数值阈值**：
++      ① 来源可信：`origin` 必须在 `ACTIONABLE_ORIGINS` 内；
++      ② 对象可信：必须是「重启恢复」产出的对象（`provenance` 在场且不是显式回放）；
++      ③ 时间可信 + 时效未过：
++         · `snapshot_time_ms` / `available_at_ms` / `execution_earliest_ms` 必须都在，
++           且 `available_at` 不得晚于本次处理时刻（未来数据 = 时间证据不足）；
++         · `execution_earliest_ms` 必须仍等于 `snapshot_time_ms + 15m`（合约定义）。
++           这一条专门堵「把执行点挪到更晚」的续期手法 —— 不改这条等式就没有续期；
++         · **既有时效窗口**：`execution_earliest_ms + MAX_FILL_LAG_MS`。
++           与 `bootstrap._take()` **同一常量、同一比较方向**（`processed_at <= deadline`
++           算在窗内），因此这里是「同一把尺子、更晚的时钟」，不是新门槛。
++
++    **不延长有效期**：本函数只读候选的不可变字段，绝不把「当前时刻」写回任何时间字段。
++    `paper_engine` 自己的成交时钟（`FILL_POLICY` / epoch / 停机不追补）仍是最终裁决，
++    本函数只是把「注定会被拒的候选」提前挡在落库之前，并给出可审计的原因码。
++    """
++    reasons: List[str] = []
++    declared = origin.strip() if isinstance(origin, str) else origin
++    if declared not in _SCOPE.ACTIONABLE_ORIGINS:
++        reasons.append(f"{RC_ORIGIN_UNTRUSTED}:{declared}")
++
++    if not isinstance(provenance, dict) or not provenance:
++        # 无法证明「这条是重启恢复对象、不是回放对象」⇒ 不放行（fail-closed）
++        reasons.append(RC_PROVENANCE_MISSING)
++    elif provenance.get("explicit_replay"):
++        reasons.append(RC_REPLAY_OBJECT)
++
++    snap = _as_int(getattr(candidate, "snapshot_time_ms", None))
++    avail = _as_int(getattr(candidate, "available_at_ms", None))
++    exec_ms = _as_int(getattr(candidate, "execution_earliest_ms", None))
++    missing = [name for name, val in (("snapshot_time_ms", snap),
++                                      ("available_at_ms", avail),
++                                      ("execution_earliest_ms", exec_ms))
++               if val is None]
++    if missing:
++        reasons.append(f"{RC_TIME_EVIDENCE_MISSING}:{','.join(missing)}")
++        return reasons
++
++    processed = _as_int(processed_at_ms)
++    if processed is None:
++        reasons.append(f"{RC_TIME_EVIDENCE_MISSING}:processed_at_ms")
++        return reasons
++
++    if avail > processed:
++        reasons.append(RC_AVAILABLE_IN_FUTURE)
++    if exec_ms != snap + M15:
++        reasons.append(RC_EXEC_POINT_TAMPERED)
++
++    deadline = exec_ms + int(PE.MAX_FILL_LAG_MS)
++    if processed > deadline:
++        reasons.append(RC_WINDOW_EXPIRED)
++    return reasons
++
++
++def classify_uid_conflict(existing_row: dict, existing_payload: dict,
++                          incoming_facts: dict, *, incoming_exec_state: str) -> List[str]:
++    """同 `signal_uid` 冲突分类（PR2-RECOVERED-HARDEN-01 工单 B）。
++
++    缺陷背景：`persist_candidates` 用 `ON CONFLICT(signal_uid) DO UPDATE` 只更新
++    `payload_json / executable_state / display_state / updated_at`，**不更新 `origin`**。
++    于是同一个 UID 上「历史研究行（`origin='historical_research'`）」可以被一次冲突更新
++    改写成 `executable_state='enterable'` + `payload.role='enterable_arm_entry'`，
++    而 `origin` 仍留在 `historical_research` —— 这正是「来源与可执行状态不一致」：
++    页面/路由一侧按 origin 判不可执行，另一侧按 exec_state 判可执行。
++
++    返回空列表 = 允许更新；非空 = **拒绝更新**（原行一个字节都不改）并给出原因码。
++    判定顺序有意如此：
++      ① 来源不同 ⇒ 直接拒绝，不再比事实。不同来源的同 UID 本来就是两条事实，
++         没有「谁更对」的问题，只有「谁都不许覆盖谁」。
++      ② 同来源但关键事实不一致 ⇒ 拒绝（`conflict_fact_mismatch:<字段>`）。
++         允许覆盖等于让后到的写入者静默改写价格/时点事实。
++      ③ 同来源、同事实 ⇒ 才允许幂等更新；但**不允许**把非 enterable 的行
++         静默升级成 enterable（`conflict_upgrade_refused:<旧态>->enterable`）。
++         收紧方向（enterable→blocked）放行，因为那是 fail-closed 的方向。
++    """
++    old_origin = str(existing_row.get("origin") or "").strip()
++    new_origin = str(incoming_facts.get("origin") or "").strip()
++    if old_origin != new_origin:
++        return [f"{CF_ORIGIN_MISMATCH}:{old_origin}!={new_origin}"]
++
++    reasons: List[str] = []
++    for field in CONFLICT_FACT_FIELDS_ROW:
++        if field in CONFLICT_FACT_FIELDS_INT_ROW:
++            if _as_int(existing_row.get(field)) != _as_int(incoming_facts.get(field)):
++                reasons.append(f"{CF_FACT_MISMATCH}:{field}")
++        elif existing_row.get(field) != incoming_facts.get(field):
++            reasons.append(f"{CF_FACT_MISMATCH}:{field}")
++    for field in CONFLICT_FACT_FIELDS_PAYLOAD:
++        if existing_payload.get(field) != incoming_facts.get(field):
++            reasons.append(f"{CF_FACT_MISMATCH}:{field}")
++    if reasons:
++        return reasons
++
++    old_state = existing_row.get("executable_state")
++    if (old_state != _SCOPE.EXEC_STATE_ENTERABLE
++            and incoming_exec_state == _SCOPE.EXEC_STATE_ENTERABLE):
++        reasons.append(f"{CF_UPGRADE_REFUSED}:{old_state}->enterable")
++    return reasons
++
++
+ # ═══════════════════════════════════════════════════════════════════════
+ # 3. 信号持久化与风控路由 (SignalRouter & Persistence)
+ # ═══════════════════════════════════════════════════════════════════════
+@@ -2118,45 +2528,84 @@ class SignalPersistenceAndRouter:
+         self.arm = arm
+         self.account_id = f"paper43_{arm}"
+ 
+-    def persist_candidates(self, candidates: List[CandidateSnapshot], origin: str = "live", now_ms: Optional[int] = None) -> dict:
++    def persist_candidates(self, candidates: List[CandidateSnapshot], origin: str = "live",
++                           now_ms: Optional[int] = None,
++                           provenance: Optional[Dict[str, dict]] = None) -> dict:
+         """将状态机产出的 CandidateSnapshot 幂等写入 live_signal。
+ 
+-        两条硬约束（本窗口修复）：
++        三条硬约束（本窗口修复）：
+           · **事件角色必须落库**：`payload.role=enterable_arm_entry` 是界面当前信号区
+             与后端 `scope=current` 的判据之一，缺它信号即使生成也会被隐藏；
+           · **冲突时必须补写 payload**：原 `INSERT OR IGNORE` 在 `signal_uid` 已存在时
+             整行丢弃 ⇒ 早先无 `role` 的旧行永远补不上角色，于是永久不可见。
+             现改为 `ON CONFLICT(signal_uid) DO UPDATE`：只补 payload/可执行态/更新时间，
+-            **不改** `first_seen_at`、不改事件时间与价格事实。
++            **不改** `first_seen_at`、不改事件时间与价格事实；
++          · **但冲突更新本身必须有边界**（PR2-RECOVERED-HARDEN-01 工单 B）：
++            `origin` 不同、关键事实不同、或要把非 enterable 静默升级成 enterable 时，
++            **拒绝更新并留原因码**（见 `classify_uid_conflict`）。旧实现这三类全放行，
++            结果就是「同 UID 冲突导致来源与可执行状态不一致」。
++
++        `provenance`：`{candidate_id: {...}}`，由 `bootstrap()` 逐条记录「这条候选是怎么
++        来的」。`origin='recovered'` 时**必填**——拿不到来源就按 fail-closed 阻断
++        （`recovered_provenance_missing`），因为「分不清是重启恢复还是回放」时放行，
++        等于把回放对象放进可执行写入路径。
+         """
+-        stats = {"new": 0, "updated": 0, "total_written": 0}
++        stats = {"new": 0, "updated": 0, "total_written": 0,
++                 "blocked": 0, "blocked_reasons": {},
++                 # 同 UID 冲突拒绝（可审计）：逐条原因 + 按原因码聚合计数
++                 "conflict_rejected": {}, "conflict_rejected_n": 0, "conflict_reasons": {}}
+         if not candidates:
+             return stats
+         now = int(now_ms or time.time() * 1000)
++        declared_origin = (origin or "").strip() if isinstance(origin, str) else origin
++        prov_map = provenance if isinstance(provenance, dict) else {}
+         con = L.live_conn()
+         try:
+-            import wyckoff_factor_resonance as WFR
+             for c in candidates:
+-                # ── 威科夫多因子全数据共振决策评估 ──
+-                try:
+-                    res_eval = WFR.evaluate_resonance(
+-                        symbol=c.symbol,
+-                        decision_ms=int(c.available_at_ms or now),
+-                        current_price=float(c.breakout_close),
+-                        box_low=float(c.box_low_l),
+-                        box_high=float(c.box_high_h),
+-                        box_atr=float(c.box_atr_a),
+-                        oi_growth_6h=getattr(c, "oi_growth_6h", None),
+-                        current_oi=getattr(c, "oi_breakout", None),
+-                    )
+-                except Exception as _eval_err:
+-                    res_eval = {
+-                        "resonance_score": 60.0,
+-                        "position_multiplier": 1.0,
+-                        "grade": "基础",
+-                        "summary": f"威科夫4h箱体突破(评估兜底: {_eval_err})",
+-                        "factors": {},
++                # ── 共振评估（PR2-WO-02 修复 A：fail-closed）────────────────────
++                # 旧实现异常时回退 60 分/1.0 倍并照常写 `executable_state='enterable'`，
++                # 于是「评估失败」在数据上完全看不出来，信号照样被路由成挂单。
++                # 现在：异常 / 缺数据 / 非法结果 ⇒ 分数与倍数为 None、executable_state
++                # 落 `blocked`、payload 明确 `approved=false`，并逐条记录阻断原因。
++                res_eval = evaluate_resonance_guarded(c)
++                # ── 时间链因果顺序（修复 B）─────────────────────────────────────
++                # `read_at_ms` = 本次落库时刻；`matched_at_ms` 此时必然还没有（未撮合），
++                # 按工单要求**不要求它预先存在**。
++                chain_reasons = validate_signal_time_chain(
++                    event_time=c.snapshot_time_ms,
++                    confirmed_at=c.snapshot_time_ms,
++                    available_at=c.available_at_ms,
++                    read_at_ms=now,
++                )
++                block_reasons = list(res_eval["blocked_reasons"]) + list(chain_reasons)
++                # ── recovered 落库前时效复核（PR2-RECOVERED-HARDEN-01 工单 A）──────
++                # 只在 `origin='recovered'` 生效：live 路径的时钟纪律由 PR2-WO-02 的
++                # 时间链与 paper_engine 的 FILL_POLICY 负责，本单不动它。
++                # 复核用的是**本次实际处理时刻 `now`**，不是 bootstrap 的 `upto_ms` ——
++                # 这正是「预热时有效、落库时已过期」能被挡住的原因。
++                rec_check: Optional[dict] = None
++                if declared_origin == "recovered":
++                    prov = prov_map.get(c.candidate_id)
++                    rec_reasons = validate_recovered_freshness(
++                        c, origin=declared_origin, processed_at_ms=now, provenance=prov)
++                    block_reasons.extend(rec_reasons)
++                    _exec_ms = _as_int(getattr(c, "execution_earliest_ms", None))
++                    rec_check = {
++                        "processed_at_ms": int(now),
++                        "window_deadline_ms": (None if _exec_ms is None
++                                               else _exec_ms + int(PE.MAX_FILL_LAG_MS)),
++                        "lag_ms": (None if _exec_ms is None else int(now) - _exec_ms),
++                        "max_fill_lag_ms": int(PE.MAX_FILL_LAG_MS),
++                        "provenance": dict(prov) if isinstance(prov, dict) else None,
++                        "reasons": list(rec_reasons),
+                     }
++                elif declared_origin not in _SCOPE.ACTIONABLE_ORIGINS:
++                    # 工单 A 第 3 条在**写入侧**的兜底：回放 / 历史研究等来源不得落成
++                    # 可执行状态。读取侧（`actionable_scope_where`）本来就会按 origin
++                    # 过滤，但那是「读的时候不认」；这里让它在「写的时候就不是」。
++                    # 不额外要求恢复凭据：回放对象本来就不该有，缺凭据不是它的错。
++                    block_reasons.append(f"{RC_ORIGIN_UNTRUSTED}:{declared_origin}")
++                blocked = bool(block_reasons)
+ 
+                 cand_dict = c.to_dict()
+                 cand_dict.update({
+@@ -2167,10 +2616,60 @@ class SignalPersistenceAndRouter:
+                     "resonance_summary": res_eval["summary"],
+                     "factor_details": res_eval["factors"],
+                 })
++                if blocked:
++                    # 只给被阻断的行加 `approved=false`：正常信号的 payload 保持原样，
++                    # 不新增键、不改变既有身份（`COALESCE(...,1)` 仍取 1）。
++                    cand_dict["approved"] = False
++                    cand_dict["executable_reason"] = "blocked:" + ",".join(block_reasons)
++                    cand_dict["blocked_reasons"] = block_reasons
++                if rec_check is not None:
++                    # 无论放行还是阻断都留证：这条 recovered 行是**按哪个处理时刻**复核的、
++                    # 窗口截止在哪、来源是什么。阻断时它与 `blocked_reasons` 同源。
++                    cand_dict["recovered_check"] = rec_check
++                exec_state = (_SCOPE.EXEC_STATE_BLOCKED if blocked
++                              else _SCOPE.EXEC_STATE_ENTERABLE)
+                 payload = json.dumps(cand_dict, ensure_ascii=False, default=str)
+                 sig_uid = c.candidate_id
+-                exists = con.execute(
+-                    "SELECT 1 FROM live_signal WHERE signal_uid=?", (sig_uid,)).fetchone()
++
++                # ── 同 UID 冲突闸（工单 B）──────────────────────────────────────
++                # 旧实现只判「行在不在」，然后无条件 DO UPDATE ⇒ 来源不同、事实不同、
++                # 甚至「研究行被升级成 enterable」都静默通过。这里先分类，冲突即**不写**。
++                existing = con.execute(
++                    "SELECT signal_uid, origin, symbol, timeframe, direction, event_time, "
++                    "confirmed_at, available_at, strategy_version, executable_state, "
++                    "payload_json FROM live_signal WHERE signal_uid=?", (sig_uid,)).fetchone()
++                if existing is not None:
++                    old_row = dict(existing)
++                    try:
++                        old_payload = json.loads(old_row.get("payload_json") or "{}")
++                    except (ValueError, TypeError):
++                        old_payload = {}
++                    incoming_facts = {
++                        "origin": declared_origin,
++                        "symbol": c.symbol, "timeframe": TIMEFRAME, "direction": "long",
++                        "event_time": c.snapshot_time_ms,
++                        "confirmed_at": c.snapshot_time_ms,
++                        "available_at": c.available_at_ms,
++                        "strategy_version": c.strategy_version,
++                        "event_id": cand_dict.get("event_id"),
++                        "box_high_h": c.box_high_h, "box_low_l": c.box_low_l,
++                        "breakout_close": c.breakout_close,
++                        "initial_stop_price": c.initial_stop_price,
++                    }
++                    conflict = classify_uid_conflict(
++                        old_row, old_payload, incoming_facts,
++                        incoming_exec_state=exec_state)
++                    if conflict:
++                        stats["conflict_rejected"][sig_uid] = conflict
++                        stats["conflict_rejected_n"] += 1
++                        for _r in conflict:
++                            _code = _r.split(":", 1)[0]
++                            stats["conflict_reasons"][_code] = \
++                                stats["conflict_reasons"].get(_code, 0) + 1
++                        logger.warning(
++                            "[persist] 同 UID 冲突拒绝更新 uid=%s origin=%s reasons=%s",
++                            sig_uid, declared_origin, conflict)
++                        continue
+                 con.execute(
+                     "INSERT INTO live_signal("
+                     "signal_uid, source, origin, exchange, market, symbol, timeframe, "
+@@ -2178,59 +2677,106 @@ class SignalPersistenceAndRouter:
+                     "confirmed_at, available_at, bar_open_time, bar_close_time, detection_low, "
+                     "detection_atr, display_state, executable_state, payload_json, first_seen_at, updated_at) "
+                     "VALUES(?, 'wyckoff_v0_1', ?, ?, ?, ?, ?, "
+-                    "?, ?, 'breakout', 'long', ?, ?, ?, ?, ?, ?, ?, 'displayable', 'enterable', ?, ?, ?) "
++                    "?, ?, 'breakout', 'long', ?, ?, ?, ?, ?, ?, ?, 'displayable', ?, ?, ?, ?) "
+                     "ON CONFLICT(signal_uid) DO UPDATE SET "
+                     "payload_json=excluded.payload_json, "
+                     "executable_state=excluded.executable_state, "
+                     "display_state=excluded.display_state, "
+-                    "updated_at=excluded.updated_at",
++                    "updated_at=excluded.updated_at "
++                    # 结构性双保险：即使分类器将来被改坏，UPDATE 也只作用于同来源的行。
++                    "WHERE live_signal.origin=excluded.origin",
+                     (
+-                        sig_uid, origin, EXCHANGE, MARKET, c.symbol, TIMEFRAME,
++                        sig_uid, declared_origin, EXCHANGE, MARKET, c.symbol, TIMEFRAME,
+                         STRATEGY_KEY, c.strategy_version, c.snapshot_time_ms,
+                         c.snapshot_time_ms, c.available_at_ms, c.snapshot_time_ms - H1,
+                         c.snapshot_time_ms, c.initial_stop_price, c.box_atr_a,
+-                        payload, now, now
++                        exec_state, payload, now, now
+                     )
+                 )
+-                if exists:
++                if existing is not None:
+                     stats["updated"] += 1
+                 else:
+                     stats["new"] += 1
++                if blocked:
++                    stats["blocked"] += 1
++                    stats["blocked_reasons"][sig_uid] = block_reasons
+             con.commit()
+         finally:
+             con.close()
+         stats["total_written"] = stats["new"] + stats["updated"]
+         return stats
+ 
+-    def _scan_actionable(self, con_live, origin: Optional[str] = None) -> List[dict]:
+-        """按**与界面同一口径**扫描本臂可执行信号。
+-
+-        限定项（缺一不可）：交易所 / 市场 / 周期 / 事件角色 / 所属臂 / 时间字段齐备。
+-        不再只按 `strategy_key` 裸扫全库 —— 那会把其它交易所、其它市场、以及
+-        结构证据提示（`role != enterable_arm_entry`）一并当成可开仓信号。
++    def _scan_actionable_ex(self, con_live, origin: Optional[str] = None) -> Tuple[List[dict], dict]:
++        """按**与界面同一口径**扫描本臂可执行信号，并返回**扫描诊断**。
++
++        PR2-WO-02 重写要点（工单 B/C/D）：
++          · 判据来源与 `live_api.live_signals` **同一份**（`_SCOPE.actionable_scope_where`）
++            ⇒ 页面看得到 与 路由扫得到 不可能再分叉；
++          · `origin` **必填**：缺失不再等于「全库扫描」，而是明确拒绝
++            （旧实现 `if origin:` 让 None 变成无来源过滤，任何来源的行都能进扫描）；
++          · 水位不可用 ⇒ 返回 `live_watermark_unavailable`，不返回空列表冒充「扫过了」；
++          · 测试 UID（`sig_closeloop_*` / `sig_ui_test_*`）无条件排除；
++          · 历史研究（`historical_research`）与回放来源一律不可执行；
++          · **白名单之外的来源显式拒绝**（`origin_unknown:<x>`，REWORK-01）：
++            旧实现只拒空来源与历史/回放，其余来源会带着 `origin=?` 继续扫描，
++            被 SQL 里的 `origin IN ('live','recovered')` 恒假过滤掉 ⇒ 返回 0 条且
++            `blocked_reason=None`，与「扫过了、没有信号」无法区分。这里只补原因码，
++            **不扩大 `ACTIONABLE_ORIGINS`、不放宽任何既有判据**；
++          · SQL 只做粗筛，最终逐条走 `signal_admission_reasons` 复核。
++
++        返回 `(可执行行列表, 诊断)`；诊断为 `{blocked_reason, scanned, actionable, filtered}`。
+         """
+-        where = [
+-            "executable_state='enterable'",
++        diag = {"blocked_reason": None, "scanned": 0, "actionable": 0, "filtered": {}}
++        declared = (origin or "").strip() if isinstance(origin, str) else origin
++        if not declared:
++            # 安全默认：**不知道来源就不扫**（不是「扫全部」）
++            diag["blocked_reason"] = "origin_scope_required"
++            return [], diag
++        if declared in _SCOPE.NON_ACTIONABLE_ORIGINS:
++            diag["blocked_reason"] = f"origin_not_actionable:{declared}"
++            return [], diag
++        if declared not in _SCOPE.ACTIONABLE_ORIGINS:
++            # PR2-WO-02-REWORK-01（工单 A）：白名单之外的来源必须**显式拒绝**。
++            # 放在水位检查**之前**：来源不明时不该由「水位是否可读」决定回答什么，
++            # 否则同一条未知来源会因水位状态不同而给出两种不同原因码。
++            diag["blocked_reason"] = f"origin_unknown:{declared}"
++            return [], diag
++
++        floor_ms, floor_reason = _SCOPE.resolve_live_floor_ms()
++        if floor_ms is None:
++            # 工单 D：水位不可用必须给出明确原因，不得静默返回空列表
++            diag["blocked_reason"] = floor_reason or _SCOPE.LIVE_WATERMARK_UNAVAILABLE
++            return [], diag
++
++        where, args = _SCOPE.actionable_scope_where()
++        where.extend([
+             "exchange=?", "market=?", "timeframe=?",
+             "json_extract(payload_json,'$.role')=?",
+             "json_extract(payload_json,'$.arm')=?",
+-            "confirmed_at IS NOT NULL AND available_at IS NOT NULL",
+-            # ── 已批准规则的缺失实现（SIGNAL-EFFECTIVE-01-WORK）───────────────────
+-            # 「approved=false 的配置不得用于任何执行行为」是已批准规则（06-02 待决清单），
+-            # 但改动前它**只写在 executable_reason 文案里，没有任何代码读取**。
+-            # 实测后果：研究回测行被改成 origin='recovered'/executable_state='enterable' 后，
+-            # 只剩「payload.arm 与运行臂不等」这一个数据值在挡（隔离复现 12 条被登记挂单）。
+-            # 这里补上唯一的代码级判据：payload.approved 明确为 false ⇒ 不进可执行扫描。
+-            # 对真实实时信号无影响（它们的 payload 没有 approved 字段 ⇒ COALESCE 取 1）。
+-            "COALESCE(json_extract(payload_json,'$.approved'),1)<>0",
+-        ]
+-        args: List[Any] = [EXCHANGE, MARKET, TIMEFRAME, ARM_ENTRY_ROLE, self.arm]
+-        if origin:
+-            where.append("origin=?")
+-            args.append(origin)
++            "origin=?",
++            _SCOPE.FLOOR_RIGHT_EDGE_SQL,
++        ])
++        args.extend([EXCHANGE, MARKET, TIMEFRAME, ARM_ENTRY_ROLE, self.arm,
++                     declared, int(floor_ms)])
+         sql = ("SELECT * FROM live_signal WHERE " + " AND ".join(where)
+                + " ORDER BY confirmed_at ASC")
+-        return [dict(r) for r in con_live.execute(sql, args).fetchall()]
++        rows = [dict(r) for r in con_live.execute(sql, args).fetchall()]
++        diag["scanned"] = len(rows)
++
++        out: List[dict] = []
++        for r in rows:
++            reasons = signal_admission_reasons(r, origin=declared, floor_ms=floor_ms)
++            if reasons:
++                diag["filtered"][r["signal_uid"]] = reasons
++            else:
++                out.append(r)
++        diag["actionable"] = len(out)
++        return out, diag
++
++    def _scan_actionable(self, con_live, origin: Optional[str] = None) -> List[dict]:
++        """兼容旧调用：只要行、不要诊断。判据与 `_scan_actionable_ex` 完全同一份。"""
++        rows, _diag = self._scan_actionable_ex(con_live, origin)
++        return rows
+ 
+     def route_pending_orders(self, now_ms: int, origin: Optional[str] = None) -> dict:
+         """从 live_signal 扫描未处理的可执行信号，经契约核验与风控后登记挂单。
+@@ -2238,12 +2784,22 @@ class SignalPersistenceAndRouter:
+         闸门（`new_entry_gate`）暂停期间：**不写任何状态**（不写 `paper_processed`、
+         不写 `paper_order`、不登记挂单）⇒ 恢复后同一批信号可被重新扫描并重试；
+         同时如实返回 `waiting_gate` 条数，暂停不再表现为「本轮 0 条、什么都没有」。
++
++        PR2-WO-02：新增 `blocked_reason` / `scanned` / `filtered` 三个**附加**键
++        （只增不改，既有键语义与类型不变）。`blocked_reason` 非空表示**本轮没有做
++        任何扫描或登记**，且原因明确 —— 调用方不得把它当成「扫过了、没有信号」。
+         """
+         con_live = L.live_conn()
+         stats = {"processed": 0, "registered": 0, "rejected": 0,
+-                 "waiting_gate": 0, "terminal": 0, "errors": []}
++                 "waiting_gate": 0, "terminal": 0, "errors": [],
++                 "blocked_reason": None, "scanned": 0, "filtered": {}}
+         try:
+-            signals = self._scan_actionable(con_live, origin)
++            signals, diag = self._scan_actionable_ex(con_live, origin)
++            stats["scanned"] = diag["scanned"]
++            stats["filtered"] = diag["filtered"]
++            stats["blocked_reason"] = diag["blocked_reason"]
++            if diag["blocked_reason"]:
++                return stats
+             if not signals:
+                 return stats
+ 
+@@ -2287,11 +2843,21 @@ class SignalPersistenceAndRouter:
+                     s_event_time = int(sig.get("event_time") or now_ms)
+                     s_avail_at = int(sig.get("available_at") or now_ms)
+ 
++                    # 方向：**用行里经过准入校验的真实方向**，不再硬编码 "long"。
++                    # 工单第 10 条：方向缺失/非法一律不得生成模拟订单。准入层已经用
++                    # `direction_not_long:*` 拦掉了，这里再守一道，防止未来放宽准入后
++                    # 出现「行里写 short、却按 long 开仓」的错向挂单。
++                    direction = sig.get("direction")
++                    if direction != "long":
++                        stats["rejected"] += 1
++                        stats["filtered"][suid] = [f"direction_not_long:{direction}"]
++                        continue
++
+                     # 调用 paper_engine.open_position 统一进行契约验证、挂单登记与风控校验
+                     reg_res = PE.open_position(
+-                        self.arm, sym, signal_uid=suid, direction="long",
++                        self.arm, sym, signal_uid=suid, direction=direction,
+                         now_ms=now_ms, event_time=s_event_time, available_at=s_avail_at,
+-                        requested_at=now_ms, origin=sig.get("origin", "live")
++                        requested_at=now_ms, origin=sig.get("origin") or "live"
+                     )
+ 
+                     if reg_res.get("ok") or reg_res.get("reason") == "pending_future_fill":
+@@ -2457,6 +3023,9 @@ class UnifiedExecutionDaemon:
+ class UnifiedRuntime:
+     """SYSTEM-RUNTIME-01 统一运行时调度中心。具备独占锁、优雅退出、断点恢复与全状态暴露。"""
+ 
++    # 同 UID 冲突审计流水的保留条数（有界，避免状态文件无限膨胀）
++    _SIGNAL_CONFLICT_KEEP = 200
++
+     def __init__(self, arm: str = "3a", symbols: Optional[List[str]] = None,
+                  poll_interval_sec: float = 1.0,
+                  lock_dir: Optional[Path] = None, enable_oi_filter: Optional[bool] = None):
+@@ -2507,7 +3076,9 @@ class UnifiedRuntime:
+             "trailing_updates_total": 0,
+             "exits_triggered_total": 0,
+             "last_error": None,
+-            "health": "initialized"
++            "health": "initialized",
++            # 同 UID 冲突拒绝的可审计流水（有界，只进状态文件，不写库、不改表结构）
++            "signal_conflicts": []
+         }
+ 
+         # 尝试从 SQLite 账本恢复历史断点
+@@ -2559,12 +3130,36 @@ class UnifiedRuntime:
+         finally:
+             con_p.close()
+ 
++    def _record_signal_conflicts(self, stats: Optional[dict], *, origin: str,
++                                 now_ms: int) -> None:
++        """把「同 UID 冲突被拒绝」写进运行时可审计流水（工单 B 第 4 条）。
++
++        为什么不写数据库：本单明确禁止修改数据库结构，新增审计表就是改结构。
++        因此审计面用**既有**状态文件（`locks/paper_runtime_<arm>_status.json`）承载：
++        有界（保留最近 `_SIGNAL_CONFLICT_KEEP` 条）+ 每条带 uid / 来源 / 原因码 / 时刻。
++        日志同时落一条 warning，两处独立可查。
++        """
++        rej = (stats or {}).get("conflict_rejected") or {}
++        if not rej:
++            return
++        buf = self.stats.setdefault("signal_conflicts", [])
++        for uid, reasons in rej.items():
++            buf.append({"at_ms": int(now_ms), "origin": origin,
++                        "signal_uid": uid, "reasons": list(reasons)})
++        if len(buf) > self._SIGNAL_CONFLICT_KEEP:
++            del buf[:-self._SIGNAL_CONFLICT_KEEP]
++
+     def _route_recovered_candidates(self, now_ms: Optional[int] = None) -> dict:
+         """把 bootstrap 期间「仍在成交时效内」的候选落库并交给路由（SIGNAL-CLOSURE-06）。
+ 
+         与 `step_once` 的差别只有**来源标记**：这些候选的 `origin='recovered'`，
+         所以 `route_pending_orders(origin='live')` 不会扫到它们，必须在这里显式路由。
+ 
++        **落库前重新复核时效**（PR2-RECOVERED-HARDEN-01 工单 A）：bootstrap 判的是
++        「预热截止时刻还在不在窗内」，而本方法可能在整轮全池预热之后才被调用。
++        因此这里把**本次实际处理时刻**交给 `persist_candidates`，由它逐条重判；
++        过期 / 来源不可信 / 时间证据不足的候选落 `blocked` 并留原因码，不进路由。
++
+         幂等性（工单第 5 条「不重复发信号、不重复下单」）由三层既有机制保证，
+         本方法**不新造**任何去重逻辑：
+           · `live_signal` 按 `signal_uid`(=candidate_id) 冲突即更新，不新增行；
+@@ -2574,7 +3169,10 @@ class UnifiedRuntime:
+         """
+         rec = list(getattr(self.signal_engine, "recovered_candidates", []) or [])
+         out = {"recovered": len(rec), "persisted": 0, "registered": 0,
+-               "rejected": 0, "waiting_gate": 0, "skipped": 0}
++               "rejected": 0, "waiting_gate": 0, "skipped": 0,
++               # 工单 A / B 的可审计面（只增不改：既有键语义与类型不变）
++               "blocked": 0, "blocked_reasons": {},
++               "conflict_rejected_n": 0, "conflict_rejected": {}}
+         if not rec:
+             return out
+         if os.environ.get("WX_RECOVER_LIVE_CANDIDATES", "1") == "0":
+@@ -2584,8 +3182,20 @@ class UnifiedRuntime:
+             return out
+         now = int(now_ms if now_ms is not None else time.time() * 1000)
+         try:
+-            st = self.router.persist_candidates(rec, origin="recovered", now_ms=now)
++            # ── 落库前时效复核（PR2-RECOVERED-HARDEN-01 工单 A）──────────────────
++            # 凭据必须一起交下去：`persist_candidates` 靠它区分「重启恢复」与
++            # 「显式回放对象」，并按**本次实际处理时刻 `now`** 重判时效窗口。
++            prov = dict(getattr(self.signal_engine, "recovered_provenance", {}) or {})
++            st = self.router.persist_candidates(rec, origin="recovered", now_ms=now,
++                                                provenance=prov)
+             out["persisted"] = st.get("total_written", 0)
++            # 新增的**只增不改**统计：被时效/来源/证据判据阻断的条数与原因、
++            # 被同 UID 冲突拒绝的条数与原因（工单 A 第 4 条、工单 B 第 4 条的可审计面）。
++            out["blocked"] = st.get("blocked", 0)
++            out["blocked_reasons"] = st.get("blocked_reasons", {})
++            out["conflict_rejected_n"] = st.get("conflict_rejected_n", 0)
++            out["conflict_rejected"] = st.get("conflict_rejected", {})
++            self._record_signal_conflicts(st, origin="recovered", now_ms=now)
+             r = self.router.route_pending_orders(now, origin="recovered")
+             out["registered"] = r.get("registered", 0)
+             out["rejected"] = r.get("rejected", 0)
+@@ -2705,7 +3315,26 @@ class UnifiedRuntime:
+                 # 因此这里如实暴露积压量，而不是让暂停表现为「本轮 0 条」。
+                 "orders_waiting_gate": self.stats.get("orders_waiting_gate", 0),
+                 "new_entry_gate": PE.new_entry_gate(),
+-                "current_pending_in_db": pending_orders_count
++                "current_pending_in_db": pending_orders_count,
++                # ── PR2-RECOVERED-HARDEN-01 可审计面（只增不改）─────────────────
++                # 恢复候选这一路发生了什么：落库几条、被时效/来源/证据判据阻断几条、
++                # 同 UID 冲突拒绝几条，以及最近若干条冲突明细（uid + 原因码 + 时刻）。
++                # 不新增数据库表（工单禁止改结构），审计走既有状态文件。
++                "recovered": {
++                    "last_route": dict(getattr(self, "recovered_route_stats", {}) or {}),
++                    "recovered_check_policy": {
++                        "window": "execution_earliest_ms + MAX_FILL_LAG_MS",
++                        "max_fill_lag_ms": int(PE.MAX_FILL_LAG_MS),
++                        "boundary": "processed_at <= deadline 算窗内（与 bootstrap 同一方向）",
++                        "reason_codes": [RC_WINDOW_EXPIRED, RC_TIME_EVIDENCE_MISSING,
++                                         RC_AVAILABLE_IN_FUTURE, RC_EXEC_POINT_TAMPERED,
++                                         RC_ORIGIN_UNTRUSTED, RC_REPLAY_OBJECT,
++                                         RC_PROVENANCE_MISSING],
++                    },
++                    "signal_conflicts_recent": list(
++                        self.stats.get("signal_conflicts", []))[-20:],
++                    "signal_conflicts_total": len(self.stats.get("signal_conflicts", [])),
++                },
+             },
+             "execution_daemon": {
+                 "status": "running" if not self._stop_event.is_set() else "stopped",
+@@ -2835,6 +3464,9 @@ class UnifiedRuntime:
+             "new_signals": 0,
+             "routed": 0,
+             "waiting_gate": 0,
++            # PR2-WO-02：路由**没有执行**时的明确原因（如 `live_watermark_unavailable`）。
++            # 非空 ⇒ 本轮既没扫描也没登记，不得被读成「扫过了、没有信号」。
++            "routed_blocked_reason": None,
+             "matched": 0,
+             "trailing_updates": 0,
+             "exits": 0,
+@@ -2857,7 +3489,10 @@ class UnifiedRuntime:
+                 summary["new_signals"] = len(new_cands)
+                 self.stats["signals_generated_total"] += len(new_cands)
+                 # 2. 信号持久化
+-                self.router.persist_candidates(new_cands, origin=origin, now_ms=now)
++                p_stats = self.router.persist_candidates(new_cands, origin=origin, now_ms=now)
++                # 同 UID 冲突拒绝 → 运行时审计流水（工单 B 第 4 条）。
++                # 这里只记账，不改变任何写入结论：真正拒绝发生在 persist 内部。
++                self._record_signal_conflicts(p_stats, origin=origin or "", now_ms=now)
+                 if origin == "live" and get_notifier:
+                     tn = get_notifier()
+                     for cand in new_cands:
+@@ -2879,6 +3514,7 @@ class UnifiedRuntime:
+             r_res = self.router.route_pending_orders(now, origin=origin)
+             summary["routed"] = r_res["registered"]
+             summary["waiting_gate"] = r_res.get("waiting_gate", 0)
++            summary["routed_blocked_reason"] = r_res.get("blocked_reason")
+             self.stats["orders_routed_total"] += r_res["registered"]
+             self.stats["orders_rejected_total"] += r_res["rejected"]
+             self.stats["orders_waiting_gate"] = r_res.get("waiting_gate", 0)
+@@ -2929,7 +3565,14 @@ class UnifiedRuntime:
+             self.signal_engine.history_floor_ms = \
+                 self.signal_engine.resolve_replay_floor(int(start_ms))
+             self.watcher.sync_dataset_bars_upto(int(start_ms))
+-            self.signal_engine.bootstrap(int(start_ms), log=logger.info)
++            # PR2-RECOVERED-HARDEN-01 工单 A 第 3 条：显式回放期间产生的候选必须带
++            # 「这是回放对象」的凭据（`explicit_replay=True`），即使恰好落在成交时效内，
++            # 也不得进入 recovered 可执行写入路径。回放结束立刻复位，不污染常驻进程。
++            self.signal_engine.replay_context = True
++            try:
++                self.signal_engine.bootstrap(int(start_ms), log=logger.info)
++            finally:
++                self.signal_engine.replay_context = False
+             cur_ms = start_ms
+             while cur_ms <= end_ms:
+                 res = self.step_once(now_ms=cur_ms, origin="replay")

@@ -1,0 +1,142 @@
+{
+  "at": "2026-10-29T07:51:29Z",
+  "env": {
+    "MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "CONTRACTS_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池",
+    "PYTHONPATH_HEAD": [
+      "/private/tmp/backtest-repair-01/策略",
+      "/private/tmp/backtest-repair-01/框架/backend"
+    ],
+    "cwd": "/private/tmp/backtest-repair-01",
+    "worktree": "/private/tmp/backtest-repair-01"
+  },
+  "data": {
+    "symbol": "BTCUSDT",
+    "window": [
+      "2026-06-01",
+      "2026-09-30"
+    ],
+    "bar_4h": 946,
+    "bar_1h": 2904,
+    "bar_15m": 11616,
+    "oi_rows": 646236,
+    "funding_events": 7436,
+    "range_1h": [
+      "2026-06-01T00:00:00Z",
+      "2026-09-30T00:00:00Z"
+    ],
+    "range_4h": [
+      "2026-04-25T08:00:00Z",
+      "2026-09-29T23:59:59Z"
+    ],
+    "load_sec": 0.96
+  },
+  "drivers": {
+    "A_现状_按4h推进": {
+      "calls": 946,
+      "processed_1h_opens": 2904,
+      "processed_4h_opens": 946,
+      "one_h_bars_available": 2904,
+      "one_h_coverage_pct": 100.0,
+      "candidates": 0,
+      "funnel": {
+        "boxes": 18,
+        "completed_events": 17,
+        "sweeps": 5,
+        "retests": 3,
+        "breakouts": 0,
+        "volume_rejected": 0,
+        "oi_rejected": 0,
+        "oi_unavailable": 0,
+        "expired": 8,
+        "invalidated": 9,
+        "candidates": 0
+      },
+      "oi_diag": {
+        "enabled": true,
+        "windows_loaded": 726,
+        "rows_loaded": 13185,
+        "rows_duplicate_ts": 0,
+        "rows_invalid_value": 0,
+        "rows_unknown_availability": 13185,
+        "decisions_with_oi": 0,
+        "decisions_without_oi": 2904,
+        "last_window_utc": {
+          "from": "2026-09-29T13:50:00Z",
+          "to": "2026-09-30T00:00:00Z"
+        },
+        "last_reason": null,
+        "errors": [],
+        "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+      },
+      "causality_violations": [],
+      "sec": 0.96
+    },
+    "B_逐1h步进_同一引擎": {
+      "calls": 2904,
+      "processed_1h_opens": 2904,
+      "processed_4h_opens": 946,
+      "one_h_bars_available": 2904,
+      "one_h_coverage_pct": 100.0,
+      "candidates": 0,
+      "funnel": {
+        "boxes": 18,
+        "completed_events": 17,
+        "sweeps": 5,
+        "retests": 3,
+        "breakouts": 0,
+        "volume_rejected": 0,
+        "oi_rejected": 0,
+        "oi_unavailable": 0,
+        "expired": 8,
+        "invalidated": 9,
+        "candidates": 0
+      },
+      "oi_diag": {
+        "enabled": true,
+        "windows_loaded": 2904,
+        "rows_loaded": 37319,
+        "rows_duplicate_ts": 0,
+        "rows_invalid_value": 0,
+        "rows_unknown_availability": 37319,
+        "decisions_with_oi": 0,
+        "decisions_without_oi": 2904,
+        "last_window_utc": {
+          "from": "2026-09-29T16:50:00Z",
+          "to": "2026-09-30T00:00:00Z"
+        },
+        "last_reason": null,
+        "errors": [],
+        "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+      },
+      "causality_violations": [],
+      "sec": 2.71
+    },
+    "C_回测自有状态机_parquet_OI": {
+      "calls": 2904,
+      "processed_1h_opens": 0,
+      "one_h_bars_available": 2904,
+      "candidates": 0,
+      "funnel": {
+        "boxes": 17,
+        "completed_events": 16,
+        "sweeps": 4,
+        "retests": 3,
+        "breakouts": 0,
+        "volume_rejected": 0,
+        "oi_rejected": 0,
+        "oi_unavailable": 0,
+        "expired": 8,
+        "invalidated": 8,
+        "candidates": 0
+      },
+      "causality_violations": [],
+      "sec": 0.15
+    }
+  },
+  "verdict": {
+    "A_vs_B_same": true,
+    "note": "A_vs_B_same=True 表示「按 4h 推进」并没有丢掉 1h 步进（引擎内部按区间批量取 1h），问题不在步进粒度上；False 则说明 4h 驱动确实少喂了 1h。"
+  }
+}

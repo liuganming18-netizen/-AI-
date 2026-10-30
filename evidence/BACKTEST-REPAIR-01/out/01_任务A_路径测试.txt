@@ -1,0 +1,47 @@
+test_base_dir_follows_code_not_cwd (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility) ... ok
+test_contracts_default_dir_unchanged (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility)
+默认合约快照目录仍是 `数据/contracts/旧标的池`（未因本次改动漂移）。 ... ok
+test_default_spec_book_missing_is_not_fatal (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility)
+**生产兼容关键点**：默认路径缺失时不得抛错（旧行为），但要留 `missing_reason`。 ... ok
+test_oi_feed_default_hot_db_matches_legacy (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility)
+`oi_feed.default_hot_db()` 缺省值 = 旧版 `parents[2]/数据/.../market_v2.sqlite3`。 ... ok
+test_parquet_and_runs_under_project_root (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility) ... ok
+test_runner_default_paths_equal_legacy_join (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT01DefaultCompatibility)
+`EventTrendRunner()` 无参构造 ⇒ 与旧版 `os.path.join(base_dir, ...)` 等价。 ... ok
+test_chdir_elsewhere_keeps_project_root (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT02CwdIndependence) ... ok
+test_chdir_to_root_slash (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT02CwdIndependence) ... ok
+test_relative_env_is_absolutised (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT02CwdIndependence)
+环境变量给相对路径时，必须基于**当前工作目录**展开成绝对路径。 ... ok
+test_tilde_env_is_expanded (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT02CwdIndependence) ... ok
+test_readonly_connection_does_not_mutate (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT03ExternalPathsOk)
+`_connect` 必须是只读连接：写操作应被 sqlite 拒绝。 ... ok
+test_real_readonly_paths (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT03ExternalPathsOk) ... ok
+test_spec_book_reads_external_dir (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT03ExternalPathsOk) ... ok
+test_synthetic_external_env_all_green (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT03ExternalPathsOk) ... ok
+test_missing_contracts_dir_explicit_arg_raises (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud) ... ok
+test_missing_contracts_dir_explicit_raises (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud) ... ok
+test_missing_contracts_dir_non_strict_records_reason (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud)
+非严格模式（默认路径）不抛错，但必须留下可读的 `missing_reason`。 ... ok
+test_missing_market_db_connect_raises_filenotfound (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud) ... ok
+test_missing_market_db_does_not_fall_back (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud)
+**不许静默换源**：环境变量指错了就报错，不能偷偷去读工程默认库。 ... ok
+test_missing_market_db_probe_reports (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud) ... ok
+test_runner_report_lists_all_missing (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT04MissingPathsFailLoud) ... ok
+test_contracts_dir_pointing_at_file (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT05IllegalPaths)
+把文件当目录：`exists()` 真但 `glob` 无内容 ⇒ 不能当「有快照」。 ... ok
+test_directory_as_market_db (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT05IllegalPaths)
+目录冒充数据库：`exists()` 为真，但打不开 ⇒ 必须报错而不是当空库。 ... ok
+test_non_sqlite_file_as_market_db (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT05IllegalPaths) ... ok
+test_runner_report_flags_unreadable_db (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT05IllegalPaths) ... ok
+test_sqlite_without_oi_history_table (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT05IllegalPaths)
+库能打开但没有 `oi_history` ⇒ 必须如实标 False，不能当作「OI 全 0」。 ... ok
+test_bare_tree_reports_three_problems (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT06IsolatedWorktree) ... ok
+test_bare_tree_then_env_rescue (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT06IsolatedWorktree)
+裸树 + 环境变量指向外部只读库 ⇒ 立刻可用（工单要求的核心用法）。 ... ok
+test_runs_base_outside_tree (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_paths.TestT06IsolatedWorktree)
+`WX_RUNS_BASE` 可把产物写到工作树外 ⇒ 隔离树不被回测产物污染。 ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.525s
+
+OK

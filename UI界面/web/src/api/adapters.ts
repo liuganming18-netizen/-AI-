@@ -749,7 +749,9 @@ export function adaptSignal(row: RawSignal, symbolByMarketId: Map<string, string
     direction,
     timeframe: isTimeframe(row.timeframe) ? row.timeframe : null,
     // UI05 修复：用**确认时刻**（confirmed_at/event_time）而非 created_at 冒充触发时间。
-    triggerTime: row.confirmed_at ?? row.event_time ?? row.created_at,
+    // PR2-WO-01：`created_at` 是**记录建库时刻**，与信号何时触发无关，任何情况下都不得回退到它。
+    // 两个真实时刻都缺失 ⇒ 明确给 null，由界面显示「触发时间未知」，不编造时间。
+    triggerTime: row.confirmed_at ?? row.event_time ?? null,
     status: SIGNAL_STATUS_MAP[row.status ?? ''] ?? null,
     triggerPrice: (row as any).trigger_price ?? (row as any).breakout_price ?? (row as any).price ?? row.detection_low ?? null,
     currentPrice: (row as any).price ?? null,

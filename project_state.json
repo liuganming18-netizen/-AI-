@@ -1,0 +1,83 @@
+{
+  "project": "WyckoffMaster v3.1",
+  "state_version": 1,
+  "updated_at_utc": "2026-10-28T18:30:00Z",
+  "updated_by": "Work",
+  "git_baseline": {
+    "branch": "wyckoff-v3.1-main",
+    "baseline_sha": "9c8929d50a60ffa897496d028bff11649bfdbcfd"
+  },
+  "current_task": {
+    "task_id": "AGENT-GATE-ADAPT-01",
+    "title": "复用旧分支门禁设计，完成暂存区校验与参数保护适配（默认不启用强制门禁）",
+    "status": "in_progress",
+    "assigned_to": "Work",
+    "auditor": "Codex",
+    "coordinator": "Codex",
+    "allowed_paths": [
+      "框架/ops/agent_gate.py",
+      "project_state.json",
+      "tests/test_agent_gate.py"
+    ],
+    "protected_state_files": [
+      "AGENTS.md",
+      "project_state.json",
+      "docs/用户约定/当前交接.md",
+      "docs/用户约定/用户要求与决策.md",
+      "框架/ops/agent_gate.py"
+    ],
+    "blockers": [
+      "强制门禁默认关闭，启用前需独立验收",
+      "首次引入的可信审核凭据方案未确认，严格模式对首次引入一律拒绝",
+      "本任务对 框架/ops/agent_gate.py 的修改属任务专属授权，任务结束后由 Codex 收回"
+    ],
+    "evidence_path": null
+  },
+  "parameters": {
+    "initial_stop_loss_pct": {
+      "value": 0.05,
+      "approved": true,
+      "approval_source": "docs/用户约定/用户要求与决策.md:66",
+      "source": "策略/WyckoffMaster/event_trend_v0_1/config.py:81 stoploss_s",
+      "note": "初始止损＝实际成交价 × 95%。批准出处为用户决策记录「已确认的止损决定」，不是从代码推断。"
+    },
+    "trailing_stop_4h_low_pct": {
+      "value": 0.05,
+      "approved": true,
+      "approval_source": "docs/用户约定/用户要求与决策.md:67",
+      "source": "策略/WyckoffMaster/event_trend_v0_1/config.py:82 trail_d",
+      "note": "候选止损＝该根 4h 最低价 × 95%，取初始/此前/本次最高值，只上移不下移。批准出处同上。"
+    },
+    "execution_timing_rule": {
+      "value": "earliest_next_15m_bar_no_backfill",
+      "approved": true,
+      "approval_source": "docs/用户约定/用户要求与决策.md:68",
+      "source": "文档原话「按既有 15 分钟执行规则；确认于 12:00 时，最早 12:15，不回填 12:00」",
+      "note": "只描述「什么时候执行」：最早下一刻钟，且不得回填上一根。不涉及成交价格。"
+    },
+    "execution_price_semantics": {
+      "value": null,
+      "approved": false,
+      "source": "框架/backend/paper_engine.py:114 FILL_POLICY（ratification_status=pending_human_ratification）",
+      "note": "「用哪根 bar 的什么价成交」未获批准。代码当前取该 15m bar 的 open，但 FILL_POLICY 自标待人工批准，故 value 留空、不批准。时间规则与价格语义必须分开，改价格语义须另行授权。"
+    },
+    "accumulation_trigger_mode": {
+      "value": "1A_vs_1B_vs_1C_pending",
+      "approved": false,
+      "source": "无代码实现；研究待对比（旧分支同名条目，来源为待决研究项）",
+      "note": "突破确认 / 下一小时保持 / 回抽确认三种口径未择一，禁止直接替换主策略。"
+    },
+    "local_fail_early_exit": {
+      "value": null,
+      "approved": false,
+      "source": "无代码实现；仅打点记录",
+      "note": "跌破局部支撑是否立即平仓尚未批准。"
+    },
+    "oi_mandatory_filter": {
+      "value": null,
+      "approved": false,
+      "source": "策略/WyckoffMaster/event_trend_v0_1/config.py:53 enable_oi_filter=True（默认开启）",
+      "note": "代码默认开启 OI 过滤，但「硬门槛还是辅助分组」未批准，故 value 留空不固化。"
+    }
+  }
+}

@@ -1,0 +1,260 @@
+===== 环境 =====
+集成树     : /private/tmp/pr2-integration-exec-01
+分支/HEAD  : pr2-integration-exec-01 / 9c8929d5
+python     : Python 3.9.6
+node       : v22.22.2
+合约规格   : /Users/boos/Desktop/威科夫因子共振趋势/数据/研究输入/外部迁移_2026-10-16/本次离线决策_2026-10-12/07_526币保守执行近似规格.csv
+时刻(本机) : 2026-10-29 14:19:51 CST
+
+########## 前端 ##########
+===== 前端-1 纯逻辑（18 条）=====
+  PASS  A1 只有 created_at（入库时刻）时，triggerTime 必须是 null，不得冒充触发时间
+  PASS  A2 created_at + event_time 都有 ⇒ 取 event_time（信号发生时刻），不取入库时刻
+  PASS  A3 confirmed_at 优先于 event_time
+  PASS  A4 三个时刻全缺 ⇒ null（不是空串、不是 created_at）
+  PASS  B1 两个**不同**指标数值恰好相等 ⇒ 必须都保留（旧实现会合并成一条）
+  PASS  B2 已声明成对且同值 ⇒ 折叠为一条（真别名）
+  PASS  B3 已声明成对但读数**分叉** ⇒ 两列都保留（不能藏起真实差异）
+  PASS  B4 值为 null 的列一律保留（「没读到」不等于「与别人相同」）
+  PASS  B5 未声明的列即使同值也不构成别名（isRatioAliasOf 为 false）
+  PASS  B6 同一列自身不构成别名（同 key 不得判成两列互为别名）
+  PASS  B7 别名映射是显式表：两个组、每组两列，代表键为组内第一列
+  PASS  C1 只有 last_price + last_bar_utc（后端真实形状）⇒ 标「K线收盘价」，不标最新价
+  PASS  C2 有 last_bar.close 但无 last_price ⇒ 标「K线收盘价」
+  PASS  C3 载荷显式声明实时报价 ⇒ 标「最新价」，且优先于 K 线收盘价
+  PASS  C4 有数值但确认不到来源 ⇒ 标「来源未确认」，不得标成实时价
+  PASS  C5 完全没有价格 ⇒ 「价格未知」且 value 为 null
+  PASS  C6 非数值/NaN 脏数据不得被当成价格
+  PASS  C7 标签文案只有四种取值，不存在「现价」这种不分来源的写法
+
+纯逻辑行为测试：18/18 通过
+退出码: 0
+
+===== 前端-2 DOM 渲染（12 条）=====
+  PASS  C1 只有 last_price + last_bar_utc ⇒ 界面显示「K线收盘价」
+  PASS  C1b data-price-source 标为 candle_close
+  PASS  C1c 数值照常显示（68123.45）
+  PASS  C2 载荷显式带实时报价 ⇒ 界面显示「最新价」
+  PASS  C2b 取实时报价值而非 bar 收盘价（68450.12）
+  PASS  C3 有数值但来源不可确认 ⇒ 不标实时价，标「来源未确认」
+  PASS  C4 没有价格 ⇒ 「价格未知」且值为占位符
+  PASS  C5 面板上不再出现旧的「现价」标签
+  PASS  B1 已声明成对且同值 ⇒ 标注为别名
+  PASS  B2 未声明的指标即使数值相同，也**不得**被标成别名
+  PASS  B3 三列多空比在详情里逐列给全（一行都没被吞掉）
+  PASS  R1 渲染过程无未捕获异常
+
+DOM 行为测试：12/12 通过
+退出码: 0
+
+===== 前端-3 TypeScript（tsc --noEmit）=====
+退出码: 0
+
+===== 前端-4 Lint（仓库 lint 脚本 = tsc --noEmit，无 ESLint 依赖）=====
+退出码: 0
+
+===== 前端-5 构建（vite build）=====
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vite.config.ts:15:27). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 1709 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   2.55 kB │ gzip:   1.37 kB
+dist/assets/index-Bus3EP_1.css  126.05 kB │ gzip:  21.46 kB
+dist/assets/index-qpxWvzAh.js   942.01 kB │ gzip: 274.42 kB
+
+✓ built in 462ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+退出码: 0
+
+########## 后端（88 项）##########
+===== 后端 tests.test_pr2_wo_02_fail_closed =====
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 1.760s
+
+OK
+退出码: 0
+
+===== 后端 tests.test_pr2_recovered_harden =====
+......[persist] 同 UID 冲突拒绝更新 uid=cand_e2e_conflict origin=recovered reasons=['conflict_origin_mismatch:historical_research!=recovered']
+.........[persist] 同 UID 冲突拒绝更新 uid=cand_cf_hist origin=recovered reasons=['conflict_origin_mismatch:historical_research!=recovered']
+.[persist] 同 UID 冲突拒绝更新 uid=cand_cf_replay origin=recovered reasons=['conflict_origin_mismatch:replay!=recovered']
+.[persist] 同 UID 冲突拒绝更新 uid=cand_cf_live origin=recovered reasons=['conflict_origin_mismatch:live!=recovered']
+.[persist] 同 UID 冲突拒绝更新 uid=cand_cf_blocked origin=recovered reasons=['conflict_upgrade_refused:blocked->enterable']
+.[persist] 同 UID 冲突拒绝更新 uid=cand_cf_fact origin=live reasons=['conflict_fact_mismatch:event_time', 'conflict_fact_mismatch:confirmed_at', 'conflict_fact_mismatch:available_at']
+[persist] 同 UID 冲突拒绝更新 uid=cand_cf_fact_price origin=live reasons=['conflict_fact_mismatch:initial_stop_price']
+..[persist] 同 UID 冲突拒绝更新 uid=cand_mx_0 origin=recovered reasons=['conflict_origin_mismatch:historical_research!=recovered']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_1 origin=live reasons=['conflict_origin_mismatch:historical_research!=live']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_2 origin=recovered reasons=['conflict_origin_mismatch:replay!=recovered']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_3 origin=live reasons=['conflict_origin_mismatch:replay!=live']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_4 origin=recovered reasons=['conflict_origin_mismatch:live!=recovered']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_5 origin=live reasons=['conflict_upgrade_refused:blocked->enterable']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_6 origin=recovered reasons=['conflict_origin_mismatch:live!=recovered']
+[persist] 同 UID 冲突拒绝更新 uid=cand_mx_9 origin=recovered reasons=['conflict_upgrade_refused:blocked->enterable']
+.
+----------------------------------------------------------------------
+Ran 22 tests in 1.866s
+
+OK
+退出码: 0
+
+===== 后端 tests.test_pr2_paper_entry_harden =====
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 1.434s
+
+OK
+退出码: 0
+
+===== 后端 tests.test_lifecycle_isolation =====
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 0.097s
+
+OK
+退出码: 0
+
+===== 后端 tests.test_live_pool_admission =====
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK
+退出码: 0
+
+===== 后端 tests.test_paper_live_01 =====
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+[SYM_FULL] 持仓量读取失败：unable to open database file
+.F/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/case.py:621: ResourceWarning: unclosed file <_io.TextIOWrapper name='/var/folders/nc/4wrvcr3j62v6gvf995mx198w0000gn/T/paper_live_01_sandbox_onjot8gz/locks/paper_runtime_3a.lock' mode='w' encoding='UTF-8'>
+  outcome.errors.clear()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+[BTCUSDT] 持仓量读取失败：unable to open database file
+...
+======================================================================
+FAIL: test_02_lock_concurrency_and_pid_auto_sync (tests.test_paper_live_01.TestPaperLive01)
+测试同 arm 互斥独占锁及 ServiceManager 从 status.json 自动同步存活 PID。
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pr2-integration-exec-01/框架/backend/tests/test_paper_live_01.py", line 372, in test_02_lock_concurrency_and_pid_auto_sync
+    self.assertEqual(detected_pid, os.getpid(), "ServiceManager 应成功探测到正在运行的存活 PID")
+AssertionError: None != 71282 : ServiceManager 应成功探测到正在运行的存活 PID
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.446s
+
+FAILED (failures=1)
+[bootstrap] {'universe': 3, 'ready': 1, 'skipped': 2, 'skipped_reasons': {'SYM_NO_4H': '4h_bars_insufficient(12<50)', 'SYM_NO_1H': '1h_bars_insufficient(60<200)'}, 'history_candidates_discarded': 0, 'discarded_detail': [], 'discarded_detail_n': 0, 'discarded_detail_consistent': True, 'recovered_candidates': 0, 'recovered_detail': [], 'recovery_gate': 'execution_earliest_ms + MAX_FILL_LAG_MS(3600s) >= upto_ms；是否真能成交仍由 paper_engine.FILL_POLICY 决定', '_window_hours': 472437.2, 'data_source': 'hot_only', 'history': None, 'used': {'replay_window_hours': 2880.0, 'replay_window_start_utc': '2023-07-26T21:13:20Z', 'declared_window_hours': 1160.0, 'state_replay_hours': 2880, 'atr_prewarm_bars_min': 0, 'atr_prewarm_bars_max': 0, 'bars_4h_min': 53, 'bars_4h_max': 53, 'bars_1h_min': 215, 'bars_1h_max': 215, 'box_bars': 42, 'er_bars': 42, 'breakout_vol_lookback': 20}, 'watermark_clamped': False, 'watermark_note': None, 'elapsed_sec': 0.0}
+[bootstrap] {'universe': 1, 'ready': 1, 'skipped': 0, 'skipped_reasons': {}, 'history_candidates_discarded': 0, 'discarded_detail': [], 'discarded_detail_n': 0, 'discarded_detail_consistent': True, 'recovered_candidates': 0, 'recovered_detail': [], 'recovery_gate': 'execution_earliest_ms + MAX_FILL_LAG_MS(3600s) >= upto_ms；是否真能成交仍由 paper_engine.FILL_POLICY 决定', '_window_hours': 498126.2, 'data_source': 'hot_only', 'history': None, 'used': {'replay_window_hours': 2880.0, 'replay_window_start_utc': '2026-07-01T06:15:00Z', 'declared_window_hours': 1160.0, 'state_replay_hours': 2880, 'atr_prewarm_bars_min': 0, 'atr_prewarm_bars_max': 0, 'bars_4h_min': 52, 'bars_4h_max': 52, 'bars_1h_min': 208, 'bars_1h_max': 208, 'box_bars': 42, 'er_bars': 42, 'breakout_vol_lookback': 20}, 'watermark_clamped': False, 'watermark_note': None, 'elapsed_sec': 0.0}
+退出码: 1
+

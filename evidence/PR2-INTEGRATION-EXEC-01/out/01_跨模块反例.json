@@ -1,0 +1,122 @@
+{
+  "ok": 8,
+  "total": 8,
+  "results": [
+    {
+      "n": "1 live 信号 → 隔离模拟挂单",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "quality": "pending",
+        "pending": 1
+      }
+    },
+    {
+      "n": "2 recovered 过期 → 不得进挂单",
+      "ok": true,
+      "detail": {
+        "blocked_reasons": [
+          "recovered_window_expired"
+        ],
+        "http_status": 400,
+        "http_note": "executable_state_not_enterable:blocked,approved_false,before_effective_floor,approved_false"
+      }
+    },
+    {
+      "n": "3 历史/回放/测试 UID → HTTP 不能绕过",
+      "ok": true,
+      "detail": [
+        {
+          "origin": "historical_research",
+          "status": 400,
+          "note": "origin_not_actionable:historical_research,origin_not_actionable"
+        },
+        {
+          "origin": "replay",
+          "status": 400,
+          "note": "origin_not_actionable:replay,origin_not_actionable"
+        },
+        {
+          "origin": "test",
+          "status": 400,
+          "note": "origin_not_actionable"
+        },
+        {
+          "origin": "live(test uid)",
+          "status": 400,
+          "note": "test_signal_uid"
+        }
+      ]
+    },
+    {
+      "n": "4 同 UID 冲突 → blocked 不升级",
+      "ok": true,
+      "detail": {
+        "reasons": [
+          "conflict_upgrade_refused:blocked->enterable"
+        ],
+        "executable_state": "blocked"
+      }
+    },
+    {
+      "n": "5 手动模拟订单仍可登记",
+      "ok": true,
+      "detail": {
+        "server_uid": "manual:369cb53daa174b32a3efd674d4b8569a",
+        "retry_uid": "manual:1793261036590",
+        "status": 200
+      }
+    },
+    {
+      "n": "6 前端不把 K 线收盘价标成最新价",
+      "ok": true,
+      "detail": {
+        "dom_exit": 0,
+        "dom_summary": "12/12 通过"
+      }
+    },
+    {
+      "n": "7 外部 HTTP 时钟注入被拒绝",
+      "ok": true,
+      "detail": [
+        {
+          "field": "now_ms",
+          "status": 400,
+          "note": "external_clock_forbidden"
+        },
+        {
+          "field": "requested_at",
+          "status": 400,
+          "note": "external_clock_forbidden"
+        },
+        {
+          "field": "origin",
+          "value": "replay",
+          "status": 400,
+          "note": "external_origin_forbidden"
+        },
+        {
+          "field": "origin",
+          "value": "test",
+          "status": 400,
+          "note": "external_origin_forbidden"
+        }
+      ]
+    },
+    {
+      "n": "8 long-only 白名单保持不变",
+      "ok": true,
+      "detail": {
+        "actionable_origins": [
+          "live",
+          "recovered"
+        ],
+        "short_reasons": [
+          "direction_not_long:short"
+        ],
+        "http_status": 400
+      }
+    }
+  ],
+  "at": "2026-10-29T08:03:58Z"
+}

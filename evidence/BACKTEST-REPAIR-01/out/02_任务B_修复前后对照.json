@@ -1,0 +1,567 @@
+{
+  "at": "2026-10-29T07:51:37Z",
+  "env": {
+    "MARKET_DB": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+    "MARKET_ARCHIVE": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+    "CONTRACTS_DIR": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池",
+    "WX_RUNS_BASE": null
+  },
+  "worktree": "/private/tmp/backtest-repair-01",
+  "cwd": "/private/tmp/backtest-repair-01",
+  "data_paths": {
+    "base_dir": "/private/tmp/backtest-repair-01",
+    "parquet": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/parquet",
+      "exists": true,
+      "source": "env:MARKET_ARCHIVE",
+      "symbol_dirs": 528,
+      "oi_symbol_dirs": 528
+    },
+    "market_db": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/市场数据/db/market_v2.sqlite3",
+      "source": "env:MARKET_DB",
+      "exists": true,
+      "readable": true,
+      "has_oi_history": true,
+      "error": null
+    },
+    "contracts": {
+      "path": "/Users/boos/Desktop/威科夫因子共振趋势/数据/contracts/旧标的池",
+      "exists": true,
+      "source": "env:CONTRACTS_DIR",
+      "missing_reason": null,
+      "snapshots": 2
+    },
+    "ok": true,
+    "problems": []
+  },
+  "window": [
+    "2026-06-01",
+    "2026-09-30"
+  ],
+  "symbols": {
+    "NEARUSDT": {
+      "data": {
+        "bar_4h": 946,
+        "bar_1h": 2904,
+        "bar_15m": 11616,
+        "oi_rows": 515116,
+        "funding": 6573,
+        "load_sec": 0.78
+      },
+      "before": {
+        "driver": "RealSignalEngine.process_market（按 4h 收盘推进）",
+        "oi_source": "实时热库 oi_history（逐行 fetched_at）",
+        "calls": 946,
+        "processed_1h": 2904,
+        "processed_4h": 946,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 17,
+          "completed_events": 16,
+          "sweeps": 4,
+          "retests": 3,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 1,
+          "expired": 10,
+          "invalidated": 5,
+          "candidates": 0
+        },
+        "oi_diag": {
+          "enabled": true,
+          "windows_loaded": 726,
+          "rows_loaded": 13185,
+          "rows_duplicate_ts": 0,
+          "rows_invalid_value": 0,
+          "rows_unknown_availability": 13185,
+          "decisions_with_oi": 0,
+          "decisions_without_oi": 2904,
+          "last_window_utc": {
+            "from": "2026-09-29T13:50:00Z",
+            "to": "2026-09-30T00:00:00Z"
+          },
+          "last_reason": null,
+          "errors": 0,
+          "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "sec": 0.82
+      },
+      "after": {
+        "driver": "run_state_machine_simulation（逐 1h 步进，4h 收盘成箱）",
+        "oi_source": "parquet oi/binance/um/<symbol>/*.parquet（无发布时刻 ⇒ declared_assumption）",
+        "calls": 2904,
+        "processed_1h": 2904,
+        "processed_4h": 726,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 1,
+        "funnel": {
+          "boxes": 17,
+          "completed_events": 16,
+          "sweeps": 5,
+          "retests": 3,
+          "breakouts": 1,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 9,
+          "invalidated": 6,
+          "candidates": 1
+        },
+        "causality_violations": [],
+        "candidate_chain": [
+          {
+            "uid": null,
+            "snapshot": "2026-09-04T20:00:00Z",
+            "available_at": "2026-09-04T20:00:00Z",
+            "execution_earliest": "2026-09-04T20:15:00Z",
+            "exe_minus_snapshot_ms": 900000,
+            "avail_minus_snapshot_ms": 0
+          }
+        ],
+        "pit": {
+          "qualified": false,
+          "qualification_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻",
+            "oi_read_under_assumption:1次按桶结束假设取用"
+          ],
+          "candles_checked": 6534,
+          "oi_reads": 1,
+          "oi_assumed_reads": 1,
+          "oi_refused_reads": 0
+        },
+        "abc": {
+          "pit_mode": "declared_assumption",
+          "pit_qualified": false,
+          "pit_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻",
+            "oi_read_under_assumption:1次按桶结束假设取用"
+          ],
+          "funnel_a": {
+            "boxes": 17,
+            "sweeps": 5,
+            "retests": 3,
+            "breakouts": 1,
+            "volume_rejected": 0,
+            "oi_rejected": 0,
+            "oi_unavailable": 0,
+            "expired": 9,
+            "invalidated": 6,
+            "candidates": 1,
+            "executed_trades": 1
+          },
+          "funnel_b": {
+            "boxes": 17,
+            "candidates": 1,
+            "executed_trades": 1
+          },
+          "trades_a": 1,
+          "trades_b": 1,
+          "trades_c": 1,
+          "formal_pass_allowed": false
+        },
+        "sec": 3.29
+      },
+      "verdict": {
+        "coverage_same": true,
+        "breakouts_before": 0,
+        "breakouts_after": 1,
+        "candidates_before": 0,
+        "candidates_after": 1,
+        "oi_unavailable_before": 1,
+        "oi_unavailable_after": 0,
+        "causality_ok_after": true
+      }
+    },
+    "BTCUSDT": {
+      "data": {
+        "bar_4h": 946,
+        "bar_1h": 2904,
+        "bar_15m": 11616,
+        "oi_rows": 646236,
+        "funding": 7436,
+        "load_sec": 0.87
+      },
+      "before": {
+        "driver": "RealSignalEngine.process_market（按 4h 收盘推进）",
+        "oi_source": "实时热库 oi_history（逐行 fetched_at）",
+        "calls": 946,
+        "processed_1h": 2904,
+        "processed_4h": 946,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 18,
+          "completed_events": 17,
+          "sweeps": 5,
+          "retests": 3,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 8,
+          "invalidated": 9,
+          "candidates": 0
+        },
+        "oi_diag": {
+          "enabled": true,
+          "windows_loaded": 726,
+          "rows_loaded": 13185,
+          "rows_duplicate_ts": 0,
+          "rows_invalid_value": 0,
+          "rows_unknown_availability": 13185,
+          "decisions_with_oi": 0,
+          "decisions_without_oi": 2904,
+          "last_window_utc": {
+            "from": "2026-09-29T13:50:00Z",
+            "to": "2026-09-30T00:00:00Z"
+          },
+          "last_reason": null,
+          "errors": 0,
+          "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "sec": 0.76
+      },
+      "after": {
+        "driver": "run_state_machine_simulation（逐 1h 步进，4h 收盘成箱）",
+        "oi_source": "parquet oi/binance/um/<symbol>/*.parquet（无发布时刻 ⇒ declared_assumption）",
+        "calls": 2904,
+        "processed_1h": 2904,
+        "processed_4h": 726,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 17,
+          "completed_events": 16,
+          "sweeps": 4,
+          "retests": 3,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 8,
+          "invalidated": 8,
+          "candidates": 0
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "pit": {
+          "qualified": false,
+          "qualification_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "candles_checked": 6534,
+          "oi_reads": 0,
+          "oi_assumed_reads": 0,
+          "oi_refused_reads": 0
+        },
+        "abc": {
+          "pit_mode": "declared_assumption",
+          "pit_qualified": false,
+          "pit_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "funnel_a": {
+            "boxes": 17,
+            "sweeps": 4,
+            "retests": 3,
+            "breakouts": 0,
+            "volume_rejected": 0,
+            "oi_rejected": 0,
+            "oi_unavailable": 0,
+            "expired": 8,
+            "invalidated": 8,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "funnel_b": {
+            "boxes": 17,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "trades_a": 0,
+          "trades_b": 0,
+          "trades_c": 0,
+          "formal_pass_allowed": false
+        },
+        "sec": 0.56
+      },
+      "verdict": {
+        "coverage_same": true,
+        "breakouts_before": 0,
+        "breakouts_after": 0,
+        "candidates_before": 0,
+        "candidates_after": 0,
+        "oi_unavailable_before": 0,
+        "oi_unavailable_after": 0,
+        "causality_ok_after": true
+      }
+    },
+    "ETHUSDT": {
+      "data": {
+        "bar_4h": 946,
+        "bar_1h": 2904,
+        "bar_15m": 11616,
+        "oi_rows": 515389,
+        "funding": 7436,
+        "load_sec": 0.84
+      },
+      "before": {
+        "driver": "RealSignalEngine.process_market（按 4h 收盘推进）",
+        "oi_source": "实时热库 oi_history（逐行 fetched_at）",
+        "calls": 946,
+        "processed_1h": 2904,
+        "processed_4h": 946,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 18,
+          "completed_events": 17,
+          "sweeps": 3,
+          "retests": 2,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 11,
+          "invalidated": 6,
+          "candidates": 0
+        },
+        "oi_diag": {
+          "enabled": true,
+          "windows_loaded": 726,
+          "rows_loaded": 13185,
+          "rows_duplicate_ts": 0,
+          "rows_invalid_value": 0,
+          "rows_unknown_availability": 13185,
+          "decisions_with_oi": 0,
+          "decisions_without_oi": 2904,
+          "last_window_utc": {
+            "from": "2026-09-29T13:50:00Z",
+            "to": "2026-09-30T00:00:00Z"
+          },
+          "last_reason": null,
+          "errors": 0,
+          "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "sec": 0.74
+      },
+      "after": {
+        "driver": "run_state_machine_simulation（逐 1h 步进，4h 收盘成箱）",
+        "oi_source": "parquet oi/binance/um/<symbol>/*.parquet（无发布时刻 ⇒ declared_assumption）",
+        "calls": 2904,
+        "processed_1h": 2904,
+        "processed_4h": 726,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 18,
+          "completed_events": 17,
+          "sweeps": 3,
+          "retests": 2,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 11,
+          "invalidated": 6,
+          "candidates": 0
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "pit": {
+          "qualified": false,
+          "qualification_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "candles_checked": 6534,
+          "oi_reads": 0,
+          "oi_assumed_reads": 0,
+          "oi_refused_reads": 0
+        },
+        "abc": {
+          "pit_mode": "declared_assumption",
+          "pit_qualified": false,
+          "pit_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "funnel_a": {
+            "boxes": 18,
+            "sweeps": 3,
+            "retests": 2,
+            "breakouts": 0,
+            "volume_rejected": 0,
+            "oi_rejected": 0,
+            "oi_unavailable": 0,
+            "expired": 11,
+            "invalidated": 6,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "funnel_b": {
+            "boxes": 18,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "trades_a": 0,
+          "trades_b": 0,
+          "trades_c": 0,
+          "formal_pass_allowed": false
+        },
+        "sec": 0.55
+      },
+      "verdict": {
+        "coverage_same": true,
+        "breakouts_before": 0,
+        "breakouts_after": 0,
+        "candidates_before": 0,
+        "candidates_after": 0,
+        "oi_unavailable_before": 0,
+        "oi_unavailable_after": 0,
+        "causality_ok_after": true
+      }
+    },
+    "SOLUSDT": {
+      "data": {
+        "bar_4h": 946,
+        "bar_1h": 2904,
+        "bar_15m": 11616,
+        "oi_rows": 515375,
+        "funding": 6741,
+        "load_sec": 0.76
+      },
+      "before": {
+        "driver": "RealSignalEngine.process_market（按 4h 收盘推进）",
+        "oi_source": "实时热库 oi_history（逐行 fetched_at）",
+        "calls": 946,
+        "processed_1h": 2904,
+        "processed_4h": 946,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 18,
+          "completed_events": 17,
+          "sweeps": 1,
+          "retests": 1,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 10,
+          "invalidated": 7,
+          "candidates": 0
+        },
+        "oi_diag": {
+          "enabled": true,
+          "windows_loaded": 726,
+          "rows_loaded": 13185,
+          "rows_duplicate_ts": 0,
+          "rows_invalid_value": 0,
+          "rows_unknown_availability": 13185,
+          "decisions_with_oi": 0,
+          "decisions_without_oi": 2904,
+          "last_window_utc": {
+            "from": "2026-09-29T13:50:00Z",
+            "to": "2026-09-30T00:00:00Z"
+          },
+          "last_reason": null,
+          "errors": 0,
+          "available_at_rule": "逐行 fetched_at（网关收到响应体时刻）；无 fetched_at ⇒ 不可用，不回退桶结束"
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "sec": 0.72
+      },
+      "after": {
+        "driver": "run_state_machine_simulation（逐 1h 步进，4h 收盘成箱）",
+        "oi_source": "parquet oi/binance/um/<symbol>/*.parquet（无发布时刻 ⇒ declared_assumption）",
+        "calls": 2904,
+        "processed_1h": 2904,
+        "processed_4h": 726,
+        "bar_1h_available": 2904,
+        "one_h_coverage_pct": 100.0,
+        "candidates": 0,
+        "funnel": {
+          "boxes": 18,
+          "completed_events": 17,
+          "sweeps": 1,
+          "retests": 1,
+          "breakouts": 0,
+          "volume_rejected": 0,
+          "oi_rejected": 0,
+          "oi_unavailable": 0,
+          "expired": 10,
+          "invalidated": 7,
+          "candidates": 0
+        },
+        "causality_violations": [],
+        "candidate_chain": [],
+        "pit": {
+          "qualified": false,
+          "qualification_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "candles_checked": 6534,
+          "oi_reads": 0,
+          "oi_assumed_reads": 0,
+          "oi_refused_reads": 0
+        },
+        "abc": {
+          "pit_mode": "declared_assumption",
+          "pit_qualified": false,
+          "pit_failures": [
+            "oi_available_at_unproven:桶起点/桶结束不是已证明的发布时刻"
+          ],
+          "funnel_a": {
+            "boxes": 18,
+            "sweeps": 1,
+            "retests": 1,
+            "breakouts": 0,
+            "volume_rejected": 0,
+            "oi_rejected": 0,
+            "oi_unavailable": 0,
+            "expired": 10,
+            "invalidated": 7,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "funnel_b": {
+            "boxes": 18,
+            "candidates": 0,
+            "executed_trades": 0
+          },
+          "trades_a": 0,
+          "trades_b": 0,
+          "trades_c": 0,
+          "formal_pass_allowed": false
+        },
+        "sec": 0.54
+      },
+      "verdict": {
+        "coverage_same": true,
+        "breakouts_before": 0,
+        "breakouts_after": 0,
+        "candidates_before": 0,
+        "candidates_after": 0,
+        "oi_unavailable_before": 0,
+        "oi_unavailable_after": 0,
+        "causality_ok_after": true
+      }
+    }
+  }
+}

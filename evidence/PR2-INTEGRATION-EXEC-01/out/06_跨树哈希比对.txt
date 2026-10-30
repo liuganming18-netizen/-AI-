@@ -1,0 +1,57 @@
+PR2-INTEGRATION-EXEC-01 · 跨树逐文件哈希比对
+时刻：2026-10-29T06:28:43Z
+
+########## 一、四个来源树状态（只读） ##########
+-- /private/tmp/pr2-wo-01-work
+   分支: pr2-wo-01-display-semantics
+   HEAD: 7993d859b1b8bb4fddc36ac0774ca769bbe8aedb
+   未提交:
+     ?? UI界面/web/node_modules
+-- /private/tmp/pr2-wo-02-work
+   分支: pr2-wo-02-fail-closed
+   HEAD: acb5c2b25839dfe625a1c2d50394098804b080b2
+   未提交:
+      M 框架/backend/tests/test_paper_live_01.py
+      M 框架/backend/tests/test_pr2_wo_02_fail_closed.py
+      M 框架/backend/unified_runtime.py
+     ?? UI界面/web/node_modules
+-- /private/tmp/pr2-recovered-harden-01
+   分支: pr2-recovered-harden-01
+   HEAD: acb5c2b25839dfe625a1c2d50394098804b080b2
+   未提交:
+      M 框架/backend/tests/test_paper_live_01.py
+      M 框架/backend/tests/test_pr2_wo_02_fail_closed.py
+      M 框架/backend/unified_runtime.py
+     ?? evidence/PR2-RECOVERED-HARDEN-01/
+     ?? 框架/backend/tests/test_pr2_recovered_harden.py
+-- /private/tmp/pr2-paper-entry-harden
+   分支: HEAD
+   HEAD: acb5c2b25839dfe625a1c2d50394098804b080b2
+   未提交:
+      M 框架/backend/live_api.py
+      M 框架/backend/tests/test_paper_live_01.py
+      M 框架/backend/tests/test_pr2_wo_02_fail_closed.py
+      M 框架/backend/unified_runtime.py
+     ?? 框架/backend/tests/test_pr2_paper_entry_harden.py
+
+########## 二、逐文件哈希（sha256 前 16 位） ##########
+  文件                             集成树          来源树          判定
+  adapters.ts                        d7f23a14bb539a71   d7f23a14bb539a71   一致
+  ObservePanel.tsx                   ae426fa634b03afb   ae426fa634b03afb   一致
+  tests/README-PR2-WO-01.md          2efd605fb3234fec   2efd605fb3234fec   一致
+  tests/display-semantics.dom.harness.tsx ad1a1b69613c3066   ad1a1b69613c3066   一致
+  tests/display-semantics.dom.test.mjs 00ab287b169e8af6   00ab287b169e8af6   一致
+  tests/display-semantics.pure.test.ts 30eccf655f1155d4   30eccf655f1155d4   一致
+  tests/pr2-before-after-probe.mjs   07f3ad6ea20aba90   07f3ad6ea20aba90   一致
+  tests/pr2-trigger-probe.ts         29809bd48a4bb3dd   29809bd48a4bb3dd   一致
+  unified_runtime.py                 4e3a7fd249635734   4e3a7fd249635734   一致
+  test_pr2_recovered_harden.py       146935881c2c7179   146935881c2c7179   一致
+  live_api.py                        768941b2eda61e73   768941b2eda61e73   一致
+  test_pr2_paper_entry_harden.py     80524a93ce00a59a   80524a93ce00a59a   一致
+  test_paper_live_01.py              54852ec63f66cc17   54852ec63f66cc17   一致
+  test_pr2_wo_02_fail_closed.py      33103501554e616f   33103501554e616f   一致
+  pr2_wo_02_probe.py                 e6027c6796d9ffa2   e6027c6796d9ffa2   一致
+  RECOVERED README                   f5ff6f8e7f089c98   f5ff6f8e7f089c98   一致
+
+########## 三、结论 ##########
+  全部「一致」= 集成结果与各来源树逐字节相同，集成过程未对来源内容做任何改写。

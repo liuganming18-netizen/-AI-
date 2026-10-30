@@ -1,0 +1,64 @@
+BACKTEST-REPAIR-01 · 任务 C：summary 字段新旧对照
+口径：同一标的 / 同一窗口 / 同一候选集（1 候选 → 1 成交），只换代码版本
+  标的=NEARUSDT  窗口=['2026-06-01', '2026-09-30']
+  基线：候选 1 / 成交 1 / summary 字段 13
+  当前：候选 1 / 成交 1 / summary 字段 36
+
+一、旧 13 个字段逐字段对照（必须完全一致）
+  字段                        基线                        当前                        结论
+  fee_total                 0.5159425                 0.5159425                 一致
+  final_equity              5036.9729803005375        5036.9729803005375        一致
+  formal_pass_allowed       False                     False                     一致
+  funding_total             0.346077199463116         0.346077199463116         一致
+  initial_equity            5000.0                    5000.0                    一致
+  net_pnl                   36.97298030053679         36.97298030053679         一致
+  order_count               2                         2                         一致
+  rounding_total            0.16043450000011283       0.16043450000011283       一致
+  slippage_pure_total       0.3095655000000441        0.3095655000000441        一致
+  slippage_split_ok         True                      True                      一致
+  slippage_total            0.47000000000015696       0.47000000000015696       一致
+  spec_status               spec_applied              spec_applied              一致
+  trade_count               1                         1                         一致
+
+  旧字段差异项：无（13/13 完全一致）
+
+二、新增 23 个字段（加性扩展，不覆盖任何旧字段）
+  avg_loss                        = None
+  avg_win                         = 36.97298030053679
+  avg_win_loss_ratio              = None
+  avg_win_loss_ratio_basis        = '平均盈利净额 / |平均亏损净额|（均值口径，扣费后）'
+  cost_identity_basis             = 'net_pnl == gross_pnl - fees - funding_fee（slippage 已含在成交价中，不再二次扣减）'
+  cost_identity_delta             = 7.105427357601002e-15
+  cost_identity_ok                = True
+  equity_curve_points             = 11616
+  flats                           = 0
+  gross_pnl                       = 37.8349999999999
+  losses                          = 0
+  max_drawdown_basis              = 'equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，从初始权益起算）'
+  max_drawdown_detail             = {'peak_equity': 5087.872877434963, 'trough_equity': 5036.9729803005375, 'points': 11616}
+  max_drawdown_pct                = 1.0004160552078578
+  metrics_notes                   = ['无亏损成交 ⇒ PF 分母为 0，无定义（不输出 inf）', '缺盈利单或亏损单 ⇒ 平均盈亏比无定义（不填 0）']
+  period_end_equity               = 5036.9729803005375
+  period_start_equity             = 5000.0
+  profit_factor                   = None
+  profit_factor_basis             = 'Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）'
+  win_loss_basis                  = 'net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平'
+  win_rate_basis                  = '盈利笔数 / 已平仓笔数（含平盘）'
+  win_rate_pct                    = 100.0
+  wins                            = 1
+
+三、10 项工单要求指标的落点
+  总笔数         trade_count                 = 1
+  胜率          win_rate_pct                = 100.0
+  盈亏笔数        wins / losses               = 0
+  毛收益         gross_pnl                   = 37.8349999999999
+  净收益         net_pnl                     = 36.97298030053679
+  手续费         fee_total                   = 0.5159425
+  资金费         funding_total               = 0.346077199463116
+  滑点          slippage_total              = 0.47000000000015696
+  最大回撤        max_drawdown_pct            = 1.0004160552078578
+  平均盈亏        avg_win / avg_loss          = None
+  盈亏比         avg_win_loss_ratio          = None
+  Profit Factorprofit_factor               = None
+  期初权益        period_start_equity         = 5000.0
+  期末权益        period_end_equity           = 5036.9729803005375

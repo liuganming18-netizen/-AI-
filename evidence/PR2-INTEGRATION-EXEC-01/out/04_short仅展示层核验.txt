@@ -1,0 +1,66 @@
+用途：证明集成后 live_api.py 中的 short 处理**只存在于展示层**，未恢复 PR #2 里未经批准的 short 可执行入口。
+时刻：2026-10-29T06:24:26Z
+
+### A. live_api.py 全部 short 匹配（共 4 处）
+2237:                    "direction": "做空" if sd.get("direction") == "short" else "做多",
+2253:            is_short = t["direction"] in ("short", "做空")
+2255:            if is_short:
+2269:                "direction": "做空" if is_short else "做多",
+
+所在函数：_backtest_review_legacy（定义在 1792 行，回测复盘**只读**载荷组装），
+四处都落在 items.append({...}) 的返回体里，不调用 open_position、不写任何库。
+
+逐处定性：
+  2237  信号日志列表 direction → 中文标签「做空/做多」                 【展示】
+  2253  is_short = t.direction in (short, 做空)                        【展示计算中间量】
+  2255  if is_short: ret_pct = -ret_pct（空头收益率取反供前端显示）    【展示计算】
+  2269  已平仓明细 direction → 中文标签                                【展示】
+
+### B. 唯一能开仓的两条路径的方向来源
+--- 路径 1：unified_runtime 自动开仓（准入层已挡 direction_not_long）---
+2382:        reasons.append(f"direction_not_long:{direction}")
+2848:                    # `direction_not_long:*` 拦掉了，这里再守一道，防止未来放宽准入后
+2853:                        stats["filtered"][suid] = [f"direction_not_long:{direction}"]
+
+--- 路径 1 的二次守卫（开仓前再判一次）---
+                    # `direction_not_long:*` 拦掉了，这里再守一道，防止未来放宽准入后
+                    # 出现「行里写 short、却按 long 开仓」的错向挂单。
+                    direction = sig.get("direction")
+                    if direction != "long":
+                        stats["rejected"] += 1
+                        stats["filtered"][suid] = [f"direction_not_long:{direction}"]
+                        continue
+
+                    # 调用 paper_engine.open_position 统一进行契约验证、挂单登记与风控校验
+
+--- 路径 2：HTTP 手动/信号引用开仓（live_api.py）---
+1166:        direction = payload.get("direction") or "long"
+1228:                direction = sd["direction"]
+1268:            r = PE.open_position(arm, symbol, signal_uid=sig_uid,
+1269-                                 direction=direction,
+1270-                                 atr=(None if atr is None else float(atr)),
+
+### C. 引擎层硬拦截（paper_engine.py，本单未修改）
+22:          组合初始止损风险 3%、账户回撤 20% 锁止、`short_enabled=false`（只多）。
+490:    "short_enabled": False, "max_holding_hours": None,
+548:    "short_enabled": "short_enabled",
+867:    if not params.get("short_enabled", False):
+1205:    if direction == "short" and not params.get("short_enabled", False):
+（1205-1206 行紧随其后是 `_reject(..., "short_disabled_by_frozen_view_only_long")`：
+  HTTP 手动开仓即使请求体自带 direction="short"，也在引擎层被显式拒单，不会静默翻成做多。）
+
+### D. 运行时实测 short_enabled
+  short_enabled        = False
+  _config_valid        = True
+  view_sha256          = 82dec362c182
+  max_positions        = 10
+
+### E. 行为级反例（见 out/01_跨模块反例.json 第 8 项）
+  ACTIONABLE_ORIGINS = (live, recovered) 未扩大
+  short 信号准入原因 = direction_not_long:short
+  HTTP 开仓返回      = 400，挂单数 0
+
+### F. 结论
+  集成后 live_api.py 里没有任何 short 开仓分支；short 仅出现在回测复盘的展示字段与收益率符号计算中。
+  可执行入口仍是 long-only，且由准入层（direction_not_long）、
+  开仓前二次守卫（direction != long 即拒）、引擎层（short_enabled=False）三道独立拦截。

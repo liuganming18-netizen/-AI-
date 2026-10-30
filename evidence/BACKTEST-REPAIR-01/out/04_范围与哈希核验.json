@@ -1,0 +1,191 @@
+{
+  "at": "2026-10-29T07:49:53Z",
+  "worktree": "/private/tmp/backtest-repair-01",
+  "branch": "backtest-repair-01",
+  "head": "9c8929d50a60ffa897496d028bff11649bfdbcfd",
+  "head_subject": "ci: add architecture guardrails and portable agent paths",
+  "ahead_of_head": "0",
+  "status_porcelain": [
+    " M 框架/backend/backtest_runner.py",
+    " M 框架/backend/oi_feed.py",
+    " M 策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py",
+    " M 策略/WyckoffMaster/event_trend_v0_1/instrument_spec.py",
+    " M 策略/WyckoffMaster/event_trend_v0_1/runner.py",
+    "?? evidence/BACKTEST-REPAIR-01/",
+    "?? 策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_metrics.py",
+    "?? 策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_paths.py",
+    "?? 策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_wiring.py"
+  ],
+  "diff_stat": [
+    " 框架/backend/backtest_runner.py                    |  37 ++++-",
+    " 框架/backend/oi_feed.py                            |  66 +++++++-",
+    " .../event_trend_v0_1/engine_adapter.py             | 185 ++++++++++++++++++++-",
+    " .../event_trend_v0_1/instrument_spec.py            |  23 ++-",
+    " 策略/WyckoffMaster/event_trend_v0_1/runner.py      | 164 ++++++++++++++++--",
+    " 5 files changed, 448 insertions(+), 27 deletions(-)"
+  ],
+  "changed": [
+    {
+      "status": "M",
+      "path": "框架/backend/backtest_runner.py"
+    },
+    {
+      "status": "M",
+      "path": "框架/backend/oi_feed.py"
+    },
+    {
+      "status": "M",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py"
+    },
+    {
+      "status": "M",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/instrument_spec.py"
+    },
+    {
+      "status": "M",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/runner.py"
+    },
+    {
+      "status": "??",
+      "path": "evidence/BACKTEST-REPAIR-01"
+    },
+    {
+      "status": "??",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_metrics.py"
+    },
+    {
+      "status": "??",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_paths.py"
+    },
+    {
+      "status": "??",
+      "path": "策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_wiring.py"
+    }
+  ],
+  "scope_violations": [],
+  "frozen_prod": [
+    {
+      "path": "框架/backend/paper_engine.py",
+      "exists": true,
+      "worktree_sha256": "cbbde84a7f4da986f49a8732d78f9030cacbd7ff5a87d205a5cd3a37b46e9fba",
+      "head_sha256": "cbbde84a7f4da986f49a8732d78f9030cacbd7ff5a87d205a5cd3a37b46e9fba",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/live_api.py",
+      "exists": true,
+      "worktree_sha256": "94302c968efe2fe5ed1cb6fe8bdc6b035bd97010bd2ff61c656524d36b0f7fa2",
+      "head_sha256": "94302c968efe2fe5ed1cb6fe8bdc6b035bd97010bd2ff61c656524d36b0f7fa2",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/live_store.py",
+      "exists": true,
+      "worktree_sha256": "bcea899ffd7d7988eb9aa39c9690ee26a8b10b76180dc10b2bf10e18a12eef6c",
+      "head_sha256": "bcea899ffd7d7988eb9aa39c9690ee26a8b10b76180dc10b2bf10e18a12eef6c",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/live_worker.py",
+      "exists": true,
+      "worktree_sha256": "9ac5600e5c7f433e9aa0290d78d0432b1277388af74511b5000bbb0244be94dc",
+      "head_sha256": "9ac5600e5c7f433e9aa0290d78d0432b1277388af74511b5000bbb0244be94dc",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/unified_runtime.py",
+      "exists": true,
+      "worktree_sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "head_sha256": "e30e213538686466fb06a16e4773a435b8bcfeb4f7c1ddfcfe301f4475995470",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/live_unified_entry.py",
+      "exists": false,
+      "in_head": false
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/state_machine.py",
+      "exists": true,
+      "worktree_sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+      "head_sha256": "4348f1201f8fca7676032301e3affc8be1a4cf36d3e9fb5d8999b4cc0fa7dc85",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/pit_bridge.py",
+      "exists": true,
+      "worktree_sha256": "5ea657faeafe1f253a903225980dd728c60c41022c2cb5d56c9d9d87b6fee79f",
+      "head_sha256": "5ea657faeafe1f253a903225980dd728c60c41022c2cb5d56c9d9d87b6fee79f",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+      "exists": true,
+      "worktree_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+      "head_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/features.py",
+      "exists": true,
+      "worktree_sha256": "163194b340e56b33b6a6666dbbcf3ffab58221a9d38f94686e689fcb6de7373d",
+      "head_sha256": "163194b340e56b33b6a6666dbbcf3ffab58221a9d38f94686e689fcb6de7373d",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/event_trend_v0_1/contracts.py",
+      "exists": true,
+      "worktree_sha256": "6895e0949f9b683cd3280e299dfc40f958bcfdccdf6177736e30a45b767ec12d",
+      "head_sha256": "6895e0949f9b683cd3280e299dfc40f958bcfdccdf6177736e30a45b767ec12d",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/trading_core/engine.py",
+      "exists": true,
+      "worktree_sha256": "ca5be5b82b7032f9d014be2c587922b0f4c6f160b0833e61433a6db8378d6484",
+      "head_sha256": "ca5be5b82b7032f9d014be2c587922b0f4c6f160b0833e61433a6db8378d6484",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/trading_core/fill.py",
+      "exists": true,
+      "worktree_sha256": "f050652c0d83b41a8a60f4d088c7864d553a935814496ad3f481563ec303ec5b",
+      "head_sha256": "f050652c0d83b41a8a60f4d088c7864d553a935814496ad3f481563ec303ec5b",
+      "identical": true
+    },
+    {
+      "path": "策略/WyckoffMaster/trading_core/policy.py",
+      "exists": true,
+      "worktree_sha256": "6303d06ae6fea38be8c0a3fe5304742aa65476ccb5e6c57e29d5cc8d903f8be7",
+      "head_sha256": "6303d06ae6fea38be8c0a3fe5304742aa65476ccb5e6c57e29d5cc8d903f8be7",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/data/experiments/events.jsonl",
+      "exists": true,
+      "worktree_sha256": "677c5ef771b8755863679a10c4145576cc32f2422cbeb6389802c27ed65bf914",
+      "head_sha256": "677c5ef771b8755863679a10c4145576cc32f2422cbeb6389802c27ed65bf914",
+      "identical": true
+    },
+    {
+      "path": "框架/backend/data/experiments/head.json",
+      "exists": true,
+      "worktree_sha256": "a32910080866494d50a287cae3c3226fa5438bf9eb74d13ea8fae037d84cf0b0",
+      "head_sha256": "a32910080866494d50a287cae3c3226fa5438bf9eb74d13ea8fae037d84cf0b0",
+      "identical": true
+    },
+    {
+      "path": "project_state.json",
+      "exists": false,
+      "in_head": false
+    }
+  ],
+  "frozen_prod_all_identical": true,
+  "ui": {
+    "tracked": 534,
+    "identical": 534,
+    "different": 0,
+    "not_checked_out": 0,
+    "diffs": []
+  }
+}

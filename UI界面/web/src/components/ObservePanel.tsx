@@ -69,23 +69,55 @@ const fmtPrice = (v: number | null): string => {
 };
 
 /**
- * 同值即别名。
+ * 多空比别名关系（**显式声明，不靠数值猜**）。
  *
- * 实测（ACCUM-EARLY-02 §1）：`retail_account_ls_ratio` 与 `count_long_short_ratio`
- * 逐位相同、`top_position_ls_ratio` 与 `sum_toptrader_long_short_ratio` 逐位相同
- * ⇒ 库里 5 列多空比只有 3 类独立信息。紧凑行只列独立值，避免「5 个数看着很丰富」的错觉；
- * 展开详情里仍逐列给全，并标出哪一列是别名。
+ * 为什么不能「同值即别名」：数值恰好相等只说明这一刻读数撞上了，不代表两列是同一个指标。
+ * 修复前 `dedupeByValue` 与 `EvidenceDetail` 都用 `Math.abs(a-b) < 1e-9` 判定别名
+ * ⇒ 两个**语义不同**的指标只要读数相同，就会被合并、还会被标成「别名」，
+ * 让人误以为库里少了一类独立信息。这正是本工单要修的误导性展示。
+ *
+ * 为什么也不能「成对就无条件合并」：后端 `metrics_api.py:1119-1126` 专门统计
+ * `retail_account_ls_ratio <> count_long_short_ratio` 与
+ * `top_position_ls_ratio <> sum_toptrader_long_short_ratio` 的行数，
+ * 说明这两对**可能真的分叉**。若成对就无条件合并，分叉时会把真实差异藏起来。
+ *
+ * 故判据 = **已声明成对** 且 **本次读数确实相等**，缺一不可；不满足就当作两列独立信息。
  */
-const dedupeByValue = (rs: ObserveEvidenceValue[]): ObserveEvidenceValue[] => {
+const RATIO_ALIAS_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ['retail_account_ls_ratio', 'count_long_short_ratio'],
+  ['top_position_ls_ratio', 'sum_toptrader_long_short_ratio'],
+];
+
+const RATIO_CANONICAL: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const [alias, canonical] of RATIO_ALIAS_PAIRS) {
+    m[alias] = canonical;
+    m[canonical] = canonical;
+  }
+  return m;
+})();
+
+/** 列名 → 别名组代表键；未声明的列返回自身（自成一组，永不与别人合并）。 */
+export const canonicalRatioKey = (key: string): string => RATIO_CANONICAL[key] ?? key;
+
+/** 两个读数是否可判定为同值（都必须是有效数字，「未知」不等于「相同」）。 */
+const sameReading = (a: number | null, b: number | null): boolean =>
+  a !== null && b !== null && Math.abs(a - b) < 1e-9;
+
+/** 两列是否构成别名：已声明成对 + 本次读数相等。任一不满足即视为两列独立信息。 */
+export const isRatioAliasOf = (a: ObserveEvidenceValue, b: ObserveEvidenceValue): boolean =>
+  a !== b && canonicalRatioKey(a.key) === canonicalRatioKey(b.key) && sameReading(a.value, b.value);
+
+/**
+ * 紧凑行只列独立值。
+ *
+ * 只折叠「已声明成对且本次同值」的列；其余全部保留 —— 包括值为 null 的列，
+ * 因为「这一列没读到」不等于「它与另一列相同」。
+ */
+export const dedupeRatios = (rs: ObserveEvidenceValue[]): ObserveEvidenceValue[] => {
   const out: ObserveEvidenceValue[] = [];
   for (const r of rs) {
-    const v = r.value;
-    if (v === null) {
-      out.push(r);
-      continue;
-    }
-    const dup = out.some((o) => o.value !== null && Math.abs(o.value - v) < 1e-9);
-    if (!dup) out.push(r);
+    if (!out.some((o) => isRatioAliasOf(o, r))) out.push(r);
   }
   return out;
 };
@@ -100,7 +132,7 @@ const EvidenceStrip: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
       </div>
     );
   }
-  const indep = dedupeByValue(ev.ratios);
+  const indep = dedupeRatios(ev.ratios);
   const price = ev.phasePrice?.value ?? null;
   return (
     <div
@@ -125,9 +157,8 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
   return (
     <div data-testid="observe-evidence-detail" className="space-y-0.5 pt-1 border-t border-neutral-800/60">
       {rows.map((r, i) => {
-        const aliasOf = rows.findIndex(
-          (o) => o !== r && o.value !== null && r.value !== null && Math.abs(o.value - r.value) < 1e-9,
-        );
+        // 只有「已声明成对且本次同值」才标别名；不再仅凭数值相等下结论。
+        const aliasOf = rows.findIndex((o) => isRatioAliasOf(o, r));
         return (
           <div key={`${r.key}-${i}`} className="text-[9px] leading-snug">
             <span className="text-neutral-400 font-mono">{r.key}</span>{' '}
@@ -135,7 +166,7 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
             <span className="text-neutral-600">
               {r.atUtc ? `@${r.atUtc.slice(5, 16).replace('T', ' ')}` : '时刻未知'}
               {r.fromLatestRow === false ? '（回退值，非最新行）' : ''}
-              {aliasOf >= 0 ? `（与 ${rows[aliasOf].key} 同值＝别名）` : ''}
+              {aliasOf >= 0 ? `（与 ${rows[aliasOf].key} 同源且同值＝别名）` : ''}
             </span>
             {r.missing ? <span className="text-amber-300/80"> 缺失：{r.missing}</span> : null}
           </div>
@@ -190,7 +221,15 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
   const stageCls = STATE_STYLE[item.state] ?? 'border-neutral-700 bg-neutral-800 text-neutral-300';
 
   // 提取现价与突破目标价、距离百分比
-  const lastPrice = (item as any).last_price ?? (item as any).last_bar?.close ?? null;
+  //
+  // PR2-WO-01：`last_price`（实时最新价）与 `last_bar.close`（最近一根 K 线收盘价）
+  // 是**两个不同口径**。修复前一律标「现价」，实时价缺失时会拿收盘价顶上还叫「现价」，
+  // 读的人会以为那是当下成交价。现在分开取，并按实际来源给标签。
+  const livePrice = (item as any).last_price ?? null;
+  const candleClose = (item as any).last_bar?.close ?? null;
+  const lastPrice = livePrice ?? candleClose;
+  const priceSource = livePrice !== null ? 'live' : candleClose !== null ? 'candle_close' : 'unknown';
+  const priceLabel = livePrice !== null ? '最新价' : candleClose !== null ? 'K线收盘价' : '价格未知';
   const targetPrice = (item as any).breakout_target ?? item.box?.h ?? null;
   const rawGap = (item as any).gap_pct ?? (
     (lastPrice && targetPrice && lastPrice > 0)
@@ -246,11 +285,19 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
         </div>
       </div>
 
-      {/* 第 2 行：核心量化看盘数据（现价 vs 突破位 vs 距离） */}
+      {/* 第 2 行：核心量化看盘数据（价格 vs 突破位 vs 距离） */}
       <div className="grid grid-cols-3 gap-1 py-1 px-1.5 rounded bg-neutral-950/80 border border-neutral-850 font-mono text-[10px]">
         <div>
-          <span className="text-[9px] text-neutral-500 font-sans block">现价</span>
-          <span className="text-neutral-200 font-medium">{fmtPrice(lastPrice)}</span>
+          <span
+            className="text-[9px] text-neutral-500 font-sans block"
+            data-testid="observe-price-label"
+            data-price-source={priceSource}
+          >
+            {priceLabel}
+          </span>
+          <span className="text-neutral-200 font-medium" data-testid="observe-price-value">
+            {fmtPrice(lastPrice)}
+          </span>
         </div>
         <div>
           <span className="text-[9px] text-neutral-500 font-sans block">

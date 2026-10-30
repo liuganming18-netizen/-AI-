@@ -1,0 +1,19 @@
+test_w01_all_1h_bars_enter_decision (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring)
+2904 根 1h 必须全部进 `process_1h_bar` —— 逐根计数，不靠猜。 ... ok
+test_w02_box_uses_only_closed_bars (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring) ... ok
+test_w02b_box_time_not_after_decision_window (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring)
+成箱时刻不得超出决策窗口末端（防「提前用了窗口外数据」）。 ... ok
+test_w03_candidate_causality (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring) ... ok
+test_w04_oi_independent_of_hot_db (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring)
+把 `MARKET_DB` 指到不存在的文件，仍必须产出候选。 ... ok
+test_w05_pit_gate_not_bypassed (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring) ... ok
+test_w05b_formal_pass_blocked (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring)
+`formal_pass_allowed` 必须仍是 False（规格未证明 + PIT 不合格）。 ... ok
+test_w06_oi_filter_off_runs (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring) ... ok
+test_w07_variants_not_degenerate (策略.WyckoffMaster.event_trend_v0_1.tests.test_backtest_repair_01_wiring.TestWiring)
+原来 `sm_a = sm_b` 且三次都用 `variant="B"` ⇒ A/B/C 结果完全一样。 ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 9.212s
+
+OK

@@ -1,0 +1,26 @@
+用途：把 tests.test_paper_live_01::test_02 的失败归因到环境，而不是本次集成。
+时刻：2026-10-29 14:23:47 CST / UTC 2026-10-29T06:23:47Z
+解释器：Python 3.9.6
+
+### 1. 失败断言原文
+372:        self.assertEqual(detected_pid, os.getpid(), "ServiceManager 应成功探测到正在运行的存活 PID")
+
+### 2. 失败判定链（service_manager._find_active_runtime_pid 第 369-380 行）
+需要 get_process_cmdline(pid) 命中 'unified_runtime.py' 或（隔离模式下）'python'/'test'；
+命令行为空串时三条兜底路径全部落空 ⇒ 返回 None。
+
+### 3. 实测：命令行为空串
+  自身 pid        : 72039
+  get_process_cmdline -> ''
+  get_process_cwd     -> '/private/tmp/pr2-integration-exec-01'
+  psutil          : 不可用 -> No module named 'psutil'
+
+### 4. 直接执行 ps（沙箱拒绝）
+  $ ps -o command= -p $$
+(eval):30: operation not permitted: ps
+
+### 5. 结论
+  ps 被沙箱拒绝（operation not permitted）、psutil 未安装 ⇒ get_process_cmdline 恒为空串
+  ⇒ _find_active_runtime_pid 无法确认身份 ⇒ 该断言必然失败。
+  与信号准入/恢复加固/手动下单三条链路无关；基线树同样失败（见
+  evidence/PR2-RECOVERED-HARDEN-01/out/02_既有失败基线对照.txt A 段）。

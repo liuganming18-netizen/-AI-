@@ -1,0 +1,242 @@
+EE.F.....F..........................F................................... [ 57%]
+......ss.....s..F.....................................                   [100%]
+==================================== ERRORS ====================================
+__________ ERROR at setup of test_sol_real_data_idempotence_and_dedup __________
+
+    @pytest.fixture(scope="module")
+    def sol_market_data():
+        """真实 SOL 样本（2024H1）的**自洽夹具**。
+    
+        夹具输入已固化进测试包 `tests/fixtures/sol_real_2024h1/`，不再指向
+        `回测日志/oi_resonance_v1/runs/<某个 run>/inputs/` 这类会被其它工作流
+        归档/清理的可变路径（该依赖曾导致测试在运行产物被归档后直接报错）。
+        来源 run：`bt_20261016T101649Z_4aa21d94`（sha256 见 FIXTURE_PROVENANCE）。
+        """
+        fix_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "fixtures", "sol_real_2024h1")
+        sb_path = os.path.join(fix_dir, "signal_bars.csv")
+        oi_path = os.path.join(fix_dir, "oi_5m.csv")
+        ib_path = os.path.join(fix_dir, "intrabar_bars.csv")
+        if not all(os.path.exists(p) for p in (sb_path, oi_path, ib_path)):
+            pytest.skip("sol_real_2024h1 夹具缺失，跳过依赖真实样本的用例")
+    
+        df_sb = pd.read_csv(sb_path)
+        df_oi = pd.read_csv(oi_path)
+        df_ib = pd.read_csv(ib_path)
+    
+        f4h_files = sorted(glob.glob(os.path.join(base_dir, "数据/市场数据/parquet/candles/binance/um/SOLUSDT/4h/*.parquet")))
+>       df_4h_hist = pd.concat([pd.read_parquet(f) for f in f4h_files], ignore_index=True)
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:382: in concat
+    op = _Concatenator(
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:445: in __init__
+    objs, keys = self._clean_keys_and_objs(objs, keys)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.reshape.concat._Concatenator object at 0x10fac5220>
+objs = [], keys = None
+
+    def _clean_keys_and_objs(
+        self,
+        objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+        keys,
+    ) -> tuple[list[Series | DataFrame], Index | None]:
+        if isinstance(objs, abc.Mapping):
+            if keys is None:
+                keys = list(objs.keys())
+            objs_list = [objs[k] for k in keys]
+        else:
+            objs_list = list(objs)
+    
+        if len(objs_list) == 0:
+>           raise ValueError("No objects to concatenate")
+E           ValueError: No objects to concatenate
+
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:507: ValueError
+______________ ERROR at setup of test_crash_recovery_persistence _______________
+
+    @pytest.fixture(scope="module")
+    def sol_market_data():
+        """真实 SOL 样本（2024H1）的**自洽夹具**。
+    
+        夹具输入已固化进测试包 `tests/fixtures/sol_real_2024h1/`，不再指向
+        `回测日志/oi_resonance_v1/runs/<某个 run>/inputs/` 这类会被其它工作流
+        归档/清理的可变路径（该依赖曾导致测试在运行产物被归档后直接报错）。
+        来源 run：`bt_20261016T101649Z_4aa21d94`（sha256 见 FIXTURE_PROVENANCE）。
+        """
+        fix_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "fixtures", "sol_real_2024h1")
+        sb_path = os.path.join(fix_dir, "signal_bars.csv")
+        oi_path = os.path.join(fix_dir, "oi_5m.csv")
+        ib_path = os.path.join(fix_dir, "intrabar_bars.csv")
+        if not all(os.path.exists(p) for p in (sb_path, oi_path, ib_path)):
+            pytest.skip("sol_real_2024h1 夹具缺失，跳过依赖真实样本的用例")
+    
+        df_sb = pd.read_csv(sb_path)
+        df_oi = pd.read_csv(oi_path)
+        df_ib = pd.read_csv(ib_path)
+    
+        f4h_files = sorted(glob.glob(os.path.join(base_dir, "数据/市场数据/parquet/candles/binance/um/SOLUSDT/4h/*.parquet")))
+>       df_4h_hist = pd.concat([pd.read_parquet(f) for f in f4h_files], ignore_index=True)
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:382: in concat
+    op = _Concatenator(
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:445: in __init__
+    objs, keys = self._clean_keys_and_objs(objs, keys)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.reshape.concat._Concatenator object at 0x10fac5220>
+objs = [], keys = None
+
+    def _clean_keys_and_objs(
+        self,
+        objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+        keys,
+    ) -> tuple[list[Series | DataFrame], Index | None]:
+        if isinstance(objs, abc.Mapping):
+            if keys is None:
+                keys = list(objs.keys())
+            objs_list = [objs[k] for k in keys]
+        else:
+            objs_list = list(objs)
+    
+        if len(objs_list) == 0:
+>           raise ValueError("No objects to concatenate")
+E           ValueError: No objects to concatenate
+
+/Users/boos/Library/Python/3.9/lib/python/site-packages/pandas/core/reshape/concat.py:507: ValueError
+=================================== FAILURES ===================================
+_________ test_adversarial_candidate_unique_binding_and_field_mapping __________
+
+    def test_adversarial_candidate_unique_binding_and_field_mapping():
+        """【测试项 4】多候选唯一关联、未来候选不成交、真实字段读取、真实 order_id 贯穿。"""
+        t0 = 1788652800000
+        t_1h_open = t0 + 24 * HOUR_MS
+        t_1h_close = t_1h_open + HOUR_MS
+        t_exec = t_1h_close + MIN15_MS
+    
+        c1 = _candidate(
+            candidate_id="cand_test_valid_001", event_id="ev_001",
+            snapshot_time_ms=t_1h_close, available_at_ms=t_1h_close,
+            execution_earliest_ms=t_exec,
+        )
+        # 候选 2（反例）：30 天后的未来候选，在当前输入行情中绝对不可能发生撮合
+        t_future_1h_open = t_1h_open + 30 * DAY_MS
+        t_future_1h_close = t_future_1h_open + HOUR_MS
+        c2_future = _candidate(
+            candidate_id="cand_test_future_002", event_id="ev_002",
+            snapshot_time_ms=t_future_1h_close, available_at_ms=t_future_1h_close,
+            execution_earliest_ms=t_future_1h_close + MIN15_MS,
+        )
+    
+        df_1h_sim = pd.DataFrame([{
+            "timestamp": t_1h_open,
+            "open": 105.0, "high": 111.5, "low": 104.8, "close": 111.0, "volume": 2500.0
+        }])
+        df_15m_sim = _sol_15m_fixture(t_exec)
+        funding_events = [{
+            "time_ms": t_exec + 4 * HOUR_MS, "rate": 0.0001, "mark_price": 115.0, "rate_type": "settled"
+        }]
+    
+        res = _run(
+            symbol="SOLUSDT", df_1h=df_1h_sim, df_15m=df_15m_sim,
+            candidates=[c1, c2_future], funding_events=funding_events, variant="A"
+        )
+    
+        val_1 = res["validation_results"][0]
+        val_2 = res["validation_results"][1]
+    
+        # 断言 1：候选 1 成交，真实 qty / net_pnl 读取正确（绝非 0.0）
+        # 2026-10-17：原断言写死 `4.4343204` / `42.97898`，是 initial_equity=10000 时代的常数；
+        # 而本金唯一事实源 `EventTrendConfig.initial_equity` 现为 2000（配置早已改，测试没跟）
+        # ⇒ 该断言在本次修复前就已是**假失败**。改为按配置推导，既保留数值严格性，又不会随配置漂移。
+        assert val_1.executed is True
+        assert val_1.executed_qty > 0.0
+        _cfg = EventTrendConfig()
+        _stop_fill = 100.1 * (1.0 - 3.0e-4)
+        _unit_risk = abs(111.24 - _stop_fill) + (111.24 + _stop_fill) * 5.0e-4
+        _expect_qty = _cfg.initial_equity * _cfg.risk_budget_per_trade / _unit_risk
+>       assert abs(val_1.executed_qty - _expect_qty) < 1e-9
+E       AssertionError: assert 0.9084680556108683 < 1e-09
+E        +  where 0.9084680556108683 = abs((1.7953321364452446 - 0.8868640808343763))
+E        +    where 1.7953321364452446 = ValidationResult(validation_id='val_cand_test_valid_001_A', candidate_id='cand_test_valid_001', event_id='ev_001', sym...0987432675081, mfe=0.09043509528946425, mae=0.0021574973031283254, mfe_r=1.8061041292639164, mae_r=0.04308797127468496).executed_qty
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:359: AssertionError
+_____________________ test_max_holding_10_days_expiry_exit _____________________
+
+    def test_max_holding_10_days_expiry_exit():
+        """【测试项 7】最长持仓 10 个自然日：到期按下一根 15m 开盘退出。"""
+        t0 = 1788652800000
+        t_1h_open = t0 + 24 * HOUR_MS
+        t_1h_close = t_1h_open + HOUR_MS
+        t_exec = t_1h_close + MIN15_MS
+        cand = _candidate(candidate_id="cand_hold", event_id="ev_hold",
+                          snapshot_time_ms=t_1h_close, available_at_ms=t_1h_close,
+                          execution_earliest_ms=t_exec)
+    
+        df_1h_sim = pd.DataFrame([{
+            "timestamp": t_1h_open,
+            "open": 105.0, "high": 111.5, "low": 104.8, "close": 111.0, "volume": 2500.0
+        }])
+        # 横盘 11 天，价格始终远离止损（100.1），因此只会因到期退出
+        df_15m_sim = _bars_15m(t_exec - MIN15_MS, 11 * 96 + 2, open_px=111.2)
+    
+        res = _run("SOLUSDT", df_1h_sim, df_15m_sim, [cand], [], variant="A")
+        val = res["validation_results"][0]
+        assert val.executed is True
+>       assert val.exit_reason == "max_holding_expired"
+E       AssertionError: assert 'force_close_eod' == 'max_holding_expired'
+E         
+E         - max_holding_expired
+E         + force_close_eod
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py:622: AssertionError
+_________ test_exit_failure_keeps_position_open_and_marks_run_invalid __________
+
+    def test_exit_failure_keeps_position_open_and_marks_run_invalid():
+        """出场取整后为 0 ⇒ **不得**把仓位当作已平仓；运行标记为无效/未完成。"""
+        # 价格 0.004 + 步长 0.01：入场（买，向上）能成 0.01，出场（卖，向下）必成 0.00
+        cand, df_1h, df_15m = _entry_scenario(0.004, 0.003)
+        res = run_event_trend_backtest("SOLUSDT", df_1h, df_15m, [cand], [],
+                                       variant="A", price_step="0.01")
+        eng = res["engine_result"]
+        assert eng["trades_count"] == 0
+>       assert eng["open_positions_remaining"], "出场失败时仓位必须仍未平"
+E       AssertionError: 出场失败时仓位必须仍未平
+E       assert []
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py:343: AssertionError
+_______________ test_fingerprints_cover_rules_code_config_inputs _______________
+
+    def test_fingerprints_cover_rules_code_config_inputs():
+        """指纹四件套齐备且可复算（冻结规则 SHA 必须与冻结版本一致）。"""
+        cand, df_1h, df_15m, funding = _scenario()
+        cfg = EventTrendConfig()
+        runner = EventTrendRunner(base_dir=base_dir)
+    
+        rules = runner.rules_fingerprint()
+        assert rules["sha256"] == \
+            "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab"
+    
+        code = runner.code_fingerprint()
+        assert code["missing"] == []
+        assert code["combined_sha256"] == runner.code_fingerprint()["combined_sha256"]
+    
+        cfg_fp = runner.config_fingerprint(cfg)
+        assert cfg_fp["sha256"] == runner.config_fingerprint(EventTrendConfig())["sha256"]
+>       assert cfg_fp["params"]["max_holding_days"] == 10
+E       assert None == 10
+
+策略/WyckoffMaster/event_trend_v0_1/tests/test_run_artifacts.py:188: AssertionError
+=========================== short test summary info ============================
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_adversarial_candidate_unique_binding_and_field_mapping
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_max_holding_10_days_expiry_exit
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py::test_exit_failure_keeps_position_open_and_marks_run_invalid
+FAILED 策略/WyckoffMaster/event_trend_v0_1/tests/test_run_artifacts.py::test_fingerprints_cover_rules_code_config_inputs
+ERROR 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_sol_real_data_idempotence_and_dedup
+ERROR 策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py::test_crash_recovery_persistence
+4 failed, 117 passed, 3 skipped, 2 errors in 3.12s
