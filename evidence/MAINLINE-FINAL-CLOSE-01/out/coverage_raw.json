@@ -1,0 +1,2044 @@
+[
+ {
+  "sha": "40bd79135c8fc96790959b945a4840dac6ea6ae5",
+  "short": "40bd7913",
+  "subject": "fix: use portable repository-relative handoff paths",
+  "files": [
+   "AGENTS.md"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "doc"
+  ],
+  "added_tokens": 2,
+  "hit": 2,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "fe9d33e855ea9c5317795c56e58d98ec9c1b110b",
+  "short": "fe9d33e8",
+  "subject": "fix: deduplicate observation ratios by documented aliases, not equal values",
+  "files": [
+   "UI界面/web/src/components/ObservePanel.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 13,
+  "hit": 0,
+  "miss": 13,
+  "coverage": 0.0,
+  "miss_samples": [
+   "const RATIO_CANONICAL_KEYS: Record<string, string> = {",
+   "retail_account_ls_ratio: 'count_long_short_ratio',",
+   "count_long_short_ratio: 'count_long_short_ratio',",
+   "top_position_ls_ratio: 'sum_toptrader_long_short_ratio',"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "d1f5fed285b8b544df34aa0aef0fb4814f0fc363",
+  "short": "d1f5fed2",
+  "subject": "fix: never substitute record creation time for signal trigger time",
+  "files": [
+   "UI界面/web/src/api/adapters.ts"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 1,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "7c3b330c1bc29c6d07307ba3e41dead49ef8ec4f",
+  "short": "7c3b330c",
+  "subject": "fix: label observed quote fallback as candle close, not current price",
+  "files": [
+   "UI界面/web/src/components/ObservePanel.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 5,
+  "hit": 4,
+  "miss": 1,
+  "coverage": 0.8,
+  "miss_samples": [
+   "<span className=\"text-[9px] text-neutral-500 font-sans block\">{priceLabel}</span>"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "89897d3caab7aa4a1edfabe3b3c245d4d47017bc",
+  "short": "89897d3c",
+  "subject": "docs: record verified paper fill clock mismatch and safe migration gates",
+  "files": [
+   "docs/审计/2026-10-28_实际撮合时间语义核验.md"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "doc"
+  ],
+  "added_tokens": 12,
+  "hit": 0,
+  "miss": 12,
+  "coverage": 0.0,
+  "miss_samples": [
+   "基线：`fix/architecture-guardrails-20261028`，`框架/backend/paper_engine.py`。本记录是源码核验，不是运行验收。",
+   "1. 约 1635 行：`matched_at_ms = int(L.now_ms())`，并对 `read_at` 与撮合挂钟的顺序作检查。",
+   "2. 约 1642–1655 行：`entry_bar_ts = bar_open`，`paper_position.entry_ts` 写入的是入场 K 线开盘时间，不是 `matched_at_ms`。",
+   "3. 约 1760–1790 行：`paper_fill.fill_ts` 使用 `matched_at_ms`，且在 `paper_position`、`paper_order`、`paper_fill` 追加写入 `matched_at"
+  ],
+  "files_missing_in_main": [
+   "docs/审计/2026-10-28_实际撮合时间语义核验.md"
+  ]
+ },
+ {
+  "sha": "9ed07d30d1b03f47640dfce143571d0a012180c4",
+  "short": "9ed07d30",
+  "subject": "ci: add frontend and critical backend syntax checks for PRs",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 37,
+  "hit": 33,
+  "miss": 4,
+  "coverage": 0.8919,
+  "miss_samples": [
+   "- name: Compile critical backend modules without running services",
+   "for name in (\"paper_engine.py\", \"live_api.py\", \"live_store.py\", \"unified_runtime.py\", \"wyckoff_factor_resonance.py\"):",
+   "if path.exists():",
+   "print(f\"not present: {path}\")"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "45b5e71d7bb6077ab90c083f69502ca0481e83c2",
+  "short": "45b5e71d",
+  "subject": "test: guard against recurring signal and UI semantic regressions",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 30,
+  "hit": 0,
+  "miss": 30,
+  "coverage": 0.0,
+  "miss_samples": [
+   "These tests prevent known dangerous fallbacks from silently returning.",
+   "They do not replace runtime, integration, or simulated-execution tests.",
+   "from pathlib import Path",
+   "import re"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "500ea898aa3ac3c8664b28ae7d7838bdb04b6a3d",
+  "short": "500ea898",
+  "subject": "test: correct Python regex escaping in architecture checks",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.assertRegex(text, r\"triggerTime:\\s*row\\.confirmed_at\\s*\\?\\?\\s*row\\.event_time\\s*\\?\\?\\s*null\")",
+   "self.assertNotRegex(text, r\"triggerTime:[^\\n]*row\\.created_at\")"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "eadcea6860cabcbaf32604879959bf4bdb2dbdab",
+  "short": "eadcea68",
+  "subject": "ci: execute architecture regression checks on pull requests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "- name: Check architecture regression contracts",
+   "run: python -m unittest discover -s tests -p 'test_architecture_contracts.py' -v"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "d2574e19b97b34e88d31eabc1ad992b0e5f227bd",
+  "short": "d2574e19",
+  "subject": "ci: work around pre-existing Vite/esbuild peer conflict to expose actual checks",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 1,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "22b8b0af929cefb829916b8b8268b43c35e36b76",
+  "short": "22b8b0af",
+  "subject": "fix: resolve frontend typecheck errors in BacktestWorkbench.tsx",
+  "files": [
+   "UI界面/web/src/components/BacktestWorkbench.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 1,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "572d395f72b351dabc5f22e6c72629107a802506",
+  "short": "572d395f",
+  "subject": "fix: resolve frontend typecheck errors in LabChartPanel.tsx",
+  "files": [
+   "UI界面/web/src/components/LabChartPanel.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 1,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "9759c4827d1a755c409dba792d1350f08d5ddabb",
+  "short": "9759c482",
+  "subject": "fix: resolve frontend typecheck errors in LabFundingPanel.tsx",
+  "files": [
+   "UI界面/web/src/components/LabFundingPanel.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 4,
+  "hit": 4,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "baf7c4fb018e5bb7ad4f030932b84a4ed51f6bcd",
+  "short": "baf7c4fb",
+  "subject": "fix: resolve frontend typecheck errors in LightweightChart.tsx",
+  "files": [
+   "UI界面/web/src/components/LightweightChart.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 5,
+  "hit": 5,
+  "miss": 0,
+  "coverage": 1.0,
+  "miss_samples": [],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "18819555873ef8dd62e57abd4d0cf343bee5e627",
+  "short": "18819555",
+  "subject": "fix: resolve frontend typecheck errors in SignalListPanel.tsx",
+  "files": [
+   "UI界面/web/src/components/SignalListPanel.tsx"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "className={`truncate max-w-[24%] ${chain.structure.text ? 'text-neutral-300 font-medium' : 'text-neutral-600'}`}"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "885dff02d77f8840730371a54f4321083b403e59",
+  "short": "885dff02",
+  "subject": "docs: define non-executing signal, price and clock contracts",
+  "files": [
+   "docs/契约/信号价格与时间语义_V1.md"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "doc"
+  ],
+  "added_tokens": 23,
+  "hit": 0,
+  "miss": 23,
+  "coverage": 0.0,
+  "miss_samples": [
+   "本契约仅定义研究展示与模拟系统的数据语义；不授权策略门槛、真实交易或账本迁移。",
+   "- `signal_id`：唯一身份，不因展示、恢复、重启、策略版本变化而重写历史身份。",
+   "- `origin`：必须保留 `live`、`recovered`、`historical_research` 的来源区别；来源不等于执行许可。",
+   "- `confirmed_at`：已确认的事件时间；未知保持 `null`。"
+  ],
+  "files_missing_in_main": [
+   "docs/契约/信号价格与时间语义_V1.md"
+  ]
+ },
+ {
+  "sha": "c9f1aa5a2df18c6f76961dc8c5d038e43d465aab",
+  "short": "c9f1aa5a",
+  "subject": "fix: expose actual match and data availability times in paper position API without legacy ledger rewrite",
+  "files": [
+   "框架/backend/paper_engine.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 4,
+  "hit": 0,
+  "miss": 4,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"entry_bar_time\": int(p[\"entry_ts\"]),",
+   "\"matched_at_ms\": (int(p[\"matched_at_ms\"]) if \"matched_at_ms\" in p.keys() and p[\"matched_at_ms\"] is not None else None),",
+   "\"data_available_at\": (int(p[\"data_available_at\"]) if \"data_available_at\" in p.keys() and p[\"data_available_at\"] is not N",
+   "\"read_at_ms\": (int(p[\"read_at_ms\"]) if \"read_at_ms\" in p.keys() and p[\"read_at_ms\"] is not None else None),"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "c39575c259e4c3db784c3340012f4133302d6be1",
+  "short": "c39575c2",
+  "subject": "test: pin separate paper position bar and execution timestamps",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 6,
+  "hit": 0,
+  "miss": 6,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_position_api_exposes_actual_match_time_separately(self):",
+   "text = (ROOT / \"框架/backend/paper_engine.py\").read_text(encoding=\"utf-8\")",
+   "self.assertIn('\"entry_bar_time\": int(p[\"entry_ts\"])', text)",
+   "self.assertIn('\"matched_at_ms\": (int(p[\"matched_at_ms\"])', text)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "cc4c8811c18f6cc18da06b0d0229d5f42d45b56a",
+  "short": "cc4c8811",
+  "subject": "fix: explicitly separate economic entry and actual fill timestamps in paper APIs",
+  "files": [
+   "框架/backend/paper_engine.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 5,
+  "hit": 0,
+  "miss": 5,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"entry_bar_time\": int(bar_open),",
+   "\"economic_entry_at\": int(entry_bar_ts),",
+   "\"actual_fill_at\": int(matched_at_ms),",
+   "\"economic_entry_at\": int(p[\"entry_ts\"]),"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "1911410687b7e86784470579704e77ca69a7e4db",
+  "short": "19114106",
+  "subject": "test: assert paper API exposes distinct economic and actual fill clocks",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 3,
+  "hit": 0,
+  "miss": 3,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.assertIn('\"economic_entry_at\": int(p[\"entry_ts\"])', text)",
+   "self.assertIn('\"actual_fill_at\": (int(p[\"matched_at_ms\"])', text)",
+   "self.assertIn('\"actual_fill_at\": int(matched_at_ms)', text)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "34ad4fce70bd84b83d03d959d01d8901fe4f036c",
+  "short": "34ad4fce",
+  "subject": "fix: exclude pre-match funding events while retaining legacy fallback",
+  "files": [
+   "框架/backend/paper_engine.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 15,
+  "hit": 0,
+  "miss": 15,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def _funding_start_ms(entry_ts, matched_at_ms=None):",
+   "Does not rewrite or infer historical execution times. The upper bound is",
+   "enforced by _funding_truth's (start, end] interval.",
+   "start = int(entry_ts)"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "296c7b519102676321fad77a853c45e816541964",
+  "short": "296c7b51",
+  "subject": "test: cover funding start boundaries and legacy timestamp fallback",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 16,
+  "hit": 0,
+  "miss": 16,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "def test_funding_never_starts_before_actual_match(self):",
+   "source = (ROOT / \"框架/backend/paper_engine.py\").read_text(encoding=\"utf-8\")",
+   "tree = ast.parse(source)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "af0bc8bd8f0598e88859221b0a7e20ef1778cec5",
+  "short": "af0bc8bd",
+  "subject": "fix: load match timestamp for closed-position funding backfill",
+  "files": [
+   "框架/backend/paper_engine.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"SELECT position_id,symbol,qty,entry_ts,exit_ts,status,entry_fee,matched_at_ms FROM paper_position \""
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "2b3cc5c23cf9b612bc8c72341db8766fcd93b76e",
+  "short": "2b3cc5c2",
+  "subject": "test: require closed funding query to fetch matched_at_ms",
+  "files": [
+   "tests/test_architecture_contracts.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.assertIn(\"entry_fee,matched_at_ms FROM paper_position\", source)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_architecture_contracts.py"
+  ]
+ },
+ {
+  "sha": "1d71cc7b2c335da0add4ef4c784e75ac8981c0a6",
+  "short": "1d71cc7b",
+  "subject": "test: exercise actual funding settlement against isolated SQLite fixture",
+  "files": [
+   "tests/test_funding_clock_integration.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 62,
+  "hit": 0,
+  "miss": 62,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import unittest"
+  ],
+  "files_missing_in_main": [
+   "tests/test_funding_clock_integration.py"
+  ]
+ },
+ {
+  "sha": "bce32395481ed8c720e49602ec07e8d80d761924",
+  "short": "bce32395",
+  "subject": "ci: run SQLite funding-window integration tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "- name: Exercise isolated funding clock and architecture contracts",
+   "run: python -m unittest discover -s tests -p 'test_funding_clock_integration.py' -v"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "9341dce94b798e5734567fd4eea4f75a6cc0ffbf",
+  "short": "9341dce9",
+  "subject": "test: verify realtime fill-bar lifecycle and no-backfill isolation",
+  "files": [
+   "tests/test_fill_bar_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 50,
+  "hit": 0,
+  "miss": 50,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import unittest",
+   "SOURCE = Path(__file__).resolve().parents[1] / \"框架/backend/paper_engine.py\""
+  ],
+  "files_missing_in_main": [
+   "tests/test_fill_bar_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "fdc9a752796d439408116c5c4bd57a52f893ee9a",
+  "short": "fdc9a752",
+  "subject": "ci: enforce realtime fill and no-backfill lifecycle tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "6ca8f62774ab4925bea81778a1b46bfd022520e9",
+  "short": "6ca8f627",
+  "subject": "test: validate actionable signal scan against isolated SQLite rows",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 63,
+  "hit": 0,
+  "miss": 63,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "import json",
+   "from pathlib import Path",
+   "import sqlite3"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "fbe8bcb5dc8a953be53033c34e6b9e0ab6fe8318",
+  "short": "fbe8bcb5",
+  "subject": "ci: test signal execution scope and historical exclusion",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "ae2945e5abc05d2f1a8d35dfc41b92dfa77a81c8",
+  "short": "ae2945e5",
+  "subject": "fix: fail closed to live origin in paper signal routing",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "where.append(\"origin=?\")",
+   "args.append(origin if origin is not None else \"live\")"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "a5a4d1b082055575f598223fe7cbd353b1a84e3c",
+  "short": "a5a4d1b0",
+  "subject": "test: default routing excludes historical rows unless explicitly requested",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.assertEqual(self.scan(), [\"live-enterable\"])",
+   "self.assertEqual(self.scan(\"historical_research\"), [\"historical-enterable\"])"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "366d2866a40f4d39d39c1872a8934a4fa90fa401",
+  "short": "366d2866",
+  "subject": "fix: reject missing signal event clock instead of substituting wall time",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 3,
+  "hit": 0,
+  "miss": 3,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"event_time IS NOT NULL AND confirmed_at IS NOT NULL AND available_at IS NOT NULL\",",
+   "s_event_time = int(sig[\"event_time\"])",
+   "s_avail_at = int(sig[\"available_at\"])"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "82c4712d891ad5455faf6443d1be8092f0cd2f66",
+  "short": "82c4712d",
+  "subject": "test: missing signal event clock cannot enter executable scan",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 5,
+  "hit": 0,
+  "miss": 5,
+  "coverage": 0.0,
+  "miss_samples": [
+   "executable_state TEXT, event_time INTEGER, confirmed_at INTEGER, available_at INTEGER, payload_json TEXT)\"\"\")",
+   "arm=\"3a\", approved=None, exchange=\"binance\", event=90, confirmed=100, available=110):",
+   "self.con.execute(\"INSERT INTO live_signal VALUES (?,?,?,?,?,?,?,?,?,?)\",",
+   "(uid, origin, exchange, \"um\", \"1h\", state, event, confirmed,"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "c76852aa494de75692301fa2d1aeb64cc8c7f670",
+  "short": "c76852aa",
+  "subject": "fix: enforce causal event-confirmation-availability order for actionable signals",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"event_time <= confirmed_at AND confirmed_at <= available_at\","
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "ec20e68b650f79a4360d8662516a56300600b458",
+  "short": "ec20e68b",
+  "subject": "test: reject inverted signal timestamps and allow equal causal boundaries",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 4,
+  "hit": 0,
+  "miss": 4,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.add(\"event-after-confirmation\", event=105, confirmed=100)",
+   "self.add(\"confirmation-after-availability\", confirmed=120, available=110)",
+   "self.add(\"equal-clocks-valid\", event=100, confirmed=100, available=100)",
+   "self.assertEqual(self.scan(\"live\"), [\"live-good\", \"equal-clocks-valid\"])"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "5741c06c3737db914e57ff525153e4f42b103627",
+  "short": "5741c06c",
+  "subject": "fix: enforce live-start watermark in actionable signal routing",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 10,
+  "hit": 2,
+  "miss": 8,
+  "coverage": 0.2,
+  "miss_samples": [
+   "selected_origin = origin if origin is not None else \"live\"",
+   "args.append(selected_origin)",
+   "if selected_origin == \"live\":",
+   "live_start_ms = L.get_live_start_ms()"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "574b453a204dd949632e0b6b759cf0427e3bc146",
+  "short": "574b453a",
+  "subject": "test: verify live watermark boundary and missing-watermark fail closed",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 15,
+  "hit": 0,
+  "miss": 15,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def scan_with_fixture(arm, origin=None, live_start=0):",
+   "class LiveStore:",
+   "@staticmethod",
+   "def get_live_start_ms():"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "be12ef718b3ce9daababe1ca14ab32bf3fe2411c",
+  "short": "be12ef71",
+  "subject": "fix: apply live watermark to restart-recovered actionable signals",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "if selected_origin in (\"live\", \"recovered\"):"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "4afbdf296dd50416efe6700cf022e29f93663dc6",
+  "short": "4afbdf29",
+  "subject": "test: restart-recovered signals fail closed without live watermark",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 5,
+  "hit": 0,
+  "miss": 5,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_recovered_signals_respect_live_watermark(self):",
+   "self.add(\"recovered-old\", origin=\"recovered\", event=40, confirmed=50, available=60)",
+   "self.add(\"recovered-current\", origin=\"recovered\", event=90, confirmed=100, available=110)",
+   "self.assertEqual(self.scan(\"recovered\", live_start=100), [\"recovered-current\"])"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "c13dd5eabc8a46581c885f080bcb3b8f8c9f58e9",
+  "short": "c13dd5ea",
+  "subject": "fix: align executable signal floor with current UI effective epoch boundary",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 6,
+  "hit": 0,
+  "miss": 6,
+  "coverage": 0.0,
+  "miss_samples": [
+   "floor_ms = L.effective_floor_ms()",
+   "floor_ms = None",
+   "if not floor_ms:",
+   "where.append(\"(CASE WHEN available_at > confirmed_at THEN available_at \""
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "56c2d87f6b89b09ff01596786f7f2503f10b1f8e",
+  "short": "56c2d87f",
+  "subject": "test: assert inclusive bar-close edge at effective execution floor",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 3,
+  "hit": 0,
+  "miss": 3,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def effective_floor_ms():",
+   "self.assertEqual(self.scan(live_start=101), [\"at-watermark\", \"after-watermark\"])",
+   "self.assertEqual(self.scan(live_start=102), [\"after-watermark\"])"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "837ff4a945d5ad42e7a12c5cfd6cb60a203a501f",
+  "short": "837ff4a9",
+  "subject": "test: use nonzero effective floor in default live signal fixtures",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def scan_with_fixture(arm, origin=None, live_start=1):",
+   "def scan(self, origin=None, live_start=1):"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "9494d15f2d1c5cb5373e34b924eb2cb18904aa01",
+  "short": "9494d15f",
+  "subject": "fix: exclude placeholder and negative signal clocks from paper routing",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"event_time > 0 AND confirmed_at > 0 AND available_at > 0\","
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "fd0845eb7139271c43fc426b5cee833443360166",
+  "short": "fd0845eb",
+  "subject": "test: reject zero and negative signal timestamps",
+  "files": [
+   "tests/test_signal_execution_scope.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 4,
+  "hit": 0,
+  "miss": 4,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.add(\"zero-event-clock\", event=0)",
+   "self.add(\"negative-event-clock\", event=-1)",
+   "self.add(\"zero-confirmation-clock\", confirmed=0)",
+   "self.add(\"negative-availability-clock\", available=-1)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_signal_execution_scope.py"
+  ]
+ },
+ {
+  "sha": "6737debb0f314c6c082d8c83c96e4297fa4a2528",
+  "short": "6737debb",
+  "subject": "test: exercise recovered paper routing idempotence and closed entry gate",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 90,
+  "hit": 0,
+  "miss": 90,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "import json",
+   "from pathlib import Path",
+   "import sqlite3"
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "8a6b9d9cf6043679b6ff36b184f2ee0ab8ce618b",
+  "short": "8a6b9d9c",
+  "subject": "test: preserve isolated SQLite fixture across repeated routing cycles",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 12,
+  "hit": 0,
+  "miss": 12,
+  "coverage": 0.0,
+  "miss_samples": [
+   "class ConnView:",
+   "def __init__(self, conn):",
+   "self.conn = conn",
+   "def execute(self, *args, **kwargs):"
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "fc38061114b0bfcc2f3dfc742987a2891123be6b",
+  "short": "fc380611",
+  "subject": "ci: run isolated paper routing lifecycle regressions",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "425aa49b54a5747c36813bb0b5b30b60974ecab4",
+  "short": "425aa49b",
+  "subject": "test: verify retryable rejection and future-fill idempotence in paper routing",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 22,
+  "hit": 0,
+  "miss": 22,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.next_result = {\"ok\": True}",
+   "result = dict(outer.next_result)",
+   "if result.get(\"ok\") or result.get(\"reason\") == \"pending_future_fill\":",
+   "outer.paper.execute(\"INSERT INTO paper_pending VALUES (?)\", (kwargs[\"signal_uid\"],))"
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "5a7aad876b0702b4675ad06c56d8e9da0177eccb",
+  "short": "5a7aad87",
+  "subject": "test: terminal paper rejection persists across recovered signal replay",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 12,
+  "hit": 0,
+  "miss": 12,
+  "coverage": 0.0,
+  "miss_samples": [
+   "self.terminal_reasons = {\"missed_fill_moment_no_backfill\"}",
+   "TERMINAL_REJECT_REASONS=self.terminal_reasons, json=json,",
+   "def test_terminal_rejection_is_persisted_and_never_replayed(self):",
+   "self.add(\"expired-1\")"
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "b1c40d9b315740be6bd7ae99f87ba07394f31780",
+  "short": "b1c40d9b",
+  "subject": "test: match processed ledger schema for terminal rejection lifecycle",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 4,
+  "hit": 0,
+  "miss": 4,
+  "coverage": 0.0,
+  "miss_samples": [
+   "for table in (\"paper_pending\", \"paper_position\"):",
+   "self.paper.execute(\"\"\"CREATE TABLE paper_processed (",
+   "signal_uid TEXT PRIMARY KEY, arm TEXT, action TEXT, detail TEXT, ts INTEGER)\"\"\")",
+   "self.paper.execute(\"INSERT INTO paper_processed(signal_uid) VALUES (?)\", (\"recovered-1\",))"
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "5723f8c09e379b49877cee153e4ccc65df462f74",
+  "short": "5723f8c0",
+  "subject": "test: exercise pending advance retry, fill, and terminal rejection clocks",
+  "files": [
+   "tests/test_pending_advancement_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 54,
+  "hit": 0,
+  "miss": 54,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import unittest",
+   "from types import SimpleNamespace"
+  ],
+  "files_missing_in_main": [
+   "tests/test_pending_advancement_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "d905e6aeeec828e6b8abef93a46225bb8dcad982",
+  "short": "d905e6ae",
+  "subject": "ci: run isolated pending advancement lifecycle tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "27173192cf55a541adeda65c10c3123edcb54c99",
+  "short": "27173192",
+  "subject": "test: verify closed-candle manual exit provenance and no-exit safeguards",
+  "files": [
+   "tests/test_close_position_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 57,
+  "hit": 0,
+  "miss": 57,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import unittest"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_position_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "de0aa7c13cbfa1abd4116b315e78634a6a598df6",
+  "short": "de0aa7c1",
+  "subject": "ci: run isolated closed-candle exit lifecycle tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "55fab45a5016ca4c8403866fbf04820475270de6",
+  "short": "55fab45a",
+  "subject": "test: close_at_price rejects missing range, duplicate exit and missing contract spec",
+  "files": [
+   "tests/test_close_ledger_guards.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 59,
+  "hit": 0,
+  "miss": 59,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import sys"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_guards.py"
+  ]
+ },
+ {
+  "sha": "eed3401dd68031e2aac078011690d634abe83162",
+  "short": "eed3401d",
+  "subject": "ci: enforce close ledger guard regression tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "0d2da69811cb4d965938d220ca153923b8600279",
+  "short": "0d2da698",
+  "subject": "test: isolate fill precision import from optional numpy dependency",
+  "files": [
+   "tests/test_close_ledger_guards.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 4,
+  "hit": 0,
+  "miss": 4,
+  "coverage": 0.0,
+  "miss_samples": [
+   "fake_fill = types.ModuleType(\"策略.WyckoffMaster.trading_core.fill\")",
+   "fake_fill.price_breakdown = lambda **kwargs: {\"post_round_price\": kwargs[\"raw_price\"]}",
+   "self.module_patch = patch.dict(sys.modules, {\"replay_calc\": fake_rc,",
+   "\"策略.WyckoffMaster.trading_core.fill\": fake_fill})"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_guards.py"
+  ]
+ },
+ {
+  "sha": "b52eb3b025bc7773d8f47752c0defab0e9836231",
+  "short": "b52eb3b0",
+  "subject": "test: prevent cross-arm close and invalid-price exit mutation",
+  "files": [
+   "tests/test_close_ledger_guards.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 12,
+  "hit": 0,
+  "miss": 12,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_cross_arm_position_id_is_not_accessible(self):",
+   "result = self.close(\"3b\", 7, raw_price=100, bar_low=90, bar_high=110)",
+   "self.assertFalse(result[\"ok\"])",
+   "self.assertEqual(result[\"reason\"], \"position_not_found\")"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_guards.py"
+  ]
+ },
+ {
+  "sha": "aabaa1e631e497f2f86b521f453c3a004c74b608",
+  "short": "aabaa1e6",
+  "subject": "test: guard single-commit ordering of paper close ledger writes",
+  "files": [
+   "tests/test_close_transaction_structure.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 37,
+  "hit": 0,
+  "miss": 37,
+  "coverage": 0.0,
+  "miss_samples": [
+   "These checks are intentionally not a substitute for SQLite fault-injection integration tests.",
+   "import ast",
+   "from pathlib import Path",
+   "import unittest"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_transaction_structure.py"
+  ]
+ },
+ {
+  "sha": "caa763a4b7e1a764991c4dbfdedf409509225364",
+  "short": "caa763a4",
+  "subject": "ci: check paper close transaction write ordering",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "410fa7a09ecd1b8d3de1525c775050a6cb17bfc9",
+  "short": "410fa7a0",
+  "subject": "test: prevent funding cash and equity helpers from committing close transaction",
+  "files": [
+   "tests/test_close_transaction_structure.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 10,
+  "hit": 0,
+  "miss": 10,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_ledger_helpers_do_not_commit_independently(self):",
+   "tree = ast.parse(SOURCE.read_text(encoding=\"utf-8\"))",
+   "for name in (\"_set_cash\", \"_record_equity\", \"_settle_funding\"):",
+   "with self.subTest(helper=name):"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_transaction_structure.py"
+  ]
+ },
+ {
+  "sha": "5c5e0bee950e63de6a07bbd46ba4181af5ac86dd",
+  "short": "5c5e0bee",
+  "subject": "test: inject SQLite failures after paper cash and equity helper writes",
+  "files": [
+   "tests/test_close_helper_rollback.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 52,
+  "hit": 0,
+  "miss": 52,
+  "coverage": 0.0,
+  "miss_samples": [
+   "This verifies rollback of the helper writes on one connection, not the complete",
+   "close_at_price path (which also writes fills, orders and funding).",
+   "import ast",
+   "from pathlib import Path"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_helper_rollback.py"
+  ]
+ },
+ {
+  "sha": "a1f98d94454b5054f55551f53a5f90cb963b1cf4",
+  "short": "a1f98d94",
+  "subject": "ci: run SQLite fault-injection rollback tests for close helpers",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "fb455db261f436da7e36b4dadfbd16510c60c515",
+  "short": "fb455db2",
+  "subject": "test: SQLite close ledger success and fill-write failure rollback",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 120,
+  "hit": 0,
+  "miss": 120,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import sys"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "8382dab159eba2d762654c4a93a8699e0b057b8a",
+  "short": "8382dab1",
+  "subject": "ci: exercise full close ledger atomicity on SQLite",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "57cc6fd6ffe0944f2817baac7fd2fdeb092a39de",
+  "short": "57cc6fd6",
+  "subject": "test: reject out-of-range exit without any ledger writes",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 11,
+  "hit": 0,
+  "miss": 11,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_out_of_range_exit_never_mutates_ledger(self):",
+   "result = self.close(\"3a\", 7, raw_price=120, now_ms=2000, exit_ts=1900,",
+   "bar_open_time=1800, bar_close_time=1900,",
+   "bar_low=100, bar_high=115)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "ebec7f5d0cbb0cdc2066307d853c4c2d8a174339",
+  "short": "ebec7f5d",
+  "subject": "test: exercise real funding settlement in close ledger and rollback on fill failure",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 21,
+  "hit": 0,
+  "miss": 21,
+  "coverage": 0.0,
+  "miss_samples": [
+   "CREATE TABLE paper_funding(account_id TEXT,position_id INTEGER,funding_time INTEGER,rate REAL,mark REAL,amount REAL,sour",
+   "names = (\"close_at_price\", \"_set_cash\", \"_record_equity\", \"_settle_funding\", \"_charged_funding_times\", \"_funding_start_m",
+   "_funding_truth=lambda market, symbol, lo, hi: [\\n                         {\"funding_time\":1500,\"funding_rate\":0.01,\"mark",
+   "self.assertAlmostEqual(self.rows(\"SELECT cash FROM paper_state\")[0][0],1017.78)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "791876f13ec385d1c6e3e22330d61054d37cc022",
+  "short": "791876f1",
+  "subject": "test: fix escaped newlines in funding integration fixture",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 6,
+  "hit": 0,
+  "miss": 6,
+  "coverage": 0.0,
+  "miss_samples": [
+   "CREATE TABLE paper_funding(account_id TEXT,position_id INTEGER,funding_time INTEGER,rate REAL,mark REAL,amount REAL,sour",
+   "CREATE TABLE paper_funding_gap(account_id TEXT,position_id INTEGER,funding_time INTEGER,reason TEXT,detected_at INTEGER,",
+   "_funding_truth=lambda market, symbol, lo, hi: [",
+   "{\"funding_time\":1500,\"funding_rate\":0.01,\"mark_price\":100}],"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "7db3537f2fd1a05866d1823fc54c5a18dc1e8549",
+  "short": "7db3537f",
+  "subject": "test: prevent duplicate funding and exclude events before actual match",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 24,
+  "hit": 0,
+  "miss": 24,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_existing_funding_event_is_not_charged_again(self):",
+   "with sqlite3.connect(self.path) as db:",
+   "db.execute(\"INSERT INTO paper_funding(account_id,position_id,funding_time,rate,mark,amount,source,late_backfill,recorded",
+   "(\"paper43_3a\",7,1500,0.01,100,2.0,\"test\",0,1600))"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "6b884a3d2da2c2785b73a4d9abe77613e5c5cb74",
+  "short": "6b884a3d",
+  "subject": "test: funding gaps, signed credits and rollback integrity",
+  "files": [
+   "tests/test_close_ledger_atomicity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 30,
+  "hit": 0,
+  "miss": 30,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_missing_mark_is_a_gap_not_zero_funding(self):",
+   "self.close.__globals__[\"_funding_truth\"] = lambda market,symbol,lo,hi: [",
+   "{\"funding_time\":1500,\"funding_rate\":0.01,\"mark_price\":None}]",
+   "result = self.call_close()"
+  ],
+  "files_missing_in_main": [
+   "tests/test_close_ledger_atomicity.py"
+  ]
+ },
+ {
+  "sha": "e904eced680b1d950d3fbc9bf3966b1bf5d1e88a",
+  "short": "e904eced",
+  "subject": "test: closed position late funding backfill accounting and idempotency",
+  "files": [
+   "tests/test_closed_funding_backfill.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 87,
+  "hit": 0,
+  "miss": 87,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import tempfile"
+  ],
+  "files_missing_in_main": [
+   "tests/test_closed_funding_backfill.py"
+  ]
+ },
+ {
+  "sha": "0054e98c0b7792b17d000b6011aaf4fbbf575c73",
+  "short": "0054e98c",
+  "subject": "ci: run closed funding late-backfill integration tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "578677ea7f756b47787516caf02d8f13768eb2c4",
+  "short": "578677ea",
+  "subject": "test: negative late funding and audit-write rollback",
+  "files": [
+   "tests/test_closed_funding_backfill.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 23,
+  "hit": 0,
+  "miss": 23,
+  "coverage": 0.0,
+  "miss_samples": [
+   "def test_negative_late_funding_credits_cash_and_realized(self):",
+   "self.events = [{\"funding_time\":1500,\"funding_rate\":-0.01,\"mark_price\":100}]",
+   "result = self.backfill(\"3a\",upto_ms=2000)",
+   "self.assertEqual(result[\"n_new_events\"],1)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_closed_funding_backfill.py"
+  ]
+ },
+ {
+  "sha": "4994ee1e49be1fa368af802e47bf1bf822e5792d",
+  "short": "4994ee1e",
+  "subject": "test: audit detects funding amount, state and cash corruption",
+  "files": [
+   "tests/test_funding_audit_integrity.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 73,
+  "hit": 0,
+  "miss": 73,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import tempfile"
+  ],
+  "files_missing_in_main": [
+   "tests/test_funding_audit_integrity.py"
+  ]
+ },
+ {
+  "sha": "20ab5272e73c905a93f4f7d07aa90e1005b44f0b",
+  "short": "20ab5272",
+  "subject": "ci: run funding audit corruption-detection regression suite",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "4331157d81be66af7c8a49a6b943bfca65eec5e8",
+  "short": "4331157d",
+  "subject": "fix: price paper long stop gaps at bar open instead of stop",
+  "files": [
+   "框架/backend/paper_engine.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "exit_fill_price = min(o_p, cur_stop) if is_gap else cur_stop",
+   "arm, position_id, raw_price=exit_fill_price, now_ms=dec_ms,"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "ac3cb80f7d115dd9ed1fd8bc609c8ed0dd89970c",
+  "short": "ac3cb80f",
+  "subject": "test: paper stop gap open-price and intrabar stop regressions",
+  "files": [
+   "tests/test_stop_gap_pricing.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 59,
+  "hit": 0,
+  "miss": 59,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "from pathlib import Path",
+   "import sqlite3",
+   "import unittest"
+  ],
+  "files_missing_in_main": [
+   "tests/test_stop_gap_pricing.py"
+  ]
+ },
+ {
+  "sha": "0123f382a2526577e8b91d51ef9636d0e78e6b85",
+  "short": "0123f382",
+  "subject": "ci: enforce paper stop gap pricing regressions",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "65d6e9c8588d09143010c15b191bad5a03dead60",
+  "short": "65d6e9c8",
+  "subject": "fix: route persisted signal direction without implicit long fallback",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 9,
+  "hit": 3,
+  "miss": 6,
+  "coverage": 0.3333,
+  "miss_samples": [
+   "raw_direction = sig.get(\"direction\")",
+   "signal_direction = (raw_direction.strip().lower()",
+   "if isinstance(raw_direction, str) else None)",
+   "if signal_direction not in (\"long\", \"short\"):"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "69d00636e669906e606f8b6d86c108bfa25cad07",
+  "short": "69d00636",
+  "subject": "test: enforce signal direction preservation and missing-direction rejection",
+  "files": [
+   "tests/test_paper_routing_lifecycle.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 22,
+  "hit": 0,
+  "miss": 22,
+  "coverage": 0.0,
+  "miss_samples": [
+   "signal_uid TEXT, symbol TEXT, direction TEXT, origin TEXT, exchange TEXT, market TEXT,",
+   "def add(self, uid, origin=\"recovered\", direction=\"long\"):",
+   "self.live.execute(\"INSERT INTO live_signal VALUES (?,?,?,?,?,?,?,?,?,?,?,?)\",",
+   "(uid, \"BTCUSDT\", direction, origin, \"binance\", \"um\", \"1h\","
+  ],
+  "files_missing_in_main": [
+   "tests/test_paper_routing_lifecycle.py"
+  ]
+ },
+ {
+  "sha": "a66af246d0eb461fc046f4da32e9a464bf63d8ad",
+  "short": "a66af246",
+  "subject": "fix: fail closed on missing availability or resonance evaluation errors",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 22,
+  "hit": 3,
+  "miss": 19,
+  "coverage": 0.1364,
+  "miss_samples": [
+   "availability_ms = int(c.available_at_ms)",
+   "if availability_ms <= 0 or availability_ms < int(c.snapshot_time_ms):",
+   "raise ValueError(\"invalid_candidate_availability_clock\")",
+   "clock_error = None"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "9bd2d7fd0120eb2c66098ea05e8a4e61e1ba8df8",
+  "short": "9bd2d7fd",
+  "subject": "test: fail-closed candidate persistence when availability or resonance is missing",
+  "files": [
+   "tests/test_candidate_persistence_safety.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 81,
+  "hit": 0,
+  "miss": 81,
+  "coverage": 0.0,
+  "miss_samples": [
+   "import ast",
+   "import json",
+   "from pathlib import Path",
+   "import sqlite3"
+  ],
+  "files_missing_in_main": [
+   "tests/test_candidate_persistence_safety.py"
+  ]
+ },
+ {
+  "sha": "20bc3e58a37a6a3c9d873f8cd36c8d2cbb45ec8b",
+  "short": "20bc3e58",
+  "subject": "ci: enforce candidate availability and resonance fail-closed tests",
+  "files": [
+   ".github/workflows/architecture-guardrails.yml"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "ci"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "run: python -m unittest discover -s tests -p 'test_*integration.py' -v && python -m unittest discover -s tests -p 'test_"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "f0bd09b4db0bd3e22c3b649ad125728c5e8dd8a8",
+  "short": "f0bd09b4",
+  "subject": "test: provide annotation names to extracted persistence function",
+  "files": [
+   "tests/test_candidate_persistence_safety.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "scope=dict(List=list, Optional=__import__(\"typing\").Optional, CandidateSnapshot=object,\\n                   L=types.Simp"
+  ],
+  "files_missing_in_main": [
+   "tests/test_candidate_persistence_safety.py"
+  ]
+ },
+ {
+  "sha": "e0ffbda7b870f5e1f9bb08e82da6325cfe788f25",
+  "short": "e0ffbda7",
+  "subject": "fix: align API signal causal clocks and preserve direction semantics",
+  "files": [
+   "框架/backend/live_api.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 10,
+  "hit": 2,
+  "miss": 8,
+  "coverage": 0.2,
+  "miss_samples": [
+   "where.append(\"event_time IS NOT NULL AND confirmed_at IS NOT NULL AND available_at IS NOT NULL\")",
+   "where.append(\"event_time > 0 AND event_time <= confirmed_at AND confirmed_at <= available_at\")",
+   "\"current_direction\": (str(d[\"direction\"]).lower()",
+   "and isinstance(d.get(\"direction\"), str)"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "b2a2cc4557ca98a6a475a978f0c7734eb9d41134",
+  "short": "b2a2cc45",
+  "subject": "test: correct literal newline in isolated persistence test scope",
+  "files": [
+   "tests/test_candidate_persistence_safety.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "scope=dict(List=list, Optional=__import__(\"typing\").Optional, CandidateSnapshot=object,",
+   "L=types.SimpleNamespace(live_conn=lambda:self.db),"
+  ],
+  "files_missing_in_main": [
+   "tests/test_candidate_persistence_safety.py"
+  ]
+ },
+ {
+  "sha": "b8798d7504440a464fa09d3885e349ac126ff748",
+  "short": "b8798d75",
+  "subject": "fix: align router exclusions with current API synthetic and direction guards",
+  "files": [
+   "框架/backend/unified_runtime.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 2,
+  "hit": 0,
+  "miss": 2,
+  "coverage": 0.0,
+  "miss_samples": [
+   "\"signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'\",",
+   "\"lower(direction) IN ('long','short')\","
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "e5ac161826bc0eb41ba98efff06229af217eb9b4",
+  "short": "e5ac1618",
+  "subject": "fix: exclude malformed direction from API current actionable scope",
+  "files": [
+   "框架/backend/live_api.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "code"
+  ],
+  "added_tokens": 1,
+  "hit": 0,
+  "miss": 1,
+  "coverage": 0.0,
+  "miss_samples": [
+   "where.append(\"lower(direction) IN ('long','short')\")"
+  ],
+  "files_missing_in_main": []
+ },
+ {
+  "sha": "24c3203d5b1205fc2069bb3231b16aa1b11ba20d",
+  "short": "24c3203d",
+  "subject": "test: preserve in-memory database after persistence closes connection view",
+  "files": [
+   "tests/test_candidate_persistence_safety.py"
+  ],
+  "n_files": 1,
+  "kinds": [
+   "test"
+  ],
+  "added_tokens": 8,
+  "hit": 0,
+  "miss": 8,
+  "coverage": 0.0,
+  "miss_samples": [
+   "class ConnView:",
+   "def close(self):",
+   "def execute(self, *args):",
+   "return self_db.execute(*args)"
+  ],
+  "files_missing_in_main": [
+   "tests/test_candidate_persistence_safety.py"
+  ]
+ }
+]

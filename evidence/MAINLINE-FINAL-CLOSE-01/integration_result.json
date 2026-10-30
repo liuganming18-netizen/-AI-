@@ -1,0 +1,48 @@
+{
+  "generated_at_utc": "2026-10-30T03:10:00Z",
+  "order": "MAINLINE-FINAL-CLOSE-01",
+  "method": "先按提交逐个取新增实质行，与主线同名文件做内容比对（覆盖率）；覆盖率低的再逐条读代码确认语义是否已由主线的新实现承担；全程未做 cherry-pick",
+  "cherry_pick_used": false,
+  "isolated_integration_used": false,
+  "isolated_integration_note": "无需隔离集成：90 个提交里没有可以直接合入的生产代码修复（唯一有行为差异的 4331157d 属待裁决，见 unmerged_effective_changes.json）",
+  "merged_from_old_gate_branch": {
+    "commits": 0,
+    "files": [],
+    "reason": "7 个已被主线覆盖、35 个已被新实现替代、47 个仅测试或文档、1 个待裁决 ⇒ 没有一个属于「安全且必要、可以直接合入」"
+  },
+  "merged_by_this_order": {
+    "commits": 1,
+    "sha": "105843291ce6c9c4475cf801800c2b592b4f2865",
+    "subject": "test(MAINLINE-FINAL-CLOSE-01): 4 项策略测试按 FT-LOW4H 冻结规则定性并修复",
+    "files": [
+      "策略/WyckoffMaster/event_trend_v0_1/tests/test_event_trend_closure.py",
+      "策略/WyckoffMaster/event_trend_v0_1/tests/test_fill_precision.py",
+      "策略/WyckoffMaster/event_trend_v0_1/tests/test_run_artifacts.py"
+    ],
+    "diff_stat": "3 files changed, 67 insertions(+), 11 deletions(-)",
+    "production_code_changed": false,
+    "frozen_params_changed": false,
+    "assertions_relaxed": false
+  },
+  "regressions_not_reintroduced": {
+    "10R": {"touched": false, "evidence": "框架/backend/accum_early_entry.py 未被本轮改动；接口回归「撮合-止损不倒灌」「撮合-跳空模型」「撮合-同bar标记」仍通过"},
+    "C02_R1": {"touched": false, "evidence": "接口回归「导入-runner代码级」「信号-OI预置槽位」「OI-透传分支」仍通过（runner.py 未改动）"},
+    "D03_R1": {"touched": false, "evidence": "live_api.py / paper_engine.py 未改动；接口回归「API-接口」「账本-接口」仍通过"},
+    "agent_gate": {"touched": false, "evidence": "框架/ops/agent_gate.py 未改动；tests/test_agent_gate.py 71 passed"}
+  },
+  "frozen_identity": {
+    "config_py_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+    "config_py_changed": false,
+    "frozen_rules_sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+    "frozen_rules_bytes": 13315,
+    "frozen_rules_changed": false,
+    "view_sha256_reference": "82dec362c182…（生效视图，本轮未触碰）"
+  },
+  "verdict": {
+    "old_gate_branch_closed": true,
+    "unmerged_effective_code_remaining": true,
+    "unmerged_effective_code_detail": "1 项（4331157d 跳空按 bar open 计价），属待裁决，不是遗漏",
+    "blocking_findings": 1,
+    "blocking_finding_detail": "BF-01 主线 HEAD 缺一个提交（engine_adapter 的 _merge_summary/compute_summary_metrics），干净 HEAD 上策略测试集无法收集"
+  }
+}

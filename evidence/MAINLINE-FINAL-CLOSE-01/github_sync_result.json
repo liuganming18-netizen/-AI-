@@ -1,0 +1,48 @@
+{
+  "generated_at_utc": "2026-10-30T03:20:00Z",
+  "order": "MAINLINE-FINAL-CLOSE-01",
+  "remote": {
+    "name": "origin",
+    "url": "git@github.com:liuganming18-netizen/GM.git",
+    "branch": "wyckoff-v3.1-main"
+  },
+  "before_sync": {
+    "local_head": "26ec8aef17b8426a26c27c79041792927f403159",
+    "remote_head_ls_remote": "26ec8aef17b8426a26c27c79041792927f403159",
+    "consistent": true
+  },
+  "push": {
+    "command": "git push origin wyckoff-v3.1-main",
+    "type": "普通推送（非强推）",
+    "result": "success",
+    "range": "26ec8aef..10584329",
+    "ref_update": "wyckoff-v3.1-main -> wyckoff-v3.1-main",
+    "force": false,
+    "reset_hard": false,
+    "git_add_dot": false
+  },
+  "code_commit": {
+    "sha": "105843291ce6c9c4475cf801800c2b592b4f2865",
+    "subject": "test(MAINLINE-FINAL-CLOSE-01): 4 项策略测试按 FT-LOW4H 冻结规则定性并修复",
+    "files_changed": 3,
+    "insertions": 67,
+    "deletions": 11,
+    "empty_commit": false
+  },
+  "remote_head_after_push": "105843291ce6c9c4475cf801800c2b592b4f2865",
+  "verification": {
+    "method": "git ls-remote origin refs/heads/wyckoff-v3.1-main",
+    "local_equals_remote": true
+  },
+  "evidence_commit": {
+    "note": "本文件随证据提交一起推送，推送后远程 HEAD 会再前移一格；最终远程 HEAD 以 ls-remote 实测为准，实测值记在 out/github_sync_probe.json 与本单回复正文",
+    "will_advance_remote_head": true
+  },
+  "gates_before_push": {
+    "no_new_blocking_failure_from_this_order": true,
+    "existing_failures_all_classified": true,
+    "changes_conform_to_frozen_rules": true,
+    "pre_existing_blocking_finding": "BF-01（HEAD 缺提交），非本轮引入，已在 unmerged_effective_changes.json 记录",
+    "verdict": "允许普通推送"
+  }
+}

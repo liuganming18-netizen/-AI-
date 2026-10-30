@@ -1,0 +1,108 @@
+{
+  "generated_at_utc": "2026-10-30T03:05:00Z",
+  "order": "MAINLINE-FINAL-CLOSE-01",
+  "baseline": {
+    "branch": "wyckoff-v3.1-main",
+    "head_before": "26ec8aef17b8426a26c27c79041792927f403159",
+    "old_gate_branch": "origin/fix/architecture-guardrails-20261028",
+    "old_gate_branch_tip": "24c3203d",
+    "unique_commits": 90,
+    "behind_mainline_commits": 7
+  },
+  "classification_summary": {
+    "已被主线覆盖": 7,
+    "已被新实现替代": 35,
+    "仅为测试或文档": 47,
+    "存在冲突或需要裁决": 1,
+    "仍有独有有效功能": 0,
+    "总计": 90,
+    "说明": "「仍有独有有效功能」记为 0，是因为唯一有真实行为差异的那 1 个提交（4331157d）属于「跳空成交价模型待批」范围，归到「存在冲突或需要裁决」，不是可以直接合入的有效成果"
+  },
+  "unique_effective_changes": [
+    {
+      "sha": "4331157d",
+      "subject": "fix: price paper long stop gaps at bar open instead of stop",
+      "file": "框架/backend/paper_engine.py",
+      "branch_behavior": "多单跳空穿过止损时，出场价取 min(bar_open, cur_stop)，并在 price_audit 里标注 gap",
+      "mainline_behavior": "同一个 if 分支里只改原因标签（initial_stop_gap / trailing_stop_gap），成交价仍写 raw_price=cur_stop（即按被穿过的止损价成交）",
+      "why_it_matters": "跳空时按止损价成交等于「滑点为零」的乐观假设，会让模拟盘亏损被系统性低估；研究侧 accum_early_entry.drive_position_exit 已按 bar_open 计价（WYCKOFF-DEC01-EXECUTION-FIX-10R，`used_gap_model = \"bar_open\" if gap else gap_model`），两处口径目前不一致",
+      "why_not_merged": "改的是模拟盘成交价与盈亏，属于 06-W1-R1 待决清单里的「跳空成交价模型与滑点」，必须由用户拍板后才能动；本轮授权不含策略/成交模型变更",
+      "classification": "存在冲突或需要裁决",
+      "needs_user_decision": true,
+      "evidence": [
+        "框架/backend/paper_engine.py:3150-3160（主线按 cur_stop 计价，仅改 reason）",
+        "框架/backend/accum_early_entry.py:1945-1951（研究侧按 bar_open 计价）",
+        "evidence/FINAL-INTEGRATION-01/verify_integration.py:62-65（接口回归只检查 gap_model/bar_open 字样，不校验 paper_engine 的成交价）"
+      ]
+    }
+  ],
+  "not_merged": {
+    "test_only": {
+      "count": 45,
+      "files": [
+        "tests/test_architecture_contracts.py", "tests/test_candidate_persistence_safety.py",
+        "tests/test_close_helper_rollback.py", "tests/test_close_ledger_atomicity.py",
+        "tests/test_close_ledger_guards.py", "tests/test_close_position_lifecycle.py",
+        "tests/test_close_transaction_structure.py", "tests/test_closed_funding_backfill.py",
+        "tests/test_fill_bar_lifecycle.py", "tests/test_funding_audit_integrity.py",
+        "tests/test_funding_clock_integration.py", "tests/test_paper_routing_lifecycle.py",
+        "tests/test_pending_advancement_lifecycle.py", "tests/test_signal_execution_scope.py",
+        "tests/test_stop_gap_pricing.py"
+      ],
+      "measured_against_mainline": {
+        "command": "把分支 tests/ 的 15 个文件导出到临时目录，用主线代码跑 pytest",
+        "failed": 47,
+        "passed": 22,
+        "verdict": "断言的是分支旧函数签名与旧实现，合入即新增 47 项失败"
+      },
+      "reason": "任务要求「仅当没有新增阻断级失败」才允许 push；合入这批测试会直接新增 47 项失败，且它们对应的生产实现已在主线以别的写法存在（见「已被新实现替代」35 项）",
+      "note": "其中 test_stop_gap_pricing.py 断言的正是 4331157d 的跳空按 bar open 计价 —— 它会在主线上失败，也说明该行为尚未合入"
+    },
+    "ci_only": {
+      "count": 17,
+      "file": ".github/workflows/architecture-guardrails.yml",
+      "reason": "主线已有同名 workflow（61 行，frontend lint+build / agent paths / 关键模块 ast 解析），是重写后的版本。分支那 16 个提交往 workflow 里加的步骤是 `unittest discover -s tests -p 'test_xxx.py'`，指向分支自己的测试文件；这些文件主线没有，照搬会让 CI 直接报文件不存在",
+      "covered_one": "d2574e19（npm ci --legacy-peer-deps 绕过 Vite/esbuild peer 冲突）新增行 100% 已在主线"
+    },
+    "doc_only": {
+      "count": 3,
+      "items": [
+        {"sha": "40bd7913", "file": "AGENTS.md", "status": "已被主线覆盖（相对路径改动 100% 已在）"},
+        {"sha": "89897d3c", "file": "docs/审计/2026-10-28_实际撮合时间语义核验.md", "status": "未合入：纯审计记录，主线无此文件，不影响代码"},
+        {"sha": "885dff02", "file": "docs/契约/信号价格与时间语义_V1.md", "status": "未合入：纯文档，且其中 economic_entry_at / actual_fill_at 两个字段名主线并不存在，照搬会与代码矛盾"}
+      ]
+    }
+  },
+  "blocking_findings": [
+    {
+      "id": "BF-01",
+      "severity": "阻断",
+      "title": "主线 HEAD 缺一个提交：已提交的测试引用了未提交的生产代码",
+      "detail": "HEAD 26ec8aef 里 `策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_metrics.py` 已提交，它从 engine_adapter 导入 `_merge_summary` 与 `compute_summary_metrics`；但 HEAD 的 engine_adapter.py 里这两个名字都不存在（grep 计数 0）。结果是**干净 HEAD 上策略测试集连收集都过不了**：`ImportError: cannot import name '_merge_summary'`，164 tests collected + 1 error。",
+      "measured": {
+        "clean_head_26ec8aef": {"collected": 164, "collection_errors": 1},
+        "working_tree": {"passed": 175, "failed": 0, "skipped": 0}
+      },
+      "where_the_code_is": "只存在于工作区未提交改动：`策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py`（+185 行，BACKTEST-REPAIR-01 任务 C 绩效汇总）。工作区 SHA256 4b28ecd2…，HEAD SHA256 e59a2271…",
+      "checked_other_refs": "origin/work04-backtest-workbench、origin/fix/architecture-guardrails-20261028、backtest-repair-01、pr2-integration-exec-01、main、origin/main 的 engine_adapter.py 里都没有 `_merge_summary`（全部计数 0）⇒ 该实现从未提交到任何分支",
+      "why_not_fixed_by_this_order": "该改动属另一窗口尚未提交的成果，AGENTS.md 明令「不得擅自清理、覆盖其他窗口或其他执行方尚未提交的成果」。本轮只报告，不代提交",
+      "suggested_resolution": [
+        "由该改动的执行方自己提交 engine_adapter.py（推荐，归属清晰）",
+        "或用户明确授权本轮代提交该文件后再同步"
+      ]
+    }
+  ],
+  "safety_check": {
+    "production_sqlite_wal_shm_modified": false,
+    "parquet_modified": false,
+    "raw_zip_modified": false,
+    "ledger_modified": false,
+    "unique_backup_modified": false,
+    "other_windows_uncommitted_work_modified": false,
+    "frozen_config_modified": false,
+    "frozen_rules_doc_modified": false,
+    "force_push_used": false,
+    "reset_hard_used": false,
+    "git_add_dot_used": false
+  }
+}

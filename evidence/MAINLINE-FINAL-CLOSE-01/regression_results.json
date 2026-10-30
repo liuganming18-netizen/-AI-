@@ -1,0 +1,117 @@
+{
+  "generated_at_utc": "2026-10-30T03:15:00Z",
+  "order": "MAINLINE-FINAL-CLOSE-01",
+  "environment": {
+    "python": "/usr/bin/python3 (3.9.6)",
+    "pytest": "pytest 8.4.2",
+    "pytest_flags": "-q -p no:cacheprovider",
+    "tmpdir_rule": "每次运行必须用全新空 TMPDIR；复用同一目录会撞 'EEXIST: mkdir pytest-of-root' 产生假 ERROR（上一单实测踩到，不是代码缺陷）",
+    "workdir": "仓库根（接口回归除外，须在 框架/backend 下运行）"
+  },
+  "suites": [
+    {
+      "name": "1. Python 语法检查",
+      "command": "ast.parse() 逐个解析 11 个关键文件",
+      "current": {"passed": 11, "failed": 0, "total": 11},
+      "files": ["paper_engine.py", "live_api.py", "live_store.py", "unified_runtime.py",
+                "wyckoff_factor_resonance.py", "event_trend_v0_1/engine_adapter.py",
+                "event_trend_v0_1/config.py", "event_trend_v0_1/runner.py",
+                "tests/test_event_trend_closure.py", "tests/test_fill_precision.py",
+                "tests/test_run_artifacts.py"]
+    },
+    {
+      "name": "2. 核心模块导入",
+      "command": "cd 框架/backend && python3 -c \"import paper_engine, live_api, live_store, unified_runtime, wyckoff_factor_resonance\"",
+      "current": {"passed": 5, "failed": 0, "total": 5}
+    },
+    {
+      "name": "3. 代理门禁测试",
+      "command": "pytest tests/test_agent_gate.py -q -p no:cacheprovider",
+      "current": {"passed": 71, "failed": 0, "skipped": 0},
+      "extra": {
+        "name": "架构门禁·agent 路径",
+        "command": "python3 -m unittest discover -s tests -p 'test_agent_paths.py'",
+        "current": {"passed": 1, "failed": 0}
+      }
+    },
+    {
+      "name": "4. 策略测试集（工作区，含另一窗口未提交的 engine_adapter 改动）",
+      "command": "pytest 策略/WyckoffMaster/event_trend_v0_1/tests/ -q -p no:cacheprovider",
+      "before_fix": {"passed": 171, "failed": 4, "skipped": 0},
+      "after_fix": {"passed": 175, "failed": 0, "skipped": 0},
+      "failures_before": [
+        "test_event_trend_closure.py::test_adversarial_candidate_unique_binding_and_field_mapping",
+        "test_event_trend_closure.py::test_max_holding_10_days_expiry_exit",
+        "test_fill_precision.py::test_exit_failure_keeps_position_open_and_marks_run_invalid",
+        "test_run_artifacts.py::test_fingerprints_cover_rules_code_config_inputs"
+      ],
+      "failures_after": [],
+      "note": "本轮新增 0 项失败、消除 4 项既有失败"
+    },
+    {
+      "name": "5. 策略测试集（干净 HEAD 26ec8aef + 本轮 3 个测试文件）",
+      "command": "git archive HEAD 策略 框架 → 临时目录 → 覆盖 3 个测试文件 → pytest",
+      "current": {"collected": 164, "collection_errors": 1, "failed": null, "passed": null},
+      "error": "ImportError: cannot import name '_merge_summary' from 'WyckoffMaster.event_trend_v0_1.engine_adapter'（test_backtest_repair_01_metrics.py:34）",
+      "verdict": "阻断：HEAD 提交了引用未提交生产代码的测试。不是本轮引入，见 unmerged_effective_changes.json BF-01"
+    },
+    {
+      "name": "6. 11 项接口回归",
+      "command": "cd 框架/backend && python3 ../../evidence/FINAL-INTEGRATION-01/verify_integration.py",
+      "current": {"passed": 11, "failed": 0, "total": 11},
+      "items": [
+        "导入-核心5模块", "导入-runner代码级", "信号-OI预置槽位", "OI-透传分支",
+        "撮合-止损不倒灌", "撮合-跳空模型", "撮合-同bar标记", "门禁-fail-closed原因码",
+        "资金费-接口", "账本-接口", "API-接口"
+      ],
+      "note": "脚本用 os.getcwd() 注入模块路径，必须在 框架/backend 下运行；在仓库根跑会 11 项全报 ModuleNotFoundError（调用方式错误，不是代码缺陷）"
+    },
+    {
+      "name": "7. 前端 TypeScript 类型检查",
+      "command": "cd UI界面/web && npm run lint",
+      "current": {"exit_code": 0}
+    },
+    {
+      "name": "8. 前端生产构建",
+      "command": "cd UI界面/web && npm run build",
+      "current": {"exit_code": 0, "built_in_seconds": 0.963, "main_js_kb": 941.11},
+      "warnings": ["chunk > 500 kB（既有告警，非本轮引入）"],
+      "note": "构建产物 dist/ 未被 git 跟踪，不产生提交"
+    },
+    {
+      "name": "9. 关键文件 SHA256 对照",
+      "current": {"checked": 3, "changed": 1},
+      "items": [
+        {"file": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+         "worktree": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+         "head": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+         "changed_by_this_order": false},
+        {"file": "evidence/WX_EVENT_TREND_V0_1_策略与回测冻结规则.md",
+         "worktree": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+         "head": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+         "bytes": 13315,
+         "changed_by_this_order": false},
+        {"file": "策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py",
+         "worktree": "4b28ecd25234101cdaddda456133f661fdf78a28e345c6be3f93ab047a1c672f",
+         "head": "e59a2271bdfa72fcf6faf4977c96e9a57ed5b28168fe6a8e1d7a39b0ae62d5d5",
+         "changed_by_this_order": false,
+         "note": "差异来自另一窗口未提交改动（+185 行绩效汇总），本轮未触碰、未提交"}
+      ]
+    }
+  ],
+  "commit_gate_note": {
+    "observed": "提交时 pre-commit 钩子输出「[门禁未启用] 默认模式不校验暂存区、参数与角色」",
+    "meaning": "该钩子本次没有做任何校验，其输出不能当作门禁通过的证据",
+    "what_was_actually_verified": "tests/test_agent_gate.py 71 passed（真正跑起来的门禁自测）"
+  },
+  "summary": {
+    "阻断级失败": 1,
+    "阻断级失败来源": "既有（HEAD 缺提交，非本轮引入）",
+    "本轮新增失败": 0,
+    "本轮消除失败": 4,
+    "通过": 175,
+    "失败": 0,
+    "跳过": 0,
+    "结论": "本轮改动本身无新增失败；但主线 HEAD 因缺一个提交而无法跑通自己的测试集，该项列阻断并交用户裁决"
+  }
+}
