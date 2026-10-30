@@ -1,0 +1,113 @@
+{
+  "generated_at_utc": "2026-10-30T02:30:00Z",
+  "baseline_sha": "f05b6d6338ef1cccd59542b2c562e9efa1d8ac63",
+  "head_sha": "8d3d8a12d4652a013c742f54cc99f3989cf4489c",
+  "target_branch": "wyckoff-v3.1-main",
+  "note": "「独有提交/落后」均以本轮最终 HEAD 为基准；判定是否已合入一律以文件内容与符号为准，不以提交数为准。",
+  "branches": [
+    {
+      "name": "main",
+      "sha": "8bb8f1bb",
+      "unique_commits": 0,
+      "behind": 37,
+      "verdict": "已被主线包含",
+      "evidence": "git rev-list --count main ^HEAD = 0"
+    },
+    {
+      "name": "wyckoff-v3.1-main",
+      "sha": "8d3d8a12",
+      "unique_commits": 0,
+      "behind": 0,
+      "verdict": "本轮目标主线，已快进到 8d3d8a12",
+      "evidence": "git merge --ff-only mainline-all-in-01"
+    },
+    {
+      "name": "final-integration-01",
+      "sha": "f05b6d63",
+      "unique_commits": 0,
+      "behind": 1,
+      "verdict": "上一轮落点，本轮已被超越",
+      "evidence": "git rev-list --count final-integration-01 ^HEAD = 0"
+    },
+    {
+      "name": "pr2-integration-exec-01",
+      "sha": "9c8929d5",
+      "unique_commits": 0,
+      "behind": 2,
+      "verdict": "已被主线包含；其 worktree 里的「独有改动」实为旧版本残留",
+      "evidence": "unique=0；evidence/PR2-INTEGRATION-EXEC-01 已复制入主线"
+    },
+    {
+      "name": "backtest-repair-01",
+      "sha": "9c8929d5",
+      "unique_commits": 0,
+      "behind": 2,
+      "verdict": "提交层面已包含；其未提交改动已三方合入主线",
+      "evidence": "runner.py/backtest_runner.py/oi_feed.py/instrument_spec.py 已合；evidence/BACKTEST-REPAIR-01 已复制"
+    },
+    {
+      "name": "pr2-recovered-harden-01",
+      "sha": "acb5c2b2",
+      "unique_commits": 2,
+      "behind": 2,
+      "verdict": "已被主线覆盖（分支测试 139 行是主线 708 行的子集）",
+      "evidence": "live_api.py 八个 fail-closed 常量在 HEAD 齐全；unified_runtime._scan_actionable 5 处"
+    },
+    {
+      "name": "pr2-wo-02-fail-closed",
+      "sha": "acb5c2b2",
+      "unique_commits": 2,
+      "behind": 2,
+      "verdict": "与 pr2-recovered-harden-01 同源，同样已被覆盖",
+      "evidence": "同一 commit acb5c2b2"
+    },
+    {
+      "name": "pr2-wo-01-display-semantics",
+      "sha": "7993d859",
+      "unique_commits": 1,
+      "behind": 2,
+      "verdict": "功能已合入（工作树版本比分支更新，已提交）",
+      "evidence": "adapters.ts triggerTime 不再回退 created_at；ObservePanel.tsx +72/-23 已提交"
+    },
+    {
+      "name": "implement_agent_guardrails",
+      "sha": "f6340ab6",
+      "unique_commits": 4,
+      "behind": 37,
+      "verdict": "不合并分支；改为提交盘上更新版（904 行 > 分支 239 行）",
+      "evidence": "pytest tests/test_agent_gate.py = 71 passed 后才提交",
+      "risk": "合并分支会把 agent_gate.py 从 904 行退回 239 行"
+    },
+    {
+      "name": "evidence_correction_and_review",
+      "sha": "e20e0cb8",
+      "unique_commits": 0,
+      "behind": 6,
+      "verdict": "已被包含；三个独有 evidence 目录与主线 diff -rq 完全相同",
+      "evidence": "ACCUM-EARLY-09-ANTIGRAVITY / NATURAL-CANDIDATE-01 / WYCKOFF-MAIN-E2E-01 均完全相同"
+    },
+    {
+      "name": "origin/work04-backtest-workbench",
+      "sha": "3bd4016e",
+      "unique_commits": 1,
+      "behind": 25,
+      "verdict": "不采用：组件路径错位且已被主线更完整版本取代",
+      "evidence": "分支把组件放在仓库根 src/components/BacktestReviewView.tsx（416 行）；主线已有 UI界面/web/src/components/BacktestReviewView.tsx（47.6 KB）",
+      "risk": "该分支文件落在仓库根 src/，与前端工程 UI界面/web/ 无关，直接合入会产生一个没人引用的死文件"
+    },
+    {
+      "name": "origin/fix/architecture-guardrails-20261028",
+      "sha": "24c3203d",
+      "unique_commits": 90,
+      "behind": 4,
+      "verdict": "未处理（长期并行分支，不在本轮 11 类对象清单内）",
+      "evidence": "git rev-list --count = 90；其架构门禁内容已由 .github/workflows/architecture-guardrails.yml 与 tests/test_agent_paths.py 在主线生效",
+      "risk": "90 个独有提交里可能含主线没有的内容，本轮未逐项核对 ⇒ 列待裁决"
+    }
+  ],
+  "untouched_by_design": [
+    "冻结策略参数 config.py（122683f2b489c742…，本轮 diff 0 行）",
+    "历史 PIT 口径（pit_mode / oi_declared_lag_ms 未改）",
+    "生产账本 数据/paper/*.sqlite3（只读打开，mtime 未变）"
+  ]
+}

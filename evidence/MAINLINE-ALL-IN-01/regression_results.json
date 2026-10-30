@@ -1,0 +1,134 @@
+{
+  "generated_at_utc": "2026-10-30T02:35:00Z",
+  "environment": {
+    "python": "/usr/bin/python3 (3.9.6)",
+    "pytest": "pytest -q -p no:cacheprovider",
+    "tmpdir_note": "每次运行必须用**全新空** TMPDIR；复用同一个目录会撞 'EEXIST: mkdir pytest-of-root' 产生 33 个假 ERROR（本轮实测踩到，不是代码缺陷）",
+    "workdir": "仓库根"
+  },
+  "suites": [
+    {
+      "name": "策略测试集",
+      "command": "pytest 策略/WyckoffMaster/event_trend_v0_1/tests/ -q -p no:cacheprovider",
+      "current": {"passed": 171, "failed": 4, "skipped": 0, "errors": 0},
+      "baseline_f05b6d63": {"passed": 120, "failed": 4, "skipped": 2, "errors": 0},
+      "verdict": "失败清单与基线**逐字相同** ⇒ 4 项均非本轮引入",
+      "new_passing_tests": 51,
+      "new_passing_source": "本轮新增 7 个测试文件（3 个 test_backtest_repair_01_*.py + 4 个 test_pr2_*.py）",
+      "baseline_skipped_note": "基线那 2 项跳过在本轮不再跳过；具体用例名未记录（基线副本已按 worktree 流程移除），差异原因本轮未逐项追查 —— 列待裁决，不影响「失败清单逐字相同」这一核心判定",
+      "failures": [
+        {
+          "case": "test_event_trend_closure.py::test_adversarial_candidate_unique_binding_and_field_mapping",
+          "assertion": "assert 0.9084680556108683 < 1e-09",
+          "detail": "期望执行数量 0.8868640808343763，实际 1.7953321364452446（≈2 倍）",
+          "root_cause": "用例按旧口径（risk 2%/笔、initial_equity 2000 的另一套换算）算期望手数；FT-LOW4H 冻结参数是 risk_budget_per_trade=0.005、max_notional_per_position=0.30，手数口径不同",
+          "introduced_by_this_round": false,
+          "blocking": false,
+          "reason_not_fixed": "要让它过必须改冻结策略参数或改用例期望值；改参数被明令禁止，改期望值等于替策略背书 ⇒ 保留原样，列待裁决"
+        },
+        {
+          "case": "test_event_trend_closure.py::test_max_holding_10_days_expiry_exit",
+          "assertion": "用例要求 max_holding_days=10 触发到期退出",
+          "detail": "FT-LOW4H 下 max_holding_days=None（冻结参数覆盖），到期退出不发生",
+          "introduced_by_this_round": false,
+          "blocking": false,
+          "reason_not_fixed": "同上，属旧规则用例与冻结参数的冲突"
+        },
+        {
+          "case": "test_fill_precision.py::test_exit_failure_keeps_position_open_and_marks_run_invalid",
+          "assertion": "出场失败时仓位必须仍未平 —— assert [] ",
+          "detail": "open_positions_remaining 为空",
+          "introduced_by_this_round": false,
+          "blocking": false,
+          "reason_not_fixed": "未定性到具体代码差异，与冻结参数下的退出路径有关；本轮未改退出逻辑"
+        },
+        {
+          "case": "test_run_artifacts.py::test_fingerprints_cover_rules_code_config_inputs",
+          "assertion": "assert cfg_fp[\"params\"][\"max_holding_days\"] == 10 —— assert None == 10",
+          "detail": "指纹里 max_holding_days 是 None",
+          "introduced_by_this_round": false,
+          "blocking": false,
+          "reason_not_fixed": "同上；改 config 会同时改变 view_sha256（82dec362c182）导致身份漂移，禁止"
+        }
+      ]
+    },
+    {
+      "name": "接口级集成回归（FINAL-INTEGRATION-01 脚本）",
+      "command": "cd 框架/backend && python3 ../../evidence/FINAL-INTEGRATION-01/verify_integration.py",
+      "current": {"passed": 11, "failed": 0, "skipped": 0},
+      "note": "脚本用 os.getcwd() 注入模块路径，**必须在 框架/backend 下运行**；在仓库根运行会 11 项全报 ModuleNotFoundError（本轮实测，属调用方式错误不是代码缺陷）",
+      "items": [
+        "导入-核心5模块", "导入-runner代码级", "信号-OI预置槽位", "OI-透传分支",
+        "撮合-止损不倒灌", "撮合-跳空模型", "撮合-同bar标记", "门禁-fail-closed原因码",
+        "资金费-接口", "账本-接口", "API-接口"
+      ]
+    },
+    {
+      "name": "D03-R1 契约·函数级",
+      "command": "python3 evidence/MAINLINE-ALL-IN-01/verify_d03r1.py",
+      "current": {"passed": 9, "failed": 0},
+      "output": "out/d03r1_contract_verify.json"
+    },
+    {
+      "name": "D03-R1 契约·真实 HTTP 往返",
+      "command": "python3 evidence/MAINLINE-ALL-IN-01/verify_d03r1_http.py",
+      "current": {"passed": 8, "failed": 0},
+      "output": "out/d03r1_http_verify.json",
+      "transport": "127.0.0.1 随机端口，未占用生产 8787"
+    },
+    {
+      "name": "多代理门禁自测",
+      "command": "pytest tests/test_agent_gate.py -q",
+      "current": {"passed": 71, "failed": 0},
+      "note": "先跑通再提交，不以「文件存在」判定可用"
+    },
+    {
+      "name": "架构门禁·agent 路径",
+      "command": "python3 -m unittest discover -s tests -p 'test_agent_paths.py' -v",
+      "current": {"passed": 1, "failed": 0}
+    },
+    {
+      "name": "架构门禁·后端关键模块语法",
+      "command": "ast.parse(paper_engine/live_api/live_store/unified_runtime/wyckoff_factor_resonance)",
+      "current": {"passed": 5, "failed": 0}
+    },
+    {
+      "name": "路由一致性（新旧两套路由）",
+      "command": "python3 框架/backend/tools/route_parity.py",
+      "current": {"paths_compared": 52, "diffs": 2},
+      "diff_detail": [
+        "/api/v1/data/coverage：expected 72468 vs 72469（K 线根数随采集增长）",
+        "/api/v1/markets/binance/BTCUSDT：volume_24h_quote 23395250077.55 vs 23396053440.44（滚动 24h 成交额实时变化）"
+      ],
+      "verdict": "2 处差异均为**行情数据实时漂移**，与路由/契约无关；新增的 /paper/trades、/paper/equity 未出现在差异列表 ⇒ 新旧路由一致"
+    },
+    {
+      "name": "前端 TypeScript 类型检查",
+      "command": "cd UI界面/web && npm run lint",
+      "current": {"exit_code": 0},
+      "note": "在提交 PR2-WO-01 前端改动**之后**重跑，仍为 0"
+    },
+    {
+      "name": "前端生产构建",
+      "command": "cd UI界面/web && npm run build",
+      "current": {"exit_code": 0, "modules_transformed": 1709, "built_in_seconds": 1.22},
+      "warnings": [
+        "vite.config.ts 使用 __dirname，未来大版本将不兼容（既有告警，非本轮引入）",
+        "chunk > 500 kB（既有告警，非本轮引入）"
+      ]
+    }
+  ],
+  "blocking_failures": 0,
+  "summary": {
+    "阻断级失败": 0,
+    "既存失败（基线同现）": 4,
+    "本轮新增失败": 0,
+    "结论": "可合入主线；4 项既存失败已如实记录，未跳过、未改期望值、未动冻结参数"
+  },
+  "frozen_config_check": {
+    "file": "策略/WyckoffMaster/event_trend_v0_1/config.py",
+    "sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+    "diff_lines_vs_baseline": 0,
+    "verdict": "未改动"
+  }
+}
