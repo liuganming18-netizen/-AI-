@@ -10,6 +10,6 @@
 | 信号触发 | 回测 `candidates.jsonl` 候选快照；市场源为当前真实 active signal 记录 | 回测 `snapshot_time_ms` 且保留 `available_at_ms`；市场取源记录 `eventTime`，不用 created_at | 回测 `breakout_close`；市场若原信号无 trigger price 则不可用 | 当前所选回测 run 无候选；市场 signals API 返回 500，无法浏览器核验。|
 | 信号失效 | 回测 `events.jsonl` 的 INVALIDATED 状态转换 | `trigger_bar_close_ms`；保留 `available_at_ms`；reason 原字段 | 原记录未必有失效价；不补价 | 当前所选 run 15 个。市场生命周期源未给独立发生时间/原因，市场失效事件不可用。|
 | 实际入场 | 回测持久化成交 `trades.jsonl` / 链接成功的 LedgerFacts；市场只读 `paper_realized.entry_ts` 和账户/持仓 | 实际成交 `entry_time_ms` / `entry_ts` | 实际成交 `entry_price` | 回测 run 0 成交。市场只读成交端点一次返回 200：4 行中 1 行有效、3 行作废；账户摘要和行情页端点异常，因此无法在市场 K 线显示。|
-| 实际平仓 | 回测持久化成交 `trades.jsonl` / 链接成功的 LedgerFacts；市场只读 `paper_realized.exit_ts` | 实际成交 `exit_time_ms` / `exit_ts` | 实际成交 `exit_price`；退出原因 `exit_reason` | 回测 run 0 成交。市场同上；voided 行被排除，计划委托/未成交行不进入事件。|
+| 实际平仓 | 回测持久化成交 `trades.jsonl` / 链接成功的 LedgerFacts；市场只读 `paper_realized.exit_ts` | 实际成交 `exit_time_ms` / `exit_ts` | 实际成交 `exit_price`；退出原因 `exit_reason` | 回测 run 0 成交。市场只读样本 1 条有效平仓行缺原生 `signal_id` / `trade_id`（无法关联）；另 3 条 voided 行排除。UI 使用真实 ledger row id 和 position_id 作来源信息，不拼造交易 ID。计划委托/未成交行不进入事件。|
 
 所有图表映射只读；事件发生时间和首次可得时间分离；不会从 K 线形态推算缺失的状态机事件。

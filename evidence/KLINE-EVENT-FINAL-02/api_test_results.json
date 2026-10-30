@@ -44,7 +44,10 @@
       "exit_reason",
       "voided"
     ],
-    "caveat": "另一次查询返回 503，提示四个账本无法打开；读取不稳定。可读响应中的实际账本行可支持只读事件映射，但前端未能进入市场图表。"
+    "caveat": "另一次查询返回 503，提示四个账本无法打开；读取不稳定。可读响应中的实际账本行可支持只读事件映射，但前端未能进入市场图表。",
+    "unlinked_nonvoid_rows": 1,
+    "unlinked_reason": "paper_realized 没有 signal_id 或原生 trade_id；仅有 ledger row id/position_id。UI 不再把 position_id 拼成 tradeId。",
+    "event_identity": "实际 paper_realized 行 ID + entry/close 类型；详细信息明确列出账本行与持仓 ID，并把信号/交易关联标为不可用。"
   },
   "market_endpoints": {
     "status": "BLOCKED",
