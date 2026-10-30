@@ -1,0 +1,28 @@
+{
+  "measured_at_utc": "2026-10-30T03:25:00Z",
+  "method": "git ls-remote origin refs/heads/wyckoff-v3.1-main",
+  "pushes": [
+    {
+      "seq": 1,
+      "what": "代码提交（3 个测试文件）",
+      "sha": "105843291ce6c9c4475cf801800c2b592b4f2865",
+      "range": "26ec8aef..10584329",
+      "result": "success"
+    },
+    {
+      "seq": 2,
+      "what": "证据提交（8 个交付文件 + manifest）",
+      "sha": "a03d00910ce9dcf0920d12b5c454acf7e4391b9d",
+      "range": "10584329..a03d0091",
+      "result": "success"
+    }
+  ],
+  "remote_head_after_second_push": "a03d00910ce9dcf0920d12b5c454acf7e4391b9d",
+  "local_head_at_measure": "a03d00910ce9dcf0920d12b5c454acf7e4391b9d",
+  "consistent": true,
+  "self_reference_note": "本文件所在的第三个提交（回填提交）会让远程 HEAD 再前移一格；它的 SHA 无法写进自己，因此以 `git log -1 --format=%H` 与回复正文的实测值为准。三次推送全部为普通推送，未使用 --force。",
+  "final_verification": {
+    "command": "git rev-parse HEAD && git ls-remote origin refs/heads/wyckoff-v3.1-main",
+    "expectation": "两行输出必须相同"
+  }
+}
