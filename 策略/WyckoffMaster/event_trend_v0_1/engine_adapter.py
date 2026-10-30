@@ -415,6 +415,186 @@ def build_signal_frame_from_candidates(
     })
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 绩效汇总（BACKTEST-REPAIR-01 · 任务 C）
+#
+# 口径与 `框架/backend/backtest_metrics.py` **逐字一致**，不另立一套：
+#   · 盈亏判定看 `net_pnl`（已扣手续费与资金费），不看 `gross_pnl`；
+#   · 胜率分母是「已平仓笔数」（含平盘），平盘既不算盈也不算亏；
+#   · 零分母一律返回 `None`（页面显示「—」），**不填 0**、不输出 inf。
+#
+# 成本恒等式（**最容易写错的地方**）：
+#   `net_pnl = gross_pnl - fees - funding_fee`
+#   `slippage_loss` 已经体现在成交价里（`gross_pnl` 用的是滑点后价格），
+#   **不能再从 gross 里减一次**，否则就是重复扣费。
+#   所以这里只用恒等式做**校验**（`cost_identity_ok`），不用它推导净收益。
+# ═══════════════════════════════════════════════════════════════════════════
+
+WIN_LOSS_BASIS = "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平"
+WR_BASIS = "盈利笔数 / 已平仓笔数（含平盘）"
+PF_BASIS = "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）"
+AWLR_BASIS = "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）"
+MDD_BASIS = "equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，从初始权益起算）"
+COST_ID_BASIS = ("net_pnl == gross_pnl - fees - funding_fee"
+                 "（slippage 已含在成交价中，不再二次扣减）")
+
+_METRIC_EPS = 1e-9
+
+
+def _num(x) -> Optional[float]:
+    """转 float；None / 非数 / NaN / inf 一律 None（不让脏值污染合计）。"""
+    if x is None:
+        return None
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(v):
+        return None
+    return v
+
+
+def _mean(xs: List[float]) -> Optional[float]:
+    return (sum(xs) / len(xs)) if xs else None
+
+
+def _max_drawdown_pct(values: List[float]) -> Tuple[Optional[float], Optional[dict]]:
+    """峰值回撤百分比。**少于 2 点返回 None**（不是 0：一个点看不出回撤）。"""
+    if len(values) < 2:
+        return None, None
+    peak = values[0]
+    worst = 0.0
+    worst_peak = peak
+    worst_at = values[0]
+    for v in values:
+        if v > peak:
+            peak = v
+        if peak > 0:
+            dd = (peak - v) / peak
+            if dd > worst:
+                worst, worst_peak, worst_at = dd, peak, v
+    return worst * 100.0, {"peak_equity": worst_peak, "trough_equity": worst_at,
+                           "points": len(values)}
+
+
+def compute_summary_metrics(
+    trades: List[dict],
+    equity_curve: Optional[List[dict]],
+    initial_equity: Optional[float],
+    final_equity: Optional[float],
+) -> dict:
+    """从**成交行与权益曲线**推导 10 项绩效指标（不从信号数推成交量）。"""
+    notes: List[str] = []
+
+    nets = [_num(t.get("net_pnl")) for t in trades]
+    nets = [x for x in nets if x is not None]
+    wins = [x for x in nets if x > 0]
+    losses = [x for x in nets if x < 0]
+    flats = [x for x in nets if x == 0]
+    n = len(nets)
+    if len(nets) != len(trades):
+        notes.append(f"{len(trades) - len(nets)} 笔成交缺 net_pnl ⇒ 未计入盈亏统计")
+
+    # ── 毛收益（未扣费）与成本 ──
+    gross = [_num(t.get("gross_pnl")) for t in trades]
+    gross = [x for x in gross if x is not None]
+    fees = [_num(t.get("fees", (_num(t.get("entry_fee")) or 0.0)
+                          + (_num(t.get("exit_fee")) or 0.0))) for t in trades]
+    fees = [x for x in fees if x is not None]
+    funding = [_num(t.get("funding_fee")) for t in trades]
+    funding = [x for x in funding if x is not None]
+
+    gross_total = sum(gross) if gross else None
+    fees_total = sum(fees) if fees else None
+    funding_total = sum(funding) if funding else None
+    net_total = sum(nets) if nets else None
+
+    # 恒等式校验：net == gross - fees - funding（slippage 不参与，已在价格里）
+    identity_ok = None
+    identity_delta = None
+    if None not in (gross_total, fees_total, funding_total, net_total):
+        expected = gross_total - fees_total - funding_total
+        identity_delta = net_total - expected
+        identity_ok = abs(identity_delta) < 1e-6
+        if not identity_ok:
+            notes.append(f"成本恒等式不成立：net-expected = {identity_delta:.10f}")
+
+    # ── 胜率 / 盈亏比 / 盈亏比（PF）──
+    if n == 0:
+        win_rate = pf = awlr = avg_win = avg_loss = None
+        notes.append("无已平仓成交 ⇒ 胜率/平均盈亏/盈亏比/PF 均无定义（返回 None，不填 0）")
+    else:
+        win_rate = len(wins) / n * 100.0
+        avg_win = _mean(wins)
+        avg_loss = _mean(losses)
+        if not losses:
+            pf = None
+            notes.append("无亏损成交 ⇒ PF 分母为 0，无定义（不输出 inf）")
+        else:
+            pf = (sum(wins) / abs(sum(losses))) if wins else 0.0
+        awlr = (avg_win / abs(avg_loss)) if (avg_win is not None and avg_loss) else None
+        if awlr is None:
+            notes.append("缺盈利单或亏损单 ⇒ 平均盈亏比无定义（不填 0）")
+
+    # ── 权益曲线：期初/期末 + 最大回撤 ──
+    eq_rows = equity_curve or []
+    eq_vals = [_num(r.get("total_equity", r.get("equity"))) for r in eq_rows]
+    eq_vals = [x for x in eq_vals if x is not None]
+    start_eq = eq_vals[0] if eq_vals else _num(initial_equity)
+    end_eq = eq_vals[-1] if eq_vals else _num(final_equity)
+    if not eq_vals:
+        notes.append("无权益曲线点 ⇒ 期初/期末权益回落到引擎入参（已标注，不冒充曲线实测值）")
+    mdd, mdd_detail = _max_drawdown_pct(eq_vals)
+    if mdd is None:
+        notes.append(f"权益曲线不足 2 点（实测 {len(eq_vals)} 点）⇒ 最大回撤无定义（返回 None，不填 0）")
+
+    return {
+        "trade_count": n,
+        "wins": len(wins),
+        "losses": len(losses),
+        "flats": len(flats),
+        "win_rate_pct": win_rate,
+        "win_rate_basis": WR_BASIS,
+        "win_loss_basis": WIN_LOSS_BASIS,
+        "gross_pnl": gross_total,
+        "net_pnl": net_total,
+        "fee_total": fees_total,
+        "funding_total": funding_total,
+        "avg_win": avg_win,
+        "avg_loss": avg_loss,
+        "avg_win_loss_ratio": awlr,
+        "avg_win_loss_ratio_basis": AWLR_BASIS,
+        "profit_factor": pf,
+        "profit_factor_basis": PF_BASIS,
+        "max_drawdown_pct": mdd,
+        "max_drawdown_detail": mdd_detail,
+        "max_drawdown_basis": MDD_BASIS,
+        "period_start_equity": start_eq,
+        "period_end_equity": end_eq,
+        "equity_curve_points": len(eq_vals),
+        "cost_identity_ok": identity_ok,
+        "cost_identity_delta": identity_delta,
+        "cost_identity_basis": COST_ID_BASIS,
+        "metrics_notes": notes,
+    }
+
+
+def _merge_summary(base: dict, trades: List[dict],
+                   equity_curve: Optional[List[dict]],
+                   initial_equity: Optional[float],
+                   final_equity: Optional[float]) -> dict:
+    """把新增绩效指标**加进**既有 summary，且**不覆盖任何既有字段**。
+
+    `setdefault` 是刻意的：老消费者读到的 13 个字段数值必须一字不变
+    （`trade_count` / `net_pnl` / `fee_total` …），新增指标只做加性扩展。
+    """
+    perf = compute_summary_metrics(trades, equity_curve, initial_equity, final_equity)
+    out = dict(base)
+    for k, v in perf.items():
+        out.setdefault(k, v)
+    return out
+
+
 def run_event_trend_backtest(
     symbol: str,
     df_1h: pd.DataFrame,
@@ -738,7 +918,7 @@ def run_event_trend_backtest(
             "candidates_total": len(candidates),
             "candidates_executed": len(executed_vals),
         },
-        "summary": {
+        "summary": _merge_summary({
             "initial_equity": eq,
             "final_equity": float(result.get("final_equity", eq)),
             "net_pnl": total_net_pnl,
@@ -753,5 +933,6 @@ def run_event_trend_backtest(
             "funding_total": total_funding,
             "spec_status": spec_status,
             "formal_pass_allowed": formal_pass_allowed,
-        }
+        }, trades, result.get("equity_curve"), eq,
+           float(result.get("final_equity", eq))),
     }
