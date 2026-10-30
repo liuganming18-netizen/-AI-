@@ -246,11 +246,33 @@ class EventTrendRunner:
                     dfx[c] = pd.to_numeric(dfx[c], errors="coerce")
 
         # 4. OI 5m 真实序列
+        #    C02-R1：连 `fetched_at` / `source` 一起读。原来只读 `ts`/`open_interest` 两列 ⇒
+        #    逐行可得时刻在「加载」这一步就丢了，后面无论怎么传都补不回来（也不允许补造）。
+        #    缺列或缺失一律留 `None`，由下游按 NaN 处理（fail-closed），不推导、不回退桶结束。
         f_oi = sorted(glob.glob(f"{self.parquet_base}/oi/binance/um/{symbol}/*.parquet"))
-        df_oi_raw = (pd.concat([pd.read_parquet(f, columns=["ts", "open_interest"]) for f in f_oi], ignore_index=True) if f_oi else pd.DataFrame(columns=["ts", "open_interest"]))
+
+        def _read_oi_frame(_f: str) -> pd.DataFrame:
+            try:
+                return pd.read_parquet(
+                    _f, columns=["ts", "open_interest", "fetched_at", "source"])
+            except Exception:                                   # 旧分片可能没有这两列
+                _d = pd.read_parquet(_f, columns=["ts", "open_interest"])
+                _d["fetched_at"] = None
+                _d["source"] = None
+                return _d
+
+        df_oi_raw = (pd.concat([_read_oi_frame(f) for f in f_oi], ignore_index=True) if f_oi else pd.DataFrame(columns=["ts", "open_interest", "fetched_at", "source"]))
         df_oi_raw = df_oi_raw.sort_values("ts").drop_duplicates("ts").reset_index(drop=True)
         oi_ts = df_oi_raw["ts"].to_numpy(np.int64)
         oi_vals = df_oi_raw["open_interest"].to_numpy(np.float64)
+        # 逐行原始信息（ts / fetched_at / source）原样保留，供 FT-LOW4H 分支交给状态机
+        self.oi_rows = [
+            {"ts": int(_r.ts),
+             "oi": (None if pd.isna(_r.open_interest) else float(_r.open_interest)),
+             "fetched_at": (None if pd.isna(_r.fetched_at) else int(_r.fetched_at)),
+             "source": (None if pd.isna(_r.source) else str(_r.source))}
+            for _r in df_oi_raw.itertuples(index=False)
+        ]
 
         # 5. Funding 真实结算事件
         f_fund = f"{self.parquet_base}/funding/binance/um/{symbol}.parquet"
@@ -619,6 +641,11 @@ class EventTrendRunner:
             import unified_runtime as U
             engine = U.RealSignalEngine(symbol=symbol, enable_oi_filter=cfg.enable_oi_filter)
             engine.history_floor_ms = 0
+            # C02-R1：把 `load_symbol_data` 已加载（并已计入输入指纹）的 OI 行交给状态机。
+            # 原来这条分支不调 `run_state_machine_simulation`，`register_oi(oi_ts, oi_vals)`
+            # 在 FT-LOW4H 下根本执行不到 ⇒ 加载了十几万行、状态机一行没见过。
+            # 只交接数据，不改任何阈值/判定顺序：逐行 `fetched_at` 缺就是缺，仍由门禁拒用。
+            engine.oi_preseed_rows = getattr(self, "oi_rows", None)
             watcher = U._MemWatcher(df_4h.to_dict("records"), df_1h.to_dict("records"))
             for bar in df_4h.to_dict("records"):
                 engine.process_market(int(bar["close_time"]), watcher)

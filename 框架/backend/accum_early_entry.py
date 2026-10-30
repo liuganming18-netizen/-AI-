@@ -1830,7 +1830,9 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
     symbol = pos["symbol"]
     entry_ts = int(pos["entry_ts"])
     initial_stop = float(pos["initial_stop_price"])
-    cur_stop = float(pos["stop_price"])
+    # [WYCKOFF-DEC01-EXECUTION-FIX-10R] 修复历史止损时间因果：无论数据库中 stop_price 曾被记录为何值，
+    # 从 entry_ts 重新扫描时，止损基准严格初始化为 initial_stop，随 4h 生效逐根推进，杜绝未来止损倒灌。
+    cur_stop = initial_stop
     trail_d = float(pos["trail_d"] if pos.get("trail_d") is not None
                     else FIXED_RULES["trailing_low_pct"])
     limits = PE.contract_limits(symbol) or {}
@@ -1862,10 +1864,21 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
             reason=cls, bar_open_time=int(bar["open_time"]),
             bar_close_time=int(bar["close_time"]), exit_ts=exit_ts,
             bar_low=float(bar["low"]), bar_high=float(bar["high"]),
-            bar_source=_bar_label(bar))
+            bar_source=_bar_label(bar),
+            # [PR2-FUNDING-HISTORICAL-SEMANTICS-06] 历史经济结算必须显式声明
+            # **模拟观察时刻**，否则 `_settle_funding` 只能用真实挂钟（今天）
+            # 去比历史决策时刻 ⇒ 必然 fail-closed ⇒ 历史资金费静默记 0。
+            # 平仓这一刻能观察到的最晚时刻 = 退出 bar 的开盘时刻（与退出决策同刻），
+            # 故 `settlement_observed_at = exit_ts`；策略决策的 PIT 仍由
+            # `historical_decision_ts` 单独约束，两者不互相替代。
+            funding_context={"mode": PE.FUNDING_HISTORICAL,
+                             "historical_decision_ts": exit_ts,
+                             "settlement_observed_at": exit_ts})
+        same_bar = (exit_ts == entry_ts)
         row = {"ok": bool(res.get("ok")), "scheme": scheme,
                "position_id": int(position_id), "symbol": symbol,
                "entry_ts": entry_ts, "exit_ts": exit_ts, "exit_class": cls,
+               "same_bar_execution": same_bar,
                "gap": gap, "gap_size": gap_size, "gap_model": gap_model,
                "stop_used": stop_used, "initial_stop": initial_stop,
                "raw_price": raw, "fill_price": res.get("exit_price"),
@@ -1873,6 +1886,7 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
                "trail_effective_mode": mode, "bar_source": bar.get("source"),
                "available_at_proven": bar.get("available_at") is not None,
                "detail": {"close_result": res, "updates": updates,
+                          "same_bar_execution": same_bar,
                           "bar_open_time": int(bar["open_time"]),
                           "bar_low": float(bar["low"]),
                           "bar_high": float(bar["high"]),
@@ -1928,11 +1942,13 @@ def drive_position_exit(scheme: str, position_id: int, feed: DataFeed, *,
         o, lo = float(b["open"]), float(b["low"])
         gap = o <= cur_stop
         if gap or lo <= cur_stop:
-            raw = {"stop_price": cur_stop, "bar_open": o,
-                   "midpoint": (o + cur_stop) / 2.0}.get(gap_model, cur_stop)
+            # [WYCKOFF-DEC01-EXECUTION-FIX-10R] 跳空低开市价单采用明确的 bar_open 加不利滑点模型
+            # 盘中触损采用触发价 cur_stop；跳空低开采用出场 bar 的开盘价 o
+            raw = o if gap else cur_stop
+            used_gap_model = "bar_open" if gap else gap_model
             out = _exit(raw, b, gap=gap,
                         gap_size=(cur_stop - o) if gap else 0.0, stop_used=cur_stop)
-            out.update({"legacy_path": None, "bars_checked": checked})
+            out.update({"legacy_path": None, "bars_checked": checked, "gap_model": used_gap_model})
             return out
 
     return {"ok": True, "exited": False, "reason": "open_at_window_end",
@@ -1954,6 +1970,13 @@ def drive_all_exits(feed: DataFeed, *, cfg: dict, end_ms: int, schemes=SCHEMES,
     for scheme in schemes:
         for pos in open_positions(scheme):
             pid = int(pos["position_id"])
+            # [WYCKOFF-DEC01-EXECUTION-FIX-10R] 消除同一持仓被时间轴与收尾阶段重复记录拒单
+            if store is not None:
+                existing = store.con.execute(
+                    "SELECT count(*) FROM accum05_exit WHERE scheme=? AND position_id=?",
+                    (scheme, pid)).fetchone()[0]
+                if existing > 0:
+                    continue
             try:
                 r = drive_position_exit(scheme, pid, feed,
                                         cfg=cfg, end_ms=end_ms,

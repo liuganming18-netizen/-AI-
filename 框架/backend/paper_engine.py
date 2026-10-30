@@ -759,7 +759,7 @@ def funding_events(con: sqlite3.Connection, symbol: str, after_ms: int, upto_ms:
     """真实结算事件（`rate_type='settled'`），计费边界 (after, upto]。
     """
     return list(con.execute(
-        "SELECT funding_time,funding_rate,mark_price FROM funding_history "
+        "SELECT funding_time,funding_rate,mark_price,fetched_at FROM funding_history "
         "WHERE exchange='binance' AND market='um' AND symbol=? AND rate_type='settled' "
         "AND funding_time>? AND funding_time<=? ORDER BY funding_time",
         (symbol, int(after_ms), int(upto_ms))))
@@ -1634,11 +1634,51 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         #    扫完 526 标的才轮到撮合 ⇒ 它只是「本轮开始处理」的下界，会**低估**真实延迟。
         #    顺序由构造保证：data_available_at <= read_at_ms <= matched_at_ms
         #    （read_at_ms 在 resolve_fill_bar 里读行之前取；本行在其后取）。
-        matched_at_ms = int(L.now_ms())
+        # ── [PR2-FUNDING-HISTORICAL-SEMANTICS-06] 模拟撮合时刻 ≠ 真实挂钟 ───────────
+        # 旧实现无条件 `matched_at_ms = L.now_ms()`。历史回放里持仓的实际撮合时刻被写成
+        # **今天**，而 `entry_ts`/`exit_ts` 是历史值 ⇒ 资金费计费窗 `(fill, exit]` 恒为空
+        # ⇒ 历史结算静默为 0（不是「历史没发生资金费」，是时间链自相矛盾）。
+        # 现在分两条：
+        #   · `reality_fill=True`（`realtime_15m_open`）⇒ **保持真实挂钟不变**，实时语义不动；
+        #   · 闭 bar 回填 / 历史模拟 ⇒ 只能证明「撮合发生在该 bar 收盘之后」，证明不了更精确
+        #     的时刻 ⇒ 取区间**下界** `max(bar_close_time, data_available_at)`，并在
+        #     `fill_source` 与返回 `timeline` 里显式标注「下界、上界不可知」。
+        #     **不用 bar 开盘时间冒充成交时刻**（用户明令禁止），也不用挂钟冒充历史时刻。
+        _matched_basis = None
+        _matched_range = None
+        if _reality:
+            matched_at_ms = int(L.now_ms())
+            _matched_basis = "realtime_wall_clock"
+        else:
+            try:
+                _close_ms = int(bar["close_time"])
+            except (KeyError, IndexError, TypeError, ValueError):
+                _close_ms = None
+            _bounds = [int(x) for x in (_close_ms, _data_avail) if x is not None]
+            if not _bounds:
+                # 连该 bar 的收盘时刻都取不到 ⇒ 无法给出可信模拟撮合时刻
+                # ⇒ 拒单，绝不退化成「用挂钟」或「用开盘时间」。
+                return _reject(arm, symbol, signal_uid, "simulated_fill_time_unproven",
+                               detail={"bar_open_time": bar_open, "fill_source": _fsrc,
+                                       "note": "闭 bar 回填但取不到 close_time ⇒ 无法给出"
+                                               "可信模拟撮合时刻；不用挂钟、也不用开盘时间冒充。"})
+            matched_at_ms = int(max(_bounds))
+            _matched_basis = "simulated_bar_close_lower_bound"
+            # 上界不可知：能证明的最早撮合时刻是下界，最晚无证据（不伪造）。
+            _matched_range = {"lower_ms": matched_at_ms, "upper_ms": None,
+                              "basis": _matched_basis,
+                              "note": "模拟撮合只能定下界（该 bar 收盘/数据可得），上界无证据"}
+            # 读行时刻同属模拟：真实挂钟（今天）晚于模拟撮合时刻会让
+            # `_funding_fill_time` 的 `read <= fill` 不成立 ⇒ 时刻链自相矛盾。
+            # 这里把「读到这根已收盘 bar」与「据此撮合」放在同一模拟时刻。
+            _read_at = matched_at_ms
+            _fsrc = f"{_fsrc}|matched_at={_matched_basis}"
+            src_label = f"{src_label}|matched_at={_matched_basis}"
         if _read_at is not None and matched_at_ms < int(_read_at):
             # 时钟回拨（NTP 校正等）⇒ 时刻链不成立，不得写入一个自相矛盾的成交
             return _reject(arm, symbol, signal_uid, "matched_before_read_clock_skew",
-                           detail={"read_at_ms": int(_read_at), "matched_at_ms": matched_at_ms})
+                           detail={"read_at_ms": int(_read_at), "matched_at_ms": matched_at_ms,
+                                   "matched_at_basis": _matched_basis})
         # **经济入场时刻 = 入场 bar 的开盘时刻**（不是挂钟 `attempt_ms`）。
         # 为什么必须这样：① 退出扫描 `closed_15m(sym, entry_ts, T)` 覆盖区间；
         # ② 资金费计费窗 `(entry_ts, exit_ts]` 起点；③ `max_holding_hours=720` 的计时起点。
@@ -1818,6 +1858,11 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                 # 三时刻分离（MAINLINE-01-WORK）：价格事件 / 数据可得 / 实际执行，各自独立
                 "read_at_ms": _read_at,
                 "matched_at_ms": matched_at_ms,
+                # [06] 撮合时刻的**依据**与不确定区间：现实成交=真实挂钟；
+                # 闭 bar/历史模拟=该 bar 收盘（下界，上界不可知）。审计可据此判断
+                # 「这个 matched_at 是实测还是模拟下界」，不必猜。
+                "matched_at_basis": _matched_basis,
+                "matched_at_range": _matched_range,
                 "filled_wall_at": matched_at_ms,
                 "timeline": {
                     "signal_confirmed_at": (int(event_time) if event_time is not None else None),
@@ -1832,6 +1877,11 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
                     # ③ 读取/决策时刻与撮合完成时刻（真实挂钟）
                     "read_at": _read_at,
                     "matched_at": matched_at_ms,
+                    "matched_at_basis": _matched_basis,
+                    "matched_at_lower_bound": (None if not _matched_range
+                                               else _matched_range["lower_ms"]),
+                    "matched_at_upper_bound": (None if not _matched_range
+                                               else _matched_range["upper_ms"]),
                     # 本轮循环起始时刻（只是「开始处理」的下界，不是成交时刻）
                     "attempt_cycle_start_at": int(attempt_ms),
                     "exec_bar_open_at": int(bar_open),
@@ -1908,6 +1958,8 @@ def _reject(arm, symbol, signal_uid, reason, detail=None):
 #   对账器通过 `amount_sign_convention="expense_positive"` 统一转换，
 #   **严禁**把支出正数与现金变动负数混写。
 AMOUNT_SIGN_CONVENTION = "expense_positive"
+FUNDING_REALTIME = "REALTIME"
+FUNDING_HISTORICAL = "HISTORICAL"
 
 
 def _funding_truth(con_mkt, symbol, lo_ms, hi_ms):
@@ -1922,9 +1974,28 @@ def _charged_funding_times(con, acc, position_id) -> set:
         (acc, int(position_id)))}
 
 
-def _settle_funding(con, con_mkt, arm, *, position_id, symbol, qty, entry_ts, upto_ms,
-                    late=False):
-    """把完整存续窗口 `(entry_ts, upto_ms]` 的真实结算事件与已入账集合做**差集**后补记。
+def _funding_fill_time(position):
+    """只接受持仓记录的实际撮合时刻；矛盾的时间链不视为可信。"""
+    p = dict(position)
+    try:
+        if isinstance(p.get("matched_at_ms"), bool):
+            return None
+        fill = int(p.get("matched_at_ms") or 0)
+        bar = int(p.get("entry_ts") or 0)
+        read = int(p["read_at_ms"]) if p.get("read_at_ms") is not None else None
+        available = int(p["data_available_at"]) if p.get("data_available_at") is not None else None
+        if fill <= 0 or (bar and fill < bar) or (read is not None and read > fill):
+            return None
+        if available is not None and (read is None or available > read):
+            return None
+        return fill
+    except (ValueError, TypeError, OverflowError):
+        return None
+
+
+def _settle_funding(con, con_mkt, arm, *, position_id, symbol, qty, entry_fill_ts, upto_ms,
+                    late=False, funding_context=None, snapshot_upper=False):
+    """按实际成交时刻和实际读取证据结算 `(entry_fill_ts, upto_ms]`。
 
     返回 `(新增合计 amount, 新增事件数, 新增明细, 缺口明细)`。
     已记过的事件不重复入账（集合差集 + 唯一索引双保险）。
@@ -1934,10 +2005,93 @@ def _settle_funding(con, con_mkt, arm, *, position_id, symbol, qty, entry_ts, up
     new_sum = 0.0
     n_new = 0
     detail, gaps = [], []
-    for f in _funding_truth(con_mkt, symbol, int(entry_ts), int(upto_ms)):
+    def pending(reason, funding_time=None, **extra):
+        # 空时间是整笔持仓的待核验标记，不把占位值伪造成结算事件。
+        con.execute("INSERT INTO paper_funding_gap(account_id,position_id,funding_time,reason,detected_at) "
+                    "SELECT ?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM paper_funding_gap "
+                    "WHERE account_id=? AND position_id=? AND funding_time IS ? AND reason=? "
+                    "AND (funding_time IS NOT NULL OR rowid > COALESCE((SELECT MAX(rowid) "
+                    "FROM paper_funding_gap WHERE account_id=? AND position_id=? "
+                    "AND funding_time IS NULL AND reason='funding_verification_complete'),0)))",
+                    (acc, int(position_id), funding_time, reason, L.now_ms(),
+                     acc, int(position_id), funding_time, reason, acc, int(position_id)))
+        gaps.append({"funding_time": funding_time, "reason": reason, **extra})
+    ctx = funding_context if isinstance(funding_context, dict) else {}
+    mode = ctx.get("mode")
+    if mode not in (FUNDING_REALTIME, FUNDING_HISTORICAL):
+        pending("funding_mode_unknown")
+        return 0.0, 0, [], gaps
+    try:
+        historical_decision = int(ctx["historical_decision_ts"]) if mode == FUNDING_HISTORICAL else None
+        if mode == FUNDING_HISTORICAL and historical_decision <= 0:
+            raise ValueError("invalid historical decision")
+    except (KeyError, TypeError, ValueError, OverflowError):
+        pending("historical_decision_unproven")
+        return 0.0, 0, [], gaps
+    try:
+        fill_ts = int(entry_fill_ts) if entry_fill_ts is not None else 0
+    except (ValueError, TypeError, OverflowError):
+        fill_ts = 0
+    if fill_ts <= 0:
+        pending("actual_fill_time_unproven")
+        return 0.0, 0, [], gaps
+    try:
+        # 单条 SQLite SELECT 在同一读取快照内取完整结果，不能拼接不同版本。
+        upper = 9223372036854775807 if mode == FUNDING_REALTIME and snapshot_upper else int(upto_ms)
+        events = _funding_truth(con_mkt, symbol, fill_ts, upper)
+    except sqlite3.OperationalError:
+        pending("funding_visibility_unproven")
+        return 0.0, 0, [], gaps
+    # ── [PR2-FUNDING-HISTORICAL-SEMANTICS-06] 结算观察时刻 = 可审计契约，不是挂钟 ────
+    # 旧实现把「结算时读库的真实挂钟」当可见性判据：`read_at > decision_at` ⇒ 一律
+    # `funding_visibility_unproven`。历史回放里 `read_at` 永远是**今天**，历史决策时刻
+    # 永远是过去 ⇒ **所有**历史结算被挡 ⇒ 静默记 0。用户明令禁止「把不可证明的历史费用
+    # 静默记为零」，也禁止「把当前读取时刻直接当作历史可见性证明」。
+    #
+    # 新契约（三条，缺一条不成立）：
+    #   ① 历史模式必须由调用方**显式声明**模拟观察时刻
+    #      `funding_context.settlement_observed_at`（= 回放进度时刻），该值才进入可见性判定；
+    #   ② **不传 ⇒ 仍用真实挂钟 ⇒ 仍 fail-closed**：这保证
+    #      `test_historical_real_clock_cannot_use_current_snapshot`（拿今天读的库冒充历史
+    #      可见性）继续被拒，而不是被这次修改放过；
+    #   ③ 真正的可见性证据仍是每条事件的 `fetched_at`（下方逐条校验）——
+    #      观察时刻只回答「我在哪个时刻看」，不替 `fetched_at` 作证。
+    # 实时模式（`FUNDING_REALTIME`）**一字未改**：`read_at = now`、`decision_at = read_at`，
+    # 22ms 反例与迟到补记的语义完全不动。
+    if mode == FUNDING_REALTIME:
+        read_at = int(L.now_ms())
+        _read_basis = "realtime_wall_clock"
+    else:
+        _obs = ctx.get("settlement_observed_at")
+        read_at = int(L.now_ms())
+        _read_basis = "real_wall_clock_unproven"
+        if _obs is not None:
+            try:
+                read_at = int(_obs)
+                _read_basis = "simulated_observation_clock"
+            except (TypeError, ValueError, OverflowError):
+                read_at = int(L.now_ms())
+                _read_basis = "real_wall_clock_unproven"
+    decision_at = read_at if mode == FUNDING_REALTIME else historical_decision
+    if mode == FUNDING_HISTORICAL and read_at > decision_at:
+        pending("funding_visibility_unproven", read_at_ms=read_at, decision_at_ms=decision_at,
+                read_at_basis=_read_basis)
+        return 0.0, 0, [], gaps
+    for f in events:
         ft = int(f["funding_time"])
+        if ft > decision_at:
+            continue
         if ft in charged:
             continue                                   # 事件身份已入账 ⇒ 跳过（幂等）
+        fetched = f["fetched_at"]
+        try:
+            fetched_ms = int(fetched) if fetched is not None else 0
+        except (TypeError, ValueError, OverflowError):
+            fetched_ms = 0
+        if ((mode == FUNDING_HISTORICAL and fetched_ms <= 0)
+                or (fetched_ms > 0 and (fetched_ms < ft or fetched_ms > decision_at))):
+            pending("funding_visibility_unproven", ft)
+            continue
         rate = _f(f["funding_rate"])
         mark = _f(f["mark_price"])
         if rate is None or mark is None:
@@ -1961,11 +2115,27 @@ def _settle_funding(con, con_mkt, arm, *, position_id, symbol, qty, entry_ts, up
         n_new += 1
         detail.append({"funding_time": ft, "funding_rate": rate, "mark_price": mark,
                        "qty": float(qty), "amount": amt, "late_backfill": bool(late),
-                       "recorded_at": L.now_ms()})
+                       "recorded_at": L.now_ms(), "settlement_snapshot_ts": read_at,
+                       "settlement_snapshot_basis": _read_basis,
+                       "funding_mode": mode})
+    if not gaps:
+        # 仅追加复核标记；保留原缺口，供审计回溯，不改写旧记录。
+        pending_marker = con.execute(
+            "SELECT MAX(rowid) FROM paper_funding_gap WHERE account_id=? AND position_id=? "
+            "AND funding_time IS NULL AND reason<>'funding_verification_complete'",
+            (acc, int(position_id))).fetchone()[0]
+        resolved_marker = con.execute(
+            "SELECT MAX(rowid) FROM paper_funding_gap WHERE account_id=? AND position_id=? "
+            "AND funding_time IS NULL AND reason='funding_verification_complete'",
+            (acc, int(position_id))).fetchone()[0]
+        if pending_marker and (not resolved_marker or pending_marker > resolved_marker):
+            con.execute("INSERT INTO paper_funding_gap(account_id,position_id,funding_time,reason,detected_at) "
+                        "VALUES(?,?,NULL,'funding_verification_complete',?)",
+                        (acc, int(position_id), L.now_ms()))
     return new_sum, n_new, detail, gaps
 
 
-def accrue_funding(arm: str, *, upto_ms=None, log=None) -> dict:
+def accrue_funding(arm: str, *, upto_ms=None, log=None, funding_context=None) -> dict:
     """按**真实进程时钟**把已发生的结算事件逐笔记到账户（现金/权益/持仓合计同步）。
 
     覆盖两类持仓（06 任务 3 第 3 点）：
@@ -1983,7 +2153,8 @@ def accrue_funding(arm: str, *, upto_ms=None, log=None) -> dict:
         for p in pos:
             new_sum, n_new, detail, gaps = _settle_funding(
                 con, con_mkt, arm, position_id=int(p["position_id"]), symbol=p["symbol"],
-                qty=float(p["qty"]), entry_ts=int(p["entry_ts"]), upto_ms=T, late=False)
+                qty=float(p["qty"]), entry_fill_ts=_funding_fill_time(p), upto_ms=T,
+                late=False, funding_context=funding_context, snapshot_upper=True)
             if n_new:
                 pos_total = con.execute("SELECT COALESCE(SUM(amount),0) FROM paper_funding "
                                         "WHERE account_id=? AND position_id=?",
@@ -1997,12 +2168,14 @@ def accrue_funding(arm: str, *, upto_ms=None, log=None) -> dict:
                          "qty": float(p["qty"]), "entry_ts": int(p["entry_ts"]),
                          "upto_ms": T, "n_new_events": n_new,
                          "new_amount_sum": round(new_sum, 8), "events": detail,
+                         "funding_state": "pending_verification" if gaps else "settled_as_of_snapshot",
                          "gaps": gaps})
         if rows:
             _record_equity(con, arm, equity(con, arm, con_mkt, approved_params()))
         con.commit()
         # 已平仓持仓的**迟到事件**补记（幂等；与 open 路径分离统计）
-        late = backfill_closed_funding(arm, upto_ms=T, con=con, con_mkt=con_mkt)
+        late = backfill_closed_funding(arm, upto_ms=T, con=con, con_mkt=con_mkt,
+                                       funding_context=funding_context)
         out = {"arm": arm, "T": T, "n_open_positions": len(pos),
                "amount_sign_convention": AMOUNT_SIGN_CONVENTION,
                "n_new_events": sum(r["n_new_events"] for r in rows),
@@ -2019,7 +2192,7 @@ def accrue_funding(arm: str, *, upto_ms=None, log=None) -> dict:
 
 
 def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
-                            con=None, con_mkt=None, log=None) -> dict:
+                            con=None, con_mkt=None, log=None, funding_context=None) -> dict:
     """已平仓持仓的**迟到/补采结算事件**补记 + 一致修正（幂等）。
 
     为什么必须有：`accrue_funding` 只遍历 `open` 持仓；一笔持仓平仓后，若其存续窗口内
@@ -2044,7 +2217,7 @@ def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
     lo_ms = T - int(lookback_days) * 24 * H
     try:
         closed = [dict(r) for r in con.execute(
-            "SELECT position_id,symbol,qty,entry_ts,exit_ts,status,entry_fee FROM paper_position "
+            "SELECT * FROM paper_position "
             "WHERE account_id=? AND status='closed' AND exit_ts IS NOT NULL AND exit_ts>=? "
             "ORDER BY position_id", (acc, lo_ms))]
         per_pos, n_total, sum_total = [], 0, 0.0
@@ -2052,7 +2225,8 @@ def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
             pid = int(p["position_id"])
             new_sum, n_new, detail, gaps = _settle_funding(
                 con, con_mkt, arm, position_id=pid, symbol=p["symbol"], qty=float(p["qty"]),
-                entry_ts=int(p["entry_ts"]), upto_ms=int(p["exit_ts"]), late=True)
+                entry_fill_ts=_funding_fill_time(p), upto_ms=int(p["exit_ts"]), late=True,
+                funding_context=funding_context)
             if n_new:
                 # ③ 一致修正已实现净盈亏（先读旧值，再写回）
                 real = con.execute("SELECT id,net_pnl,funding_paid FROM paper_realized "
@@ -2083,6 +2257,7 @@ def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
             per_pos.append({"position_id": pid, "symbol": p["symbol"],
                             "entry_ts": int(p["entry_ts"]), "exit_ts": int(p["exit_ts"]),
                             "n_new_events": n_new, "new_amount_sum": round(new_sum, 8),
+                            "funding_state": "pending_verification" if gaps else "settled_as_of_snapshot",
                             "events": detail, "gaps": gaps})
         if n_total:
             _record_equity(con, arm, equity(con, arm, con_mkt, approved_params()))
@@ -2090,7 +2265,7 @@ def backfill_closed_funding(arm: str, *, upto_ms=None, lookback_days=60,
         out = {"arm": arm, "T": T, "lookback_days": int(lookback_days),
                "n_closed_positions_scanned": len(closed),
                "n_new_events": n_total, "new_amount_sum": round(sum_total, 8),
-               "per_position": [x for x in per_pos if x["n_new_events"]],
+               "per_position": [x for x in per_pos if x["n_new_events"] or x["gaps"]],
                "amount_sign_convention": AMOUNT_SIGN_CONVENTION}
         if log and n_total:
             log(f"[paper] 迟到资金费补记 arm={arm} 事件={n_total} 合计={round(sum_total, 8)}")
@@ -2144,10 +2319,18 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
         n_late = sum(1 for r in rows if int(r["late_backfill"] or 0) == 1)
         try:
             gaps = [dict(r) for r in con.execute(
-                "SELECT position_id,funding_time,reason FROM paper_funding_gap WHERE account_id=?",
+                "SELECT rowid AS gap_id,position_id,funding_time,reason FROM paper_funding_gap WHERE account_id=?",
                 (acc,))]
         except sqlite3.OperationalError:                 # 加性表尚未建（未跑过写模式）⇒ 视为 0
             gaps = []
+        verified = {}
+        for gap in gaps:
+            if gap["reason"] == "funding_verification_complete" and gap["funding_time"] is None:
+                verified[gap["position_id"]] = max(verified.get(gap["position_id"], 0), gap["gap_id"])
+        charged_keys = {(r["position_id"], r["funding_time"]) for r in rows}
+        unresolved = [g for g in gaps if g["reason"] != "funding_verification_complete" and
+                      ((g["funding_time"] is None and g["gap_id"] > verified.get(g["position_id"], 0)) or
+                       (g["funding_time"] is not None and (g["position_id"], g["funding_time"]) not in charged_keys))]
         n_real = con.execute("SELECT COUNT(*) FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
                              (acc,)).fetchone()[0]
         net = con.execute("SELECT COALESCE(SUM(net_pnl),0) FROM paper_realized WHERE account_id=?",
@@ -2169,8 +2352,9 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
             "realized_net_sum": round(float(net), 10),
             "cash": round(cash, 10), "expected_cash": round(expect_cash, 10),
             "cash_identity_ok": abs(cash - expect_cash) < 1e-6,
-            "gaps": gaps[:20], "n_realized_rows": n_real,
-            "ok": (not bad) and abs(funding_state - sum_amount) < 1e-9
+            "gaps": gaps[:20], "unresolved_gaps": unresolved[:20],
+            "n_unresolved_gaps": len(unresolved), "n_realized_rows": n_real,
+            "ok": (not bad) and not unresolved and abs(funding_state - sum_amount) < 1e-9
                   and abs(cash - expect_cash) < 1e-6,
         }
     finally:
@@ -2179,7 +2363,7 @@ def audit_funding_usage(arm: str, *, amount_sign_convention=AMOUNT_SIGN_CONVENTI
 
 
 # ── 平仓 ─────────────────────────────────────────────────────────────────────
-def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual") -> dict:
+def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual", funding_context=None) -> dict:
     """手工平仓：按**最近一根已闭合 15m bar 收盘**（已批准 15m 合约最后收盘口径）。"""
     con = L.paper_conn(arm)
     try:
@@ -2208,13 +2392,13 @@ def close_position(arm: str, position_id: int, *, now_ms=None, reason="manual") 
                           # [AUDIT-003-PATCH] 必须给出场 K 线真实高低价，否则价格校验无边界
                           bar_low=_f(row["low"]), bar_high=_f(row["high"]),
                           # 手工平仓成交在该 bar 的**收盘** ⇒ 经济出场时刻 = close_time
-                          exit_ts=int(row["close_time"]))
+                          exit_ts=int(row["close_time"]), funding_context=funding_context)
 
 
 def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason="manual",
                    bar_open_time=None, bar_close_time=None, exit_ts=None,
                    decision_context=None, bar_source: str = None,
-                   bar_low=None, bar_high=None, tol: float = 0.001) -> dict:
+                   bar_low=None, bar_high=None, tol: float = 0.001, funding_context=None) -> dict:
     """按**给定原始价**平仓（stop/信号退出等确定性触发用；滑点按已批准值不利方向）。
 
     `exit_ts` = **经济出场时刻**（出场 bar 的 open 或 close，由调用方按口径给）。
@@ -2298,7 +2482,8 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
         # 持仓期间已由 `accrue_funding` 逐笔记过的**不重复入账**；这里只补记剩余事件。
         new_fund, n_new_fund, fund_detail, fund_gaps = _settle_funding(
             con, con_mkt, arm, position_id=position_id, symbol=pos["symbol"], qty=qty,
-            entry_ts=int(pos["entry_ts"]), upto_ms=exit_ms, late=False)
+            entry_fill_ts=_funding_fill_time(pos), upto_ms=exit_ms, late=False,
+            funding_context=funding_context)
         funding_paid = float(con.execute(
             "SELECT COALESCE(SUM(amount),0) FROM paper_funding WHERE account_id=? AND position_id=?",
             (f"paper43_{arm}", int(position_id))).fetchone()[0])
@@ -2411,6 +2596,7 @@ def close_at_price(arm: str, position_id: int, *, raw_price, now_ms=None, reason
                 "funding_paid_this_close": new_fund, "n_funding_events": fund_rows,
                 "n_funding_events_this_close": n_new_fund, "funding_events": fund_detail,
                 "funding_gaps": fund_gaps,
+                "funding_state": "pending_verification" if fund_gaps else "settled_as_of_snapshot",
                 "amount_sign_convention": AMOUNT_SIGN_CONVENTION,
                 "net_pnl": net, "entry_ts": int(pos["entry_ts"]), "exit_ts": exit_ms,
                 "exit_reason": reason, "model_version": MODEL_VERSION,
@@ -2450,7 +2636,7 @@ def drawdown_lock_state(arm: str) -> dict:
     return v if isinstance(v, dict) else {"locked": False}
 
 
-def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
+def enforce_drawdown(arm: str, *, T=None, log=None, funding_context=None) -> dict:
     """按 15m 收盘权益执行回撤四动作（幂等；**只锁不解**）。
 
     ① 停开仓（持久锁定态，`pre_open_check` 与 `open_position` 均读取）；
@@ -2514,7 +2700,8 @@ def enforce_drawdown(arm: str, *, T=None, log=None) -> dict:
                                # [AUDIT-003-PATCH] 清仓 K 线真实高低价
                                bar_low=_f(nxt["low"]), bar_high=_f(nxt["high"]),
                                exit_ts=int(nxt["open_time"]),
-                               decision_context={"rule": "drawdown_liquidation_next_15m_open",
+                            funding_context=funding_context,
+                            decision_context={"rule": "drawdown_liquidation_next_15m_open",
                                                  "drawdown": st.get("drawdown"),
                                                  "bar_open_time": int(nxt["open_time"])})
             out["liquidated"].append(r)
@@ -2907,7 +3094,7 @@ def last_closed_4h(con_mkt: sqlite3.Connection, symbol: str, upto_ms: int = None
 
 
 def check_position_exit_on_bar(arm: str, position_id: int, bar_detail: dict, *,
-                              now_ms: int = None, decision_at: int = None) -> dict:
+                              now_ms: int = None, decision_at: int = None, funding_context=None) -> dict:
     """明细周期（15m）退出检查：
     - 严格锁死执行时点：4h 跟踪止损在确认整点后最早 12:15 生效，严禁回填 12:00；
     - 当前 15m bar 仅使用截至其 open_time 已生效的最优止损（effective_at <= ref_open_ms）；
@@ -2969,7 +3156,7 @@ def check_position_exit_on_bar(arm: str, position_id: int, bar_detail: dict, *,
             # [AUDIT-003-PATCH] 出场 bar 真实高低价（cur_stop 是决策价，须对照本 bar 校验）
             bar_low=low_p,
             bar_high=float(bar_detail["high"]),
-            bar_source=_source_label(bar_detail)
+            bar_source=_source_label(bar_detail), funding_context=funding_context
         )
 
     return {

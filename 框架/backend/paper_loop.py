@@ -118,7 +118,8 @@ class PaperExecutionDaemon:
             self.lock_fd = None
 
     def execute_cycle(self, now_ms: Optional[int] = None, candle_4h_feed: Optional[dict] = None,
-                      bar_15m_feed: Optional[dict] = None, trail_d: Optional[float] = None) -> dict:
+                      bar_15m_feed: Optional[dict] = None, trail_d: Optional[float] = None,
+                      funding_context=None) -> dict:
         """执行单轮推进（幂等且具备因果防线）：
         1. 撮合待开仓挂单（paper_pending -> open_position）；
         2. 推进持仓 4h 跟踪止损线计算与单调上移（paper_stop_history）；
@@ -216,7 +217,8 @@ class PaperExecutionDaemon:
                     if b15:
                         try:
                             exit_chk = PE.check_position_exit_on_bar(
-                                self.arm, pos_id, b15, now_ms=now, decision_at=now
+                                self.arm, pos_id, b15, now_ms=now, decision_at=now,
+                                funding_context=funding_context
                             )
                             if exit_chk.get("exit_triggered"):
                                 cycle_res["exits_triggered"] += 1
@@ -275,7 +277,7 @@ class PaperExecutionDaemon:
 
         try:
             while not self._stop_event.is_set():
-                res = self.execute_cycle()
+                res = self.execute_cycle(funding_context={"mode": PE.FUNDING_REALTIME})
                 if res.get("pending_matched") or res.get("trailing_updates") or res.get("exits_triggered") or res.get("errors"):
                     print(f"[{time.strftime('%X')}] [arm={self.arm}] cycle result: {res}", flush=True)
                 self._stop_event.wait(self.poll_interval_sec)

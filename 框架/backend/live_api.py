@@ -224,6 +224,106 @@ ARM_ENTRY_ROLE = "enterable_arm_entry"
 TERMINAL_REJECT_REASONS = ("missed_fill_moment_no_backfill", "before_paper_epoch_no_backfill")
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 可执行范围判据（PR2-WO-02 fail-closed）—— **读写两侧唯一来源**
+# ═══════════════════════════════════════════════════════════════════════════
+# 为什么集中在这里：改动前「当前区能不能看到」由本文件硬编码的字符串决定，
+# 「路由能不能扫到」由 `unified_runtime._scan_actionable` 另一套字符串决定。
+# 两套判据一旦分叉，就会出现「页面看不到、账本却在开仓」或反过来。
+# 现在：判据只在本文件定义一次，路由侧（`unified_runtime`）**引用同一批常量与
+# 同一个 SQL 片段构造器**，任何一侧的改动都必须同时改变另一侧。
+#
+# 依赖方向说明：`live_api` 是轻量只读模块（只依赖 stdlib + live_store/paper_engine），
+# 由 `unified_runtime` 引用；反向不成立，因此不会形成循环导入。
+
+# 当前可交易信号的来源白名单。`recovered` = 进程重启后仍在成交时效内的真实候选。
+ACTIONABLE_ORIGINS = ("live", "recovered")
+# **永不可执行**的来源：历史研究导入与回放。它们可以在库里、可以被审计读取，
+# 但不得冒充实时信号进入可执行范围（工单 C）。
+NON_ACTIONABLE_ORIGINS = ("historical_research", "replay")
+# 合成测试信号 UID 前缀：无论 origin 写什么、无论从哪条路径扫描，一律不可执行。
+TEST_SIGNAL_UID_PREFIXES = ("sig_closeloop_", "sig_ui_test_")
+
+EXEC_STATE_ENTERABLE = "enterable"
+EXEC_STATE_BLOCKED = "blocked"
+
+# 水位不可用时的**明确原因码**（工单 D：不得静默返回空列表冒充「本轮正常扫描」）
+LIVE_WATERMARK_UNAVAILABLE = "live_watermark_unavailable"
+
+# ── 时间链因果顺序（工单 B）─────────────────────────────────────────────────
+# `event_time <= confirmed_at <= available_at`。
+# **不含** `read_at` / `matched_at`：这两个属于「读取/撮合」阶段，未撮合的候选
+# 本来就没有 `matched_at`，把它写进准入判据会把正常候选全部误杀。
+SIGNAL_TIME_CHAIN_SQL = (
+    "event_time IS NOT NULL AND confirmed_at IS NOT NULL AND available_at IS NOT NULL",
+    "event_time <= confirmed_at",
+    "confirmed_at <= available_at",
+)
+
+# ── 水位右边界（工单 D 的 `+1ms`）────────────────────────────────────────────
+# 依据：K 线 `close_time` 存的是**闭区间右端 −1ms**（如 09:00 收盘存 `...599999`），
+# 见 `live_store.signal_bar_right_ms()` 与行情入库 `close_time = open_time + 周期 - 1`。
+# 若直接用 `confirmed_at >= floor` 比较，会把「恰好压在边界上正常闭合」的信号误判为
+# 边界前。故取**真实右边界** `max(available_at, confirmed_at) + 1` 比较，原值不改。
+# **这是既有口径，本轮只沿用、不放宽**：既没有把 +1 改成 +0，也没有额外加宽。
+FLOOR_RIGHT_EDGE_SQL = ("(CASE WHEN available_at > confirmed_at THEN available_at "
+                        "ELSE confirmed_at END) + 1 >= ?")
+
+# `approved=false` 的配置不得用于任何执行行为（已批准规则；缺字段按 1 处理，
+# 因为真实实时信号的 payload 里本来没有这个键）。
+APPROVED_SQL = "COALESCE(json_extract(payload_json,'$.approved'),1)<>0"
+
+
+def is_test_signal_uid(uid) -> bool:
+    """合成测试信号判定（`sig_closeloop_*` / `sig_ui_test_*`）。"""
+    if not uid:
+        return False
+    s = str(uid)
+    return any(s.startswith(p) for p in TEST_SIGNAL_UID_PREFIXES)
+
+
+def test_signal_uid_sql(column: str = "signal_uid") -> str:
+    return " AND ".join(f"{column} NOT LIKE '{p}%'" for p in TEST_SIGNAL_UID_PREFIXES)
+
+
+def actionable_scope_where(*, with_time_chain: bool = True) -> tuple:
+    """**读写两侧共用**的可执行范围判据（不含臂/交易所/水位等调用方私有条件）。
+
+    返回 `(where_fragments, args)`，可直接拼进 `WHERE ... AND ...`。
+    """
+    placeholders = ",".join("?" for _ in ACTIONABLE_ORIGINS)
+    where = [
+        f"executable_state='{EXEC_STATE_ENTERABLE}'",
+        APPROVED_SQL,
+        test_signal_uid_sql(),
+        f"origin IN ({placeholders})",
+        # 方向：本策略只做多（空头未启用）。方向缺失/非法的行既不展示为「当前可执行」，
+        # 也不得被路由成模拟订单 —— 读写两侧同一条判据（工单第 10 条）。
+        "direction='long'",
+    ]
+    args = list(ACTIONABLE_ORIGINS)
+    if with_time_chain:
+        where.extend(SIGNAL_TIME_CHAIN_SQL)
+    return where, args
+
+
+def resolve_live_floor_ms() -> tuple:
+    """解析有效下限（水位）。返回 `(floor_ms | None, reason | None)`。
+
+    为什么需要这个包装：`live_store.effective_floor_ms()` 在库不可读时会抛异常，
+    原实现要么直接 500、要么（若改成 `or 0`）静默变成「不限下限」。
+    这里把三种失败都收敛成**同一个明确原因码**，让调用方能如实告诉用户
+    「水位不可用」，而不是拿一个空列表冒充「本轮扫过、没有信号」。
+    """
+    try:
+        floor = int(L.effective_floor_ms())
+    except Exception:                                     # noqa: BLE001
+        return None, LIVE_WATERMARK_UNAVAILABLE
+    if floor <= 0:
+        return None, LIVE_WATERMARK_UNAVAILABLE
+    return floor, None
+
+
 def _scope_of(params) -> str:
     s = (params.get("scope") or [CURRENT_SCOPE])[0]
     return (s or CURRENT_SCOPE).strip().lower()
@@ -315,39 +415,33 @@ def live_signals(params) -> dict:
         # `max(confirmed_at, available_at) + 1` 比较（**不改原值**）。
         start_ms = L.get_live_start_ms()
         epoch_ms = L.get_paper_epoch_ms()
-        floor_ms = L.effective_floor_ms()
-        if not floor_ms:
-            # 下限缺失 ⇒ 无法判定「当前」；**不**用当前时间兜底重置水位，如实空态。
+        # 水位不可用 ⇒ 明确原因码 + 如实空态（PR2-WO-02 工单 D）。
+        # 不再靠 `if not floor_ms` 隐式判断：`effective_floor_ms()` 抛异常时
+        # 原来会直接 500，改成 `or 0` 又会静默变成「不限下限」。
+        floor_ms, floor_reason = resolve_live_floor_ms()
+        if floor_ms is None:
             return envelope(items=[], has_more=False, total=0, limit=limit,
                             **ident, ledger_source=ledger,
-                            missing_reason="有效下限(paper epoch / live_start)缺失 ⇒ 当前有效信号无法判定",
+                            missing_reason=(f"{floor_reason}：有效下限(paper epoch / live_start)"
+                                            "不可用 ⇒ 当前有效信号无法判定"),
                             quality={"status": "no_watermark", "age_seconds": None,
                                      "scope": CURRENT_SCOPE, "live_start_ms": start_ms,
                                      "paper_epoch_ms": None, "effective_floor_ms": None,
+                                     "reason": floor_reason,
                                      "note": "下限缺失时如实空态：不用当前时间重置水位、不放行旧信号"})
-        # ── 当前区的来源白名单（SIGNAL-UI-LINK-07 修复）───────────────────────
-        # 原写死 `origin='live'`。缺陷实测（本单 04b 探针）：进程短暂停机后重启，
-        # `bootstrap()` 会把「仍在成交时效内」的真实候选以 `origin='recovered'`
-        # 落库并交给路由（实测 persisted=1 / registered=1），但本 API 只认 `live`
-        # ⇒ 库里有一行、账本里有挂单、**信号区却永远看不到**。
-        # 这是「生成→入库→展示」的断链，不是过滤得对。
-        # 现在：`recovered` 与 `live` 同为「实时真实臂入场」，一起进当前区；
-        # `historical_research` / 回放（replay）等仍**一律不进**（它们不是当前可交易信号）。
-        where.append("origin IN ('live','recovered')")
-        where.append("executable_state='enterable'")
-        where.append("confirmed_at IS NOT NULL AND available_at IS NOT NULL")
-        where.append("(CASE WHEN available_at > confirmed_at THEN available_at "
-                     "ELSE confirmed_at END) + 1 >= ?")
+        # ── 当前区判据：**与模拟路由同一份定义**（PR2-WO-02）────────────────────
+        # 来源白名单 / enterable / approved / 测试 UID / 时间链因果顺序，
+        # 全部来自 `actionable_scope_where()`，路由侧 `unified_runtime` 引用同一函数
+        # ⇒ 「页面看得到」与「路由扫得到」不可能再分叉（工单 C 第 4 条）。
+        _scope_where, _scope_args = actionable_scope_where()
+        where.extend(_scope_where)
+        args.extend(_scope_args)
+        where.append(FLOOR_RIGHT_EDGE_SQL)
         args.append(int(floor_ms))
         where.append("json_extract(payload_json,'$.role')=?")
         args.append(ARM_ENTRY_ROLE)
-        # ── approved=false 不进当前区（SIGNAL-EFFECTIVE-01-WORK）───────────────────
-        # 「未批准的配置不得用于任何执行行为」是已批准规则，改动前只有文案、没有代码。
-        # 补上与 `unified_runtime._scan_actionable` **同一条**判据，保证「页面看得到」
-        # 与「路由扫得到」永远是同一个集合。真实实时信号无 approved 字段 ⇒ COALESCE 取 1。
-        where.append("COALESCE(json_extract(payload_json,'$.approved'),1)<>0")
-        # 排除测试合成信号，防止污染日常工作台信号区（SYSTEM-CLOSELOOP-02 P0-2）
-        where.append("signal_uid NOT LIKE 'sig_closeloop_%' AND signal_uid NOT LIKE 'sig_ui_test_%'")
+        # `approved=false` / 测试合成信号 / 时间链因果顺序三条判据已由
+        # `actionable_scope_where()` 一并给出（与路由侧同一份），此处不再重复硬编码。
     if origin:
         where.append("origin=?"); args.append(origin)
     if symbol:
@@ -416,20 +510,28 @@ def live_signals(params) -> dict:
             all_n = con.execute("SELECT COUNT(*) FROM live_signal").fetchone()[0]
             excluded_n = int(all_n) - int(total)
             try:
+                _origin_ph = ",".join("?" for _ in ACTIONABLE_ORIGINS)
                 row = con.execute(
                     "SELECT "
-                    " SUM(CASE WHEN origin NOT IN ('live','recovered') THEN 1 ELSE 0 END),"
+                    f" SUM(CASE WHEN origin NOT IN ({_origin_ph}) THEN 1 ELSE 0 END),"
                     " SUM(CASE WHEN executable_state<>'enterable' THEN 1 ELSE 0 END),"
-                    " SUM(CASE WHEN confirmed_at IS NULL OR available_at IS NULL THEN 1 ELSE 0 END),"
-                    " SUM(CASE WHEN confirmed_at IS NOT NULL AND available_at IS NOT NULL"
+                    " SUM(CASE WHEN event_time IS NULL OR confirmed_at IS NULL"
+                    "           OR available_at IS NULL THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN event_time IS NOT NULL AND confirmed_at IS NOT NULL"
+                    "           AND available_at IS NOT NULL"
                     "          AND (CASE WHEN available_at>confirmed_at THEN available_at"
                     "                ELSE confirmed_at END)+1 < ? THEN 1 ELSE 0 END),"
                     " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.role'),'')<>? THEN 1 ELSE 0 END),"
-                    " SUM(CASE WHEN signal_uid LIKE 'sig_closeloop_%'"
-                    "           OR signal_uid LIKE 'sig_ui_test_%' THEN 1 ELSE 0 END),"
+                    " SUM(CASE WHEN " + test_signal_uid_sql() + " THEN 0 ELSE 1 END),"
                     " SUM(CASE WHEN COALESCE(json_extract(payload_json,'$.approved'),1)=0"
-                    "          THEN 1 ELSE 0 END) "
-                    "FROM live_signal", (int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
+                    "          THEN 1 ELSE 0 END),"
+                    # 时间链倒挂（B）：字段齐备但顺序错 ⇒ 与「缺字段」分开计数
+                    " SUM(CASE WHEN event_time IS NOT NULL AND confirmed_at IS NOT NULL"
+                    "           AND available_at IS NOT NULL"
+                    "          AND (event_time > confirmed_at"
+                    "               OR confirmed_at > available_at) THEN 1 ELSE 0 END) "
+                    "FROM live_signal",
+                    (*ACTIONABLE_ORIGINS, int(floor_ms), ARM_ENTRY_ROLE)).fetchone()
                 excluded_breakdown = {
                     "db_rows_total": int(all_n),
                     "kept": int(total),
@@ -442,10 +544,12 @@ def live_signals(params) -> dict:
                         "not_arm_entry_role": int(row[4] or 0),
                         "test_synthetic": int(row[5] or 0),
                         "unapproved_config": int(row[6] or 0),
+                        "time_chain_violation": int(row[7] or 0),
                     },
                     "note": ("一行可同时命中多条原因，故各项之和 ≥ excluded；"
                              "`before_effective_floor` 的下限 = max(live_start, paper epoch)，"
-                             "按真实区间右边界(+1ms)比较"),
+                             "按真实区间右边界(+1ms)比较；`time_chain_violation` 指字段齐备但"
+                             "event_time<=confirmed_at<=available_at 被违反"),
                 }
             except sqlite3.OperationalError:
                 excluded_breakdown = None
@@ -1048,67 +1152,88 @@ def paper_order_post(payload: dict) -> tuple[dict, int]:
                                      "note": None}), 400
         atr = payload.get("atr")
         
-        # **交易时钟因果防线（SYSTEM-CLOSELOOP-03/04）**：
-        # 日常模拟下单以服务端真实接收时刻（挂钟 L.now_ms()）为绝对准绳，
-        # 外部传入的 requested_at、now_ms 一律忽略，绝不得改变成交下限；
-        # 仅在隔离回放测试（origin=="replay"）下才允许注入可控回放时钟。
-        origin = payload.get("origin") or "signal"
-        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
-        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
-        req = replay_now if (origin == "replay" and replay_now is not None) else L.now_ms()
-
-        # ── 信号可信绑定与伪造/冲突校验 ──────────────────────────────────────
+        # HTTP 请求不能提供回放时钟；隔离回放直接使用内部运行器。
+        if any(payload.get(k) is not None for k in ("now_ms", "requested_at")):
+            return envelope(missing_reason="外部请求不得指定模拟撮合时钟",
+                            quality={"status": "rejected", "note": "external_clock_forbidden"}), 400
+        requested_origin = payload.get("origin")
+        if requested_origin in ("replay", "test"):
+            return envelope(missing_reason="外部请求不得使用回放来源",
+                            quality={"status": "rejected", "note": "external_origin_forbidden"}), 400
+        req = L.now_ms()
         raw_sig_uid = payload.get("signal_uid")
-        sig_available_at = None
-        sig_event_time = None
-        sig_uid = None
+        sig_available_at = sig_event_time = None
+        direction = payload.get("direction") or "long"
 
         if raw_sig_uid:
+            if not isinstance(raw_sig_uid, str):
+                return envelope(missing_reason="无效的信号身份",
+                                quality={"status": "rejected", "note": "invalid_signal_uid"}), 400
             try:
                 con_sig = L.live_conn(ro=True)
                 try:
                     sig_row = con_sig.execute(
-                        "SELECT * FROM live_signal WHERE signal_uid=?", (raw_sig_uid,)
-                    ).fetchone()
+                        "SELECT *, CASE WHEN json_valid(payload_json) THEN " + APPROVED_SQL +
+                        " ELSE 0 END AS _entry_approved FROM live_signal WHERE signal_uid=?",
+                        (raw_sig_uid,)).fetchone()
                 finally:
                     con_sig.close()
             except Exception:
-                sig_row = None
-
-            if not sig_row:
-                # 伪造信号身份或库中不存在
-                if origin != "manual" and not raw_sig_uid.startswith("manual:"):
-                    return envelope(
-                        missing_reason=f"未知的不可信信号身份: {raw_sig_uid}，拒绝开仓",
-                        quality={"status": "rejected", "age_seconds": None, "note": "untrusted_signal_unknown_uid"}
-                    ), 400
+                return envelope(missing_reason="信号库不可用，无法验证身份",
+                                quality={"status": "rejected", "note": "signal_store_unavailable"}), 503
+            if sig_row is None:
+                import re
+                # 保留已有 manual:<毫秒> 重试身份；新身份也可使用 UUID。
+                if not re.fullmatch(r"manual:(?:[0-9]{13}|[0-9a-f]{32})", raw_sig_uid) or requested_origin not in (None, "", "manual"):
+                    return envelope(missing_reason="未知信号身份，拒绝开仓",
+                                    quality={"status": "rejected", "note": "untrusted_signal_unknown_uid"}), 400
                 sig_uid = raw_sig_uid
                 origin = "manual"
             else:
                 sd = dict(sig_row)
-                db_symbol = sd["symbol"]
-                db_avail = sd.get("available_at")
-                db_conf = sd.get("confirmed_at")
-
-                # 校验标的冲突
-                if symbol != db_symbol:
-                    return envelope(
-                        missing_reason=f"请求标的 {symbol} 与信号标的 {db_symbol} 冲突",
-                        quality={"status": "rejected", "age_seconds": None, "note": "symbol_mismatch_with_signal"}
-                    ), 400
-
-                # 因果校验：服务端接收时刻绝不得早于信号数据可用时刻（禁止穿梭/提前成交）
-                if db_avail is not None and req < int(db_avail):
-                    return envelope(
-                        missing_reason=f"请求到达时刻 ({req}) 早于信号数据可用时刻 ({db_avail})，拒绝提前成交",
-                        quality={"status": "rejected", "age_seconds": None, "note": "request_before_signal_available"}
-                    ), 400
-
-                sig_available_at = db_avail
-                sig_event_time = db_conf
+                # 此处延迟导入：unified_runtime 已引用本模块的共享规则。
+                try:
+                    import unified_runtime as UR
+                    floor, floor_reason = resolve_live_floor_ms()
+                    if floor is None:
+                        raise ValueError(floor_reason)
+                    db_origin = sd.get("origin")
+                    reasons = UR.signal_admission_reasons(sd, origin=db_origin, floor_ms=floor, read_at_ms=req)
+                    if db_origin not in ACTIONABLE_ORIGINS:
+                        reasons.append("origin_not_actionable")
+                    if requested_origin == "manual":
+                        reasons.append("manual_cannot_reference_signal")
+                    if sd.get("symbol") != symbol:
+                        reasons.append("symbol_mismatch_with_signal")
+                    if (sd.get("exchange"), sd.get("market"), sd.get("timeframe")) != (UR.EXCHANGE, UR.MARKET, UR.TIMEFRAME):
+                        reasons.append("signal_market_mismatch")
+                    signal_payload = json.loads(sd.get("payload_json") or "{}")
+                    if not isinstance(signal_payload, dict):
+                        raise ValueError("invalid_signal_payload")
+                    if signal_payload.get("arm") != arm:
+                        reasons.append("arm_mismatch_with_signal")
+                    if payload.get("direction") is not None and payload.get("direction") != sd.get("direction"):
+                        reasons.append("direction_mismatch_with_signal")
+                    # WO-02 SQL 同样是共享契约：approved 缺失或 null 保持默认允许。
+                    if not sd.get("_entry_approved"):
+                        reasons.append("approved_false")
+                except Exception as exc:
+                    return envelope(missing_reason="信号准入校验不可用",
+                                    quality={"status": "rejected", "note": str(exc)}), 400
+                if reasons:
+                    return envelope(missing_reason="信号未通过模拟开仓准入",
+                                    quality={"status": "rejected", "note": ",".join(reasons)}), 400
                 sig_uid = raw_sig_uid
+                origin = db_origin
+                direction = sd["direction"]
+                sig_event_time = sd["event_time"]
+                sig_available_at = sd["available_at"]
         else:
-            sig_uid = f"manual:{req}"
+            if requested_origin not in (None, "", "manual", "signal"):
+                return envelope(missing_reason="无信号引用时只能手动开仓",
+                                quality={"status": "rejected", "note": "manual_origin_required"}), 400
+            import uuid
+            sig_uid = f"manual:{uuid.uuid4().hex}"
             origin = "manual"
 
         # ── SYSTEM-CONTRACT-01：配置身份有效性检查与防请求体篡改 ───────────────────
@@ -1139,17 +1264,13 @@ def paper_order_post(payload: dict) -> tuple[dict, int]:
             except (ValueError, TypeError):
                 st_price = None
 
-        # 受控回放时钟注入（仅当 origin=="replay" 且在隔离环境允许，日常生产接口严禁注入时钟）
-        replay_now = int(payload.get("now_ms")) if (origin == "replay" and payload.get("now_ms") is not None) else None
-        replay_req = int(payload.get("requested_at")) if (origin == "replay" and payload.get("requested_at") is not None) else None
-
         try:
             r = PE.open_position(arm, symbol, signal_uid=sig_uid,
-                                 direction=payload.get("direction") or "long",
+                                 direction=direction,
                                  atr=(None if atr is None else float(atr)),
                                  stop_price=(None if st_price is None else float(st_price)),
                                  stoploss_s=s_param,
-                                 now_ms=replay_now, requested_at=replay_req,
+                                 now_ms=None, requested_at=None,
                                  event_time=sig_event_time,
                                  available_at=sig_available_at,
                                  origin=origin)
@@ -1177,7 +1298,8 @@ def paper_order_post(payload: dict) -> tuple[dict, int]:
                             quality={"status": "bad_request", "age_seconds": None,
                                      "note": None}), 400
         try:
-            r = PE.close_position(arm, int(pid), reason=payload.get("reason") or "manual")
+            r = PE.close_position(arm, int(pid), reason=payload.get("reason") or "manual",
+                                  funding_context={"mode": PE.FUNDING_REALTIME})
         except (L.LedgerUnavailable, L.LedgerIdentityMismatch) as exc:
             return _ledger_unavailable(ident, ledger, exc, mode="paper"), 503
         return envelope(items=[r], mode="paper", total=1,
