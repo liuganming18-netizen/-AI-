@@ -1,0 +1,94 @@
+{
+  "generated_at_utc": "2026-10-30T03:50:00Z",
+  "order": "BF-01-CLOSE",
+  "environment": {
+    "python": "/usr/bin/python3 (3.9.6)",
+    "pytest": "pytest 8.4.2",
+    "pytest_flags": "-q -p no:cacheprovider",
+    "tmpdir_rule": "每次运行使用全新空 TMPDIR（复用会撞 EEXIST: mkdir pytest-of-root 产生假 ERROR）",
+    "isolated_checkout": {
+      "path_pattern": "/tmp/bf01-iso.*",
+      "built_by": "git archive bf01-clean-head-fix 策略 框架 tests AGENTS.md docs | tar -x",
+      "data_dirs": "数据 与 evidence 以符号链接指向真实仓库（只读输入）；回测日志 为空目录",
+      "why_symlink": "数据目录含 19G parquet 与市场库，全部归档不现实；测试对这些目录只读（已逐文件核对写操作，全部落在 tempfile/tmp_path）",
+      "verified_no_pollution": "隔离跑完后真实仓库 数据/evidence 下已跟踪改动数 = 0"
+    }
+  },
+  "collection": {
+    "before_fix_clean_head_bcd72806": {
+      "collected": 164,
+      "collection_errors": 1,
+      "error": "ImportError: cannot import name '_merge_summary' from 'WyckoffMaster.event_trend_v0_1.engine_adapter'",
+      "verdict": "中断，一条用例都跑不起来"
+    },
+    "after_fix_isolated_7c625c51": {
+      "collected": 175,
+      "collection_errors": 0,
+      "verdict": "收集通过"
+    },
+    "delta": "11 个用例恢复（test_backtest_repair_01_metrics.py 的 M01–M09 + M04b + M05b）"
+  },
+  "suites": [
+    {
+      "name": "策略测试集（隔离检出，修复后）",
+      "command": "cd /tmp/bf01-iso.* && pytest 策略/WyckoffMaster/event_trend_v0_1/tests/ -q",
+      "passed": 175, "failed": 0, "skipped": 0, "errors": 0,
+      "seconds": 36.47
+    },
+    {
+      "name": "策略测试集（真实仓库，合并后）",
+      "command": "cd 仓库根 && pytest 策略/WyckoffMaster/event_trend_v0_1/tests/ -q",
+      "passed": 175, "failed": 0, "skipped": 0, "errors": 0,
+      "seconds": 33.68
+    },
+    {
+      "name": "metrics 专项（隔离检出，逐项）",
+      "command": "pytest 策略/WyckoffMaster/event_trend_v0_1/tests/test_backtest_repair_01_metrics.py -v",
+      "passed": 11, "failed": 0, "skipped": 0, "errors": 0,
+      "cases": ["test_m01_all_wins", "test_m02_all_losses", "test_m03_zero_trades",
+                "test_m04_mdd_none_when_curve_too_short", "test_m04b_mdd_peak_from_start",
+                "test_m05_cost_identity_and_no_double_slippage",
+                "test_m05b_identity_broken_is_reported", "test_m06_flats_in_denominator",
+                "test_m07_legacy_fields_untouched", "test_m08_runner_metrics_mapping",
+                "test_m09_dirty_values_excluded"]
+    },
+    {
+      "name": "11 项接口回归（隔离检出）",
+      "command": "cd 框架/backend && python3 ../../evidence/FINAL-INTEGRATION-01/verify_integration.py",
+      "passed": 11, "failed": 0, "total": 11,
+      "items": ["导入-核心5模块", "导入-runner代码级", "信号-OI预置槽位", "OI-透传分支",
+                "撮合-止损不倒灌", "撮合-跳空模型", "撮合-同bar标记", "门禁-fail-closed原因码",
+                "资金费-接口", "账本-接口", "API-接口"]
+    },
+    {
+      "name": "代理门禁（隔离检出）",
+      "command": "pytest tests/test_agent_gate.py -q",
+      "passed": 71, "failed": 0, "skipped": 0,
+      "seconds": 47.28
+    },
+    {
+      "name": "架构门禁·agent 路径（隔离检出）",
+      "command": "python3 -m unittest discover -s tests -p 'test_agent_paths.py'",
+      "passed": 1, "failed": 0,
+      "note": "首次在隔离环境跑时因归档未包含 AGENTS.md 报 FileNotFoundError；补入 AGENTS.md 与 docs 后 OK。属隔离检出取材不全，不是代码缺陷"
+    },
+    {
+      "name": "旧 summary 字段零改动（改动前后逐字段比对）",
+      "method": "同一确定性回测（_entry_scenario(100.0, 99.0)）在 bcd72806 与 7c625c51 各跑一次，导出 summary 全字段比对",
+      "before_fields": 13,
+      "after_fields": 36,
+      "common_fields": 13,
+      "changed_common_fields": 0,
+      "new_fields": 23,
+      "verdict": "旧字段数值全部一致"
+    }
+  ],
+  "totals": {
+    "passed": 258,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "passed_breakdown": "175（策略）+ 71（代理门禁）+ 1（路径门禁）+ 11（接口回归）= 258；另 11 项 metrics 已包含在 175 内，不重复计入"
+  },
+  "verdict": "全部通过，无新增失败、无跳过、无删除测试"
+}

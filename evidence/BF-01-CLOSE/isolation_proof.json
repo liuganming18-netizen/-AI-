@@ -1,0 +1,66 @@
+{
+  "generated_at_utc": "2026-10-30T03:45:00Z",
+  "order": "BF-01-CLOSE",
+  "head_before": "bcd728069456a05fb2386f92ed97fa63d912e0ff",
+  "head_after": "7c625c51ad7f4a2a4ed1f086987dc7abed840ef0",
+  "isolation_branch": "bf01-clean-head-fix",
+  "commit": {
+    "sha": "7c625c51ad7f4a2a4ed1f086987dc7abed840ef0",
+    "subject": "fix(BF-01): 补入绩效汇总实现，修复干净 HEAD 上策略测试集无法收集",
+    "files_changed": 1,
+    "insertions": 183,
+    "deletions": 2,
+    "lines_changed": 185,
+    "file": "策略/WyckoffMaster/event_trend_v0_1/engine_adapter.py",
+    "git_show_stat": "1 file changed, 183 insertions(+), 2 deletions(-)"
+  },
+  "included_scope": {
+    "constants": ["WIN_LOSS_BASIS", "WR_BASIS", "PF_BASIS", "AWLR_BASIS",
+                  "MDD_BASIS", "COST_ID_BASIS", "_METRIC_EPS"],
+    "helpers": ["_num", "_mean", "_max_drawdown_pct"],
+    "functions": ["compute_summary_metrics", "_merge_summary"],
+    "wiring": "run_event_trend_backtest 的 summary 改为经 _merge_summary 产出（第 921 行、第 936 行）",
+    "new_imports_added": 0,
+    "why_wiring_included": "函数本身只为被 summary 调用而存在。只搬函数不接线，等于提交一段永不执行的死代码，而下游 backtest_runner 已经在读这些字段（读到 None）——那仍然是不一致，只是把不一致从「导入失败」变成「永远拿不到值」"
+  },
+  "excluded_scope": {
+    "note": "工作区里没有其他与 BF-01 相关的改动；engine_adapter.py 的未提交差异全部属于本次纳入的绩效汇总，不存在需要剥离的夹杂内容",
+    "checked_by": "git diff --numstat 对该文件 = 183/2，且新增行关键词扫描未命中任何策略语义标识"
+  },
+  "uncommitted_work_protection": {
+    "other_files_staged": [],
+    "other_files_committed": [],
+    "working_tree_entries_after": 159,
+    "working_tree_entries_before": null,
+    "before_count_note": "提交前没有单独记一次总数，因此这里不填推测值。范围证据改用可核验的 git show --stat：本次提交只含 1 个文件（engine_adapter.py，183/2），暂存区自始至终只有它一个",
+    "remaining_tracked_modifications": 126,
+    "remaining_untracked": 33,
+    "engine_adapter_worktree_equals_head": true,
+    "engine_adapter_worktree_sha256": "4b28ecd25234101cdaddda456133f661fdf78a28e345c6be3f93ab047a1c672f",
+    "engine_adapter_head_sha256": "4b28ecd25234101cdaddda456133f661fdf78a28e345c6be3f93ab047a1c672f",
+    "no_work_lost": "提交内容与工作区字节一致 ⇒ 原作者的未提交成果没有丢失、没有被改写，只是从工作区变成了提交",
+    "data_and_evidence_tracked_changes": 0,
+    "explanation_of_126": "全部是实时系统运行态文件（框架/backend/locks/*.json、框架/backend/快照/**/*.json、框架/backend/adapter.py）与 33 个未跟踪的 evidence 目录，本轮既未暂存也未回退",
+    "forbidden_operations_used": {
+      "reset_hard": false,
+      "force_push": false,
+      "git_add_dot": false,
+      "tests_deleted": false,
+      "tests_skipped": false
+    }
+  },
+  "safety_check": {
+    "frozen_config_changed": false,
+    "frozen_config_sha256": "122683f2b489c742dd594ff465e916147dd097bd1afcb8a35cb4116c0eedeb46",
+    "frozen_rules_changed": false,
+    "frozen_rules_sha256": "1f1167de35412cb7d1d3608d8069c4108324f7641de7c369bf94882f1679a8ab",
+    "frozen_rules_bytes": 13315,
+    "production_sqlite_wal_shm_touched": false,
+    "parquet_touched": false,
+    "raw_zip_touched": false,
+    "ledger_touched": false,
+    "pit_gate_changed": false,
+    "trading_rules_changed": false,
+    "strategy_semantics_changed": false
+  }
+}
