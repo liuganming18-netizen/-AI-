@@ -57,7 +57,7 @@ def mk_oi(start_ms, count, iv=300_000, base=1_000_000.0, with_pit=True):
         ts = start_ms + i * iv
         row = {"ts": ts, "open_interest": base + i}
         if with_pit:
-            row["available_at"] = ts + 2_400          # 实测中位到达延迟 2.4s
+            row["available_at"] = ts + iv + 2_400          # 实测中位到达延迟 2.4s
         out.append(row)
     return out
 
@@ -77,16 +77,22 @@ def mk_funding(win_start, win_end, interval=8 * HOUR, lookback=7 * 86_400_000,
 
 
 def base_snapshot(win_days=2, **over):
-    """正常窗口：2 天，15m 信号（含预热）+ 4h 执行，OI 5m 全覆盖且带可得时刻。"""
+    """正常窗口：2 天，1h 信号（含预热）+ 15m 执行，OI 5m 全覆盖且带可得时刻。
+
+    27 号修正：本夹具原为「15m 信号 + 4h 执行」，而一根 15m 信号 bar **装不下** 4h 执行 bar，
+    属物理上无法撮合的组合；它之所以能一路 PASS，是因为 17 号的 `KL_XTF_RATIO` 把整除
+    方向写反了（要求 `exec_iv % sig_iv == 0`）。方向修正后该组合必须判 FAIL，
+    故夹具改为项目真实基线「事件 1h / 执行 15m / 环境 4h」的前两段。
+    """
     win_end = WIN_START + win_days * 86_400_000
-    sig_start = WIN_START - WARMUP * Q
+    sig_start = WIN_START - WARMUP * HOUR
     snap = {
         "exchange": "binance", "market": "um", "symbol": "BTCUSDT",
-        "signal_timeframe": "15m", "exec_timeframe": "4h",
+        "signal_timeframe": "1h", "exec_timeframe": "15m",
         "win_start_ms": WIN_START, "win_end_ms": win_end, "warmup_bars": WARMUP,
-        "signal_bars": mk_bars(sig_start, WARMUP + win_days * 96, Q),
-        "exec_bars": mk_bars(WIN_START, win_days * 6, H4),
-        "oi_rows": mk_oi(sig_start, (WARMUP + win_days * 96) * 3, 300_000),
+        "signal_bars": mk_bars(sig_start, WARMUP + win_days * 24, HOUR),
+        "exec_bars": mk_bars(WIN_START, win_days * 96, Q),
+        "oi_rows": mk_oi(sig_start, (WARMUP + win_days * 24) * 12, 300_000),
         "funding_rows": mk_funding(WIN_START, win_end),
     }
     snap.update(over)
@@ -131,12 +137,12 @@ class TestNormalWindow(unittest.TestCase):
     def test_bars_outside_window_are_trimmed_not_failed(self):
         """load_inputs 的 sig_df 会延伸到窗口之后；窗口外的行不得判成覆盖超量。"""
         snap = base_snapshot()
-        extra = mk_bars(snap["win_end_ms"], 20, Q)
+        extra = mk_bars(snap["win_end_ms"], 20, HOUR)
         snap["signal_bars"] = snap["signal_bars"] + extra
-        snap["exec_bars"] = snap["exec_bars"] + mk_bars(snap["win_end_ms"], 3, H4)
+        snap["exec_bars"] = snap["exec_bars"] + mk_bars(snap["win_end_ms"], 12, Q)
         v = G.evaluate(snap)
         self.assertEqual(v["verdict"], G.PASS, v["block_reasons"])
-        self.assertEqual(v["subject"]["bars_outside_window"], {"signal": 20, "exec": 3})
+        self.assertEqual(v["subject"]["bars_outside_window"], {"signal": 20, "exec": 12})
 
 
 # ══════════════════════ B 数据缺口 / 时间错位 ══════════════════════
@@ -160,8 +166,9 @@ class TestGapAndAlignment(unittest.TestCase):
         cov = [c for c in v["checks"] if c["id"] == "KL_COVERAGE"]
         self.assertTrue(cov)
         ev = cov[0]["evidence"]
-        self.assertEqual(ev["expected_bars"], 12)
-        self.assertEqual(ev["actual_bars"], 10)
+        # 27 号：执行周期 4h→15m，2 天窗口的执行根数由 12 变 192（截尾 2 根 ⇒ 190）。
+        self.assertEqual(ev["expected_bars"], 192)
+        self.assertEqual(ev["actual_bars"], 190)
         self.assertFalse(ev["tail_ok"])
 
     def test_unclosed_bar_is_fail(self):
@@ -189,14 +196,15 @@ class TestGapAndAlignment(unittest.TestCase):
     def test_misaligned_open_time_is_fail(self):
         """整段平移时「相邻差 == 间隔」恒成立 ⇒ 旧校验查不出，必须靠网格对齐判。"""
         snap = base_snapshot()
-        snap["exec_bars"] = mk_bars(WIN_START + 4 * HOUR + 7_000, 11, H4)
+        # 27 号：执行周期已改为 15m，故整段平移后仍须是 15m 序列（根数覆盖整窗）。
+        snap["exec_bars"] = mk_bars(WIN_START + 7_000, 2 * 96, Q)
         v = G.evaluate(snap)
         self.assertEqual(v["verdict"], G.FAIL)
         self.assertIn("KL_ALIGN", ids(v, G.FAIL))
 
     def test_bad_close_time_is_fail(self):
         snap = base_snapshot()
-        snap["exec_bars"][2]["close_time"] = snap["exec_bars"][2]["open_time"] + H4 + 30_000
+        snap["exec_bars"][2]["close_time"] = snap["exec_bars"][2]["open_time"] + Q + 30_000
         v = G.evaluate(snap)
         self.assertEqual(v["verdict"], G.FAIL)
         self.assertIn("KL_CLOSE_TIME", ids(v, G.FAIL))
@@ -216,7 +224,12 @@ class TestGapAndAlignment(unittest.TestCase):
         self.assertIn("KL_XTF_WINDOW", ids(v, G.FAIL))
 
     def test_signal_tf_not_divisor_is_fail(self):
-        """执行周期不是信号周期整数倍 ⇒ 两序列无法在同一决策时刻对齐。"""
+        """信号周期装不下整数根执行周期 ⇒ 一根信号 bar 内的撮合无法与执行网格对齐。
+
+        27 号注记：8h/12h 在**两个方向**都不整除（`8h%12h=8h`、`12h%8h=4h`），所以这条用例
+        对整除方向天然不敏感 —— 17 号只有这一条 XTF 用例，正是方向写反却测不出来的原因。
+        真正对方向敏感的 1h/15m、4h/15m、15m/4h、1h/4h 见 `test_backtest_data_gate_27.py`。
+        """
         snap = base_snapshot()
         snap["signal_timeframe"] = "8h"
         snap["exec_timeframe"] = "12h"
@@ -305,8 +318,8 @@ class TestDegradedUnproven(unittest.TestCase):
 
     def test_oi_without_pit_is_unproven(self):
         snap = base_snapshot()
-        snap["oi_rows"] = mk_oi(snap["win_start_ms"] - WARMUP * Q,
-                                len(snap["signal_bars"]) * 3, 300_000, with_pit=False)
+        snap["oi_rows"] = mk_oi(snap["win_start_ms"] - WARMUP * HOUR,
+                                len(snap["signal_bars"]) * 12, 300_000, with_pit=False)
         v = G.evaluate(snap)
         self.assertEqual(v["verdict"], G.UNPROVEN)
         self.assertIn("OI_PIT", ids(v, G.UNPROVEN))
