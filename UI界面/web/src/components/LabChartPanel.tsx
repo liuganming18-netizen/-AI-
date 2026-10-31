@@ -281,7 +281,8 @@ const BacktestBoxOverlay: React.FC<{ events: LabChartEvent[]; bars: Candle[]; ha
   const [eventTargets, setEventTargets] = useState<Array<{ event: LabChartEvent; x: number; y: number }>>([]);
   useEffect(() => {
     if (!handle) { setRects([]); setEventTargets([]); return; }
-    const update = () => {
+    const ts = handle.chart.timeScale();
+    const run = () => {
       const host = hostRef.current;
       if (!host) return;
       const bounds = host.getBoundingClientRect();
@@ -313,7 +314,7 @@ const BacktestBoxOverlay: React.FC<{ events: LabChartEvent[]; bars: Candle[]; ha
         });
       setRects(next);
       const markerEvents = events.filter((e) => ['box', 'sweep_low', 'sweep_high', 'retest', 'breakout', 'signal_triggered', 'signal_invalidated'].includes(e.event_type));
-      setEventTargets(markerEvents.flatMap((event) => {
+      const rawTargets = markerEvents.flatMap((event) => {
         if (!Number.isFinite(event.event_time) || event.event_time <= 0) return [];
         const time = alignTimeToTf(event.event_time, tf);
         const bar = bars.find((item) => alignTimeToTf(item.timestamp, tf) === time);
@@ -325,15 +326,42 @@ const BacktestBoxOverlay: React.FC<{ events: LabChartEvent[]; bars: Candle[]; ha
         return point && point.x >= 0 && point.x <= bounds.width && point.y >= 0 && point.y <= bounds.height
           ? [{ event, x: point.x, y: point.y + (below ? 14 : -14) }]
           : [];
+      });
+      /* 同一时刻同一价位的多个事件（实测「信号触发」与「突破」落在同一根 K 线同一价格）
+       * 落点完全相同，后画的按钮会把先画的整个盖住 ⇒ 图上只点得到一个。
+       * 这里按落点分组横向错开，让每个真实事件都保留独立可点区域；落点本身不改。 */
+      const occupied = new Map<string, number>();
+      const maxX = Math.max(8, bounds.width - 8);
+      setEventTargets(rawTargets.map((t) => {
+        const key = `${Math.round(t.x)}:${Math.round(t.y)}`;
+        const nth = occupied.get(key) ?? 0;
+        occupied.set(key, nth + 1);
+        if (nth === 0) return t;
+        const step = 22 * Math.ceil(nth / 2);
+        const shift = nth % 2 === 1 ? step : -step;
+        return { ...t, x: Math.min(Math.max(t.x + shift, 8), maxX) };
       }));
     };
-    const ts = handle.chart.timeScale();
+    /* 官方回调可能在新视窗**提交之前**就触发：此时直接读 `getVisibleRange()` 拿到的还是旧范围，
+     * 而且不保证再触发一次（实测：设完 09-08 视窗后 1.2 秒内色带恒为 0 个，
+     * 鼠标移过图表才出现；相邻视窗还会整体滞后一档）。把真正的读取推迟到下一帧，
+     * 读到的才是已提交的范围。 */
+    let raf = 0;
+    const update = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => { raf = 0; run(); });
+    };
     ts.subscribeVisibleLogicalRangeChange(update);
     handle.chart.subscribeCrosshairMove(update);
     const observer = new ResizeObserver(update);
     if (hostRef.current) observer.observe(hostRef.current);
     update();
-    return () => { ts.unsubscribeVisibleLogicalRangeChange(update); handle.chart.unsubscribeCrosshairMove(update); observer.disconnect(); };
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      ts.unsubscribeVisibleLogicalRangeChange(update);
+      handle.chart.unsubscribeCrosshairMove(update);
+      observer.disconnect();
+    };
   }, [events, bars, handle, tf, lastBarMs]);
   return <div ref={hostRef} className="pointer-events-none absolute inset-0 z-[2]" aria-label="回测箱体区间">
     <svg className="h-full w-full overflow-hidden" data-testid="backtest-box-overlay">
