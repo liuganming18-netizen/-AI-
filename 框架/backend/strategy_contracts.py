@@ -129,11 +129,14 @@ class FtLow4hConfigIdentity:
 
 
 # ── 3. 配置加载器：严禁静默 5% 兜底 ──────────────────────────────────────────
-DEFAULT_VIEW_PATH = (
-    PROJECT_ROOT / "数据" / "研究输入" /
-    "最新唐奇安威科夫接通与收尾_2026-10-11" / "5000U收尾与回测条件终验6" /
+# 用户工单 GM-WYCKOFF-V3.1-FINAL-MERGE-GATE-59-03 正式批准的配置哈希基线
+APPROVED_FT_LOW4H_SHA256 = "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53"
+
+CONTROLLED_VIEW_PATH = (
+    PROJECT_ROOT / "配置" / "FT-LOW4H" /
     "10_研究参数生效视图_v2_2_user5000_shared.json"
 )
+DEFAULT_VIEW_PATH = CONTROLLED_VIEW_PATH
 
 
 def compute_config_fingerprint(raw_bytes: bytes) -> str:
@@ -172,6 +175,12 @@ def load_ft_low4h_config(view_path: Optional[Path | str] = None) -> Tuple[Option
     if not isinstance(data, dict):
         err = "config_format_error: 配置根结构必须是 JSON 对象"
         return None, {"_config_valid": False, "_config_error": err, "_source": "invalid_format"}, err
+
+    # 严格配置身份校验：核验文件字节哈希是否等于用户正式批准的基线哈希
+    full_fingerprint = compute_config_fingerprint(raw_bytes)
+    if full_fingerprint != APPROVED_FT_LOW4H_SHA256:
+        err = f"config_identity_rejected: 配置文件哈希 ({full_fingerprint}) 与正式批准基线 ({APPROVED_FT_LOW4H_SHA256}) 不匹配，明确拒绝加载！"
+        return None, {"_config_valid": False, "_config_error": err, "_source": f"unapproved_{target_path.stem}"}, err
 
     ex = data.get("execution") or {}
     st = data.get("stops") or {}

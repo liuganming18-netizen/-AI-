@@ -68,17 +68,15 @@ LEGACY_RULES_DIR = EXTERNAL_MIGRATION_DIR / "策略与回测规则_2026-10-11"
 # 项目闭环审查（含 v2.1 生效视图，仅历史追溯）
 LEGACY_REVIEW_DIR = EXTERNAL_MIGRATION_DIR / "项目闭环审查_2026-10-11"
 
-# ══════════════════════════ 冻结参数生效视图（已丢失，不伪造）════════════════
-# 唯一合法来源是 `F_WX_v2.2_project_closure_user_5000_shared` 生效视图。
-# 该文件随旧工作区删除，**全盘无副本** ⇒ 这里只声明「若恢复应放哪」。
-EFFECTIVE_VIEW_RELPATH = Path(
-    "最新唐奇安威科夫接通与收尾_2026-10-11") / "5000U收尾与回测条件终验6" / (
-    "10_研究参数生效视图_v2_2_user5000_shared.json")
-EFFECTIVE_VIEW = (_env_path("EFFECTIVE_VIEW")
-                  or RESEARCH_INPUT_DIR / EFFECTIVE_VIEW_RELPATH)
+# ══════════════════════════ 冻结参数生效视图（已受控）════════════════
+# 规范受控路径（经用户工单 GM-WYCKOFF-V3.1-FINAL-MERGE-GATE-59-03 明确批准的正式基线）
+CONTROLLED_VIEW_PATH = PROJECT_ROOT / "配置" / "FT-LOW4H" / "10_研究参数生效视图_v2_2_user5000_shared.json"
+EFFECTIVE_VIEW = (
+    _env_path("EFFECTIVE_VIEW")
+    or CONTROLLED_VIEW_PATH
+)
 EFFECTIVE_VIEW_MISSING_NOTE = (
-    "冻结参数生效视图 v2.2 已随旧工作区一并删除，"
-    "全盘无副本；不得伪造、不得以库内值冒充。")
+    "FT-LOW4H 正式受控生效视图不可读；请检查 配置/FT-LOW4H/ 或显式指定 EFFECTIVE_VIEW 环境变量。")
 
 __all__ = [
     "BACKEND_DIR", "FRAMEWORK_DIR", "PROJECT_ROOT", "internal",

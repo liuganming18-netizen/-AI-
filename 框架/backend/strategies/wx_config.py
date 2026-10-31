@@ -58,11 +58,11 @@ def _resolve_effective_view_path():
 
 EFFECTIVE_VIEW_PATH = _resolve_effective_view_path()
 
-# ── 固定接受身份（施工前由生效视图实算并冻结；不是运行放行凭据）──────────────
-# 生效视图 10_研究参数生效视图_v2_2_user5000_shared.json 的文件 sha256。
-# v2.1（用户 10000）原字节保留但已 superseded；旧 10000/100000 run 拒绝。
+# ── 固定接受身份（用户工单 GM-WYCKOFF-V3.1-FINAL-MERGE-GATE-59-03 正式批准基线 v2_2）──
+# 生效视图 10_研究参数生效视图_v2_2_user5000_shared.json 的正式批准 sha256。
+# 历史 6d18d222... 为已废除的 3ATR 固定止损规则，由用户授权更新为 FT-LOW4H 5000U 基线。
 EXPECTED_VIEW_SHA256 = \
-    "6d18d222d1991f99dd2ba0cdf80b35fbc57f4f482904c945f43d66ebb9df9501"
+    "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53"
 # registered_configs（18 条：id/kind/arm/changes）的 canonical sha256。
 EXPECTED_REGISTERED_CONFIGS_SHA256 = \
     "194d8915f041bbf0b4df3de50b97c8c7775cc178a6c9db8de10db0b0fc4494d8"
