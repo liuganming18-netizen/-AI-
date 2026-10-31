@@ -101,10 +101,22 @@ class MarketDataRepository:
 
     # ---------- SQLite 热层 ----------
     def _hot(self):
-        con = sqlite3.connect(f"file:{self.hot_db}?mode=ro", uri=True, timeout=10)
-        con.row_factory = sqlite3.Row
-        con.execute("PRAGMA query_only=ON")
-        return con
+        p = str(self.hot_db)
+        try:
+            import urllib.parse
+            quoted_p = urllib.parse.quote(os.path.abspath(p))
+            con = sqlite3.connect(f"file:{quoted_p}?mode=ro", uri=True, timeout=10)
+            con.row_factory = sqlite3.Row
+            con.execute("PRAGMA query_only=ON")
+            # 探测一下是否真正可读
+            con.execute("SELECT 1 FROM candles LIMIT 1")
+            return con
+        except sqlite3.OperationalError:
+            # WAL 模式下 mode=ro 在缺 shm 时会报 unable to open database file，降级为普通打开 + query_only
+            con = sqlite3.connect(p, timeout=10)
+            con.row_factory = sqlite3.Row
+            con.execute("PRAGMA query_only=ON")
+            return con
 
     def _hot_candles(self, exchange, market, symbol, timeframe, start, end, limit, source_id):
         table = "candles" if source_id is None else "candle_versions"
