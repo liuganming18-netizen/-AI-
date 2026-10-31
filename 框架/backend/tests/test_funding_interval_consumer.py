@@ -57,6 +57,47 @@ CONTRACT_PY = Path("/Users/boos/.workbuddy-ai/binaries/python/envs/freqtrade/bin
 H = 3_600_000
 BASE = 1_609_459_200_000          # 2021-01-01T00:00:00Z
 
+# ---------------------------------------------------------------------------
+# 依赖矩阵（REWORK-03 任务 7）
+# ---------------------------------------------------------------------------
+# 原实现把「适配层」与「_fim_query.py」塞进同一个 try，任一缺失就把**全部**用例
+# 一起 skip，导致只测适配层的 6 个用例被无关模块拖死；unittest 侧更会输出
+# `Ran 0 tests / OK (skipped=N)` —— `OK` 配 0 个用例，等于用静默跳过伪装通过。
+#
+# 现在按用例真实需要**逐项**声明依赖，并支持严格模式：
+#   REQUIRE_FUNDING_INTERVAL_DEPS=1 ⇒ 依赖缺失直接 FAIL（AssertionError），不再 skip。
+DEPENDENCIES = {
+    "adapter":     (ADAPTER,       "消费侧适配层 funding_interval_meta_source.py"),
+    "schema":      (MIGRATION_SQL, "建表 DDL（12_生产库迁移_预备未执行.sql）"),
+    "fim_query":   (FIM_MODULE,    "只读因果查询 API _fim_query.py（唯一事实源）"),
+    "sidecar":     (REAL_SIDECAR,  "真实伴生库 funding_interval_meta.sqlite3"),
+    "contract_py": (CONTRACT_PY,   "契约子进程解释器（需 numpy/pyarrow）"),
+}
+
+STRICT_DEPS = os.environ.get("REQUIRE_FUNDING_INTERVAL_DEPS") == "1"
+
+
+def dep_status():
+    """{依赖键: 是否存在}"""
+    return {k: Path(p).exists() for k, (p, _role) in DEPENDENCIES.items()}
+
+
+def missing_deps(*keys):
+    st = dep_status()
+    return [k for k in keys if not st[k]]
+
+
+def require(*keys):
+    """按需声明依赖：齐备则放行；缺失则严格模式 FAIL、普通模式 skip（带明确原因）。"""
+    miss = missing_deps(*keys)
+    if not miss:
+        return
+    detail = "；".join(f"{k}（{DEPENDENCIES[k][1]}）→ 缺失 {DEPENDENCIES[k][0]}" for k in miss)
+    msg = f"依赖缺失 {len(miss)}/{len(keys)} 项：{detail}"
+    if STRICT_DEPS:
+        raise AssertionError(f"严格模式 REQUIRE_FUNDING_INTERVAL_DEPS=1 ⇒ {msg}")
+    raise unittest.SkipTest(msg)
+
 
 def _load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
@@ -69,22 +110,22 @@ def _load(name, path):
 
 
 class _M:
+    """按需惰性加载：`adapter()` 只碰适配层，`fim_module()` 只碰查询 API。"""
+
     src = None
     fim = None
-    err = None
 
     @classmethod
-    def ensure(cls):
-        if cls.err:
-            raise unittest.SkipTest(cls.err)
-        if cls.src is not None:
-            return
-        try:
+    def adapter(cls):
+        if cls.src is None:
             cls.src = _load("fim_source_under_test", ADAPTER)
+        return cls.src
+
+    @classmethod
+    def fim_module(cls):
+        if cls.fim is None:
             cls.fim = _load("_fim_query_under_test_c", FIM_MODULE)
-        except Exception as exc:                          # noqa: BLE001
-            cls.err = f"被测模块不可用（{exc}）"
-            raise unittest.SkipTest(cls.err) from exc
+        return cls.fim
 
 
 def migration_create_statements():
@@ -157,7 +198,6 @@ print(json.dumps(res))
 '''
 
 
-@unittest.skipUnless(CONTRACT_PY.exists(), f"契约子进程解释器不存在：{CONTRACT_PY}")
 class _ContractMixin:
     def run_contract(self, payload):
         proc = subprocess.run([str(CONTRACT_PY), "-c", CONTRACT_SCRIPT, str(ROOT)],
@@ -169,11 +209,19 @@ class _ContractMixin:
 
 
 class AdapterShapeTest(unittest.TestCase):
-    """A. 适配层产出的记录必须满足 `_approx_interval_hours` 第 41b 硬约束。"""
+    """A. 适配层产出的记录必须满足 `_approx_interval_hours` 第 41b 硬约束。
+
+    依赖：适配层 + **传递依赖 `_fim_query.py`** + 建表 DDL。
+    适配层是查询 API 的薄封装（`load_interval_meta → query_module()`），
+    故缺 `_fim_query.py` 时本类会 ERROR 而非 skip ⇒ 必须显式声明，不得漏报。
+    """
+
+    REQUIRED_DEPS = ("adapter", "fim_query", "schema")
 
     @classmethod
     def setUpClass(cls):
-        _M.ensure()
+        require(*cls.REQUIRED_DEPS)
+        _M.adapter()
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -247,11 +295,17 @@ class AdapterShapeTest(unittest.TestCase):
 
 
 class ContractSwitchTest(_ContractMixin, unittest.TestCase):
-    """B/C/D/E. 真实契约函数（`wx_daily_375`）对适配层产出的判定。"""
+    """B/C/D/E. 真实契约函数（`wx_daily_375`）对适配层产出的判定。
+
+    依赖：适配层 + 传递依赖 `_fim_query.py` + 建表 DDL + 契约子进程解释器。
+    """
+
+    REQUIRED_DEPS = ("adapter", "fim_query", "schema", "contract_py")
 
     @classmethod
     def setUpClass(cls):
-        _M.ensure()
+        require(*cls.REQUIRED_DEPS)
+        _M.adapter()
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -343,11 +397,18 @@ class ContractSwitchTest(_ContractMixin, unittest.TestCase):
 
 
 class QueryApiRulesTest(unittest.TestCase):
-    """F. 查询 API 的规则 1（精确结算点）/ 规则 3（显式 UNVERIFIABLE 状态）。"""
+    """F. 查询 API 的规则 1（精确结算点）/ 规则 3（显式 UNVERIFIABLE 状态）。
+
+    依赖：`_fim_query.py` + 建表 DDL。**不需要**适配层 —— 这是本轮真正解开的耦合：
+    适配层缺失时，本类仍必须能真跑（修复前被 `_M.ensure()` 连坐而全部 skip）。
+    """
+
+    REQUIRED_DEPS = ("fim_query", "schema")
 
     @classmethod
     def setUpClass(cls):
-        _M.ensure()
+        require(*cls.REQUIRED_DEPS)
+        _M.fim_module()
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -394,15 +455,20 @@ class QueryApiRulesTest(unittest.TestCase):
 
 
 class ReadOnlyAndRatificationTest(unittest.TestCase):
-    """G. 伴生库只读；真实库状态已批复。"""
+    """G. 伴生库只读；真实库状态已批复。
+
+    依赖：适配层 + 传递依赖 `_fim_query.py`（类级）；伴生库按用例各自声明。
+    """
+
+    REQUIRED_DEPS = ("adapter", "fim_query")
 
     @classmethod
     def setUpClass(cls):
-        _M.ensure()
+        require(*cls.REQUIRED_DEPS)
+        _M.adapter()
 
     def test_sidecar_connection_refuses_writes(self):
-        if not REAL_SIDECAR.exists():
-            self.skipTest(f"伴生库不存在：{REAL_SIDECAR}")
+        require("sidecar")
         con = _M.src.open_sidecar()
         try:
             with self.assertRaises(sqlite3.OperationalError):
@@ -410,8 +476,8 @@ class ReadOnlyAndRatificationTest(unittest.TestCase):
         finally:
             con.close()
 
-    @unittest.skipUnless(REAL_SIDECAR.exists(), f"伴生库不存在：{REAL_SIDECAR}")
     def test_real_sidecar_meta_ratified(self):
+        require("sidecar")
         con = sqlite3.connect(f"file:{REAL_SIDECAR}?mode=ro", uri=True)
         try:
             meta = dict(con.execute("SELECT k, v FROM meta"))
@@ -421,9 +487,11 @@ class ReadOnlyAndRatificationTest(unittest.TestCase):
         self.assertEqual(meta.get("ratified_rule"), "HUMAN_RATIFIED_SETTLEMENT_CAUSAL_V1")
         self.assertIn("严禁静默回退默认 8h", meta.get("fallback_policy", ""))
 
-    @unittest.skipUnless(REAL_SIDECAR.exists(), f"伴生库不存在：{REAL_SIDECAR}")
     def test_real_sidecar_interval_switch_detected(self):
         """真实数据：0GUSDT 在 2025-09-22T13:00Z 由 4h 切到 1h（只读核验）。"""
+        require("sidecar")
+        _M.fim_module()
+
         def ms(s):
             return int(datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
                        .replace(tzinfo=timezone.utc).timestamp() * 1000)
@@ -440,6 +508,93 @@ class ReadOnlyAndRatificationTest(unittest.TestCase):
         self.assertEqual(h_before["funding_interval_hours"], 4)
         self.assertEqual(h_after["funding_interval_hours"], 1)
         self.assertTrue(before and after)
+
+
+class DependencyReportTest(unittest.TestCase):
+    """任务 7 自检：依赖矩阵必须被显式打印，且本文件永不出现 `Ran 0 tests / OK`。
+
+    本类不依赖任何外部模块 ⇒ 无论依赖缺到什么程度都至少执行 1 个用例，
+    杜绝「0 个用例 + OK」这种伪装通过的输出形态。
+    """
+
+    def test_dependency_matrix_is_reported(self):
+        st = dep_status()
+        miss = [k for k, ok in st.items() if not ok]
+        report = {
+            "module": "test_funding_interval_consumer",
+            "strict_mode": STRICT_DEPS,
+            "dependencies": {
+                k: {"path": str(p), "exists": bool(st[k]), "role": role}
+                for k, (p, role) in DEPENDENCIES.items()
+            },
+            "missing": miss,
+            "verdict": ("全部依赖就位" if not miss else
+                        f"{len(miss)} 项依赖缺失 ⇒ 受影响用例显式 skip，"
+                        f"**不计为通过**；设 REQUIRE_FUNDING_INTERVAL_DEPS=1 可强制失败"),
+        }
+        sys.stderr.write("\n[资金费区间测试·依赖矩阵]\n"
+                         + json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+        # 报告自洽性：missing 必须与 exists 完全对应，不得漏报
+        self.assertEqual(sorted(miss), sorted(k for k, v in st.items() if not v))
+        # 每个依赖都必须登记真实路径与用途，不允许空占位
+        for k, (p, role) in DEPENDENCIES.items():
+            self.assertTrue(str(p).strip(), f"依赖 {k} 未登记路径")
+            self.assertTrue(str(role).strip(), f"依赖 {k} 未登记用途")
+
+    def test_strict_mode_requires_all_dependencies(self):
+        if not STRICT_DEPS:
+            self.skipTest("非严格模式；设 REQUIRE_FUNDING_INTERVAL_DEPS=1 可强制失败")
+        miss = [k for k, ok in dep_status().items() if not ok]
+        self.assertEqual(miss, [], f"严格模式要求全部依赖就位，仍缺失：{miss}")
+
+    def test_dependency_declarations_are_decoupled(self):
+        """核心回归：查询 API 用例不得被适配层绑死。
+
+        修复前所有类共用 `_M.ensure()`（适配层 + 查询 API 同一 try），
+        任一缺失即全文件 skip；本断言在修复前必然失败。
+        """
+        query_deps = set(QueryApiRulesTest.REQUIRED_DEPS)
+        self.assertNotIn("adapter", query_deps,
+                         "查询 API 用例只测 _fim_query.py，不得依赖适配层（否则连坐）")
+        self.assertIn("fim_query", query_deps,
+                      "查询 API 用例必须显式声明其唯一事实源")
+
+        # 每个声明的依赖键都必须在矩阵里登记，不允许拼写漂移导致静默放行
+        for cls in (AdapterShapeTest, ContractSwitchTest,
+                    QueryApiRulesTest, ReadOnlyAndRatificationTest):
+            for k in cls.REQUIRED_DEPS:
+                self.assertIn(k, DEPENDENCIES,
+                              f"{cls.__name__} 声明了未登记的依赖键 {k!r}")
+            self.assertTrue(cls.REQUIRED_DEPS,
+                            f"{cls.__name__} 必须显式声明依赖，不得留空默认放行")
+
+    def test_adapter_dependency_on_fim_query_is_real(self):
+        """适配层对 `_fim_query.py` 的依赖是**传递且真实**的，不是文档臆测。
+
+        适配层模块本身惰性加载（不 import 就不过问），但任何真实查询都走
+        `query_module()` ⇒ 消费适配层的用例若漏声明 `fim_query`，
+        缺该模块时会抛 ImportError（ERROR）而不是 skip，等于把缺失伪装成异常。
+        """
+        for cls in (AdapterShapeTest, ContractSwitchTest, ReadOnlyAndRatificationTest):
+            self.assertIn("fim_query", cls.REQUIRED_DEPS,
+                          f"{cls.__name__} 消费适配层，必须同时声明 fim_query")
+        src = _M.adapter()                      # 模块加载不触发 _fim_query.py
+        if not Path(FIM_MODULE).exists():
+            # 注：适配层 `query_module()` 的 ImportError 兜底对「路径不存在」不生效
+            # （spec_from_file_location 对缺失路径仍返回 spec），真实抛出的是
+            # FileNotFoundError ⇒ 两种异常都要接住，否则断言本身会假失败。
+            with self.assertRaises((ImportError, OSError)):
+                src.query_module()              # 触发即证明依赖真实存在
+
+    def test_no_class_uses_coupled_loader(self):
+        """`_M.ensure()` 已移除；残留调用会让依赖重新耦合。"""
+        self.assertFalse(hasattr(_M, "ensure"),
+                         "_M.ensure() 必须彻底移除，否则依赖会重新耦合")
+        # 惰性加载入口必须各自独立存在（不得退化成单一入口）
+        self.assertTrue(callable(getattr(_M, "adapter", None)))
+        self.assertTrue(callable(getattr(_M, "fim_module", None)))
+        self.assertIsNot(_M.adapter, _M.fim_module,
+                         "适配层与查询 API 必须是两个独立加载入口")
 
 
 if __name__ == "__main__":

@@ -3320,6 +3320,9 @@ def _route_v1_legacy(path, params):
         if seg == ["paper", "trades"]:
             # 成交事件图层的只读来源；筛选条件由 paper_realized 的实际 entry/exit 时间执行。
             return live.paper_trades(params)
+        if seg == ["paper", "equity"]:
+            # D03-R1：权益曲线（只读）；`format=jsonl` 附 NDJSON 文本。状态码同上。
+            return live.paper_equity(params)
         if seg == ["paper", "orders"]:
             # 2026-10-14 专项：GET 改为**真实只读**订单/挂单/平仓成交查询
             # （原实现只返回「请用 POST」的说明，等于该只读能力缺失）。

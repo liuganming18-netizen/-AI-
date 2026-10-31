@@ -238,7 +238,11 @@ class EventStateMachine:
             return None
             
         # 5. 确定性生成 Event ID
-        event_id = f"ev_{self.config.strategy_name}_{self.venue}_{self.symbol}_{bar_4h_close_ms}"
+        # 统一时间戳标识口径（GM-BACKTEST-SIGNAL-PARITY-14）：
+        # 若传入的是闭区间右边界 (-1ms，如 %1000 == 999)，规范化到整点对齐时刻 (+1ms)，消除 1ms 标识差异；
+        # 真实事件发生时间 formation_time_ms / created_at_ms / available_at_ms 保持原始值，不改变真实物理时点。
+        canonical_close_ms = ((bar_4h_close_ms + 999) // 1000) * 1000 if (bar_4h_close_ms % 1000 == 999) else bar_4h_close_ms
+        event_id = f"ev_{self.config.strategy_name}_{self.venue}_{self.symbol}_{canonical_close_ms}"
         version_id = f"box_{event_id}_v1"
         
         box = BoxVersion(
@@ -637,10 +641,12 @@ class EventStateMachine:
                     execution_earliest_ms=earliest_exec,
                     pit_proven=bool(oi_status == "ok"),
                     pit_assumption_note=(
-                        "OI 可得时刻按 5m 桶结束计算，交易所发布延迟未证"
-                        if oi_status == OI_STATUS_ASSUMED else
                         "OI 可得时刻由显式声明的发布延迟推导"
                         if oi_status == "ok" else
+                        "OI 后补未证：冷档数据按 5m 桶结束计算，交易所发布延迟未证，可得性未证 (PIT_UNPROVEN)"
+                        if oi_status in (OI_STATUS_ASSUMED, "oi_pit_unproven") else
+                        "OI 原始缺失：当时数据物理缺失 (oi_empty)"
+                        if oi_status in ("oi_empty", "oi_missing") else
                         f"OI 不可用：{oi_status}"),
                     missing_fields=[]
                 )
