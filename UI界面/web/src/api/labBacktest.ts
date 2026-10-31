@@ -48,6 +48,21 @@ export interface LabEnvelope<T = never> {
   note?: string | null;
   failure_reason?: string | null;
   errors?: string[] | null;
+  /** PROV-01 / 56 号统一契约：运行可信状态与校验报告 */
+  trust_state?: "VERIFIED_TRUSTED" | "TRUSTED" | "UNVERIFIED" | "REJECTED" | null;
+  trust?: {
+    schema?: string;
+    run_id?: string;
+    state: "VERIFIED_TRUSTED" | "TRUSTED" | "UNVERIFIED" | "REJECTED" | string;
+    reasons?: Array<{ code: string; detail?: string; message?: string }>;
+    checks?: Record<string, unknown>;
+    claim_level?: string | null;
+    pit_status?: string | null;
+    attested?: boolean;
+  } | null;
+  claim_level?: string | null;
+  pit_status?: string | null;
+  data_gate?: Record<string, unknown> | null;
 }
 
 /* ══════════════════════════ 白名单（镜像后台；后台为唯一权威）══════════════════════════ */
@@ -253,6 +268,34 @@ export interface LabRunSummary {
   research_period?: boolean | null;
   research?: Record<string, unknown> | null;
   registration?: { registered_by?: string | null; note?: string | null } | null;
+  /** PROV-01 / 56 号统一契约：运行可信状态暴露 */
+  trust_state?: "VERIFIED_TRUSTED" | "TRUSTED" | "UNVERIFIED" | "REJECTED" | null;
+  claim_level?: string | null;
+  pit_status?: string | null;
+  data_gate_verdict?: string | null;
+}
+
+/** 规范化三态可信枚举定义（前端展示基准） */
+export type NormalizedTrustState = 'TRUSTED' | 'UNVERIFIED' | 'REJECTED';
+
+/**
+ * 规范化解析后端 trust_state，确保三态展示绝对一致。
+ * 契约规范：
+ * - 只要为 'VERIFIED_TRUSTED' 或 'TRUSTED'，归一化为 'TRUSTED'（可信验证通过）；
+ * - 只要为 'REJECTED'，归一化为 'REJECTED'（可信验证失败，结果不得用于决策）；
+ * - 缺少、为 null、undefined 或其它任意未知值时，严格默认降级为 'UNVERIFIED'（未经验证，仅供隔离研究），
+ *   严禁前端私自默认为 TRUSTED 或自行推导提升可信等级！
+ */
+export function normalizeTrustState(state?: string | null): NormalizedTrustState {
+  if (!state) return 'UNVERIFIED';
+  const upper = String(state).trim().toUpperCase();
+  if (upper === 'VERIFIED_TRUSTED' || upper === 'TRUSTED') {
+    return 'TRUSTED';
+  }
+  if (upper === 'REJECTED') {
+    return 'REJECTED';
+  }
+  return 'UNVERIFIED';
 }
 
 export interface LabSpec {
@@ -294,6 +337,11 @@ export interface LabRunDetail extends LabEnvelope {
   research_period?: boolean | null;
   research?: Record<string, unknown> | null;
   registration?: { registered_by?: string | null; note?: string | null } | null;
+  /** PROV-01 / 56 号统一契约：运行可信状态暴露 */
+  trust_state?: "VERIFIED_TRUSTED" | "TRUSTED" | "UNVERIFIED" | "REJECTED" | null;
+  claim_level?: string | null;
+  pit_status?: string | null;
+  data_gate_verdict?: string | null;
 }
 
 export interface LabMetrics {
@@ -424,7 +472,14 @@ export interface LabTradeRow {
   mae: number | null;
   holding_hours: number | null;
   funding_events: number | null;
-  funding_gaps_json: string | null;
+  /**
+   * 账本真实字段：资金费缺口事件数组（无缺口时为 `[]`）。
+   * 2026-10-30 实测 `/trades` 返回的是 **`funding_gaps`（数组）**，
+   * 旧声明写的 `funding_gaps_json`（字符串）后端**从不返回**，已降级为可选。
+   */
+  funding_gaps?: unknown[] | null;
+  /** 旧声明（后端不返回该键，勿依赖） */
+  funding_gaps_json?: string | null;
   stop_trace_json: string | null;
   /** 初始止损：账本 `stop_trace` 首点（BT-UI-01 后端补字段；无止损记录时为 null） */
   initial_stop?: number | null;
@@ -454,6 +509,41 @@ export interface LabTradeRow {
   /** 模式（C / C1 / C2）与上游候选事件 ID，供同候选跨模式对照 */
   mode?: string | null;
   event_id?: string | null;
+  /** 出场订单 ID 与进场订单 ID */
+  exit_order_id?: string | null;
+  entry_order_id?: string | null;
+  /** 滑点与取整审计 */
+  slippage_loss?: number | null;
+  slippage_loss_pure?: number | null;
+  rounding_loss?: number | null;
+  price_audit?: {
+    entry?: {
+      is_buy?: boolean;
+      post_round_price?: string | number;
+      post_slip_price?: string | number;
+      price_step?: string | number;
+      raw_price?: string | number;
+      round_delta?: string | number;
+      slip_delta?: string | number;
+    } | null;
+    exit?: {
+      is_buy?: boolean;
+      post_round_price?: string | number;
+      post_slip_price?: string | number;
+      price_step?: string | number;
+      raw_price?: string | number;
+      round_delta?: string | number;
+      slip_delta?: string | number;
+      reason?: string;
+    } | null;
+  } | null;
+  /** 止损抬升轨迹原始结构 */
+  stop_trace?: Array<{
+    t?: number;
+    ts?: number;
+    stop?: number;
+    reason?: string;
+  }> | null;
 }
 
 /**
@@ -522,7 +612,8 @@ export interface LabOrderRow {
   qty: number | null;
   fee: number | null;
   stop_price: number | null;
-  signal_type: number | null;
+  /** 账本 orders.jsonl 无该键 ⇒ 后端不返回，降级为可选（2026-10-30 实测） */
+  signal_type?: number | null;
 }
 
 export interface LabFillRow {
@@ -546,32 +637,98 @@ export interface LabFillRow {
 
 export interface LabFillsResponse extends LabEnvelope<LabFillRow> {}
 
+/**
+ * 资金费事件行（`/trades/{id}` 的 `funding[]`）。
+ *
+ * 口径（来源 `框架/backend/ledger_links.py::_link_funding` 与 `funding_cross_check`）：
+ *   · `amount` = 账本 `payload.delta`，**负数 = 扣款**，正数 = 返还；
+ *   · `cum_funding_fee` = 账本 `payload.cum_funding_fee`，**正数 = 累计已付成本**，
+ *     所以净返佣时它会一路降到负数 —— 展示必须保留符号，取绝对值等于把返还写成成本；
+ *   · `rate` / `mark` / `qty` 账本只落 `delta`，后端**恒为 null**（不是 0）。
+ *
+ * 2026-10-30 实测（GM-BACKTEST-FRONTEND-CONTRACT-26）：`event_time` 与
+ * `cum_funding_fee` 后端确实返回，旧声明漏了它们，`tsc --noEmit` 报 4 处 TS2339。
+ */
 export interface LabFundingRow {
   run_id: string;
   trade_id: string;
   funding_time_ms: number;
-  rate: number;
-  mark: number;
-  qty: number;
-  amount: number;
+  /** 与 `funding_time_ms` 同值（后端另给一份，便于与 chart.funding_events 对齐） */
+  event_time?: number | null;
+  /** 账本只落 delta ⇒ 后端恒为 null，不得当 0 用 */
+  rate: number | null;
+  mark: number | null;
+  qty: number | null;
+  /** = payload.delta；负数 = 扣款 */
+  amount: number | null;
+  /** = payload.cum_funding_fee；正数 = 累计成本，净返佣时可为负 */
+  cum_funding_fee?: number | null;
   source: string;
 }
 
+/**
+ * 原始候选信号行（`/trades/{id}` 的 `original_signal`，源 `candidates.jsonl`）。
+ *
+ * **契约修正（2026-10-30 GM-BACKTEST-FRONTEND-CONTRACT-26）**：本接口原先把
+ * `run_id / signal_id / signal_bar_open_ms / confirm_ms / kind / direction /
+ * stop_price / atr / oi_score / oi_available / oi_quality / rank_key / in_window`
+ * 全部声明为**必填非空**，实测 `/trades/{id}` 一条都不返回（逐键比对见
+ * `evidence/GM-BACKTEST-FRONTEND-CONTRACT-26/out/`）。这些键只存在于
+ * `GET /backtests/{id}/chart` 的 `signals[]`（那里才是 `kind / atr / oi_score /
+ * oi_available / oi_quality / stop_price` 的真实来源）。
+ *
+ * 因此这里全部降级为可选；读不到就是 `undefined`，界面写「暂无数据」，
+ * **不得用 `breakout_close` 之类旁证推断出形态名**。
+ */
 export interface LabOriginalSignal {
-  run_id: string;
-  signal_id: string;
+  /** 后端不返回（run_id 在信封顶层） */
+  run_id?: string | null;
+  /** 后端不返回（signal_id 在信封顶层） */
+  signal_id?: string | null;
   symbol: string;
-  signal_bar_open_ms: number;
-  confirm_ms: number;
-  kind: string;
-  direction: string;
-  stop_price: number | null;
-  atr: number | null;
-  oi_score: number | null;
-  oi_available: number | null;
-  oi_quality: string | null;
-  rank_key: string | null;
-  in_window: number | null;
+  /** 后端不返回；候选时刻用 `snapshot_time_ms` / `available_at_ms` */
+  signal_bar_open_ms?: number | null;
+  /** 后端不返回；确认时刻用 `execution_earliest_ms` */
+  confirm_ms?: number | null;
+  /** 后端不返回；形态只存在于 `chart.signals[].kind` */
+  kind?: string | null;
+  direction?: string | null;
+  /** 后端不返回；候选表给的是 `initial_stop_price`（信号期基准止损） */
+  stop_price?: number | null;
+  /** 后端不返回；候选表给的是 `box_atr_a` */
+  atr?: number | null;
+  /** 后端不返回；候选表给的是 `oi_growth_6h` */
+  oi_score?: number | null;
+  oi_available?: number | null;
+  oi_quality?: string | null;
+  rank_key?: string | null;
+  in_window?: number | null;
+  /** ── 以下为候选表真实落盘的字段 ── */
+  /** 候选快照时刻（毫秒） */
+  snapshot_time_ms?: number | null;
+  /** 候选 ID（= 交易行的 `signal_id`） */
+  candidate_id?: string | null;
+  /** 候选事件 ID（`ev_…`，与候选 ID 不同层级） */
+  event_id?: string | null;
+  /** 数据可得时刻（毫秒） */
+  available_at_ms?: number | null;
+  /** 最早执行时刻（毫秒）= 确认 bar 收盘后的执行下界 */
+  execution_earliest_ms?: number | null;
+  /** 箱体与突破指标 */
+  box_high_h?: number | null;
+  box_low_l?: number | null;
+  box_atr_a?: number | null;
+  breakout_close?: number | null;
+  breakout_volume?: number | null;
+  volume_ratio?: number | null;
+  oi_growth_6h?: number | null;
+  initial_stop_price?: number | null;
+  sweep_low_s?: number | null;
+  retest_low_lr?: number | null;
+  min_entry_price?: number | null;
+  max_entry_price?: number | null;
+  pit_proven?: boolean | null;
+  pit_assumption_note?: string | null;
 }
 
 export interface LabTradeDetail extends LabEnvelope<LabTradeRow> {
@@ -580,6 +737,14 @@ export interface LabTradeDetail extends LabEnvelope<LabTradeRow> {
   funding: LabFundingRow[] | null;
   original_signal: LabOriginalSignal | null;
   signal_id: string | null;
+  funding_cross_check?: {
+    match?: boolean;
+    events?: number;
+    ledger_funding_fee?: number;
+    sum_neg_delta?: number;
+    [k: string]: unknown;
+  } | null;
+  missing?: string[];
 }
 
 export interface LabChartCandle {
@@ -662,37 +827,12 @@ export interface LabChartFundingEvent {
   trade_id: string;
 }
 
-export interface LabChartEvent {
-  event_id: string;
-  event_type: string;
-  symbol: string;
-  timeframe: string;
-  event_time: number;
-  available_at: number | null;
-  price?: number | null;
-  price_upper?: number | null;
-  price_lower?: number | null;
-  range_start_time?: number | null;
-  range_end_time?: number | null;
-  formation_time?: number | null;
-  confirmed_at?: number | null;
-  effective_start_time?: number | null;
-  signal_id?: string | null;
-  trade_id?: string | null;
-  reason?: string | null;
-  source: string;
-  source_record_id?: string | null;
-}
-
 export interface LabChart {
   symbol: string;
   exec_timeframe: string;
   window: { start_ms: number; end_ms: number; source?: string | null };
   candles: (LabChartCandle | LabChartCandleTuple)[];
   signals: LabChartSignal[];
-  events?: LabChartEvent[];
-  events_status?: 'available' | 'empty_or_unrecorded' | 'unavailable';
-  events_unavailable?: Array<{ event_type: string; reason: string }>;
   /** 确认 K 线标记：C1/C2 有、C0 无此环节 ⇒ 缺省空数组（不画假点） */
   confirms?: LabChartConfirm[];
   /** K 线是否被截断（研究期 run 窗口过长时只返回末段，截断原因写在 candles_note） */

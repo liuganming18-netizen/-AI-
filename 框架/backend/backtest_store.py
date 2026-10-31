@@ -36,6 +36,14 @@ from typing import Any, Dict, List, Optional, Set
 
 _TMP_SEQ = itertools.count()
 
+# 运行溯源（GM-BACKTEST-TRUSTED-RUN-PROVENANCE-FIX-46）。**受保护导入**：
+# 溯源模块缺失/损坏时 store 必须照常可用（降级为「全部 UNVERIFIED」），
+# 不能让一次 P0 加固把回测本身弄挂。
+try:                                                         # pragma: no cover
+    import backtest_run_provenance as _PROV
+except Exception:                                            # noqa: BLE001
+    _PROV = None                                             # type: ignore[assignment]
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # 运行根（可用环境变量覆盖；默认项目内最新 event_trend_v0_1 独立目录）
@@ -205,6 +213,10 @@ def create_run(run_id: str, doc: Dict[str, Any]) -> Path:
     doc.setdefault("run_id", rid)
     doc.setdefault("created_at", utc_now_iso())
     doc["updated_at"] = utc_now_iso()
+    # 执行实例（46 号）：把「这个 run 在结果产生之前就存在」写进溯源链。
+    # 失败**不影响创建** —— 溯源不可用时降级为 UNVERIFIED，而不是让回测跑不起来。
+    if _PROV is not None:
+        doc["execution_instance"] = _PROV.seal_run(rid, doc)
     _write_json(d / "run.json", doc)
     return d
 
@@ -469,6 +481,20 @@ def register_external_run(run_id: str, doc: Dict[str, Any], *,
         "registered_by": "register_external_run",
         "note": "批量脚本产物补登记：事实由调用方提供，无默认值兜底",
     })
+    # 事后补登记 ⇒ **明确不带执行期证明**（46 号）：没有 SEAL、没有门禁回执。
+    # 用**强制赋值**而不是 setdefault：调用方若把别的 run 的 provenance 一起带过来
+    # （改个 run_id 重新登记，正是 43 号说的伪造路径），必须在这里被丢掉并留痕，
+    # 不能让「补登记」变成「搬运背书」。
+    _inherited = doc.get("provenance")
+    doc["provenance"] = {
+        "schema": (_PROV.SCHEMA if _PROV is not None else "wx.run_provenance.v1"),
+        "attested": False,
+        "registration": "EXTERNAL_REGISTRATION",
+        "registered_at_utc": utc_now_iso(),
+        "discarded_inherited_provenance": bool(_inherited),
+        "note": ("事后补登记：无执行实例、无门禁回执 ⇒ 恒为 UNVERIFIED，"
+                 "不得据此声称可信回测"),
+    }
     _write_json(target, doc)
     return target
 
@@ -491,6 +517,14 @@ def set_status(run_id: str, status: str, **extra) -> Dict[str, Any]:
     if status in TERMINAL_STATUSES:
         doc["finished_at"] = now
     doc.update(extra)
+    # 终态背书（46 号）：在**写盘之前**对可信投影 + 结果摘要签名。
+    # 必须在 doc.update(extra) 之后 —— 门禁块（data_gate / pit_status）随 extra 一起进来，
+    # 先背书后合并会把门禁字段排除在摘要之外，等于白签。
+    if status in TERMINAL_STATUSES and _PROV is not None:
+        _att = _PROV.attest_run(run_id, doc)
+        _prov = dict(doc.get("provenance") or {})     # 保留已有 gate_receipt
+        _prov.update(_att)
+        doc["provenance"] = _prov
     write_run(run_id, doc)
     return doc
 
@@ -942,6 +976,80 @@ def new_trade_id(run_id: str, symbol: str, entry_ms: int, seq: int) -> str:
     return "trd_" + _h.sha256(f"{run_id}|{symbol}|{entry_ms}|{seq}".encode()).hexdigest()[:16]
 
 
+# ══════════════════════════ 可信读取与回执登记（46 号）══════════════════════════
+# 纪律：`read_run()` 是**原始读取**，不做任何信任校验，不得用于准入判断。
+# 需要「这条运行能不能当可信回测引用」时，一律走 `verify_run_trust()` /
+# `read_run_with_trust()` / `read_run_trusted()`。三者的判据只有一套（溯源模块）。
+
+_TRUST_STATES = ("VERIFIED_TRUSTED", "UNVERIFIED", "REJECTED")
+
+
+def verify_run_trust(run_id: str, *, doc: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """校验一次运行的可信身份（fail-closed）。
+
+    返回 `{state, reasons[], checks{}, claim_level, pit_status}`；
+    `state` ∈ `VERIFIED_TRUSTED` / `UNVERIFIED` / `REJECTED`。
+    `REJECTED` 表示「声称可信但证明失败」，与「没有主张」的 `UNVERIFIED` 必须分开呈现。
+    """
+    if _PROV is None:
+        return {
+            "schema": "wx.run_provenance.v1", "run_id": run_id,
+            "state": "UNVERIFIED", "reasons": [{
+                "code": "PROVENANCE_MODULE_UNAVAILABLE",
+                "detail": "溯源模块不可导入 ⇒ 无法验证任何可信主张（不降级为信任）",
+            }],
+            "checks": {}, "claim_level": None, "pit_status": None, "attested": False,
+        }
+    return _PROV.verify_run(run_id, doc=doc)
+
+
+def read_run_with_trust(run_id: str) -> Dict[str, Any]:
+    """读取 + 可信判定一起返回：`{"doc": <run.json>, "trust": <校验报告>}`。"""
+    doc = read_run(run_id)
+    return {"doc": doc, "trust": verify_run_trust(run_id, doc=doc)}
+
+
+def read_run_trusted(run_id: str) -> Dict[str, Any]:
+    """只允许 `VERIFIED_TRUSTED` 的读取；否则抛 `PermissionError`（fail-closed）。"""
+    got = read_run_with_trust(run_id)
+    st = (got.get("trust") or {}).get("state")
+    if st != "VERIFIED_TRUSTED":
+        codes = ",".join(r.get("code", "?") for r in ((got.get("trust") or {}).get("reasons") or []))
+        raise PermissionError(f"运行 {run_id} 不是 VERIFIED_TRUSTED（{st}：{codes}）")
+    return got
+
+
+def record_gate_receipt(run_id: str, receipt: Dict[str, Any]) -> Dict[str, Any]:
+    """把门禁**执行时刻**的回执登记进 `run.json.provenance.gate_receipt`。
+
+    调用时机：45 号拿到门禁 `decision` 之后、`set_status` 终态之前。
+    只接受验签通过、且 `run_id` / `exec_instance_id` 与本 run 一致的回执 ——
+    「回执是真的」不等于「回执是给这个 run 的」，两件事都要查。
+    """
+    if _PROV is None:
+        raise RuntimeError("溯源模块不可用，无法登记门禁回执")
+    rv = _PROV.verify_receipt(receipt)
+    if not rv["ok"]:
+        raise PermissionError(f"门禁回执校验失败：{rv['reason']}")
+    doc = read_run(run_id)
+    if receipt.get("run_id") != run_id:
+        raise PermissionError(
+            f"回执绑定 run_id={receipt.get('run_id')!r}，与本 run {run_id!r} 不符")
+    _ei = doc.get("execution_instance")
+    _ei = _ei if isinstance(_ei, dict) else {}
+    xi = _ei.get("exec_instance_id")
+    if not xi:
+        raise PermissionError("本 run 无 execution_instance，拒绝登记回执")
+    if receipt.get("exec_instance_id") != xi:
+        raise PermissionError("回执绑定的执行实例与本 run 不符")
+    prov = dict(doc.get("provenance") or {})
+    prov["schema"] = _PROV.SCHEMA
+    prov["gate_receipt"] = receipt
+    doc["provenance"] = prov
+    write_run(run_id, doc)
+    return prov
+
+
 def _ts() -> float:
     return time.time()
 
@@ -957,4 +1065,6 @@ __all__ = [
     "snapshot_dir", "write_snapshot", "read_snapshot", "write_chart", "read_chart",
     "Ledger", "ledger_path", "read_ledger_rows", "ledger_counts",
     "new_order_id", "new_trade_id",
+    # 46 号：可信读取与回执登记（read_run 保持原始语义，不做信任校验）
+    "verify_run_trust", "read_run_with_trust", "read_run_trusted", "record_gate_receipt",
 ]

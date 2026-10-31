@@ -380,29 +380,115 @@ def load_inputs(spec: dict, win: dict, repo: MarketDataRepository) -> dict:
         "volume": [float(r["volume"]) for r in exec_rows],
     })
 
-    # ── OI 按当时可得向后对齐（as-of：bar 收盘时刻之前最近一条 5m OI）──
-    oi_ts = np.array([int(r["ts"]) for r in oi_rows], dtype=np.int64)
-    oi_val = np.array([float(r["open_interest"]) for r in oi_rows], dtype=np.float64)
-    order = np.argsort(oi_ts, kind="stable")
-    oi_ts, oi_val = oi_ts[order], oi_val[order]
+    # ── OI 因果闭包对齐：5m OI 必须先闭合再被决策使用（bucket_end <= decision_time）──
+    # 规则契约：
+    # 1. 5m 统计窗口为 300,000ms，bucket_end = ts + 300_000；
+    # 2. 决策时刻为信号 bar 收盘时刻 close_ms = timestamp + iv_sig；
+    # 3. 只有 bucket_end <= close_ms 的已闭合桶才允许被对齐决策使用；
+    # 4. 真实 available_at 缺失、晚于决策时刻或属于回填数据时，必须保留 PIT_UNPROVEN，
+    #    绝不得凭借 bucket_end <= decision_time 推断升级为可信（PIT_PROVEN）。
+    BUCKET_5M_MS = 300_000
+
+    sorted_oi_rows = sorted(oi_rows, key=lambda r: int(r["ts"])) if oi_rows else []
+    oi_ts = np.array([int(r["ts"]) for r in sorted_oi_rows], dtype=np.int64)
+    oi_val = np.array([float(r["open_interest"]) for r in sorted_oi_rows], dtype=np.float64)
+    oi_bucket_ends = oi_ts + BUCKET_5M_MS
+
     close_ms = sig_df["timestamp"].to_numpy(np.int64) + iv_sig
-    aligned = np.full(len(sig_df), np.nan, dtype=np.float64)
-    if len(oi_ts):
-        pos = np.searchsorted(oi_ts, close_ms, side="right") - 1     # <= close 的最近一条
-        ok = pos >= 0
-        aligned[ok] = oi_val[pos[ok]]
+    n_bars = len(sig_df)
+    aligned = np.full(n_bars, np.nan, dtype=np.float64)
+    aligned_bucket_ends = np.full(n_bars, np.nan, dtype=np.float64)
+    aligned_avail_at = np.full(n_bars, np.nan, dtype=np.float64)
+    aligned_pit_proven = np.zeros(n_bars, dtype=bool)
+
+    bars_pit_proven = 0
+    bars_pit_unproven = 0
+    pit_unproven_reasons = []
+
+    if len(oi_bucket_ends):
+        # 因果约束：已闭合桶 bucket_end <= close_ms
+        pos = np.searchsorted(oi_bucket_ends, close_ms, side="right") - 1
+        for i in range(n_bars):
+            p = int(pos[i])
+            dec_t = int(close_ms[i])
+            if p >= 0 and oi_bucket_ends[p] <= dec_t:
+                # 桶已闭合，允许使用该桶 OI 数值
+                aligned[i] = oi_val[p]
+                aligned_bucket_ends[i] = float(oi_bucket_ends[p])
+
+                # 严格审计该桶真实 PIT 可信性
+                r = sorted_oi_rows[p]
+                raw_avail = r.get("available_at")
+                raw_fetched = r.get("fetched_at")
+                source = str(r.get("source") or "")
+
+                is_backfill = any(tag in source.lower() for tag in ("archive", "batch", "#gapfill"))
+                has_avail = raw_avail is not None and math.isfinite(float(raw_avail))
+
+                if not has_avail:
+                    # 真实 available_at 缺失：必须保留 PIT_UNPROVEN，不得凭 bucket_end 升级
+                    bars_pit_unproven += 1
+                    pit_unproven_reasons.append("available_at_missing")
+                else:
+                    avail_t = float(raw_avail)
+                    aligned_avail_at[i] = avail_t
+                    if avail_t > dec_t:
+                        # 真实可得时刻晚于决策时间
+                        bars_pit_unproven += 1
+                        pit_unproven_reasons.append("available_at_after_decision")
+                    elif is_backfill:
+                        # 回填数据未证明历史到达时刻
+                        bars_pit_unproven += 1
+                        pit_unproven_reasons.append("backfilled_data_unproven")
+                    elif avail_t < oi_bucket_ends[p]:
+                        # 真实到达不可能早于桶闭合
+                        bars_pit_unproven += 1
+                        pit_unproven_reasons.append("available_at_before_bucket_end")
+                    else:
+                        # 具备完备真实物理到达证据
+                        aligned_pit_proven[i] = True
+                        bars_pit_proven += 1
+            else:
+                # 无匹配闭合桶（决策时刻前尚无任何 5m 桶走完闭合）
+                bars_pit_unproven += 1
+                pit_unproven_reasons.append("no_matched_closed_bucket")
+    else:
+        bars_pit_unproven = n_bars
+        if n_bars > 0:
+            pit_unproven_reasons.append("oi_rows_empty")
+
     sig_df["open_interest"] = aligned
+    sig_df["oi_observed_at"] = aligned_bucket_ends
+    sig_df["oi_available_at"] = aligned_avail_at
+    sig_df["oi_pit_proven"] = aligned_pit_proven
+
+    bars_with_oi = int(np.isfinite(aligned).sum())
+    bars_missing_oi = int((~np.isfinite(aligned)).sum())
+
+    # 总体 PIT 状态判定：存在缺失真实可得证据或晚于决策时，必须保留 PIT_UNPROVEN
+    if bars_with_oi > 0 and bars_pit_proven == bars_with_oi and bars_pit_unproven == 0:
+        overall_pit_status = "PIT_PROVEN"
+    else:
+        overall_pit_status = "PIT_UNPROVEN"
+
     oi_meta = {
-        "source_period": "5m", "rows": int(len(oi_ts)),
+        "source_period": "5m",
+        "rows": int(len(oi_ts)),
         "first_ms": int(oi_ts[0]) if len(oi_ts) else None,
         "last_ms": int(oi_ts[-1]) if len(oi_ts) else None,
         "first_utc": _iso(int(oi_ts[0])) if len(oi_ts) else None,
         "last_utc": _iso(int(oi_ts[-1])) if len(oi_ts) else None,
-        "align_rule": "as-of：bar 收盘时刻(open_time+tf) 之前最近一条 OI（ts <= close）",
-        "bars": int(len(sig_df)),
-        "bars_with_oi": int(np.isfinite(aligned).sum()),
-        "bars_missing_oi": int((~np.isfinite(aligned)).sum()),
+        "align_rule": "as-of：5m 桶必须先闭合（bucket_end <= close）再被决策使用；真实 available_at 缺失或晚于决策时间时必须保留 PIT_UNPROVEN，不得凭 bucket_end 升级为可信",
+        "causal_bucket_rule": "bucket_end <= decision_time",
+        "bucket_span_ms": BUCKET_5M_MS,
+        "bars": int(n_bars),
+        "bars_with_oi": bars_with_oi,
+        "bars_missing_oi": bars_missing_oi,
         "fake_fill": "无（缺 OI 记 NaN，不写 0 / 0.5）",
+        "pit_status": overall_pit_status,
+        "bars_pit_proven": int(bars_pit_proven),
+        "bars_pit_unproven": int(bars_pit_unproven),
+        "pit_unproven_reasons": sorted(list(set(pit_unproven_reasons))),
     }
 
     # ── 资金费事件：**保留原始毫秒**（不 //1000 截秒）──
@@ -808,6 +894,32 @@ def _run_event_trend(run_id: str, doc: dict) -> dict:
         symbol=symbol, start_date=_iso(int(win_req["start_ms"])), end_date=_iso(int(win_req["end_ms"])), allow_auto_window=False
     )
 
+    # 1b. 数据质量门禁（GM-BACKTEST-GATE-WIRING-21）：**引擎启动前**判定。
+    #     接在取数之后、`run_variant_abc` 之前：此时数据已加载（不重复读盘），
+    #     但还没有任何撮合/记账发生 ⇒ 拒绝时不留半截产物。
+    #     OI 行取 `runner.oi_rows`（带 `fetched_at`）：`oi_ts/oi_vals` 两个数组在
+    #     加载边界已把可得时刻丢掉，用它们重建会让 PIT 永远无法证明。
+    #     默认 `isolated_research` 模式 ⇒ 放行并打隔离标记；显式 `trusted` 才拒绝。
+    import backtest_gate_wiring as _GW
+    _gate_fields = _GW.enforce_snapshot(
+        run_id,
+        _GW.snapshot_from_frames(
+            symbol=symbol,
+            win_start_ms=int(win_req["start_ms"]), win_end_ms=int(win_req["end_ms"]),
+            df_signal=df_1h, df_exec=df_15m,
+            oi_rows=getattr(runner, "oi_rows", None),
+            funding_events=funding_events,
+            # 45 号：4H 序列必须进快照。它是 ATR、箱体宽度、跟踪止损的**真实输入**
+            # （`runner.load_symbol_data` 返回的 `df_4h` 已含窗口前 220 根预热，
+            #  并带着在全历史上算好的 `atr` 列 ⇒ 这里只是把同一份 frame 交给门禁，
+            #  不重算、不截断、不改策略逻辑）。43 号审计证明此前它从不进快照。
+            df_aux=df_4h, aux_timeframe="4h",
+            aux_role="atr_box_trailing_stop", aux_warmup_bars=220,
+            extra_note="4h 辅助序列（ATR/箱体/跟踪止损）已纳入门禁判据",
+        ),
+        spec=spec,
+    )
+
     # 2. 跑 A/B/C 三方案并原子落盘
     abc_res = runner.run_variant_abc(
         symbol=symbol,
@@ -947,6 +1059,10 @@ def _run_event_trend(run_id: str, doc: dict) -> dict:
     return {
         "window": win,
         "metrics": metrics,
+        # 17 号门禁判定（GM-BACKTEST-GATE-WIRING-21）：`data_gate.verdict` 是事实，
+        # `pit_status` 是 OI 可得性状态位；两者都不参与上面的指标计算。
+        "data_gate": _gate_fields["data_gate"],
+        "pit_status": _gate_fields["pit_status"],
         "data_quality": {
             "status": _dq_status,
             "reasons": _dq_reasons,
@@ -969,6 +1085,14 @@ def _run(run_id: str, doc: dict) -> dict:
     repo = _repo()
     win = resolve_window(spec, repo)
     data = load_inputs(spec, win, repo)
+
+    # 数据质量门禁（GM-BACKTEST-GATE-WIRING-21）：通用路径同样在**引擎启动前**判定。
+    # `load_inputs` 已做过「连续 + 已收盘 + 全窗覆盖」，门禁补的是它没查的三类
+    # （异常 OHLC / 网格错位 / OI 与资金费可得性），并给出两个出口。
+    import backtest_gate_wiring as _GW
+    _gate_fields = _GW.enforce_snapshot(
+        run_id, _GW.snapshot_from_inputs(win, data), spec=spec)
+
     sig_df, exec_df = data["sig_df"], data["exec_df"]
     events = data["funding_events"]                       # 窗口内真实 settled（毫秒）
 
@@ -1335,6 +1459,9 @@ def _run(run_id: str, doc: dict) -> dict:
     return {
         "window": win,
         "cost_summary": cost_summary,
+        # 17 号门禁判定（GM-BACKTEST-GATE-WIRING-21）
+        "data_gate": _gate_fields["data_gate"],
+        "pit_status": _gate_fields["pit_status"],
         "hashes": {
             "code_sha256": BR.code_hash(),
             "signal_params_hash": sp.hash(),

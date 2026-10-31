@@ -25,14 +25,22 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   Clock,
   FlaskConical,
   Info,
   Play,
   RefreshCw,
+  ShieldCheck,
   XCircle,
 } from 'lucide-react';
+import {
+  TrustStateBadge,
+  TrustStateAlertBanner,
+  TrustStateBlockedResourceBox,
+} from './backtest/TrustStateBadge';
+import { normalizeTrustState, NormalizedTrustState } from '../api/labBacktest';
 import {
   LAB_EXCHANGE_OPTIONS,
   LAB_EXEC_TF_OPTIONS,
@@ -94,7 +102,8 @@ import { RunInfoCard } from './backtest/RunInfoCard';
 import { BacktestSidePanel } from './backtest/BacktestSidePanel';
 import { BatchBar } from './backtest/BatchBar';
 import { BatchTradesTable } from './backtest/BatchTradesTable';
-import { exitReasonLabel, statusLabel } from '../utils/runMeta';
+import { OrderDetailView } from './backtest/OrderDetailView';
+import { directionIsLong, exitReasonLabel, statusLabel } from '../utils/runMeta';
 import { createCrosshairBus } from '../utils/crosshairBus';
 import {
   fetchBatches,
@@ -157,6 +166,17 @@ const windowDaysOf = (win: any): number | null => {
 const fmtSignedUsd = (v: number | null | undefined, digits = 2): string => {
   if (v === null || v === undefined || !Number.isFinite(v)) return '—';
   return `${v > 0 ? '+' : v < 0 ? '-' : ''}$${fmtNum(Math.abs(v), digits)}`;
+};
+
+/**
+ * 资金费：账本口径 `funding_fee` **正数 = 成本（支出）**、负数 = 返还。
+ * 只印数字（如 `$0.35`）时，支出与返还长得一样，读者会把它当收入加回去；
+ * 所以这里必须把收支写出来。金额本身仍原样取自账本，只补一个方向词。
+ */
+const fmtFundingFee = (v: number | null | undefined, digits = 2): string => {
+  if (v === null || v === undefined || !Number.isFinite(v)) return '—';
+  if (v === 0) return '$0.00 无结算';
+  return `${fmtUsd(Math.abs(v), digits)} ${v > 0 ? '支出' : '返还'}`;
 };
 
 const fmtPct = (v: number | null | undefined, digits = 4): string =>
@@ -989,6 +1009,8 @@ export const BacktestWorkbench: React.FC = () => {
   /** 左栏「运行回测」表单是否展开（设计稿把配置收在左栏，缺省收起）。 */
   const [showRunForm, setShowRunForm] = useState(false);
   const [showMoreMetrics, setShowMoreMetrics] = useState(false);
+  /** 逐笔订单追溯详情是否展开 */
+  const [isTradeDetailExpanded, setIsTradeDetailExpanded] = useState<boolean>(true);
   /**
    * 「更多视图」面板宿主 testid。
    *
@@ -1457,6 +1479,23 @@ export const BacktestWorkbench: React.FC = () => {
   const done = detailStatus === 'succeeded';
   const subKey = selectedRunId && done ? `${selectedRunId}:done` : null;
 
+  /* ── 57 号修复：当前所选 run 的三态可信防伪状态与拒绝原因 ── */
+  const currentRunSummary = useMemo(
+    () => displayedRuns.find((r) => r.run_id === selectedRunId) ?? null,
+    [displayedRuns, selectedRunId],
+  );
+
+  const currentTrustState: NormalizedTrustState = useMemo(() => {
+    // 切换中或未选中时严格归一，详情优先于列表，缺失默认 UNVERIFIED，绝不默认 TRUSTED 或前端自行提级
+    if (!selectedRunId) return 'UNVERIFIED';
+    const raw = detail.data?.trust_state ?? currentRunSummary?.trust_state ?? null;
+    return normalizeTrustState(raw);
+  }, [selectedRunId, detail.data?.trust_state, currentRunSummary?.trust_state]);
+
+  const currentTrustReasons = useMemo(() => {
+    return detail.data?.trust?.reasons ?? null;
+  }, [detail.data?.trust?.reasons]);
+
   const metrics = useLabFetch<LabMetricsResponse>(subKey, () =>
     labGetMetrics(selectedRunId as string).then((d) => expectRunId(d, selectedRunId as string)),
   );
@@ -1819,6 +1858,41 @@ export const BacktestWorkbench: React.FC = () => {
     return { tradeId: t.trade_id, entryMs: t.entry_time_ms, exitMs: t.exit_time_ms };
   }, [selectedTradeId, displayTrades]);
 
+  const selectedTradeIndex = useMemo(() => {
+    if (!selectedTradeId || displayTrades.length === 0) return -1;
+    return displayTrades.findIndex((t) => t && t.trade_id === selectedTradeId);
+  }, [displayTrades, selectedTradeId]);
+
+  const handlePrevTrade = useCallback(() => {
+    if (selectedTradeIndex > 0) {
+      const prev = displayTrades[selectedTradeIndex - 1];
+      if (prev) {
+        setSelectedTradeId(queryableTradeId(prev, selectedRunId));
+        setManualViewport(null);
+        if (prev.entry_time_ms) setFocusTimeMs(prev.entry_time_ms);
+      }
+    }
+  }, [selectedTradeIndex, displayTrades, selectedRunId, queryableTradeId]);
+
+  const handleNextTrade = useCallback(() => {
+    if (selectedTradeIndex >= 0 && selectedTradeIndex < displayTrades.length - 1) {
+      const next = displayTrades[selectedTradeIndex + 1];
+      if (next) {
+        setSelectedTradeId(queryableTradeId(next, selectedRunId));
+        setManualViewport(null);
+        if (next.entry_time_ms) setFocusTimeMs(next.entry_time_ms);
+      }
+    }
+  }, [selectedTradeIndex, displayTrades, selectedRunId, queryableTradeId]);
+
+  const handleLocateTimeFromDetail = useCallback((timeMs: number, orderId?: string | null, reason?: string) => {
+    setManualViewport(null);
+    setFocusTimeMs(timeMs);
+    if (orderId) {
+      setSelectedOrderId(orderId);
+    }
+  }, []);
+
   /**
    * 逐笔明细行索引（真实 trade_id + 进出场毫秒）。
    * 图载荷 `chart.trades[].trade_id` 实测为 `null` ⇒ 执行视图靠它把 id 换回来，
@@ -2074,15 +2148,17 @@ export const BacktestWorkbench: React.FC = () => {
       {/* ══ 结果身份：所选 run 的实际时间 / 配置 / 版本（不是表单未运行的值）══ */}
       {openPanel === 'identity' && selectedRunId && detail.data && (
         <SectionCard title="结果身份" testid="lab-run-identity">
-          {/* 只留 4 个「对不上就会出事」的字段：run_id / 窗口 / 初始资金 / engine 版本 */}
+          {/* 只留关键「对不上就会出事」的字段：run_id / 可信状态 / 窗口 / 初始资金 / engine 版本 */}
           <div className="ds-kvgrid ds-kvgrid--4">
             <KV k="run_id" v={selectedRunId} />
+            <KV k="可信防伪状态" v={<TrustStateBadge state={currentTrustState} testid="identity-trust-badge" />} />
             <KV k="窗口（UTC）" v={`${fmtUtc(detail.data.window?.win_start_ms)} → ${fmtUtc(detail.data.window?.win_end_ms)}`} />
             <KV k="初始资金（生效）" v={fmtUsd((actualCfg?.['initial_equity'] as number) ?? null, 2)} />
             <KV
               k="engine"
               v={`${(detail.data.engine?.['signal_version'] as string) ?? '—'} / ${(detail.data.engine?.['core_version'] as string) ?? '—'} / ${(detail.data.engine?.['exec_core_version'] as string) ?? '—'}`}
             />
+            <KV k="门禁判定" v={`${detail.data.claim_level ?? '未声明'} · ${detail.data.data_gate_verdict ?? (detail.data.data_gate as any)?.verdict ?? '—'}`} />
           </div>
 
           <details className="ds-details" style={{ marginTop: 8 }} data-testid="lab-run-identity-more">
@@ -2147,19 +2223,50 @@ export const BacktestWorkbench: React.FC = () => {
         </SectionCard>
       )}
 
+      {/* ══ 可信验证失败显著警示横幅（REJECTED 硬阻断提示）══ */}
+      {selectedRunId && (
+        <TrustStateAlertBanner
+          state={currentTrustState}
+          reasons={currentTrustReasons}
+          runId={selectedRunId}
+        />
+      )}
+
       {/* ══ ③a 指标条（8 格）：净收益 / 回撤 / 夏普 / 收益因子 / 成交笔数 / 胜率 / 盈亏比 / 总费用 ══
           设计稿 gm-layout.html 把这八张卡放在页面最上方。这里只在**选中 run** 时出现；
           每个数字都带口径副标，缺数据一律 `—`（夏普后端未算、总费用要求两项齐全）。 */}
       {selectedRunId && (
         <div data-lab-section="lab-metrics" style={{ marginBottom: 12 }}>
-          <ErrorBoundary label="指标条" key={`bt-metrics-${selectedRunId}`}>
-            <MetricStrip
-              metrics={m}
-              windowStartMs={detail.data?.window?.win_start_ms ?? null}
-              windowEndMs={detail.data?.window?.win_end_ms ?? null}
-              loading={metrics.loading}
+          {/* 指标栏上方可信状态徽标与安全提醒 */}
+          <div className="flex items-center justify-between mb-2 px-1 flex-wrap gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-neutral-400 font-medium">回测防伪与可信状态：</span>
+              <TrustStateBadge state={currentTrustState} testid="metrics-trust-badge" />
+            </div>
+            {currentTrustState === 'REJECTED' && (
+              <span className="text-rose-400 font-semibold text-[11px] flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                防伪验证失败，指标数据已失效，不得用于策略评估！
+              </span>
+            )}
+          </div>
+
+          {currentTrustState === 'REJECTED' && (metrics.error || !metrics.data?.metrics) ? (
+            <TrustStateBlockedResourceBox
+              resourceTitle="回测绩效指标"
+              trustState={currentTrustState}
+              error={metrics.error}
             />
-          </ErrorBoundary>
+          ) : (
+            <ErrorBoundary label="指标条" key={`bt-metrics-${selectedRunId}`}>
+              <MetricStrip
+                metrics={m}
+                windowStartMs={detail.data?.window?.win_start_ms ?? null}
+                windowEndMs={detail.data?.window?.win_end_ms ?? null}
+                loading={metrics.loading}
+              />
+            </ErrorBoundary>
+          )}
         </div>
       )}
 
@@ -2521,10 +2628,31 @@ export const BacktestWorkbench: React.FC = () => {
           {selectedRunId && detailStatus === 'succeeded' ? (
             <>
               <div data-lab-section="lab-chart">
-                <LabChartPanel
-                  chart={chartPayload}
-                  loading={chart.loading}
-                  error={chart.error}
+                {/* 图表顶部可信状态标识与阻断防御 */}
+                <div className="flex items-center justify-between mb-2 px-1 text-xs flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-neutral-400 font-medium">图表数据可信状态：</span>
+                    <TrustStateBadge state={currentTrustState} testid="chart-trust-badge" />
+                  </div>
+                  {currentTrustState === 'REJECTED' && (
+                    <span className="text-rose-400 font-semibold text-[11px] flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      防伪未通过，图表数据已拒绝或仅供缺陷审计，不可作为决策参考！
+                    </span>
+                  )}
+                </div>
+
+                {currentTrustState === 'REJECTED' && (chart.error || !chartPayload?.candles) ? (
+                  <TrustStateBlockedResourceBox
+                    resourceTitle="K线图表与信号走势"
+                    trustState={currentTrustState}
+                    error={chart.error}
+                  />
+                ) : (
+                  <LabChartPanel
+                    chart={chartPayload}
+                    loading={chart.loading}
+                    error={chart.error}
                   missingReason={chart.data?.missing_reason ?? null}
                   selectedTradeId={selectedTradeId}
                   onSelectTrade={(tid) => {
@@ -2559,6 +2687,7 @@ export const BacktestWorkbench: React.FC = () => {
                   onTimeframeChange={(newTf) => setActiveTimeframe(newTf)}
                   gridTimes={sharedGridTimes}
                 />
+                )}
               </div>
               {/* 设计稿 `.g2`：净值曲线与回撤曲线**两张并排卡**，不是一张卡切页签。
                   两个实例读同一份权益序列，各自只画自己的那组线。 */}
@@ -2710,6 +2839,7 @@ export const BacktestWorkbench: React.FC = () => {
                       <th className="py-1.5 px-2">标的</th>
                       <th className="py-1.5 px-2">运行 ID</th>
                       <th className="py-1.5 px-2">状态</th>
+                      <th className="py-1.5 px-2">可信状态</th>
                       <th className="py-1.5 px-2" data-secondary>归属</th>
                       <th className="py-1.5 px-2" data-secondary>创建时间（UTC）</th>
                       <th className="py-1.5 px-2 text-right">净收益</th>
@@ -2722,7 +2852,7 @@ export const BacktestWorkbench: React.FC = () => {
                   <tbody>
                     {displayedRuns.length === 0 ? (
                       <tr>
-                        <td colSpan={allCols.runs ? 10 : 5} className="ds-table__empty">
+                        <td colSpan={allCols.runs ? 11 : 6} className="ds-table__empty">
                           {batchMode ? (batchRunsLoading ? '读取批次 run…' : '该批次没有 run 目录') : list.loading ? '读取中…' : '暂无实验记录'}
                         </td>
                       </tr>
@@ -2783,6 +2913,9 @@ export const BacktestWorkbench: React.FC = () => {
                                   研究期
                                 </span>
                               )}
+                            </td>
+                            <td className="py-1.5 px-2 whitespace-nowrap">
+                              <TrustStateBadge state={r.trust_state} short testid={`run-table-trust-${r.run_id}`} />
                             </td>
                             <td className="py-1.5 px-2" data-secondary>
                               {r.attribution === 'research_period' ? (
@@ -2917,8 +3050,10 @@ export const BacktestWorkbench: React.FC = () => {
                   ) : (
                     displayTrades.map((t, rowIdx) => {
                       const sel = t.trade_id === selectedTradeId;
-                      const dirStr = String(t.direction ?? '');
-                      const isLong = dirStr === 'long' || dirStr === '1' || dirStr === 'buy';
+                      /* 方向解析不出来 ⇒ null，表格写「方向未知」。
+                         旧实现 `else 做空` 会把缺失字段显示成一个确定的做空结论。 */
+                      const dirLong = directionIsLong(t.direction);
+                      const isLong = dirLong === true;
                       return (
                         <tr
                           /* key 用 run_id + trade_id + 行号：账本里同一 run 理论上 trade_id 唯一，
@@ -2938,6 +3073,7 @@ export const BacktestWorkbench: React.FC = () => {
                             setManualViewport(null);
                             if (t.entry_time_ms) setFocusTimeMs(t.entry_time_ms);
                             if (t.symbol) setActiveSymbol(t.symbol.replace('USDT', ''));
+                            setIsTradeDetailExpanded(true);
                           }}
                           aria-selected={sel}
                         >
@@ -2969,8 +3105,12 @@ export const BacktestWorkbench: React.FC = () => {
                           <td className="py-1.5 px-2 text-neutral-500 whitespace-nowrap" data-secondary>{fmtUtc(t.exit_time_ms)}</td>
                           <td className="py-1.5 px-2 font-bold text-neutral-100">{t.symbol}</td>
                           <td className="py-1.5 px-2">
-                            <span className={`ds-badge ${isLong ? 'ds-badge--pos' : 'ds-badge--neg'}`}>
-                              {isLong ? '做多' : '做空'}
+                            <span
+                              className={`ds-badge ${
+                                dirLong === null ? 'ds-badge--neutral' : isLong ? 'ds-badge--pos' : 'ds-badge--neg'
+                              }`}
+                            >
+                              {dirLong === null ? '方向未知' : isLong ? '做多' : '做空'}
                             </span>
                           </td>
                           <td className="py-1.5 px-2 text-right text-neutral-300">{fmtNum(t.entry_price, 4)}</td>
@@ -2999,8 +3139,18 @@ export const BacktestWorkbench: React.FC = () => {
                             {t.gross_pnl == null ? '未记录' : fmtSignedUsd(t.gross_pnl, 2)}
                           </td>
                           <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.fees, 2)}</td>
-                          <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary>{fmtUsd(t.funding_fee, 2)}</td>
-                          <td className={`py-1.5 px-2 text-right font-bold ${t.net_pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          <td className="py-1.5 px-2 text-right text-neutral-400" data-secondary title="账本 funding_fee：正数=成本（支出），负数=返还">
+                            {fmtFundingFee(t.funding_fee, 2)}
+                          </td>
+                          <td
+                            className={`py-1.5 px-2 text-right font-bold ${
+                              t.net_pnl === null || t.net_pnl === undefined
+                                ? 'text-neutral-400'
+                                : t.net_pnl >= 0
+                                  ? 'text-emerald-600'
+                                  : 'text-rose-600'
+                            }`}
+                          >
                             {fmtSignedUsd(t.net_pnl, 2)}
                           </td>
                           <td className="py-1.5 px-2 text-neutral-400 whitespace-nowrap" title={t.exit_reason ?? undefined}>
@@ -3026,13 +3176,44 @@ export const BacktestWorkbench: React.FC = () => {
               </table>
             </div>
 
-            <details className="ds-details" style={{ marginTop: 8 }} open={false} data-testid="lab-trade-detail-fold">
-              <summary>单笔详情（选中某一笔后展开）</summary>
+            <details
+              className="ds-details"
+              style={{ marginTop: 8 }}
+              open={isTradeDetailExpanded}
+              onToggle={(e) => setIsTradeDetailExpanded((e.target as HTMLDetailsElement).open)}
+              data-testid="lab-trade-detail-fold"
+            >
+              <summary className="cursor-pointer select-none">
+                <span className="font-semibold text-neutral-100">
+                  逐笔订单追溯详情（{selectedTradeId ? `当前选中: ${selectedTradeId}` : '点击上方表格选择订单'} · 10项要素全景展示）
+                </span>
+                <TrustStateBadge state={currentTrustState} short testid="trade-detail-trust-badge" className="ml-2" />
+                {selectedTradeId ? (
+                  <span className="ds-badge ds-badge--pos ml-2">已加载完整凭证</span>
+                ) : (
+                  <span className="ds-badge ds-badge--neutral ml-2">待选择</span>
+                )}
+              </summary>
               <div className="ds-details__body">
-                <LabTradeDetailPanel
-                  detail={tradeDetail.data}
+                <OrderDetailView
+                  detail={selectedTradeId ? tradeDetail.data : null}
                   loading={tradeDetail.loading}
                   error={tradeDetail.error}
+                  trustState={currentTrustState}
+                  trust={detail.data?.trust}
+                  onLocateTime={handleLocateTimeFromDetail}
+                  onPrev={handlePrevTrade}
+                  onNext={handleNextTrade}
+                  hasPrev={selectedTradeIndex > 0}
+                  hasNext={selectedTradeIndex >= 0 && selectedTradeIndex < displayTrades.length - 1}
+                  currentIndex={selectedTradeIndex >= 0 ? selectedTradeIndex : undefined}
+                  totalCount={displayTrades.length}
+                  initialEquity={metrics.data?.metrics?.initial_equity}
+                  emptyHint={
+                    displayTrades.length === 0
+                      ? tradesEmptyHint
+                      : null
+                  }
                 />
               </div>
             </details>

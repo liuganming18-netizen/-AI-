@@ -85,6 +85,7 @@ def _envelope(**kw) -> dict:
     base = {
         "mode": "research_backtest", "contract_version": CONTRACT_VERSION,
         "strategy_id": CURRENT_STRATEGY_ID, "run_id": None, "status": None,
+        "trust_state": None, "trust": None,
         # 默认**不得**报 ok：未读取到真实质量时一律 unknown（不冒充成功）。
         "quality": {"status": "unknown", "age_seconds": None, "note": None},
         "missing_reason": None, "items": [], "total": None,
@@ -191,8 +192,18 @@ def _registry_entry() -> dict:
 def _summary(doc: dict) -> dict:
     m = doc.get("metrics") or {}
     sid = (doc.get("spec") or {}).get("strategy_id") or doc.get("strategy_id")
+    rid = str(doc.get("run_id") or "")
+    trust_rep = S.verify_run_trust(rid, doc=doc) if hasattr(S, "verify_run_trust") else {}
+    t_state = trust_rep.get("state") or "UNVERIFIED"
+    gb = doc.get("data_gate") if isinstance(doc.get("data_gate"), dict) else {}
+    claim_lvl = gb.get("claim_level")
+    pit_st = doc.get("pit_status") or gb.get("pit_status")
     return {
         "run_id": doc.get("run_id"), "status": doc.get("status"),
+        "trust_state": t_state,
+        "claim_level": claim_lvl,
+        "pit_status": pit_st,
+        "data_gate_verdict": gb.get("verdict"),
         "created_at": doc.get("created_at"), "started_at": doc.get("started_at"),
         "finished_at": doc.get("finished_at"),
         "strategy_id": sid,
@@ -226,8 +237,16 @@ def get_run(run_id: str) -> Tuple[dict, int]:
         counts = S.ledger_counts(run_id) if S.ledger_path(run_id).exists() else {}
     except Exception as exc:                              # noqa: BLE001
         counts = {"error": f"{type(exc).__name__}: {exc}"}
+    trust_rep = S.verify_run_trust(run_id, doc=doc) if hasattr(S, "verify_run_trust") else {}
+    t_state = trust_rep.get("state") or "UNVERIFIED"
+    gb = doc.get("data_gate") if isinstance(doc.get("data_gate"), dict) else {}
     return _envelope(
         run_id=run_id, status=doc.get("status"),
+        trust_state=t_state,
+        trust=trust_rep,
+        claim_level=gb.get("claim_level"),
+        pit_status=doc.get("pit_status") or gb.get("pit_status"),
+        data_gate=doc.get("data_gate"),
         quality=_quality_of(doc),
         config={"spec": doc.get("spec"), "config": doc.get("config"),
                 "actual_config": (doc.get("data_quality") or {}).get("actual_config")},
@@ -267,8 +286,30 @@ def _require_done(run_id: str) -> Tuple[Optional[dict], Optional[Tuple[dict, int
         return None, (_envelope(missing_reason=f"未知 run_id：{run_id}",
                                 quality={"status": "unavailable", "age_seconds": None,
                                          "note": "未知 run_id"}), 404)
+
+    # ── GM-56 / BLK-52-03: API 可信证明校验与 REJECTED 穿透硬拦截 ──
+    trust_rep = S.verify_run_trust(run_id, doc=doc) if hasattr(S, "verify_run_trust") else {}
+    t_state = trust_rep.get("state") or "UNVERIFIED"
+    doc["_trust_report"] = trust_rep
+    doc["_trust_state"] = t_state
+
+    # 凡声称可信但证明校验失败（被篡改或伪造），立即以 403 阻断，严禁泄露任何指标或明细数据
+    if t_state == "REJECTED":
+        reasons_desc = "；".join(r.get("detail", r.get("code", "可信主张被拒")) for r in (trust_rep.get("reasons") or []))
+        return None, (_envelope(
+            run_id=run_id,
+            status=doc.get("status"),
+            trust_state="REJECTED",
+            trust=trust_rep,
+            error="RUN_TRUST_REJECTED",
+            missing_reason=f"运行 {run_id} 无法通过可信验证（REJECTED：{reasons_desc or '存在数据篡改或证明伪造'}），子资源数据访问被阻断",
+            quality={"status": "unavailable", "age_seconds": None,
+                     "note": "可信证明已被拒绝（REJECTED）"}
+        ), 403)
+
     if doc.get("status") not in (S.STATUS_SUCCEEDED,):
         return None, (_envelope(run_id=run_id, status=doc.get("status"),
+                                trust_state=t_state, trust=trust_rep,
                                 quality=_quality_of(doc),
                                 missing_reason=(
                                     "结果尚未就绪（GET 不触发计算）"
@@ -306,6 +347,7 @@ def get_metrics(run_id: str) -> Tuple[dict, int]:
     except S.RunNotFound:
         notes.append("equity 表不可读 ⇒ monthly_returns 返回缺失（不伪造）")
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                     trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      metrics=metrics,
                      metrics_from_ledger=True,
                      metrics_stored_summary=stored,
@@ -325,7 +367,23 @@ def get_quality(run_id: str) -> Tuple[dict, int]:
         return _envelope(missing_reason=f"未知 run_id：{run_id}",
                          quality={"status": "unavailable", "age_seconds": None,
                                   "note": "未知 run_id"}), 404
+
+    # ── GM-56 / BLK-52-03: 数据质量接口可信校验与 REJECTED 拦截 ──
+    trust_rep = S.verify_run_trust(run_id, doc=doc) if hasattr(S, "verify_run_trust") else {}
+    t_state = trust_rep.get("state") or "UNVERIFIED"
+    if t_state == "REJECTED":
+        reasons_desc = "；".join(r.get("detail", r.get("code", "可信主张被拒")) for r in (trust_rep.get("reasons") or []))
+        return _envelope(
+            run_id=run_id, status=doc.get("status"),
+            trust_state="REJECTED", trust=trust_rep,
+            error="RUN_TRUST_REJECTED",
+            missing_reason=f"运行 {run_id} 无法通过可信验证（REJECTED：{reasons_desc or '存在数据篡改或证明伪造'}），数据质量访问被阻断",
+            quality={"status": "unavailable", "age_seconds": None,
+                     "note": "可信证明已被拒绝（REJECTED）"}
+        ), 403
+
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                     trust_state=t_state, trust=trust_rep,
                      data_quality=doc.get("data_quality"),
                      hashes=doc.get("hashes"), window=doc.get("window"),
                      ledger_counts=(doc.get("data_quality") or {}).get("ledger_counts")), 200
@@ -351,6 +409,7 @@ def get_equity(run_id: str) -> Tuple[dict, int]:
     except S.RunNotFound:
         bench_series, bench_meta = [], {"note": "chart.json 缺失 ⇒ 无基准序列（不伪造）"}
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      items=rows, total=len(rows),
                      benchmark=bench_meta, benchmark_equity=bench_series,
                      note=("策略权益曲线取自账本 equity 表（含未实现浮盈浮亏）；"
@@ -512,6 +571,7 @@ def get_trades(run_id: str) -> Tuple[dict, int]:
                 cand_matrix[str(ev)] = matrix_all[ev]
 
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      items=rows, total=len(rows),
                      trade_id_source="ledger:positions.jsonl POSITION_CLOSED.payload.trade_id",
                      unresolved_trade_ids=len(unresolved),
@@ -542,10 +602,12 @@ def get_orders(run_id: str) -> Tuple[dict, int]:
         facts = _facts(run_id)
     except S.RunNotFound:
         return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                          items=[], total=0, missing_reason="账本缺失（orders 表不可读）"), 200
     rows = facts.all_orders()
     unlinked = sum(1 for r in rows if not r.get("trade_id"))
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      items=rows, total=len(rows),
                      unlinked_orders=unlinked,
                      link_notes=list(facts.notes),
@@ -565,9 +627,11 @@ def get_fills(run_id: str) -> Tuple[dict, int]:
         facts = _facts(run_id)
     except S.RunNotFound:
         return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                          items=[], total=0, missing_reason="账本缺失（fills 表不可读）"), 200
     rows = facts.all_fills()
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      items=rows, total=len(rows),
                      link_notes=list(facts.notes),
                      note=("逐次成交明细（同一 run_id 账本 fills.jsonl 事件）；"
@@ -586,8 +650,10 @@ def get_rejected(run_id: str) -> Tuple[dict, int]:
         rows = S.read_ledger_rows(run_id, "rejected", order_by="ts_ms ASC")
     except S.RunNotFound:
         return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                          items=[], total=0, missing_reason="账本缺失（rejected 表不可读）"), 200
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      items=rows, total=len(rows),
                      note="拒单明细（账本 rejected 表：风险/仓位/资金/信号门禁等拒绝原因）"), 200
 
@@ -608,6 +674,8 @@ def get_trade(run_id: str, trade_id: str) -> Tuple[dict, int]:
         known = [r.get("trade_id") for r in facts.trade_rows if r.get("trade_id")]
         return _envelope(
             run_id=run_id,
+            trust_state=doc.get("_trust_state"),
+            trust=doc.get("_trust_report"),
             missing_reason=(f"未知 trade_id：{trade_id}"
                             + ("" if known else "；本 run 账本里没有可唯一确定的 trade_id")),
             known_trade_ids=known), 404
@@ -626,6 +694,7 @@ def get_trade(run_id: str, trade_id: str) -> Tuple[dict, int]:
     if not funding:
         missing.append("本笔无归属资金费事件（账本中 0 条，或时间窗归属不唯一）")
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      trade=t, orders=orders, funding=funding,
                      original_signal=sig,
                      signal_id=sig_id,
@@ -1535,6 +1604,7 @@ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
         except Exception as exc:                           # noqa: BLE001
             why = rejected or "本 run 无 chart.json"
             return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                              missing_reason=(f"{why}，且无法按本 run 自己的窗口重建"
                                              f"（{exc}）⇒ 缺 K 线，不伪造")), 200
 
@@ -1544,6 +1614,7 @@ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
     # 一边把 display 标成用户要的周期，等于用错的图冒充对的图。
     if req_tf not in _CHART_TF_ALLOWED:
         return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                          missing_reason=(f"timeframe 只支持 {'/'.join(_CHART_TF_ALLOWED)}，"
                                          f"收到 {req_tf!r} ⇒ 拒绝（不静默回退、不拿别的周期冒充）")), 400
     # 按笔聚焦（可选）：成交可能分散在几年里，聚焦到某一笔才看得清四个点
@@ -1839,6 +1910,7 @@ def get_chart(run_id: str, params: Optional[dict] = None) -> Tuple[dict, int]:
             chart["candles_context_note"] = (
                 f"上下文补齐失败（{type(exc).__name__}: {exc}）⇒ 只保留 run 区间")
     return _envelope(run_id=run_id, status=doc.get("status"), quality=_quality_of(doc),
+                         trust_state=doc.get("_trust_state"), trust=doc.get("_trust_report"),
                      chart=chart), 200
 
 

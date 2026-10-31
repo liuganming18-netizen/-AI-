@@ -9,6 +9,7 @@
 import React from 'react';
 import { runEpochMs, symbolLabel } from '../../utils/runMeta';
 import { DASH, fmtDateTime, fmtInt, fmtNum, fmtPctPlain } from '../../utils/labFormat';
+import { TrustStateBadge } from './TrustStateBadge';
 
 /**
  * 入参一律用**宽松结构类型**，不绑定某一套接口。
@@ -31,6 +32,7 @@ export interface ActualConfigLike {
 
 export interface RunDetailLike {
   run_id?: string | null;
+  trust_state?: string | null;
   engine?: { strategy_id?: string | null; exec_core_version?: string | null } | null;
   window?: {
     symbol?: string | null;
@@ -100,6 +102,7 @@ export const RunInfoCard: React.FC<RunInfoCardProps> = ({ run, detail, metrics, 
         style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', rowGap: 0 }}
       >
         <Row k="交易对" v={symbol ? symbolLabel(symbol) : DASH} />
+        <Row k="可信防伪状态" v={<TrustStateBadge state={detail?.trust_state} testid="run-info-trust-badge" />} />
         <Row k="数据来源" v={detail?.config?.spec?.exchange ?? detail?.window?.exchange ?? DASH} />
         <Row
           k="信号 / 执行周期"
