@@ -40,7 +40,7 @@ import {
 } from './LightweightChart';
 import type { Candle, OIPoint, Timeframe } from '../types/crypto';
 import { alignOiToTimeframe } from '../api/adapters';
-import type { LabChart, LabChartTrade, LabOrderRow } from '../api/labBacktest';
+import type { LabChart, LabChartEvent, LabChartTrade, LabOrderRow } from '../api/labBacktest';
 import { useChartPalette, withAlpha, type ChartPalette } from '../design/chartTheme';
 /* K 线归一化：数组元组 / 对象两种线上形态都收，唯一实现在 utils/candles.ts */
 import { normalizeCandle } from '../utils/candles';
@@ -252,6 +252,96 @@ function buildTradeMarkers(
   }
   return out;
 }
+
+/** Stored event ledger only: no candle-pattern inference or fallback timestamps. */
+function buildEventMarkers(events: LabChartEvent[], palette: ChartPalette, tf: Timeframe): SeriesMarker<Time>[] {
+  const styles: Record<string, { color: string; shape: 'square' | 'arrowDown' | 'arrowUp' | 'circle'; position: 'aboveBar' | 'belowBar'; label: string }> = {
+    box: { color: palette.forming, shape: 'square', position: 'aboveBar', label: '箱体' },
+    sweep_low: { color: palette.signalMarker, shape: 'arrowDown', position: 'belowBar', label: '扫低' },
+    sweep_high: { color: palette.exit, shape: 'arrowUp', position: 'aboveBar', label: '扫高' },
+    retest: { color: palette.confirmMarker, shape: 'circle', position: 'belowBar', label: '回踩' },
+    breakout: { color: palette.entry, shape: 'square', position: 'aboveBar', label: '突破确认' },
+    signal_triggered: { color: palette.signalMarker, shape: 'circle', position: 'aboveBar', label: '信号触发' },
+    signal_invalidated: { color: palette.exit, shape: 'circle', position: 'aboveBar', label: '信号失效' },
+    entry: { color: palette.entry, shape: 'arrowUp', position: 'belowBar', label: '入场' },
+    close: { color: palette.exit, shape: 'arrowDown', position: 'aboveBar', label: '平仓' },
+  };
+  return events.flatMap((event) => {
+    const style = styles[event.event_type];
+    // Existing trade and signal builders already draw these with selected-trade styling.
+    if (!style || ['entry', 'close', 'signal_triggered'].includes(event.event_type) || !Number.isFinite(event.event_time) || event.event_time <= 0) return [];
+    return [{ id: event.event_id, time: alignTimeToTf(event.event_time, tf) as unknown as Time,
+      position: style.position, shape: style.shape, color: style.color, text: style.label, size: 1 }];
+  });
+}
+
+const BacktestBoxOverlay: React.FC<{ events: LabChartEvent[]; bars: Candle[]; handle: ChartHandle | null; tf: Timeframe; lastBarMs: number | null; onEventClick: (event: LabChartEvent) => void }> = ({ events, bars, handle, tf, lastBarMs, onEventClick }) => {
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const [rects, setRects] = useState<Array<{ id: string; x: number; y: number; w: number; h: number }>>([]);
+  const [eventTargets, setEventTargets] = useState<Array<{ event: LabChartEvent; x: number; y: number }>>([]);
+  useEffect(() => {
+    if (!handle) { setRects([]); setEventTargets([]); return; }
+    const update = () => {
+      const host = hostRef.current;
+      if (!host) return;
+      const bounds = host.getBoundingClientRect();
+      const visible = ts.getVisibleRange();
+      if (!visible) { setRects([]); return; }
+      const toSeconds = (time: Time): number => typeof time === 'number'
+        ? time
+        : typeof time === 'string' ? Math.floor(Date.parse(`${time}T00:00:00Z`) / 1000)
+          : Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000);
+      const visibleFrom = toSeconds(visible.from);
+      const visibleTo = toSeconds(visible.to);
+      const next = events.filter((e) => e.event_type === 'box' && Number.isFinite(e.price_upper) && Number.isFinite(e.price_lower) && Number.isFinite(e.range_start_time) && Number.isFinite(e.available_at))
+        .flatMap((e) => {
+          // A historical overlay must not reveal the full finished range before
+          // the persisted state transition says the range was available.
+          const displayStart = Math.max(e.range_start_time!, e.available_at!);
+          const endMs = e.range_end_time ?? lastBarMs;
+          if (!endMs || endMs <= displayStart) return [];
+          // timeToCoordinate returns null outside the current view. Clip the box
+          // to that view so a range that extends beyond it still renders at the edge.
+          const from = Math.max(alignTimeToTf(displayStart, tf), visibleFrom);
+          const to = Math.min(alignTimeToTf(endMs, tf), visibleTo);
+          if (to <= from) return [];
+          const a = handle.coordinatesAt(from as UTCTimestamp, e.price_upper!);
+          const b = handle.coordinatesAt(to as UTCTimestamp, e.price_lower!);
+          if (!a || !b) return [];
+          return [{ id: e.event_id, x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) }]
+            .filter((r) => r.x < bounds.width && r.x + r.w > 0 && r.y < bounds.height && r.y + r.h > 0);
+        });
+      setRects(next);
+      const markerEvents = events.filter((e) => ['box', 'sweep_low', 'sweep_high', 'retest', 'breakout', 'signal_triggered', 'signal_invalidated'].includes(e.event_type));
+      setEventTargets(markerEvents.flatMap((event) => {
+        if (!Number.isFinite(event.event_time) || event.event_time <= 0) return [];
+        const time = alignTimeToTf(event.event_time, tf);
+        const bar = bars.find((item) => alignTimeToTf(item.timestamp, tf) === time);
+        if (!bar) return [];
+        const below = ['sweep_low', 'retest'].includes(event.event_type);
+        const markerPrice = below ? bar.low : bar.high;
+        if (!Number.isFinite(markerPrice)) return [];
+        const point = handle.coordinatesAt(time as UTCTimestamp, markerPrice!);
+        return point && point.x >= 0 && point.x <= bounds.width && point.y >= 0 && point.y <= bounds.height
+          ? [{ event, x: point.x, y: point.y + (below ? 14 : -14) }]
+          : [];
+      }));
+    };
+    const ts = handle.chart.timeScale();
+    ts.subscribeVisibleLogicalRangeChange(update);
+    handle.chart.subscribeCrosshairMove(update);
+    const observer = new ResizeObserver(update);
+    if (hostRef.current) observer.observe(hostRef.current);
+    update();
+    return () => { ts.unsubscribeVisibleLogicalRangeChange(update); handle.chart.unsubscribeCrosshairMove(update); observer.disconnect(); };
+  }, [events, bars, handle, tf, lastBarMs]);
+  return <div ref={hostRef} className="pointer-events-none absolute inset-0 z-[2]" aria-label="回测箱体区间">
+    <svg className="h-full w-full overflow-hidden" data-testid="backtest-box-overlay">
+      {rects.map((r) => <rect key={r.id} x={r.x} y={r.y} width={r.w} height={r.h} fill="rgba(245,158,11,0.08)" stroke="#f59e0b" strokeDasharray="5 3" strokeWidth="1.5" />)}
+    </svg>
+    {eventTargets.map(({ event, x, y }) => <button key={`hit-${event.event_id}`} type="button" aria-label={`查看 ${event.event_type} 事件详情`} title={`查看 ${event.event_type} 事件详情`} className="pointer-events-auto absolute h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent" style={{ left: x, top: y }} onClick={(click) => { click.stopPropagation(); onEventClick(event); }} />)}
+  </div>;
+};
 
 /**
  * 候选信号标记（真实 `chart.signals` ⇒ 官方 markers）。
@@ -572,6 +662,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
   /** OI 副图自己的悬停（不能和 K 线悬停共用一个 state，否则互相清空） */
   const [hoverOi, setHoverOi] = useState<OIPoint | null>(null);
   const [locateInfo, setLocateInfo] = useState<{ fromMs: number; toMs: number; ok: boolean } | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<LabChartEvent | null>(null);
   /**
    * 「停手后才把视窗交给父组件」的定时器与待写值（BACKTEST-CHART-JITTER-FIX-01）。
    *
@@ -938,11 +1029,21 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
       ...buildSignalMarkers(chart, palette, tf),
       ...buildConfirmMarkers(chart, palette, tf),
       ...buildTradeMarkers(chart, selectedTrade, idOf, palette, tf),
+      ...buildEventMarkers(chart?.events ?? [], palette, tf),
       ...buildOrderMarkers(orders, palette, tf, currentSymbolNorm),
       ...buildRunRangeMarkers(chart, palette, tf),
     ],
     [chart, selectedTrade, idOf, orders, tf, palette, currentSymbolNorm],
   );
+  const onChartTimeClick = useCallback((timeMs: number) => {
+    const clickedTime = Math.floor(timeMs / 1000);
+    const toleranceSec = Math.ceil((TF_MS[tf] ?? 3_600_000) / 1000);
+    const event = (chart?.events ?? [])
+      .map((item) => ({ item, distance: Math.abs(alignTimeToTf(item.event_time, tf) - clickedTime) }))
+      .filter(({ distance }) => distance <= toleranceSec)
+      .sort((a, b) => a.distance - b.distance)[0]?.item;
+    if (event) setSelectedEvent(event);
+  }, [chart?.events, tf]);
 
   /* ── 止损轨迹叠加：用现有 onReady 句柄加官方 LineSeries，不重写 K 线引擎 ── */
   const overlayRef = useRef<ISeriesApi<'Line'>[]>([]);
@@ -1540,6 +1641,16 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
         className={`relative w-full ${isExpanded ? 'h-[460px]' : 'h-[280px]'} bg-white transition-all duration-200`}
         title="悬停看该根真实 OHLC / 原始成交量 / 信号；点击下方明细行或图上开/平仓标记 ⇒ 定位该笔 entry/exit 区间并高亮"
       >
+        {selectedEvent && (
+          <div className="absolute right-2 top-2 z-20 max-w-[360px] rounded border border-neutral-600 bg-neutral-950/95 p-2 text-[11px] text-neutral-100 shadow-lg" role="status">
+            <button className="float-right ml-2 text-neutral-400" onClick={() => setSelectedEvent(null)} aria-label="关闭事件详情">×</button>
+            <b>{selectedEvent.event_type}</b> · {fmtUtc(selectedEvent.event_time)} UTC
+            <div>价格 {selectedEvent.price == null ? '不可用（源记录未提供）' : fmtPrice(selectedEvent.price)} · 来源 {selectedEvent.source}</div>
+            {selectedEvent.event_type === 'box' && <div>形成 {fmtUtc(selectedEvent.formation_time)} · 确认/可得 {fmtUtc(selectedEvent.confirmed_at ?? selectedEvent.available_at)} · 生效 {fmtUtc(selectedEvent.effective_start_time ?? selectedEvent.range_start_time)} · 结束 {selectedEvent.range_end_time ? fmtUtc(selectedEvent.range_end_time) : '仍有效或结束时间未记录'}</div>}
+            <div>信号 {selectedEvent.signal_id ?? '—'} · 交易 {selectedEvent.trade_id ?? '—'}</div>
+            {selectedEvent.reason && <div>{selectedEvent.reason}</div>}
+          </div>
+        )}
         {bars.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-neutral-500 gap-1">
             <span>{loading ? '正在读取真实图表载荷…' : '无真实 K 线数据（不绘制任何合成 K 线 / 静态 demo）'}</span>
@@ -1554,6 +1665,7 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
             viewKey={viewKey}
             initialViewport={computedInitialViewport}
             onViewportChange={onViewportChange}
+            onTimeClick={onChartTimeClick}
             onHover={onHover}
             onReady={onReady}
             syncHub={syncHub}
@@ -1565,7 +1677,24 @@ export const LabChartPanel: React.FC<LabChartPanelProps> = ({
             hideTimeAxis
           />
         )}
+        <BacktestBoxOverlay events={chart?.events ?? []} bars={bars} handle={handle} tf={tf} lastBarMs={bars.length ? bars[bars.length - 1].timestamp : null} onEventClick={setSelectedEvent} />
       </div>
+
+      {(chart?.events?.length ?? 0) > 0 && (
+        <div className="max-h-28 overflow-auto border-t border-neutral-800 bg-neutral-950/90 px-2 py-1" aria-label="回测事件时间线">
+          {chart!.events!.map((event) => (
+            <button key={event.event_id} className="mr-1 mb-1 rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] text-neutral-200 hover:bg-neutral-800"
+              onClick={() => {
+                setSelectedEvent(event);
+                const span = (TF_MS[tf] ?? 3_600_000) * 30;
+                handle?.setViewport(event.event_time - span / 2, event.event_time + span / 2);
+              }}>
+              {event.event_type} · {fmtUtc(event.event_time)}
+            </button>
+          ))}
+        </div>
+      )}
+      {(chart?.events_unavailable ?? []).map((item) => <div key={item.event_type} className="px-2 py-1 text-[10px] text-amber-300" data-testid={`event-unavailable-${item.event_type}`}>{item.event_type}：不可用 · {item.reason}</div>)}
 
       {/* ── 成交量（独立一条，设计稿 84px）──────────────────────────────────
           设计稿在 K 线与 OI 之间还有一条独立「成交量」，自带左标签与右轴刻度。

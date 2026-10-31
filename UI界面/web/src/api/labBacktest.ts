@@ -827,12 +827,37 @@ export interface LabChartFundingEvent {
   trade_id: string;
 }
 
+export interface LabChartEvent {
+  event_id: string;
+  event_type: string;
+  symbol: string;
+  timeframe: string;
+  event_time: number;
+  available_at: number | null;
+  price?: number | null;
+  price_upper?: number | null;
+  price_lower?: number | null;
+  range_start_time?: number | null;
+  range_end_time?: number | null;
+  formation_time?: number | null;
+  confirmed_at?: number | null;
+  effective_start_time?: number | null;
+  signal_id?: string | null;
+  trade_id?: string | null;
+  reason?: string | null;
+  source: string;
+  source_record_id?: string | null;
+}
+
 export interface LabChart {
   symbol: string;
   exec_timeframe: string;
   window: { start_ms: number; end_ms: number; source?: string | null };
   candles: (LabChartCandle | LabChartCandleTuple)[];
   signals: LabChartSignal[];
+  events?: LabChartEvent[];
+  events_status?: 'available' | 'empty_or_unrecorded' | 'unavailable';
+  events_unavailable?: Array<{ event_type: string; reason: string }>;
   /** 确认 K 线标记：C1/C2 有、C0 无此环节 ⇒ 缺省空数组（不画假点） */
   confirms?: LabChartConfirm[];
   /** K 线是否被截断（研究期 run 窗口过长时只返回末段，截断原因写在 candles_note） */
