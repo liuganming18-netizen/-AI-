@@ -193,6 +193,34 @@ def validate_run_spec(spec: Optional[dict]) -> Tuple[Dict[str, Any], List[str]]:
     clean["window_end"] = spec.get("window_end")
     clean["note"] = spec.get("note", "WX_EVENT_TREND_V0_1 标准回测")
 
+    # ── 数据质量门禁模式透传（GM-56-04）───────────────────────────────────
+    # 为什么必须有这一段：`backtest_gate_wiring.resolve_mode` 的优先级是
+    # `spec["data_gate_mode"]` > 环境变量 > 默认 `isolated_research`，但本函数的
+    # 白名单会把 `data_gate_mode` 丢掉 ⇒ 接线层永远吃到默认值 ⇒ `trusted` 分支
+    # **不可达**，写侧门禁实际上没有「拒绝」出口。
+    #
+    # 纪律：**只做透传与取值校验**，不改默认值、不改判据、不降门槛。
+    # 不传 ⇒ 键不出现，`clean` 与改动前逐字节相同（老调用方的 spec_sha256 不变）。
+    _dgm = spec.get("data_gate_mode")
+    if _dgm is not None:
+        _dgm_norm = str(_dgm).strip().lower()
+        try:
+            import backtest_data_gate as _G
+            _modes = tuple(_G.MODES)
+        except Exception:                                  # noqa: BLE001
+            _modes = ("isolated_research", "trusted")
+        if _dgm_norm not in _modes:
+            errs.append(f"data_gate_mode 非法：{_dgm!r}（允许 {list(_modes)}）")
+        else:
+            clean["data_gate_mode"] = _dgm_norm
+
+    _dgp = spec.get("data_gate_policy")
+    if _dgp is not None:
+        if isinstance(_dgp, dict):
+            clean["data_gate_policy"] = dict(_dgp)
+        else:
+            errs.append("data_gate_policy 必须是 JSON 对象")
+
     return clean, errs
 
 
