@@ -1353,12 +1353,20 @@ def _run(run_id: str, doc: dict) -> dict:
     reconcile_ok = bool(res["reconcile"].get("cash_identity_ok")
                         and res["reconcile"].get("equity_identity_ok")
                         and res["reconcile"].get("equity_curve_tail_matches_final"))
-    # 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-01）：假设/未确认部分单列
+    # 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-02-R1）：
+    # 覆盖负数返还、正数支出及正负抵消后净额为零的假设事件漏检风险
     _fu_hyp = float(res["reconcile"].get("sum_funding_fee_hypothetical", 0.0))
+    _hyp_summary = res.get("hypothetical_summary") or {}
+    _has_hyp_events = bool(
+        abs(_fu_hyp) > 0.0
+        or bool(_hyp_summary.get("funding_hypothetical_reasons"))
+        or int(_hyp_summary.get("trades_with_hypothetical", 0)) > 0
+        or any(bool(t.get("funding_hypothetical_detail")) for t in res.get("trades", []))
+    )
     funding_ok = bool(fu_meta["coverage_ok"] and not (res.get("funding_gaps") or [])
                       and not funding_mismatch
                       and not res["funding_is_assumption"]
-                      and abs(_fu_hyp) == 0.0)
+                      and not _has_hyp_events)
     reasons: List[str] = []
     if not sig_cov.get("full_window_ok"):
         reasons.append("信号序列未全窗覆盖（空/首/尾/根数）")
@@ -1387,11 +1395,15 @@ def _run(run_id: str, doc: dict) -> dict:
     if res["funding_is_assumption"]:
         reasons.append("资金费为**假设模型**（非真实结算事件）；该部分已隔离到假设情景，"
                        "**未计入**已确认现金/已实现盈亏/已确认权益")
-    # 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-01）：
-    #   只要存在假设/未确认资金费，本次结果就不能声称资金费为真实结算口径。
-    if abs(_fu_hyp) > 0.0:
-        reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
-                       f"已隔离到假设情景，未计入已确认口径")
+    # 资金费双口径（GM-FUNDING-RUNNER-02-R1）：
+    #   只要存在假设/未确认资金费事件（含净额为0但有假设事件），本次结果就不能声称资金费为真实结算口径。
+    if _has_hyp_events:
+        if abs(_fu_hyp) > 0.0:
+            reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
+                           f"已隔离到假设情景，未计入已确认口径")
+        else:
+            reasons.append("存在未确认资金费事件（金额正负抵消后净额为零），"
+                           "已隔离到假设情景，未计入已确认口径")
     if not reconcile_ok:
         reasons.append("引擎恒等式对账未通过")
     if not metrics_match:

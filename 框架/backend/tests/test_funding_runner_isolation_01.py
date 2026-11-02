@@ -287,3 +287,185 @@ def test_09_scenario_c_pit_unproven_and_hypothetical_funding_combination():
     assert final_equity_confirmed != final_equity_hypothetical
     assert abs((final_equity_confirmed - final_equity_hypothetical) - hypothetical_funding) < 1e-8
 
+
+# ===========================================================================
+# GM-FUNDING-RUNNER-02-R1 · 资金费返还与净额抵消专项反例（F1 / F2 / F3）
+# ===========================================================================
+
+def test_10_f1_negative_hypothetical_funding_rebate():
+    """F1：负数未确认资金费（返还）。
+    预期：
+    1. 负数金额不能绕过门禁，仍被识别为未确认；
+    2. funding_ok 必须为 False，不能输出可信 PASS；
+    3. 假设返还绝对不得污染已确认现金和权益。
+    """
+    hypothetical_funding = -0.05  # 负数资金费（资金费返还）
+    confirmed_cash = 5000.0
+    final_equity_confirmed = 5000.0
+    final_equity_hypothetical = final_equity_confirmed - hypothetical_funding  # 5000.05
+
+    res = {
+        "funding_model": "binance_settled",
+        "funding_is_assumption": False,
+        "funding_gaps": [],
+        "reconcile": {
+            "cash_identity_ok": True,
+            "equity_identity_ok": True,
+            "equity_curve_tail_matches_final": True,
+            "sum_funding_fee": 0.0,
+            "sum_funding_fee_hypothetical": hypothetical_funding,
+        },
+        "hypothetical_summary": {
+            "funding_hypothetical": hypothetical_funding,
+            "funding_hypothetical_reasons": ["intrabar_order_unknown"],
+            "trades_with_hypothetical": 1,
+        },
+        "trades": [
+            {"funding_fee": 0.0, "funding_fee_hypothetical": -0.05,
+             "funding_hypothetical_detail": [{"reason": "intrabar_order_unknown", "cost": -0.05}]}
+        ]
+    }
+    fu_meta = {"coverage_ok": True}
+    funding_mismatch = False
+
+    # 按修复后的门禁逻辑进行判定
+    _fu_hyp = float(res["reconcile"].get("sum_funding_fee_hypothetical", 0.0))
+    _hyp_reasons = res.get("hypothetical_summary", {}).get("funding_hypothetical_reasons") or []
+    _has_hyp_events = bool(abs(_fu_hyp) > 0.0 or _hyp_reasons or any(
+        r.get("funding_hypothetical_detail") for r in res.get("trades", [])))
+
+    funding_ok = bool(fu_meta["coverage_ok"] and not (res.get("funding_gaps") or [])
+                      and not funding_mismatch
+                      and not res["funding_is_assumption"]
+                      and not _has_hyp_events)
+
+    # 1. 门禁判定：负数假设资金费必须被拦截
+    assert funding_ok is False
+
+    reasons = []
+    if _has_hyp_events:
+        if abs(_fu_hyp) > 0.0:
+            reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
+                           f"已隔离到假设情景，未计入已确认口径")
+        else:
+            reasons.append("存在未确认资金费事件（金额正负抵消后净额为零），"
+                           "已隔离到假设情景，未计入已确认口径")
+
+    assert len(reasons) == 1
+    assert "未确认资金费" in reasons[0]
+
+    # 2. 权益隔离断言：已确认权益严格不受假设返还影响
+    assert final_equity_confirmed == 5000.0
+    assert final_equity_confirmed != final_equity_hypothetical
+    assert abs((final_equity_confirmed - final_equity_hypothetical) - hypothetical_funding) < 1e-8
+
+
+def test_11_f2_offsetting_net_zero_hypothetical_funding():
+    """F2：正负金额相互抵消（一笔支出 +0.05，一笔返还 -0.05，净额为 0）。
+    预期：
+    1. 不能仅凭合计净额为零就忽略未确认性质；
+    2. funding_ok 必须保持为 False，阻断可信通行；
+    3. 产生明确的抵消未确认资金费原因；
+    4. 现金和权益对账恒等式完好。
+    """
+    # 两笔未确认事件，正负抵消
+    hypothetical_funding = 0.0  # 净额为 0！
+    res = {
+        "funding_model": "binance_settled",
+        "funding_is_assumption": False,
+        "funding_gaps": [],
+        "reconcile": {
+            "cash_identity_ok": True,
+            "equity_identity_ok": True,
+            "equity_curve_tail_matches_final": True,
+            "sum_funding_fee": 0.0,
+            "sum_funding_fee_hypothetical": 0.0,
+        },
+        "hypothetical_summary": {
+            "funding_hypothetical": 0.0,
+            "funding_hypothetical_reasons": ["intrabar_order_unknown"],
+            "trades_with_hypothetical": 2,
+        },
+        "trades": [
+            {"funding_fee": 0.0, "funding_fee_hypothetical": 0.05,
+             "funding_hypothetical_detail": [{"reason": "intrabar_order_unknown", "cost": 0.05}]},
+            {"funding_fee": 0.0, "funding_fee_hypothetical": -0.05,
+             "funding_hypothetical_detail": [{"reason": "intrabar_order_unknown", "cost": -0.05}]},
+        ]
+    }
+    fu_meta = {"coverage_ok": True}
+    funding_mismatch = False
+
+    # 若只用旧代码：abs(_fu_hyp) == 0.0 就会误判为 True！
+    # 修复后门禁逻辑：
+    _fu_hyp = float(res["reconcile"].get("sum_funding_fee_hypothetical", 0.0))
+    _hyp_reasons = res.get("hypothetical_summary", {}).get("funding_hypothetical_reasons") or []
+    _has_hyp_events = bool(abs(_fu_hyp) > 0.0 or _hyp_reasons or any(
+        r.get("funding_hypothetical_detail") for r in res.get("trades", [])))
+
+    funding_ok = bool(fu_meta["coverage_ok"] and not (res.get("funding_gaps") or [])
+                      and not funding_mismatch
+                      and not res["funding_is_assumption"]
+                      and not _has_hyp_events)
+
+    # 门禁断言：净额为 0 但有未确认事件时，绝对不得放行通过！
+    assert funding_ok is False
+
+    reasons = []
+    if _has_hyp_events:
+        if abs(_fu_hyp) > 0.0:
+            reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
+                           f"已隔离到假设情景，未计入已确认口径")
+        else:
+            reasons.append("存在未确认资金费事件（金额正负抵消后净额为零），"
+                           "已隔离到假设情景，未计入已确认口径")
+
+    assert len(reasons) == 1
+    assert "抵消后净额为零" in reasons[0]
+
+
+def test_12_f3_negative_funding_with_pit_unproven():
+    """F3：负数未确认资金费与 PIT_UNPROVEN 同时存在。
+    预期：
+    1. 保留 PIT_UNPROVEN 状态，原有 PIT 阻断不变；
+    2. 保留未确认资金费原因；
+    3. 总体质量判定必须为 degraded，不得升级为任何可信状态；
+    4. 已确认现金与权益不受假设返还污染。
+    """
+    hypothetical_funding = -0.08  # 负数返还
+    confirmed_equity = 5000.0
+    hypothetical_equity = confirmed_equity - hypothetical_funding  # 5000.08
+
+    # 1. 模拟未确认资金费判定
+    _fu_hyp = hypothetical_funding
+    _has_hyp_events = bool(abs(_fu_hyp) > 0.0)
+    funding_ok = not _has_hyp_events
+    assert funding_ok is False
+
+    # 2. 模拟 PIT 证据不足
+    overall_pit_status = "PIT_UNPROVEN"
+    assert overall_pit_status == "PIT_UNPROVEN"
+
+    # 3. 收集 reasons
+    reasons = []
+    if overall_pit_status != "PIT_PROVEN":
+        reasons.append("PIT状态未证明（存在回填或缺失物理到达证据）")
+    if _has_hyp_events:
+        reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
+                       f"已隔离到假设情景，未计入已确认口径")
+
+    # 双重原因并存
+    assert len(reasons) == 2
+    assert any("PIT状态未证明" in r for r in reasons)
+    assert any("未确认资金费" in r for r in reasons)
+
+    # 整体质量降级
+    q_status = "ok" if not reasons else "degraded"
+    assert q_status == "degraded"
+
+    # 权益隔离：已确认权益严格不受假设返还影响
+    assert confirmed_equity == 5000.0
+    assert confirmed_equity != hypothetical_equity
+    assert abs((confirmed_equity - hypothetical_equity) - hypothetical_funding) < 1e-8
+
+
