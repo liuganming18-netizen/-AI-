@@ -201,13 +201,13 @@ const render = (v: ObserveView): string => renderToStaticMarkup(<ObservePanel vi
   eq('B6 未声明列自成一組', canonicalRatioKey('oi_qty'), 'oi_qty');
   eq(
     'B7 已声明列归到代表键',
-    canonicalRatioKey('retail_account_ls_ratio'),
-    'count_long_short_ratio',
+    canonicalRatioKey('count_long_short_ratio'),
+    'retail_account_ls_ratio',
   );
   eq(
     'B8 另一对已声明列归到代表键',
-    canonicalRatioKey('top_position_ls_ratio'),
-    'sum_toptrader_long_short_ratio',
+    canonicalRatioKey('sum_toptrader_long_short_ratio'),
+    'top_position_ls_ratio',
   );
 }
 
@@ -274,10 +274,18 @@ const priceCell = (html: string): string => {
 };
 
 {
-  const liveOnly = render(view([item({ last_price: 123.45 })]));
-  ok('D1 只有实时价 ⇒ 标签「最新价」', liveOnly.includes('最新价'));
-  ok('D2 只有实时价时不得出现「K线收盘价」', !liveOnly.includes('K线收盘价'));
-  ok('D3 只有实时价时来源标记为 live', liveOnly.includes('data-price-source="live"'));
+  const liveOnly = render(
+    view([
+      item({
+        price_source: 'realtime',
+        last_price: 123.45,
+        price_at_utc: '2026-10-28T16:29:00Z',
+      }),
+    ]),
+  );
+  ok('D1 显式实时价且时间戳有效 ⇒ 标签「最新价」', liveOnly.includes('最新价'));
+  ok('D2 显式实时价时不得出现「K线收盘价」', !liveOnly.includes('K线收盘价'));
+  ok('D3 显式实时价时来源标记为 realtime', liveOnly.includes('data-price-source="realtime"'));
   eq('D4 实时价数值被渲染', priceCell(liveOnly), '123.4500');
 
   const closeOnly = render(view([item({ last_bar: { close: 100.5 } })]));
@@ -291,10 +299,40 @@ const priceCell = (html: string): string => {
   ok('D10 无价时来源标记为 unknown', none.includes('data-price-source="unknown"'));
   ok('D11 无价时不再出现旧标签「现价」', !none.includes('>现价<'));
 
-  const both = render(view([item({ last_price: 200, last_bar: { close: 100 } })]));
+  const both = render(
+    view([
+      item({
+        price_source: 'realtime',
+        last_price: 200,
+        price_at_utc: '2026-10-28T16:29:00Z',
+        last_bar: { close: 100 },
+      }),
+    ]),
+  );
   ok('D12 两者都有 ⇒ 标签取「最新价」', both.includes('最新价'));
   eq('D13 两者都有时数值取实时价而不是收盘价', priceCell(both), '200.0000');
-  ok('D14 两者都有时来源标记为 live', both.includes('data-price-source="live"'));
+  ok('D14 两者都有时来源标记为 realtime', both.includes('data-price-source="realtime"'));
+
+  const unconfirmed = render(view([item({ last_price: 123.45 })]));
+  ok('D15 只有未确认来源的 last_price ⇒ 标签「来源未确认」', unconfirmed.includes('来源未确认'));
+  ok('D16 来源未确认时标记为 unknown', unconfirmed.includes('data-price-source="unknown"'));
+
+  // GM-UI-BRANCH-02-R1：时间戳缺失与无效边界测试
+  const missingTime = render(view([item({ price_source: 'realtime', last_price: 123.45 })]));
+  ok('D17 实时报价时间戳缺失 ⇒ 标「报价时间未确认」', missingTime.includes('报价时间未确认'));
+  ok('D18 实时报价时间戳缺失时来源退回 unknown', missingTime.includes('data-price-source="unknown"'));
+
+  const invalidTime = render(
+    view([
+      item({
+        price_source: 'realtime',
+        last_price: 123.45,
+        price_at_utc: 'not-a-valid-iso-date',
+      }),
+    ]),
+  );
+  ok('D19 实时报价时间戳无效 ⇒ 标「报价时间未确认」', invalidTime.includes('报价时间未确认'));
+  ok('D20 实时报价时间戳无效时来源退回 unknown', invalidTime.includes('data-price-source="unknown"'));
 }
 
 /* ---------- 汇总 ---------- */

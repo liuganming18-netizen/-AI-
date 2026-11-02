@@ -69,44 +69,47 @@ const fmtPrice = (v: number | null): string => {
 };
 
 /**
- * 多空比别名关系（**显式声明，不靠数值猜**）。
+ * 多空比**显式别名映射**（PR2-WO-01 修复 B）。
  *
- * 为什么不能「同值即别名」：数值恰好相等只说明这一刻读数撞上了，不代表两列是同一个指标。
- * 修复前 `dedupeByValue` 与 `EvidenceDetail` 都用 `Math.abs(a-b) < 1e-9` 判定别名
- * ⇒ 两个**语义不同**的指标只要读数相同，就会被合并、还会被标成「别名」，
- * 让人误以为库里少了一类独立信息。这正是本工单要修的误导性展示。
+ * 旧实现是「同值即别名」：两列读数只要满足 `|a-b| < 1e-9` 就判为同一个指标。
+ * 后果有两层：
+ *   1. 紧凑行把**语义不同**的两列合并成一行 ⇒ 让人以为库里少了一类独立信息；
+ *   2. 展开详情把其中一列标成「与 X 同值＝别名」⇒ 直接给出**错误结论**。
+ * 数值恰好相等只说明这一刻读数撞上了，不说明两列是同一个指标。
  *
- * 为什么也不能「成对就无条件合并」：后端 `metrics_api.py:1119-1126` 专门统计
+ * 但也不能「成对就无条件合并」：后端 `metrics_api.py` 专门统计
  * `retail_account_ls_ratio <> count_long_short_ratio` 与
  * `top_position_ls_ratio <> sum_toptrader_long_short_ratio` 的行数，
- * 说明这两对**可能真的分叉**。若成对就无条件合并，分叉时会把真实差异藏起来。
+ * 说明这两对**可能真的分叉**。若无条件合并，分叉时会把真实差异藏起来。
  *
- * 故判据 = **已声明成对** 且 **本次读数确实相等**，缺一不可；不满足就当作两列独立信息。
+ * 故判据 = **已声明成对**（下表）**且本次读数相等**，缺一不可；
+ * 不在表里的列自成一组，永不与任何列合并 —— 即使数值一模一样。
  */
-const RATIO_ALIAS_PAIRS: ReadonlyArray<readonly [string, string]> = [
+export const RATIO_ALIAS_GROUPS: ReadonlyArray<readonly string[]> = [
+  // 零售账户多空比 ←→ 账户数多空比（同一指标的两个列名）
   ['retail_account_ls_ratio', 'count_long_short_ratio'],
+  // 大户持仓多空比 ←→ 大户持仓量多空比
   ['top_position_ls_ratio', 'sum_toptrader_long_short_ratio'],
 ];
 
-const RATIO_CANONICAL: Record<string, string> = (() => {
-  const m: Record<string, string> = {};
-  for (const [alias, canonical] of RATIO_ALIAS_PAIRS) {
-    m[alias] = canonical;
-    m[canonical] = canonical;
-  }
-  return m;
-})();
+/** 列名 → 别名组代表键（组内第一个）。未声明的列返回自身。 */
+const RATIO_CANONICAL: ReadonlyMap<string, string> = new Map(
+  RATIO_ALIAS_GROUPS.flatMap((g) => g.map((k) => [k, g[0]] as const)),
+);
 
-/** 列名 → 别名组代表键；未声明的列返回自身（自成一组，永不与别人合并）。 */
-export const canonicalRatioKey = (key: string): string => RATIO_CANONICAL[key] ?? key;
+export const canonicalRatioKey = (key: string): string => RATIO_CANONICAL.get(key) ?? key;
 
-/** 两个读数是否可判定为同值（都必须是有效数字，「未知」不等于「相同」）。 */
+/** 两列是否**被声明**为同一指标的不同列名（不看数值）。 */
+export const isDeclaredRatioAlias = (aKey: string, bKey: string): boolean =>
+  aKey !== bKey && canonicalRatioKey(aKey) === canonicalRatioKey(bKey);
+
+/** 两个读数是否可判定为同值；「未知」不等于「相同」。 */
 const sameReading = (a: number | null, b: number | null): boolean =>
   a !== null && b !== null && Math.abs(a - b) < 1e-9;
 
-/** 两列是否构成别名：已声明成对 + 本次读数相等。任一不满足即视为两列独立信息。 */
+/** 两列是否构成别名：**已声明成对 + 本次读数相等**。任一不满足即视为两列独立信息。 */
 export const isRatioAliasOf = (a: ObserveEvidenceValue, b: ObserveEvidenceValue): boolean =>
-  a !== b && canonicalRatioKey(a.key) === canonicalRatioKey(b.key) && sameReading(a.value, b.value);
+  isDeclaredRatioAlias(a.key, b.key) && sameReading(a.value, b.value);
 
 /**
  * 紧凑行只列独立值。
@@ -215,21 +218,124 @@ const EvidenceDetail: React.FC<{ ev: ObserveEvidence | null }> = ({ ev }) => {
   );
 };
 
+/* ---------- 观察区价格口径（PR2-WO-01 修复 C）---------- */
+
+/**
+ * 价格来源三态。**只降不升**：确认不到就退回 unknown，绝不默认成实时。
+ */
+export type ObservePriceSource = 'realtime' | 'candle_close' | 'unknown';
+
+export interface ObservePriceDisplay {
+  value: number | null;
+  source: ObservePriceSource;
+  /** 展示用标签：最新价 / K线收盘价 / 来源未确认 / 价格未知 */
+  label: string;
+  /** 该价格对应的时刻（UTC）：实时价=报价时刻；K线=该 bar 收盘时刻；未确认=null */
+  asOfUtc: string | null;
+}
+
+const asNum = (v: unknown): number | null =>
+  typeof v === 'number' && Number.isFinite(v) ? v : null;
+
+const asStr = (v: unknown): string | null => (typeof v === 'string' && v ? v : null);
+
+/** 校验并解析有效 ISO 时间戳；缺失、空串或非法解析一律返回 null，绝不伪造。 */
+const asValidIso = (v: unknown): string | null => {
+  if (typeof v !== 'string') return null;
+  const s = v.trim();
+  if (!s) return null;
+  const t = Date.parse(s);
+  return Number.isFinite(t) ? s : null;
+};
+
+/**
+ * 解析观察区「价格」的取值与口径。
+ *
+ * 为什么必须区分（修复 C & GM-UI-BRANCH-02-R1 补强）：
+ *   后端 `unified_runtime.py` 构造观察区载荷时，`last_price` 取的是
+ *   最近一根**已处理 1h bar 的 close**（`"last_price": None if last is None else last["close"]`），
+ *   `last_bar_utc` 是**同一根** bar 的收盘时刻 —— 两者同源，**都不是实时成交价**。
+ *   旧前端一律标「现价」，实时价缺失时还会拿 `last_bar.close` 顶上仍叫「现价」，
+ *   读的人会以为那是当下成交价，据此判断「离突破还差多少」就会算错。
+ *
+ * 判据按「能确认到什么程度」分档，**只降不升**：
+ *   1. 载荷**显式**声明实时报价（`price_source` 为 realtime/live，或 `realtime.last_price`）：
+ *      - 必须具备**有效且可解析的报价时间证据**（`at_utc` 或 `price_at_utc`）⇒ 最新价，时刻取报价时刻；
+ *      - 若时间缺失或无法解析 ⇒ 降级标「报价时间未确认」，不得冒充可确认时效的「最新价」；
+ *   2. 只有 bar 收盘价（`last_bar.close` 按字段名即 K 线收盘；
+ *      或后端同源的 `last_price` 且带 `last_bar_utc` 佐证）⇒ K线收盘价，时刻取 bar 收盘时刻；
+ *   3. 有数值但**确认不到来源**（既无实时声明，也无 bar 时刻佐证）
+ *      ⇒ 标「来源未确认」，数值照显（不隐瞒），但**不得**标成实时价；
+ *   都没有 ⇒ 「价格未知」。
+ *
+ * 兼容性：只读既有字段，不要求后端新增任何字段；`realtime` / `price_source`
+ * 目前载荷里没有，属**前瞻分支**（出现时才生效），缺失不报错、不改变现有显示。
+ */
+export function resolveObservePrice(item: ObserveItem): ObservePriceDisplay {
+  const raw = item as unknown as Record<string, any>;
+
+  // ① 显式实时来源（需经时间证据校验）
+  const declaredSource = asStr(raw.price_source) ?? asStr(raw.priceSource);
+  const realtimeObj = raw.realtime && typeof raw.realtime === 'object' ? raw.realtime : null;
+  const realtimeValue = asNum(realtimeObj?.last_price);
+  const isDeclaredRealtime = declaredSource === 'realtime' || declaredSource === 'live';
+  const realtimePrice = isDeclaredRealtime ? asNum(raw.last_price) ?? realtimeValue : realtimeValue;
+  if (realtimePrice !== null) {
+    const rawTime = asStr(realtimeObj?.at_utc) ?? asStr(raw.price_at_utc);
+    const validTime = asValidIso(rawTime);
+    if (validTime !== null) {
+      return {
+        value: realtimePrice,
+        source: 'realtime',
+        label: '最新价',
+        asOfUtc: validTime,
+      };
+    }
+    // 报价时间证据缺失或非法解析：展示保守状态「报价时间未确认」，时效未佐证前不标实时
+    return {
+      value: realtimePrice,
+      source: 'unknown',
+      label: '报价时间未确认',
+      asOfUtc: null,
+    };
+  }
+
+  // ② K 线收盘价
+  const bar = raw.last_bar && typeof raw.last_bar === 'object' ? raw.last_bar : null;
+  const barClose = asNum(bar?.close);
+  const barCloseUtc = asStr(bar?.close_utc) ?? asStr(bar?.closeTime) ?? asStr(raw.last_bar_utc);
+  if (barClose !== null) {
+    return { value: barClose, source: 'candle_close', label: 'K线收盘价', asOfUtc: barCloseUtc };
+  }
+
+  const lastPrice = asNum(raw.last_price);
+  if (lastPrice !== null) {
+    const lastBarUtc = asStr(raw.last_bar_utc);
+    // 后端 `last_price` 与 `last_bar_utc` 出自同一根 bar ⇒ 有时刻佐证才算「确认是收盘价」
+    if (lastBarUtc !== null) {
+      return {
+        value: lastPrice,
+        source: 'candle_close',
+        label: 'K线收盘价',
+        asOfUtc: lastBarUtc,
+      };
+    }
+    return { value: lastPrice, source: 'unknown', label: '来源未确认', asOfUtc: null };
+  }
+
+  // ③ 没有价格
+  return { value: null, source: 'unknown', label: '价格未知', asOfUtc: null };
+}
+
 const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
   const [open, setOpen] = useState(false);
   const expired = item.expired === true;
   const stageCls = STATE_STYLE[item.state] ?? 'border-neutral-700 bg-neutral-800 text-neutral-300';
 
-  // 提取现价与突破目标价、距离百分比
-  //
-  // PR2-WO-01：`last_price`（实时最新价）与 `last_bar.close`（最近一根 K 线收盘价）
-  // 是**两个不同口径**。修复前一律标「现价」，实时价缺失时会拿收盘价顶上还叫「现价」，
-  // 读的人会以为那是当下成交价。现在分开取，并按实际来源给标签。
-  const livePrice = (item as any).last_price ?? null;
-  const candleClose = (item as any).last_bar?.close ?? null;
-  const lastPrice = livePrice ?? candleClose;
-  const priceSource = livePrice !== null ? 'live' : candleClose !== null ? 'candle_close' : 'unknown';
-  const priceLabel = livePrice !== null ? '最新价' : candleClose !== null ? 'K线收盘价' : '价格未知';
+  // 价格：取值与口径由 resolveObservePrice 一并给出，**来源与数值不再分开猜**
+  // （修复前：`last_price ?? last_bar.close` 一律标「现价」，见该函数注释）。
+  const price = resolveObservePrice(item);
+  const lastPrice = price.value;
   const targetPrice = (item as any).breakout_target ?? item.box?.h ?? null;
   const rawGap = (item as any).gap_pct ?? (
     (lastPrice && targetPrice && lastPrice > 0)
@@ -285,15 +391,26 @@ const ObserveRow: React.FC<{ item: ObserveItem }> = ({ item }) => {
         </div>
       </div>
 
-      {/* 第 2 行：核心量化看盘数据（价格 vs 突破位 vs 距离） */}
+      {/* 第 2 行：核心量化看盘数据（价格 vs 突破位 vs 距离）
+          价格标签按**实际来源**给（最新价 / K线收盘价 / 来源未确认 / 价格未知），
+          不再一律写「现价」—— 那是本工单要修的误导性展示。 */}
       <div className="grid grid-cols-3 gap-1 py-1 px-1.5 rounded bg-neutral-950/80 border border-neutral-850 font-mono text-[10px]">
         <div>
           <span
             className="text-[9px] text-neutral-500 font-sans block"
             data-testid="observe-price-label"
-            data-price-source={priceSource}
+            data-price-source={price.source}
+            title={
+              price.asOfUtc
+                ? `${price.label} · 对应时刻 ${fmtUtc(price.asOfUtc)}`
+                : price.source === 'unknown'
+                  ? (price.label === '报价时间未确认'
+                      ? '报价时间缺失或无法解析，时效无法确认'
+                      : '无法确认该数值的来源，不按实时价展示')
+                  : price.label
+            }
           >
-            {priceLabel}
+            {price.label}
           </span>
           <span className="text-neutral-200 font-medium" data-testid="observe-price-value">
             {fmtPrice(lastPrice)}
