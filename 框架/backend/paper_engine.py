@@ -772,36 +772,131 @@ def _f(v):
         return None
 
 
+def _table_columns(con: sqlite3.Connection, table_name: str) -> set:
+    try:
+        return {r[1] for r in con.execute(f"PRAGMA table_info({table_name})")}
+    except sqlite3.OperationalError:
+        return set()
+
+
 # ── 账户态 ───────────────────────────────────────────────────────────────────
 def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = False) -> dict:
     acc = f"paper43_{arm}"
-    act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
-    db_init_equity = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
+    is_degraded = False
 
-    st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
+    try:
+        act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
+        db_init_equity = float(act_row[0]) if act_row and act_row[0] is not None else L.get_configured_initial_equity()
+    except sqlite3.OperationalError:
+        db_init_equity = L.get_configured_initial_equity()
+        is_degraded = True
+
+    try:
+        st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
+    except sqlite3.OperationalError:
+        st = None
+        is_degraded = True
+
     if include_voided and st:
         return {"account_id": acc, "arm": arm, "cash": float(st["cash"]),
                 "realized_pnl": float(st["realized_pnl"]),
                 "fees_paid": float(st["fees_paid"]),
                 "funding_paid": float(st["funding_paid"]),
-                "initial_equity": db_init_equity}
-    
-    # 正式口径（SYSTEM-CLOSELOOP-03）：排除 voided=1 的测试合成记录，避免测试亏损计入正式成绩
-    row_real = con.execute(
-        "SELECT COALESCE(SUM(net_pnl),0), COALESCE(SUM(entry_fee + exit_fee),0), COALESCE(SUM(funding_paid),0) "
-        "FROM paper_realized WHERE account_id=? AND COALESCE(voided,0)=0",
-        (acc,)
-    ).fetchone()
-    off_realized = float(row_real[0] or 0.0)
-    off_fees = float(row_real[1] or 0.0)
-    off_funding = float(row_real[2] or 0.0)
-    off_cash = db_init_equity + off_realized
+                "initial_equity": db_init_equity,
+                "confirmed_funding_paid": float(st["funding_paid"]),
+                "hypothetical_funding_paid": 0.0,
+                "is_degraded": is_degraded}
 
-    return {"account_id": acc, "arm": arm, "cash": off_cash,
-            "realized_pnl": off_realized,
-            "fees_paid": off_fees,
-            "funding_paid": off_funding,
-            "initial_equity": db_init_equity}
+    # 正式口径（SYSTEM-CLOSELOOP-03 / GM-PAPER-ACCOUNTING-01）：
+    # 严格排除 voided=1，统算已平仓与未平仓持仓费用，维持现金会计恒等式：
+    # cash = initial_equity + realized_net - open_entry_fees - open_funding_paid
+
+    # 1. 统计未平仓持仓（open positions）已发生的开仓手续费与资金费
+    pos_cols = _table_columns(con, "paper_position")
+    if not pos_cols:
+        open_fees = 0.0
+        open_funding = 0.0
+        is_degraded = True
+    else:
+        fee_col = "entry_fee" if "entry_fee" in pos_cols else None
+        fund_col = "funding_paid" if "funding_paid" in pos_cols else None
+        void_clause = "AND COALESCE(voided,0)=0" if "voided" in pos_cols else ""
+
+        fee_expr = f"COALESCE(SUM({fee_col}),0)" if fee_col else "0.0"
+        fund_expr = f"COALESCE(SUM({fund_col}),0)" if fund_col else "0.0"
+
+        if not fee_col or not fund_col or not void_clause:
+            is_degraded = True
+
+        row_pos = con.execute(
+            f"SELECT {fee_expr}, {fund_expr} FROM paper_position "
+            f"WHERE account_id=? AND status='open' {void_clause}",
+            (acc,)
+        ).fetchone()
+        open_fees = float(row_pos[0] or 0.0) if row_pos else 0.0
+        open_funding = float(row_pos[1] or 0.0) if row_pos else 0.0
+
+    # 2. 统计已平仓记录（realized records）已实现的净盈亏、手续费与资金费
+    real_cols = _table_columns(con, "paper_realized")
+    if not real_cols:
+        off_realized = 0.0
+        realized_fees = 0.0
+        realized_funding = 0.0
+        is_degraded = True
+    else:
+        net_col = "net_pnl" if "net_pnl" in real_cols else None
+        entry_fee_col = "entry_fee" in real_cols
+        exit_fee_col = "exit_fee" in real_cols
+        fund_col = "funding_paid" if "funding_paid" in real_cols else None
+        void_clause = "AND COALESCE(voided,0)=0" if "voided" in real_cols else ""
+
+        net_expr = f"COALESCE(SUM({net_col}),0)" if net_col else "0.0"
+        if entry_fee_col and exit_fee_col:
+            fees_expr = "COALESCE(SUM(entry_fee + exit_fee),0)"
+        elif entry_fee_col:
+            fees_expr = "COALESCE(SUM(entry_fee),0)"
+        elif exit_fee_col:
+            fees_expr = "COALESCE(SUM(exit_fee),0)"
+        else:
+            fees_expr = "0.0"
+        fund_expr = f"COALESCE(SUM({fund_col}),0)" if fund_col else "0.0"
+
+        if not net_col or not (entry_fee_col and exit_fee_col) or not fund_col or not void_clause:
+            is_degraded = True
+
+        row_real = con.execute(
+            f"SELECT {net_expr}, {fees_expr}, {fund_expr} FROM paper_realized "
+            f"WHERE account_id=? {void_clause}",
+            (acc,)
+        ).fetchone()
+        off_realized = float(row_real[0] or 0.0) if row_real else 0.0
+        realized_fees = float(row_real[1] or 0.0) if row_real else 0.0
+        realized_funding = float(row_real[2] or 0.0) if row_real else 0.0
+
+    # 3. 汇总费用与资金费，计算自洽现金
+    # 费用总额 = 已平仓手续费 + 未平仓手续费
+    total_fees = realized_fees + open_fees
+    # 资金费总额 = 已平仓资金费 + 未平仓资金费（支出为正，返还为负）
+    total_funding = realized_funding + open_funding
+    # 账本现金 = 初始本金 + 已实现净盈亏 - 未平仓开仓手续费 - 未平仓已计资金费
+    off_cash = db_init_equity + off_realized - open_fees - open_funding
+
+    return {
+        "account_id": acc,
+        "arm": arm,
+        "cash": off_cash,
+        "realized_pnl": off_realized,
+        "fees_paid": total_fees,
+        "funding_paid": total_funding,
+        "initial_equity": db_init_equity,
+        "open_fees": open_fees,
+        "open_funding": open_funding,
+        "realized_fees": realized_fees,
+        "realized_funding": realized_funding,
+        "confirmed_funding_paid": total_funding,
+        "hypothetical_funding_paid": 0.0,
+        "is_degraded": is_degraded,
+    }
 
 
 def open_positions(con: sqlite3.Connection, arm: str):
