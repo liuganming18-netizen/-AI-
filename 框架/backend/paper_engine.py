@@ -783,6 +783,7 @@ def _table_columns(con: sqlite3.Connection, table_name: str) -> set:
 def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = False) -> dict:
     acc = f"paper43_{arm}"
     is_degraded = False
+    degrade_reasons = []
 
     try:
         act_row = con.execute("SELECT initial_equity FROM paper_account WHERE account_id=?", (acc,)).fetchone()
@@ -790,12 +791,124 @@ def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = Fa
     except sqlite3.OperationalError:
         db_init_equity = L.get_configured_initial_equity()
         is_degraded = True
+        degrade_reasons.append("missing_paper_account_table")
 
     try:
         st = con.execute("SELECT * FROM paper_state WHERE account_id=?", (acc,)).fetchone()
     except sqlite3.OperationalError:
         st = None
         is_degraded = True
+        degrade_reasons.append("missing_paper_state_table")
+
+    # 1. 统计未平仓持仓（open positions）已发生的开仓手续费与资金费
+    pos_cols = _table_columns(con, "paper_position")
+    open_fees = 0.0
+    open_funding = 0.0
+    if not pos_cols:
+        is_degraded = True
+        degrade_reasons.append("missing_paper_position_table")
+    else:
+        has_fee_col = "entry_fee" in pos_cols
+        has_fund_col = "funding_paid" in pos_cols
+        has_void_col = "voided" in pos_cols
+
+        if not has_fee_col:
+            is_degraded = True
+            degrade_reasons.append("missing_entry_fee_column")
+        if not has_fund_col:
+            is_degraded = True
+            degrade_reasons.append("missing_funding_paid_column")
+
+        fee_sel = "entry_fee" if has_fee_col else "NULL"
+        fund_sel = "funding_paid" if has_fund_col else "NULL"
+        void_clause = "AND COALESCE(voided,0)=0" if has_void_col else ""
+
+        # D1 核心：区分零费用与未知费用（NULL），不得以 COALESCE 掩盖 NULL
+        row_pos = con.execute(
+            f"SELECT COUNT(*), "
+            f"SUM(CASE WHEN {fee_sel} IS NULL THEN 1 ELSE 0 END), "
+            f"SUM(CASE WHEN {fund_sel} IS NULL THEN 1 ELSE 0 END), "
+            f"SUM({fee_sel}), SUM({fund_sel}) "
+            f"FROM paper_position "
+            f"WHERE account_id=? AND status='open' {void_clause}",
+            (acc,)
+        ).fetchone()
+
+        if row_pos:
+            total_open = int(row_pos[0] or 0)
+            null_fees = int(row_pos[1] or 0)
+            null_funds = int(row_pos[2] or 0)
+            open_fees = float(row_pos[3] or 0.0)
+            open_funding = float(row_pos[4] or 0.0)
+
+            if total_open > 0:
+                if null_fees > 0:
+                    is_degraded = True
+                    degrade_reasons.append("open_position_entry_fee_null")
+                if null_funds > 0:
+                    is_degraded = True
+                    degrade_reasons.append("open_position_funding_paid_null")
+
+    # 2. 统计已平仓记录（realized records）已实现的净盈亏、手续费与资金费
+    real_cols = _table_columns(con, "paper_realized")
+    off_realized = 0.0
+    realized_fees = 0.0
+    realized_funding = 0.0
+    if not real_cols:
+        is_degraded = True
+        degrade_reasons.append("missing_paper_realized_table")
+    else:
+        has_net_col = "net_pnl" in real_cols
+        has_entry_fee = "entry_fee" in real_cols
+        has_exit_fee = "exit_fee" in real_cols
+        has_fund_col = "funding_paid" in real_cols
+        has_void_col = "voided" in real_cols
+
+        if not has_net_col:
+            is_degraded = True
+            degrade_reasons.append("missing_net_pnl_column")
+        if not (has_entry_fee and has_exit_fee):
+            is_degraded = True
+            degrade_reasons.append("missing_realized_fee_column")
+        if not has_fund_col:
+            is_degraded = True
+            degrade_reasons.append("missing_realized_funding_column")
+
+        net_sel = "net_pnl" if has_net_col else "NULL"
+        fees_sel = "(entry_fee + exit_fee)" if (has_entry_fee and has_exit_fee) else "NULL"
+        fund_sel = "funding_paid" if has_fund_col else "NULL"
+        void_clause = "AND COALESCE(voided,0)=0" if has_void_col else ""
+
+        row_real = con.execute(
+            f"SELECT COUNT(*), "
+            f"SUM(CASE WHEN {net_sel} IS NULL THEN 1 ELSE 0 END), "
+            f"SUM(CASE WHEN {fees_sel} IS NULL THEN 1 ELSE 0 END), "
+            f"SUM(CASE WHEN {fund_sel} IS NULL THEN 1 ELSE 0 END), "
+            f"SUM({net_sel}), SUM({fees_sel}), SUM({fund_sel}) "
+            f"FROM paper_realized "
+            f"WHERE account_id=? {void_clause}",
+            (acc,)
+        ).fetchone()
+
+        if row_real:
+            total_real = int(row_real[0] or 0)
+            null_net = int(row_real[1] or 0)
+            null_real_fees = int(row_real[2] or 0)
+            null_real_funds = int(row_real[3] or 0)
+            off_realized = float(row_real[4] or 0.0)
+            realized_fees = float(row_real[5] or 0.0)
+            realized_funding = float(row_real[6] or 0.0)
+
+            if total_real > 0:
+                if null_net > 0:
+                    is_degraded = True
+                    degrade_reasons.append("realized_net_pnl_null")
+                if null_real_fees > 0:
+                    is_degraded = True
+                    degrade_reasons.append("realized_fee_null")
+                if null_real_funds > 0:
+                    is_degraded = True
+                    degrade_reasons.append("realized_funding_paid_null")
 
     if include_voided and st:
         return {"account_id": acc, "arm": arm, "cash": float(st["cash"]),
@@ -805,80 +918,15 @@ def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = Fa
                 "initial_equity": db_init_equity,
                 "confirmed_funding_paid": float(st["funding_paid"]),
                 "hypothetical_funding_paid": 0.0,
-                "is_degraded": is_degraded}
+                "is_degraded": is_degraded,
+                "degrade_reasons": degrade_reasons,
+                "cash_is_trusted": not is_degraded}
 
     # 正式口径（SYSTEM-CLOSELOOP-03 / GM-PAPER-ACCOUNTING-01）：
     # 严格排除 voided=1，统算已平仓与未平仓持仓费用，维持现金会计恒等式：
     # cash = initial_equity + realized_net - open_entry_fees - open_funding_paid
-
-    # 1. 统计未平仓持仓（open positions）已发生的开仓手续费与资金费
-    pos_cols = _table_columns(con, "paper_position")
-    if not pos_cols:
-        open_fees = 0.0
-        open_funding = 0.0
-        is_degraded = True
-    else:
-        fee_col = "entry_fee" if "entry_fee" in pos_cols else None
-        fund_col = "funding_paid" if "funding_paid" in pos_cols else None
-        void_clause = "AND COALESCE(voided,0)=0" if "voided" in pos_cols else ""
-
-        fee_expr = f"COALESCE(SUM({fee_col}),0)" if fee_col else "0.0"
-        fund_expr = f"COALESCE(SUM({fund_col}),0)" if fund_col else "0.0"
-
-        if not fee_col or not fund_col or not void_clause:
-            is_degraded = True
-
-        row_pos = con.execute(
-            f"SELECT {fee_expr}, {fund_expr} FROM paper_position "
-            f"WHERE account_id=? AND status='open' {void_clause}",
-            (acc,)
-        ).fetchone()
-        open_fees = float(row_pos[0] or 0.0) if row_pos else 0.0
-        open_funding = float(row_pos[1] or 0.0) if row_pos else 0.0
-
-    # 2. 统计已平仓记录（realized records）已实现的净盈亏、手续费与资金费
-    real_cols = _table_columns(con, "paper_realized")
-    if not real_cols:
-        off_realized = 0.0
-        realized_fees = 0.0
-        realized_funding = 0.0
-        is_degraded = True
-    else:
-        net_col = "net_pnl" if "net_pnl" in real_cols else None
-        entry_fee_col = "entry_fee" in real_cols
-        exit_fee_col = "exit_fee" in real_cols
-        fund_col = "funding_paid" if "funding_paid" in real_cols else None
-        void_clause = "AND COALESCE(voided,0)=0" if "voided" in real_cols else ""
-
-        net_expr = f"COALESCE(SUM({net_col}),0)" if net_col else "0.0"
-        if entry_fee_col and exit_fee_col:
-            fees_expr = "COALESCE(SUM(entry_fee + exit_fee),0)"
-        elif entry_fee_col:
-            fees_expr = "COALESCE(SUM(entry_fee),0)"
-        elif exit_fee_col:
-            fees_expr = "COALESCE(SUM(exit_fee),0)"
-        else:
-            fees_expr = "0.0"
-        fund_expr = f"COALESCE(SUM({fund_col}),0)" if fund_col else "0.0"
-
-        if not net_col or not (entry_fee_col and exit_fee_col) or not fund_col or not void_clause:
-            is_degraded = True
-
-        row_real = con.execute(
-            f"SELECT {net_expr}, {fees_expr}, {fund_expr} FROM paper_realized "
-            f"WHERE account_id=? {void_clause}",
-            (acc,)
-        ).fetchone()
-        off_realized = float(row_real[0] or 0.0) if row_real else 0.0
-        realized_fees = float(row_real[1] or 0.0) if row_real else 0.0
-        realized_funding = float(row_real[2] or 0.0) if row_real else 0.0
-
-    # 3. 汇总费用与资金费，计算自洽现金
-    # 费用总额 = 已平仓手续费 + 未平仓手续费
     total_fees = realized_fees + open_fees
-    # 资金费总额 = 已平仓资金费 + 未平仓资金费（支出为正，返还为负）
     total_funding = realized_funding + open_funding
-    # 账本现金 = 初始本金 + 已实现净盈亏 - 未平仓开仓手续费 - 未平仓已计资金费
     off_cash = db_init_equity + off_realized - open_fees - open_funding
 
     return {
@@ -896,6 +944,8 @@ def account_view(arm: str, con: sqlite3.Connection, *, include_voided: bool = Fa
         "confirmed_funding_paid": total_funding,
         "hypothetical_funding_paid": 0.0,
         "is_degraded": is_degraded,
+        "degrade_reasons": degrade_reasons,
+        "cash_is_trusted": not is_degraded,
     }
 
 
@@ -962,6 +1012,9 @@ def pre_open_check(con, arm, symbol, notional, stop_distance, qty, con_mkt, para
     if not params.get("short_enabled", False):
         pass  # 只多：调用方只允许 long
     eq = equity(con, arm, con_mkt, params)
+    # D2 核心风控门禁：现金或会计数据不可信（降级）时，必须拒绝开仓使用新风险预算
+    if eq.get("is_degraded"):
+        return False, "cash_untrusted_degraded"
     pos = open_positions(con, arm)
     if len(pos) >= int(params["max_positions"]):
         return False, "max_positions_reached"
@@ -1012,6 +1065,10 @@ def equity(con, arm, con_mkt, params, peak_ref=None) -> dict:
     eq = av["cash"] + upnl_sum
     peak = _peak_equity(con, arm, eq, av["initial_equity"])
     dd = 0.0 if peak <= 0 else max(0.0, (peak - eq) / peak)
+    is_degraded = bool(av.get("is_degraded", False))
+    degrade_reasons = list(av.get("degrade_reasons", []))
+    equity_is_trusted = (not is_degraded) and (missing == 0)
+
     return {"equity": eq, "cash": av["cash"], "gross_notional": gross,
             "unrealized": upnl_sum, "open_risk_abs": open_risk_abs,
             "open_risk_frac": (open_risk_abs / eq) if eq > 0 else 0.0,
@@ -1019,7 +1076,11 @@ def equity(con, arm, con_mkt, params, peak_ref=None) -> dict:
             "positions_missing_mark": missing,
             "peak_equity": peak, "drawdown": dd,
             "drawdown_locked": dd >= float(params["maximum_account_drawdown_fraction"]),
-            "initial_equity": av["initial_equity"]}
+            "initial_equity": av["initial_equity"],
+            "is_degraded": is_degraded,
+            "degrade_reasons": degrade_reasons,
+            "cash_is_trusted": not is_degraded,
+            "equity_is_trusted": equity_is_trusted}
 
 
 def _peak_equity(con, arm, current, initial_equity=None):
@@ -1616,6 +1677,8 @@ def open_position(arm: str, symbol: str, *, signal_uid=None, direction="long",
         eq = equity(con, arm, con_mkt, params)
         if eq["equity"] is None:
             return _reject(arm, symbol, signal_uid, "equity_unavailable")
+        if eq.get("is_degraded"):
+            return _reject(arm, symbol, signal_uid, "cash_untrusted_degraded")
         e = eq["equity"]
 
         # 参与率用上一根已闭合 15m 的 quote 成交额

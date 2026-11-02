@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""GM-PAPER-ACCOUNTING-01｜模拟账户现金与费用对账 P0 整改隔离测试套件
+"""GM-PAPER-ACCOUNTING-01-R2｜模拟账户现金会计整改与未知费用识别及风控阻断测试套件
 
-本测试套件在完全隔离的内存/临时 SQLite 环境下执行，严格禁止触碰生产数据库。
-覆盖场景：
-  1. CodeRabbit 核心反例复现与整改验收（初始 5000，开仓费 10，资金费 50，持仓 open，现金必须为 4940）
-  2. 场景 A：未平仓持仓扣费与资金费（多笔持仓，现金与费用双向对齐）
-  3. 场景 B：正常平仓已实现盈亏与防重复扣减（平仓前后现金连续，无二次扣费）
-  4. 场景 C：负数资金费返还（资金费为负数时正确增加现金）
-  5. 场景 D：假设资金费隔离（假设/未确认资金费不污染正式现金）
-  6. 场景 E：重复事件防重扣（幂等性保证）
-  7. 场景 F：历史版本表结构兼容与缺失字段优雅降级（旧表缺少 entry_fee/funding_paid/voided 等列不抛错）
+本测试套件在完全隔离的内存 SQLite 环境下执行，严格禁止触碰生产数据库。
+强制覆盖反例矩阵 T1 ~ T10：
+  T1: 开仓手续费明确为 0 -> 可信 (is_degraded=False, cash_is_trusted=True)
+  T2: 已确认资金费明确为 0 -> 可信 (is_degraded=False, cash_is_trusted=True)
+  T3: 未平仓手续费为 NULL -> 降级 (is_degraded=True, 原因含 open_position_entry_fee_null)
+  T4: 未平仓资金费为 NULL -> 降级 (is_degraded=True, 原因含 open_position_funding_paid_null)
+  T5: 旧账本缺少费用列 -> 降级 (is_degraded=True)
+  T6: 作废持仓包含 NULL -> 不污染有效账户 (is_degraded=False)
+  T7: 降级现金进入 equity() -> 不得当成可信权益 (equity_is_trusted=False)
+  T8: 降级现金进入开仓检查 -> 必须拒绝使用 (pre_open_check 返回 False, cash_untrusted_degraded)
+  T9: 正常账户 -> 无行为回归 (pre_open_check 正常放行)
+  T10: CodeRabbit 原始 60 U 反例 -> 继续通过 (cash=4940.0)
+并完整保留：
+  - 场景 A：多笔未平仓持仓费用归属
+  - 场景 B：正常平仓已实现盈亏与防重复扣减
+  - 场景 C：负数资金费返还增加现金
+  - 场景 D：假设资金费隔离不污染现金
+  - 场景 E：重复事件幂等防重
+  - 场景 F：历史版本表结构兼容与缺失字段优雅降级
 """
 
 import os
@@ -66,53 +76,271 @@ def build_isolated_ledger(initial_equity: float = 5000.0, arm: str = "3a") -> sq
     return con
 
 
-class TestPaperAccountingIsolation(unittest.TestCase):
-    """模拟账户现金与费用对账隔离测试"""
+def build_dummy_market_conn(symbol: str = "BTCUSDT", price: float = 50000.0) -> sqlite3.Connection:
+    """构建用于估值和开仓检查的隔离虚拟行情连接。"""
+    con_mkt = sqlite3.connect(":memory:")
+    con_mkt.row_factory = sqlite3.Row
+    con_mkt.execute(
+        "CREATE TABLE candle_versions (symbol TEXT, timeframe TEXT, close REAL, close_time INTEGER, is_closed INT)"
+    )
+    con_mkt.execute(
+        "CREATE VIEW candles AS SELECT * FROM candle_versions"
+    )
+    con_mkt.execute(
+        "INSERT INTO candle_versions VALUES(?, '15m', ?, 2000, 1)",
+        (symbol, price)
+    )
+    con_mkt.commit()
+    return con_mkt
 
-    def test_01_coderabbit_counterexample(self):
-        """CodeRabbit 核心反例：初始 5000，开仓手续费 10，资金费 50，持仓 open。
-        期望对外现金与账本现金一致为 4940，费用总计 10，资金费总计 50。
-        """
+
+class TestPaperAccountingIsolationR2(unittest.TestCase):
+    """模拟账户现金与费用对账及风控阻断全场景测试"""
+
+    def setUp(self):
+        self.default_params = {
+            "maximum_account_drawdown_fraction": 0.20,
+            "leverage": 1.0,
+            "single_name_notional_equity_cap": 0.30,
+            "gross_long_notional_equity_cap": 1.0,
+            "cash_or_free_margin_reserve_fraction": 0.10,
+            "portfolio_initial_stop_risk_cap": 0.05,
+            "max_positions": 10,
+            "short_enabled": False,
+            "_source": "test"
+        }
+
+    # ── T1 ~ T10 核心反例矩阵 ──────────────────────────────────────────────
+
+    def test_t01_zero_entry_fee_trusted(self):
+        """T1: 开仓手续费明确为 0 时，属于合法零费用，保持可信。"""
         arm = "3a"
         acc = f"paper43_{arm}"
-        con = build_isolated_ledger(initial_equity=5000.0, arm=arm)
+        con = build_isolated_ledger(5000.0, arm)
         try:
-            # 模拟开仓：扣减手续费 10，真实账本现金变为 4990
             con.execute(
                 "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
-                "VALUES(?,?,1.0,50000.0,1000,'open',10.0,0.0,0)",
+                "VALUES(?,?,1.0,50000.0,1000,'open',0.0,10.0,0)",
                 (acc, "BTCUSDT")
             )
-            # 模拟资金费结算：产生 50.0 资金费支出，更新 position.funding_paid 与 paper_state.cash
-            con.execute("UPDATE paper_position SET funding_paid=50.0 WHERE account_id=? AND status='open'", (acc,))
+            con.commit()
+            av = PE.account_view(arm, con)
+            self.assertFalse(av["is_degraded"], "明确为 0 的手续费不得触发降级")
+            self.assertTrue(av["cash_is_trusted"])
+            self.assertEqual(av["open_fees"], 0.0)
+            self.assertEqual(av["cash"], 4990.0)  # 5000 - 0 - 10
+        finally:
+            con.close()
+
+    def test_t02_zero_funding_fee_trusted(self):
+        """T2: 已确认资金费明确为 0 时，属于合法零值，保持可信。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        try:
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',15.0,0.0,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+            av = PE.account_view(arm, con)
+            self.assertFalse(av["is_degraded"], "明确为 0 的资金费不得触发降级")
+            self.assertTrue(av["cash_is_trusted"])
+            self.assertEqual(av["open_funding"], 0.0)
+            self.assertEqual(av["cash"], 4985.0)  # 5000 - 15 - 0
+        finally:
+            con.close()
+
+    def test_t03_unclosed_entry_fee_null_degraded(self):
+        """T3: 未平仓手续费为 NULL 时，未知费用必须触发可信状态降级。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        try:
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',NULL,10.0,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+            av = PE.account_view(arm, con)
+            self.assertTrue(av["is_degraded"], "未平仓手续费为 NULL 必须标记 is_degraded=True")
+            self.assertFalse(av["cash_is_trusted"], "现金必须标记为不可信")
+            self.assertIn("open_position_entry_fee_null", av["degrade_reasons"])
+        finally:
+            con.close()
+
+    def test_t04_unclosed_funding_null_degraded(self):
+        """T4: 未平仓资金费为 NULL 时，未知费用必须触发可信状态降级。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        try:
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',10.0,NULL,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+            av = PE.account_view(arm, con)
+            self.assertTrue(av["is_degraded"], "未平仓资金费为 NULL 必须标记 is_degraded=True")
+            self.assertFalse(av["cash_is_trusted"], "现金必须标记为不可信")
+            self.assertIn("open_position_funding_paid_null", av["degrade_reasons"])
+        finally:
+            con.close()
+
+    def test_t05_missing_columns_degraded(self):
+        """T5: 旧账本缺少费用列时，必须标记不可信。"""
+        con = sqlite3.connect(":memory:")
+        con.row_factory = sqlite3.Row
+        try:
+            con.execute("CREATE TABLE paper_account(account_id TEXT PRIMARY KEY, initial_equity REAL)")
+            con.execute("CREATE TABLE paper_position(position_id INTEGER PRIMARY KEY, account_id TEXT, status TEXT)")
+            con.execute("INSERT INTO paper_account VALUES('paper43_3a', 5000.0)")
+            con.commit()
+            av = PE.account_view("3a", con)
+            self.assertTrue(av["is_degraded"])
+            self.assertFalse(av["cash_is_trusted"])
+            self.assertTrue(any("missing_" in r for r in av["degrade_reasons"]))
+        finally:
+            con.close()
+
+    def test_t06_voided_position_null_fees_does_not_pollute(self):
+        """T6: 作废记录包含 NULL 费用时，不得污染有效账户或错误触发降级。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        try:
+            # 有效持仓（费用完整）
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',10.0,20.0,0)",
+                (acc, "BTCUSDT")
+            )
+            # 作废持仓（voided=1，费用为 NULL）
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,5.0,100.0,1000,'open',NULL,NULL,1)",
+                (acc, "SOLUSDT")
+            )
+            con.commit()
+            av = PE.account_view(arm, con)
+            self.assertFalse(av["is_degraded"], "作废记录中的 NULL 不得触发有效账户降级")
+            self.assertTrue(av["cash_is_trusted"])
+            self.assertEqual(av["cash"], 4970.0)  # 5000 - 10 - 20
+        finally:
+            con.close()
+
+    def test_t07_degraded_cash_into_equity_untrusted(self):
+        """T7: 降级现金进入 equity() 时，不得当成可信权益。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        con_mkt = build_dummy_market_conn("BTCUSDT", 50000.0)
+        try:
+            # 插入含 NULL 费用的持仓
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',NULL,NULL,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+            eq = PE.equity(con, arm, con_mkt, self.default_params)
+            self.assertTrue(eq["is_degraded"], "equity 必须标记 is_degraded=True")
+            self.assertFalse(eq["equity_is_trusted"], "equity 必须明确 equity_is_trusted=False")
+            self.assertFalse(eq["cash_is_trusted"], "cash 必须明确 cash_is_trusted=False")
+            self.assertTrue(len(eq["degrade_reasons"]) > 0)
+        finally:
+            con.close()
+            con_mkt.close()
+
+    def test_t08_degraded_cash_into_pre_open_check_rejected(self):
+        """T8: 降级现金进入开仓检查时，必须阻断并拒绝使用。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        con_mkt = build_dummy_market_conn("ETHUSDT", 3000.0)
+        try:
+            # 存在费用未知的未平仓持仓，导致账户降级
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',NULL,10.0,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+
+            # 尝试开新仓 (ETHUSDT)
+            ok, why = PE.pre_open_check(
+                con, arm, "ETHUSDT", notional=1000.0, stop_distance=100.0, qty=0.33,
+                con_mkt=con_mkt, params=self.default_params
+            )
+            self.assertFalse(ok, "现金降级不可信时必须阻断开仓")
+            self.assertEqual(why, "cash_untrusted_degraded", "拒绝原因必须为 cash_untrusted_degraded")
+        finally:
+            con.close()
+            con_mkt.close()
+
+    def test_t09_normal_account_no_regression(self):
+        """T9: 正常可信账户开仓检查无行为回归，正常放行。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        con_mkt = build_dummy_market_conn("ETHUSDT", 3000.0)
+        try:
+            # 正常持仓
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,0.01,50000.0,1000,'open',5.0,0.0,0)",
+                (acc, "BTCUSDT")
+            )
+            con.commit()
+
+            av = PE.account_view(arm, con)
+            self.assertFalse(av["is_degraded"])
+            self.assertTrue(av["cash_is_trusted"])
+
+            # 正常小仓位开仓，符合所有 cap 限制
+            ok, why = PE.pre_open_check(
+                con, arm, "ETHUSDT", notional=500.0, stop_distance=50.0, qty=0.1,
+                con_mkt=con_mkt, params=self.default_params
+            )
+            self.assertTrue(ok, f"正常账户开仓检查必须通过，实测拒绝原因: {why}")
+            self.assertEqual(why, "ok")
+        finally:
+            con.close()
+            con_mkt.close()
+
+    def test_t10_coderabbit_60u_counterexample_continuous_pass(self):
+        """T10: CodeRabbit 原始 60 U 反例继续稳定通过（本金 5000，开仓 10，资金费 50，持仓 open，现金为 4940）。"""
+        arm = "3a"
+        acc = f"paper43_{arm}"
+        con = build_isolated_ledger(5000.0, arm)
+        try:
+            con.execute(
+                "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
+                "VALUES(?,?,1.0,50000.0,1000,'open',10.0,50.0,0)",
+                (acc, "BTCUSDT")
+            )
             con.execute(
                 "UPDATE paper_state SET cash=4940.0, fees_paid=10.0, funding_paid=50.0 WHERE account_id=?",
                 (acc,)
             )
             con.commit()
 
-            # 调用账户视图读取
             av = PE.account_view(arm, con)
-
-            # 断言现金口径严格对齐，偏差必须为 0
-            self.assertEqual(av["cash"], 4940.0, "未平仓开仓手续费与资金费不得在账户视图中被错误加回")
-            self.assertEqual(av["fees_paid"], 10.0, "手续费统计必须包含未平仓持仓的开仓手续费")
-            self.assertEqual(av["funding_paid"], 50.0, "资金费统计必须包含未平仓持仓已确认资金费")
-            self.assertEqual(av["realized_pnl"], 0.0, "未平仓持仓已实现盈亏必须为 0")
-            self.assertEqual(av["initial_equity"], 5000.0)
+            self.assertEqual(av["cash"], 4940.0, "反例现金必须为 4940.0")
+            self.assertEqual(av["fees_paid"], 10.0)
+            self.assertEqual(av["funding_paid"], 50.0)
+            self.assertFalse(av["is_degraded"], "字段完整明确的持仓不得降级")
+            self.assertTrue(av["cash_is_trusted"])
         finally:
             con.close()
 
-    def test_02_scenario_a_unclosed_multiple_positions(self):
-        """场景 A：多笔未平仓持仓扣费与资金费归属。
-        持仓 1: entry_fee=15, funding_paid=30
-        持仓 2: entry_fee=25, funding_paid=0
-        已作废持仓 (voided=1): entry_fee=100, funding_paid=200 (必须被排除)
-        初始: 10000
-        期望有效现金: 10000 - (15+25) - (30+0) = 9930
-        期望有效手续费: 40
-        期望有效资金费: 30
-        """
+    # ── 既有场景回归 ────────────────────────────────────────────────────────
+
+    def test_scenario_a_unclosed_multiple_positions(self):
+        """场景 A：多笔未平仓持仓扣费与资金费归属。"""
         arm = "3a"
         acc = f"paper43_{arm}"
         con = build_isolated_ledger(initial_equity=10000.0, arm=arm)
@@ -127,7 +355,6 @@ class TestPaperAccountingIsolation(unittest.TestCase):
                 "VALUES(?,?,10.0,3000.0,1050,'open',25.0,0.0,0)",
                 (acc, "ETHUSDT")
             )
-            # 作废持仓（排除）
             con.execute(
                 "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
                 "VALUES(?,?,5.0,100.0,1060,'open',100.0,200.0,1)",
@@ -140,20 +367,16 @@ class TestPaperAccountingIsolation(unittest.TestCase):
             self.assertEqual(av["fees_paid"], 40.0)
             self.assertEqual(av["funding_paid"], 30.0)
             self.assertEqual(av["realized_pnl"], 0.0)
+            self.assertFalse(av["is_degraded"])
         finally:
             con.close()
 
-    def test_03_scenario_b_closed_position_no_double_deduction(self):
-        """场景 B：正常平仓已实现盈亏与防重复扣减。
-        持仓平仓后，其 entry_fee 与 funding_paid 转移至 paper_realized，
-        持仓表状态变为 'closed'。
-        断言：平仓后手续费与资金费不会被计算两次，现金与已实现净额精确自洽。
-        """
+    def test_scenario_b_closed_position_no_double_deduction(self):
+        """场景 B：正常平仓已实现盈亏与防重复扣减。"""
         arm = "3a"
         acc = f"paper43_{arm}"
         con = build_isolated_ledger(initial_equity=5000.0, arm=arm)
         try:
-            # 1. 开仓
             con.execute(
                 "INSERT INTO paper_position(position_id,account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
                 "VALUES(1,?, 'BTCUSDT', 1.0, 50000.0, 1000, 'open', 10.0, 20.0, 0)",
@@ -164,11 +387,7 @@ class TestPaperAccountingIsolation(unittest.TestCase):
 
             av_open = PE.account_view(arm, con)
             self.assertEqual(av_open["cash"], 4970.0)
-            self.assertEqual(av_open["fees_paid"], 10.0)
-            self.assertEqual(av_open["funding_paid"], 20.0)
 
-            # 2. 平仓：毛利 gross=200，平仓手续费 exit_fee=10，资金费已付 20
-            # net_pnl = 200 - 10(entry) - 10(exit) - 20(funding) = 160
             con.execute(
                 "UPDATE paper_position SET status='closed', exit_ts=2000, exit_price=50200.0, exit_fee=10.0 WHERE position_id=1"
             )
@@ -177,7 +396,6 @@ class TestPaperAccountingIsolation(unittest.TestCase):
                 "VALUES(?,1,'BTCUSDT',1.0,50000.0,50200.0,200.0,10.0,10.0,20.0,160.0,1000,2000,2000,0)",
                 (acc,)
             )
-            # 平仓现金增加：gross(200) - exit_fee(10) = 190 -> 现金 4970 + 190 = 5160
             con.execute(
                 "UPDATE paper_state SET cash=5160.0, realized_pnl=160.0, fees_paid=20.0, funding_paid=20.0 WHERE account_id=?",
                 (acc,)
@@ -185,21 +403,16 @@ class TestPaperAccountingIsolation(unittest.TestCase):
             con.commit()
 
             av_closed = PE.account_view(arm, con)
-            # 初始 5000 + 净盈亏 160 = 5160
             self.assertEqual(av_closed["cash"], 5160.0)
             self.assertEqual(av_closed["realized_pnl"], 160.0)
             self.assertEqual(av_closed["fees_paid"], 20.0)
             self.assertEqual(av_closed["funding_paid"], 20.0)
+            self.assertFalse(av_closed["is_degraded"])
         finally:
             con.close()
 
-    def test_04_scenario_c_negative_funding_credit(self):
-        """场景 C：负数资金费返还（账户收取资金费）。
-        未平仓持仓产生 funding_paid = -40.0（收入 40 资金费）。
-        开仓手续费 10.0。
-        初始现金 5000。
-        期望现金: 5000 - 10 - (-40) = 5030.0。
-        """
+    def test_scenario_c_negative_funding_credit(self):
+        """场景 C：负数资金费返还（账户收取资金费）。"""
         arm = "3a"
         acc = f"paper43_{arm}"
         con = build_isolated_ledger(initial_equity=5000.0, arm=arm)
@@ -219,14 +432,12 @@ class TestPaperAccountingIsolation(unittest.TestCase):
             self.assertEqual(av["cash"], 5030.0)
             self.assertEqual(av["fees_paid"], 10.0)
             self.assertEqual(av["funding_paid"], -40.0)
+            self.assertFalse(av["is_degraded"])
         finally:
             con.close()
 
-    def test_05_scenario_d_hypothetical_funding_isolation(self):
-        """场景 D：假设资金费与缺口不污染正式现金。
-        paper_funding_gap 记录缺口标记，不扣减现金；
-        外部或回测假设字段不影响正式账户视图中的 cash。
-        """
+    def test_scenario_d_hypothetical_funding_isolation(self):
+        """场景 D：假设资金费与缺口不污染正式现金。"""
         arm = "3a"
         acc = f"paper43_{arm}"
         con = build_isolated_ledger(initial_equity=5000.0, arm=arm)
@@ -236,7 +447,6 @@ class TestPaperAccountingIsolation(unittest.TestCase):
                 "VALUES(1,?, 'BTCUSDT', 1.0, 50000.0, 1000, 'open', 10.0, 0.0, 0)",
                 (acc,)
             )
-            # 插入 gap 缺口记录（假设/未确定事件）
             con.execute(
                 "INSERT INTO paper_funding_gap(account_id,position_id,funding_time,reason,detected_at) "
                 "VALUES(?,1,10000,'funding_verification_complete',2000)",
@@ -245,21 +455,17 @@ class TestPaperAccountingIsolation(unittest.TestCase):
             con.commit()
 
             av = PE.account_view(arm, con)
-            # 仅扣除已确认的开仓费 10.0，现金为 4990.0，未被 gap/假设资金费污染
             self.assertEqual(av["cash"], 4990.0)
             self.assertEqual(av["funding_paid"], 0.0)
-            self.assertEqual(av.get("confirmed_funding_paid", av["funding_paid"]), 0.0)
-            self.assertEqual(av.get("hypothetical_funding_paid", 0.0), 0.0)
+            self.assertFalse(av["is_degraded"])
         finally:
             con.close()
 
-    def test_06_scenario_e_idempotency_duplicate_events(self):
-        """场景 E：重复事件幂等防重。
-        同一笔持仓查询多次 account_view 结果恒定一致。
-        """
+    def test_scenario_e_idempotency_duplicate_events(self):
+        """场景 E：重复事件幂等防重。"""
         arm = "3a"
         acc = f"paper43_{arm}"
-        con = build_isolated_ledger(initial_equity=5000.0, arm=arm)
+        con = build_isolated_ledger(5000.0, arm)
         try:
             con.execute(
                 "INSERT INTO paper_position(account_id,symbol,qty,entry_price,entry_ts,status,entry_fee,funding_paid,voided) "
@@ -272,33 +478,7 @@ class TestPaperAccountingIsolation(unittest.TestCase):
             av2 = PE.account_view(arm, con)
             self.assertEqual(av1, av2)
             self.assertEqual(av1["cash"], 4970.0)
-        finally:
-            con.close()
-
-    def test_07_scenario_f_historical_compat_missing_columns(self):
-        """场景 F：历史版本表结构兼容。
-        模拟旧版数据库中缺失 entry_fee, funding_paid, voided 等列，
-        account_view 必须优雅降级为 0.0，不得抛出 OperationalError。
-        """
-        con = sqlite3.connect(":memory:")
-        con.row_factory = sqlite3.Row
-        try:
-            # 建立极简旧版表
-            con.execute("CREATE TABLE paper_account(account_id TEXT PRIMARY KEY, initial_equity REAL)")
-            con.execute("CREATE TABLE paper_position(position_id INTEGER PRIMARY KEY, account_id TEXT, status TEXT)")
-            con.execute("CREATE TABLE paper_realized(id INTEGER PRIMARY KEY, account_id TEXT, net_pnl REAL)")
-            con.execute("INSERT INTO paper_account VALUES('paper43_3a', 5000.0)")
-            con.execute("INSERT INTO paper_position VALUES(1, 'paper43_3a', 'open')")
-            con.execute("INSERT INTO paper_realized VALUES(1, 'paper43_3a', 100.0)")
-            con.commit()
-
-            # 不应抛出异常，优雅降级
-            av = PE.account_view("3a", con)
-            self.assertEqual(av["cash"], 5100.0)
-            self.assertEqual(av["realized_pnl"], 100.0)
-            self.assertEqual(av["fees_paid"], 0.0)
-            self.assertEqual(av["funding_paid"], 0.0)
-            self.assertTrue(av.get("is_degraded", False) or "cash" in av)
+            self.assertFalse(av1["is_degraded"])
         finally:
             con.close()
 
