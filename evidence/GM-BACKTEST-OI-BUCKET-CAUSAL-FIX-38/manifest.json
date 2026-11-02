@@ -1,0 +1,51 @@
+{
+  "work_order": "GM-BACKTEST-OI-BUCKET-CAUSAL-FIX-38",
+  "priority": "P0",
+  "role": "WorkBuddy B",
+  "timestamp": "2026-10-31T00:47:00+08:00",
+  "isolated_worktree": "/private/tmp/gm-backtest-oi-bucket-causal-fix-38/wt",
+  "branch": "candidate/gm-backtest-oi-bucket-causal-fix-38",
+  "source_changes": [
+    {
+      "path": "框架/backend/backtest_runner.py",
+      "before_sha256": "7e955abeecfcd1ca096ac53cc43704b2e9c790a87ec01da46c62c44123edb89b",
+      "after_sha256": "1928d551fe84b764165d03cb60e1f5b0de1a006a2e97ffcfe2b1b61abe90af87",
+      "diff_lines": "+101/-15"
+    }
+  ],
+  "deliverables": [
+    {
+      "path": "README.md",
+      "sha256": "ae6b7f4a52df986633311f580ab77a5497e7be988d1a979b9767b39cbea028a7",
+      "description": "交付报告"
+    },
+    {
+      "path": "patch/01_oi_bucket_causal_fix.patch",
+      "sha256": "565c55cfc0d4de7915dc87e3cb3ab627c564c8396ffe641479e7200e4325b417",
+      "description": "backtest_runner.py 最小补丁"
+    },
+    {
+      "path": "scripts/01_test_oi_bucket_causal.py",
+      "sha256": "fca787b7888718011dc3c3fd387b88aa4544570e7a0c4cce1c558344435f8c57",
+      "description": "10 项独立因果与 PIT 回归测试脚本"
+    },
+    {
+      "path": "logs/test_run.log",
+      "sha256": "86edaa0871510de569bd0fef5d9162c61fbf4cebea898aa289516d48e4694d51",
+      "description": "224 项测试通过完整执行日志"
+    },
+    {
+      "path": "out/causal_fix_report.json",
+      "sha256": "d3ab3f06cd3e53d8317530faf0d1598f632cb94c9c6b8ccd61fe5be6c27cb047",
+      "description": "结构化验证指标与契约报告"
+    }
+  ],
+  "test_summary": {
+    "total_tests": 224,
+    "passed": 224,
+    "failed": 0,
+    "errors": 0,
+    "pass_rate": "100.0%"
+  },
+  "verdict": "PASS"
+}

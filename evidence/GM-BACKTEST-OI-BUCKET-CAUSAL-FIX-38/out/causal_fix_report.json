@@ -1,0 +1,55 @@
+{
+  "work_order": "GM-BACKTEST-OI-BUCKET-CAUSAL-FIX-38",
+  "priority": "P0",
+  "executor": "WorkBuddy B",
+  "status": "PASS",
+  "timestamp": "2026-10-31T00:46:00+08:00",
+  "target_file": "框架/backend/backtest_runner.py",
+  "hashes": {
+    "before_sha256": "7e955abeecfcd1ca096ac53cc43704b2e9c790a87ec01da46c62c44123edb89b",
+    "after_sha256": "1928d551fe84b764165d03cb60e1f5b0de1a006a2e97ffcfe2b1b61abe90af87"
+  },
+  "causal_contract": {
+    "bucket_rule": "5m OI 必须先闭合再被决策使用，要求 bucket_end <= decision_time",
+    "bucket_span_ms": 300000,
+    "decision_time": "close_ms = timestamp + iv_sig",
+    "leak_fixed": "彻底消除整点对齐时误读决策当刻刚开始的 5m 桶前视泄露（旧 searchsorted(side='right')-1）"
+  },
+  "pit_semantics": {
+    "rule": "真实 available_at 缺失或晚于决策时间时必须保留 PIT_UNPROVEN，不得凭 bucket_end 升级为可信",
+    "unproven_triggers": [
+      "available_at_missing: 缺失真实物理到达时戳",
+      "available_at_after_decision: 真实到达时戳晚于信号决策时刻",
+      "backfilled_data_unproven: 离线回填数据无法自证历史到达延迟",
+      "available_at_before_bucket_end: 到达早于闭合违背因果律",
+      "no_matched_closed_bucket: 决策时刻前尚无任何 5m 桶走完闭合"
+    ],
+    "proven_condition": "存在合法 available_at 且 bucket_end <= available_at <= decision_time 且非回填数据"
+  },
+  "test_verification": {
+    "total_tests": 224,
+    "passed": 224,
+    "failed": 0,
+    "errors": 0,
+    "pass_rate_pct": 100.0,
+    "execution_time_sec": 1.10,
+    "test_suite_coverage": [
+      "test_backtest_oi_bucket_causal_38.py (10/10 PASS)",
+      "test_backtest_data_gate_17.py (45/45 PASS)",
+      "test_backtest_data_gate_27.py (36/36 PASS)",
+      "test_backtest_data_gate_31.py (53/53 PASS)",
+      "test_frame_fit_01.py (48/48 PASS)",
+      "test_frame_fit_02.py (32/32 PASS)"
+    ]
+  },
+  "discipline_and_boundaries": {
+    "isolated_worktree": "/private/tmp/gm-backtest-oi-bucket-causal-fix-38/wt",
+    "branch": "candidate/gm-backtest-oi-bucket-causal-fix-38",
+    "strategy_parameters_modified": false,
+    "gates_modified": false,
+    "wiring_modules_modified": false,
+    "production_data_modified": false,
+    "auto_merged": false,
+    "auto_deployed": false
+  }
+}
