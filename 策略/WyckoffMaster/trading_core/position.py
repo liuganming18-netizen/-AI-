@@ -60,6 +60,21 @@ class Position:
     order_id: Optional[str] = None
     signal_id: Optional[str] = None
     signal_bar_open_ms: Optional[int] = None
+    # ── 资金费会计分桶（GM-FUNDING-ACCOUNTING-REWORK-03）──────────────────
+    # `cum_funding_fee`（上方）语义**收紧为「已确认」**：只有真实事件 + PIT 可见 +
+    # 能证明结算时点持仓仍在，才累加到它。下列字段承载「不确定」的那一侧，
+    # **永不参与** Cash / 已实现 PnL / Equity 的已确认口径。
+    funding_hypothetical: float = 0.0
+    funding_hypothetical_detail: List[dict] = field(default_factory=list)
+    # 盘中成交顺序可证明性：CONFIRMED / INTRABAR_ORDER_UNKNOWN
+    intrabar_order_status: str = "CONFIRMED"
+    # 最近一次资金费结算的精确时刻（毫秒）；None ⇒ 该笔未经精确时点结算
+    last_funding_confirmed_ms: Optional[int] = None
+
+    @property
+    def cum_funding_fee_conservative(self) -> float:
+        """保守口径累计 = 已确认 + 假设（**仅供假设情景展示，不得进已确认口径**）。"""
+        return float(self.cum_funding_fee) + float(self.funding_hypothetical)
 
     @property
     def position_side(self) -> PositionSide:
@@ -84,6 +99,11 @@ class Position:
             "stop_trace": list(self.stop_trace),
             "order_id": self.order_id, "signal_id": self.signal_id,
             "signal_bar_open_ms": self.signal_bar_open_ms,
+            # 资金费分桶（加性字段，不改变既有字段语义）
+            "funding_hypothetical": self.funding_hypothetical,
+            "funding_hypothetical_detail": list(self.funding_hypothetical_detail),
+            "intrabar_order_status": self.intrabar_order_status,
+            "last_funding_confirmed_ms": self.last_funding_confirmed_ms,
         }
 
 

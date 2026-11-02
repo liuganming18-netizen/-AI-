@@ -25,6 +25,21 @@ from typing import Any, Iterable
 CORE_CONTRACT_VERSION = "trading_core_v1.0.0"
 
 
+# ══════════════ 资金费会计口径（GM-FUNDING-ACCOUNTING-REWORK-03）══════════════
+# 目的：把「能证明钱真的动了」与「只是估计钱可能动」分成两个桶，永不混算。
+#   confirmed    ：事件真实、PIT 可见、且能证明结算时点持仓仍在 ⇒ 才进 Cash / 已实现 PnL / Equity。
+#   hypothetical ：模型假设、或盘中顺序客观未知 ⇒ 只进假设情景，**绝不进已确认口径**。
+FUNDING_BUCKET_CONFIRMED = "confirmed"
+FUNDING_BUCKET_HYPOTHETICAL = "hypothetical"
+FUNDING_BUCKETS = (FUNDING_BUCKET_CONFIRMED, FUNDING_BUCKET_HYPOTHETICAL)
+
+# 盘中成交顺序的可证明性
+#   CONFIRMED             ：有精确成交时刻，可与结算时点比先后
+#   INTRABAR_ORDER_UNKNOWN：只有 OHLC，止损与结算谁先发生客观无法判定
+INTRABAR_ORDER_CONFIRMED = "CONFIRMED"
+INTRABAR_ORDER_UNKNOWN = "INTRABAR_ORDER_UNKNOWN"
+
+
 # ══════════════════════════ 枚举（唯一一份）══════════════════════════
 
 class OrderStatus(str, Enum):
@@ -152,6 +167,8 @@ def ordered_unique(seq: Iterable) -> list:
 
 __all__ = [
     "CORE_CONTRACT_VERSION",
+    "FUNDING_BUCKET_CONFIRMED", "FUNDING_BUCKET_HYPOTHETICAL", "FUNDING_BUCKETS",
+    "INTRABAR_ORDER_CONFIRMED", "INTRABAR_ORDER_UNKNOWN",
     "OrderStatus", "Side", "PositionSide", "OrderType", "ExecPhase", "Liquidity",
     "TradingCoreError", "LiveExecutionForbidden", "ExecutionInputError",
     "stable_hash", "canonical_json", "payload_hash", "ordered_unique",

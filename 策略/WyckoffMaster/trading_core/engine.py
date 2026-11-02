@@ -33,10 +33,13 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from .contracts import (ExecPhase, Liquidity, OrderStatus, PositionSide, Side,
+from .contracts import (FUNDING_BUCKET_CONFIRMED, FUNDING_BUCKET_HYPOTHETICAL,
+                        INTRABAR_ORDER_CONFIRMED, INTRABAR_ORDER_UNKNOWN,
+                        ExecPhase, Liquidity, OrderStatus, PositionSide, Side,
                         stable_hash)
 from .fill import FillAdapter, FillRejected, SimulatedBarFillAdapter, round_qty_down
-from .funding import funding_events_ms, settle_funding
+from .funding import (funding_events_ms, settle_funding,
+                      settle_intrabar_ambiguous)
 from .ledger import (FEE_CHARGED, FUNDING_FEE, GENESIS_INIT, ORDER_CREATED,
                      ORDER_FILLED, ORDER_SUBMITTED, POSITION_CLOSED,
                      POSITION_OPENED, SIGNAL_ACCEPTED, SIGNAL_REJECTED,
@@ -309,6 +312,14 @@ class TradingCore:
         timeline = np.unique(np.concatenate([arrays[s]["timestamp"] for s in arrays]))
         cursors = {s: 0 for s in arrays}
         lengths = {s: len(arrays[s]["timestamp"]) for s in arrays}
+        # 每标的 bar 跨度（毫秒）：用于判定「事件是否落在平仓那根 bar 之内」。
+        # 取相邻时间戳差的中位数（对缺失 bar 稳健）；单根 bar 无法推 ⇒ 退回 15m。
+        bar_ms_by_symbol: Dict[str, int] = {}
+        for _sym, _arr in arrays.items():
+            _ts = np.asarray(_arr["timestamp"], dtype=np.int64)
+            _d = np.diff(_ts)
+            _d = _d[_d > 0]
+            bar_ms_by_symbol[_sym] = int(np.median(_d)) if _d.size else 900_000
 
         cash = float(cfg.initial_equity)
         self._emit(GENESIS_INIT, symbol="*", event_time=(int(timeline[0])
@@ -323,8 +334,12 @@ class TradingCore:
         decisions: List[dict] = []
         rejected: List[dict] = []
         equity_curve: List[dict] = []
+        # 假设情景曲线（**并列展示**，不参与任何已确认口径；`total_equity` 已扣假设资金费）
+        equity_curve_hyp: List[dict] = []
         funding_gaps_all: List[dict] = []
         sum_gross = sum_entry_fee = sum_exit_fee = 0.0
+        # 假设桶累计（**永不进 cash**，只用于并列展示假设情景）
+        sum_hyp_closed = 0.0
 
         for t_now in timeline:
             active = []
@@ -355,15 +370,28 @@ class TradingCore:
                                                "stop": float(lvl), "reason": "trail"})
                 evs = funding_events_ms(market_data[sym].get("funding_events"),
                                         market_data[sym].get("funding_time_unit"))
+                # 相位 A 的时点 = 本 bar 开盘。持仓此刻仍在（上一根 bar 的平仓相位已跑完），
+                # 因此 `last_funding_ms < ev_ms <= bar_open` 的事件**可证明**发生在持仓期内
+                # ⇒ confirmed。假设模型推出来的费用永远走 hypothetical（不动现金）。
+                funding_bucket = (FUNDING_BUCKET_HYPOTHETICAL if funding_is_assumption
+                                  else FUNDING_BUCKET_CONFIRMED)
                 before = cash
+                hyp_before = pos.funding_hypothetical
                 cash = settle_funding(
                     pos, cash, model=cfg.funding_model, t_ms=int(arr["timestamp"][i]),
                     open_px=float(arr["open"][i]), rate=arr["funding_rate"][i],
-                    events=evs, funding_is_assumption=funding_is_assumption)
-                if cash != before:
+                    events=evs, funding_is_assumption=funding_is_assumption,
+                    bucket=funding_bucket)
+                hyp_delta = float(pos.funding_hypothetical) - float(hyp_before)
+                if cash != before or abs(hyp_delta) > 0.0:
                     self._emit(FUNDING_FEE, symbol=sym, event_time=int(arr["timestamp"][i]),
                                payload={"delta": float(cash - before),
-                                        "cum_funding_fee": float(pos.cum_funding_fee)})
+                                        "cum_funding_fee": float(pos.cum_funding_fee),
+                                        # 分桶明细（加性字段）：假设部分**没有**动现金
+                                        "bucket": funding_bucket,
+                                        "hypothetical_delta": hyp_delta,
+                                        "cum_funding_fee_hypothetical":
+                                            float(pos.funding_hypothetical)})
 
             # ── 相位 B：跳空退出（**只用 open**）──
             for sym, i in active:
@@ -425,6 +453,7 @@ class TradingCore:
                 closed.append(rec)
                 sum_gross += rec["gross_pnl"]
                 sum_exit_fee += rec["exit_fee"]
+                sum_hyp_closed += float(rec.get("funding_fee_hypothetical", 0.0))
                 decisions.append({"timestamp": int(t_now), "symbol": sym,
                                   "phase": "B_open_gap", "action": "exit",
                                   "reason": dec.reason, "price": fill})
@@ -695,6 +724,38 @@ class TradingCore:
                     if dup:
                         continue
                     exit_fee = self.adapter.fill_fee(fill, pos.qty)
+                    # ── 盘中止损的成交时刻只有 OHLC，无法证明「结算 vs 成交」谁先发生。
+                    #    落在本 bar 内的真实结算事件 ⇒ 只能进假设桶，**绝不进已确认口径**。
+                    #    这里也顺带覆盖「事件时刻晚于 bar 开盘但早于 bar 收盘」的漏结。
+                    #
+                    #    D3（REWORK-04）：`intrabar_order_status` **不得无条件标 UNKNOWN**。
+                    #    它描述的是「本笔资金费的会计归属是否有顺序依据」，不是「成交时刻
+                    #    能否精确到毫秒」。判据 = 本 bar 的不可判定窗口内**是否真的**落进了
+                    #    结算事件：
+                    #      · 有事件落窗  ⇒ 先后不可证明 ⇒ UNKNOWN（进假设桶）
+                    #      · 无事件落窗  ⇒ 本 bar 无可判之事；此前事件已在相位 A 按已确认
+                    #                       结算 ⇒ CONFIRMED（保持默认值，不覆盖）
+                    ambiguous = {}
+                    hyp_added = settle_intrabar_ambiguous(
+                        pos,
+                        events=funding_events_ms(
+                            market_data[sym].get("funding_events"),
+                            market_data[sym].get("funding_time_unit")),
+                        bar_open_ms=int(t_now),
+                        bar_close_ms=(int(t_now) + bar_ms_by_symbol.get(sym, 900_000) - 1),
+                        execution_time_ms=None,
+                        status=INTRABAR_ORDER_UNKNOWN,
+                        ambiguous_out=ambiguous)
+                    if int(ambiguous.get("n_hypothetical", 0)) > 0:
+                        pos.intrabar_order_status = INTRABAR_ORDER_UNKNOWN
+                    if abs(hyp_added) > 0.0:
+                        self._emit(FUNDING_FEE, symbol=sym, event_time=int(t_now),
+                                   payload={"delta": 0.0,
+                                            "cum_funding_fee": float(pos.cum_funding_fee),
+                                            "bucket": FUNDING_BUCKET_HYPOTHETICAL,
+                                            "hypothetical_delta": float(hyp_added),
+                                            "cum_funding_fee_hypothetical":
+                                                float(pos.funding_hypothetical)})
                     cash, rec = _close_position(pos, cash, fill, exit_fee, fee,
                                                 int(t_now), dec.reason, open_positions,
                                                 sym, raw_target_px=pos.current_stop,
@@ -711,6 +772,7 @@ class TradingCore:
                     closed.append(rec)
                     sum_gross += rec["gross_pnl"]
                     sum_exit_fee += rec["exit_fee"]
+                    sum_hyp_closed += float(rec.get("funding_fee_hypothetical", 0.0))
                     decisions.append({"timestamp": int(t_now), "symbol": sym,
                                       "phase": "D_intrabar", "action": "exit",
                                       "reason": dec.reason, "price": fill})
@@ -725,6 +787,27 @@ class TradingCore:
                 "total_equity": equity, "open_positions_count": len(open_positions),
                 "open_risk_pct": (_portfolio_open_risk(open_positions, fee, slip) / equity
                                   if equity > 0 else 0.0),
+            })
+            # 假设情景曲线：同一时刻、同一持仓，只是额外扣掉「未确认」的资金费。
+            # **不改变** 上面那条已确认曲线的任何数值。
+            #
+            # D2（REWORK-04）：`cash_equity` 与 `total_equity` 必须用**同一**假设口径。
+            # 会计定义（与期末 `final_cash_hypothetical` 严格一致）：
+            #   假设现金 = 已确认现金 − 假设资金费**累计**（已平仓 + 未平仓已计提）
+            #   假设权益 = 已确认权益 − 同上累计
+            # 因为 `equity = cash + un` 且 `un` 只扣已确认资金费，所以
+            #   (cash − hyp_now) + un == equity − hyp_now  ⇔  total = cash_equity + unrealized
+            # 恒成立。旧实现现金侧只减 `sum_hyp_closed`，与权益侧不对称，导致
+            # 有未平仓假设费时逐点破恒等式（实测 7/40 点违规）。
+            hyp_now = (sum_hyp_closed
+                       + sum(p.funding_hypothetical for p in open_positions.values()))
+            equity_curve_hyp.append({
+                "timestamp": int(t_now), "cash_equity": cash - float(hyp_now),
+                "unrealized_pnl": un,
+                "total_equity": equity - float(hyp_now),
+                "open_positions_count": len(open_positions),
+                "open_risk_pct": equity_curve[-1]["open_risk_pct"],
+                "hypothetical_funding_total": float(hyp_now),
             })
 
         # ── 期末（W2-3：由 close_open_positions_at_end 显式决定）──
@@ -772,6 +855,7 @@ class TradingCore:
                 closed.append(rec)
                 sum_gross += rec["gross_pnl"]
                 sum_exit_fee += rec["exit_fee"]
+                sum_hyp_closed += float(rec.get("funding_fee_hypothetical", 0.0))
                 decisions.append({"timestamp": int(last_ts), "symbol": sym,
                                   "phase": "EOD", "action": "force_close_eod",
                                   "reason": dec.reason, "price": fill})
@@ -782,11 +866,26 @@ class TradingCore:
 
         un_final = unrealized_pnl(open_positions, fee)
         final_equity = cash + un_final
+        hyp_open = float(sum(p.funding_hypothetical for p in open_positions.values()))
+        hyp_total = float(sum_hyp_closed) + hyp_open
+        # D1（REWORK-04）：期末假设现金必须扣**全部**假设资金费（含未平仓已计提），
+        # 与 `final_equity_hyp = final_equity − hyp_total` 同一口径。旧实现只减
+        # `sum_hyp_closed`，期末留仓时假设现金偏大 `hyp_open`，并让
+        # `cash_identity_hypothetical_ok` 误报 False（钱是对的，是算式错）。
+        # 会计定义：假设现金 = 已确认现金 − 假设资金费累计。
+        final_cash_hyp = float(cash - hyp_total)
+        final_equity_hyp = float(final_equity - hyp_total)
         if equity_curve:
             equity_curve[-1]["cash_equity"] = cash
             equity_curve[-1]["unrealized_pnl"] = un_final
             equity_curve[-1]["total_equity"] = final_equity
             equity_curve[-1]["open_positions_count"] = len(open_positions)
+        if equity_curve_hyp:
+            equity_curve_hyp[-1]["cash_equity"] = final_cash_hyp
+            equity_curve_hyp[-1]["unrealized_pnl"] = un_final
+            equity_curve_hyp[-1]["total_equity"] = final_equity_hyp
+            equity_curve_hyp[-1]["open_positions_count"] = len(open_positions)
+            equity_curve_hyp[-1]["hypothetical_funding_total"] = hyp_total
 
         for pos in open_positions.values():
             funding_gaps_all.extend({"symbol": pos.symbol, **g} for g in pos.funding_gaps)
@@ -801,6 +900,11 @@ class TradingCore:
         sum_round = float(sum(r.get("rounding_loss", 0.0) for r in closed))
         total_funding = float(sum(r["funding_fee"] for r in closed)
                               + sum(p.cum_funding_fee for p in open_positions.values()))
+        # 假设桶合计（并列口径，**不进**上面任何一个已确认数字）
+        total_funding_hyp = float(sum(r.get("funding_fee_hypothetical", 0.0) for r in closed)
+                                  + hyp_open)
+        total_funding_conservative = float(total_funding + total_funding_hyp)
+        net_closed_hyp = float(net_closed - sum_hyp_closed)
         recon = {
             "initial_equity": float(cfg.initial_equity),
             "final_cash": float(cash),
@@ -813,8 +917,12 @@ class TradingCore:
             "sum_slippage_loss_pure": sum_slip_pure,
             "sum_rounding_loss": sum_round,
             "slippage_split_ok": abs(sum_slip - (sum_slip_pure + sum_round)) < 1e-9,
+            # `sum_funding_fee` = **已确认**（语义收紧）；保守值另列，不得混用
             "sum_funding_fee": total_funding,
+            "sum_funding_fee_hypothetical": total_funding_hyp,
+            "sum_funding_fee_conservative": total_funding_conservative,
             "funding_settlement_model": cfg.funding_model,
+            "funding_accounting_model": "confirmed_vs_hypothetical_v1",
             "fee_model": {"tier": "Binance_VIP0", "maker_fee_rate": maker_fee,
                           "taker_fee_rate": taker_fee},
             "risk_model": {
@@ -825,16 +933,28 @@ class TradingCore:
                 "max_leverage": float(cfg.max_leverage_per_symbol),
             },
             "sum_net_pnl_closed": float(net_closed),
+            "sum_net_pnl_closed_hypothetical": net_closed_hyp,
             "unrealized_net_open": float(un_net_open),
             "final_equity": float(final_equity),
+            "final_cash_hypothetical": final_cash_hyp,
+            "final_equity_hypothetical": final_equity_hyp,
             "expected_cash": float(cfg.initial_equity + sum_gross - sum_entry_fee
                                    - sum_exit_fee - total_funding),
             "cash_identity_ok": abs(cash - (cfg.initial_equity + sum_gross - sum_entry_fee
                                             - sum_exit_fee - total_funding)) < 1e-6,
+            # 假设情景恒等式：把假设费也当成真扣，仍须平账
+            "cash_identity_hypothetical_ok":
+                abs(final_cash_hyp - (cfg.initial_equity + sum_gross - sum_entry_fee
+                                      - sum_exit_fee - total_funding_conservative)) < 1e-6,
             "equity_identity_ok": abs((final_equity - cfg.initial_equity)
                                       - (net_closed + un_net_open)) < 1e-6,
+            "equity_identity_hypothetical_ok":
+                abs((final_equity_hyp - cfg.initial_equity)
+                    - (net_closed_hyp + (un_net_open - hyp_open))) < 1e-6,
             "equity_curve_tail_matches_final": (not equity_curve) or
                 abs(equity_curve[-1]["total_equity"] - final_equity) < 1e-9,
+            "equity_curve_hypothetical_tail_matches": (not equity_curve_hyp) or
+                abs(equity_curve_hyp[-1]["total_equity"] - final_equity_hyp) < 1e-9,
         }
 
         out = {
@@ -844,8 +964,31 @@ class TradingCore:
             "funding_model": cfg.funding_model,
             "funding_is_assumption": bool(funding_is_assumption),
             "initial_equity": float(cfg.initial_equity),
+            # 已确认口径（**默认消费者读这两个字段**）
             "final_cash": float(cash),
             "final_equity": float(final_equity),
+            # 假设情景（并列展示，**不得**当已确认结果使用）
+            "final_cash_hypothetical": final_cash_hyp,
+            "final_equity_hypothetical": final_equity_hyp,
+            "funding_confirmed_total": total_funding,
+            "funding_hypothetical_total": total_funding_hyp,
+            "funding_conservative_total": total_funding_conservative,
+            "hypothetical_summary": {
+                "accounting_model": "confirmed_vs_hypothetical_v1",
+                "funding_confirmed": total_funding,
+                "funding_hypothetical": total_funding_hyp,
+                "funding_conservative": total_funding_conservative,
+                "funding_hypothetical_reasons": sorted({
+                    str(d.get("reason"))
+                    for r in closed for d in (r.get("funding_hypothetical_detail") or [])}),
+                "cash_confirmed": float(cash),
+                "cash_hypothetical": final_cash_hyp,
+                "equity_confirmed": float(final_equity),
+                "equity_hypothetical": final_equity_hyp,
+                "equity_delta": float(final_equity - final_equity_hyp),
+                "trades_with_hypothetical": sum(
+                    1 for r in closed if r.get("funding_is_hypothetical")),
+            },
             "open_positions_remaining": sorted(open_positions),
             "net_return_pct": ((final_equity - cfg.initial_equity) / cfg.initial_equity
                                * 100.0 if cfg.initial_equity else None),
@@ -854,6 +997,7 @@ class TradingCore:
             "decisions": decisions,
             "rejected_orders": rejected,
             "equity_curve": equity_curve,
+            "equity_curve_hypothetical": equity_curve_hyp,
             "funding_gaps": funding_gaps_all,
             "reconcile": recon,
             "max_drawdown_pct": _max_dd(equity_curve),
@@ -937,15 +1081,40 @@ class TradingCore:
             "initial_equity": float(cfg.initial_equity),
             "final_cash": float(cfg.initial_equity),
             "final_equity": float(cfg.initial_equity),
+            "final_cash_hypothetical": float(cfg.initial_equity),
+            "final_equity_hypothetical": float(cfg.initial_equity),
+            "funding_confirmed_total": 0.0,
+            "funding_hypothetical_total": 0.0,
+            "funding_conservative_total": 0.0,
+            "hypothetical_summary": {
+                "accounting_model": "confirmed_vs_hypothetical_v1",
+                "funding_confirmed": 0.0, "funding_hypothetical": 0.0,
+                "funding_conservative": 0.0,
+                "funding_hypothetical_reasons": [],
+                "cash_confirmed": float(cfg.initial_equity),
+                "cash_hypothetical": float(cfg.initial_equity),
+                "equity_confirmed": float(cfg.initial_equity),
+                "equity_hypothetical": float(cfg.initial_equity),
+                "equity_delta": 0.0, "trades_with_hypothetical": 0,
+            },
             "open_positions_remaining": [], "net_return_pct": 0.0,
             "trades_count": 0, "trades": [], "decisions": [], "rejected_orders": [],
-            "equity_curve": [], "funding_gaps": [],
+            "equity_curve": [], "equity_curve_hypothetical": [], "funding_gaps": [],
             "max_drawdown_pct": 0.0,
             "reconcile": {"initial_equity": float(cfg.initial_equity),
                           "final_cash": float(cfg.initial_equity),
                           "final_equity": float(cfg.initial_equity),
+                          "sum_funding_fee": 0.0,
+                          "sum_funding_fee_hypothetical": 0.0,
+                          "sum_funding_fee_conservative": 0.0,
+                          "final_cash_hypothetical": float(cfg.initial_equity),
+                          "final_equity_hypothetical": float(cfg.initial_equity),
+                          "funding_accounting_model": "confirmed_vs_hypothetical_v1",
                           "cash_identity_ok": True, "equity_identity_ok": True,
-                          "equity_curve_tail_matches_final": True},
+                          "cash_identity_hypothetical_ok": True,
+                          "equity_identity_hypothetical_ok": True,
+                          "equity_curve_tail_matches_final": True,
+                          "equity_curve_hypothetical_tail_matches": True},
             "close_open_positions_at_end": bool(close_at_end),
             "close_open_positions_at_end_source":
                 self.policy.close_at_end_source(close_open_positions_at_end),
@@ -1031,12 +1200,21 @@ def _close_position(pos: Position, cash: float, fill: float, exit_fee: float,
         except (KeyError, TypeError, ValueError):
             exit_pure, exit_round = exit_slip_loss, 0.0
 
+    # ── 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03）────────────────────
+    #   funding_confirmed   = 只含「真实事件 + PIT 可见 + 持仓资格可证明」的部分
+    #   funding_hypothetical= 模型假设 / 盘中顺序未知的部分，**不进任何已确认数字**
+    funding_confirmed = float(pos.cum_funding_fee)
+    funding_hyp = float(pos.funding_hypothetical)
+    net_pnl_confirmed = gross - pos.entry_fee - exit_fee - funding_confirmed
+
     rec = {
         "symbol": sym, "direction": pos.direction, "signal_type": pos.signal_type,
         "entry_time": int(pos.entry_time), "exit_time": int(ts),
         "entry_price": pos.entry_price, "exit_price": fill, "qty": pos.qty,
         "gross_pnl": gross, "entry_fee": pos.entry_fee, "exit_fee": exit_fee,
-        "fees": pos.entry_fee + exit_fee, "funding_fee": pos.cum_funding_fee,
+        "fees": pos.entry_fee + exit_fee,
+        # 语义收紧：`funding_fee` 与 `net_pnl` 一律是**已确认**口径
+        "funding_fee": funding_confirmed,
         "slippage_loss": total_slip_loss,
         # 分账（加性；不改上面任何既有字段的数值）
         "slippage_loss_pure": entry_pure + exit_pure,
@@ -1045,7 +1223,14 @@ def _close_position(pos: Position, cash: float, fill: float, exit_fee: float,
             "entry": dict(getattr(pos, "entry_price_audit", {}) or {}),
             "exit": dict(exit_audit or {}),
         },
-        "net_pnl": gross - pos.entry_fee - exit_fee - pos.cum_funding_fee,
+        "net_pnl": net_pnl_confirmed,
+        # ── 假设情景（加性字段；**不进** Cash / 已实现 PnL / 已确认 Equity）──
+        "funding_fee_hypothetical": funding_hyp,
+        "funding_fee_conservative": funding_confirmed + funding_hyp,
+        "net_pnl_hypothetical": net_pnl_confirmed - funding_hyp,
+        "funding_is_hypothetical": bool(funding_hyp != 0.0),
+        "intrabar_order_status": pos.intrabar_order_status,
+        "funding_hypothetical_detail": list(pos.funding_hypothetical_detail),
         "mfe": pos.mfe, "mae": pos.mae, "exit_reason": reason,
         "funding_gaps": list(pos.funding_gaps),
         "stop_trace": list(pos.stop_trace),
