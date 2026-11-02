@@ -56,10 +56,17 @@ import os
 import sys
 from pathlib import Path
 
-# 交付目录（伴生库与查询 API 的所在地）。生产代码绑定交付件路径的先例见
-# `strategies/wx_gate.DATA_MANIFEST`（绑定「正式回测输入补齐与终验8/07_正式研究manifest.json」）。
-SITE_ROOT = Path(__file__).resolve().parents[2]          # outputs/网站逆向研究
-DEFAULT_DELIVERY_DIR = SITE_ROOT / "周期元数据表修复与5m冷备_2026-10-13"
+# 正式后端目录与伴生库/测试夹具所在地（消除对历史临时交付目录的硬编码）
+BACKEND_DIR = Path(__file__).resolve().parents[1]        # 框架/backend
+SITE_ROOT = BACKEND_DIR.parent                           # 框架
+
+# 正式生产伴生库规划路径（位于正式数据目录下，严禁生产默认回退 tests/fixtures/）
+PRODUCTION_SIDECAR_PATH = SITE_ROOT / "数据" / "meta" / "funding_interval_meta.sqlite3"
+DEFAULT_QUERY_PATH = BACKEND_DIR / "_fim_query.py"
+
+# 测试夹具目录与样本路径（仅供测试套件显式调用或设置环境变量，生产代码严禁默认使用）
+TEST_FIXTURES_DIR = BACKEND_DIR / "tests" / "fixtures" / "funding_interval"
+TEST_FIXTURE_SIDECAR = TEST_FIXTURES_DIR / "funding_interval_meta.sqlite3"
 
 # 人类 2026-10-13 正式批准的因果口径
 RATIFIED_RULE = "HUMAN_RATIFIED_SETTLEMENT_CAUSAL_V1"
@@ -78,13 +85,20 @@ _STATUS_NONE = "NO_COVERAGE"
 _FIM = None
 
 
-def delivery_dir():
-    return Path(os.environ.get("FUNDING_INTERVAL_META_DIR") or DEFAULT_DELIVERY_DIR)
-
-
 def sidecar_path():
-    return Path(os.environ.get("FUNDING_INTERVAL_META_DB")
-                or (delivery_dir() / "周期元数据表" / "funding_interval_meta.sqlite3"))
+    """获取伴生库路径。
+
+    规则（生产安全防线）：
+    1. 优先使用环境变量 FUNDING_INTERVAL_META_DB（允许外部明确配置或测试套件注入）；
+    2. 若未配置环境变量，仅在正式生产伴生库文件存在时使用 PRODUCTION_SIDECAR_PATH；
+    3. 严禁生产代码默认回退到 tests/fixtures/ 下的合成测试数据；若未配置且无正式库，返回 None。
+    """
+    db_env = os.environ.get("FUNDING_INTERVAL_META_DB")
+    if db_env:
+        return Path(db_env)
+    if PRODUCTION_SIDECAR_PATH.exists():
+        return PRODUCTION_SIDECAR_PATH
+    return None
 
 
 def query_module():
@@ -92,7 +106,13 @@ def query_module():
     global _FIM
     if _FIM is not None:
         return _FIM
-    path = delivery_dir() / "_fim_query.py"
+    query_env = os.environ.get("FUNDING_INTERVAL_QUERY_PATH")
+    if query_env:
+        path = Path(query_env)
+    elif DEFAULT_QUERY_PATH.exists():
+        path = DEFAULT_QUERY_PATH
+    else:
+        raise FileNotFoundError(f"未找到资金费周期元数据查询 API 模块：{DEFAULT_QUERY_PATH}")
     spec = importlib.util.spec_from_file_location("_fim_query_sidecar", path)
     if spec is None or spec.loader is None:
         raise ImportError(f"无法加载周期元数据查询 API：{path}")
@@ -105,11 +125,21 @@ def query_module():
 
 def open_sidecar(db=None):
     """以 **只读** 打开伴生库（`mode=ro` + `PRAGMA query_only=1`）。"""
-    return query_module().connect(db or sidecar_path(), readonly=True)
+    path = db or sidecar_path()
+    if path is None or not Path(path).exists():
+        raise FileNotFoundError(
+            f"资金费周期元数据伴生库未配置或文件不存在（路径：{path}）。"
+            "生产环境严禁默认使用合成测试数据，请通过环境变量 FUNDING_INTERVAL_META_DB "
+            "指定有效伴生库或在正式数据目录下部署伴生库。"
+        )
+    return query_module().connect(path, readonly=True)
 
 
 def coverage(symbol, *, basis="settlement", db=None):
-    return query_module().coverage(symbol, basis=basis, db=db or sidecar_path())
+    path = db or sidecar_path()
+    if path is None or not Path(path).exists():
+        return {"first_available_ms": None, "last_available_ms": None, "n": 0}
+    return query_module().coverage(symbol, basis=basis, db=path)
 
 
 def _record(calc_ms, hours, avail_ms):
@@ -142,8 +172,31 @@ def load_interval_meta(symbol, start_ms, end_ms, *, basis="settlement",
         `unverifiable_marker` 需要时 = `UNVERIFIABLE_NO_INTERVAL_META`
         `reason`             人可读原因（区分「归档未覆盖」与「费率本身错误」）
     """
+    target_db = db or sidecar_path()
+    if target_db is None or not Path(target_db).exists():
+        # 生产模式当真实数据源未配置时，按原有契约安全降级为不可判定，明确报告缺失，禁止静默读取测试数据或默认8h
+        diag = {
+            "symbol": symbol,
+            "basis": basis,
+            "status": _STATUS_NONE,
+            "coverage": {"first_available_ms": None, "last_available_ms": None, "n": 0},
+            "tail_beyond_ms": 0,
+            "sentinel_at_ms": None,
+            "max_staleness_ms": (None if max_staleness_ms is None else int(max_staleness_ms)),
+            "unverifiable_marker": UNVERIFIABLE_NO_INTERVAL_META,
+            "reason": (
+                f"资金费周期元数据伴生库未配置或不存在（路径：{target_db}）。"
+                "生产环境严禁静默使用合成测试数据，亦严禁静默按 8h 兜底"
+            ),
+            "ratified_rule": RATIFIED_RULE,
+            "ratified_status": RATIFIED_STATUS,
+            "sidecar": str(target_db) if target_db else "NOT_CONFIGURED",
+            "n_records": 0,
+        }
+        return [], diag
+
     fim = query_module()
-    con = fim.connect(db or sidecar_path(), readonly=True)
+    con = fim.connect(target_db, readonly=True)
     try:
         cov = fim.coverage(symbol, basis=basis, con=con)
         rows = con.execute(
@@ -160,7 +213,7 @@ def load_interval_meta(symbol, start_ms, end_ms, *, basis="settlement",
             "max_staleness_ms": (None if max_staleness_ms is None else int(max_staleness_ms)),
             "unverifiable_marker": None, "reason": None,
             "ratified_rule": RATIFIED_RULE, "ratified_status": RATIFIED_STATUS,
-            "sidecar": str(db or sidecar_path()), "n_records": 0}
+            "sidecar": str(target_db), "n_records": 0}
 
     if not rows:
         diag["status"] = _STATUS_NONE

@@ -4,7 +4,7 @@
 被测对象（**测谁就 import 谁**）
 ------------------------------
 1. `strategies/funding_interval_meta_source.py` —— 消费侧适配层（本轮新增，非冻结）。
-2. `周期元数据表修复与5m冷备_2026-10-13/_fim_query.py` —— 只读因果查询 API
+2. `_fim_query.py` —— 只读因果查询 API
    （**唯一事实源**，按文件路径加载，不复制一份查询逻辑）。
 3. `strategies/wx_daily_375.py` 的消费契约 `_approx_interval_hours` /
    `build_norm4h_approx_events` —— **通过子进程调用真实模块**。
@@ -43,12 +43,11 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent            # 后端实现/
-SITE = ROOT.parent                                       # 网站逆向研究/
-W43 = SITE / "周期元数据表修复与5m冷备_2026-10-13"
-MIGRATION_SQL = W43 / "12_生产库迁移_预备未执行.sql"
-REAL_SIDECAR = W43 / "周期元数据表" / "funding_interval_meta.sqlite3"
-FIM_MODULE = W43 / "_fim_query.py"
+ROOT = Path(__file__).resolve().parent.parent            # 框架/backend
+FIXTURES_DIR = ROOT / "tests" / "fixtures" / "funding_interval"
+MIGRATION_SQL = FIXTURES_DIR / "12_生产库迁移_预备未执行.sql"
+REAL_SIDECAR = FIXTURES_DIR / "funding_interval_meta.sqlite3"
+FIM_MODULE = ROOT / "_fim_query.py"
 ADAPTER = ROOT / "strategies" / "funding_interval_meta_source.py"
 
 # 具备 numpy/pyarrow 的解释器（契约子进程用）；缺失则相关用例 skip
@@ -68,13 +67,13 @@ BASE = 1_609_459_200_000          # 2021-01-01T00:00:00Z
 #   REQUIRE_FUNDING_INTERVAL_DEPS=1 ⇒ 依赖缺失直接 FAIL（AssertionError），不再 skip。
 DEPENDENCIES = {
     "adapter":     (ADAPTER,       "消费侧适配层 funding_interval_meta_source.py"),
-    "schema":      (MIGRATION_SQL, "建表 DDL（12_生产库迁移_预备未执行.sql）"),
+    "schema":      (MIGRATION_SQL, "建表 DDL（tests/fixtures/funding_interval/12_生产库迁移_预备未执行.sql）"),
     "fim_query":   (FIM_MODULE,    "只读因果查询 API _fim_query.py（唯一事实源）"),
-    "sidecar":     (REAL_SIDECAR,  "真实伴生库 funding_interval_meta.sqlite3"),
+    "sidecar":     (REAL_SIDECAR,  "伴生库测试夹具 funding_interval_meta.sqlite3"),
     "contract_py": (CONTRACT_PY,   "契约子进程解释器（需 numpy/pyarrow）"),
 }
 
-STRICT_DEPS = os.environ.get("REQUIRE_FUNDING_INTERVAL_DEPS") == "1"
+STRICT_DEPS = os.environ.get("REQUIRE_FUNDING_INTERVAL_DEPS", "").strip().lower() in ("1", "true", "yes")
 
 
 def dep_status():
@@ -466,6 +465,16 @@ class ReadOnlyAndRatificationTest(unittest.TestCase):
     def setUpClass(cls):
         require(*cls.REQUIRED_DEPS)
         _M.adapter()
+        # 测试模式明确配置使用合成测试夹具，杜绝污染生产默认行为
+        cls._old_sidecar = os.environ.get("FUNDING_INTERVAL_META_DB")
+        os.environ["FUNDING_INTERVAL_META_DB"] = str(REAL_SIDECAR)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._old_sidecar is None:
+            os.environ.pop("FUNDING_INTERVAL_META_DB", None)
+        else:
+            os.environ["FUNDING_INTERVAL_META_DB"] = cls._old_sidecar
 
     def test_sidecar_connection_refuses_writes(self):
         require("sidecar")
@@ -508,6 +517,47 @@ class ReadOnlyAndRatificationTest(unittest.TestCase):
         self.assertEqual(h_before["funding_interval_hours"], 4)
         self.assertEqual(h_after["funding_interval_hours"], 1)
         self.assertTrue(before and after)
+
+
+class ProductionFallbackSafetyTest(unittest.TestCase):
+    """负例测试（GM-MAIN-CLEANUP-C01-R2）：
+    确保生产模式下若未显式配置正式数据源，绝对禁止静默使用 tests/fixtures/ 下的合成夹具，
+    必须按原有契约安全降级并明确报告缺失，绝不返回合成样本作为真实结果。
+    """
+
+    REQUIRED_DEPS = ("adapter", "fim_query")
+
+    @classmethod
+    def setUpClass(cls):
+        require(*cls.REQUIRED_DEPS)
+        _M.adapter()
+
+    def setUp(self):
+        # 强制清除伴生库环境变量，模拟纯净的生产默认环境
+        self._old_db = os.environ.pop("FUNDING_INTERVAL_META_DB", None)
+
+    def tearDown(self):
+        if self._old_db is not None:
+            os.environ["FUNDING_INTERVAL_META_DB"] = self._old_db
+
+    def test_production_sidecar_path_does_not_point_to_fixtures(self):
+        """生产模式 sidecar_path() 严禁指向 tests/fixtures/。"""
+        p = _M.src.sidecar_path()
+        if p is not None:
+            self.assertNotIn("tests/fixtures", str(p), "生产默认伴生库路径严禁回退至测试夹具目录！")
+
+    def test_production_unconfigured_load_meta_returns_no_coverage(self):
+        """生产模式未配置数据源时，禁止返回 0GUSDT 合成测试样本，必须安全降级。"""
+        recs, diag = _M.src.load_interval_meta("0GUSDT", 1758528000000, 1758550000000)
+        self.assertEqual(recs, [], "生产模式无正式数据源时必须返回空记录，严禁返回合成样本！")
+        self.assertEqual(diag["status"], "NO_COVERAGE")
+        self.assertEqual(diag["unverifiable_marker"], _M.src.UNVERIFIABLE_NO_INTERVAL_META)
+        self.assertIn("严禁静默使用合成测试数据", diag["reason"])
+
+    def test_production_unconfigured_open_sidecar_raises_filenotfound(self):
+        """生产模式未配置数据源时，open_sidecar() 必须显式抛出 FileNotFoundError。"""
+        with self.assertRaises(FileNotFoundError):
+            _M.src.open_sidecar()
 
 
 class DependencyReportTest(unittest.TestCase):

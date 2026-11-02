@@ -37,12 +37,11 @@ import sys
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent          # 后端实现/
-SITE = ROOT.parent                                     # 网站逆向研究/
-W43 = SITE / "周期元数据表修复与5m冷备_2026-10-13"
-MIGRATION_SQL = W43 / "12_生产库迁移_预备未执行.sql"
-REAL_DB = W43 / "周期元数据表" / "funding_interval_meta.sqlite3"
-FIM_MODULE = W43 / "_fim_query.py"
+ROOT = Path(__file__).resolve().parent.parent          # 框架/backend
+FIXTURES_DIR = ROOT / "tests" / "fixtures" / "funding_interval"
+MIGRATION_SQL = FIXTURES_DIR / "12_生产库迁移_预备未执行.sql"
+REAL_DB = FIXTURES_DIR / "funding_interval_meta.sqlite3"
+FIM_MODULE = ROOT / "_fim_query.py"
 POLICY_MODULE = ROOT / "历史下载" / "_tf_scope_policy.py"
 
 
@@ -58,24 +57,42 @@ def _load(name: str, path: Path):
 
 
 class _Prereq:
-    """一次性加载被测模块；缺件时相关用例 skip（而不是报错）。"""
+    """按需加载被测模块；缺件时相关用例单独 skip，避免级联拖死全部用例。"""
 
     fim = None
     policy = None
-    load_error = None
+    fim_error = None
+    policy_error = None
+
+    @classmethod
+    def ensure_fim(cls):
+        if cls.fim_error is not None:
+            raise unittest.SkipTest(cls.fim_error)
+        if cls.fim is not None:
+            return cls.fim
+        try:
+            cls.fim = _load("_fim_query_under_test", FIM_MODULE)
+            return cls.fim
+        except Exception as exc:                        # noqa: BLE001
+            cls.fim_error = f"周期元数据查询模块不可用（{exc}）"
+            raise unittest.SkipTest(cls.fim_error) from exc
+
+    @classmethod
+    def ensure_policy(cls):
+        if cls.policy_error is not None:
+            raise unittest.SkipTest(cls.policy_error)
+        if cls.policy is not None:
+            return cls.policy
+        try:
+            cls.policy = _load("_tf_scope_policy_under_test", POLICY_MODULE)
+            return cls.policy
+        except Exception as exc:                        # noqa: BLE001
+            cls.policy_error = f"5m策略模块不可用（{exc}）"
+            raise unittest.SkipTest(cls.policy_error) from exc
 
     @classmethod
     def ensure(cls):
-        if cls.load_error is not None:
-            raise unittest.SkipTest(cls.load_error)
-        if cls.fim is not None:
-            return
-        try:
-            cls.fim = _load("_fim_query_under_test", FIM_MODULE)
-            cls.policy = _load("_tf_scope_policy_under_test", POLICY_MODULE)
-        except Exception as exc:                        # noqa: BLE001
-            cls.load_error = f"被测模块不可用（{exc}）"
-            raise unittest.SkipTest(cls.load_error) from exc
+        cls.ensure_fim()
 
 
 # ── 迁移 DDL 解析 ────────────────────────────────────────────────────────────
@@ -336,7 +353,7 @@ class TfScopePolicyTest(unittest.TestCase):
     """`_tf_scope_policy` 是周期范围的**唯一事实源**；这些判据不得被静默放宽。"""
 
     def setUp(self):
-        _Prereq.ensure()
+        _Prereq.ensure_policy()
         self.p = _Prereq.policy
 
     def test_rejected_tfs_is_1m_only(self):
