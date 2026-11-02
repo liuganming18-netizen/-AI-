@@ -619,6 +619,18 @@ def compute_metrics(res: dict, win: dict, exec_cfg) -> dict:
         "total_exit_fee": float(res["reconcile"]["sum_exit_fee"]),
         "total_fees": float(res["reconcile"]["sum_entry_fee"] + res["reconcile"]["sum_exit_fee"]),
         "total_funding_fee": float(res["reconcile"]["sum_funding_fee"]),
+        # ── 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-01）──
+        # `total_funding_fee` 与 `final_equity` 一律是**已确认**口径；
+        # 假设部分单独成列，**不得**并入上面的收益指标。
+        "total_funding_fee_confirmed": float(res["reconcile"]["sum_funding_fee"]),
+        "total_funding_fee_hypothetical":
+            float(res["reconcile"].get("sum_funding_fee_hypothetical", 0.0)),
+        "total_funding_fee_conservative":
+            float(res["reconcile"].get("sum_funding_fee_conservative",
+                                       res["reconcile"]["sum_funding_fee"])),
+        "final_equity_hypothetical":
+            float(res["reconcile"].get("final_equity_hypothetical", final_equity)),
+        "funding_accounting_model": res["reconcile"].get("funding_accounting_model"),
         "trades_count": len(trades),
         "wins": len(wins), "losses": len(losses), "flats": len(flats),
         "win_rate_pct": (len(wins) / len(nets) * 100.0) if nets else None,
@@ -823,6 +835,12 @@ def recompute_metrics_from_ledger(run_id: str) -> dict:
         "profit_factor": (gp / gl) if gl > 0 else None,
         "max_drawdown_pct": mdd * 100.0,
         "total_fees": sum_ef + sum_xf, "total_funding_fee": sum_fu,
+        # 双口径（账本重算侧同口径；旧账本无新字段时按 0 处理，不猜）
+        "total_funding_fee_confirmed": sum_fu,
+        "total_funding_fee_hypothetical":
+            sum(float(t.get("funding_fee_hypothetical", 0.0)) for t in trades),
+        "funding_accounting_model_present":
+            all("funding_fee_hypothetical" in t for t in trades) if trades else True,
         "cash_identity_ok": abs(final_cash - exp_cash) < 1e-6,
         "expected_cash": exp_cash, "final_cash": final_cash,
         "equity_identity_ok": abs(final_eq - (init + net_sum)) < 1e-6,
@@ -1335,9 +1353,12 @@ def _run(run_id: str, doc: dict) -> dict:
     reconcile_ok = bool(res["reconcile"].get("cash_identity_ok")
                         and res["reconcile"].get("equity_identity_ok")
                         and res["reconcile"].get("equity_curve_tail_matches_final"))
+    # 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-01）：假设/未确认部分单列
+    _fu_hyp = float(res["reconcile"].get("sum_funding_fee_hypothetical", 0.0))
     funding_ok = bool(fu_meta["coverage_ok"] and not (res.get("funding_gaps") or [])
                       and not funding_mismatch
-                      and not res["funding_is_assumption"])
+                      and not res["funding_is_assumption"]
+                      and abs(_fu_hyp) == 0.0)
     reasons: List[str] = []
     if not sig_cov.get("full_window_ok"):
         reasons.append("信号序列未全窗覆盖（空/首/尾/根数）")
@@ -1364,7 +1385,13 @@ def _run(run_id: str, doc: dict) -> dict:
     if res.get("funding_gaps"):
         reasons.append(f"引擎记录资金费缺口 {len(res['funding_gaps'])} 条")
     if res["funding_is_assumption"]:
-        reasons.append("资金费为**假设模型**（非真实结算事件）")
+        reasons.append("资金费为**假设模型**（非真实结算事件）；该部分已隔离到假设情景，"
+                       "**未计入**已确认现金/已实现盈亏/已确认权益")
+    # 资金费双口径（GM-FUNDING-ACCOUNTING-REWORK-03 / GM-FUNDING-RUNNER-01）：
+    #   只要存在假设/未确认资金费，本次结果就不能声称资金费为真实结算口径。
+    if abs(_fu_hyp) > 0.0:
+        reasons.append(f"存在未确认资金费 {_fu_hyp:.8f} U（盘中顺序未知或模型假设），"
+                       f"已隔离到假设情景，未计入已确认口径")
     if not reconcile_ok:
         reasons.append("引擎恒等式对账未通过")
     if not metrics_match:
@@ -1386,6 +1413,14 @@ def _run(run_id: str, doc: dict) -> dict:
         "oi_fake_fill": "无",
         "funding_model": res["funding_model"],
         "funding_is_assumption": res["funding_is_assumption"],
+        # 双口径分列（**下游不得混用**）
+        "funding_accounting_model": res["reconcile"].get("funding_accounting_model"),
+        "funding_confirmed_total": float(res["reconcile"]["sum_funding_fee"]),
+        "funding_hypothetical_total": _fu_hyp,
+        "funding_conservative_total":
+            float(res["reconcile"].get("sum_funding_fee_conservative", _fu_hyp
+                                       + float(res["reconcile"]["sum_funding_fee"]))),
+        "funding_hypothetical_summary": res.get("hypothetical_summary"),
         "funding_frequency": fu_meta["frequency"],
         "funding_expected_settlements": fu_meta["expected_settlements_in_window"],
         "funding_actual_settlements": fu_meta["actual_settlements_in_window"],
