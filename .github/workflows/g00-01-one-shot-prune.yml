@@ -1,0 +1,103 @@
+name: G00-01 一次性历史分支清理
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/g00-01-one-shot-prune.yml"]
+permissions:
+  contents: write
+  pull-requests: read
+jobs:
+  prune-verified-branches:
+    if: github.repository == 'liuganming18-netizen/-AI-'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 核验冻结提交、恢复依据和拉取请求后清理分支
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="liuganming18-netizen/-AI-"
+          baseline="6fde923dff3e2474a4ffe7775cc2f58fae8fc080"
+          baseline_tree="bbd49d0069654f3b83e567c4a5830bf3e1a54b93"
+          api() { local endpoint="$1"; shift; gh api "repos/$repo/$endpoint" "$@"; }
+          fail() { echo "::error::$*"; exit 1; }
+          main_sha="$(api branches/main --jq '.commit.sha')"
+          [[ "$main_sha" == "$GITHUB_SHA" ]] || fail "主线 SHA 已漂移"
+          [[ "$(api "compare/$baseline...$main_sha" --jq '.status')" == "ahead" ]] || fail "主线不包含核查基线"
+          [[ "$(api "git/commits/$baseline" --jq '.tree.sha')" == "$baseline_tree" ]] || fail "主线原始树不符"
+
+          declare -a refs=(
+            "architecture-org-chart"
+            "phase1-runtime-compat-20261103"
+            "cleanup/g00-01-ignore-runtime-artifacts-20261103"
+          )
+          declare -a heads=(
+            "3bf8bc013ab1174d64d38e6ef7d1fdf0b6bfa522"
+            "1f994337b104318698d104ef75aa1e9ac2128cfb"
+            "9a09b74018153a9a705fd102c42734b86ecd52ca"
+          )
+          declare -a trees=(
+            "bfdcd5d113452695e1edce001edbd76b719a44cb"
+            "e5d1d2c556d9d769126bc13293a5664b8af8bcf4"
+            "$baseline_tree"
+          )
+
+          branches="$(api "branches?per_page=100")"
+          pulls="$(api "pulls?state=open&per_page=100")"
+          [[ "$(jq 'length' <<<"$branches")" -lt 100 ]] || fail "分支分页不完整"
+          [[ "$(jq 'length' <<<"$pulls")" -lt 100 ]] || fail "PR 分页不完整"
+          for i in 0 1 2; do
+            ref="${refs[$i]}"; sha="${heads[$i]}"; tree="${trees[$i]}"
+            entry="$(jq -cer --arg ref "$ref" '.[] | select(.name == $ref)' <<<"$branches")" || fail "候选分支不存在: $ref"
+            [[ "$(jq -r .commit.sha <<<"$entry")" == "$sha" ]] || fail "候选分支 SHA 漂移: $ref"
+            [[ "$(jq -r .protected <<<"$entry")" == "false" ]] || fail "受保护分支: $ref"
+            [[ "$(api "git/commits/$sha" --jq '.tree.sha')" == "$tree" ]] || fail "内容树 SHA 漂移: $ref"
+            [[ "$(jq -r --arg ref "$ref" '[.[] | select(.head.ref == $ref)] | length' <<<"$pulls")" == "0" ]] || fail "存在未合并 PR: $ref"
+            if [[ "$i" != "2" ]]; then
+              [[ "$(api "compare/$sha...$main_sha" --jq '.status')" == "ahead" ]] || fail "未验证主线祖先: $ref"
+            else
+              [[ "$tree" == "$baseline_tree" ]] || fail "合并后内容不一致: $ref"
+            fi
+            echo "PASS: $ref @ $sha; tree $tree"
+          done
+
+          for i in 0 1 2; do
+            ref="${refs[$i]}"; sha="${heads[$i]}"
+            latest="$(api "branches?per_page=100")"
+            [[ "$(jq -r --arg ref "$ref" '.[] | select(.name == $ref) | .commit.sha' <<<"$latest")" == "$sha" ]] || fail "删除前 SHA 漂移: $ref"
+            gh api --method DELETE "repos/$repo/git/refs/heads/$ref" >/dev/null
+            echo "DELETED: $ref (可按 $sha 恢复)"
+            echo "- $ref: $sha" >>"$GITHUB_STEP_SUMMARY"
+          done
+
+          # 此工作流自身来自一次性的隔离分支；仅在对应 PR 已合并且
+          # 隔离分支与主线内容树完全相同时，才回收自身的临时分支。
+          self="maintenance/g00-01-prune-20261103"
+          branches="$(api "branches?per_page=100")"
+          info="$(jq -cer --arg ref "$self" '.[] | select(.name == $ref)' <<<"$branches")" || true
+          if [[ -n "$info" ]]; then
+            self_sha="$(jq -r .commit.sha <<<"$info")"
+            main_tree="$(api "git/commits/$main_sha" --jq '.tree.sha')"
+            self_tree="$(api "git/commits/$self_sha" --jq '.tree.sha')"
+            closed="$(api "pulls?state=closed&per_page=100")"
+            merged="$(jq -r --arg ref "$self" --arg sha "$self_sha" '[.[] | select(.head.ref == $ref and .head.sha == $sha and .merged_at != null)] | length' <<<"$closed")"
+            if [[ "$self_tree" == "$main_tree" && "$merged" != "0" && "$(jq -r .protected <<<"$info")" == "false" ]]; then
+              latest="$(api "branches?per_page=100")"
+              if [[ "$(jq -r --arg ref "$self" '.[] | select(.name == $ref) | .commit.sha' <<<"$latest")" == "$self_sha" ]]; then
+                gh api --method DELETE "repos/$repo/git/refs/heads/$self" >/dev/null
+                echo "DELETED: $self (可按 $self_sha 恢复)"
+                echo "- $self: $self_sha" >>"$GITHUB_STEP_SUMMARY"
+              fi
+            else
+              echo "SKIPPED: 临时分支未满足自动回收条件" >>"$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+
+          remaining="$(api "branches?per_page=100")"
+          for ref in "${refs[@]}"; do
+            [[ "$(jq -r --arg ref "$ref" '[.[] | select(.name == $ref)] | length' <<<"$remaining")" == "0" ]] || fail "删除后仍存在: $ref"
+          done
+          [[ "$(api branches/main --jq '.commit.sha')" == "$main_sha" ]] || fail "主线在清理时漂移"
+          printf '\nG00-01 指定旧分支清理验证通过；主线 SHA 未变化。\n' | tee -a "$GITHUB_STEP_SUMMARY"
