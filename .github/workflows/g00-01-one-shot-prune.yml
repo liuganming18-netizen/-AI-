@@ -21,7 +21,7 @@ jobs:
           repo="liuganming18-netizen/-AI-"
           baseline="6fde923dff3e2474a4ffe7775cc2f58fae8fc080"
           baseline_tree="bbd49d0069654f3b83e567c4a5830bf3e1a54b93"
-          api() { gh api "repos/$repo/$1"; }
+          api() { local endpoint="$1"; shift; gh api "repos/$repo/$endpoint" "$@"; }
           fail() { echo "::error::$*"; exit 1; }
           main_sha="$(api branches/main --jq '.commit.sha')"
           [[ "$main_sha" == "$GITHUB_SHA" ]] || fail "主线 SHA 已漂移"
