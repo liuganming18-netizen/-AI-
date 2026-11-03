@@ -42,8 +42,11 @@ def valid_remote(value: str) -> bool:
 def read_command(*argv: str, timeout: int = 15) -> dict:
     """不使用 shell；只调用明确的只读系统/Git 命令。"""
     try:
+        env = os.environ.copy()
+        env["GIT_OPTIONAL_LOCKS"] = "0"  # 防止 git status 的可选索引写入
+        env["GIT_TERMINAL_PROMPT"] = "0"
         process = subprocess.run(
-            list(argv), cwd=str(ROOT), text=True,
+            list(argv), cwd=str(ROOT), text=True, env=env,
             capture_output=True, check=False, timeout=timeout,
         )
         return {
@@ -121,7 +124,7 @@ def main() -> int:
         print(json.dumps({
             "工单": "G00-01", "裁决": "阻塞",
             "原因": "origin 未严格匹配正式新仓库，未运行任何后续检查",
-            "origin_脱敏": safe_remote(remote),
+            "origin_脱敏": "不在白名单内，已隐藏实际地址与参数",
             "开始时间UTC": started_at,
         }, ensure_ascii=False, indent=2))
         return 2
