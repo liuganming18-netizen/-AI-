@@ -1,0 +1,162 @@
+name: G00-01 仓库安全与环境基线
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: g00-01-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    name: 仓库基线 / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    steps:
+      - name: 仅读取代码，不保留认证信息
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: 安装候选 Node.js 运行环境
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: 安装候选 Python 运行环境
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: 验证运行器、架构和版本
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "系统：$(uname -s)"
+          echo "架构：$(uname -m)"
+          echo "Node：$(node --version)"
+          echo "Python：$(python --version)"
+          echo "空间："
+          df -h .
+          case "$RUNNER_OS" in
+            macOS) [[ "$(uname -m)" == "arm64" ]] ;;
+            Linux) [[ "$(uname -m)" == "x86_64" ]] ;;
+            *) echo "不支持的运行器：$RUNNER_OS"; exit 1 ;;
+          esac
+          node --version | grep -E '^v24\.' > /dev/null
+          python --version | grep -E '^Python 3\.13\.' > /dev/null
+          {
+            echo "### 云端只读环境核对"
+            echo "- 运行器：$RUNNER_OS / $(uname -m)"
+            echo "- Node：$(node --version)"
+            echo "- Python：$(python --version)"
+            echo "- 说明：GitHub 托管运行器，不代表用户本机 Mac 已验收"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 检查 Git 跟踪文件边界与忽略规则
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path, PurePosixPath
+
+          def reject(path: str) -> bool:
+              p = PurePosixPath(path)
+              parts = tuple(x.lower() for x in p.parts)
+              name = p.name.lower()
+              if name in {'.env', 'id_rsa', 'id_ed25519'}:
+                  return True
+              if name.startswith('.env.') and name not in {
+                  '.env.example', '.env.sample', '.env.template'
+              } and not name.endswith('.example'):
+                  return True
+              if name.endswith((
+                  '.sqlite', '.sqlite3', '.db', '.parquet', '.key',
+                  '.pem', '.p12', '.pfx', '.pid', '.pid.lock',
+                  '.sqlite-wal', '.sqlite-shm', '.sqlite3-wal',
+                  '.sqlite3-shm', '.db-wal', '.db-shm'
+              )):
+                  return True
+              if any(p in {'node_modules', '__pycache__', '.venv', 'venv'} for p in parts):
+                  return True
+              if parts and parts[0] in {'logs', 'tmp', 'temp'}:
+                  return True
+              return any(path.startswith(prefix) for prefix in (
+                  'runtime/logs/', 'runtime/pids/', 'data/raw/',
+                  'data/market/', 'data/cache/', '数据/市场数据/'
+              ))
+
+          expected_reject = (
+              '.env', '.env.production', 'data/raw/BTC.csv',
+              'raw/BTC.sqlite3', 'raw/BTC.parquet',
+              'logs/collector.log', 'runtime/pids/collector.pid',
+              'node_modules/x.js', 'key/private.pem',
+              '数据/市场数据/test.json'
+          )
+          expected_allow = (
+              '.gitignore', '.env.example', 'docs/项目状态.md',
+              'package-lock.json', 'tests/fixtures/demo.json', 'evidence/a.log'
+          )
+          assert all(reject(x) for x in expected_reject), '检测函数漏报'
+          assert not any(reject(x) for x in expected_allow), '检测函数误报'
+
+          raw = subprocess.check_output(['git', 'ls-files', '-z'])
+          tracked = [x for x in raw.decode('utf-8').split('\0') if x]
+          forbidden = [x for x in tracked if reject(x)]
+          assert not forbidden, f'仓库中追踪了禁止提交的文件：{forbidden}'
+
+          required = (
+              '.gitignore',
+              'docs/工程交付/2026-11-03/README.md',
+              'docs/工程交付/2026-11-03/完整工程施工详单.md',
+              'docs/工程交付/2026-11-03/首单_G00-01.md',
+          )
+          missing = [x for x in required if x not in tracked]
+          assert not missing, f'基线文件丢失：{missing}'
+          for sample in (
+              '.env', '.env.production', 'market.sqlite3',
+              'a.parquet', 'logs/app.log', 'runtime/pids/test.pid',
+              'node_modules/x.js', 'data/raw/x.csv',
+              '数据/市场数据/a.json'
+          ):
+              rc = subprocess.run(
+                  ['git', 'check-ignore', '--no-index', '-q', '--', sample],
+                  check=False
+              ).returncode
+              assert rc == 0, f'.gitignore 未生效：{sample}'
+          for sample in ('.env.example', 'docs/a.md', 'package-lock.json',
+                         'tests/fixtures/example.json', 'evidence/a.log'):
+              rc = subprocess.run(
+                  ['git', 'check-ignore', '--no-index', '-q', '--', sample],
+                  check=False
+              ).returncode
+              assert rc == 1, f'被错误忽略：{sample}'
+
+          print(f'通过：{len(tracked)} 个受跟踪文件、10 项拒绝样例、6 项允许样例、忽略规则双向校验')
+          PY
+
+      - name: 记录保护规则状态（仅提示，不能替代服务端保护）
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          protected="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.protected')"
+          if [[ "$protected" != "true" ]]; then
+            echo "::warning::main 未启用 GitHub 服务端保护，CI 成功不能防止直接推送"
+            echo "- 警告：main 服务器端分支保护尚未启用" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- main 已开启保护；仍需单独核实具体规则" >> "$GITHUB_STEP_SUMMARY"
+          fi
