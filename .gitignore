@@ -1,54 +1,77 @@
-# http://www.gnu.org/software/automake
+# AI 加密货币趋势研究系统：仅提交源代码、依赖锁文件、契约、可公开的测试夹具及验收证据。
+# 全量行情、OI、资金费、运行数据库、缓存和密钥不应提交到 GitHub。
+# 本文件不排除 docs/、evidence/、tests/、package-lock.json 等应审查保留的资产。
 
-Makefile.in
-/ar-lib
-/mdate-sh
-/py-compile
-/test-driver
-/ylwrap
-.deps/
-.dirstamp
+# macOS / 编辑器临时文件
+.DS_Store
+.AppleDouble
+._*
+*.swp
+*.swo
+*~
 
-# http://www.gnu.org/software/autoconf
+# Node.js / 前端构建与测试产物
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/cache/
+.vite/
+dist/
+build/
+coverage/
+.next/
+*.tsbuildinfo
 
-autom4te.cache
-/autoscan.log
-/autoscan-*.log
-/aclocal.m4
-/compile
-/config.cache
-/config.guess
-/config.h.in
-/config.log
-/config.status
-/config.sub
-/configure
-/configure.scan
-/depcomp
-/install-sh
-/missing
-/stamp-h1
+# Python 虚拟环境与缓存
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage
+.coverage.*
+*.egg-info/
 
-# https://www.gnu.org/software/libtool/
+# 本地密钥和私有配置；示例模板允许提交
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+*.pem
+*.p12
+*.pfx
+*.key
+id_rsa
+id_ed25519
 
-/libtool
-/ltmain.sh
-.libs/
+# 本地数据库、SQLite 辅助文件和列式原始行情
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.parquet
+*.parquet.*
+*.wal
+*.shm
+/数据/市场数据/
+/data/raw/
+/data/market/
+/data/cache/
 
-# http://www.gnu.org/software/texinfo
-
-/texinfo.tex
-
-# http://www.gnu.org/software/m4/
-
-m4/libtool.m4
-m4/ltoptions.m4
-m4/ltsugar.m4
-m4/ltversion.m4
-m4/lt~obsolete.m4
-
-# Generated Makefile
-# (meta build system like autotools,
-# can automatically generate from config.status script
-# (which is called by configure script))
-Makefile
+# 仅根目录运行产物；不屏蔽 evidence/ 下的测试与审计日志
+/logs/
+/runtime/logs/
+/runtime/pids/
+/tmp/
+/temp/
+*.pid
+*.pid.lock
