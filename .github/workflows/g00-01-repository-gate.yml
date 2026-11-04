@@ -147,6 +147,28 @@ jobs:
           print(f'通过：{len(tracked)} 个受跟踪文件、10 项拒绝样例、6 项允许样例、忽略规则双向校验')
           PY
 
+      - name: 验证 G00-01 本机取证脚本安全与云端来源标识
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -B evidence/G00-01/本机基线只读采集.py --self-test
+          python -B evidence/G00-01/本机基线只读采集.py > "$RUNNER_TEMP/g00-01-cloud-baseline.json"
+          python - "$RUNNER_TEMP/g00-01-cloud-baseline.json" <<'PY'
+          import json
+          import sys
+          with open(sys.argv[1], encoding="utf-8") as file:
+              report = json.load(file)
+          assert report["工单"] == "G00-01"
+          assert report["现场来源"] == "GitHub Actions 托管运行器，不是用户本机"
+          assert report["数据入口与权限"]["状态"] == "未核验"
+          assert report["仓库基线"]["前后差异"] == {}
+          assert report["当前阶段裁决"] == "只读取证已执行；尚待独立复核"
+          assert report["仓库基线"]["运行前"]["HEAD"]["标准输出"] == (
+              report["仓库基线"]["运行后"]["HEAD"]["标准输出"]
+          )
+          print("PASS：只读脚本自测、仓库前后无变化、未虚构本机及数据入口验收")
+          PY
+
       - name: 记录保护规则状态（仅提示，不能替代服务端保护）
         shell: bash
         env:
