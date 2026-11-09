@@ -13,7 +13,7 @@ const modules = [
 ];
 const state = {
   page:'加密货币',catalog:[],market:new Map(),localMarket:new Map(),signals:[],backRuns:[],
-  marketState:'尚未请求',marketError:'',localConnected:false,localHealth:null,
+  marketState:'尚未请求',marketError:'',localConnected:false,localHealth:null,lastTelemetryProbe:null,
   liveAt:null,selectedId:null,expandedId:null,query:'',source:'all',sort:'index',
   tf:'4h',kOpen:true,oiOpen:true,oiUnit:'usd',chartKey:'',chartLoading:false,
   bars:[],oi:[],barSource:'',oiSource:'',chartError:'',oiError:'',
@@ -178,7 +178,7 @@ function dataPage(){
  const tabs=['K线','OI','资金费率','聪明钱与市值'];
  return '<section class="panel"><div class="between"><div><h2>数据监控 · 动态运行画布</h2><span class="muted">旧数据中心的数据覆盖 + 模块 → 服务 → 任务三级下钻</span></div>'+tag('真实任务遥测未接入',true)+'</div></section>'+
  '<div class="card-grid three" style="margin-bottom:10px">'+
- [['历史数据','已封存','沿用原件和校验清单'],['实时数据',state.marketState,'Binance公开行情与本机只读来源分开'],['数据质量',state.localConnected?'网关可读':'未核验','不推断缺口数和任务积压']].map(x=>'<div class="card"><div class="muted">'+esc(x[0])+'</div><div class="num">'+esc(x[1])+'</div><div class="hint">'+esc(x[2])+'</div></div>').join('')+'</div>'+
+ [['历史数据','已封存','沿用原件和校验清单'],['实时数据',state.marketState,'Binance公开行情与本机只读来源分开'],['数据质量',state.localConnected?'网关可读':'未核验','最近健康探测 '+(state.lastTelemetryProbe?time(state.lastTelemetryProbe):'未进行')]].map(x=>'<div class="card"><div class="muted">'+esc(x[0])+'</div><div class="num">'+esc(x[1])+'</div><div class="hint">'+esc(x[2])+'</div></div>').join('')+'</div>'+
  '<section class="panel"><div class="between"><h3>模块运行拓扑</h3>'+tag(state.monitorFault==='none'?'真实状态未连接':'模拟故障高亮',state.monitorFault!=='none')+'</div><div class="filters"><button class="btn" data-monitorroot="1">全链路总览</button><button class="btn" data-fault="gap">演示数据缺口</button><button class="btn" data-fault="lag">演示采集积压</button><button class="btn" data-fault="ai">演示AI超时</button><button class="btn" data-fault="none">清除演示</button></div>'+flow()+'<div class="muted" style="margin-top:9px">真实心跳、延迟、积压、数据缺口、消费者检查点与trace_id必须由服务端接口提供；本机网关联通不代表所有模块正常。</div></section>'+
  '<div class="card-grid two" style="margin-bottom:10px"><div class="panel"><h3>节点、服务、任务检查</h3><div class="log" style="margin-top:10px">层级：'+['模块','服务','任务'][state.moduleLevel]+'\n网关：'+(state.localConnected?'可读':'未接入')+'\n真实心跳：—\n延迟分布：—\n任务积压：—\n检查点：—\nTrace ID：—</div></div><div class="panel"><h3>故障定位与恢复</h3><div class="log" style="margin-top:10px">当前演示：'+(state.monitorFault==='none'?'无':state.monitorFault) +'\n实际故障日志：未接入\n自动补齐执行：未授权\n恢复动作：只读界面不执行</div><div class="note" style="margin-top:10px">按受影响币种和周期隔离，恢复须验证幂等和时间可得性；不改动已封存数据。</div></div></div>'+
  '<section class="panel"><div class="between"><h3>数据覆盖与来源</h3>'+tag('源内历史未在本页重审')+'</div><div class="tabs" style="margin-top:11px">'+tabs.map(x=>'<button class="tab '+(state.dataTab===x?'active':'')+'" data-datatab="'+x+'">'+x+'</button>').join('')+'</div><div class="scroll-x" style="margin-top:11px"><table class="basic-table"><thead><tr><th>数据/周期</th><th>封存源</th><th>实时状态</th><th>有效历史范围</th><th>缺口</th></tr></thead><tbody>'+(state.dataTab==='K线'?periods:[state.dataTab]).map(x=>'<tr><td>'+esc(x)+'</td><td>原件已封存</td><td>'+esc(state.localConnected?'网关可读':'接口未连')+'</td><td>—</td><td>未在本页检验</td></tr>').join('')+'</tbody></table></div></section>';
@@ -303,6 +303,18 @@ async function loadLocal(){
  try{const r=await api('/api/local/backtests');state.backRuns=normalizeArray(r.payload);}catch{state.backRuns=[];}
  render();
 }
+async function probeTelemetry(){
+ if(state.page!=='数据监控'||document.hidden)return;
+ try{
+  const r=await api('/api/local/data-health');
+  state.localHealth=r.payload;
+  state.lastTelemetryProbe=Date.now();
+ }catch{
+  state.localHealth=null;
+  state.lastTelemetryProbe=Date.now();
+ }
+ if(state.page==='数据监控')render();
+}
 async function loadDetail(){
  const c=selected();if(!c||!c.ticker)return;
  const key=c.identity+'|'+state.tf;
@@ -341,7 +353,7 @@ function jumpCursor(n){const [a,b]=backRange();state.cursor=Math.max(a,Math.min(
 document.getElementById('app').addEventListener('click',e=>{
  const b=e.target.closest('button,tr[data-coin]');if(!b)return;
  const d=b.dataset;
- if(d.nav){stopPlayback();state.page=d.nav;render(true);if(d.nav==='历史回测'&&!state.bars.length)void loadDetail();return;}
+ if(d.nav){stopPlayback();state.page=d.nav;render(true);if(d.nav==='历史回测'&&!state.bars.length)void loadDetail();if(d.nav==='数据监控')void probeTelemetry();return;}
  if(d.signal){goCoin(d.signal);return;}
  if(d.sigfilter){state.signalFilter=d.sigfilter;render();return;}
  if(d.coin){const isSame=state.expandedId===d.coin;state.selectedId=d.coin;state.expandedId=isSame?null:d.coin;state.tf='1d';render();if(!isSame)void loadDetail();return;}
@@ -391,3 +403,4 @@ loadCatalog();
 loadMarket();
 loadLocal();
 setInterval(()=>{if(document.hidden)return;void loadMarket();void loadLocal();},20000);
+setInterval(()=>{if(state.page==='数据监控'&&!document.hidden)void probeTelemetry();},5000);
