@@ -23,7 +23,7 @@ const state = {
 };
 let loadAbort = null, playTimer = null;
 const $ = id => document.getElementById(id);
-const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;'}[ch]||ch));
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]||ch));
 function number(v){ if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null; }
 function fmt(v,d=2){return v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('zh-CN',{maximumFractionDigits:d});}
 function money(v){const n=number(v);if(n===null)return '—';return Math.abs(n)>=1e8?fmt(n/1e8,2)+'亿':Math.abs(n)>=1e4?fmt(n/1e4,2)+'万':fmt(n,2);}
@@ -263,7 +263,7 @@ function drawCharts(){requestAnimationFrame(()=>{drawK();drawOi();});}
 function normalizeSignals(payload){
  const raw=normalizeArray(payload);
  return raw.map(x=>({
-   id:(String(x.exchange||'binance').toLowerCase()==='okx'?'OKX:':'Binance:')+String(x.market_id||x.symbol||'').toUpperCase(),
+   id:(String(x.exchange||'binance').toLowerCase()==='okx'?'okx:swap:':'binance:um:')+String(x.market_id||x.symbol||'').toUpperCase(),
    symbol:String(x.market_id||x.symbol||'—').toUpperCase(),exchange:x.exchange||'—',
    eventId:x.signal_id??x.id??null,direction:/short|sell|空/i.test(x.direction||x.side)?'空':/long|buy|多/i.test(x.direction||x.side)?'多':'未知',
    status:/invalid|失效/i.test(x.status||x.state)?'失效':/active|confirmed|有效/i.test(x.status||x.state)?'有效':'观察',
