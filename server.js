@@ -146,6 +146,28 @@ export async function handler(req,res) {
     }catch(e){json(res,502,{error:'OI数据不可用',detail:errorText(e)});}
     return;
   }
+  if (url.pathname === '/api/local/candles' || url.pathname === '/api/local/oi') {
+    const exchange=(url.searchParams.get('exchange') || 'binance').toLowerCase();
+    const symbol=(url.searchParams.get('symbol') || '').toUpperCase();
+    const interval=url.searchParams.get('interval') || '4h';
+    if (!['binance','okx'].includes(exchange) || !/^[A-Z0-9-]{2,42}$/.test(symbol) ||
+        !symbol.includes('USDT') || !periods.has(interval)) {
+      json(res,400,{connected:false,error:'只读历史数据查询参数不合法'});return;
+    }
+    const kind=url.pathname.endsWith('/oi')?'oi':'candles';
+    const endpoint='/api/v1/markets/' + exchange + '/' + encodeURIComponent(symbol) + '/' + kind;
+    const query=new URLSearchParams();
+    if(kind==='candles')query.set('timeframe',interval);
+    else query.set('period',interval);
+    query.set('limit',kind==='candles'?'700':'800');
+    if(kind==='candles')query.set('history_only','1');
+    try {
+      const body=await localRead(endpoint+'?'+query.toString());
+      json(res,200,{connected:true,source:'本机封存历史数据网关（只读）',
+        exchange,symbol,interval,payload:body});
+    }catch(e){json(res,503,{connected:false,error:'历史数据网关未连通',detail:errorText(e)});}
+    return;
+  }
   const localRoutes={
     '/api/local/markets':'/api/v1/markets',
     '/api/local/signals':'/api/v1/signals?scope=current',
