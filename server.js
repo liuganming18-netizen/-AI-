@@ -104,7 +104,7 @@ async function serveCatalog(res) {
 }
 export async function handler(req,res) {
   const url=new URL(req.url || '/', 'http://localhost');
-  if (req.method !== 'GET') { json(res,405,{error:'仅开放只读 GET 请求'}); return; }
+  if ((req.method || 'GET') !== 'GET') { json(res,405,{error:'仅开放只读 GET 请求'}); return; }
   if (url.pathname === '/api/health') {
     json(res,200,{status:'ok', scope:'仅表示本前端服务可访问；不表示数据、AI或模拟交易已连接',
       marketData:'另查 /api/market-data', historicalData:'另查只读数据网关'}); return;
