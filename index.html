@@ -1,30 +1,33 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>行情技术分析</title>
-<style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#10151e;color:#e6edf6}*{box-sizing:border-box}body{margin:0}header{padding:18px 24px;border-bottom:1px solid #2b3544;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h1{font-size:19px;margin:0}main{padding:18px 24px}label{font-size:13px;color:#a7b7ca}input,select,button{background:#202b3a;border:1px solid #3b4a5d;border-radius:6px;padding:9px;color:#fff;font-size:14px}button{cursor:pointer}button:hover{background:#34445a}.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.field{display:flex;gap:7px;align-items:center}.panel{border:1px solid #2c3a4b;border-radius:9px;background:#151e29;overflow:hidden}.meta{padding:12px 16px;border-bottom:1px solid #2c3a4b;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.chart{width:100%;height:470px;display:block}.volume{width:100%;height:120px;display:block;border-top:1px solid #2c3a4b}.muted{color:#9cadc1;font-size:13px}.error{color:#ff9999}.ok{color:#8bd7b4}@media(max-width:600px){main{padding:10px}header{padding:14px}.chart{height:350px}}
-</style></head><body><header><h1>合约行情技术分析</h1><div class="controls"><div class="field"><label for="symbol">代币代码</label><input id="symbol" value="BTCUSDT" maxlength="30" aria-label="代币代码"></div><div class="field"><label for="period">周期</label><select id="period"><option value="5m">5分钟</option><option value="15m">15分钟</option><option value="30m">30分钟</option><option value="1h" selected>1小时</option><option value="4h">4小时</option><option value="8h">8小时</option><option value="12h">12小时</option><option value="1d">1天</option></select></div><button id="refresh">刷新行情</button></div></header><main><section class="panel"><div class="meta"><span id="summary">等待加载</span><span id="status" class="muted">正在连接</span></div><canvas id="price" class="chart" aria-label="价格蜡烛图"></canvas><canvas id="volume" class="volume" aria-label="成交量柱状图"></canvas></section><p class="muted">数据来源：币安合约公开行情。当前为最小可运行版本，仅展示价格与成交量，不提供交易操作。</p></main>
-<script>
-const price=document.getElementById('price'), volume=document.getElementById('volume'), status=document.getElementById('status'),summary=document.getElementById('summary');
-let lastRows=[],controller;
-function setup(canvas){const width=canvas.clientWidth,height=canvas.clientHeight,dpr=window.devicePixelRatio||1;canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,width,height};}
-function render(){
- if(!lastRows.length)return;
- const a=setup(price),v=setup(volume),rows=lastRows.slice(-110),w=a.width,h=a.height;
- a.ctx.clearRect(0,0,w,h);v.ctx.clearRect(0,0,v.width,v.height);
- const low=Math.min(...rows.map(r=>r.low)),high=Math.max(...rows.map(r=>r.high)),range=high-low||1,pad=26,step=(w-65)/rows.length;
- const y=p=>pad+(high-p)/range*(h-pad*2);
- a.ctx.strokeStyle='#2c3948';a.ctx.fillStyle='#9cadc1';a.ctx.font='11px sans-serif';
- for(let i=0;i<5;i++){let yy=pad+(h-pad*2)*i/4;a.ctx.beginPath();a.ctx.moveTo(0,yy);a.ctx.lineTo(w-60,yy);a.ctx.stroke();a.ctx.fillText((high-range*i/4).toFixed(high>100?2:5),w-57,yy+4);}
- const maxVol=Math.max(...rows.map(r=>r.volume))||1;
- rows.forEach((r,i)=>{const x=(i+.5)*step,up=r.close>=r.open,color=up?'#36bf96':'#e26d73';a.ctx.strokeStyle=color;a.ctx.fillStyle=color;a.ctx.beginPath();a.ctx.moveTo(x,y(r.high));a.ctx.lineTo(x,y(r.low));a.ctx.stroke();const top=Math.min(y(r.open),y(r.close)),height=Math.max(1,Math.abs(y(r.open)-y(r.close)));a.ctx.fillRect(x-step*.32,top,Math.max(1,step*.64),height);v.ctx.fillStyle=color;const vh=r.volume/maxVol*(v.height-18);v.ctx.fillRect(x-step*.32,v.height-vh,Math.max(1,step*.64),vh);});
- const last=rows.at(-1);summary.textContent='最新收盘价：'+last.close+'　最新K线时间：'+new Date(last.time).toLocaleString('zh-CN',{hour12:false});
-}
-async function load(){
- controller?.abort();controller=new AbortController();status.textContent='正在加载行情';status.className='muted';
- const symbol=document.getElementById('symbol').value.trim().toUpperCase(),interval=document.getElementById('period').value;
- if(!/^[A-Z0-9]{2,30}$/.test(symbol)){status.textContent='代币代码格式不正确';status.className='error';return;}
- try{const res=await fetch('/api/klines?symbol='+encodeURIComponent(symbol)+'&interval='+encodeURIComponent(interval),{signal:controller.signal});const data=await res.json();if(!res.ok)throw new Error(data.error||'行情获取失败');if(!data.rows?.length)throw new Error('暂无行情数据');lastRows=data.rows;render();status.textContent='行情已更新 · '+data.source;status.className='ok';}
- catch(e){if(e.name==='AbortError')return;status.textContent=e.message;status.className='error';}
-}
-document.getElementById('refresh').addEventListener('click',load);document.getElementById('period').addEventListener('change',load);document.getElementById('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')load()});window.addEventListener('resize',render);load();
-</script></body></html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10152e">
+  <title>GM · AI趋势研究系统</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<div class="root" id="app">
+  <nav class="nav" aria-label="主导航">
+    <div class="brand">GM 趋势研判系统</div>
+    <div id="nav-list"></div>
+    <div class="nav-foot">
+      <div>研究范围：USDT 永续</div>
+      <div>Binance 主源 / OKX 补位</div>
+      <div id="nav-status">正在检查只读数据接口</div>
+    </div>
+  </nav>
+  <div class="workspace">
+    <header class="top" id="overview"><div class="muted">正在读取系统状态…</div></header>
+    <div class="three-columns">
+      <aside class="left" id="left-panel"></aside>
+      <main class="main" id="main-panel" aria-live="polite"></main>
+      <aside class="right" id="right-panel"></aside>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/assets/app.js"></script>
+</body>
+</html>
