@@ -172,6 +172,8 @@ export async function handler(req,res) {
     '/api/local/markets':'/api/v1/markets',
     '/api/local/signals':'/api/v1/signals?scope=current',
     '/api/local/overview':'/api/v1/overview',
+    '/api/local/backtests':'/api/v1/backtests?limit=50',
+    '/api/local/data-status':'/api/v1/data/status',
     '/api/local/data-health':'/api/v1/health',
   };
   if (Object.hasOwn(localRoutes,url.pathname)) {
