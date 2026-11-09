@@ -12,7 +12,7 @@ const modules = [
   {name:'模拟与回放', services:[['只读持仓',['模拟账户接入','风险展示']],['历史回测',['逐根回放','订单核算']]]}
 ];
 const state = {
-  page:'加密货币',catalog:[],market:new Map(),localMarket:new Map(),signals:[],
+  page:'加密货币',catalog:[],market:new Map(),localMarket:new Map(),signals:[],backRuns:[],
   marketState:'尚未请求',marketError:'',localConnected:false,localHealth:null,
   liveAt:null,selectedId:null,expandedId:null,query:'',source:'all',sort:'index',
   tf:'4h',kOpen:true,oiOpen:true,oiUnit:'usd',chartKey:'',chartLoading:false,
@@ -53,7 +53,7 @@ async function api(path,signal){
   if(!response.ok)throw Error(body.error||body.detail||'接口返回 '+response.status);
   return body;
 }
-function normalizeArray(body){if(Array.isArray(body))return body;if(!body||typeof body!=='object')return [];return [body.items,body.bars,body.points,body.rows,body.data,body.signals].find(Array.isArray)||[];}
+function normalizeArray(body){if(Array.isArray(body))return body;if(!body||typeof body!=='object')return [];return [body.items,body.bars,body.points,body.rows,body.data,body.signals,body.runs,body.current].find(Array.isArray)||[];}
 function normalizeBars(body){
   return normalizeArray(body).map(row=>{
     if(Array.isArray(row))return {time:stamp(row[0]),open:number(row[1]),high:number(row[2]),low:number(row[3]),close:number(row[4]),volume:number(row[5])};
@@ -194,15 +194,22 @@ function strategyPage(){
  '<section class="panel"><h3>'+state.strategyTab+'</h3><div class="log" style="margin-top:10px">'+(state.strategyTab==='版本对比'?'冻结规则版本：未在新仓库读通\n待测试候选规则：未冻结\n参数差异：—\n不能声称复现旧规则':state.strategyTab==='数据依赖'?'K线：已封存源，按实际可得时间读\nOI：同交易所同合约\n资金费率：事件时点独立检查\n多空比：不可跨来源拼接':'候选结构 → 量化计算 → AI假设 → 反证复核 → 独立风险校验\n研究结果在严格样本外之前保持未验收')+'</div></section>';
 }
 function backRange(){const n=state.bars.length;if(!n)return [0,0];if(state.scope==='样本内')return [0,Math.max(0,Math.floor(n*.6)-1)];if(state.scope==='验证集')return [Math.floor(n*.6),Math.max(Math.floor(n*.6),Math.floor(n*.8)-1)];return [Math.floor(n*.8),n-1];}
+function backRunsPanel(){
+ const rows=state.backRuns.slice(0,20);
+ return '<section class="panel"><div class="between"><div><h3>既有回测运行索引 · 只读</h3><span class="muted">仅展示源记录，不把旧实验自动视为本轮策略验收通过</span></div>'+tag(rows.length?'已取得 '+rows.length+' 条':'未取得记录')+'</div>'+
+ (rows.length?'<div class="scroll-x" style="margin-top:11px"><table class="basic-table"><thead><tr><th>Run ID</th><th>状态</th><th>创建时间</th><th>策略版本</th><th>统计核验</th></tr></thead><tbody>'+
+ rows.map(r=>'<tr><td>'+esc(String(r.run_id||r.id||'—').slice(0,72))+'</td><td>'+esc(r.status||'未知')+'</td><td>'+esc(r.created_at||'—')+'</td><td>'+esc(r.strategy_version||r.strategy_id||'—')+'</td><td>待独立核对</td></tr>').join('')+
+ '</tbody></table></div>':'<div class="empty">本机回测记录接口未返回可用条目，不编造结果。</div>')+'</section>';
+}
 function backPage(){
  const [lo,hi]=backRange(),metrics=['净收益','最大回撤','Sharpe','Sortino','Calmar','Profit Factor','胜率','盈亏比','完成订单','每笔期望','95%置信区间','样本外超额'];
- return '<section class="panel"><div class="between"><div><h2>历史回测 · 科学验证工作台</h2><span class="muted">历史数据浏览不等于已执行回测；未接回测引擎之前所有绩效保持空态</span></div>'+tag('Run ID：未生成',true)+'</div><div class="tabs" style="margin-top:11px">'+['样本内','验证集','样本外'].map(x=>'<button class="tab '+(state.scope===x?'active':'')+'" data-scope="'+x+'">'+x+'</button>').join('')+'</div></section>'+
- '<div class="card-grid four" style="margin-bottom:11px">'+metrics.map(x=>'<div class="card"><div class="muted">'+x+'</div><div class="num">—</div><div class="hint">真实回测未运行</div></div>').join('')+'</div>'+
+ return '<section class="panel"><div class="between"><div><h2>历史回测 · 科学验证工作台</h2><span class="muted">历史数据浏览不等于已执行回测；未接回测引擎之前所有绩效保持空态</span></div>'+tag(state.backRuns.length?'发现既有运行索引':'本轮Run ID未生成',true)+'</div><div class="tabs" style="margin-top:11px">'+['样本内','验证集','样本外'].map(x=>'<button class="tab '+(state.scope===x?'active':'')+'" data-scope="'+x+'">'+x+'</button>').join('')+'</div></section>'+
+ '<div class="card-grid four" style="margin-bottom:11px">'+metrics.map(x=>'<div class="card"><div class="muted">'+x+'</div><div class="num">—</div><div class="hint">本轮未取得合格指标</div></div>').join('')+'</div>'+
  '<section class="panel"><div class="between"><h3>真实K线逐根浏览 · '+esc(selected()?.ticker||'无标的')+'</h3>'+tag(state.scope+' / '+lo+'–'+hi)+'</div><div class="filters"><button class="btn" data-bstep="-1">◀ 上一根</button><button class="btn '+(state.playing?'active':'')+'" data-bplay="1">'+(state.playing?'暂停':'▶ 播放')+'</button><button class="btn" data-bstep="1">下一根 ▶</button><button class="btn" data-breset="1">段首</button><span class="muted">可见K线 '+state.bars.length+' 根 · T+'+state.cursor+'</span></div><input type="range" class="range" id="back-seek" min="'+lo+'" max="'+hi+'" value="'+Math.max(lo,Math.min(hi,state.cursor))+'" '+(!state.bars.length?'disabled':'')+'/>'+
  '<div class="row wrap" style="margin:8px 0"><button class="btn '+(state.kOpen?'active':'')+'" data-fold="k">K线 '+(state.kOpen?'▾':'▸')+'</button><button class="btn '+(state.oiOpen?'active':'')+'" data-fold="oi">OI柱形 '+(state.oiOpen?'▾':'▸')+'</button>'+tag('仅浏览已收盘行情')+'</div>'+
  (state.kOpen?'<div class="chart-section"><div class="chart-head"><b>K线与成交量</b>'+tag(state.barSource||'未接入')+'</div>'+(state.bars.length?'<canvas id="candles" class="chart-canvas"></canvas>':'<div class="chart-blank">'+esc(state.chartError||'无K线')+'</div>')+'</div>':'')+
  (state.oiOpen?'<div class="chart-section"><div class="chart-head"><b>OI柱形</b><div class="row"><button class="btn '+(state.oiUnit==='amount'?'active':'')+'" data-oiunit="amount">数量</button><button class="btn '+(state.oiUnit==='usd'?'active':'')+'" data-oiunit="usd">名义额</button></div></div>'+(state.oi.length?'<canvas id="oi-chart" class="chart-canvas oi"></canvas>':'<div class="chart-blank">'+esc(state.oiError||'OI未接入')+'</div>')+'</div>':'')+'</section>'+
- '<section class="panel"><div class="tabs">'+['逐笔与事件','权益与回撤','科学性门禁'].map(x=>'<button class="tab '+(state.backTab===x?'active':'')+'" data-backtab="'+x+'">'+x+'</button>').join('')+'</div><div style="margin-top:12px">'+(state.backTab==='逐笔与事件'?'<div class="empty">回测订单与信号历史未接入；不能用K线涨跌生成假订单。</div>':state.backTab==='权益与回撤'?'<div class="card-grid two"><div class="empty">权益曲线：暂无真实回测数据</div><div class="empty">回撤曲线：暂无真实回测数据</div></div>':'<div class="card-grid two"><div class="log">未来函数测试：未执行\nPIT可得时间：未验收\nWalk-Forward：未执行\n样本隔离：仅为浏览视窗划分</div><div class="log">手续费：未核算\n滑点：未核算\n资金费：未核算\n统计置信区间：未计算</div></div>')+'</div></section>';
+ '<section class="panel"><div class="tabs">'+['逐笔与事件','权益与回撤','科学性门禁'].map(x=>'<button class="tab '+(state.backTab===x?'active':'')+'" data-backtab="'+x+'">'+x+'</button>').join('')+'</div><div style="margin-top:12px">'+(state.backTab==='逐笔与事件'?'<div class="empty">回测订单与信号历史未接入；不能用K线涨跌生成假订单。</div>':state.backTab==='权益与回撤'?'<div class="card-grid two"><div class="empty">权益曲线：暂无真实回测数据</div><div class="empty">回撤曲线：暂无真实回测数据</div></div>':'<div class="card-grid two"><div class="log">未来函数测试：未执行\nPIT可得时间：未验收\nWalk-Forward：未执行\n样本隔离：仅为浏览视窗划分</div><div class="log">手续费：未核算\n滑点：未核算\n资金费：未核算\n统计置信区间：未计算</div></div>')+'</div></section>'+backRunsPanel();
 }
 function render(reset=false){
  const old=$('main-panel').scrollTop;
@@ -223,7 +230,7 @@ function prepareCanvas(id){
 function drawK(){
  const c=prepareCanvas('candles');if(!c||!state.bars.length)return;
  const {g,w,h}=c,full=state.bars;
- const subset=state.page==='历史回测'?full.slice(0,Math.min(full.length,state.cursor+1)):full;
+ const subset=state.page==='历史回测'?full.slice(0,Math.min(full.length,state.cursor+1)):full.filter(x=>x.time>=full.at(-1).time-90*86400000);
  if(!subset.length)return;
  const bars=subset.slice(-560),padTop=19,priceHeight=h*.76,lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),range=hi-lo||1,step=(w-65)/bars.length;
  g.fillStyle='#0d182d';g.fillRect(0,0,w,h);
@@ -242,7 +249,7 @@ function drawOi(){
  const c=prepareCanvas('oi-chart');if(!c||!state.oi.length)return;
  const {g,w,h}=c,oi=state.oi,barSet=state.bars;
  const historyEnd=state.page==='历史回测'?barSet[Math.min(state.cursor,barSet.length-1)]?.time:barSet.at(-1)?.time;
- const historyStart=barSet[0]?.time;
+ const historyStart=state.page==='历史回测'?barSet[0]?.time:Math.max(barSet[0]?.time||0,(barSet.at(-1)?.time||0)-90*86400000);
  const series=oi.filter(x=> (state.oiUnit==='usd'?x.usd:x.amount)!==null && (!historyEnd||x.time<=historyEnd) && (!historyStart||x.time>=historyStart));
  g.fillStyle='#0c172c';g.fillRect(0,0,w,h);
  if(!series.length){g.fillStyle='#9eacc8';g.fillText('当前窗口未找到该单位的真实OI观测',15,25);return;}
@@ -293,6 +300,7 @@ async function loadLocal(){
   const a=normalizeArray(r.payload);state.localMarket=new Map(a.map(x=>[String(x.exchange||'Binance').toLowerCase()==='okx'?'OKX:'+String(x.market_id||x.symbol):'Binance:'+String(x.market_id||x.symbol),x]));
  }catch{state.localConnected=false;state.localMarket=new Map();}
  try{const r=await api('/api/local/signals');state.signals=normalizeSignals(r.payload);}catch{state.signals=[];}
+ try{const r=await api('/api/local/backtests');state.backRuns=normalizeArray(r.payload);}catch{state.backRuns=[];}
  render();
 }
 async function loadDetail(){
