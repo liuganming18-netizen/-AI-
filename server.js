@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT || 3010);
 const periods = new Set(['5m','15m','30m','1h','4h','8h','12h','1d']);
 const oiPeriods = new Set(['5m','15m','30m','1h','4h','12h','1d']);
 const symbolPattern = /^[A-Z0-9]{2,30}$/;
