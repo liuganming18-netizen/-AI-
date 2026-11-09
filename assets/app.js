@@ -107,6 +107,19 @@ function side(){
 function right(){
  return '<div class="between"><h2>模拟交易</h2>'+tag('只读 / 未接入',true)+'</div><div class="wallet"><span class="muted">产品计划初始资金</span><b>2,000.00 USDT</b><span class="tiny">不是实际账户权益或可用余额</span></div><div class="right-stats"><div class="card"><span class="muted">账户权益</span><b>—</b></div><div class="card"><span class="muted">可用保证金</span><b>—</b></div><div class="card"><span class="muted">持仓笔数</span><b>—</b></div><div class="card"><span class="muted">未实现盈亏</span><b>—</b></div></div><h3 style="margin-top:15px">当前持仓与订单</h3><div class="empty">交易所模拟账户只读接口尚未授权与接通，不能虚构持仓。</div><h3 style="margin-top:14px">风控与执行</h3><div class="note" style="margin-top:10px">量化风险管理独立于AI。杠杆产品约束≤5x；账户读取和自动操作是不同权限。本页面没有任何下单、撤单或改仓入口。</div><div class="side-note">新项目只允许研究与模拟环境；真实交易指令未实现。</div>';
 }
+function smartSide(c,side){
+ const sm=localRow(c)?.smart_money;
+ const stats=sm?.stats||{},overview=sm?.overview||{};
+ const key=side==='long'?'long':'short';
+ const amount=number(stats[key+'Positions']);
+ const whale=number(stats[key+'WhalePositions']);
+ const avg=number(overview[key+'TradersAvgEntryPrice']);
+ return {amount,avg,whaleShare:amount!==null&&amount!==0&&whale!==null?whale/amount*100:null};
+}
+function volumeByPeriod(c,period){
+ const value=localRow(c)?.volume_by_timeframe?.[period]?.quote_volume;
+ return number(value);
+}
 function statusLabel(c){
  const ticker=liveRow(c);
  return c.ticker===null?'待映射':c.venue==='Binance'?(ticker?'公开行情':'未取得行情'):'只读补位待接';
@@ -137,13 +150,13 @@ function detail(c){
 }
 function marketRow(c){
  const active=c.identity===state.expandedId;
- const funding=field(c,'funding');
+ const funding=field(c,'funding'),long=smartSide(c,'long'),short=smartSide(c,'short');
+ const group=(v)=>'<div class="cell-lines"><strong>持仓额：'+money(v.amount)+'</strong><span>巨鲸占比：'+(v.whaleShare===null?'—':fmt(v.whaleShare,1)+'%')+'</span><span>均价：'+px(v.avg)+'</span></div>';
  return '<tr class="market-row '+(active?'active':'')+'" data-coin="'+esc(c.identity)+'"><td>'+token(c)+'</td>'+
- '<td><div class="cell-lines"><strong>24h成交额：'+money(field(c,'volume'))+'</strong><span>动态周期量：—</span></div></td>'+
- '<td><div class="cell-lines"><strong>聪明钱多头：—</strong><span>持仓额/占比/均价：—</span></div></td>'+
- '<td><div class="cell-lines"><strong>聪明钱空头：—</strong><span>持仓额/占比/均价：—</span></div></td>'+
+ '<td><div class="cell-lines"><strong>'+state.tf+'量：'+money(volumeByPeriod(c,state.tf))+'</strong><span>24h成交额：'+money(field(c,'volume'))+'</span></div></td>'+
+ '<td>'+group(long)+'</td><td>'+group(short)+'</td>'+
  '<td><div class="cell-lines"><strong>'+money(field(c,'oi'))+'</strong><span>数量与名义额分开</span></div></td>'+
- '<td>'+ (funding===null?'—':pct(funding*100))+'</td>'+
+ '<td>'+(funding===null?'—':pct(funding*100))+'</td>'+
  '<td class="tiny">费率序列：—</td></tr>'+(active?detail(c):'');
 }
 function market(){
