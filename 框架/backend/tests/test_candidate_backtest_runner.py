@@ -12,9 +12,11 @@
 """
 from __future__ import annotations
 
+import copy
 import json
 import os
 import shutil
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -28,6 +30,7 @@ import backtest_runner as BR
 import backtest_store as S
 from candidate_backtest_runner import (
     DEFAULT_HOLDOUT_START_MS,
+    CandidateExecutionError,
     HoldoutSealedError,
     create_or_bind_snapshot,
     run_candidate_backtest,
@@ -134,6 +137,30 @@ class TestCandidateBacktestRunnerP0(unittest.TestCase):
         self.assertEqual(manifest["symbol"], self.sym)
         self.assertEqual(manifest["source"], "memory_snapshot")
 
+    def test_p0_1_external_snapshot_manifest_tamper_rejected(self):
+        """缺口 1: 外部快照复用前，按冻结身份校验实际输入；不一致在执行或覆盖有效结果前拒绝。"""
+        snap_dir = Path(self.tmp_dir) / "ext_snapshot"
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        sig_df = _make_dummy_candles(self.start_ms - 10 * 3600000, 10 + 7 * 24, 3600000)
+        exec_df = _make_dummy_candles(self.start_ms - 40 * 900000, 40 + 7 * 24 * 4, 900000)
+        sig_df.to_csv(snap_dir / f"{self.sym}_signal_bars.csv", index=False)
+        exec_df.to_csv(snap_dir / f"{self.sym}_exec_bars.csv", index=False)
+        (snap_dir / f"{self.sym}_funding_events.json").write_text("[]", encoding="utf-8")
+
+        # 写入伪造或不匹配的 manifest（伪造 signal_bars_sha256）
+        fake_manifest = {
+            "symbol": self.sym,
+            "signal_bars_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "exec_bars_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "funding_events_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        }
+        (snap_dir / "inputs_manifest.json").write_text(json.dumps(fake_manifest), encoding="utf-8")
+
+        spec = self._get_spec()
+        with self.assertRaises(CandidateExecutionError) as ctx:
+            run_candidate_backtest("WX_OI_RESONANCE_V1", spec, snapshot_path=snap_dir)
+        self.assertIn("外部快照身份校验失败", str(ctx.exception))
+
     # ──────────────────────────────────────────────────────────────────────────
     # P0-2: 历史时钟正确限制可见数据；严格与近似 PIT 区分
     # ──────────────────────────────────────────────────────────────────────────
@@ -229,6 +256,91 @@ class TestCandidateBacktestRunnerP0(unittest.TestCase):
         c2 = res2["ledger_counts"]["trades"]
         # 账本行数必须恒等，绝不发生翻倍重复记账
         self.assertEqual(c1, c2)
+
+    def test_p0_5_same_run_id_rejects_altered_inputs_or_spec(self):
+        """缺口 2: 显式同 run_id 换输入、规则或配置时，比较已有绑定身份，并在写账或覆盖前拒绝。"""
+        spec1 = self._get_spec()
+        sig_df1 = _make_dummy_candles(self.start_ms - 10 * 3600000, 10 + 7 * 24, 3600000)
+        exec_df1 = _make_dummy_candles(self.start_ms - 40 * 900000, 40 + 7 * 24 * 4, 900000)
+        snapshot1 = {"sig_df": sig_df1, "exec_df": exec_df1, "funding_events": []}
+
+        fixed_run_id = S.new_run_id("00112233")
+        res1 = run_candidate_backtest("WX_OI_RESONANCE_V1", spec1, data_snapshot=snapshot1, run_id=fixed_run_id)
+        self.assertEqual(res1["status"], S.STATUS_SUCCEEDED)
+
+        # 1. 尝试使用同一个 run_id 但篡改配置（例如改变周期或窗口）
+        spec2 = copy.deepcopy(spec1)
+        spec2["signal_timeframe"] = "4h"  # 发生配置漂移
+        with self.assertRaises(CandidateExecutionError) as ctx_spec:
+            run_candidate_backtest("WX_OI_RESONANCE_V1", spec2, data_snapshot=snapshot1, run_id=fixed_run_id)
+        self.assertIn("同运行编号拒绝更换输入、规则或配置", str(ctx_spec.exception))
+
+        # 2. 尝试使用同一个 run_id 但篡改输入数据
+        sig_df_altered = _make_dummy_candles(self.start_ms - 10 * 3600000, 10 + 7 * 24, 3600000, base_price=999.0)
+        snapshot_altered = {"sig_df": sig_df_altered, "exec_df": exec_df1, "funding_events": []}
+        with self.assertRaises(CandidateExecutionError) as ctx_data:
+            run_candidate_backtest("WX_OI_RESONANCE_V1", spec1, data_snapshot=snapshot_altered, run_id=fixed_run_id)
+        self.assertIn("同运行编号拒绝更换数据输入快照", str(ctx_data.exception))
+
+    def test_p0_5_controlled_interruption_recovery_matches_baseline(self):
+        """缺口 3: 用原固定小样本完成一次部分执行后的受控中断验证，证明安全恢复或隔离重算与不中断基准账本一致，无重复、漏记，运行状态能够结束。"""
+        spec = self._get_spec()
+        sig_df = _make_dummy_candles(self.start_ms - 10 * 3600000, 10 + 7 * 24, 3600000)
+        exec_df = _make_dummy_candles(self.start_ms - 40 * 900000, 40 + 7 * 24 * 4, 900000)
+        snapshot = {"sig_df": sig_df, "exec_df": exec_df, "funding_events": []}
+
+        # 1. 执行不中断基准
+        base_run_id = S.new_run_id("00aabbcc")
+        res_base = run_candidate_backtest("WX_OI_RESONANCE_V1", spec, data_snapshot=snapshot, run_id=base_run_id)
+        self.assertEqual(res_base["status"], S.STATUS_SUCCEEDED)
+        base_trades = res_base["ledger_counts"]["trades"]
+        base_metrics = res_base["metrics"]
+
+        # 2. 构造一次受控中断（运行到一半被终止，状态保留为 RUNNING，且向账本插入部分残留脏数据）
+        interrupted_run_id = S.new_run_id("00ddeeff")
+        S.create_run(interrupted_run_id, {
+            "run_id": interrupted_run_id,
+            "spec": spec,
+            "strategy_id": "WX_OI_RESONANCE_V1",
+            "created_at": S.utc_now_iso(),
+            "status": S.STATUS_RUNNING,  # 停留在中断运行态
+        })
+        # 预先绑定 inputs 快照
+        create_or_bind_snapshot(interrupted_run_id, spec, res_base["window"], data_snapshot=snapshot)
+        # 模拟崩溃前写入了一行脏 trade
+        ledger_db = S.ledger_path(interrupted_run_id)
+        with sqlite3.connect(str(ledger_db)) as con:
+            con.executescript(S.LEDGER_SCHEMA)
+            con.execute("""
+                INSERT INTO trades (
+                    run_id, trade_id, signal_id, symbol, direction, signal_type,
+                    entry_time_ms, exit_time_ms, entry_price, exit_price, qty,
+                    gross_pnl, entry_fee, exit_fee, fees, funding_fee, net_pnl, exit_reason
+                ) VALUES (?, 'DIRTY_TRADE_001', 's1', 'BTCUSDT', 'LONG', 1, 1000, 2000, 100, 110, 1, 10, 0, 0, 0, 0, 10, 'crash')
+            """, (interrupted_run_id,))
+
+        # 3. 执行受控恢复 / 重新执行
+        res_recovered = run_candidate_backtest("WX_OI_RESONANCE_V1", spec, data_snapshot=snapshot, run_id=interrupted_run_id)
+        # 证明运行状态成功结束
+        self.assertEqual(res_recovered["status"], S.STATUS_SUCCEEDED)
+        # 证明账本与基准完全一致，脏数据被原子清理，无重复、无漏记
+        rec_trades = res_recovered["ledger_counts"]["trades"]
+        self.assertEqual(rec_trades, base_trades)
+        self.assertEqual(res_recovered["metrics"]["trades_count"], base_metrics["trades_count"])
+        self.assertEqual(res_recovered["metrics"]["net_pnl"], base_metrics["net_pnl"])
+        self.assertTrue(res_recovered["ledger_recomputed"]["cash_identity_ok"])
+
+    def test_p0_6_formal_candidate_blocked_without_experiment_id(self):
+        """复用已有实验门禁：真实候选若未绑定已批准实验身份，直接拒绝真实候选执行。"""
+        spec = self._get_spec()
+        spec["is_formal"] = True  # 标记为正式候选执行
+        sig_df = _make_dummy_candles(self.start_ms - 10 * 3600000, 10 + 7 * 24, 3600000)
+        exec_df = _make_dummy_candles(self.start_ms - 40 * 900000, 40 + 7 * 24 * 4, 900000)
+        snapshot = {"sig_df": sig_df, "exec_df": exec_df, "funding_events": []}
+
+        res = run_candidate_backtest("WX_OI_RESONANCE_V1", spec, data_snapshot=snapshot)
+        self.assertEqual(res["status"], S.STATUS_FAILED)
+        self.assertIn("实验门禁阻断", res["failure_reason"])
 
     # ──────────────────────────────────────────────────────────────────────────
     # P0-6: 回测不写运行库且最终盲测区间保持封闭（硬阻断拦截）

@@ -152,6 +152,36 @@ def create_or_bind_snapshot(
         sig_bytes = sig_file.read_bytes()
         exec_bytes = exec_file.read_bytes()
         ev_bytes = ev_file.read_bytes() if ev_file.exists() else b"[]"
+
+        # 门禁 1-缺口 1: 外部快照复用前，按冻结身份校验实际输入；不一致在执行或覆盖有效结果前拒绝
+        sig_sha = _sha_bytes(sig_bytes)
+        exec_sha = _sha_bytes(exec_bytes)
+        ev_sha = _sha_bytes(ev_bytes)
+
+        manifest_file = p_snap / "inputs_manifest.json"
+        if manifest_file.exists():
+            try:
+                frozen_manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+            except Exception as e:
+                raise CandidateExecutionError(f"外部快照 manifest 解析失败，拒绝复用：{e}") from e
+
+            if frozen_manifest.get("symbol") and frozen_manifest["symbol"] != sym:
+                raise CandidateExecutionError(
+                    f"外部快照标的不匹配：期望 {sym}，快照记录为 {frozen_manifest['symbol']}"
+                )
+            if "signal_bars_sha256" in frozen_manifest and frozen_manifest["signal_bars_sha256"] != sig_sha:
+                raise CandidateExecutionError(
+                    f"外部快照身份校验失败：信号K线实际哈希 {sig_sha} 与冻结身份 {frozen_manifest['signal_bars_sha256']} 不一致"
+                )
+            if "exec_bars_sha256" in frozen_manifest and frozen_manifest["exec_bars_sha256"] != exec_sha:
+                raise CandidateExecutionError(
+                    f"外部快照身份校验失败：撮合K线实际哈希 {exec_sha} 与冻结身份 {frozen_manifest['exec_bars_sha256']} 不一致"
+                )
+            if "funding_events_sha256" in frozen_manifest and frozen_manifest["funding_events_sha256"] != ev_sha:
+                raise CandidateExecutionError(
+                    f"外部快照身份校验失败：资金费事件实际哈希 {ev_sha} 与冻结身份 {frozen_manifest['funding_events_sha256']} 不一致"
+                )
+
         import io
         sig_df = pd.read_csv(io.BytesIO(sig_bytes))
         exec_df = pd.read_csv(io.BytesIO(exec_bytes))
@@ -164,9 +194,9 @@ def create_or_bind_snapshot(
             "run_id": run_id,
             "source": f"file_snapshot:{p_snap}",
             "symbol": sym,
-            "signal_bars_sha256": _sha_bytes(sig_bytes),
-            "exec_bars_sha256": _sha_bytes(exec_bytes),
-            "funding_events_sha256": _sha_bytes(ev_bytes),
+            "signal_bars_sha256": sig_sha,
+            "exec_bars_sha256": exec_sha,
+            "funding_events_sha256": ev_sha,
             "funding_events_count": len(events),
             "created_at_utc": _iso(int(time.time() * 1000)),
         }
@@ -268,6 +298,8 @@ def run_candidate_backtest(
     # 2. 生成运行 ID 与独占隔离目录（门禁 6）
     spec_copy = copy.deepcopy(spec)
     spec_copy["pit_mode"] = pit_mode
+    strategy_id_val = getattr(candidate, "STRATEGY_ID", getattr(candidate, "strategy_id", str(candidate)))
+    spec_copy["strategy_id"] = strategy_id_val
     spec_hash = _sha_bytes(json.dumps(spec_copy, sort_keys=True).encode("utf-8"))[:8]
     effective_run_id = run_id or S.new_run_id(spec_hash)
 
@@ -278,10 +310,75 @@ def run_candidate_backtest(
         os.environ["OI_RESONANCE_RUNS_DIR"] = p_out
 
     d_run = S.run_dir(effective_run_id)
+
+    # 门禁 1-缺口 2: 显式同 run_id 换输入、规则或配置时，比较已有绑定身份，并在写账或覆盖前拒绝
+    if d_run.exists():
+        existing_doc = S.read_run(effective_run_id) or {}
+        if existing_doc:
+            old_spec = existing_doc.get("spec") or {}
+            old_strat = existing_doc.get("strategy_id")
+            critical_keys = ["symbols", "signal_timeframe", "exec_timeframe", "window", "warmup_bars",
+                             "signal_overrides", "exec_overrides", "pit_mode"]
+            for ck in critical_keys:
+                if ck in old_spec and old_spec[ck] != spec_copy.get(ck):
+                    raise CandidateExecutionError(
+                        f"同运行编号拒绝更换输入、规则或配置（run_id={effective_run_id}）："
+                        f"配置项 {ck} 发生漂移（已有: {old_spec[ck]}，当前: {spec_copy.get(ck)}）"
+                    )
+            if old_strat and old_strat != strategy_id_val:
+                raise CandidateExecutionError(
+                    f"同运行编号拒绝更换策略身份（run_id={effective_run_id}）："
+                    f"已有策略: {old_strat}，当前策略: {strategy_id_val}"
+                )
+
+            # 比较已绑定数据输入快照身份（如果已有 inputs_manifest）
+            old_manifest_p = d_run / "inputs_manifest.json"
+            if old_manifest_p.exists():
+                try:
+                    old_man = json.loads(old_manifest_p.read_text(encoding="utf-8"))
+                    if data_snapshot is not None:
+                        new_sig_sha = _sha_bytes(_df_to_csv_bytes(data_snapshot["sig_df"]))
+                        new_exec_sha = _sha_bytes(_df_to_csv_bytes(data_snapshot["exec_df"]))
+                        if old_man.get("signal_bars_sha256") and old_man["signal_bars_sha256"] != new_sig_sha:
+                            raise CandidateExecutionError(
+                                f"同运行编号拒绝更换数据输入快照（run_id={effective_run_id}）："
+                                f"信号K线指纹不一致（已有: {old_man['signal_bars_sha256']}, 当前: {new_sig_sha}）"
+                            )
+                        if old_man.get("exec_bars_sha256") and old_man["exec_bars_sha256"] != new_exec_sha:
+                            raise CandidateExecutionError(
+                                f"同运行编号拒绝更换数据输入快照（run_id={effective_run_id}）："
+                                f"撮合K线指纹不一致（已有: {old_man['exec_bars_sha256']}, 当前: {new_exec_sha}）"
+                            )
+                except CandidateExecutionError:
+                    raise
+                except Exception as ex:
+                    _LOG.run_log("manifest_check_warn", run_id=effective_run_id, error=str(ex))
+
+    # 实验门禁：有批准身份就绑定原开发范围；没有则拒绝真实候选执行，机制验证可继续
+    exp_spec = spec.get("experiment") or {}
+    eid = exp_spec.get("experiment_id")
+    is_formal = bool(spec.get("is_formal", False))
+    if is_formal and not eid:
+        err_msg = "实验门禁阻断：真实候选执行未绑定已批准实验身份（spec.experiment.experiment_id 缺失），拒绝执行！"
+        if not d_run.exists():
+            initial_doc = {
+                "run_id": effective_run_id,
+                "spec": spec_copy,
+                "strategy_id": strategy_id_val,
+                "created_at": S.utc_now_iso(),
+                "status": S.STATUS_FAILED,
+                "failure_reason": err_msg,
+            }
+            S.create_run(effective_run_id, initial_doc)
+        else:
+            S.set_status(effective_run_id, S.STATUS_FAILED, failure_reason=err_msg)
+        _LOG.run_log("candidate_run_failed", run_id=effective_run_id, error=err_msg)
+        return S.read_run(effective_run_id)
+
     initial_doc = {
         "run_id": effective_run_id,
         "spec": spec_copy,
-        "strategy_id": getattr(candidate, "STRATEGY_ID", getattr(candidate, "strategy_id", "CANDIDATE_STRATEGY")),
+        "strategy_id": strategy_id_val,
         "created_at": S.utc_now_iso(),
         "status": S.STATUS_RUNNING,
         "pit_mode": pit_mode,
@@ -325,6 +422,9 @@ def run_candidate_backtest(
             data_snapshot=data_snapshot,
             snapshot_path=snapshot_path,
         )
+    except CandidateExecutionError:
+        # 冻结身份校验不一致，直接抛错阻断拒绝，绝不覆盖有效结果
+        raise
     except Exception as exc:
         err_msg = f"快照绑定失败（门禁 1）：{type(exc).__name__}: {exc}"
         S.set_status(effective_run_id, S.STATUS_FAILED, failure_reason=err_msg)
@@ -446,6 +546,9 @@ def run_candidate_backtest(
     with sqlite3.connect(str(ledger_db)) as con:
         con.execute("PRAGMA journal_mode=WAL;")
         con.executescript(S.LEDGER_SCHEMA)
+        # 门禁 5-缺口 3: 恢复重跑时清空可能存在的中断残留行，确保恢复后账本一致
+        con.execute("DELETE FROM trades WHERE run_id = ?;", (effective_run_id,))
+        con.execute("DELETE FROM equity WHERE run_id = ?;", (effective_run_id,))
         init_eq = float(getattr(ep, "initial_equity", 10000.0))
         con.execute("INSERT OR REPLACE INTO meta VALUES (?, 'initial_equity', ?);",
                     (effective_run_id, str(init_eq)))

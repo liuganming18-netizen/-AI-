@@ -14,52 +14,54 @@
 
 | 验收项 | 验收判据 | 实测用例与命令 | 实际运行输出 / 证据 | 结论 |
 | :--- | :--- | :--- | :--- | :--- |
-| **P0-1** | **输入绑定固定开发快照及实际代码、配置版本；原始数据保持只读** | `test_p0_1_input_bound_to_fixed_snapshot_and_manifest_created` | 生成不可变快照目录 `inputs/`（含 signal/exec K线与资金费），原子落盘 `inputs_manifest.json`，SHA256 校验一致。原始数据库仅只读连接。 | **PASS** |
+| **P0-1** | **输入绑定固定开发快照及实际代码、配置版本；原始数据保持只读；外部快照按冻结身份校验** | `test_p0_1_input_bound_to_fixed_snapshot_and_manifest_created`<br>`test_p0_1_external_snapshot_manifest_tamper_rejected` | 生成不可变快照目录 `inputs/`（含 signal/exec K线与资金费），原子落盘 `inputs_manifest.json`，SHA256 校验一致。外部快照复用前强制比对 SHA256，篡改直接抛出 `CandidateExecutionError` 拒绝覆盖。原始数据库仅只读连接。 | **PASS** |
 | **P0-2** | **历史时钟正确限制可见数据（剔除未收盘与未来数据）；严格与近似 PIT 区分** | `test_p0_2_history_clock_filters_unclosed_and_future_bars`<br>`test_p0_2_strict_pit_mode_blocks_when_available_at_missing` | 注入未收盘（`is_closed=0`）与未来时间戳 K 线被自动剔除；`pit_mode="strict"` 时缺失 `available_at` 直接阻断；`"approximate"` 模式如实记录 `PIT_APPROXIMATE` 与 `degraded`。 | **PASS** |
 | **P0-3** | **信号与成交顺序符合既有保守规则；同根止损与歧义资金费进入假设桶，不美化结果** | `test_p0_3_conservative_execution_and_funding_ambiguity_bucket`<br>+ `test_funding_runner_isolation_01.py` 12 项 | 相位 A/B/C/D 顺序推进；同根开仓盘中触发止损；歧义资金费事件落入 `total_funding_fee_hypothetical`，不进已确认现金账本。 | **PASS** |
 | **P0-4** | **成交、手续费、资金费、现金、持仓和未实现盈亏能够对账；缺失费用数据不静默按零** | `test_p0_4_ledger_recompute_and_reconciliation`<br>+ `recompute_metrics_from_ledger` | 独立从 `ledger.sqlite3` 重新聚合计算净收益、胜率、回撤、现金恒等式，与引擎指标完全吻合；缺失费用数据标记 `funding_ok=False`。 | **PASS** |
-| **P0-5** | **重复事件与中断恢复不重复记账；已有幂等和恢复机制优先复用** | `test_p0_5_idempotent_reexecution_does_not_duplicate_ledger` | 重复对同一 `run_id` 触发回测执行，SQLite 账本依托确定性唯一键执行幂等落盘，记录条数恒定，无重复累加。 | **PASS** |
-| **P0-6** | **回测不写运行库、不污染运行队列、不调外部下单；最终盲测区间保持封闭** | `test_p0_6_holdout_sealed_blocks_execution_when_window_crosses` | 运行产物严格限定在独立 run 目录；时间窗口触及盲测保护区间（>= 2024-10-01）时抛出 `HoldoutSealedError` 强阻断，盲测未被打开。 | **PASS** |
+| **P0-5** | **重复事件与中断恢复不重复记账；同run_id防漂移；受控中断恢复账本一致** | `test_p0_5_idempotent_reexecution_does_not_duplicate_ledger`<br>`test_p0_5_same_run_id_rejects_altered_inputs_or_spec`<br>`test_p0_5_controlled_interruption_recovery_matches_baseline` | 1. 同一 run 重复执行幂等无增殖；<br>2. 显式同 run_id 篡改配置或输入时主动抛错拒绝覆盖；<br>3. 模拟部分执行中断崩溃残留脏行后，受控恢复执行指标与不中断基准完全一致，无重复无漏记，状态正常成功结束。 | **PASS** |
+| **P0-6** | **回测不写运行库、不污染运行队列、不调外部下单；最终盲测区间保持封闭；实验门禁生效** | `test_p0_6_holdout_sealed_blocks_execution_when_window_crosses`<br>`test_p0_6_formal_candidate_blocked_without_experiment_id` | 运行产物严格限定在独立 run 目录；时间窗口触及盲测保护区间（>= 2024-10-01）时抛出 `HoldoutSealedError` 强阻断，盲测未被打开。真实候选未绑定核准实验身份直接阻断。 | **PASS** |
 
 ---
 
 ## 二、实际自动化测试套件执行证据
 
-### 1. 06-B 专项六项 P0 测试（7 passed）
+### 1. 06-B 专项六项 P0 测试（11 passed in 0.90s）
 
 ```text
+$ cd /Users/boos/Desktop/task_06b_p0_fix_worktree
 $ PYTHONPATH=框架/backend /usr/bin/python3 -m pytest 框架/backend/tests/test_candidate_backtest_runner.py -v
 ============================= test session starts ==============================
 platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Library/Developer/CommandLineTools/usr/bin/python3
 cachedir: .pytest_cache
-rootdir: /Users/boos/Desktop/威科夫因子共振趋势
-collecting ... collected 7 items
+rootdir: /Users/boos/Desktop/task_06b_p0_fix_worktree
+collecting ... collected 11 items
 
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_1_input_bound_to_fixed_snapshot_and_manifest_created PASSED [ 14%]
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_2_history_clock_filters_unclosed_and_future_bars PASSED [ 28%]
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_2_strict_pit_mode_blocks_when_available_at_missing PASSED [ 42%]
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_3_conservative_execution_and_funding_ambiguity_bucket PASSED [ 57%]
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_4_ledger_recompute_and_reconciliation PASSED [ 71%]
-框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_5_idempotent_reexecution_does_not_duplicate_ledger PASSED [ 85%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_1_external_snapshot_manifest_tamper_rejected PASSED [  9%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_1_input_bound_to_fixed_snapshot_and_manifest_created PASSED [ 18%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_2_history_clock_filters_unclosed_and_future_bars PASSED [ 27%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_2_strict_pit_mode_blocks_when_available_at_missing PASSED [ 36%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_3_conservative_execution_and_funding_ambiguity_bucket PASSED [ 45%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_4_ledger_recompute_and_reconciliation PASSED [ 54%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_5_controlled_interruption_recovery_matches_baseline PASSED [ 63%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_5_idempotent_reexecution_does_not_duplicate_ledger PASSED [ 72%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_5_same_run_id_rejects_altered_inputs_or_spec PASSED [ 81%]
+框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_6_formal_candidate_blocked_without_experiment_id PASSED [ 90%]
 框架/backend/tests/test_candidate_backtest_runner.py::TestCandidateBacktestRunnerP0::test_p0_6_holdout_sealed_blocks_execution_when_window_crosses PASSED [100%]
 
-============================== 7 passed in 0.67s ===============================
+============================== 11 passed in 0.90s ==============================
 ```
 
-### 2. 回测全链路回归测试套件（315 passed, 9 skipped）
+### 2. 直接受影响的定点测试套件（55 passed in 1.04s）
 
-覆盖资金费双口径隔离、数据门禁、图表读取、运行溯源背书、实验登记与样本留出保护：
+包含六项 P0 专项（11 项）、资金费双口径隔离单测（12 项）与运行身份溯源防篡改单测（32 项）：
 
 ```text
 $ PYTHONPATH=框架/backend /usr/bin/python3 -m pytest \
     框架/backend/tests/test_candidate_backtest_runner.py \
     框架/backend/tests/test_funding_runner_isolation_01.py \
-    框架/backend/tests/test_backtest_data_gate_*.py \
-    框架/backend/tests/test_bt_ui_*.py \
-    框架/backend/tests/test_run_provenance_46.py \
-    框架/backend/tests/test_frame_fit_*.py -v
+    框架/backend/tests/test_run_provenance_46.py -v
 
-======================== 315 passed, 9 skipped in 2.31s ========================
+============================== 55 passed in 1.04s ==============================
 ```
 
 ---
@@ -70,13 +72,13 @@ $ PYTHONPATH=框架/backend /usr/bin/python3 -m pytest \
 
 | 文件路径 | 状态 | SHA256 摘要 | 作用与职责 |
 | :--- | :--- | :--- | :--- |
-| `框架/backend/candidate_backtest_runner.py` | **新增** | `a80a60cc962317088784330d2d4a66b8fe41ceeb9149487783e4bd3279a98229` | 冻结候选回测标准化执行入口实现 |
+| `框架/backend/candidate_backtest_runner.py` | **新增/修复** | `7888ccae044f4661c3144797d0a0dc93873e11695b1e95aab022d40565c74201` | 冻结候选回测标准化执行入口实现（含快照强验、同run_id防漂移与受控恢复） |
 | `框架/backend/backtest_runner.py` | **修改** | `d3a83e1088efdab72fb333b43865147ddf61bfd71774f6ec2c78af079069b11e` | 导出 `run_candidate_backtest` 及相关异常类型 |
-| `框架/backend/tests/test_candidate_backtest_runner.py` | **新增** | `622926640c48b1fdd0a94be291d6f8017983675b5a9885875d8e5d1bf53fa22f` | 六项 P0 专项自动化验收单测 |
+| `框架/backend/tests/test_candidate_backtest_runner.py` | **新增/修复** | `bc32ab605abd3ef4bf4f7b40d7cf95953cc61c1bf619698f77e5bfbdf3e36d76` | 六项 P0 专项自动化验收单测（共 11 项用例） |
 | `框架/backend/tests/test_bt_ui_01_read_path.py` | **修改** | `13fc73ea8cfa71e9e7ae7b8adc57c21af83258861fa42d7346267541ee344fb7` | 修复测试找寻 run 时增加 succeeded 状态过滤 |
-| `evidence/06-B-BACKTEST-PREP-01/01_REUSE_AND_DIFF_MANIFEST.md` | **新增** | `91a0d4e9b1ab4ddbd798d9723132253835d5fb55e3ecb682fb2ad21054e9adbb` | 复用与变更清单 |
-| `evidence/06-B-BACKTEST-PREP-01/02_CANDIDATE_RUNNER_INTERFACE_GUIDE.md` | **新增** | `06aca2719d799c17298a7a65e8eb789615c2a97d420620a8888bab70f4f2cff2` | 可调用执行入口规范说明 |
-| `evidence/06-B-BACKTEST-PREP-01/03_ACCEPTANCE_RECEIPT_AND_VERIFICATION.md` | **新增** | `541ccbde1a4f750c33f7c1fdb574abfd7dc5f03c2da74dc3bcc41ccc4139367a` | 本验收回执与证据记录 |
+| `evidence/06-B-BACKTEST-PREP-01/01_REUSE_AND_DIFF_MANIFEST.md` | **新增/更新** | `7d9f54bd1bf856f5b9bf4e7e76593174712a4e82889b1ca61ac1112e14c5ccd8` | 复用与变更清单 |
+| `evidence/06-B-BACKTEST-PREP-01/02_CANDIDATE_RUNNER_INTERFACE_GUIDE.md` | **新增/更新** | `70566b4093b8b08695287b3f72c9dfa71c5b26da5dfbd646980c79c3b1abc2c9` | 可调用执行入口规范说明 |
+| `evidence/06-B-BACKTEST-PREP-01/03_ACCEPTANCE_RECEIPT_AND_VERIFICATION.md` | **新增/更新** | 见最新落盘 | 本验收回执与证据记录 |
 
 ---
 

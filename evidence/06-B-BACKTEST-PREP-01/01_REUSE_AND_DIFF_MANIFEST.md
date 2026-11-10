@@ -35,6 +35,10 @@
 | **GAP-04** | **最终盲测物理硬阻断防护**：准备阶段严禁打开最终盲测（Holdout）。 | `框架/backend/candidate_backtest_runner.py`（**新增**） | 增加 `_verify_holdout_boundary` 与 `HoldoutSealedError`：窗口一旦越入盲测区间且盲测处于封存状态，直接抛错阻断，从代码级杜绝未来函数和样本泄露。 |
 | **GAP-05** | **测试找寻成功 run 缺少状态过滤导致偶发失败**：`test_bt_ui_01_read_path.py` 寻找无 chart 的 run 时未校验 `status=="succeeded"`，偶选失败 run 造成断言异常。 | `框架/backend/tests/test_bt_ui_01_read_path.py`（**修改**） | 增加 `run_doc.get("status") == "succeeded"` 过滤，确保测试与 API 设计契约一致。 |
 | **GAP-06** | **六项 P0 专项验证测试套件**：缺乏覆盖 06-B 工单六项 P0 验收判据的专项自动化回归单测。 | `框架/backend/tests/test_candidate_backtest_runner.py`（**新增**） | 编写 7 项覆盖 P0-1 至 P0-6 的自动化单测，100% PASS。 |
+| **GAP-07** | **外部快照防篡改冻结身份强校验缺口**：复用外部磁盘快照时未按 `inputs_manifest.json` 强验实际文件哈希。 | `框架/backend/candidate_backtest_runner.py`（**修改**） | 在复用外部快照前严格校验各 K 线与资金费实际 SHA256，不一致直接抛出 `CandidateExecutionError` 拒绝执行并杜绝覆盖有效结果。 |
+| **GAP-08** | **同运行编号换输入/配置未显式拒绝缺口**：显式指定同一 `run_id` 重跑时若更换输入或发生规则漂移未拦截。 | `框架/backend/candidate_backtest_runner.py`（**修改**） | 比对已有绑定规格与输入指纹，发生任何漂移直接抛错拦截，写账或覆盖前拒绝。 |
+| **GAP-09** | **真实受控中断恢复账本幂等一致性缺口**：缺少中途崩溃（RUNNING 状态及脏行残留）下的受控恢复实测。 | `框架/backend/candidate_backtest_runner.py`<br>`框架/backend/tests/test_candidate_backtest_runner.py`（**修改**） | SQLite 写入前执行当前 run_id 脏记录清理；编写崩溃残留行注入与恢复单测，实测证明恢复后账本与不中断基准完全一致，无重复无漏记，状态正常结束。 |
+| **GAP-10** | **实验门禁与候选准入防范**：真实候选未绑定已核准实验身份时缺乏拦截。 | `框架/backend/candidate_backtest_runner.py`（**修改**） | 复用实验门禁：真实候选执行未绑定 `experiment_id` 直接置 `FAILED` 阻断，仅机制验证允许继续。 |
 
 ---
 
