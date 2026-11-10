@@ -19,7 +19,7 @@ const state = {
   bars:[],oi:[],barSource:'',oiSource:'',chartError:'',oiError:'',
   signalFilter:'全部',dataTab:'K线',moduleLevel:0,moduleIndex:3,serviceIndex:0,taskIndex:0,
   monitorFault:'none',monitorTick:0,stage:'早期',strategyTab:'规则说明',
-  backTab:'逐笔与事件',scope:'样本外',cursor:0,playing:false
+  backTab:'逐笔与事件',scope:'样本外',cursor:0,playing:false,viewScale:'fit'
 };
 let loadAbort = null, playTimer = null;
 const $ = id => document.getElementById(id);
@@ -88,7 +88,11 @@ function overview(){
  ['更新时点',state.liveAt?time(state.liveAt):'—'],
  ['Telegram通知','未连接']
  ];
- $('overview').innerHTML='<div class="between"><div><h1>'+esc(state.page==='加密货币'?'全市场行情与信号研判':state.page==='数据监控'?'数据覆盖与运行监控':state.page==='策略分析'?'策略分析与证据复核':'历史回测与样本外验证')+'</h1><div class="muted">统一原始数据入口 · 历史数据不重新封存 · 只读研究终端</div></div>'+tag('服务状态与策略验收独立',true)+'</div><div class="top-metrics">'+metrics.map(x=>'<div class="top-metric"><span class="muted">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join('')+'</div>';
+ const scaleBar='<div class="scale-controls" role="group" aria-label="页面视图缩放"><span class="tiny muted">显示比例：</span>'+
+   '<button class="btn btn-scale '+(state.viewScale==='fit'?'active':'')+'" data-scale="fit" title="自适应窗口宽度">适应宽度</button>'+
+   '<button class="btn btn-scale '+(state.viewScale==='75%'?'active':'')+'" data-scale="75%" title="按75%紧凑比例缩放">75%</button>'+
+   '<button class="btn btn-scale '+(state.viewScale==='100%'?'active':'')+'" data-scale="100%" title="恢复100%标准比例">100%</button></div>';
+ $('overview').innerHTML='<div class="between"><div><h1>'+esc(state.page==='加密货币'?'全市场行情与信号研判':state.page==='数据监控'?'数据覆盖与运行监控':state.page==='策略分析'?'策略分析与证据复核':'历史回测与样本外验证')+'</h1><div class="muted">统一原始数据入口 · 历史数据不重新封存 · 只读研究终端</div></div><div class="row wrap items-center">'+scaleBar+tag('服务状态与策略验收独立',true)+'</div></div><div class="top-metrics">'+metrics.map(x=>'<div class="top-metric"><span class="muted">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join('')+'</div>';
  $('nav-status').textContent=state.localConnected?'本机数据网关：只读可访问':'本机数据网关：未连接';
 }
 function side(){
@@ -226,6 +230,10 @@ function backPage(){
 }
 function render(reset=false){
  const old=$('main-panel').scrollTop;
+ const appEl=$('app');
+ if(appEl){
+  appEl.className='root scale-'+(state.viewScale==='75%'?'75':state.viewScale==='100%'?'100':'fit');
+ }
  structure();overview();
  $('left-panel').innerHTML=side();
  $('right-panel').innerHTML=right();
@@ -240,44 +248,99 @@ function prepareCanvas(id){
  const g=canvas.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
  return {g,w:width,h:height};
 }
-function drawK(){
- const c=prepareCanvas('candles');if(!c||!state.bars.length)return;
- const {g,w,h}=c,full=state.bars;
+function getSharedChartContext(canvasW){
+ const full=state.bars;
+ if(!full||!full.length)return null;
  const subset=state.page==='历史回测'?full.slice(0,Math.min(full.length,state.cursor+1)):full.filter(x=>x.time>=full.at(-1).time-90*86400000);
- if(!subset.length)return;
- const bars=subset.slice(-560),padTop=19,priceHeight=h*.76,lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),range=hi-lo||1,step=(w-65)/bars.length;
+ if(!subset.length)return null;
+ const bars=subset.slice(-560);
+ const windowStart=bars[0].time;
+ const windowEnd=bars.at(-1).time;
+ const timeSpan=Math.max(1,windowEnd-windowStart);
+ const padLeft=14,padRight=72,plotWidth=Math.max(10,canvasW-padLeft-padRight);
+ const timeToX=(t)=>{
+   if(timeSpan<=0)return padLeft+plotWidth/2;
+   return padLeft+((t-windowStart)/timeSpan)*plotWidth;
+ };
+ const avgStep=plotWidth/Math.max(1,bars.length);
+ const barWidth=Math.max(1,Math.min(9,avgStep*0.65));
+ const oiSeries=(state.oi||[]).filter(x=>{
+   const val=state.oiUnit==='usd'?x.usd:x.amount;
+   return val!==null&&Number.isFinite(val)&&x.time>=windowStart&&x.time<=windowEnd;
+ });
+ return {bars,oiSeries,windowStart,windowEnd,timeSpan,padLeft,padRight,plotWidth,timeToX,barWidth};
+}
+function drawK(){
+ const c=prepareCanvas('candles');if(!c)return;
+ const {g,w,h}=c;
+ const ctx=getSharedChartContext(w);
+ if(!ctx||!ctx.bars.length)return;
+ const {bars,padLeft,padRight,plotWidth,timeToX,barWidth,windowStart,windowEnd,timeSpan}=ctx;
+ const padTop=19,priceHeight=h*0.74;
+ const lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),range=hi-lo||1;
  g.fillStyle='#0d182d';g.fillRect(0,0,w,h);
  const y=p=>padTop+(hi-p)/range*(priceHeight-padTop);
  g.strokeStyle='#31425d';g.fillStyle='#96abc8';g.font='11px sans-serif';
- for(let i=0;i<5;i++){const yy=padTop+(priceHeight-padTop)*i/4;g.beginPath();g.moveTo(0,yy);g.lineTo(w-65,yy);g.stroke();g.fillText(px(hi-range*i/4),w-60,yy+4);}
+ for(let i=0;i<5;i++){
+   const yy=padTop+(priceHeight-padTop)*i/4;
+   g.beginPath();g.moveTo(padLeft,yy);g.lineTo(padLeft+plotWidth,yy);g.stroke();
+   g.fillText(px(hi-range*i/4),padLeft+plotWidth+6,yy+4);
+ }
+ g.strokeStyle='#1b2942';
+ for(let k=0;k<=4;k++){
+   const t=windowStart+timeSpan*k/4;
+   const gx=timeToX(t);
+   g.beginPath();g.moveTo(gx,padTop);g.lineTo(gx,h-18);g.stroke();
+ }
  const maxVol=Math.max(1,...bars.map(x=>x.volume||0));
- bars.forEach((b,i)=>{
-   const x=(i+.5)*step,bull=b.close>=b.open,col=bull?'#38d5b1':'#f07a99',cw=Math.max(.6,Math.min(9,step*.64));
-   g.strokeStyle=col;g.fillStyle=col;g.beginPath();g.moveTo(x,y(b.high));g.lineTo(x,y(b.low));g.stroke();
-   g.fillRect(x-cw/2,Math.min(y(b.open),y(b.close)),cw,Math.max(1,Math.abs(y(b.open)-y(b.close))));
-   const vh=(b.volume||0)/maxVol*(h-priceHeight-6);g.globalAlpha=.4;g.fillRect(x-cw/2,h-vh,cw,vh);g.globalAlpha=1;
+ bars.forEach(b=>{
+   const cx=timeToX(b.time);
+   const bull=b.close>=b.open,col=bull?'#38d5b1':'#f07a99';
+   g.strokeStyle=col;g.fillStyle=col;
+   g.beginPath();g.moveTo(cx,y(b.high));g.lineTo(cx,y(b.low));g.stroke();
+   g.fillRect(cx-barWidth/2,Math.min(y(b.open),y(b.close)),barWidth,Math.max(1,Math.abs(y(b.open)-y(b.close))));
+   const vh=(b.volume||0)/maxVol*(h-priceHeight-6);
+   g.globalAlpha=0.4;
+   g.fillRect(cx-barWidth/2,h-vh-18,barWidth,vh);
+   g.globalAlpha=1;
  });
+ g.fillStyle='#7a8fae';g.font='10px sans-serif';
+ g.fillText(time(windowStart),padLeft,h-5);
+ g.fillText(time(windowEnd),padLeft+plotWidth-60,h-5);
 }
 function drawOi(){
- const c=prepareCanvas('oi-chart');if(!c||!state.oi.length)return;
- const {g,w,h}=c,oi=state.oi,barSet=state.bars;
- const historyEnd=state.page==='历史回测'?barSet[Math.min(state.cursor,barSet.length-1)]?.time:barSet.at(-1)?.time;
- const historyStart=state.page==='历史回测'?barSet[0]?.time:Math.max(barSet[0]?.time||0,(barSet.at(-1)?.time||0)-90*86400000);
- const series=oi.filter(x=> (state.oiUnit==='usd'?x.usd:x.amount)!==null && (!historyEnd||x.time<=historyEnd) && (!historyStart||x.time>=historyStart));
+ const c=prepareCanvas('oi-chart');if(!c)return;
+ const {g,w,h}=c;
+ const ctx=getSharedChartContext(w);
  g.fillStyle='#0c172c';g.fillRect(0,0,w,h);
- if(!series.length){g.fillStyle='#9eacc8';g.fillText('当前窗口未找到该单位的真实OI观测',15,25);return;}
- const minTime=historyStart??series[0].time,maxTime=historyEnd??series.at(-1).time;
- const max=Math.max(...series.map(p=>state.oiUnit==='usd'?p.usd:p.amount))||1;
- g.fillStyle='#95a7c8';g.font='11px sans-serif';g.fillText('最大 '+money(max),w-130,14);
- const base=h-12;
- for(let i=0;i<series.length;i++){
-   const p=series[i],v=state.oiUnit==='usd'?p.usd:p.amount;
-   const x=6+(p.time-minTime)/(maxTime-minTime||1)*(w-88);
-   const height=Math.max(1,(v/max)*(h-25));
-   const prev=i?state.oiUnit==='usd'?series[i-1].usd:series[i-1].amount:v;
-   g.fillStyle=v>=prev?'#4fd4b7':'#e78aa4';
-   g.fillRect(x,base-height,Math.max(1,Math.min(7,(w-90)/series.length*.8)),height);
+ if(!ctx||!ctx.oiSeries.length){
+   g.fillStyle='#9eacc8';g.font='11px sans-serif';
+   g.fillText('当前窗口未找到该单位的真实OI观测',15,25);
+   return;
  }
+ const {oiSeries,padLeft,padRight,plotWidth,timeToX,barWidth,windowStart,windowEnd,timeSpan}=ctx;
+ const max=Math.max(...oiSeries.map(p=>state.oiUnit==='usd'?p.usd:p.amount))||1;
+ g.fillStyle='#95a7c8';g.font='11px sans-serif';
+ g.fillText('最大 '+money(max),padLeft+plotWidth+6,14);
+ g.strokeStyle='#1b2942';
+ for(let k=0;k<=4;k++){
+   const t=windowStart+timeSpan*k/4;
+   const gx=timeToX(t);
+   g.beginPath();g.moveTo(gx,0);g.lineTo(gx,h-18);g.stroke();
+ }
+ const base=h-20;
+ for(let i=0;i<oiSeries.length;i++){
+   const p=oiSeries[i];
+   const v=state.oiUnit==='usd'?p.usd:p.amount;
+   const cx=timeToX(p.time);
+   const height=Math.max(1,(v/max)*(h-26));
+   const prev=i?(state.oiUnit==='usd'?oiSeries[i-1].usd:oiSeries[i-1].amount):v;
+   g.fillStyle=v>=prev?'#4fd4b7':'#e78aa4';
+   g.fillRect(cx-barWidth/2,base-height,barWidth,height);
+ }
+ g.fillStyle='#7a8fae';g.font='10px sans-serif';
+ g.fillText(time(windowStart),padLeft,h-5);
+ g.fillText(time(windowEnd),padLeft+plotWidth-60,h-5);
 }
 function drawCharts(){requestAnimationFrame(()=>{drawK();drawOi();});}
 function normalizeSignals(payload){
@@ -366,6 +429,7 @@ function jumpCursor(n){const [a,b]=backRange();state.cursor=Math.max(a,Math.min(
 document.getElementById('app').addEventListener('click',e=>{
  const b=e.target.closest('button,tr[data-coin]');if(!b)return;
  const d=b.dataset;
+ if(d.scale){state.viewScale=d.scale;render();return;}
  if(d.nav){stopPlayback();state.page=d.nav;render(true);if(d.nav==='历史回测'&&!state.bars.length)void loadDetail();if(d.nav==='数据监控')void probeTelemetry();return;}
  if(d.signal){goCoin(d.signal);return;}
  if(d.sigfilter){state.signalFilter=d.sigfilter;render();return;}

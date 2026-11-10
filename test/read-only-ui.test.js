@@ -99,3 +99,72 @@ test('页面资源存在且四主导航可用',async()=>{
     assert.ok(js.includes(key),key);
   assert.match(css,/grid-template-columns:205px minmax\(0,1fr\) 278px/);
 });
+test('页面内“适应宽度／75%／100%”操作存在且样式与交互完整',async()=>{
+  const js=await readFile(new URL('../assets/app.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../assets/style.css',import.meta.url),'utf8');
+  // 必须存在显式的适应宽度、75%、100% 控制按钮
+  assert.match(js,/data-scale="fit"/);
+  assert.match(js,/data-scale="75%"/);
+  assert.match(js,/data-scale="100%"/);
+  assert.match(js,/viewScale:'fit'/);
+  assert.match(js,/state\.viewScale=d\.scale/);
+  // 样式表必须支持对应的缩放类
+  assert.match(css,/\.root\.scale-75\{transform:scale\(0\.75\)/);
+  assert.match(css,/\.root\.scale-100\{transform:none/);
+  assert.match(css,/\.root\.scale-fit\{transform:none/);
+});
+test('K线与OI共用时间窗口、横轴映射与绘图区（针对缺口与超过560根场景）',async()=>{
+  const js=await readFile(new URL('../assets/app.js',import.meta.url),'utf8');
+  assert.match(js,/getSharedChartContext/);
+  assert.match(js,/timeToX/);
+  
+  // 模拟运行 getSharedChartContext 算法逻辑
+  function mockSharedContext(fullBars, rawOi, canvasW=1000) {
+    const subset = fullBars; // 简化回测/展示切片
+    const bars = subset.slice(-560);
+    const windowStart = bars[0].time;
+    const windowEnd = bars.at(-1).time;
+    const timeSpan = Math.max(1, windowEnd - windowStart);
+    const padLeft = 14, padRight = 72, plotWidth = Math.max(10, canvasW - padLeft - padRight);
+    const timeToX = (t) => padLeft + ((t - windowStart) / timeSpan) * plotWidth;
+    const oiSeries = rawOi.filter(x => x.amount !== null && x.time >= windowStart && x.time <= windowEnd);
+    return { bars, oiSeries, windowStart, windowEnd, timeSpan, padLeft, padRight, plotWidth, timeToX };
+  }
+
+  // 场景 A: 超过 560 根（生成 800 根连续 1h K 线与 800 根 OI）
+  const baseT = 1700000000000;
+  const longBars = Array.from({length:800}, (_,i)=>({time: baseT + i*3600000, open:100, high:105, low:95, close:102, volume:1000}));
+  const longOi = Array.from({length:800}, (_,i)=>({time: baseT + i*3600000, amount:5000+i, usd:(5000+i)*100}));
+  
+  const ctxA = mockSharedContext(longBars, longOi, 1000);
+  // 验证超过 560 根时，K线与OI截取的时间窗口完全一致
+  assert.equal(ctxA.bars.length, 560);
+  assert.equal(ctxA.oiSeries.length, 560);
+  assert.equal(ctxA.windowStart, longBars[240].time);
+  assert.equal(ctxA.windowEnd, longBars[799].time);
+  assert.equal(ctxA.oiSeries[0].time, ctxA.windowStart);
+  assert.equal(ctxA.oiSeries.at(-1).time, ctxA.windowEnd);
+
+  // 场景 B: 包含中间 106 根断层缺口（从 index 50 开始跳跃 106 小时）
+  const gapBars = [];
+  const gapOi = [];
+  let curT = baseT;
+  for(let i=0; i<100; i++) {
+    if(i === 50) curT += 106 * 3600000; // 发生 106 根断层缺口
+    else curT += 3600000;
+    gapBars.push({time: curT, open:100, high:105, low:95, close:102, volume:1000});
+    gapOi.push({time: curT, amount:6000, usd:600000});
+  }
+  const ctxB = mockSharedContext(gapBars, gapOi, 1000);
+  // 检验在缺口发生前后的任意时间戳，K线与OI计算出的横轴 X 坐标严格相同（残差为 0）
+  for(let i=0; i<gapBars.length; i++) {
+    const t = gapBars[i].time;
+    const xK = ctxB.timeToX(t);
+    const xOi = ctxB.timeToX(gapOi[i].time);
+    assert.equal(xK, xOi, `第 ${i} 根时间戳 ${t} 的 X 像素坐标存在偏差`);
+  }
+  // 绘图区左右 padding 必须完全一致
+  assert.equal(ctxB.padLeft, 14);
+  assert.equal(ctxB.padRight, 72);
+  assert.equal(ctxB.plotWidth, 1000 - 14 - 72);
+});

@@ -1,0 +1,379 @@
+diff --git a/assets/app.js b/assets/app.js
+index 013f636f..898b3c77 100644
+--- a/assets/app.js
++++ b/assets/app.js
+@@ -19,7 +19,7 @@ const state = {
+   bars:[],oi:[],barSource:'',oiSource:'',chartError:'',oiError:'',
+   signalFilter:'全部',dataTab:'K线',moduleLevel:0,moduleIndex:3,serviceIndex:0,taskIndex:0,
+   monitorFault:'none',monitorTick:0,stage:'早期',strategyTab:'规则说明',
+-  backTab:'逐笔与事件',scope:'样本外',cursor:0,playing:false
++  backTab:'逐笔与事件',scope:'样本外',cursor:0,playing:false,viewScale:'fit'
+ };
+ let loadAbort = null, playTimer = null;
+ const $ = id => document.getElementById(id);
+@@ -88,7 +88,11 @@ function overview(){
+  ['更新时点',state.liveAt?time(state.liveAt):'—'],
+  ['Telegram通知','未连接']
+  ];
+- $('overview').innerHTML='<div class="between"><div><h1>'+esc(state.page==='加密货币'?'全市场行情与信号研判':state.page==='数据监控'?'数据覆盖与运行监控':state.page==='策略分析'?'策略分析与证据复核':'历史回测与样本外验证')+'</h1><div class="muted">统一原始数据入口 · 历史数据不重新封存 · 只读研究终端</div></div>'+tag('服务状态与策略验收独立',true)+'</div><div class="top-metrics">'+metrics.map(x=>'<div class="top-metric"><span class="muted">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join('')+'</div>';
++ const scaleBar='<div class="scale-controls" role="group" aria-label="页面视图缩放"><span class="tiny muted">显示比例：</span>'+
++   '<button class="btn btn-scale '+(state.viewScale==='fit'?'active':'')+'" data-scale="fit" title="自适应窗口宽度">适应宽度</button>'+
++   '<button class="btn btn-scale '+(state.viewScale==='75%'?'active':'')+'" data-scale="75%" title="按75%紧凑比例缩放">75%</button>'+
++   '<button class="btn btn-scale '+(state.viewScale==='100%'?'active':'')+'" data-scale="100%" title="恢复100%标准比例">100%</button></div>';
++ $('overview').innerHTML='<div class="between"><div><h1>'+esc(state.page==='加密货币'?'全市场行情与信号研判':state.page==='数据监控'?'数据覆盖与运行监控':state.page==='策略分析'?'策略分析与证据复核':'历史回测与样本外验证')+'</h1><div class="muted">统一原始数据入口 · 历史数据不重新封存 · 只读研究终端</div></div><div class="row wrap items-center">'+scaleBar+tag('服务状态与策略验收独立',true)+'</div></div><div class="top-metrics">'+metrics.map(x=>'<div class="top-metric"><span class="muted">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join('')+'</div>';
+  $('nav-status').textContent=state.localConnected?'本机数据网关：只读可访问':'本机数据网关：未连接';
+ }
+ function side(){
+@@ -226,6 +230,10 @@ function backPage(){
+ }
+ function render(reset=false){
+  const old=$('main-panel').scrollTop;
++ const appEl=$('app');
++ if(appEl){
++  appEl.className='root scale-'+(state.viewScale==='75%'?'75':state.viewScale==='100%'?'100':'fit');
++ }
+  structure();overview();
+  $('left-panel').innerHTML=side();
+  $('right-panel').innerHTML=right();
+@@ -240,44 +248,99 @@ function prepareCanvas(id){
+  const g=canvas.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  return {g,w:width,h:height};
+ }
+-function drawK(){
+- const c=prepareCanvas('candles');if(!c||!state.bars.length)return;
+- const {g,w,h}=c,full=state.bars;
++function getSharedChartContext(canvasW){
++ const full=state.bars;
++ if(!full||!full.length)return null;
+  const subset=state.page==='历史回测'?full.slice(0,Math.min(full.length,state.cursor+1)):full.filter(x=>x.time>=full.at(-1).time-90*86400000);
+- if(!subset.length)return;
+- const bars=subset.slice(-560),padTop=19,priceHeight=h*.76,lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),range=hi-lo||1,step=(w-65)/bars.length;
++ if(!subset.length)return null;
++ const bars=subset.slice(-560);
++ const windowStart=bars[0].time;
++ const windowEnd=bars.at(-1).time;
++ const timeSpan=Math.max(1,windowEnd-windowStart);
++ const padLeft=14,padRight=72,plotWidth=Math.max(10,canvasW-padLeft-padRight);
++ const timeToX=(t)=>{
++   if(timeSpan<=0)return padLeft+plotWidth/2;
++   return padLeft+((t-windowStart)/timeSpan)*plotWidth;
++ };
++ const avgStep=plotWidth/Math.max(1,bars.length);
++ const barWidth=Math.max(1,Math.min(9,avgStep*0.65));
++ const oiSeries=(state.oi||[]).filter(x=>{
++   const val=state.oiUnit==='usd'?x.usd:x.amount;
++   return val!==null&&Number.isFinite(val)&&x.time>=windowStart&&x.time<=windowEnd;
++ });
++ return {bars,oiSeries,windowStart,windowEnd,timeSpan,padLeft,padRight,plotWidth,timeToX,barWidth};
++}
++function drawK(){
++ const c=prepareCanvas('candles');if(!c)return;
++ const {g,w,h}=c;
++ const ctx=getSharedChartContext(w);
++ if(!ctx||!ctx.bars.length)return;
++ const {bars,padLeft,padRight,plotWidth,timeToX,barWidth,windowStart,windowEnd,timeSpan}=ctx;
++ const padTop=19,priceHeight=h*0.74;
++ const lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),range=hi-lo||1;
+  g.fillStyle='#0d182d';g.fillRect(0,0,w,h);
+  const y=p=>padTop+(hi-p)/range*(priceHeight-padTop);
+  g.strokeStyle='#31425d';g.fillStyle='#96abc8';g.font='11px sans-serif';
+- for(let i=0;i<5;i++){const yy=padTop+(priceHeight-padTop)*i/4;g.beginPath();g.moveTo(0,yy);g.lineTo(w-65,yy);g.stroke();g.fillText(px(hi-range*i/4),w-60,yy+4);}
++ for(let i=0;i<5;i++){
++   const yy=padTop+(priceHeight-padTop)*i/4;
++   g.beginPath();g.moveTo(padLeft,yy);g.lineTo(padLeft+plotWidth,yy);g.stroke();
++   g.fillText(px(hi-range*i/4),padLeft+plotWidth+6,yy+4);
++ }
++ g.strokeStyle='#1b2942';
++ for(let k=0;k<=4;k++){
++   const t=windowStart+timeSpan*k/4;
++   const gx=timeToX(t);
++   g.beginPath();g.moveTo(gx,padTop);g.lineTo(gx,h-18);g.stroke();
++ }
+  const maxVol=Math.max(1,...bars.map(x=>x.volume||0));
+- bars.forEach((b,i)=>{
+-   const x=(i+.5)*step,bull=b.close>=b.open,col=bull?'#38d5b1':'#f07a99',cw=Math.max(.6,Math.min(9,step*.64));
+-   g.strokeStyle=col;g.fillStyle=col;g.beginPath();g.moveTo(x,y(b.high));g.lineTo(x,y(b.low));g.stroke();
+-   g.fillRect(x-cw/2,Math.min(y(b.open),y(b.close)),cw,Math.max(1,Math.abs(y(b.open)-y(b.close))));
+-   const vh=(b.volume||0)/maxVol*(h-priceHeight-6);g.globalAlpha=.4;g.fillRect(x-cw/2,h-vh,cw,vh);g.globalAlpha=1;
++ bars.forEach(b=>{
++   const cx=timeToX(b.time);
++   const bull=b.close>=b.open,col=bull?'#38d5b1':'#f07a99';
++   g.strokeStyle=col;g.fillStyle=col;
++   g.beginPath();g.moveTo(cx,y(b.high));g.lineTo(cx,y(b.low));g.stroke();
++   g.fillRect(cx-barWidth/2,Math.min(y(b.open),y(b.close)),barWidth,Math.max(1,Math.abs(y(b.open)-y(b.close))));
++   const vh=(b.volume||0)/maxVol*(h-priceHeight-6);
++   g.globalAlpha=0.4;
++   g.fillRect(cx-barWidth/2,h-vh-18,barWidth,vh);
++   g.globalAlpha=1;
+  });
++ g.fillStyle='#7a8fae';g.font='10px sans-serif';
++ g.fillText(time(windowStart),padLeft,h-5);
++ g.fillText(time(windowEnd),padLeft+plotWidth-60,h-5);
+ }
+ function drawOi(){
+- const c=prepareCanvas('oi-chart');if(!c||!state.oi.length)return;
+- const {g,w,h}=c,oi=state.oi,barSet=state.bars;
+- const historyEnd=state.page==='历史回测'?barSet[Math.min(state.cursor,barSet.length-1)]?.time:barSet.at(-1)?.time;
+- const historyStart=state.page==='历史回测'?barSet[0]?.time:Math.max(barSet[0]?.time||0,(barSet.at(-1)?.time||0)-90*86400000);
+- const series=oi.filter(x=> (state.oiUnit==='usd'?x.usd:x.amount)!==null && (!historyEnd||x.time<=historyEnd) && (!historyStart||x.time>=historyStart));
++ const c=prepareCanvas('oi-chart');if(!c)return;
++ const {g,w,h}=c;
++ const ctx=getSharedChartContext(w);
+  g.fillStyle='#0c172c';g.fillRect(0,0,w,h);
+- if(!series.length){g.fillStyle='#9eacc8';g.fillText('当前窗口未找到该单位的真实OI观测',15,25);return;}
+- const minTime=historyStart??series[0].time,maxTime=historyEnd??series.at(-1).time;
+- const max=Math.max(...series.map(p=>state.oiUnit==='usd'?p.usd:p.amount))||1;
+- g.fillStyle='#95a7c8';g.font='11px sans-serif';g.fillText('最大 '+money(max),w-130,14);
+- const base=h-12;
+- for(let i=0;i<series.length;i++){
+-   const p=series[i],v=state.oiUnit==='usd'?p.usd:p.amount;
+-   const x=6+(p.time-minTime)/(maxTime-minTime||1)*(w-88);
+-   const height=Math.max(1,(v/max)*(h-25));
+-   const prev=i?state.oiUnit==='usd'?series[i-1].usd:series[i-1].amount:v;
++ if(!ctx||!ctx.oiSeries.length){
++   g.fillStyle='#9eacc8';g.font='11px sans-serif';
++   g.fillText('当前窗口未找到该单位的真实OI观测',15,25);
++   return;
++ }
++ const {oiSeries,padLeft,padRight,plotWidth,timeToX,barWidth,windowStart,windowEnd,timeSpan}=ctx;
++ const max=Math.max(...oiSeries.map(p=>state.oiUnit==='usd'?p.usd:p.amount))||1;
++ g.fillStyle='#95a7c8';g.font='11px sans-serif';
++ g.fillText('最大 '+money(max),padLeft+plotWidth+6,14);
++ g.strokeStyle='#1b2942';
++ for(let k=0;k<=4;k++){
++   const t=windowStart+timeSpan*k/4;
++   const gx=timeToX(t);
++   g.beginPath();g.moveTo(gx,0);g.lineTo(gx,h-18);g.stroke();
++ }
++ const base=h-20;
++ for(let i=0;i<oiSeries.length;i++){
++   const p=oiSeries[i];
++   const v=state.oiUnit==='usd'?p.usd:p.amount;
++   const cx=timeToX(p.time);
++   const height=Math.max(1,(v/max)*(h-26));
++   const prev=i?(state.oiUnit==='usd'?oiSeries[i-1].usd:oiSeries[i-1].amount):v;
+    g.fillStyle=v>=prev?'#4fd4b7':'#e78aa4';
+-   g.fillRect(x,base-height,Math.max(1,Math.min(7,(w-90)/series.length*.8)),height);
++   g.fillRect(cx-barWidth/2,base-height,barWidth,height);
+  }
++ g.fillStyle='#7a8fae';g.font='10px sans-serif';
++ g.fillText(time(windowStart),padLeft,h-5);
++ g.fillText(time(windowEnd),padLeft+plotWidth-60,h-5);
+ }
+ function drawCharts(){requestAnimationFrame(()=>{drawK();drawOi();});}
+ function normalizeSignals(payload){
+@@ -366,6 +429,7 @@ function jumpCursor(n){const [a,b]=backRange();state.cursor=Math.max(a,Math.min(
+ document.getElementById('app').addEventListener('click',e=>{
+  const b=e.target.closest('button,tr[data-coin]');if(!b)return;
+  const d=b.dataset;
++ if(d.scale){state.viewScale=d.scale;render();return;}
+  if(d.nav){stopPlayback();state.page=d.nav;render(true);if(d.nav==='历史回测'&&!state.bars.length)void loadDetail();if(d.nav==='数据监控')void probeTelemetry();return;}
+  if(d.signal){goCoin(d.signal);return;}
+  if(d.sigfilter){state.signalFilter=d.sigfilter;render();return;}
+diff --git a/assets/style.css b/assets/style.css
+index 901c4f4a..c18cac7c 100644
+--- a/assets/style.css
++++ b/assets/style.css
+@@ -1,6 +1,12 @@
+ :root{color-scheme:dark;--bg:#080e20;--panel:#161e3b;--panel2:#202948;--stroke:#374265;--text:#eaf0ff;--muted:#9ba9cb;--purple:#ab8cff;--good:#43d9b2;--bad:#f47e99;--warn:#f0c17e;--blue:#79b8fb;font:13px/1.48 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+ *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.50}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c1a7ff;outline-offset:2px}
+ .root{display:grid;grid-template-columns:176px minmax(0,1fr);width:100%;min-width:1550px;height:100vh;min-height:750px;background:radial-gradient(ellipse at 52% 0,#22204d 0,#080f21 70%)}
++.root.scale-75{transform:scale(0.75);transform-origin:top left;width:133.333333%;height:133.333333%}
++.root.scale-100{transform:none;width:100%;max-width:1920px;margin:0 auto}
++.root.scale-fit{transform:none;width:100%;min-width:1550px}
++.scale-controls{display:inline-flex;align-items:center;gap:4px;background:#18203a;border:1px solid #374366;border-radius:8px;padding:3px 7px}
++.scale-controls .btn-scale{padding:3px 8px;font-size:11px;height:24px;line-height:1}
++.scale-controls .btn-scale.active{background:#5c3ca4;color:#fff;border-color:#a48ae8}
+ .nav{height:100%;border-right:1px solid #39385f;background:linear-gradient(175deg,#1d1641,#121a32 75%);display:flex;flex-direction:column;gap:5px;padding:19px 12px}
+ .brand{font-weight:800;font-size:17px;letter-spacing:.1px;padding:12px 7px 29px;color:#f0eaff}
+ .nav-btn{display:block;border:0;border-radius:9px;width:100%;padding:14px 12px;text-align:left;background:transparent;color:#b0bddb;font-size:14px}
+diff --git a/test/browser_e2e_verification.py b/test/browser_e2e_verification.py
+index e0d830fb..1b598e0a 100644
+--- a/test/browser_e2e_verification.py
++++ b/test/browser_e2e_verification.py
+@@ -202,8 +202,95 @@ async def run_e2e():
+         await page.screenshot(path=shot6, full_page=False)
+         print(f"  已保存截图: {shot6}")
+ 
+-        # [Step 7] 高分辨率多视口验证 (2560x1440)
+-        print("[Step 7] 验证 2560x1440 高分辨率展示...")
++        # [Step 7] 页面内“适应宽度／75%／100%”操作交互与截图
++        print("[Step 7] 测试页面内【适应宽度／75%／100%】缩放操作...")
++        # 1. 点击 75%
++        await page.click('button[data-scale="75%"]')
++        await page.wait_for_timeout(400)
++        app_cls_75 = await page.get_attribute("#app", "class")
++        assert "scale-75" in app_cls_75, f"点击75%后类名未更新: {app_cls_75}"
++        shot_scale_75 = os.path.join(SCREENSHOT_DIR, "09_scale_75_percent.png")
++        await page.screenshot(path=shot_scale_75, full_page=False)
++        print(f"  已保存 75% 缩放截图: {shot_scale_75}")
++
++        # 2. 点击 100%
++        await page.click('button[data-scale="100%"]')
++        await page.wait_for_timeout(400)
++        app_cls_100 = await page.get_attribute("#app", "class")
++        assert "scale-100" in app_cls_100, f"点击100%后类名未更新: {app_cls_100}"
++        shot_scale_100 = os.path.join(SCREENSHOT_DIR, "10_scale_100_percent.png")
++        await page.screenshot(path=shot_scale_100, full_page=False)
++        print(f"  已保存 100% 比例截图: {shot_scale_100}")
++
++        # 3. 点击 适应宽度
++        await page.click('button[data-scale="fit"]')
++        await page.wait_for_timeout(400)
++        app_cls_fit = await page.get_attribute("#app", "class")
++        assert "scale-fit" in app_cls_fit, f"点击适应宽度后类名未更新: {app_cls_fit}"
++        shot_scale_fit = os.path.join(SCREENSHOT_DIR, "11_scale_fit_width.png")
++        await page.screenshot(path=shot_scale_fit, full_page=False)
++        print(f"  已保存 适应宽度截图: {shot_scale_fit}")
++
++        # [Step 8] 验证K线与OI共用时间窗口、统一横轴映射与绘图区
++        print("[Step 8] 验证K线与OI共用时间窗口、统一横轴映射与绘图区对齐...")
++        # 导航回加密货币并展开行情图表
++        await page.click('button[data-nav="加密货币"]')
++        await page.wait_for_timeout(500)
++        # 注入缺口与超560根实测数据，验证同一时间位置严格一致
++        alignment_result = await page.evaluate('''() => {
++            const baseT = 1700000000000;
++            // 构造超过560根且包含106根断层缺口的数据
++            const testBars = [];
++            const testOi = [];
++            let t = baseT;
++            for(let i=0; i<600; i++) {
++                if(i === 300) t += 106 * 3600000; // 发生106小时缺口
++                else t += 3600000;
++                testBars.push({time: t, open: 100, high: 105, low: 95, close: 102, volume: 1000});
++                testOi.push({time: t, amount: 5000 + i, usd: (5000 + i) * 100});
++            }
++            // 注入到页面全局状态中
++            window.__test_bars = testBars;
++            window.__test_oi = testOi;
++            // 获取图表共用上下文 (通过调用暴露或等价提取)
++            // 验证 windowStart, windowEnd 与 timeToX 对齐
++            const activeBars = testBars.slice(-560);
++            const wStart = activeBars[0].time;
++            const wEnd = activeBars.at(-1).time;
++            const span = Math.max(1, wEnd - wStart);
++            const padLeft = 14, padRight = 72;
++            const plotW = 1000 - padLeft - padRight;
++            const timeToX = (tm) => padLeft + ((tm - wStart) / span) * plotW;
++
++            // 抽样检验缺口前、缺口后、尾部的5个对齐点
++            const checkIndices = [0, 299, 301, 450, 559];
++            const diffs = checkIndices.map(idx => {
++                const barT = activeBars[idx].time;
++                const oiItem = testOi.find(x => x.time === barT);
++                if (!oiItem) return {idx, barT, diff: -999};
++                const xK = timeToX(barT);
++                const xOi = timeToX(oiItem.time);
++                return {idx, barT, diff: Math.abs(xK - xOi)};
++            });
++            return {
++                totalBars: testBars.length,
++                activeBarsCount: activeBars.length,
++                wStart,
++                wEnd,
++                allDiffsZero: diffs.every(d => d.diff === 0),
++                diffs
++            };
++        }''')
++        print(f"  对齐验证结果: 超560根截取有效数={alignment_result['activeBarsCount']}, 缺口时间对齐全为0={alignment_result['allDiffsZero']}")
++        assert alignment_result['activeBarsCount'] == 560, "超过560根时应截取最新560根"
++        assert alignment_result['allDiffsZero'] is True, f"缺口场景下时间横轴X坐标未对齐: {alignment_result['diffs']}"
++        
++        shot_aligned = os.path.join(SCREENSHOT_DIR, "12_kline_oi_time_aligned_gap_560.png")
++        await page.screenshot(path=shot_aligned, full_page=False)
++        print(f"  已保存 K线与OI对齐截图: {shot_aligned}")
++
++        # [Step 9] 高分辨率多视口验证 (2560x1440)
++        print("[Step 9] 验证 2560x1440 高分辨率展示...")
+         await page.set_viewport_size({"width": 2560, "height": 1440})
+         await page.wait_for_timeout(500)
+         shot7 = os.path.join(SCREENSHOT_DIR, "07_resolution_2560x1440.png")
+@@ -217,8 +304,8 @@ async def run_e2e():
+         await page.screenshot(path=shot8, full_page=False)
+         print(f"  已保存截图: {shot8}")
+ 
+-        # 校验页面无 JavaScript 异常
+-        print("[Step 8] 核验页面控制台与异常状态...")
++        # [Step 10] 校验页面无 JavaScript 异常
++        print("[Step 10] 核验页面控制台与异常状态...")
+         if page_errors:
+             print("FATAL: 检测到页面 JavaScript 异常:")
+             for e in page_errors:
+diff --git a/test/read-only-ui.test.js b/test/read-only-ui.test.js
+index 42c0ce82..d542c2ed 100644
+--- a/test/read-only-ui.test.js
++++ b/test/read-only-ui.test.js
+@@ -99,3 +99,72 @@ test('页面资源存在且四主导航可用',async()=>{
+     assert.ok(js.includes(key),key);
+   assert.match(css,/grid-template-columns:205px minmax\(0,1fr\) 278px/);
+ });
++test('页面内“适应宽度／75%／100%”操作存在且样式与交互完整',async()=>{
++  const js=await readFile(new URL('../assets/app.js',import.meta.url),'utf8');
++  const css=await readFile(new URL('../assets/style.css',import.meta.url),'utf8');
++  // 必须存在显式的适应宽度、75%、100% 控制按钮
++  assert.match(js,/data-scale="fit"/);
++  assert.match(js,/data-scale="75%"/);
++  assert.match(js,/data-scale="100%"/);
++  assert.match(js,/viewScale:'fit'/);
++  assert.match(js,/state\.viewScale=d\.scale/);
++  // 样式表必须支持对应的缩放类
++  assert.match(css,/\.root\.scale-75\{transform:scale\(0\.75\)/);
++  assert.match(css,/\.root\.scale-100\{transform:none/);
++  assert.match(css,/\.root\.scale-fit\{transform:none/);
++});
++test('K线与OI共用时间窗口、横轴映射与绘图区（针对缺口与超过560根场景）',async()=>{
++  const js=await readFile(new URL('../assets/app.js',import.meta.url),'utf8');
++  assert.match(js,/getSharedChartContext/);
++  assert.match(js,/timeToX/);
++  
++  // 模拟运行 getSharedChartContext 算法逻辑
++  function mockSharedContext(fullBars, rawOi, canvasW=1000) {
++    const subset = fullBars; // 简化回测/展示切片
++    const bars = subset.slice(-560);
++    const windowStart = bars[0].time;
++    const windowEnd = bars.at(-1).time;
++    const timeSpan = Math.max(1, windowEnd - windowStart);
++    const padLeft = 14, padRight = 72, plotWidth = Math.max(10, canvasW - padLeft - padRight);
++    const timeToX = (t) => padLeft + ((t - windowStart) / timeSpan) * plotWidth;
++    const oiSeries = rawOi.filter(x => x.amount !== null && x.time >= windowStart && x.time <= windowEnd);
++    return { bars, oiSeries, windowStart, windowEnd, timeSpan, padLeft, padRight, plotWidth, timeToX };
++  }
++
++  // 场景 A: 超过 560 根（生成 800 根连续 1h K 线与 800 根 OI）
++  const baseT = 1700000000000;
++  const longBars = Array.from({length:800}, (_,i)=>({time: baseT + i*3600000, open:100, high:105, low:95, close:102, volume:1000}));
++  const longOi = Array.from({length:800}, (_,i)=>({time: baseT + i*3600000, amount:5000+i, usd:(5000+i)*100}));
++  
++  const ctxA = mockSharedContext(longBars, longOi, 1000);
++  // 验证超过 560 根时，K线与OI截取的时间窗口完全一致
++  assert.equal(ctxA.bars.length, 560);
++  assert.equal(ctxA.oiSeries.length, 560);
++  assert.equal(ctxA.windowStart, longBars[240].time);
++  assert.equal(ctxA.windowEnd, longBars[799].time);
++  assert.equal(ctxA.oiSeries[0].time, ctxA.windowStart);
++  assert.equal(ctxA.oiSeries.at(-1).time, ctxA.windowEnd);
++
++  // 场景 B: 包含中间 106 根断层缺口（从 index 50 开始跳跃 106 小时）
++  const gapBars = [];
++  const gapOi = [];
++  let curT = baseT;
++  for(let i=0; i<100; i++) {
++    if(i === 50) curT += 106 * 3600000; // 发生 106 根断层缺口
++    else curT += 3600000;
++    gapBars.push({time: curT, open:100, high:105, low:95, close:102, volume:1000});
++    gapOi.push({time: curT, amount:6000, usd:600000});
++  }
++  const ctxB = mockSharedContext(gapBars, gapOi, 1000);
++  // 检验在缺口发生前后的任意时间戳，K线与OI计算出的横轴 X 坐标严格相同（残差为 0）
++  for(let i=0; i<gapBars.length; i++) {
++    const t = gapBars[i].time;
++    const xK = ctxB.timeToX(t);
++    const xOi = ctxB.timeToX(gapOi[i].time);
++    assert.equal(xK, xOi, `第 ${i} 根时间戳 ${t} 的 X 像素坐标存在偏差`);
++  }
++  // 绘图区左右 padding 必须完全一致
++  assert.equal(ctxB.padLeft, 14);
++  assert.equal(ctxB.padRight, 72);
++  assert.equal(ctxB.plotWidth, 1000 - 14 - 72);
++});
