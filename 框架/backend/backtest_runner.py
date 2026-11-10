@@ -1723,8 +1723,13 @@ def execute_run(run_id: str) -> dict:
     return S.read_run(run_id)
 
 
+from candidate_backtest_runner import (  # noqa: E402
+    CandidateExecutionError, HoldoutSealedError, run_candidate_backtest
+)
+
 __all__ = [
     "resolve_window", "load_inputs", "compute_metrics", "buy_and_hold_benchmark",
     "funding_evidence", "recompute_metrics_from_ledger", "build_chart", "execute_run",
-    "market_db_path", "archive_root",
+    "market_db_path", "archive_root", "run_candidate_backtest", "HoldoutSealedError",
+    "CandidateExecutionError",
 ]

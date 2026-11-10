@@ -150,6 +150,14 @@ class TestRebuiltChartUsesOwnWindow(unittest.TestCase):
                 continue
             if not (d / "inputs.json").is_file():
                 continue
+            run_doc = {}
+            if (d / "run.json").is_file():
+                try:
+                    run_doc = json.loads((d / "run.json").read_text(encoding="utf-8"))
+                except Exception:                              # noqa: BLE001
+                    continue
+            if run_doc.get("status") != "succeeded":
+                continue
             try:
                 inp = json.loads((d / "inputs.json").read_text(encoding="utf-8"))
             except Exception:                              # noqa: BLE001
