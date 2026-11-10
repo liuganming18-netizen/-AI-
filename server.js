@@ -157,10 +157,15 @@ export async function handler(req,res) {
     const kind=url.pathname.endsWith('/oi')?'oi':'candles';
     const endpoint='/api/v1/markets/' + exchange + '/' + encodeURIComponent(symbol) + '/' + kind;
     const query=new URLSearchParams();
-    if(kind==='candles')query.set('timeframe',interval);
-    else query.set('period',interval);
-    query.set('limit',kind==='candles'?'700':'800');
-    if(kind==='candles')query.set('history_only','1');
+    if(kind==='candles') {
+      query.set('timeframe',interval);
+      query.set('limit','700');
+      query.set('history_only','1');
+    } else {
+      const reqPeriod = url.searchParams.get('period') || (interval === '5m' ? '5m' : 'auto');
+      query.set('period', reqPeriod);
+      query.set('limit', '800');
+    }
     try {
       const body=await localRead(endpoint+'?'+query.toString());
       json(res,200,{connected:true,source:'本机封存历史数据网关（只读）',
