@@ -1,0 +1,57 @@
+{
+  "job_id": "04-R",
+  "governance_ref": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
+  "code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+  "completion_status": {
+    "deliverable_1_comparison_table": "COMPLETED (补正版)",
+    "deliverable_2_event_details_index": "COMPLETED (补正版)",
+    "deliverable_3_closeout_receipt": "COMPLETED (补正版)",
+    "deliverables_completed_ratio": "3/3 (100%)"
+  },
+  "p0_self_test": {
+    "item_1_provenance_and_inherited": "PASS (有效继承 Q05, R3, 09, CLOSE-01, ROBUST-03 证据，指标补齐来源映射)",
+    "item_2_scope_and_blind_unexposed": "PASS (仅限训练与开发验证，最终盲测严格未暴露)",
+    "item_3_comparable_metrics": "PASS (四象限横向对齐，无逐事件依据格子诚实标置【未核实】，不新增实验凑数)",
+    "item_4_negative_cases_recorded": "PASS (误报、漏报、自然零候选、高位回撤熔断、年份波动均完备记录)",
+    "item_5_verifiable_and_no_overfit": "PASS (年份分组纠偏、规则胜率解耦、477笔定性为复现链缺失，零追加试优)",
+    "p0_passed_ratio": "5/5 (100%)"
+  },
+  "rework_rectifications": {
+    "rectification_1_yearly_labels": "PASS (原 -78.06, +96.49, +87.01 U 纠偏为 2021-2023, 2024, 2025-2026 年份分组时间稳定性，严禁作为吸筹形态三阶段收益)",
+    "rectification_2_rule_and_winrate_alignment": "PASS (201 事件 A 组真实胜率 41.29%，原 33.33% 解释为粗估偏差；交易亏损比 58.71% 单列，不直接作为形态误报率；event_trend_v0_1 与 95% 追踪规则彻底解耦)",
+    "rectification_3_source_mappings_and_unverified_cells": "PASS (补齐 6 大指标来源映射；提前量、漏报率、等待时间、MAE 缺乏逐事件依据的格子统一标为【未核实】或【不可比】，不新增实验凑数)",
+    "rectification_4_legacy_477_wording": "PASS (477 笔旧吸筹更正为【证据不可采信或复现链缺失】，无专门证据不作证实过拟合断言)"
+  },
+  "candidate_verdicts": {
+    "early_stage_4a_4b_4c": {
+      "verdict": "REJECT (淘汰)",
+      "reason": "4a假突破高达68.2%；4b/4c自然零候选无法产出；实测96笔净亏-528.69U，浮盈回撤超20%熔断；跨期符号翻转缺乏稳健性。"
+    },
+    "mid_stage_compression_oi": {
+      "verdict": "INCONCLUSIVE (证据不足 / 转为观察特征)",
+      "reason": "Q05数据资格已核验，但严格PIT标记UNKNOWN；201事件内缩量与保本显著为负贡献；全池实际交易表现待第06阶段评估；不单独作为入场策略。"
+    },
+    "late_stage_wyckoff_baseline": {
+      "verdict": "KEEP (保留进入第06阶段回测与盲测验证)",
+      "reason": "规则代码完整冻结，201事件主口径净额+105.44U，真实胜率41.29%，作为第06阶段严格历史回测与封存盲测的基准对照策略。"
+    },
+    "legacy_477_accum_strat": {
+      "verdict": "REJECT (淘汰 / 标记作废)",
+      "reason": "原始脚本逐笔全缺，复现链断裂，证据不可采信，扫全池仅2笔稳定币，彻底淘汰作废。"
+    }
+  },
+  "remaining_gaps_and_dependencies": [
+    "依赖第 06 阶段 (06-B) 回测程序准备与统一行情热库读取接入；",
+    "依赖第 06 阶段 (06-T) 开展封存样本外盲测验证 (Out-of-Sample Freeze Validation)；",
+    "热库与冷档历史 available_at 缺失字段待数据工程后续补齐。"
+  ],
+  "freeze_manifest": [
+    "配置: 配置/FT-LOW4H/10_研究参数生效视图_v2_2_user5000_shared.json (82dec362c1...)",
+    "基线事件库: evidence/BREAKEVEN-02/out/paired_fixed.csv (201去重事件)",
+    "基线敏感性: evidence/BREAKEVEN-02/out/dedup_sensitivity.json (胜率 41.29%)",
+    "分期统计: evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (年份分组)",
+    "全池数据资格: evidence/Q05-REAL-DATA-QUAL-01/01_source_version_manifest_r2.json",
+    "早中期适配器: evidence/ISOLATED-VERIFY-EARLY-MID-03/adapters/research_adapters_r3.py"
+  ]
+}

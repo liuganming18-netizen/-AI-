@@ -1,0 +1,162 @@
+{
+  "governance_ref": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
+  "code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+  "source_mappings": {
+    "early_pnl": {
+      "metric_name": "早期实测平账净损益",
+      "value": "-528.69 USDT (毛 -431.25, 费用/滑点 -57.82, 资金费 -39.62, 残差 0.00)",
+      "source_ticket": "ACCUM-EARLY-09-ANTIGRAVITY",
+      "run_id": "audit_accum_early_09_antigravity_20261027",
+      "rule_version": "early_stage_box_sweep_v0.9 (4a/4b/4c)",
+      "data_range": "2021—2026 开发与回放样本区间",
+      "sample_unit": "笔 (Trades)",
+      "sample_denominator": "96 笔成交",
+      "source_file_field": "REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md / 账本汇总平账表"
+    },
+    "mid_filter_delta": {
+      "metric_name": "中期过滤在201事件上增量净差",
+      "value": "缩量过滤 C: -50.53 USDT; 1R 保本 B: -53.01 USDT",
+      "source_ticket": "RESEARCH-CLOSE-01 / ENTRY-VOLUME-02 / BREAKEVEN-02",
+      "run_id": "breakeven_02_paired_fixed_analysis",
+      "rule_version": "filter_rule_v1.0 (Low-Volume Filter / Breakeven 1R)",
+      "data_range": "2021—2026 开发与验证区间 (201 笔基准事件)",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件",
+      "source_file_field": "evidence/RESEARCH-CLOSE-01/统一研究总结.md (C_delta: -50.53, B_delta: -53.01)"
+    },
+    "late_pnl_total": {
+      "metric_name": "末期基准 A 组全期净收益",
+      "value": "+105.439864 USDT (约 +105.44 USDT)",
+      "source_ticket": "BREAKEVEN-02 / BREAKEVEN-ROBUST-03 / RESEARCH-CLOSE-01",
+      "run_id": "breakeven_robust_03_subperiod_run",
+      "rule_version": "event_trend_v0_1 (2R 跟踪 / 10 根 4h 低点 / 10 天到期平仓)",
+      "data_range": "2021—2026 开发与验证区间",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件",
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (全期合计 A基准净额)"
+    },
+    "late_subperiods_yearly": {
+      "metric_name": "末期基准年份分组稳定性收益 (非形态阶段收益)",
+      "value": "2021-2023年: -78.06 U (66笔); 2024年: +96.49 U (38笔); 2025-2026年: +87.01 U (97笔)",
+      "source_ticket": "BREAKEVEN-ROBUST-03",
+      "run_id": "breakeven_robust_03_subperiod_run",
+      "rule_version": "event_trend_v0_1 (历史基准)",
+      "data_range": "2021—2026 开发区间子年份分组",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "66 笔 (2021-2023) / 38 笔 (2024) / 97 笔 (2025-2026)",
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv"
+    },
+    "late_win_rate": {
+      "metric_name": "末期基准 A 组真实胜率与交易亏损比例",
+      "value": "胜率 41.29% (83 赢 / 201 笔); 交易亏损比例 58.71% (118 亏 / 201 笔)",
+      "source_ticket": "BREAKEVEN-02",
+      "run_id": "dedup_sensitivity_eval",
+      "rule_version": "event_trend_v0_1 (历史基准)",
+      "data_range": "2021—2026 开发区间",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件 (206 候选敏感性)",
+      "source_file_field": "evidence/BREAKEVEN-02/out/dedup_sensitivity.json (win_rate_A: 41.29)"
+    },
+    "legacy_477_eval": {
+      "metric_name": "历史旧吸筹 477 笔复核状态",
+      "value": "证据不可采信或复现链缺失 (全池同口径扫仅出 2 笔 USDC 稳定币)",
+      "source_ticket": "ACCUM-STRAT-01",
+      "run_id": "accum_strat_reproduce_run_01",
+      "rule_version": "accum_strat_legacy_v0 (日线买卖比 > 1.15, T+5 止损)",
+      "data_range": "历史回测区间",
+      "sample_unit": "笔 (Reported Trades)",
+      "sample_denominator": "声称 477 笔 / 本机复现 2 笔",
+      "source_file_field": "evidence/ACCUM-STRAT-01/报告.md"
+    }
+  },
+  "inherited_evidence_packages": [
+    {
+      "package_id": "Q05-REAL-DATA-QUAL-01",
+      "path": "evidence/Q05-REAL-DATA-QUAL-01/",
+      "date": "2026-11-10",
+      "role": "全池真实数据资格核验",
+      "status": "DELIVERED",
+      "key_findings": "完成 547 个候选区间、11,057,283 个小时起点实际读取；G1~G4 输入可用，价格严格 PIT 因 available_at 缺失标注为 UNKNOWN",
+      "key_artifacts": [
+        "01_source_version_manifest_r2.json",
+        "attempts/attempt_009/out/README.md",
+        "SHA256SUMS.txt"
+      ]
+    },
+    {
+      "package_id": "ISOLATED-VERIFY-EARLY-MID-03",
+      "path": "evidence/ISOLATED-VERIFY-EARLY-MID-03/",
+      "date": "2026-11-09",
+      "role": "早中期隔离核验限定补正 R3",
+      "status": "ALL_PASS (19/19)",
+      "key_findings": "通道误拒与漏放消除、未来不变性 30 根逐根比较通过、PitBridge 生命周期通过、三种漏报率实测通过、收益双基准核验通过",
+      "key_artifacts": [
+        "out/VERIFICATION_REPORT_R3.md",
+        "out/verification_summary_r3.json",
+        "adapters/research_adapters_r3.py",
+        "scripts/run_verification_r3.py"
+      ]
+    },
+    {
+      "package_id": "ACCUM-EARLY-09-ANTIGRAVITY",
+      "path": "evidence/ACCUM-EARLY-09-ANTIGRAVITY/",
+      "date": "2026-10-27",
+      "role": "早期提前入场账本平账与熔断核验",
+      "status": "INDEPENDENT_AUDIT_PASS (验收决议归档)",
+      "key_findings": "完成 96 笔成交严格平账 (-528.69 U，残差 0.00 U)；证实 4b/4c 触及 20% 熔断系浮盈高位回撤；证实 131 拒单去重后仅 95 笔",
+      "key_artifacts": [
+        "docs/验收决议_ACCUM-EARLY-09_主代理终审闭环_2026-10-27.md",
+        "evidence/ACCUM-EARLY-09-ANTIGRAVITY/REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md"
+      ]
+    },
+    {
+      "package_id": "RESEARCH-CLOSE-01",
+      "path": "evidence/RESEARCH-CLOSE-01/",
+      "date": "2026-10-20",
+      "role": "缩量过滤与保本规则统一研究总结",
+      "status": "PASS (以 201 个去重事件为主口径)",
+      "key_findings": "基准 A 为 +105.44 U；入场缩量过滤 C 净差 -50.53 U；1R 保本 B 净差 -53.01 U；2R 保本增益 +3.05 U 100% 依赖单笔；联合规则更差",
+      "key_artifacts": [
+        "evidence/RESEARCH-CLOSE-01/统一研究总结.md",
+        "evidence/ENTRY-VOLUME-02/报告.md",
+        "evidence/BREAKEVEN-ROBUST-03/closure/最终报告.md"
+      ]
+    },
+    {
+      "package_id": "BREAKEVEN-ROBUST-03",
+      "path": "evidence/BREAKEVEN-ROBUST-03/",
+      "date": "2026-10-19",
+      "role": "末期基准稳健性分期核算",
+      "status": "PASS",
+      "key_findings": "201 笔去重事件全期 +105.44 U；年份分组检验: 2021-2023年 -78.06 U, 2024年 +96.49 U, 2025-2026年 +87.01 U (纯属年份分组稳定性，非形态阶段收益)",
+      "key_artifacts": [
+        "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv",
+        "evidence/BREAKEVEN-ROBUST-03/closure/最终报告.md"
+      ]
+    },
+    {
+      "package_id": "BREAKEVEN-02",
+      "path": "evidence/BREAKEVEN-02/",
+      "date": "2026-10-18",
+      "role": "201 事件 A/B/C 对账与去重敏感性分析",
+      "status": "PASS",
+      "key_findings": "201 笔去重事件真实胜率 41.29% (83 赢 118 输)；交易亏损比例 58.71%；对齐 paired_fixed.csv 逐笔账本",
+      "key_artifacts": [
+        "evidence/BREAKEVEN-02/out/paired_fixed.csv",
+        "evidence/BREAKEVEN-02/out/dedup_sensitivity.json"
+      ]
+    },
+    {
+      "package_id": "ACCUM-STRAT-01",
+      "path": "evidence/ACCUM-STRAT-01/",
+      "date": "2026-10-19",
+      "role": "震荡吸筹策略原始证据与 T+5 增量验证",
+      "status": "REJECT / DEPRECATED",
+      "key_findings": "原始脚本、逐笔明细与币池表缺失，复现链断裂；全池扫描同口径仅产出 2 笔 USDC 稳定币信号；证据不可采信，裁决淘汰作废",
+      "key_artifacts": [
+        "evidence/ACCUM-STRAT-01/报告.md"
+      ]
+    }
+  ]
+}

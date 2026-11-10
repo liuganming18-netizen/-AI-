@@ -1,0 +1,208 @@
+{
+  "task_id": "04-R",
+  "title": "吸筹早、中、末期三阶段对照表 (报告级返工补正版)",
+  "governance_version": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
+  "code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+  "source_mappings": {
+    "early_pnl": {
+      "metric_name": "早期实测平账净损益",
+      "value": "-528.69 USDT (毛 -431.25, 费用/滑点 -57.82, 资金费 -39.62, 残差 0.00)",
+      "source_ticket": "ACCUM-EARLY-09-ANTIGRAVITY",
+      "run_id": "audit_accum_early_09_antigravity_20261027",
+      "rule_version": "early_stage_box_sweep_v0.9 (4a/4b/4c)",
+      "data_range": "2021—2026 开发与回放样本区间",
+      "sample_unit": "笔 (Trades)",
+      "sample_denominator": "96 笔成交",
+      "source_file_field": "REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md / 账本汇总平账表"
+    },
+    "mid_filter_delta": {
+      "metric_name": "中期过滤在201事件上增量净差",
+      "value": "缩量过滤 C: -50.53 USDT; 1R 保本 B: -53.01 USDT",
+      "source_ticket": "RESEARCH-CLOSE-01 / ENTRY-VOLUME-02 / BREAKEVEN-02",
+      "run_id": "breakeven_02_paired_fixed_analysis",
+      "rule_version": "filter_rule_v1.0 (Low-Volume Filter / Breakeven 1R)",
+      "data_range": "2021—2026 开发与验证区间 (201 笔基准事件)",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件",
+      "source_file_field": "evidence/RESEARCH-CLOSE-01/统一研究总结.md (C_delta: -50.53, B_delta: -53.01)"
+    },
+    "late_pnl_total": {
+      "metric_name": "末期基准 A 组全期净收益",
+      "value": "+105.439864 USDT (约 +105.44 USDT)",
+      "source_ticket": "BREAKEVEN-02 / BREAKEVEN-ROBUST-03 / RESEARCH-CLOSE-01",
+      "run_id": "breakeven_robust_03_subperiod_run",
+      "rule_version": "event_trend_v0_1 (2R 跟踪 / 10 根 4h 低点 / 10 天到期平仓)",
+      "data_range": "2021—2026 开发与验证区间",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件",
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (全期合计 A基准净额)"
+    },
+    "late_subperiods_yearly": {
+      "metric_name": "末期基准年份分组稳定性收益 (非形态阶段收益)",
+      "value": "2021-2023年: -78.06 U (66笔); 2024年: +96.49 U (38笔); 2025-2026年: +87.01 U (97笔)",
+      "source_ticket": "BREAKEVEN-ROBUST-03",
+      "run_id": "breakeven_robust_03_subperiod_run",
+      "rule_version": "event_trend_v0_1 (历史基准)",
+      "data_range": "2021—2026 开发区间子年份分组",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "66 笔 (2021-2023) / 38 笔 (2024) / 97 笔 (2025-2026)",
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv"
+    },
+    "late_win_rate": {
+      "metric_name": "末期基准 A 组真实胜率与交易亏损比例",
+      "value": "胜率 41.29% (83 赢 / 201 笔); 交易亏损比例 58.71% (118 亏 / 201 笔)",
+      "source_ticket": "BREAKEVEN-02",
+      "run_id": "dedup_sensitivity_eval",
+      "rule_version": "event_trend_v0_1 (历史基准)",
+      "data_range": "2021—2026 开发区间",
+      "sample_unit": "笔 (Events)",
+      "sample_denominator": "201 笔去重事件 (206 候选敏感性)",
+      "source_file_field": "evidence/BREAKEVEN-02/out/dedup_sensitivity.json (win_rate_A: 41.29)"
+    },
+    "legacy_477_eval": {
+      "metric_name": "历史旧吸筹 477 笔复核状态",
+      "value": "证据不可采信或复现链缺失 (全池同口径扫仅出 2 笔 USDC 稳定币)",
+      "source_ticket": "ACCUM-STRAT-01",
+      "run_id": "accum_strat_reproduce_run_01",
+      "rule_version": "accum_strat_legacy_v0 (日线买卖比 > 1.15, T+5 止损)",
+      "data_range": "历史回测区间",
+      "sample_unit": "笔 (Reported Trades)",
+      "sample_denominator": "声称 477 笔 / 本机复现 2 笔",
+      "source_file_field": "evidence/ACCUM-STRAT-01/报告.md"
+    }
+  },
+  "stages": {
+    "early_stage": {
+      "name": "吸筹早期 (Early Stage)",
+      "rules": "箱体下沿 (box_low) 扫低不超 0.5 ATR 后收回箱内，以局部阻力 (前 24 根 1h 最高 prior_n_high) 突破入场",
+      "sub_variants": [
+        "4a_首次收上",
+        "4b_守住1根1h",
+        "4c_回抽确认"
+      ],
+      "rule_version": "early_stage_box_sweep_v0.9",
+      "sample_denominator": {
+        "universe_symbols": 48,
+        "observation_events": 359,
+        "evaluated_candidates": 51,
+        "continuous_replay_days": 48,
+        "retest_events": 1220,
+        "candidate_conversion": 0
+      },
+      "false_positive_rate": "4a: 68.2%, 4b: 54.1%, 4c: 48.6% (假突破率)",
+      "missed_rates": "【未核实】(无逐事件形态真值标签原始列依据，不新增实验凑数)",
+      "lead_time": "【未核实】(无逐事件与末期时间戳对齐原始列依据)",
+      "wait_time": "【未核实】(无逐事件信号至启动耗时原始列依据)",
+      "maximum_adverse_excursion": "【未核实】(96 笔成交账本中无 MAE 统计列依据)",
+      "post_cost_performance": {
+        "evaluated_status": "已审计平账 (ACCUM-EARLY-09-ANTIGRAVITY)",
+        "trades_count": 96,
+        "gross_pnl_usdt": -431.25,
+        "fees_and_slippage_usdt": -57.82,
+        "funding_paid_usdt": -39.62,
+        "net_pnl_usdt": -528.69,
+        "residual_usdt": 0.0,
+        "note": "严禁将末期年份分组收益 (-78.06 U) 误植于此"
+      },
+      "failure_patterns": [
+        "4a 假突破频繁打止损",
+        "4b/4c 自然零候选阻断 (1220次回踩无一转化为候选)",
+        "浮盈高位剧烈回撤触及 20% 熔断锁仓"
+      ],
+      "verdict": "REJECT (淘汰)"
+    },
+    "mid_stage": {
+      "name": "吸筹中期 (Mid Stage)",
+      "rules": "箱体持续吸收、1h 20根通道收敛压缩 (Wilder ATR压缩)、持仓量OI抬升与资金费率中性共振",
+      "rule_version": "mid_stage_compression_oi_v1.0",
+      "sample_denominator": {
+        "q05_universe_symbols": 547,
+        "evaluated_hourly_anchors": 11057283,
+        "g3_description_complete": 11057283,
+        "baseline_events_sample": 201
+      },
+      "false_positive_rate": "【未核实】(全池 547 标的缺乏逐形态标签；普通震荡与下跌中继未逐笔切片)",
+      "missed_rates": "【未核实】(无全池逐事件漏报真值标签依据)",
+      "lead_time": "【未核实】(无逐事件与末期时间戳对齐原始列依据)",
+      "wait_time": "【未核实】(无逐事件信号至启动耗时原始列依据)",
+      "maximum_adverse_excursion": "【未核实】(无逐事件 MAE 原始列依据)",
+      "post_cost_performance": {
+        "evaluated_status": "全池 547 标的实际交易损益标注为【未评估，交第 06 阶段处理】",
+        "201_events_filter_experiment_delta_usdt": {
+          "volume_filter_C_delta": -50.53,
+          "breakeven_1R_B_delta": -53.01
+        },
+        "note": "严禁将 2024 年份分组收益 (+96.49 U) 误植为中期形态收益"
+      },
+      "failure_patterns": [
+        "下跌中继与横盘震荡缺乏形态过滤",
+        "缩量过滤在 201 事件中切断优质趋势波段导致错失盈利 -77.98 U",
+        "全量真实数据严格价格 PIT 因 available_at 字段缺失客观标记为 UNKNOWN"
+      ],
+      "verdict": "INCONCLUSIVE (证据不足 / 转为观察特征，不作为独立开仓依据)"
+    },
+    "late_stage": {
+      "name": "吸筹末期基准 (Late Stage / 既有突破原策略)",
+      "rules": "威科夫大箱体箱顶确认突破 (Jump Across the Creek / SOS)，初始止损 P0，首次 4h 收盘达 2R 启用 10 根 4h 低点跟踪，持仓上限 10 天强平",
+      "rule_version": "event_trend_v0_1 (历史基准；与现行统一 95% 追踪规则彻底解耦)",
+      "current_production_tracking_rule": "统一 95% 追踪止损规则 (2026-10-28 决策: 实际成交价×95%，每根新收盘 4h 最低价×95% 只上移不下移，无 2R 门槛，无 10 天限制)",
+      "sample_denominator": {
+        "deduplicated_events": 201,
+        "raw_candidates_sensitivity": 206,
+        "historical_span": "2021 ~ 2026 开发与验证区间"
+      },
+      "win_rate": "41.29% (83 赢 / 118 输，依据 dedup_sensitivity.json 及 paired_fixed.csv 真实核算)",
+      "explanation_of_33_percent": "原报告 33.33% 胜率 (66.67% 亏损率) 系历史按 1/3 (约 67 赢 134 输) 粗估笔数所致之口径偏差，现已精确修正为 41.29%",
+      "trade_loss_ratio": "58.71% (118 亏 / 201 笔；此为交易出场规则执行结果，严禁直接作为吸筹形态误报率)",
+      "false_positive_rate": "【未核实】(形态误报率定义为形态结构破坏或未启动，201 笔未包含逐形态分类标签，单列交易亏损比例 58.71%)",
+      "missed_rates": "【未核实】(对无箱体 V 反行情等反事实全域未有真值标签依据)",
+      "lead_time": "基准点 (0 小时，价格折让 0.0%)",
+      "wait_time": "【未核实】(paired_fixed.csv 仅含持仓耗时 A_hold_h，无信号至启动等待时间原始列依据)",
+      "maximum_adverse_excursion": "【未核实】(paired_fixed.csv 仅包含 A_mfe_R 最大有利变动，无逐事件 MAE 列依据)",
+      "post_cost_performance": {
+        "evaluated_status": "已独立复算对账 (BREAKEVEN-02 / BREAKEVEN-ROBUST-03 / RESEARCH-CLOSE-01)",
+        "trades_count": 201,
+        "fees_and_slippage": "已计入 5bps 滑点与手续费及真实资金费",
+        "net_pnl_usdt": 105.44,
+        "yearly_subperiod_stability_check": {
+          "period_2021_2023_pnl_usdt": -78.058873,
+          "period_2024_pnl_usdt": 96.492916,
+          "period_2025_2026_pnl_usdt": 87.005821,
+          "total_all_period_pnl_usdt": 105.439864,
+          "clarification": "上述三段数值纯属自然年份时间分组稳定性检验，绝非吸筹早、中、末形态阶段收益"
+        }
+      },
+      "failure_patterns": [
+        "高位假突破急跌回抽扫损 (58.71% 笔数止损/平仓)",
+        "滞后于早期机会，错失底部价格折让空间"
+      ],
+      "verdict": "KEEP (保留进入第 06 阶段回测与盲测验证)"
+    },
+    "legacy_477_accum_strat": {
+      "name": "历史旧吸筹汇总 (ACCUM-STRAT-01 对照组)",
+      "rules": "日线 30 天主动买量/卖量 > 1.15，T+5 止损 (历史汇总 477 笔)",
+      "rule_version": "accum_strat_legacy_v0",
+      "sample_denominator": {
+        "reported_trades": 477,
+        "reported_groups": 4,
+        "actual_reproducible_trades_on_machine": 2
+      },
+      "false_positive_rate": "【不可比】",
+      "missed_rates": "【不可比】",
+      "lead_time": "【不可比】(日线级别)",
+      "wait_time": "【不可比】",
+      "maximum_adverse_excursion": "【不可比】",
+      "post_cost_performance": {
+        "evaluated_status": "证据不可采信或复现链缺失 (原始脚本、逐笔明细与币池表缺失，复现链断裂；因缺乏专门过拟合验证证据，审慎定性为证据不可采信/复现链缺失，不作已证实过拟合之断言)",
+        "net_pnl_usdt": "历史汇总声称 +13.34%，本机全池同口径扫描仅出 2 笔 USDC 稳定币信号"
+      },
+      "failure_patterns": [
+        "代码、原始逐笔明细与币池表彻底缺失",
+        "复现链断裂，证据不可采信",
+        "本机扫全池仅出 2 笔稳定币信号"
+      ],
+      "verdict": "REJECT (淘汰 / 标记作废，严禁后续误用)"
+    }
+  }
+}
