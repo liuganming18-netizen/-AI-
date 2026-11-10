@@ -1,7 +1,11 @@
 {
   "job_id": "04-R",
   "governance_ref": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
-  "code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "report_source_commit": "775b32fda54e9391214c98dfdcbd3f09555ed34f",
+  "legacy_reported_code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "prior_reported_code_git_head": "e986857f3a71a8c963b2b0c701ee054ed84b773f",
+  "code_baseline_status": "UNVERIFIED：旧报告与前次完整SHA冲突；均不得据此当作已核实策略运行代码。",
+  "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
   "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
   "completion_status": {
     "deliverable_1_comparison_table": "COMPLETED (补正版)",
@@ -10,12 +14,12 @@
     "deliverables_completed_ratio": "3/3 (100%)"
   },
   "p0_self_test": {
-    "item_1_provenance_and_inherited": "PASS (有效继承 Q05, R3, 09, CLOSE-01, ROBUST-03 证据，指标补齐来源映射)",
-    "item_2_scope_and_blind_unexposed": "PASS (仅限训练与开发验证，最终盲测严格未暴露)",
+    "item_1_provenance_and_inherited": "原自测PASS声明；继承既有结果，业务SHA和描述性运行/规则标识未核实，本轮独立验收待复核",
+    "item_2_scope_and_blind_unexposed": "历史自测声明；本轮仅整理既有报告、未新增留出读取，历史未见资格按各实验记录判断，独立复核待定",
     "item_3_comparable_metrics": "PASS (四象限横向对齐，无逐事件依据格子诚实标置【未核实】，不新增实验凑数)",
-    "item_4_negative_cases_recorded": "PASS (误报、漏报、自然零候选、高位回撤熔断、年份波动均完备记录)",
+    "item_4_negative_cases_recorded": "原自测PASS声明；继承已有失败/熔断/年份记录；误报、漏报等未定位原字段者保持未核实，本轮独立验收待复核",
     "item_5_verifiable_and_no_overfit": "PASS (年份分组纠偏、规则胜率解耦、477笔定性为复现链缺失，零追加试优)",
-    "p0_passed_ratio": "5/5 (100%)"
+    "p0_passed_ratio": "原报告自测5/5；本轮勘误后的独立验收待复核，未新增签署通过"
   },
   "rework_rectifications": {
     "rectification_1_yearly_labels": "PASS (原 -78.06, +96.49, +87.01 U 纠偏为 2021-2023, 2024, 2025-2026 年份分组时间稳定性，严禁作为吸筹形态三阶段收益)",
@@ -25,16 +29,16 @@
   },
   "candidate_verdicts": {
     "early_stage_4a_4b_4c": {
-      "verdict": "REJECT (淘汰)",
-      "reason": "4a假突破高达68.2%；4b/4c自然零候选无法产出；实测96笔净亏-528.69U，浮盈回撤超20%熔断；跨期符号翻转缺乏稳健性。"
+      "verdict": "REJECT (限原已测试候选、版本与样本；不代表整个早期方向无效)",
+      "reason": "仅在既有已测试候选、版本与样本范围继承淘汰结论：96笔合计净亏-528.69U及既有自然零候选、熔断记录；不依赖未核实假突破比例，不推及整个早期研究方向。"
     },
     "mid_stage_compression_oi": {
       "verdict": "INCONCLUSIVE (证据不足 / 转为观察特征)",
       "reason": "Q05数据资格已核验，但严格PIT标记UNKNOWN；201事件内缩量与保本显著为负贡献；全池实际交易表现待第06阶段评估；不单独作为入场策略。"
     },
     "late_stage_wyckoff_baseline": {
-      "verdict": "KEEP (保留进入第06阶段回测与盲测验证)",
-      "reason": "规则代码完整冻结，201事件主口径净额+105.44U，真实胜率41.29%，作为第06阶段严格历史回测与封存盲测的基准对照策略。"
+      "verdict": "KEEP (仅保留比较基准；不授予真实候选或盲测准入)",
+      "reason": "既有201事件主口径净额+105.44U、胜率41.29%仅支持保留历史比较基准；真实候选和盲测资格另按已批准实验身份与所需验收判断。"
     },
     "legacy_477_accum_strat": {
       "verdict": "REJECT (淘汰 / 标记作废)",
@@ -42,9 +46,9 @@
     }
   },
   "remaining_gaps_and_dependencies": [
-    "依赖第 06 阶段 (06-B) 回测程序准备与统一行情热库读取接入；",
-    "依赖第 06 阶段 (06-T) 开展封存样本外盲测验证 (Out-of-Sample Freeze Validation)；",
-    "热库与冷档历史 available_at 缺失字段待数据工程后续补齐。"
+    "后续真实候选执行依赖06-B所需验收及已有批准实验身份；不是本报告归档前置；",
+    "06-T盲测资格单独判定，KEEP不构成开封许可，亦不是本报告归档前置；",
+    "历史 available_at 缺失继续保持 UNKNOWN；本单不要求补库。未来仅可引用可核证的同期证据，严格资格按实际证据判断。"
   ],
   "freeze_manifest": [
     "配置: 配置/FT-LOW4H/10_研究参数生效视图_v2_2_user5000_shared.json (82dec362c1...)",

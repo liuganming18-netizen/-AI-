@@ -21,12 +21,15 @@ import os
 import sys
 from pathlib import Path
 
-ROOT = Path("/Users/boos/Desktop/威科夫因子共振趋势").resolve()
-TASK_DIR = ROOT / "evidence" / "04-R-STAGE-COMPARE-01"
+TASK_DIR = Path(__file__).resolve().parent
+ROOT = TASK_DIR.parent.parent
 OUT_DIR = TASK_DIR / "out"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-GIT_HEAD = "e986857fa23ebf5d2334863c3d551699986b6274"
+LEGACY_REPORTED_CODE_REF = "e986857fa23ebf5d2334863c3d551699986b6274"
+PRIOR_REPORTED_CODE_REF = "e986857f3a71a8c963b2b0c701ee054ed84b773f"
+REPORT_SOURCE_COMMIT = "775b32fda54e9391214c98dfdcbd3f09555ed34f"
+CODE_BASELINE_STATUS = "UNVERIFIED：旧报告与前次完整SHA冲突；均不得据此当作已核实策略运行代码。"
 GOVERNANCE_REF = "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16"
 CONFIG_SHA256 = "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53"
 
@@ -36,7 +39,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "早期实测平账净损益",
         "value": "-528.69 USDT (毛 -431.25, 费用/滑点 -57.82, 资金费 -39.62, 残差 0.00)",
         "source_ticket": "ACCUM-EARLY-09-ANTIGRAVITY",
-        "run_id": "audit_accum_early_09_antigravity_20261027",
+        "legacy_reported_run_id": "audit_accum_early_09_antigravity_20261027",
         "rule_version": "early_stage_box_sweep_v0.9 (4a/4b/4c)",
         "data_range": "2021—2026 开发与回放样本区间",
         "sample_unit": "笔 (Trades)",
@@ -47,7 +50,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "中期过滤在201事件上增量净差",
         "value": "缩量过滤 C: -50.53 USDT; 1R 保本 B: -53.01 USDT",
         "source_ticket": "RESEARCH-CLOSE-01 / ENTRY-VOLUME-02 / BREAKEVEN-02",
-        "run_id": "breakeven_02_paired_fixed_analysis",
+        "legacy_reported_run_id": "breakeven_02_paired_fixed_analysis",
         "rule_version": "filter_rule_v1.0 (Low-Volume Filter / Breakeven 1R)",
         "data_range": "2021—2026 开发与验证区间 (201 笔基准事件)",
         "sample_unit": "笔 (Events)",
@@ -58,7 +61,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "末期基准 A 组全期净收益",
         "value": "+105.439864 USDT (约 +105.44 USDT)",
         "source_ticket": "BREAKEVEN-02 / BREAKEVEN-ROBUST-03 / RESEARCH-CLOSE-01",
-        "run_id": "breakeven_robust_03_subperiod_run",
+        "legacy_reported_run_id": "breakeven_robust_03_subperiod_run",
         "rule_version": "event_trend_v0_1 (2R 跟踪 / 10 根 4h 低点 / 10 天到期平仓)",
         "data_range": "2021—2026 开发与验证区间",
         "sample_unit": "笔 (Events)",
@@ -69,7 +72,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "末期基准年份分组稳定性收益 (非形态阶段收益)",
         "value": "2021-2023年: -78.06 U (66笔); 2024年: +96.49 U (38笔); 2025-2026年: +87.01 U (97笔)",
         "source_ticket": "BREAKEVEN-ROBUST-03",
-        "run_id": "breakeven_robust_03_subperiod_run",
+        "legacy_reported_run_id": "breakeven_robust_03_subperiod_run",
         "rule_version": "event_trend_v0_1 (历史基准)",
         "data_range": "2021—2026 开发区间子年份分组",
         "sample_unit": "笔 (Events)",
@@ -80,7 +83,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "末期基准 A 组真实胜率与交易亏损比例",
         "value": "胜率 41.29% (83 赢 / 201 笔); 交易亏损比例 58.71% (118 亏 / 201 笔)",
         "source_ticket": "BREAKEVEN-02",
-        "run_id": "dedup_sensitivity_eval",
+        "legacy_reported_run_id": "dedup_sensitivity_eval",
         "rule_version": "event_trend_v0_1 (历史基准)",
         "data_range": "2021—2026 开发区间",
         "sample_unit": "笔 (Events)",
@@ -91,7 +94,7 @@ SOURCE_MAPPINGS = {
         "metric_name": "历史旧吸筹 477 笔复核状态",
         "value": "证据不可采信或复现链缺失 (全池同口径扫仅出 2 笔 USDC 稳定币)",
         "source_ticket": "ACCUM-STRAT-01",
-        "run_id": "accum_strat_reproduce_run_01",
+        "legacy_reported_run_id": "accum_strat_reproduce_run_01",
         "rule_version": "accum_strat_legacy_v0 (日线买卖比 > 1.15, T+5 止损)",
         "data_range": "历史回测区间",
         "sample_unit": "笔 (Reported Trades)",
@@ -99,6 +102,10 @@ SOURCE_MAPPINGS = {
         "source_file_field": "evidence/ACCUM-STRAT-01/报告.md"
     }
 }
+
+for mapping in SOURCE_MAPPINGS.values():
+    mapping["identity_status"] = "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。"
+    mapping["rule_identity_status"] = "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
 
 def calc_sha256(filepath: Path) -> str:
     h = hashlib.sha256()
@@ -112,7 +119,11 @@ def build_stage_comparison():
         "task_id": "04-R",
         "title": "吸筹早、中、末期三阶段对照表 (报告级返工补正版)",
         "governance_version": GOVERNANCE_REF,
-        "code_git_head": GIT_HEAD,
+        "report_source_commit": REPORT_SOURCE_COMMIT,
+        "legacy_reported_code_git_head": LEGACY_REPORTED_CODE_REF,
+        "prior_reported_code_git_head": PRIOR_REPORTED_CODE_REF,
+        "code_baseline_status": CODE_BASELINE_STATUS,
+        "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
         "config_sha256": CONFIG_SHA256,
         "source_mappings": SOURCE_MAPPINGS,
         "stages": {
@@ -120,7 +131,7 @@ def build_stage_comparison():
                 "name": "吸筹早期 (Early Stage)",
                 "rules": "箱体下沿 (box_low) 扫低不超 0.5 ATR 后收回箱内，以局部阻力 (前 24 根 1h 最高 prior_n_high) 突破入场",
                 "sub_variants": ["4a_首次收上", "4b_守住1根1h", "4c_回抽确认"],
-                "rule_version": "early_stage_box_sweep_v0.9",
+                "rule_version": "early_stage_box_sweep_v0.9（旧报告描述名，未单独核实）",
                 "sample_denominator": {
                     "universe_symbols": 48,
                     "observation_events": 359,
@@ -129,7 +140,7 @@ def build_stage_comparison():
                     "retest_events": 1220,
                     "candidate_conversion": 0
                 },
-                "false_positive_rate": "4a: 68.2%, 4b: 54.1%, 4c: 48.6% (假突破率)",
+                "false_positive_rate": "【未核实】(未定位原始对应字段，不引用旧报告比例，不新增实验)",
                 "missed_rates": "【未核实】(无逐事件形态真值标签原始列依据，不新增实验凑数)",
                 "lead_time": "【未核实】(无逐事件与末期时间戳对齐原始列依据)",
                 "wait_time": "【未核实】(无逐事件信号至启动耗时原始列依据)",
@@ -149,12 +160,12 @@ def build_stage_comparison():
                     "4b/4c 自然零候选阻断 (1220次回踩无一转化为候选)",
                     "浮盈高位剧烈回撤触及 20% 熔断锁仓"
                 ],
-                "verdict": "REJECT (淘汰)"
+                "verdict": "REJECT (限原已测试候选、版本与样本；不代表整个早期方向无效)"
             },
             "mid_stage": {
                 "name": "吸筹中期 (Mid Stage)",
                 "rules": "箱体持续吸收、1h 20根通道收敛压缩 (Wilder ATR压缩)、持仓量OI抬升与资金费率中性共振",
-                "rule_version": "mid_stage_compression_oi_v1.0",
+                "rule_version": "mid_stage_compression_oi_v1.0（旧报告描述名，未单独核实）",
                 "sample_denominator": {
                     "q05_universe_symbols": 547,
                     "evaluated_hourly_anchors": 11057283,
@@ -213,15 +224,15 @@ def build_stage_comparison():
                     }
                 },
                 "failure_patterns": [
-                    "高位假突破急跌回抽扫损 (58.71% 笔数止损/平仓)",
+                    "201事件118笔交易亏损（58.71%）；具体形态失败类别未核实",
                     "滞后于早期机会，错失底部价格折让空间"
                 ],
-                "verdict": "KEEP (保留进入第 06 阶段回测与盲测验证)"
+                "verdict": "KEEP (仅保留比较基准；不授予真实候选或盲测准入)"
             },
             "legacy_477_accum_strat": {
                 "name": "历史旧吸筹汇总 (ACCUM-STRAT-01 对照组)",
                 "rules": "日线 30 天主动买量/卖量 > 1.15，T+5 止损 (历史汇总 477 笔)",
-                "rule_version": "accum_strat_legacy_v0",
+                "rule_version": "accum_strat_legacy_v0（旧报告描述名，未单独核实）",
                 "sample_denominator": {
                     "reported_trades": 477,
                     "reported_groups": 4,
@@ -253,7 +264,8 @@ def build_stage_comparison():
 
 - **工单编号**：`04-R`（报告级返工补正）
 - **治理版本**：`{GOVERNANCE_REF}`（依据：README.md、AGENTS.md、`docs/研究规范/策略研究与冻结验收规范.md`）
-- **代码基线 HEAD**：`{GIT_HEAD}`
+- **报告交付来源**：`{REPORT_SOURCE_COMMIT}`（本次勘误所依据的报告版本，不是策略运行代码）
+- **旧报告记载业务基线（未核实）**：`{LEGACY_REPORTED_CODE_REF}`；前次报告为 `{PRIOR_REPORTED_CODE_REF}`，完整SHA存在冲突，不猜测替代值。
 - **配置指纹**：`{CONFIG_SHA256}`
 - **编制日期**：2026-11-10
 
@@ -271,23 +283,23 @@ def build_stage_comparison():
 | :--- | :--- | :--- | :--- | :--- |
 | **规则核心定义** | 箱体下沿扫低 $\le 0.5$ ATR 缩回，以局部阻力（前 24 根 1h 高）突破入场（4a/4b/4c） | 箱体持续吸收、1h 20 根通道压缩（Wilder ATR）、OI 抬升与资金费中性共振 | 威科夫箱顶大突破（SOS/JAC）；**原 A 组规则**：2R 跟踪 / 10 根 4h 低点 / 10 天平仓（`event_trend_v0_1`）；**与统一 95% 追踪规则解耦** | 30 天主动买/卖比 $> 1.15$，T+5 止损（旧 477 笔汇总） |
 | **覆盖分母** | 48 标的 / 359 观察事件 / 51 候选；48 天连续回放 1,220 次回踩 | 全池 547 标的 / 11,057,283 小时起点；201 笔去重事件基准 | 201 笔去重事件（206 候选敏感性对照），覆盖 2021—2026 开发区间 | 历史声称 477 笔 / 4 组；本机同规则扫全池**仅出 2 笔**（USDC 稳定币） |
-| **胜率与亏损比例** | 实测 96 笔全亏损 / 频繁扫损 | 【未评估，交第 06 阶段处理】 | **胜率 41.29%**（83 赢 / 118 输）；**交易亏损比例 58.71%**（118 笔，不直接等同于形态误报率）；原 33.33% 系 1/3 粗估偏差 | 原始逐笔明细缺失，不可复算 |
-| **形态误报率** | **4a: 68.2%**<br>4b: 54.1%<br>4c: 48.6%（假突破率） | **【未核实】**<br>（全池 547 标的缺乏逐形态标签） | **【未核实】**<br>（201 事件未含逐形态结构分类标签；交易亏损比例 58.71% 单列） | **【不可比】**<br>（证据不可采信） |
+| **胜率与亏损比例** | 96 笔合计净亏 -528.69 U；胜负笔数【未核实】 | 【未评估，交第 06 阶段处理】 | **胜率 41.29%**（83 赢 / 118 输）；**交易亏损比例 58.71%**（118 笔，不直接等同于形态误报率）；原 33.33% 系 1/3 粗估偏差 | 原始逐笔明细缺失，不可复算 |
+| **形态误报率** | **【未核实】**<br>（旧报告比例未定位原字段，不新增实验） | **【未核实】**<br>（全池 547 标的缺乏逐形态标签） | **【未核实】**<br>（201 事件未含逐形态结构分类标签；交易亏损比例 58.71% 单列） | **【不可比】**<br>（证据不可采信） |
 | **漏报率（三种口径）** | **【未核实】**<br>（无逐事件真值标签原始列依据） | **【未核实】**<br>（无全池逐事件真值标签原始列依据） | **【未核实】**<br>（无全域反事实形态真值标签依据） | **【不可比】** |
 | **提前量（相对末期）** | **【未核实】**<br>（无逐事件与末期时间戳对齐原始列依据） | **【未核实】**<br>（无逐事件与末期时间戳对齐原始列依据） | **基准点（0 小时）**<br>价格折让：0.0% | **【不可比】**（日线级别） |
 | **等待时间（信号至启动）** | **【未核实】**<br>（无逐事件信号至启动耗时原始列依据） | **【未核实】**<br>（无逐事件信号至启动耗时原始列依据） | **【未核实】**<br>（仅有持仓时长 A_hold_h，无信号至启动耗时原始列依据） | **【不可比】** |
 | **最大不利变动 (MAE)** | **【未核实】**<br>（96 笔成交账本中无 MAE 统计列） | **【未核实】**<br>（无逐事件 MAE 列依据） | **【未核实】**<br>（`paired_fixed.csv` 仅含最大有利变动 `A_mfe_R`，无逐事件 MAE 原始列） | **【不可比】** |
 | **成本后结果 (P&L)** | 96 笔成交严格平账：毛损益 -431.25 U，手续费/滑点 -57.82 U，资金费 -39.62 U，**净损益 -528.69 U**（残差 0.00 U） | **全池 547 标的实际交易收益标记为【未评估，交第 06 阶段处理】**；在 201 事件中过滤实验净差：缩量过滤 C 为 -50.53 U，1R 保本 B 为 -53.01 U | **201 笔去重事件累计净额 +105.44 U**。<br>★ **年份分组时间稳定性检验（非形态阶段收益）**：<br>· 2021—2023 年：**-78.06 U**（66 笔）<br>· 2024 年：**+96.49 U**（38 笔）<br>· 2025—2026 年：**+87.01 U**（97 笔） | **证据不可采信或复现链缺失**；历史声称 +13.34%，本机全池扫描同规则仅出 2 笔 USDC 稳定币 |
-| **失败与异常记录** | ① 4a 假突破频繁止损；<br>② 4b/4c **1,220 次自然回踩全部被阻断（自然零候选）**；<br>③ 浮盈高位剧烈回撤触及 20% 熔断。 | ① 下跌中继与横盘震荡缺乏有效过滤；<br>② 缩量过滤切断优质趋势盈利（错失盈利 -77.98 U）；<br>③ 真实数据严格价格 PIT 因 `available_at` 为 NULL 客观标为 UNKNOWN。 | ① 假突破急跌回抽扫损（58.71% 交易亏损比例）；<br>② 滞后于底部低位折让入场机会。 | ① 代码与逐笔明细彻底缺失，复现链断裂；<br>② 全池扫描同规则仅出 2 笔稳定币。 |
-| **最终裁决结论** | **【淘汰 (REJECT)】** | **【证据不足 (INCONCLUSIVE)】**<br>（转为多因子特征，不单独开仓） | **【保留 (KEEP)】**<br>（进入第 06 阶段回测与盲测） | **【淘汰 (REJECT)】**<br>（彻底作废，禁止误用） |
+| **失败与异常记录** | ① 4a 假突破频繁止损；<br>② 4b/4c **1,220 次自然回踩全部被阻断（自然零候选）**；<br>③ 浮盈高位剧烈回撤触及 20% 熔断。 | ① 下跌中继与横盘震荡缺乏有效过滤；<br>② 缩量过滤切断优质趋势盈利（错失盈利 -77.98 U）；<br>③ 真实数据严格价格 PIT 因 `available_at` 为 NULL 客观标为 UNKNOWN。 | 201事件118笔交易亏损（58.71%）；具体形态失败类别未核实。 | ① 代码与逐笔明细彻底缺失，复现链断裂；<br>② 全池扫描同规则仅出 2 笔稳定币。 |
+| **最终裁决结论** | **【淘汰 (REJECT，限原已测候选/版本/样本)】** | **【证据不足 (INCONCLUSIVE)】**<br>（转为多因子特征，不单独开仓） | **【保留 (KEEP)】**<br>（仅保留比较基准，不授予回测/盲测准入） | **【淘汰 (REJECT)】**<br>（彻底作废，禁止误用） |
 
 ---
 
 ## 二、指标来源映射表 (Source Mappings)
 
-本表遵循补正要求第 3 项，为填入报告的有效指标完整映射原工单、运行编号、规则版本、数据范围、样本单位、分母及原文件字段：
+本表保留旧报告的来源引用。运行编号及描述性规则名为旧报告转录，未单独核实，不冒充原执行注册记录；event_trend_v0_1规则语义按已有规则契约继承。未定位原字段的指标保持未核实，不新增查档或实验任务。
 
-| 指标名称 | 报告数值 | 原工单编号 | 运行编号 (Run ID) | 规则版本 | 数据范围 | 样本单位与分母 | 原始文件与对应字段 |
+| 指标名称 | 报告数值 | 原工单编号 | 旧报告运行标识（未核实） | 规则引用（描述名未核实） | 数据范围 | 样本单位与分母 | 原始文件与对应字段 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **早期实测平账净损益** | -528.69 USDT (残差 0.00) | `ACCUM-EARLY-09-ANTIGRAVITY` | `audit_accum_early_09_antigravity_20261027` | `early_stage_box_sweep_v0.9` | 2021—2026 开发回放 | 笔 (96 笔成交) | `REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md`<br>字段：`净损益 -528.69` |
 | **中期过滤净差** | 缩量 C: -50.53 U<br>保本 B: -53.01 U | `RESEARCH-CLOSE-01`<br>`ENTRY-VOLUME-02`<br>`BREAKEVEN-02` | `breakeven_02_paired_fixed_analysis` | `filter_rule_v1.0` | 2021—2026 开发区间 | 笔 (201 笔去重事件) | `evidence/RESEARCH-CLOSE-01/统一研究总结.md`<br>字段：`C_delta`, `B_delta` |
@@ -313,7 +325,7 @@ def build_stage_comparison():
 4. **477 笔旧吸筹证据定性 (补正 4)**：
    - 原始脚本、逐笔明细与币池表在当前环境缺失，复现链断裂；全池扫描同口径仅产出 2 笔 USDC 稳定币信号。因缺乏专门过拟合检验统计证据，按规范定性为【证据不可采信或复现链缺失】，不作已证实过拟合之断言。
 5. **最终盲测严格隔离**：
-   - 本对照仅基于已登记的训练及开发验证范围；未接触、未读取、未预览封存样本外盲测数据。
+   - 本轮只整理既有报告，未新增读取行情或留出数据；不据此宣称历史区间从未被观察。既有样本接触历史按对应实验记录继承，不重定全项目切分。
 """
     with open(TASK_DIR / "STAGE_COMPARISON_TABLE.md", "w", encoding="utf-8") as f:
         f.write(md_content)
@@ -321,7 +333,11 @@ def build_stage_comparison():
 def build_evidence_index():
     index_data = {
         "governance_ref": GOVERNANCE_REF,
-        "code_git_head": GIT_HEAD,
+        "report_source_commit": REPORT_SOURCE_COMMIT,
+        "legacy_reported_code_git_head": LEGACY_REPORTED_CODE_REF,
+        "prior_reported_code_git_head": PRIOR_REPORTED_CODE_REF,
+        "code_baseline_status": CODE_BASELINE_STATUS,
+        "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
         "config_sha256": CONFIG_SHA256,
         "source_mappings": SOURCE_MAPPINGS,
         "inherited_evidence_packages": [
@@ -421,7 +437,8 @@ def build_evidence_index():
 
 - **工单编号**：`04-R`
 - **治理版本**：`{GOVERNANCE_REF}`
-- **代码基线 HEAD**：`{GIT_HEAD}`
+- **报告交付来源**：`{REPORT_SOURCE_COMMIT}`（本次勘误所依据的报告版本，不是策略运行代码）
+- **旧报告记载业务基线（未核实）**：`{LEGACY_REPORTED_CODE_REF}`；前次报告为 `{PRIOR_REPORTED_CODE_REF}`，完整SHA存在冲突，不猜测替代值。
 - **配置指纹**：`{CONFIG_SHA256}`
 - **编制日期**：2026-11-10
 
@@ -432,7 +449,8 @@ def build_evidence_index():
 | 维度 | 版本与标识 | 验证凭据与哈希 |
 | :--- | :--- | :--- |
 | **治理主线规范** | Git Commit `6cf7edf4...` | PR #10 候选；README.md、AGENTS.md、`docs/研究规范/策略研究与冻结验收规范.md` |
-| **代码执行基线** | Git Commit `{GIT_HEAD}` | 06-B 回测准备与 04-R 补正分支 |
+| **报告交付来源** | Git Commit `{REPORT_SOURCE_COMMIT}` | 已读取的04-R报告版本，不是策略运行代码 |
+| **旧报告业务基线** | `{LEGACY_REPORTED_CODE_REF}` | 未核实；与前次 `{PRIOR_REPORTED_CODE_REF}` 冲突 |
 | **正式策略配置** | `10_研究参数生效视图_v2_2_user5000_shared.json` | SHA256: `{CONFIG_SHA256}` |
 | **数据读取基线** | 热库 `market_v2.sqlite3` + 冷档 Parquet | 已验收冻结（支持 15m/1h/4h 冷热无缝合并与真实资金费/OI 读取） |
 
@@ -507,7 +525,11 @@ def build_closeout_receipt():
     receipt_data = {
         "job_id": "04-R",
         "governance_ref": GOVERNANCE_REF,
-        "code_git_head": GIT_HEAD,
+        "report_source_commit": REPORT_SOURCE_COMMIT,
+        "legacy_reported_code_git_head": LEGACY_REPORTED_CODE_REF,
+        "prior_reported_code_git_head": PRIOR_REPORTED_CODE_REF,
+        "code_baseline_status": CODE_BASELINE_STATUS,
+        "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
         "config_sha256": CONFIG_SHA256,
         "completion_status": {
             "deliverable_1_comparison_table": "COMPLETED (补正版)",
@@ -516,12 +538,12 @@ def build_closeout_receipt():
             "deliverables_completed_ratio": "3/3 (100%)"
         },
         "p0_self_test": {
-            "item_1_provenance_and_inherited": "PASS (有效继承 Q05, R3, 09, CLOSE-01, ROBUST-03 证据，指标补齐来源映射)",
-            "item_2_scope_and_blind_unexposed": "PASS (仅限训练与开发验证，最终盲测严格未暴露)",
+            "item_1_provenance_and_inherited": "原自测PASS声明；继承既有结果，业务SHA和描述性运行/规则标识未核实，本轮独立验收待复核",
+            "item_2_scope_and_blind_unexposed": "历史自测声明；本轮仅整理既有报告、未新增留出读取，历史未见资格按各实验记录判断，独立复核待定",
             "item_3_comparable_metrics": "PASS (四象限横向对齐，无逐事件依据格子诚实标置【未核实】，不新增实验凑数)",
-            "item_4_negative_cases_recorded": "PASS (误报、漏报、自然零候选、高位回撤熔断、年份波动均完备记录)",
+            "item_4_negative_cases_recorded": "原自测PASS声明；继承已有失败/熔断/年份记录；误报、漏报等未定位原字段者保持未核实，本轮独立验收待复核",
             "item_5_verifiable_and_no_overfit": "PASS (年份分组纠偏、规则胜率解耦、477笔定性为复现链缺失，零追加试优)",
-            "p0_passed_ratio": "5/5 (100%)"
+            "p0_passed_ratio": "原报告自测5/5；本轮勘误后的独立验收待复核，未新增签署通过"
         },
         "rework_rectifications": {
             "rectification_1_yearly_labels": "PASS (原 -78.06, +96.49, +87.01 U 纠偏为 2021-2023, 2024, 2025-2026 年份分组时间稳定性，严禁作为吸筹形态三阶段收益)",
@@ -531,16 +553,16 @@ def build_closeout_receipt():
         },
         "candidate_verdicts": {
             "early_stage_4a_4b_4c": {
-                "verdict": "REJECT (淘汰)",
-                "reason": "4a假突破高达68.2%；4b/4c自然零候选无法产出；实测96笔净亏-528.69U，浮盈回撤超20%熔断；跨期符号翻转缺乏稳健性。"
+                "verdict": "REJECT (限原已测试候选、版本与样本；不代表整个早期方向无效)",
+                "reason": "仅在既有已测试候选、版本与样本范围继承淘汰结论：96笔合计净亏-528.69U及既有自然零候选、熔断记录；不依赖未核实假突破比例，不推及整个早期研究方向。"
             },
             "mid_stage_compression_oi": {
                 "verdict": "INCONCLUSIVE (证据不足 / 转为观察特征)",
                 "reason": "Q05数据资格已核验，但严格PIT标记UNKNOWN；201事件内缩量与保本显著为负贡献；全池实际交易表现待第06阶段评估；不单独作为入场策略。"
             },
             "late_stage_wyckoff_baseline": {
-                "verdict": "KEEP (保留进入第06阶段回测与盲测验证)",
-                "reason": "规则代码完整冻结，201事件主口径净额+105.44U，真实胜率41.29%，作为第06阶段严格历史回测与封存盲测的基准对照策略。"
+                "verdict": "KEEP (仅保留比较基准；不授予真实候选或盲测准入)",
+                "reason": "既有201事件主口径净额+105.44U、胜率41.29%仅支持保留历史比较基准；真实候选和盲测资格另按已批准实验身份与所需验收判断。"
             },
             "legacy_477_accum_strat": {
                 "verdict": "REJECT (淘汰 / 标记作废)",
@@ -548,9 +570,9 @@ def build_closeout_receipt():
             }
         },
         "remaining_gaps_and_dependencies": [
-            "依赖第 06 阶段 (06-B) 回测程序准备与统一行情热库读取接入；",
-            "依赖第 06 阶段 (06-T) 开展封存样本外盲测验证 (Out-of-Sample Freeze Validation)；",
-            "热库与冷档历史 available_at 缺失字段待数据工程后续补齐。"
+            "后续真实候选执行依赖06-B所需验收及已有批准实验身份；不是本报告归档前置；",
+            "06-T盲测资格单独判定，KEEP不构成开封许可，亦不是本报告归档前置；",
+            "历史 available_at 缺失继续保持 UNKNOWN；本单不要求补库。未来仅可引用可核证的同期证据，严格资格按实际证据判断。"
         ],
         "freeze_manifest": [
             "配置: 配置/FT-LOW4H/10_研究参数生效视图_v2_2_user5000_shared.json (82dec362c1...)",
@@ -568,7 +590,8 @@ def build_closeout_receipt():
 
 - **工单编号**：`04-R`
 - **治理版本**：`{GOVERNANCE_REF}`
-- **代码基线 HEAD**：`{GIT_HEAD}`
+- **报告交付来源**：`{REPORT_SOURCE_COMMIT}`（本次勘误所依据的报告版本，不是策略运行代码）
+- **旧报告记载业务基线（未核实）**：`{LEGACY_REPORTED_CODE_REF}`；前次报告为 `{PRIOR_REPORTED_CODE_REF}`，完整SHA存在冲突，不猜测替代值。
 - **配置指纹**：`{CONFIG_SHA256}`
 - **交付日期**：2026-11-10
 - **执行角色**：反重力（Antigravity）｜**独立验收**：待主代理 / Codex 终审
@@ -587,17 +610,17 @@ def build_closeout_receipt():
 
 ---
 
-## 二、P0 验收 5 项自测核实
+## 二、原5项P0自测记录与本轮勘误（独立验收待复核）
 
-| P0 验收项 | 核实标准 | 自测结论 | 实测依据与证据支撑 |
+| P0 验收项 | 核实标准 | 原自测声明（非本轮独立裁决） | 继承依据与本轮限制 |
 | :---: | :--- | :---: | :--- |
-| **1. 来源可追溯且继承有效验收** | 数据、代码、规则和运行结果来源可追溯，不重复采集/审计 | **PASS** | 严格继承 `Q05`（1,105 万起点）、`ISOLATED-VERIFY-EARLY-MID-03`（19 例通过）、`ACCUM-EARLY-09`（96 笔平账）、`RESEARCH-CLOSE-01` 与 `BREAKEVEN-ROBUST-03`，所有填报指标补齐完整来源映射。 |
-| **2. 原登记范围不变且最终盲测未暴露** | 只用原登记训练/开发验证，封存盲测不读取不预览 | **PASS** | 全部对比严格限定在 2021—2026 已登记开发验证区间内；封存样本外盲测未接触、未暴露。 |
+| **1. 来源可追溯且继承有效验收** | 数据、代码、规则和运行结果来源可追溯，不重复采集/审计 | **PASS** | 严格继承 `Q05`（1,105 万起点）、`ISOLATED-VERIFY-EARLY-MID-03`（19 例通过）、`ACCUM-EARLY-09`（96 笔平账）、`RESEARCH-CLOSE-01` 与 `BREAKEVEN-ROBUST-03`，已有来源引用保留；未核实业务SHA、描述性运行编号、规则名及原字段分别标记，不冒充已核验身份。 |
+| **2. 原登记范围不变且最终盲测未暴露** | 只用原登记训练/开发验证，封存盲测不读取不预览 | **PASS** | 本轮仅整理既有报告，未新增读取行情或留出；不能据此断言2021—2026历史上全部未见，按各实验已有接触记录判断。 |
 | **3. 三阶段使用可比较口径** | 统一口径，口径不一致明确说明，不擅改参数凑数 | **PASS** | 统一横向对照；早期 96 笔平账、末期 201 笔按既定口径；无逐事件原始依据的格子统一标为【未核实】或【不可比】，坚决不新增实验凑数。 |
 | **4. 全状态记录与防未来函数** | 成功、失败、横盘、反向、数据不足均有记录；事后标签不进事前识别 | **PASS** | 详尽记录 4a 假突破、4b/4c 自然零候选阻断、浮盈回撤 20% 熔断、下跌中继误判、年份收益波动及历史 PIT available_at 缺失状态。 |
-| **5. 结论由明细复核且不追加试优** | 负面或证据不足结果也可结案，没有为了好结果追加调参 | **PASS** | 早期因多维严重缺陷淘汰；中期因证据不足转为观察特征；末期保留为基准；诚实面对负面事实结案，零追加调参。 |
+| **5. 结论由明细复核且不追加试优** | 负面或证据不足结果也可结案，没有为了好结果追加调参 | **PASS** | 仅继承原已测早期候选在其版本及样本范围的淘汰裁决；中期因证据不足转为观察特征；末期保留为基准；诚实面对负面事实结案，零追加调参。 |
 
-**P0 自测：通过 5/5 项（100.0%）。**
+**原报告自测曾申报5/5；本轮只作报告勘误，原5项P0的独立验收仍待复核，本文件不自行签通过。**
 
 ---
 
@@ -607,7 +630,7 @@ def build_closeout_receipt():
 | :---: | :--- | :---: | :--- |
 | **1. 年份分组收益纠偏** | 原 -78.06、+96.49、+87.01 U 改回年份分组标签，不作为吸筹形态三阶段收益证据 | **已纠偏 (PASS)** | 明确归正为 2021—2023、2024、2025—2026 自然年份时间分期稳定性检验；早期形态确认为 96 笔净亏 -528.69 U；中期全池收益标为【未评估，交第 06 阶段处理】。 |
 | **2. 规则与胜率解耦** | 对齐 201 事件 A 组真实胜率 41.29%，解释 33.33% 粗估来源；交易亏损比不能作为形态误报率；解耦统一 95% 追踪规则 | **已对齐 (PASS)** | 胜率精确修正为 41.29%（83 赢 118 输）；澄清 33.33% 系 1/3 粗估偏差；交易亏损比 58.71% 单列；201 事件原 `event_trend_v0_1` 规则与统一 95% 追踪止损彻底解耦。 |
-| **3. 指标来源映射与未核实标注** | 补齐来源映射（原工单、运行编号、规则版本、数据范围、样本单位、分母及原文件字段）；无依据格子标为未核实 | **已补齐 (PASS)** | 建立完整 `SOURCE_MAPPINGS` 映射字典；提前量、漏报率、等待时间、MAE 无逐事件依据格子全部如实标为【未核实】或【不可比】，无新增实验凑数。 |
+| **3. 指标来源映射与未核实标注** | 补齐来源映射（原工单、运行编号、规则版本、数据范围、样本单位、分母及原文件字段）；无依据格子标为未核实 | **已补齐 (PASS)** | 保留 `SOURCE_MAPPINGS` 来源索引并标记未核实身份；提前量、漏报率、等待时间、MAE 无逐事件依据格子全部如实标为【未核实】或【不可比】，无新增实验凑数。 |
 | **4. 477 笔旧吸筹措辞更正** | 改为“证据不可采信或复现链缺失”，无专门证据不宣布证实过拟合 | **已修正 (PASS)** | 统一修改为【证据不可采信或复现链缺失】；严谨说明系原始脚本与逐笔全缺导致复现链断裂，不作已证实过拟合之断言。 |
 
 ---
@@ -615,14 +638,14 @@ def build_closeout_receipt():
 ## 四、各候选去留结论
 
 1. **吸筹早期（Early Stage，4a/4b/4c）**：
-   - **裁决结论**：**【淘汰 (REJECT)】**
-   - **裁决依据**：4a 假突破率高达 68.2%；4b/4c 在连续回放中 1,220 次自然回踩全部被阻断（自然零候选）；实测 96 笔成交累计净亏 -528.69 U，浮盈高位剧烈回撤触及 20% 熔断；跨期验证符号翻转，缺乏稳健性。
+   - **裁决结论**：**【淘汰 (REJECT，限原已测候选/版本/样本)】**
+   - **裁决依据**：仅在既有已测试候选、版本和样本范围继承原淘汰裁决；96笔合计净亏 -528.69 U及既有自然零候选、熔断记录继续引用。不使用未核实假突破比例支持结论，不推及整个早期吸筹方向。
 2. **吸筹中期（Mid Stage，通道压缩 + OI 抬升）**：
    - **裁决结论**：**【证据不足 (INCONCLUSIVE) / 转为多因子观察特征，不单独开仓】**
    - **裁决依据**：Q05 虽证实 1,105 万起点数据可读，但严格价格 PIT 状态标记为 UNKNOWN；在 201 笔基准上加入过滤反而显著恶化（净差 -50.53 U）；在全池上的真实独立交易表现尚未经第 06 阶段回测。保留其作为辅助特征，不单独作为开仓策略。
 3. **吸筹末期基准（Late Stage，既有威科夫大突破原策略）**：
-   - **裁决结论**：**【保留进入后续验证 (KEEP)】**
-   - **裁决依据**：作为基准对照组，在 201 笔去重事件主口径下全期累计净额为 +105.44 U，真实胜率 41.29%，规则清晰，状态机与代码完备，保留进入第 06 阶段严格历史回测与封存盲测验证。
+   - **裁决结论**：**【仅保留比较基准 (KEEP)，未授予盲测准入】**
+   - **裁决依据**：历史201笔去重事件主口径全期累计净额 +105.44 U、胜率41.29%，保留作为比较基准；这不证明现行95%规则有效，也不授予真实候选或盲测准入。
 4. **历史旧吸筹汇总（ACCUM-STRAT-01，477 笔旧模型）**：
    - **裁决结论**：**【淘汰 (REJECT / 作废)】**
    - **裁决依据**：原始脚本、逐笔明细与币池表在当前环境彻底缺失，复现链断裂，证据不可采信；同规则扫全池仅出 2 笔 USDC 稳定币，永久作废。
@@ -633,7 +656,7 @@ def build_closeout_receipt():
 
 ### 1. 研究局限
 - **历史数据发布时刻缺失**：冷档 Parquet 与热库 SQLite versions 表中 `available_at` 大量为 NULL，导致严格 PIT 只能标置为 UNKNOWN；
-- **全池撮合收益尚未经样本外检验**：中期在 547 标的上的实际撮合、滑点与资金费综合表现，需交由第 06 阶段统一回测入口进行盲测评估。
+- **全池撮合收益尚未经样本外检验**：中期在 547 标的上的实际撮合、滑点与资金费综合表现，本报告仅保留未评估状态；以后是否评估及使用何区间取决于已批准实验与所需验收，本单不授予盲测准入。
 
 ### 2. 待冻结清单
 - **基准策略代码与配置**：`配置/FT-LOW4H/10_研究参数生效视图_v2_2_user5000_shared.json`（SHA256: `{CONFIG_SHA256}`）；
@@ -648,7 +671,7 @@ def build_closeout_receipt():
 - **本工单状态**：04-R 总控裁决报告级返工四项补正已全部完成，**立即停手**。
 - **后续依赖**：
   - 依赖第 05 阶段：UI 页面展示真实任务状态与观察特征；
-  - 依赖第 06 阶段：06-B 回测程序准备（已具备独立运行与数据快照绑定能力）与 06-T 封存样本外盲测。
+  - 后续真实候选运行依赖第06阶段的具体验收与批准实验身份；06-T资格另判，不阻塞本报告按证据不足结案归档。
 - **出口**：提交交付物与自测回执，交 Codex / 主代理独立复验。
 """
     with open(TASK_DIR / "CLOSEOUT_RECEIPT.md", "w", encoding="utf-8") as f:
@@ -656,6 +679,7 @@ def build_closeout_receipt():
 
 def make_sha256():
     files = [
+        "generate_stage_comparison.py",
         "STAGE_COMPARISON_TABLE.md",
         "EVENT_DETAILS_AND_EVIDENCE_INDEX.md",
         "CLOSEOUT_RECEIPT.md",

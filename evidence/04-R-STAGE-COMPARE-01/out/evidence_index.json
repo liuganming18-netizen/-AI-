@@ -1,73 +1,89 @@
 {
   "governance_ref": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
-  "code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "report_source_commit": "775b32fda54e9391214c98dfdcbd3f09555ed34f",
+  "legacy_reported_code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "prior_reported_code_git_head": "e986857f3a71a8c963b2b0c701ee054ed84b773f",
+  "code_baseline_status": "UNVERIFIED：旧报告与前次完整SHA冲突；均不得据此当作已核实策略运行代码。",
+  "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
   "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
   "source_mappings": {
     "early_pnl": {
       "metric_name": "早期实测平账净损益",
       "value": "-528.69 USDT (毛 -431.25, 费用/滑点 -57.82, 资金费 -39.62, 残差 0.00)",
       "source_ticket": "ACCUM-EARLY-09-ANTIGRAVITY",
-      "run_id": "audit_accum_early_09_antigravity_20261027",
+      "legacy_reported_run_id": "audit_accum_early_09_antigravity_20261027",
       "rule_version": "early_stage_box_sweep_v0.9 (4a/4b/4c)",
       "data_range": "2021—2026 开发与回放样本区间",
       "sample_unit": "笔 (Trades)",
       "sample_denominator": "96 笔成交",
-      "source_file_field": "REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md / 账本汇总平账表"
+      "source_file_field": "REPORT_ACCUM_EARLY_09_ANTIGRAVITY.md / 账本汇总平账表",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     },
     "mid_filter_delta": {
       "metric_name": "中期过滤在201事件上增量净差",
       "value": "缩量过滤 C: -50.53 USDT; 1R 保本 B: -53.01 USDT",
       "source_ticket": "RESEARCH-CLOSE-01 / ENTRY-VOLUME-02 / BREAKEVEN-02",
-      "run_id": "breakeven_02_paired_fixed_analysis",
+      "legacy_reported_run_id": "breakeven_02_paired_fixed_analysis",
       "rule_version": "filter_rule_v1.0 (Low-Volume Filter / Breakeven 1R)",
       "data_range": "2021—2026 开发与验证区间 (201 笔基准事件)",
       "sample_unit": "笔 (Events)",
       "sample_denominator": "201 笔去重事件",
-      "source_file_field": "evidence/RESEARCH-CLOSE-01/统一研究总结.md (C_delta: -50.53, B_delta: -53.01)"
+      "source_file_field": "evidence/RESEARCH-CLOSE-01/统一研究总结.md (C_delta: -50.53, B_delta: -53.01)",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     },
     "late_pnl_total": {
       "metric_name": "末期基准 A 组全期净收益",
       "value": "+105.439864 USDT (约 +105.44 USDT)",
       "source_ticket": "BREAKEVEN-02 / BREAKEVEN-ROBUST-03 / RESEARCH-CLOSE-01",
-      "run_id": "breakeven_robust_03_subperiod_run",
+      "legacy_reported_run_id": "breakeven_robust_03_subperiod_run",
       "rule_version": "event_trend_v0_1 (2R 跟踪 / 10 根 4h 低点 / 10 天到期平仓)",
       "data_range": "2021—2026 开发与验证区间",
       "sample_unit": "笔 (Events)",
       "sample_denominator": "201 笔去重事件",
-      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (全期合计 A基准净额)"
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (全期合计 A基准净额)",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     },
     "late_subperiods_yearly": {
       "metric_name": "末期基准年份分组稳定性收益 (非形态阶段收益)",
       "value": "2021-2023年: -78.06 U (66笔); 2024年: +96.49 U (38笔); 2025-2026年: +87.01 U (97笔)",
       "source_ticket": "BREAKEVEN-ROBUST-03",
-      "run_id": "breakeven_robust_03_subperiod_run",
+      "legacy_reported_run_id": "breakeven_robust_03_subperiod_run",
       "rule_version": "event_trend_v0_1 (历史基准)",
       "data_range": "2021—2026 开发区间子年份分组",
       "sample_unit": "笔 (Events)",
       "sample_denominator": "66 笔 (2021-2023) / 38 笔 (2024) / 97 笔 (2025-2026)",
-      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv"
+      "source_file_field": "evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     },
     "late_win_rate": {
       "metric_name": "末期基准 A 组真实胜率与交易亏损比例",
       "value": "胜率 41.29% (83 赢 / 201 笔); 交易亏损比例 58.71% (118 亏 / 201 笔)",
       "source_ticket": "BREAKEVEN-02",
-      "run_id": "dedup_sensitivity_eval",
+      "legacy_reported_run_id": "dedup_sensitivity_eval",
       "rule_version": "event_trend_v0_1 (历史基准)",
       "data_range": "2021—2026 开发区间",
       "sample_unit": "笔 (Events)",
       "sample_denominator": "201 笔去重事件 (206 候选敏感性)",
-      "source_file_field": "evidence/BREAKEVEN-02/out/dedup_sensitivity.json (win_rate_A: 41.29)"
+      "source_file_field": "evidence/BREAKEVEN-02/out/dedup_sensitivity.json (win_rate_A: 41.29)",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     },
     "legacy_477_eval": {
       "metric_name": "历史旧吸筹 477 笔复核状态",
       "value": "证据不可采信或复现链缺失 (全池同口径扫仅出 2 笔 USDC 稳定币)",
       "source_ticket": "ACCUM-STRAT-01",
-      "run_id": "accum_strat_reproduce_run_01",
+      "legacy_reported_run_id": "accum_strat_reproduce_run_01",
       "rule_version": "accum_strat_legacy_v0 (日线买卖比 > 1.15, T+5 止损)",
       "data_range": "历史回测区间",
       "sample_unit": "笔 (Reported Trades)",
       "sample_denominator": "声称 477 笔 / 本机复现 2 笔",
-      "source_file_field": "evidence/ACCUM-STRAT-01/报告.md"
+      "source_file_field": "evidence/ACCUM-STRAT-01/报告.md",
+      "identity_status": "旧报告转录；描述性运行编号和自填规则名未单独核实，不作为新实测凭据。",
+      "rule_identity_status": "event_trend_v0_1语义按既有规则契约继承；其余描述性规则名只作旧报告引用，未单独核实。"
     }
   },
   "inherited_evidence_packages": [
