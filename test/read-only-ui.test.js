@@ -50,8 +50,44 @@ test('本机历史数据代理禁止未经校验的参数',async()=>{
   assert.equal(r.code,400);
 });
 test('所有写请求禁用',async()=>{
-  const r=await request('/api/health','POST');
-  assert.equal(r.code,405);
+  for (const method of ['POST','PUT','DELETE','PATCH']) {
+    const r=await request('/api/health',method);
+    assert.equal(r.code,405);
+    assert.equal(r.body.error,'仅开放只读 GET 请求');
+  }
+});
+test('不存在的路由返回404',async()=>{
+  const r=await request('/api/non-existent-endpoint');
+  assert.equal(r.code,404);
+  assert.equal(r.body.error,'资源不存在');
+});
+test('网关未连通时本机数据路由真实返回503',async()=>{
+  const r1=await request('/api/local/markets');
+  assert.equal(r1.code,503);
+  assert.equal(r1.body.connected,false);
+  assert.equal(r1.body.error,'本机只读数据网关未连通');
+
+  const r2=await request('/api/local/candles?exchange=binance&symbol=BTCUSDT&interval=4h');
+  assert.equal(r2.code,503);
+  assert.equal(r2.body.connected,false);
+  assert.equal(r2.body.error,'历史数据网关未连通');
+});
+test('数据转换严格保留有效数值，拒绝非法行与未来伪造', ()=>{
+  const validK=transformKlines([
+    [1794300000000,'100','105','95','102','5000'],
+    [1794303600000,'102','NaN','98','100','2000'], // 包含 NaN，应丢弃
+  ]);
+  assert.equal(validK.length,1);
+  assert.deepEqual(validK[0],{time:1794300000000,open:100,high:105,low:95,close:102,volume:5000});
+
+  const validOi=transformOi([
+    {timestamp:'1794300000000',sumOpenInterest:'500',sumOpenInterestValue:'50000'},
+    {timestamp:'1794303600000',sumOpenInterest:null,sumOpenInterestValue:null}, // 保留时间戳作为缺数记录
+    {timestamp:'invalid',sumOpenInterest:'100',sumOpenInterestValue:'1000'} // 非法时间，应丢弃
+  ]);
+  assert.equal(validOi.length,2);
+  assert.deepEqual(validOi[0],{time:1794300000000,amount:500,usd:50000});
+  assert.deepEqual(validOi[1],{time:1794303600000,amount:null,usd:null});
 });
 test('页面资源存在且四主导航可用',async()=>{
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
