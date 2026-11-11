@@ -57,7 +57,7 @@ def run_log(event: str, **fields: Any) -> None:
     except Exception:                                         # noqa: BLE001
         pass
     try:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        RUN_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with _WRITE_LOCK:
             with RUN_LOG_PATH.open("a", encoding="utf-8") as f:
                 f.write(line + "\n")
