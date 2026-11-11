@@ -1,0 +1,61 @@
+{
+  "job_id": "04-R",
+  "governance_ref": "6cf7edf4d5956f4e8056351faecbd0cdd8eb8c16",
+  "report_source_commit": "775b32fda54e9391214c98dfdcbd3f09555ed34f",
+  "legacy_reported_code_git_head": "e986857fa23ebf5d2334863c3d551699986b6274",
+  "prior_reported_code_git_head": "e986857f3a71a8c963b2b0c701ee054ed84b773f",
+  "code_baseline_status": "UNVERIFIED：旧报告与前次完整SHA冲突；均不得据此当作已核实策略运行代码。",
+  "independent_review": "PENDING（本轮报告勘误待独立复核，不自行签原5项P0通过）",
+  "config_sha256": "82dec362c18230e15ccd96bf98b4f0a34d3ce4a6565eb9da86230ae53f4eed53",
+  "completion_status": {
+    "deliverable_1_comparison_table": "COMPLETED (补正版)",
+    "deliverable_2_event_details_index": "COMPLETED (补正版)",
+    "deliverable_3_closeout_receipt": "COMPLETED (补正版)",
+    "deliverables_completed_ratio": "3/3 (100%)"
+  },
+  "p0_self_test": {
+    "item_1_provenance_and_inherited": "原自测PASS声明；继承既有结果，业务SHA和描述性运行/规则标识未核实，本轮独立验收待复核",
+    "item_2_scope_and_blind_unexposed": "历史自测声明；本轮仅整理既有报告、未新增留出读取，历史未见资格按各实验记录判断，独立复核待定",
+    "item_3_comparable_metrics": "PASS (四象限横向对齐，无逐事件依据格子诚实标置【未核实】，不新增实验凑数)",
+    "item_4_negative_cases_recorded": "原自测PASS声明；继承已有失败/熔断/年份记录；误报、漏报等未定位原字段者保持未核实，本轮独立验收待复核",
+    "item_5_verifiable_and_no_overfit": "PASS (年份分组纠偏、规则胜率解耦、477笔定性为复现链缺失，零追加试优)",
+    "p0_passed_ratio": "原报告自测5/5；本轮勘误后的独立验收待复核，未新增签署通过"
+  },
+  "rework_rectifications": {
+    "rectification_1_yearly_labels": "PASS (原 -78.06, +96.49, +87.01 U 纠偏为 2021-2023, 2024, 2025-2026 年份分组时间稳定性，严禁作为吸筹形态三阶段收益)",
+    "rectification_2_rule_and_winrate_alignment": "PASS (201 事件 A 组真实胜率 41.29%，原 33.33% 解释为粗估偏差；交易亏损比 58.71% 单列，不直接作为形态误报率；event_trend_v0_1 与 95% 追踪规则彻底解耦)",
+    "rectification_3_source_mappings_and_unverified_cells": "PASS (补齐 6 大指标来源映射；提前量、漏报率、等待时间、MAE 缺乏逐事件依据的格子统一标为【未核实】或【不可比】，不新增实验凑数)",
+    "rectification_4_legacy_477_wording": "PASS (477 笔旧吸筹更正为【证据不可采信或复现链缺失】，无专门证据不作证实过拟合断言)"
+  },
+  "candidate_verdicts": {
+    "early_stage_4a_4b_4c": {
+      "verdict": "REJECT (限原已测试候选、版本与样本；不代表整个早期方向无效)",
+      "reason": "仅在既有已测试候选、版本与样本范围继承淘汰结论：96笔合计净亏-528.69U及既有自然零候选、熔断记录；不依赖未核实假突破比例，不推及整个早期研究方向。"
+    },
+    "mid_stage_compression_oi": {
+      "verdict": "INCONCLUSIVE (证据不足 / 转为观察特征)",
+      "reason": "Q05数据资格已核验，但严格PIT标记UNKNOWN；201事件内缩量与保本显著为负贡献；全池实际交易表现待第06阶段评估；不单独作为入场策略。"
+    },
+    "late_stage_wyckoff_baseline": {
+      "verdict": "KEEP (仅保留比较基准；不授予真实候选或盲测准入)",
+      "reason": "既有201事件主口径净额+105.44U、胜率41.29%仅支持保留历史比较基准；真实候选和盲测资格另按已批准实验身份与所需验收判断。"
+    },
+    "legacy_477_accum_strat": {
+      "verdict": "REJECT (淘汰 / 标记作废)",
+      "reason": "原始脚本逐笔全缺，复现链断裂，证据不可采信，扫全池仅2笔稳定币，彻底淘汰作废。"
+    }
+  },
+  "remaining_gaps_and_dependencies": [
+    "后续真实候选执行依赖06-B所需验收及已有批准实验身份；不是本报告归档前置；",
+    "06-T盲测资格单独判定，KEEP不构成开封许可，亦不是本报告归档前置；",
+    "历史 available_at 缺失继续保持 UNKNOWN；本单不要求补库。未来仅可引用可核证的同期证据，严格资格按实际证据判断。"
+  ],
+  "freeze_manifest": [
+    "配置: 配置/FT-LOW4H/10_研究参数生效视图_v2_2_user5000_shared.json (82dec362c1...)",
+    "基线事件库: evidence/BREAKEVEN-02/out/paired_fixed.csv (201去重事件)",
+    "基线敏感性: evidence/BREAKEVEN-02/out/dedup_sensitivity.json (胜率 41.29%)",
+    "分期统计: evidence/BREAKEVEN-ROBUST-03/out/分期统计_固定仓位.csv (年份分组)",
+    "全池数据资格: evidence/Q05-REAL-DATA-QUAL-01/01_source_version_manifest_r2.json",
+    "早中期适配器: evidence/ISOLATED-VERIFY-EARLY-MID-03/adapters/research_adapters_r3.py"
+  ]
+}
