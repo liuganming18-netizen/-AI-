@@ -1,0 +1,443 @@
+# -*- coding: utf-8 -*-
+"""回测指标口径（只读账本 + 真实权益曲线；缺失一律 None，不填 0 冒充）。
+
+本模块存在的理由（2026-10-17 查实）
+==================================
+`GET /backtests/{id}/metrics` 原先直接返回 `summary.json` 里的字段，而这些 run 的
+`summary.json` **只落了** `fee_total / funding_total / net_pnl / trade_count / …`：
+
+    wins: 0, losses: 0        ← summary 里**没有** win_count/loss_count，`or 0` 把它们
+                                 写成了 0 ⇒ 一笔净亏 −5.24 的交易被统计成「0 胜 0 负」
+    max_drawdown_pct: 0.0     ← summary 里**没有**该字段，`or 0.0` 把「没算」写成「回撤 0%」
+    profit_factor: null / avg_win_loss_ratio: null   ← 同上，未算
+    benchmark_buy_hold: null / monthly_returns: null ← 未算
+
+而真实证据**就在同一个 run 目录里**：
+  · `trades.jsonl` 逐笔含 `gross_pnl / entry_fee / exit_fee / fees / funding_fee / net_pnl`；
+  · `equity_curve.jsonl` 逐 15m 含 `total_equity / unrealized_pnl`（**含浮盈浮亏**）。
+
+口径（全部写进返回值，页面可直接展示）
+=====================================
+1. **胜负**：按**扣费后净盈亏** `net_pnl` 判定 —— `>0` 盈 / `<0` 亏 / `==0` 平。
+   `net_pnl = gross_pnl − fees − funding_fee`，逐笔由账本自证（见 `trades.jsonl`）。
+2. **最大回撤**：取 `equity_curve.jsonl` 的 `total_equity`（**含未实现浮盈浮亏**）逐点算
+   峰值→谷值最大跌幅，`max_drawdown_pct = max((peak − eq) / peak) × 100`。
+   曲线不足 2 点 ⇒ `None`（页面显示「未计算」），**不填 0**。
+3. **Profit Factor 与平均盈亏比严格分开，不混用**：
+   · `profit_factor = Σ(盈利净额) / |Σ(亏损净额)|`（**聚合口径**）；
+   · `avg_win_loss_ratio = 平均盈利 / |平均亏损|`（**均值口径**）。
+   两者在笔数不均衡时**必然不同**，返回值里各自带 `basis` 字符串。
+4. 分母为 0 的情形**不编数字**：无盈利单 ⇒ `avg_win_loss_ratio=None`；
+   无亏损单 ⇒ `profit_factor=None`（不输出 inf）。
+   但「无盈利单且有亏损单」时 `profit_factor = 0.0` 是**有定义的**（0 / Σ|亏|），照实给 0。
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import bisect
+import math
+
+from ledger_links import load_ledger_facts
+
+__all__ = [
+    "WIN_LOSS_BASIS",
+    "MDD_BASIS",
+    "PF_BASIS",
+    "AWLR_BASIS",
+    "SHARPE_BASIS",
+    "compute_metrics",
+    "compute_benchmark",
+    "compute_monthly_returns",
+    # [AUDIT-003-PATCH] 运行可信度门禁
+    "load_run_status",
+]
+
+WIN_LOSS_BASIS = "net_pnl（已扣手续费与资金费）>0 为盈、<0 为亏、=0 为平"
+MDD_BASIS = ("equity_curve.total_equity 逐点峰值回撤（含未实现浮盈浮亏，"
+             "15m 粒度；峰值起点=首个权益点）")
+PF_BASIS = "Σ盈利净额 / |Σ亏损净额|（聚合口径，扣费后）"
+AWLR_BASIS = "平均盈利净额 / |平均亏损净额|（均值口径，扣费后）"
+WR_BASIS = "盈利笔数 / 已平仓笔数（含平盘）"
+SHARPE_BASIS = "完整等间隔 UTC 逐日净值收益（保留平盘日），年化 sqrt(365)"
+
+DAY_MS = 86_400_000
+
+
+def _f(v: Any) -> Optional[float]:
+    try:
+        if v is None:
+            return None
+        x = float(v)
+        if x != x:                                            # NaN
+            return None
+        return x
+    except (TypeError, ValueError):
+        return None
+
+
+def _mean(xs: List[float]) -> Optional[float]:
+    return (sum(xs) / len(xs)) if xs else None
+
+
+def _max_drawdown_pct(equity: List[float]) -> Tuple[Optional[float], Optional[dict]]:
+    """逐点峰值回撤。返回 (pct, 明细)。不足 2 点 ⇒ (None, None)。"""
+    if len(equity) < 2:
+        return None, None
+    peak = equity[0]
+    peak_i = 0
+    best = 0.0
+    best_peak_i = best_trough_i = 0
+    for i, v in enumerate(equity):
+        if v > peak:
+            peak, peak_i = v, i
+            continue
+        if peak > 0:
+            dd = (peak - v) / peak * 100.0
+            if dd > best:
+                best, best_peak_i, best_trough_i = dd, peak_i, i
+    return best, {"peak_index": best_peak_i, "trough_index": best_trough_i,
+                  "peak_equity": equity[best_peak_i],
+                  "trough_equity": equity[best_trough_i],
+                  "points": len(equity)}
+
+
+def _daily_net_value(eq_rows: List[dict]) -> List[float]:
+    """UTC 逐日净值：每个日界取「严格早于该日界」的最后一根 bar 的 total_equity。
+
+    口径与跑批侧 `backtest_runner._daily_equity` 完全一致（保留平盘日），
+    否则同一个 run 在「跑批写入的 summary」和「读接口现算」里会给出两个夏普。
+    """
+    pts: List[Tuple[int, float]] = []
+    for e in eq_rows:
+        ts = _f(e.get("timestamp"))
+        v = _f(e.get("total_equity", e.get("equity")))
+        if ts is None or v is None:
+            continue
+        pts.append((int(ts), float(v)))
+    if len(pts) < 2:
+        return []
+    pts.sort(key=lambda x: x[0])
+    ts_list = [p[0] for p in pts]
+    vals = [p[1] for p in pts]
+    out: List[float] = []
+    d = (ts_list[0] // DAY_MS) * DAY_MS + DAY_MS   # 首个 UTC 日界
+    end = ts_list[-1]
+    while d <= end:
+        pos = bisect.bisect_left(ts_list, d) - 1   # 严格早于日界
+        if pos >= 0:
+            out.append(vals[pos])
+        d += DAY_MS
+    return out
+
+
+def _sharpe_sqrt365(eq_rows: List[dict]) -> Tuple[Optional[float], Optional[int], str]:
+    """夏普比率：UTC 逐日净值收益，样本标准差（ddof=1），年化 sqrt(365)。
+
+    返回 (sharpe, 逐日点数, 说明)。无法计算时 sharpe=None 并说明原因 —— **不填 0**。
+    """
+    daily = _daily_net_value(eq_rows)
+    n = len(daily)
+    if n < 3:
+        return None, (n or None), f"逐日净值点不足 3 个（实测 {n}）⇒ 夏普无定义"
+    rets = [daily[i] / daily[i - 1] - 1.0 for i in range(1, n) if daily[i - 1] > 0]
+    if len(rets) < 2:
+        return None, n, f"有效日收益样本不足 2 个（实测 {len(rets)}）⇒ 夏普无定义"
+    mean = sum(rets) / len(rets)
+    var = sum((x - mean) ** 2 for x in rets) / (len(rets) - 1)   # ddof=1
+    if var <= 0:
+        return None, n, "日收益零波动（标准差为 0）⇒ 夏普无定义"
+    return mean / math.sqrt(var) * math.sqrt(365.0), n, SHARPE_BASIS
+
+
+def load_run_status(run_dir) -> Optional[dict]:
+    """读 run 的可信度标记（AUDIT-003-PATCH）。
+
+    契约：回测运行方在 `run_dir` 下写 `run_status.json`
+    `{"status": "OK"|"FAILED", "invalid_reasons": [...], "note": "..."}`。
+    文件不存在 ⇒ 返回 None（= 未标记，沿用既有行为，不阻断历史 run）。
+    只有**被明确标记为 FAILED/INVALID** 的运行才会被阻断 —— 与工单
+    「凡标记为异常/无效的运行，直接阻止产出正常收益与胜率指标」一致。
+    """
+    try:
+        import json
+        p = Path(run_dir) / "run_status.json"
+        if not p.exists():
+            return None
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        if not isinstance(doc, dict):
+            return None
+        st = str(doc.get("status") or "").strip().upper()
+        if not st:
+            return None
+        return {"status": st,
+                "invalid_reasons": list(doc.get("invalid_reasons") or []),
+                "note": doc.get("note")}
+    except Exception:                                       # noqa: BLE001
+        return None
+
+
+_INVALID_STATUSES = frozenset({"FAILED", "INVALID", "ERROR", "ABORTED"})
+
+
+def compute_metrics(run_dir, run_id: str, doc: Optional[dict] = None) -> Tuple[dict, List[str]]:
+    """按真实账本计算指标。返回 (metrics, notes)。
+
+    绝不读 `summary.json` 里不存在的字段来「凑」数字；每一处缺失都在 `notes` 里写明原因。
+
+    **AUDIT-003-PATCH（BLK-01）**：入口先查 `run_dir/run_status.json`。
+    运行被标记为 FAILED/INVALID ⇒ 直接返回「阻断态」指标：所有收益/胜率/回撤/
+    PF/夏普一律 `None`，并带 `invalid=True` + `invalid_reasons`，**不允许**再算出一份
+    看起来正常的成绩单。这正是审计复现的「带病产出有效绩效报告」漏洞的堵点。
+    """
+    notes: List[str] = []
+    _st = load_run_status(run_dir)
+    if _st is not None and _st["status"] in _INVALID_STATUSES:
+        reason = ",".join(_st["invalid_reasons"]) or _st["status"]
+        notes.append(f"该 run 已被标记为 {_st['status']}（{reason}）⇒ "
+                     "绩效指标全部阻断，不输出收益率/胜率/回撤/PF/夏普")
+        if _st.get("note"):
+            notes.append(str(_st["note"]))
+        blocked: Dict[str, Any] = {
+            "invalid": True,
+            "status": _st["status"],
+            "invalid_reasons": _st["invalid_reasons"],
+            "blocked_by": "run_status_gate",
+            "initial_equity": None, "final_equity": None,
+            "net_pnl": None, "net_return_pct": None, "gross_pnl": None,
+            "total_entry_fee": None, "total_exit_fee": None, "total_fees": None,
+            "total_funding_fee": None,
+            "trades_count": None, "wins": None, "losses": None, "flats": None,
+            "win_rate_pct": None, "win_rate_basis": WR_BASIS,
+            "win_loss_basis": WIN_LOSS_BASIS,
+            "avg_win": None, "avg_loss": None, "avg_win_loss_ratio": None,
+            "avg_win_loss_ratio_basis": AWLR_BASIS,
+            "profit_factor": None, "profit_factor_basis": PF_BASIS,
+            "expectancy_usd": None,
+            "max_drawdown_pct": None, "max_drawdown_basis": MDD_BASIS,
+            "max_drawdown_detail": None,
+            "sharpe_annualized_sqrt365": None, "sharpe_basis": SHARPE_BASIS,
+            "daily_points": None, "equity_points": None,
+            "open_positions_remaining": None,
+            "funding_events_total": None,
+            "note": ("运行被标记为无效 ⇒ 指标一律不产出（不是 0，是「无意义」）。"
+                     "必须修掉 invalid_reasons 指向的问题后重跑。"),
+        }
+        return blocked, notes
+
+    facts = load_ledger_facts(run_dir, run_id)
+
+    rows = facts.trade_rows
+    nets = [_f(r.get("net_pnl")) for r in rows]
+    nets = [x for x in nets if x is not None]
+
+    wins = [x for x in nets if x > 0]
+    losses = [x for x in nets if x < 0]
+    flats = [x for x in nets if x == 0]
+    n = len(nets)
+
+    # 初始权益：账本 equity 首点（真实），退化到 trades/summary 则标注来源
+    eq_rows = facts.equity
+    eq_vals = [_f(e.get("total_equity", e.get("equity"))) for e in eq_rows]
+    eq_vals = [x for x in eq_vals if x is not None]
+    initial_equity = eq_vals[0] if eq_vals else None
+    final_equity = eq_vals[-1] if eq_vals else None
+
+    gross = [_f(r.get("gross_pnl")) for r in rows]
+    gross = [x for x in gross if x is not None]
+    # 费用口径（BT-UI-02）：**「缺费用」不能算成「0 费用」**。
+    # 旧写法 `(_f(entry_fee) or 0.0) + (_f(exit_fee) or 0.0)` 会把「没记录」变成「真的 0」，
+    # 页面于是显示「手续费 $0.00」，看起来像「这笔交易零成本」——那是编出来的结论。
+    # 现在：只要还有一笔记了费用就照常求和；**一笔都没记** ⇒ 合计返回 None（页面显示「—」）。
+    fee_pairs = [(_f(r.get("entry_fee")), _f(r.get("exit_fee"))) for r in rows]
+    fee_known = any(a is not None or b is not None for a, b in fee_pairs)
+    fee_side = [((a or 0.0) + (b or 0.0)) for a, b in fee_pairs]
+    fund_side = [(_f(r.get("funding_fee"))) for r in rows]
+    fund_known = any(x is not None for x in fund_side)
+    fund_side = [(x or 0.0) for x in fund_side]
+    if rows and not fee_known:
+        notes.append("该 run 全部成交都没有手续费记录 ⇒ 手续费合计返回缺失值（不填 0）")
+    if rows and not fund_known:
+        notes.append("该 run 全部成交都没有资金费记录 ⇒ 资金费合计返回缺失值（不填 0）")
+
+    sum_win = sum(wins)
+    sum_loss_abs = abs(sum(losses))
+    avg_win = _mean(wins)
+    avg_loss = _mean(losses)
+
+    if n == 0:
+        win_rate = None
+        pf = None
+        awlr = None
+        notes.append("该 run 无已平仓交易 ⇒ 胜率/盈亏比/PF 均无证据，一律 None（不填 0）")
+    else:
+        win_rate = len(wins) / n * 100.0
+        if not losses:
+            pf = None
+            notes.append("无亏损交易 ⇒ profit_factor 分母为 0，无定义（不输出 inf）")
+        else:
+            pf = (sum_win / sum_loss_abs) if sum_win else 0.0
+        awlr = (avg_win / abs(avg_loss)) if (avg_win is not None and avg_loss) else None
+        if awlr is None:
+            notes.append("缺少盈利单或亏损单 ⇒ 平均盈亏比无定义（不填 0）")
+
+    mdd, mdd_detail = _max_drawdown_pct(eq_vals)
+    if mdd is None:
+        notes.append(f"权益曲线不足 2 点（实测 {len(eq_vals)} 点）⇒ 最大回撤返回缺失值，页面显示「未计算」")
+
+    sharpe, daily_n, sharpe_note = _sharpe_sqrt365(eq_rows)
+    if sharpe is None:
+        notes.append(sharpe_note)
+
+    metrics: Dict[str, Any] = {
+        "initial_equity": initial_equity,
+        "final_equity": final_equity,
+        "net_pnl": (sum(nets) if nets else None),
+        "net_return_pct": (((final_equity - initial_equity) / initial_equity * 100.0)
+                           if (initial_equity and final_equity is not None) else None),
+        "gross_pnl": (sum(gross) if gross else None),
+        "total_entry_fee": (sum((a or 0.0) for a, _ in fee_pairs) if (rows and fee_known) else None),
+        "total_exit_fee": (sum((b or 0.0) for _, b in fee_pairs) if (rows and fee_known) else None),
+        "total_fees": (sum(fee_side) if (rows and fee_known) else None),
+        "total_funding_fee": (sum(fund_side) if (rows and fund_known) else None),
+        "trades_count": n,
+        "wins": len(wins),
+        "losses": len(losses),
+        "flats": len(flats),
+        "win_rate_pct": win_rate,
+        "win_rate_basis": WR_BASIS,
+        "win_loss_basis": WIN_LOSS_BASIS,
+        "avg_win": avg_win,
+        "avg_loss": avg_loss,
+        "avg_win_loss_ratio": awlr,
+        "avg_win_loss_ratio_basis": AWLR_BASIS,
+        "profit_factor": pf,
+        "profit_factor_basis": PF_BASIS,
+        "expectancy_usd": _mean(nets),
+        "max_drawdown_pct": mdd,
+        "max_drawdown_basis": MDD_BASIS,
+        "max_drawdown_detail": mdd_detail,
+        "sharpe_annualized_sqrt365": sharpe,
+        "sharpe_basis": sharpe_note,
+        "daily_points": daily_n,
+        "equity_points": len(eq_vals),
+        "open_positions_remaining": None,
+        "note": ("指标全部由本 run 账本现算：胜负=扣费后 net_pnl；回撤=逐点 total_equity；"
+                 "PF 为聚合口径、平均盈亏比为均值口径（两者不混用）"),
+        "funding_events_total": sum(1 for f in facts.funding_rows),
+    }
+    notes.extend(facts.notes)
+    return metrics, notes
+
+
+def compute_benchmark(chart: Optional[dict]) -> Optional[dict]:
+    """把 `chart.benchmark` 归一成前端 `LabBenchmark`，并**如实标注成本口径**。
+
+    关键诚实性约束：批量脚本写出的基准序列是 `initial_equity × close_i / open_0`，
+    即**纯价格**口径（不含手续费 / 滑点 / 资金费）。因此：
+
+    * `price_only_return_pct` = 由该序列真实算出；
+    * `net_return_pct` = **None**（成本模型没落盘 ⇒ 不把纯价格收益冒充「净收益」）；
+    * `cost_model` 明写 `price_only`，页面直接展示。
+
+    只有当序列点带 `cum_funding`（同成本口径的标记）时才认为可给 `net_return_pct`。
+    """
+    if not isinstance(chart, dict):
+        return None
+    b = chart.get("benchmark")
+    if not isinstance(b, dict):
+        return None
+    series = b.get("equity_series") or []
+    pts = [p for p in series if isinstance(p, dict) and _f(p.get("equity")) is not None]
+    if not pts:
+        return None
+    eqs = [_f(p["equity"]) for p in pts]
+    same_cost = all(("cum_funding" in p) for p in pts)
+
+    # 基数：优先用基准序列自己的首点（同本金口径由序列自证），退化到 chart.equity_curve 首点
+    base = eqs[0]
+    if not base:
+        for e in (chart.get("equity_curve") or []):
+            v = _f((e or {}).get("equity")) if isinstance(e, dict) else None
+            if v:
+                base = v
+                break
+    last = eqs[-1]
+    ret = ((last - base) / base * 100.0) if base else None
+    mdd, _ = _max_drawdown_pct(eqs)
+
+    out: Dict[str, Any] = {
+        "benchmark_kind": ("buy_and_hold_price_only" if not same_cost
+                           else "buy_and_hold_same_cost"),
+        "symbol": b.get("symbol"),
+        "entry_time_ms": (pts[0].get("t") if isinstance(pts[0].get("t"), (int, float)) else None),
+        "exit_time_ms": (pts[-1].get("t") if isinstance(pts[-1].get("t"), (int, float)) else None),
+        "entry_price": None,
+        "exit_price": None,
+        "qty": None,
+        "cum_funding": (_f(pts[-1].get("cum_funding")) if same_cost else None),
+        "gross_return_pct": ret,
+        "price_only_return_pct": ret,
+        "net_return_pct": (ret if same_cost else None),
+        "final_equity": last,
+        "series_last_equity": last,
+        "max_drawdown_pct": mdd,
+        "cost_model": ("same_cost（含手续费/滑点/真实资金费）" if same_cost
+                       else "price_only（纯价格：不含手续费/滑点/资金费）"),
+        "points": len(pts),
+        "note": ("本 run 落盘的基准序列为纯价格口径 ⇒ 只给 price_only_return_pct，"
+                 "net_return_pct 如实留空（不与含成本的策略净收益直接比较）"
+                 if not same_cost else
+                 "基准序列为同成本口径，net_return_pct 可直接与策略净收益比较"),
+    }
+    return out
+
+
+def compute_monthly_returns(equity_rows: List[dict], initial_equity: Optional[float]) -> Optional[dict]:
+    """月度收益：账户**月界净值**口径，首月无基准 ⇒ `return_pct=None`（不填 0）。
+
+    与项目既有约定一致：`月度收益 = 本月末净值 / 上月末净值 − 1`，逐月不叠加。
+    """
+    import datetime as _dt
+
+    pts: List[Tuple[int, float]] = []
+    for e in equity_rows or []:
+        if not isinstance(e, dict):
+            continue
+        ts = _f(e.get("timestamp", e.get("ts_ms", e.get("t"))))
+        v = _f(e.get("total_equity", e.get("equity")))
+        if ts is None or v is None:
+            continue
+        pts.append((int(ts), v))
+    if len(pts) < 2:
+        return None
+    pts.sort(key=lambda x: x[0])
+
+    def _ym(ms: int) -> str:
+        d = _dt.datetime.fromtimestamp(ms / 1000.0, _dt.timezone.utc)
+        return f"{d.year:04d}-{d.month:02d}"
+
+    # 每月最后一个点（月界净值）
+    month_last: Dict[str, float] = {}
+    for ms, v in pts:
+        month_last[_ym(ms)] = v
+    months = sorted(month_last)
+    out: List[dict] = []
+    prev: Optional[float] = None
+    for m in months:
+        eq = month_last[m]
+        r = ((eq / prev - 1.0) * 100.0) if prev else None
+        out.append({
+            "month": m,
+            "month_end_equity": eq,
+            "basis_equity": prev,
+            "return_pct": r,
+            "partial_month": (m == months[0]),
+            "basis_note": (None if prev else "首月无上月月界净值 ⇒ 收益率为缺失（不填 0）"),
+        })
+        prev = eq
+    return {"months": out,
+            "initial_equity": initial_equity,
+            "note": "月界净值口径：本月末 total_equity / 上月末 total_equity − 1；首月无基准为 null"}
