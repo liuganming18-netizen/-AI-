@@ -86,3 +86,31 @@
    - `server.js` 仅响应 `GET` 请求，对 `POST`, `PUT`, `DELETE`, `PATCH` 等所有写操作统一返回 HTTP 405 `{"error":"仅开放只读 GET 请求"}`。
    - 杜绝前端对交易所或模拟交易的任何订单提交、修改或撤单操作。
    - 严格在未占用端口（8790）启动只读实例，不改旧 3000/8787/8788 服务。
+
+---
+
+## 五、原 P0-2 独立裁决整改与六组真实样本页面消费核对明细
+
+### 1. `normalizeOi()` 漏接 `open_interest_value` 缺陷修复与闭环
+
+- **原反例问题**：
+  上游本地数据网关（8790 / `adapter.py`）返回的真实持仓量名义价值字段为 `open_interest_value`。原前端代码 `normalizeOi()` 仅检查了 `row.usd??row.oiUsd??row.oi_usd??row.sumOpenInterestValue`，缺少对 `open_interest_value` 的提取。当上游返回合法 `open_interest_value` 时，`normalizeOi()` 输出 `usd: null`，导致默认的美元持仓量视图（`state.oiUnit === 'usd'`）因数值过滤逻辑将真实观测点误判为空，并在界面上呈现“当前窗口未找到该单位的真实OI观测”或“OI数据不可用”。
+- **修复措施**：
+  在 `assets/app.js` 的 `normalizeOi()` 中补齐完整字段映射：
+  - `usd`：补接 `row.open_interest_value`、`row.openInterestValue`、`row.oi_value`、`row.oiValue`；
+  - `amount`：补接 `row.open_interest`、`row.openInterest`、`row.oi`、`row.oi_ccy`；
+  - `time`：补接 `row.event_time`、`row.open_time`。
+- **验证结论**：
+  经单元测试 `test/read-only-ui.test.js` 实测，传入仅包含 `open_interest_value` 的上游真实结构时，`normalizeOi()` 正确输出 `usd: 50000`（非 null），默认美元视图成功保留该点并参与图表绘制，彻底关闭该漏接缺口。
+
+### 2. 原六组真实样本响应到页面消费链路全要素核对证据
+
+| 样本序号与标的周期 | 上游真实响应核心字段 (8790/Binance/OKX) | 前端消费适配器输出 (`normalizeBars` / `normalizeOi`) | 页面呈现组件与消费属性 | 实际粒度核实 | 真实来源核实 | OKX数量单位与口径核实 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Binance BTCUSDT 4h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 97317.526`, `open_interest_value: 7578709386.53`, `period: "snapshot"` | K线: `time: 1794312000000, open: 74805.5, close: 74389.7`<br>OI: `time: 1793515500000, amount: 97317.526, usd: 7578709386.53` | `drawK()` 绘制K线柱与成交量；<br>`drawOi()` 根据 `oiUnit` 切换渲染 `amount`（币数）或 `usd`（75.78亿美元） | K线: 4h 已收盘聚合（700根）；<br>OI: 4h/auto 分桶金字塔，近端 snapshot | K线: `market_v2.sqlite3`<br>OI: `binance.archive.metrics` + `oi_history` | Binance 数量单位恒为标的币数（BTC），名义价值为 USD，口径自洽无歧义。 |
+| **2. Binance BTCUSDT 1h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 97317.526`, `open_interest_value: 7578709386.53`, `period: "snapshot"` | K线: `time: 1794322800000, open: 74200.4, close: 74389.7`<br>OI: `time: 1793515500000, amount: 97317.526, usd: 7578709386.53` | `getSharedChartContext()` 截取共用 560 根窗口；X 轴时间像素绝对对齐 | K线: 1h 已收盘聚合（700根）；<br>OI: 1h/auto 分桶金字塔 | K线: `market_v2.sqlite3`<br>OI: 冷档日度 metrics + 热层快照 | Binance 标的币数（BTC），名义价值 USD。 |
+| **3. Binance BTCUSDT 1d** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 97317.526`, `open_interest_value: 7578709386.53`, `period: "snapshot"` | K线: `time: 1793923200000, open: 80466.4, close: 76050.1`<br>OI: `time: 1793515500000, amount: 97317.526, usd: 7578709386.53` | 顶部宏观指标与日线图消费；`usd` 视图下展示最大 75.78 亿柱形 | K线: 1d 已收盘聚合（700根）；<br>OI: 1d/auto 分桶金字塔 | K线: `market_v2.sqlite3`<br>OI: 冷档日度 metrics + 热层快照 | Binance 标的币数（BTC），名义价值 USD。 |
+| **4. Binance ETHUSDT 4h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 2379604.493`, `open_interest_value: 5393487592.59` | K线: `time: 1794312000000, open: 2114.75, close: 2093.69`<br>OI: `time: 1793515500000, amount: 2379604.493, usd: 5393487592.59` | `drawK()` 与 `drawOi()` 垂直对应绘制；`usd` 视图展示 53.93 亿美元 | K线: 4h 已收盘聚合（700根）；<br>OI: 4h/auto 分桶金字塔 | K线: `market_v2.sqlite3`<br>OI: `binance.archive.metrics` + 热层快照 | Binance 标的币数（ETH），名义价值 USD。 |
+| **5. Binance ETHUSDT 1h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 2379604.493`, `open_interest_value: 5393487592.59` | K线: `time: 1794322800000, open: 2090.01, close: 2093.69`<br>OI: `time: 1793515500000, amount: 2379604.493, usd: 5393487592.59` | `drawK()` 绘制 1h 细节量价；OI 柱形无插值、无补零呈现真实观测 | K线: 1h 已收盘聚合（700根）；<br>OI: 1h/auto 分桶金字塔 | K线: `market_v2.sqlite3`<br>OI: 冷档日度 metrics + 热层快照 | Binance 标的币数（ETH），名义价值 USD。 |
+| **6. OKX CRO-USDT-SWAP 4h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 1814774`, `open_interest_value: 855847.42`, `oi_ccy: 1814774`, `source: "okx.v5"` | K线: `time: 1794312000000, open: 0.04794, close: 0.04710`<br>OI: `time: 1794322285000, amount: 1814774, usd: 855847.42` | `drawOi()` 在“数量”视图展示 181.47 万张；在“名义价值”视图展示 85.58 万美元 | K线: 4h 聚合（370根）；<br>OI: 4h/snapshot 轮询快照（800条） | K线: `market_v2.sqlite3`<br>OI: `okx.v5` 官方接口归档表 | ★ **OKX 数量单位保真**：OKX 官方原生 `open_interest` 是以**合约张数（contracts）**计（此处为 1814774 张），`oi_ccy` 为标的币数，`open_interest_value` 为 USD 价值。页面双单位切换严格区分张数与美元，不混淆两者。 |
+

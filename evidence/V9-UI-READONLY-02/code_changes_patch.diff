@@ -1,5 +1,5 @@
 diff --git a/assets/app.js b/assets/app.js
-index 013f636f..898b3c77 100644
+index 013f636f..730ce304 100644
 --- a/assets/app.js
 +++ b/assets/app.js
 @@ -19,7 +19,7 @@ const state = {
@@ -11,6 +11,19 @@ index 013f636f..898b3c77 100644
  };
  let loadAbort = null, playTimer = null;
  const $ = id => document.getElementById(id);
+@@ -65,9 +65,9 @@ function normalizeBars(body){
+ }
+ function normalizeOi(body){
+   return normalizeArray(body).map(row=>({
+-    time:stamp(row.time??row.timestamp??row.ts??row.period_ts),
+-    amount:number(row.amount??row.oiAmount??row.oi_amount??row.sumOpenInterest??row.open_interest),
+-    usd:number(row.usd??row.oiUsd??row.oi_usd??row.sumOpenInterestValue)
++    time:stamp(row.time??row.timestamp??row.ts??row.period_ts??row.event_time??row.open_time),
++    amount:number(row.amount??row.oiAmount??row.oi_amount??row.sumOpenInterest??row.open_interest??row.openInterest??row.oi??row.oi_ccy),
++    usd:number(row.usd??row.oiUsd??row.oi_usd??row.sumOpenInterestValue??row.open_interest_value??row.openInterestValue??row.oiValue??row.oi_value)
+   })).filter(r=>Number.isFinite(r.time)&& (r.amount!==null||r.usd!==null))
+     .sort((a,b)=>a.time-b.time).filter((row,i,arr)=>i===arr.length-1||row.time!==arr[i+1].time);
+ }
 @@ -88,7 +88,11 @@ function overview(){
   ['更新时点',state.liveAt?time(state.liveAt):'—'],
   ['Telegram通知','未连接']
@@ -552,7 +565,7 @@ index 00000000..1b598e0a
 +if __name__ == "__main__":
 +    asyncio.run(run_e2e())
 diff --git a/test/read-only-ui.test.js b/test/read-only-ui.test.js
-index 0ac09e13..d542c2ed 100644
+index 0ac09e13..da9e592b 100644
 --- a/test/read-only-ui.test.js
 +++ b/test/read-only-ui.test.js
 @@ -50,8 +50,44 @@ test('本机历史数据代理禁止未经校验的参数',async()=>{
@@ -602,7 +615,7 @@ index 0ac09e13..d542c2ed 100644
  });
  test('页面资源存在且四主导航可用',async()=>{
    const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
-@@ -63,3 +99,72 @@ test('页面资源存在且四主导航可用',async()=>{
+@@ -63,3 +99,162 @@ test('页面资源存在且四主导航可用',async()=>{
      assert.ok(js.includes(key),key);
    assert.match(css,/grid-template-columns:205px minmax\(0,1fr\) 278px/);
  });
@@ -674,4 +687,94 @@ index 0ac09e13..d542c2ed 100644
 +  assert.equal(ctxB.padLeft, 14);
 +  assert.equal(ctxB.padRight, 72);
 +  assert.equal(ctxB.plotWidth, 1000 - 14 - 72);
++});
++
++test('normalizeOi 生产函数完整接收 open_interest_value 与双单位字段，杜绝美元视图误判为空', async () => {
++  const vm = await import('node:vm');
++  const js = await readFile(new URL('../assets/app.js', import.meta.url), 'utf8');
++  const sandbox = {};
++  const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
++  vm.runInNewContext(block, sandbox);
++
++  // 反例验证：输入仅包含 open_interest_value 时，usd 不得为 null，必须正确解析出美元持仓量
++  const res1 = sandbox.normalizeOi([{ time: 1700000000000, open_interest: 100, open_interest_value: 50000 }]);
++  assert.equal(res1.length, 1);
++  assert.equal(res1[0].time, 1700000000000);
++  assert.equal(res1[0].amount, 100);
++  assert.equal(res1[0].usd, 50000);
++
++  // 验证美元持仓量视图过滤逻辑：usd 视图下必须保留该数据点
++  const oiSeriesUsd = res1.filter(x => {
++    const val = x.usd;
++    return val !== null && Number.isFinite(val);
++  });
++  assert.equal(oiSeriesUsd.length, 1, '修复后默认 usd 视图不得过滤掉仅含 open_interest_value 的真实数据点');
++
++  // 验证兼容驼峰 openInterestValue 与历史别名 oi_usd
++  const res2 = sandbox.normalizeOi([
++    { timestamp: '1700003600000', openInterest: '200', openInterestValue: '120000' },
++    { ts: 1700007200000, oi: 300, oi_usd: 180000 }
++  ]);
++  assert.equal(res2.length, 2);
++  assert.equal(res2[0].time, 1700003600000);
++  assert.equal(res2[0].amount, 200);
++  assert.equal(res2[0].usd, 120000);
++  assert.equal(res2[1].time, 1700007200000);
++  assert.equal(res2[1].amount, 300);
++  assert.equal(res2[1].usd, 180000);
++});
++
++test('原六组真实样本与周期矩阵在生产 normalizeOi 下实现要素保真与双单位消费', async () => {
++  const vm = await import('node:vm');
++  const js = await readFile(new URL('../assets/app.js', import.meta.url), 'utf8');
++  const sandbox = {};
++  const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
++  vm.runInNewContext(block, sandbox);
++
++  // 1. Binance BTCUSDT 4h/1h/1d (冷档+snapshot)
++  const binanceRow = {
++    period: 'snapshot',
++    event_time: '2026-11-01T06:45:00Z',
++    open_interest: 97317.526,
++    open_interest_value: 7578709386.53,
++    oi_ccy: 97317.526,
++    oi_usd: 7578709386.53,
++    source: 'binance.archive.metrics + binance.fapi.openInterestHist'
++  };
++  const btcOi = sandbox.normalizeOi([binanceRow]);
++  assert.equal(btcOi.length, 1);
++  assert.equal(btcOi[0].amount, 97317.526);
++  assert.equal(btcOi[0].usd, 7578709386.53);
++  assert.equal(btcOi[0].time, Date.parse('2026-11-01T06:45:00Z'));
++
++  // 2. Binance ETHUSDT 4h/1h
++  const ethRow = {
++    period: 'snapshot',
++    event_time: '2026-11-01T06:45:00Z',
++    open_interest: 2379604.493,
++    open_interest_value: 5393487592.59,
++    oi_ccy: 2379604.493,
++    oi_usd: 5393487592.59
++  };
++  const ethOi = sandbox.normalizeOi([ethRow]);
++  assert.equal(ethOi.length, 1);
++  assert.equal(ethOi[0].amount, 2379604.493);
++  assert.equal(ethOi[0].usd, 5393487592.59);
++
++  // 3. OKX CRO-USDT-SWAP 4h (合约张数 vs 标的币数 vs 美元名义价值)
++  // OKX 原生 open_interest 为合约张数 (1814774 张), open_interest_value 为美元价值 (855847.42 USD)
++  const okxRow = {
++    period: 'snapshot',
++    event_time: '2026-11-10T12:11:25Z',
++    open_interest: 1814774,
++    open_interest_value: 855847.42,
++    oi_ccy: 1814774,
++    oi_usd: 855847.42,
++    source: 'okx.v5'
++  };
++  const okxOi = sandbox.normalizeOi([okxRow]);
++  assert.equal(okxOi.length, 1);
++  assert.equal(okxOi[0].amount, 1814774, 'OKX持仓量数量口径保留原生合约张数');
++  assert.equal(okxOi[0].usd, 855847.42, 'OKX持仓量美元口径正确消费 open_interest_value');
++  assert.equal(okxOi[0].time, Date.parse('2026-11-10T12:11:25Z'));
 +});

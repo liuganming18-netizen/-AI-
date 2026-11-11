@@ -65,9 +65,9 @@ function normalizeBars(body){
 }
 function normalizeOi(body){
   return normalizeArray(body).map(row=>({
-    time:stamp(row.time??row.timestamp??row.ts??row.period_ts),
-    amount:number(row.amount??row.oiAmount??row.oi_amount??row.sumOpenInterest??row.open_interest),
-    usd:number(row.usd??row.oiUsd??row.oi_usd??row.sumOpenInterestValue)
+    time:stamp(row.time??row.timestamp??row.ts??row.period_ts??row.event_time??row.open_time),
+    amount:number(row.amount??row.oiAmount??row.oi_amount??row.sumOpenInterest??row.open_interest??row.openInterest??row.oi??row.oi_ccy),
+    usd:number(row.usd??row.oiUsd??row.oi_usd??row.sumOpenInterestValue??row.open_interest_value??row.openInterestValue??row.oiValue??row.oi_value)
   })).filter(r=>Number.isFinite(r.time)&& (r.amount!==null||r.usd!==null))
     .sort((a,b)=>a.time-b.time).filter((row,i,arr)=>i===arr.length-1||row.time!==arr[i+1].time);
 }

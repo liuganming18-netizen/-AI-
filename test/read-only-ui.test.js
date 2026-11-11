@@ -168,3 +168,93 @@ test('K线与OI共用时间窗口、横轴映射与绘图区（针对缺口与�
   assert.equal(ctxB.padRight, 72);
   assert.equal(ctxB.plotWidth, 1000 - 14 - 72);
 });
+
+test('normalizeOi 生产函数完整接收 open_interest_value 与双单位字段，杜绝美元视图误判为空', async () => {
+  const vm = await import('node:vm');
+  const js = await readFile(new URL('../assets/app.js', import.meta.url), 'utf8');
+  const sandbox = {};
+  const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
+  vm.runInNewContext(block, sandbox);
+
+  // 反例验证：输入仅包含 open_interest_value 时，usd 不得为 null，必须正确解析出美元持仓量
+  const res1 = sandbox.normalizeOi([{ time: 1700000000000, open_interest: 100, open_interest_value: 50000 }]);
+  assert.equal(res1.length, 1);
+  assert.equal(res1[0].time, 1700000000000);
+  assert.equal(res1[0].amount, 100);
+  assert.equal(res1[0].usd, 50000);
+
+  // 验证美元持仓量视图过滤逻辑：usd 视图下必须保留该数据点
+  const oiSeriesUsd = res1.filter(x => {
+    const val = x.usd;
+    return val !== null && Number.isFinite(val);
+  });
+  assert.equal(oiSeriesUsd.length, 1, '修复后默认 usd 视图不得过滤掉仅含 open_interest_value 的真实数据点');
+
+  // 验证兼容驼峰 openInterestValue 与历史别名 oi_usd
+  const res2 = sandbox.normalizeOi([
+    { timestamp: '1700003600000', openInterest: '200', openInterestValue: '120000' },
+    { ts: 1700007200000, oi: 300, oi_usd: 180000 }
+  ]);
+  assert.equal(res2.length, 2);
+  assert.equal(res2[0].time, 1700003600000);
+  assert.equal(res2[0].amount, 200);
+  assert.equal(res2[0].usd, 120000);
+  assert.equal(res2[1].time, 1700007200000);
+  assert.equal(res2[1].amount, 300);
+  assert.equal(res2[1].usd, 180000);
+});
+
+test('原六组真实样本与周期矩阵在生产 normalizeOi 下实现要素保真与双单位消费', async () => {
+  const vm = await import('node:vm');
+  const js = await readFile(new URL('../assets/app.js', import.meta.url), 'utf8');
+  const sandbox = {};
+  const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
+  vm.runInNewContext(block, sandbox);
+
+  // 1. Binance BTCUSDT 4h/1h/1d (冷档+snapshot)
+  const binanceRow = {
+    period: 'snapshot',
+    event_time: '2026-11-01T06:45:00Z',
+    open_interest: 97317.526,
+    open_interest_value: 7578709386.53,
+    oi_ccy: 97317.526,
+    oi_usd: 7578709386.53,
+    source: 'binance.archive.metrics + binance.fapi.openInterestHist'
+  };
+  const btcOi = sandbox.normalizeOi([binanceRow]);
+  assert.equal(btcOi.length, 1);
+  assert.equal(btcOi[0].amount, 97317.526);
+  assert.equal(btcOi[0].usd, 7578709386.53);
+  assert.equal(btcOi[0].time, Date.parse('2026-11-01T06:45:00Z'));
+
+  // 2. Binance ETHUSDT 4h/1h
+  const ethRow = {
+    period: 'snapshot',
+    event_time: '2026-11-01T06:45:00Z',
+    open_interest: 2379604.493,
+    open_interest_value: 5393487592.59,
+    oi_ccy: 2379604.493,
+    oi_usd: 5393487592.59
+  };
+  const ethOi = sandbox.normalizeOi([ethRow]);
+  assert.equal(ethOi.length, 1);
+  assert.equal(ethOi[0].amount, 2379604.493);
+  assert.equal(ethOi[0].usd, 5393487592.59);
+
+  // 3. OKX CRO-USDT-SWAP 4h (合约张数 vs 标的币数 vs 美元名义价值)
+  // OKX 原生 open_interest 为合约张数 (1814774 张), open_interest_value 为美元价值 (855847.42 USD)
+  const okxRow = {
+    period: 'snapshot',
+    event_time: '2026-11-10T12:11:25Z',
+    open_interest: 1814774,
+    open_interest_value: 855847.42,
+    oi_ccy: 1814774,
+    oi_usd: 855847.42,
+    source: 'okx.v5'
+  };
+  const okxOi = sandbox.normalizeOi([okxRow]);
+  assert.equal(okxOi.length, 1);
+  assert.equal(okxOi[0].amount, 1814774, 'OKX持仓量数量口径保留原生合约张数');
+  assert.equal(okxOi[0].usd, 855847.42, 'OKX持仓量美元口径正确消费 open_interest_value');
+  assert.equal(okxOi[0].time, Date.parse('2026-11-10T12:11:25Z'));
+});
