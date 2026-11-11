@@ -2,7 +2,7 @@
   "recorded_at": "2026-11-11T05:33:07.418Z",
   "service_endpoint": "http://127.0.0.1:3010",
   "sample_count": 6,
-  "description": "原六组真实响应与页面生产消费逐组核验定点记录",
+  "description": "原六组真实响应与页面生产消费首末样本定点核验记录",
   "records": [
     {
       "exchange": "Binance",
@@ -11,8 +11,9 @@
       "units": {
         "amount_unit": "标的币数(BTC)",
         "usd_unit": "USD",
-        "upstream_period": "5m",
-        "upstream_source": "binance.archive.metrics"
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
       },
       "candles": {
         "request": {
@@ -153,8 +154,9 @@
       "units": {
         "amount_unit": "标的币数(BTC)",
         "usd_unit": "USD",
-        "upstream_period": "5m",
-        "upstream_source": "binance.archive.metrics"
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
       },
       "candles": {
         "request": {
@@ -295,8 +297,9 @@
       "units": {
         "amount_unit": "标的币数(BTC)",
         "usd_unit": "USD",
-        "upstream_period": "5m",
-        "upstream_source": "binance.archive.metrics"
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
       },
       "candles": {
         "request": {
@@ -437,8 +440,9 @@
       "units": {
         "amount_unit": "标的币数(ETH)",
         "usd_unit": "USD",
-        "upstream_period": "5m",
-        "upstream_source": "binance.archive.metrics"
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
       },
       "candles": {
         "request": {
@@ -579,8 +583,9 @@
       "units": {
         "amount_unit": "标的币数(ETH)",
         "usd_unit": "USD",
-        "upstream_period": "5m",
-        "upstream_source": "binance.archive.metrics"
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
       },
       "candles": {
         "request": {
@@ -719,10 +724,11 @@
       "symbol": "CRO-USDT-SWAP",
       "interval": "4h",
       "units": {
-        "amount_unit": "合约张数(Contracts, 面值10 CRO)",
+        "amount_unit": "合约张数(Contracts, CRO面值10币)",
         "usd_unit": "USD",
-        "upstream_period": "snapshot",
-        "upstream_source": "okx.v5"
+        "upstream_period": "定点快照 (snapshot)",
+        "upstream_source": "okx.v5 接口归档",
+        "aggregation_note": "OKX 官方原生 open_interest 为合约张数，已验证 CRO 合约每张面值 10 CRO"
       },
       "candles": {
         "request": {
@@ -856,5 +862,7 @@
         }
       }
     }
-  ]
+  ],
+  "verification_scope": "六组定点首末样本已核对",
+  "notes": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合；面值10币限定于已验证的 CRO 合约"
 }

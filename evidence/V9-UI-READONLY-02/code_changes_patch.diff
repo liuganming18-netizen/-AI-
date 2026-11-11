@@ -1,5 +1,5 @@
 diff --git a/assets/app.js b/assets/app.js
-index 013f636f..b39c1a00 100644
+index 013f636f..8bbfbf4c 100644
 --- a/assets/app.js
 +++ b/assets/app.js
 @@ -19,7 +19,7 @@ const state = {
@@ -37,16 +37,18 @@ index 013f636f..b39c1a00 100644
   $('nav-status').textContent=state.localConnected?'本机数据网关：只读可访问':'本机数据网关：未连接';
  }
  function side(){
-@@ -141,11 +145,17 @@ function filteredCatalog(){
+@@ -141,11 +145,19 @@ function filteredCatalog(){
  }
  function detail(c){
   const active=selected()?.identity===c.identity,notLinked=c.ticker===null;
++ const isCro = (c.symbol || c.ticker || '').toUpperCase().includes('CRO');
 + const oiUnitText = state.oiUnit === 'usd'
 +   ? '名义价值（单位：USD）'
-+   : (c.venue === 'OKX' ? '持仓数量（单位：合约张数 Contracts，面值10币）' : '持仓数量（单位：标的币数）');
-+ const oiGranularity = c.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：5m快照归档序列 (snapshot)';
-+ const oiSourceText = '数据源：' + (state.oiSource || '本机封存历史数据网关') + (c.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Binance Metrics归档]');
-+ const oiInfoDesc = oiSourceText + ' ｜ 当前视图：' + oiUnitText + ' ｜ ' + oiGranularity + ' ｜ OI缺口不插值、不补零，按真实UTC时间落位。';
++   : (c.venue === 'OKX' ? ('持仓数量（单位：合约张数 Contracts' + (isCro ? '，CRO面值10币' : '') + '）') : '持仓数量（单位：标的币数）');
++ const oiGranularity = c.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：原生 5m 归档＋近端 snapshot';
++ const oiSourceText = '数据源：' + (state.oiSource || '本机封存历史数据网关') + (c.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Metrics 归档＋openInterestHist 接口快照]');
++ const oiAggNote = c.venue === 'Binance' ? ' ｜ 页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合' : '';
++ const oiInfoDesc = oiSourceText + ' ｜ 当前视图：' + oiUnitText + ' ｜ ' + oiGranularity + oiAggNote + ' ｜ OI缺口不插值、不补零，按真实UTC时间落位。';
   return '<tr class="expanded"><td colspan="7"><div class="between wrap"><h3>'+esc(c.ticker||'代码待映射')+' · 历史结构与证据</h3><div class="row wrap"><button class="btn '+(state.kOpen?'active':'')+'" data-fold="k">'+(state.kOpen?'▾':'▸')+' K线图</button><button class="btn '+(state.oiOpen?'active':'')+'" data-fold="oi">'+(state.oiOpen?'▾':'▸')+' OI柱形图</button><button class="btn" data-close="1">关闭</button></div></div>'+
   '<div class="filters"><span class="muted">周期</span>'+periods.map(p=>'<button class="btn '+(state.tf===p?'active':'')+'" data-tf="'+p+'">'+p+'</button>').join('')+tag('最新完整历史为准')+'</div>'+
   (state.chartLoading?'<div class="note">正在查询封存本机接口和交易所公开K线/OI；不使用生成数据。</div>':'')+
@@ -56,7 +58,7 @@ index 013f636f..b39c1a00 100644
   '<div class="card-grid two" style="margin-top:10px"><div class="card"><b>信号逻辑与数据详情</b><div class="muted">结构、证据、反证及失效条件来自已通过的信号服务；当前不伪造结论。</div></div><div class="card"><b>交易衍生指标</b><div class="muted">24h成交量 '+money(field(c,'volume'))+' USDT · 24h加权均价 '+px(field(c,'vwap'))+' · 聪明钱多空均价未接入。</div></div></div></td></tr>';
  }
  function marketRow(c){
-@@ -155,7 +165,7 @@ function marketRow(c){
+@@ -155,7 +167,7 @@ function marketRow(c){
   return '<tr class="market-row '+(active?'active':'')+'" data-coin="'+esc(c.identity)+'"><td>'+token(c)+'</td>'+
   '<td><div class="cell-lines"><strong>'+state.tf+'量：'+money(volumeByPeriod(c,state.tf))+'</strong><span>24h成交额：'+money(field(c,'volume'))+'</span></div></td>'+
   '<td>'+group(long)+'</td><td>'+group(short)+'</td>'+
@@ -65,7 +67,7 @@ index 013f636f..b39c1a00 100644
   '<td>'+(funding===null?'—':pct(funding*100))+'</td>'+
   '<td class="tiny">费率序列：—</td></tr>'+(active?detail(c):'');
  }
-@@ -215,17 +225,28 @@ function backRunsPanel(){
+@@ -215,17 +227,30 @@ function backRunsPanel(){
   '</tbody></table></div>':'<div class="empty">本机回测记录接口未返回可用条目，不编造结果。</div>')+'</section>';
  }
  function backPage(){
@@ -79,12 +81,14 @@ index 013f636f..b39c1a00 100644
 - '<section class="panel"><div class="tabs">'+['逐笔与事件','权益与回撤','科学性门禁'].map(x=>'<button class="tab '+(state.backTab===x?'active':'')+'" data-backtab="'+x+'">'+x+'</button>').join('')+'</div><div style="margin-top:12px">'+(state.backTab==='逐笔与事件'?'<div class="empty">回测订单与信号历史未接入；不能用K线涨跌生成假订单。</div>':state.backTab==='权益与回撤'?'<div class="card-grid two"><div class="empty">权益曲线：暂无真实回测数据</div><div class="empty">回撤曲线：暂无真实回测数据</div></div>':'<div class="card-grid two"><div class="log">未来函数测试：未执行\nPIT可得时间：未验收\nWalk-Forward：未执行\n样本隔离：仅为浏览视窗划分</div><div class="log">手续费：未核算\n滑点：未核算\n资金费：未核算\n统计置信区间：未计算</div></div>')+'</div></section>'+backRunsPanel();
 +  const [lo,hi]=backRange(),metrics=['净收益','最大回撤','Sharpe','Sortino','Calmar','Profit Factor','胜率','盈亏比','完成订单','每笔期望','95%置信区间','样本外超额'];
 +  const curCoin=selected();
++  const isCro = (curCoin?.symbol || curCoin?.ticker || '').toUpperCase().includes('CRO');
 +  const backOiUnitText = state.oiUnit === 'usd'
 +    ? '名义额（单位：USD）'
-+    : (curCoin?.venue === 'OKX' ? '持仓数量（单位：合约张数 Contracts，面值10币）' : '持仓数量（单位：标的币数）');
-+  const backOiGranularity = curCoin?.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：5m快照归档序列 (snapshot)';
-+  const backOiSource = (state.oiSource || '本机封存历史数据网关') + (curCoin?.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Binance Metrics归档]');
-+  const backOiInfoDesc = '数据源：' + backOiSource + ' ｜ 当前视图：' + backOiUnitText + ' ｜ ' + backOiGranularity + ' ｜ OI缺口不插值、不补零。';
++    : (curCoin?.venue === 'OKX' ? ('持仓数量（单位：合约张数 Contracts' + (isCro ? '，CRO面值10币' : '') + '）') : '持仓数量（单位：标的币数）');
++  const backOiGranularity = curCoin?.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：原生 5m 归档＋近端 snapshot';
++  const backOiSource = (state.oiSource || '本机封存历史数据网关') + (curCoin?.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Metrics 归档＋openInterestHist 接口快照]');
++  const backOiAggNote = curCoin?.venue === 'Binance' ? ' ｜ 页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合' : '';
++  const backOiInfoDesc = '数据源：' + backOiSource + ' ｜ 当前视图：' + backOiUnitText + ' ｜ ' + backOiGranularity + backOiAggNote + ' ｜ OI缺口不插值、不补零。';
 +  return '<section class="panel"><div class="between"><div><h2>历史回测 · 科学验证工作台</h2><span class="muted">历史数据浏览不等于已执行回测；未接回测引擎之前所有绩效保持空态</span></div>'+tag(state.backRuns.length?'发现既有运行索引':'本轮Run ID未生成',true)+'</div><div class="tabs" style="margin-top:11px">'+['样本内','验证集','样本外'].map(x=>'<button class="tab '+(state.scope===x?'active':'')+'" data-scope="'+x+'">'+x+'</button>').join('')+'</div></section>'+
 +  '<div class="card-grid four" style="margin-bottom:11px">'+metrics.map(x=>'<div class="card"><div class="muted">'+x+'</div><div class="num">—</div><div class="hint">本轮未取得合格指标</div></div>').join('')+'</div>'+
 +  '<section class="panel"><div class="between"><h3>真实K线逐根浏览 · '+esc(curCoin?.ticker||'无标的')+'</h3>'+tag(state.scope+' / '+lo+'–'+hi)+'</div><div class="filters"><button class="btn" data-bstep="-1">◀ 上一根</button><button class="btn '+(state.playing?'active':'')+'" data-bplay="1">'+(state.playing?'暂停':'▶ 播放')+'</button><button class="btn" data-bstep="1">下一根 ▶</button><button class="btn" data-breset="1">段首</button><span class="muted">可见K线 '+state.bars.length+' 根 · T+'+state.cursor+'</span></div><input type="range" class="range" id="back-seek" min="'+lo+'" max="'+hi+'" value="'+Math.max(lo,Math.min(hi,state.cursor))+'" '+(!state.bars.length?'disabled':'')+'/>'+
@@ -102,7 +106,7 @@ index 013f636f..b39c1a00 100644
   structure();overview();
   $('left-panel').innerHTML=side();
   $('right-panel').innerHTML=right();
-@@ -240,44 +261,101 @@ function prepareCanvas(id){
+@@ -240,44 +265,101 @@ function prepareCanvas(id){
   const g=canvas.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
   return {g,w:width,h:height};
  }
@@ -231,7 +235,7 @@ index 013f636f..b39c1a00 100644
  }
  function drawCharts(){requestAnimationFrame(()=>{drawK();drawOi();});}
  function normalizeSignals(payload){
-@@ -366,6 +444,7 @@ function jumpCursor(n){const [a,b]=backRange();state.cursor=Math.max(a,Math.min(
+@@ -366,6 +448,7 @@ function jumpCursor(n){const [a,b]=backRange();state.cursor=Math.max(a,Math.min(
  document.getElementById('app').addEventListener('click',e=>{
   const b=e.target.closest('button,tr[data-coin]');if(!b)return;
   const d=b.dataset;
@@ -240,10 +244,10 @@ index 013f636f..b39c1a00 100644
   if(d.signal){goCoin(d.signal);return;}
   if(d.sigfilter){state.signalFilter=d.sigfilter;render();return;}
 diff --git a/test/read-only-ui.test.js b/test/read-only-ui.test.js
-index 42c0ce82..a669e0a3 100644
+index 42c0ce82..e0eef936 100644
 --- a/test/read-only-ui.test.js
 +++ b/test/read-only-ui.test.js
-@@ -99,3 +99,183 @@ test('页面资源存在且四主导航可用',async()=>{
+@@ -99,3 +99,185 @@ test('页面资源存在且四主导航可用',async()=>{
      assert.ok(js.includes(key),key);
    assert.match(css,/grid-template-columns:205px minmax\(0,1fr\) 278px/);
  });
@@ -359,30 +363,32 @@ index 42c0ce82..a669e0a3 100644
 +  const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
 +  vm.runInNewContext(block, sandbox);
 +
-+  // 1. 页面说明文本强校验：必须明确单位、实际粒度与数据来源
-+  assert.ok(js.includes('持仓数量（单位：合约张数 Contracts，面值10币）'), '页面必须明确OKX数量为合约张数');
++  // 1. 页面说明文本强校验：必须明确单位、混合粒度、来源与未聚合说明
++  assert.ok(js.includes('持仓数量（单位：合约张数 Contracts'), '页面必须明确OKX数量为合约张数');
++  assert.ok(js.includes('CRO面值10币'), '页面必须限定CRO面值10币');
 +  assert.ok(js.includes('持仓数量（单位：标的币数）'), '页面必须明确Binance数量为标的币数');
 +  assert.ok(js.includes('名义价值（单位：USD）'), '页面必须明确名义价值为USD');
 +  assert.ok(js.includes('粒度：定点快照 (snapshot)'), '页面必须明确OKX粒度为定点快照');
-+  assert.ok(js.includes('粒度：5m快照归档序列 (snapshot)'), '页面必须明确Binance粒度为5m快照归档序列');
-+  assert.ok(js.includes('[OKX v5接口归档]'), '页面必须明确OKX真实来源');
-+  assert.ok(js.includes('[Binance Metrics归档]'), '页面必须明确Binance真实来源');
++  assert.ok(js.includes('粒度：原生 5m 归档＋近端 snapshot'), '页面必须明确Binance混合粒度');
++  assert.ok(js.includes('[Metrics 归档＋openInterestHist 接口快照]'), '页面必须明确Binance混合来源');
++  assert.ok(js.includes('页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合'), '页面必须明确说明周期未统一聚合');
 +
-+  // 2. 加载六组定点原件记录文件，杜绝三条手写mock冒充
++  // 2. 加载六组定点原件记录文件，核验首末样本与汇总元数据
 +  const recordFile = new URL('../evidence/V9-UI-READONLY-02/six_sample_live_records.json', import.meta.url);
 +  const rawJson = await readFile(recordFile, 'utf8');
 +  const auditData = JSON.parse(rawJson);
 +
++  assert.equal(auditData.verification_scope, '六组定点首末样本已核对');
 +  assert.equal(auditData.sample_count, 6, '定点核验记录必须完整包含六组');
 +  assert.equal(auditData.records.length, 6);
 +
 +  const expectedMatrix = [
-+    { ex: 'Binance', sym: 'BTCUSDT', tf: '4h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1d', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-+    { ex: 'Binance', sym: 'ETHUSDT', tf: '4h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
-+    { ex: 'Binance', sym: 'ETHUSDT', tf: '1h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
-+    { ex: 'OKX', sym: 'CRO-USDT-SWAP', tf: '4h', unit: '合约张数(Contracts, 面值10 CRO)', period: 'snapshot', src: 'okx.v5' }
++    { ex: 'Binance', sym: 'BTCUSDT', tf: '4h', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
++    { ex: 'Binance', sym: 'BTCUSDT', tf: '1h', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
++    { ex: 'Binance', sym: 'BTCUSDT', tf: '1d', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
++    { ex: 'Binance', sym: 'ETHUSDT', tf: '4h', unit: '标的币数(ETH)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
++    { ex: 'Binance', sym: 'ETHUSDT', tf: '1h', unit: '标的币数(ETH)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
++    { ex: 'OKX', sym: 'CRO-USDT-SWAP', tf: '4h', unit: '合约张数(Contracts, CRO面值10币)', period: '定点快照 (snapshot)', src: 'okx.v5 接口归档' }
 +  ];
 +
 +  for (let i = 0; i < expectedMatrix.length; i++) {

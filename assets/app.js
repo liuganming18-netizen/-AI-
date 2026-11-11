@@ -145,12 +145,14 @@ function filteredCatalog(){
 }
 function detail(c){
  const active=selected()?.identity===c.identity,notLinked=c.ticker===null;
+ const isCro = (c.symbol || c.ticker || '').toUpperCase().includes('CRO');
  const oiUnitText = state.oiUnit === 'usd'
    ? '名义价值（单位：USD）'
-   : (c.venue === 'OKX' ? '持仓数量（单位：合约张数 Contracts，面值10币）' : '持仓数量（单位：标的币数）');
- const oiGranularity = c.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：5m快照归档序列 (snapshot)';
- const oiSourceText = '数据源：' + (state.oiSource || '本机封存历史数据网关') + (c.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Binance Metrics归档]');
- const oiInfoDesc = oiSourceText + ' ｜ 当前视图：' + oiUnitText + ' ｜ ' + oiGranularity + ' ｜ OI缺口不插值、不补零，按真实UTC时间落位。';
+   : (c.venue === 'OKX' ? ('持仓数量（单位：合约张数 Contracts' + (isCro ? '，CRO面值10币' : '') + '）') : '持仓数量（单位：标的币数）');
+ const oiGranularity = c.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：原生 5m 归档＋近端 snapshot';
+ const oiSourceText = '数据源：' + (state.oiSource || '本机封存历史数据网关') + (c.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Metrics 归档＋openInterestHist 接口快照]');
+ const oiAggNote = c.venue === 'Binance' ? ' ｜ 页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合' : '';
+ const oiInfoDesc = oiSourceText + ' ｜ 当前视图：' + oiUnitText + ' ｜ ' + oiGranularity + oiAggNote + ' ｜ OI缺口不插值、不补零，按真实UTC时间落位。';
  return '<tr class="expanded"><td colspan="7"><div class="between wrap"><h3>'+esc(c.ticker||'代码待映射')+' · 历史结构与证据</h3><div class="row wrap"><button class="btn '+(state.kOpen?'active':'')+'" data-fold="k">'+(state.kOpen?'▾':'▸')+' K线图</button><button class="btn '+(state.oiOpen?'active':'')+'" data-fold="oi">'+(state.oiOpen?'▾':'▸')+' OI柱形图</button><button class="btn" data-close="1">关闭</button></div></div>'+
  '<div class="filters"><span class="muted">周期</span>'+periods.map(p=>'<button class="btn '+(state.tf===p?'active':'')+'" data-tf="'+p+'">'+p+'</button>').join('')+tag('最新完整历史为准')+'</div>'+
  (state.chartLoading?'<div class="note">正在查询封存本机接口和交易所公开K线/OI；不使用生成数据。</div>':'')+
@@ -227,12 +229,14 @@ function backRunsPanel(){
 function backPage(){
   const [lo,hi]=backRange(),metrics=['净收益','最大回撤','Sharpe','Sortino','Calmar','Profit Factor','胜率','盈亏比','完成订单','每笔期望','95%置信区间','样本外超额'];
   const curCoin=selected();
+  const isCro = (curCoin?.symbol || curCoin?.ticker || '').toUpperCase().includes('CRO');
   const backOiUnitText = state.oiUnit === 'usd'
     ? '名义额（单位：USD）'
-    : (curCoin?.venue === 'OKX' ? '持仓数量（单位：合约张数 Contracts，面值10币）' : '持仓数量（单位：标的币数）');
-  const backOiGranularity = curCoin?.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：5m快照归档序列 (snapshot)';
-  const backOiSource = (state.oiSource || '本机封存历史数据网关') + (curCoin?.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Binance Metrics归档]');
-  const backOiInfoDesc = '数据源：' + backOiSource + ' ｜ 当前视图：' + backOiUnitText + ' ｜ ' + backOiGranularity + ' ｜ OI缺口不插值、不补零。';
+    : (curCoin?.venue === 'OKX' ? ('持仓数量（单位：合约张数 Contracts' + (isCro ? '，CRO面值10币' : '') + '）') : '持仓数量（单位：标的币数）');
+  const backOiGranularity = curCoin?.venue === 'OKX' ? '粒度：定点快照 (snapshot)' : '粒度：原生 5m 归档＋近端 snapshot';
+  const backOiSource = (state.oiSource || '本机封存历史数据网关') + (curCoin?.venue === 'OKX' ? ' [OKX v5接口归档]' : ' [Metrics 归档＋openInterestHist 接口快照]');
+  const backOiAggNote = curCoin?.venue === 'Binance' ? ' ｜ 页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合' : '';
+  const backOiInfoDesc = '数据源：' + backOiSource + ' ｜ 当前视图：' + backOiUnitText + ' ｜ ' + backOiGranularity + backOiAggNote + ' ｜ OI缺口不插值、不补零。';
   return '<section class="panel"><div class="between"><div><h2>历史回测 · 科学验证工作台</h2><span class="muted">历史数据浏览不等于已执行回测；未接回测引擎之前所有绩效保持空态</span></div>'+tag(state.backRuns.length?'发现既有运行索引':'本轮Run ID未生成',true)+'</div><div class="tabs" style="margin-top:11px">'+['样本内','验证集','样本外'].map(x=>'<button class="tab '+(state.scope===x?'active':'')+'" data-scope="'+x+'">'+x+'</button>').join('')+'</div></section>'+
   '<div class="card-grid four" style="margin-bottom:11px">'+metrics.map(x=>'<div class="card"><div class="muted">'+x+'</div><div class="num">—</div><div class="hint">本轮未取得合格指标</div></div>').join('')+'</div>'+
   '<section class="panel"><div class="between"><h3>真实K线逐根浏览 · '+esc(curCoin?.ticker||'无标的')+'</h3>'+tag(state.scope+' / '+lo+'–'+hi)+'</div><div class="filters"><button class="btn" data-bstep="-1">◀ 上一根</button><button class="btn '+(state.playing?'active':'')+'" data-bplay="1">'+(state.playing?'暂停':'▶ 播放')+'</button><button class="btn" data-bstep="1">下一根 ▶</button><button class="btn" data-breset="1">段首</button><span class="muted">可见K线 '+state.bars.length+' 根 · T+'+state.cursor+'</span></div><input type="range" class="range" id="back-seek" min="'+lo+'" max="'+hi+'" value="'+Math.max(lo,Math.min(hi,state.cursor))+'" '+(!state.bars.length?'disabled':'')+'/>'+

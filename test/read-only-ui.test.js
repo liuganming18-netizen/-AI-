@@ -211,30 +211,32 @@ test('原六组真实样本与周期矩阵在生产 normalizeOi 下实现要素�
   const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
   vm.runInNewContext(block, sandbox);
 
-  // 1. 页面说明文本强校验：必须明确单位、实际粒度与数据来源
-  assert.ok(js.includes('持仓数量（单位：合约张数 Contracts，面值10币）'), '页面必须明确OKX数量为合约张数');
+  // 1. 页面说明文本强校验：必须明确单位、混合粒度、来源与未聚合说明
+  assert.ok(js.includes('持仓数量（单位：合约张数 Contracts'), '页面必须明确OKX数量为合约张数');
+  assert.ok(js.includes('CRO面值10币'), '页面必须限定CRO面值10币');
   assert.ok(js.includes('持仓数量（单位：标的币数）'), '页面必须明确Binance数量为标的币数');
   assert.ok(js.includes('名义价值（单位：USD）'), '页面必须明确名义价值为USD');
   assert.ok(js.includes('粒度：定点快照 (snapshot)'), '页面必须明确OKX粒度为定点快照');
-  assert.ok(js.includes('粒度：5m快照归档序列 (snapshot)'), '页面必须明确Binance粒度为5m快照归档序列');
-  assert.ok(js.includes('[OKX v5接口归档]'), '页面必须明确OKX真实来源');
-  assert.ok(js.includes('[Binance Metrics归档]'), '页面必须明确Binance真实来源');
+  assert.ok(js.includes('粒度：原生 5m 归档＋近端 snapshot'), '页面必须明确Binance混合粒度');
+  assert.ok(js.includes('[Metrics 归档＋openInterestHist 接口快照]'), '页面必须明确Binance混合来源');
+  assert.ok(js.includes('页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合'), '页面必须明确说明周期未统一聚合');
 
-  // 2. 加载六组定点原件记录文件，杜绝三条手写mock冒充
+  // 2. 加载六组定点原件记录文件，核验首末样本与汇总元数据
   const recordFile = new URL('../evidence/V9-UI-READONLY-02/six_sample_live_records.json', import.meta.url);
   const rawJson = await readFile(recordFile, 'utf8');
   const auditData = JSON.parse(rawJson);
 
+  assert.equal(auditData.verification_scope, '六组定点首末样本已核对');
   assert.equal(auditData.sample_count, 6, '定点核验记录必须完整包含六组');
   assert.equal(auditData.records.length, 6);
 
   const expectedMatrix = [
-    { ex: 'Binance', sym: 'BTCUSDT', tf: '4h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-    { ex: 'Binance', sym: 'BTCUSDT', tf: '1h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-    { ex: 'Binance', sym: 'BTCUSDT', tf: '1d', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
-    { ex: 'Binance', sym: 'ETHUSDT', tf: '4h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
-    { ex: 'Binance', sym: 'ETHUSDT', tf: '1h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
-    { ex: 'OKX', sym: 'CRO-USDT-SWAP', tf: '4h', unit: '合约张数(Contracts, 面值10 CRO)', period: 'snapshot', src: 'okx.v5' }
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '4h', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1h', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1d', unit: '标的币数(BTC)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
+    { ex: 'Binance', sym: 'ETHUSDT', tf: '4h', unit: '标的币数(ETH)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
+    { ex: 'Binance', sym: 'ETHUSDT', tf: '1h', unit: '标的币数(ETH)', period: '原生 5m 归档＋近端 snapshot', src: 'Metrics 归档＋openInterestHist 接口快照' },
+    { ex: 'OKX', sym: 'CRO-USDT-SWAP', tf: '4h', unit: '合约张数(Contracts, CRO面值10币)', period: '定点快照 (snapshot)', src: 'okx.v5 接口归档' }
   ];
 
   for (let i = 0; i < expectedMatrix.length; i++) {

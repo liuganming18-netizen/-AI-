@@ -83,13 +83,13 @@
 ℹ tests 19, suites 0, pass 19, fail 0, cancelled 0, skipped 0, todo 0, duration_ms 63.0ms
 ```
 
-### 2. 原六组真实响应原件与页面消费逐组核验结果 (100% 对应闭环)
-- **定点原件存盘**：`evidence/V9-UI-READONLY-02/six_sample_live_records.json` 完整记录了 Binance (BTC 4h/1h/1d, ETH 4h/1h) 与 OKX (CRO 4h) 的实际请求 URL、请求参数、ISO 采集时刻、真实原始响应首尾行及页面生产消费点，彻底关闭“三条手写测试数据冒充六组记录”的问题。
+### 2. 六组定点首末样本已核对与页面消费核验结果 (按实际证据范围闭环)
+- **定点原件存盘**：`evidence/V9-UI-READONLY-02/six_sample_live_records.json` 完整记录了 Binance (BTC 4h/1h/1d, ETH 4h/1h) 与 OKX (CRO 4h) 的实际请求 URL、请求参数、ISO 采集时刻、真实原始响应首尾行及页面生产消费首末点。六组定点首末样本已核对，按实际证据范围客观描述消费结果。
 - **页面说明位置完全落实**：
-  - 数量单位：OKX 明确标注为 `合约张数 Contracts`（面值10币），Binance 明确标注为 `标的币数`；
+  - 数量单位：OKX 明确标注为 `合约张数 Contracts`，且“面值10币”严格限定为已验证的 CRO 合约（`CRO面值10币`），Binance 明确标注为 `标的币数`；
   - 名义价值：统一明确标注为 `USD`；
-  - 实际粒度：OKX 明确为 `定点快照 (snapshot)`，Binance 明确为 `5m快照归档序列 (snapshot)`；
-  - 数据真实来源：明确标明 `本机封存历史数据网关（只读） [Binance Metrics归档 / OKX v5接口归档]`；
+  - 实际混合粒度与来源：Binance 明确标注为 `粒度：原生 5m 归档＋近端 snapshot`，来源为 `[Metrics 归档＋openInterestHist 接口快照]`；OKX 明确为 `粒度：定点快照 (snapshot)`，来源为 `[OKX v5接口归档]`；
+  - 统一未聚合声明：Binance 说明中明确标注 `页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合`；
   - 以上说明已在展开区按钮、`.chart-info` 提示条、回测工作台及 Canvas 图表内部完整落地，报告与页面表现完全一致。
 
 ### 2. 浏览器 E2E 交互测试（10/10 步全通，PAGE_ERROR = 0）
