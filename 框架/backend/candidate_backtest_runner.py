@@ -195,21 +195,37 @@ def inspect_and_hash_inputs(
         sig_df = pd.read_csv(io.BytesIO(sig_bytes))
         exec_df = pd.read_csv(io.BytesIO(exec_bytes))
 
-        # 校验外部 manifest 自洽性
+        # 校验外部 manifest 自洽性及完整性（写前强验：缺失、空或字段不完整直接抛错拒绝）
         man_file = p_snap / "inputs_manifest.json"
-        if man_file.exists():
-            try:
-                ext_man = json.loads(man_file.read_text(encoding="utf-8"))
-            except Exception as e:
-                raise CandidateExecutionError(f"外部快照 manifest 解析失败，凭据损坏：{e}") from e
-            if ext_man.get("symbol") and ext_man["symbol"] != sym:
-                raise CandidateExecutionError(f"外部快照标的不匹配：期望 {sym}，快照为 {ext_man['symbol']}")
-            if "signal_bars_sha256" in ext_man and ext_man["signal_bars_sha256"] != _sha_bytes(sig_bytes):
-                raise CandidateExecutionError("外部快照信号K线与自身manifest不一致（凭据损坏）")
-            if "exec_bars_sha256" in ext_man and ext_man["exec_bars_sha256"] != _sha_bytes(exec_bytes):
-                raise CandidateExecutionError("外部快照撮合K线与自身manifest不一致（凭据损坏）")
-            if "funding_events_sha256" in ext_man and ext_man["funding_events_sha256"] != _sha_bytes(ev_bytes):
-                raise CandidateExecutionError("外部快照资金费事件与自身manifest不一致（凭据损坏）")
+        if not man_file.exists():
+            raise CandidateExecutionError(
+                f"外部快照凭据缺失（写前强验拒绝）：快照路径 {snapshot_path} 缺失 inputs_manifest.json，严禁无凭据输入！"
+            )
+        try:
+            ext_man = json.loads(man_file.read_text(encoding="utf-8"))
+        except Exception as e:
+            raise CandidateExecutionError(f"外部快照 manifest 解析失败，凭据损坏：{e}") from e
+
+        if not isinstance(ext_man, dict) or not ext_man:
+            raise CandidateExecutionError(
+                f"外部快照凭据为空（写前强验拒绝）：inputs_manifest.json 必须是非空字典，当前为 {ext_man!r}！"
+            )
+
+        required_keys = ["symbol", "signal_bars_sha256", "exec_bars_sha256", "funding_events_sha256"]
+        missing_keys = [k for k in required_keys if not ext_man.get(k)]
+        if missing_keys:
+            raise CandidateExecutionError(
+                f"外部快照凭据身份字段不完整（写前强验拒绝）：缺失或为空字段 {missing_keys}！"
+            )
+
+        if ext_man["symbol"] != sym:
+            raise CandidateExecutionError(f"外部快照标的不匹配：期望 {sym}，快照为 {ext_man['symbol']}")
+        if ext_man["signal_bars_sha256"] != _sha_bytes(sig_bytes):
+            raise CandidateExecutionError("外部快照信号K线与自身manifest不一致（凭据损坏）")
+        if ext_man["exec_bars_sha256"] != _sha_bytes(exec_bytes):
+            raise CandidateExecutionError("外部快照撮合K线与自身manifest不一致（凭据损坏）")
+        if ext_man["funding_events_sha256"] != _sha_bytes(ev_bytes):
+            raise CandidateExecutionError("外部快照资金费事件与自身manifest不一致（凭据损坏）")
 
         raw_data = {
             "sig_df": sig_df, "exec_df": exec_df, "funding_events": events,
@@ -326,26 +342,36 @@ def run_candidate_backtest(
     if win_start_ms is None or win_end_ms is None or win_start_ms >= win_end_ms:
         raise ValueError(f"非法时间窗口：start_ms ({win_start_ms}) >= end_ms ({win_end_ms})")
 
-    # 2. 真实实验注册门禁校验（在写运行状态前）
+    # 2. 盲测区间封闭保护（门禁 6 - 最高红线门禁，优先于一切常规检查）
+    # 在 06-B 阶段未获最终盲测解封授权前，严禁传入 holdout_sealed=False 绕过盲测封存
+    if not holdout_sealed:
+        raise CandidateExecutionError(
+            "盲测门禁阻断：当前处于 06-B 候选回测准备阶段，未获最终盲测解封授权，严禁传入 holdout_sealed=False 绕过盲测封存！"
+        )
+    effective_holdout_sealed = True
+    _verify_holdout_boundary(win_start_ms, win_end_ms, holdout_range=holdout_range,
+                             holdout_sealed=effective_holdout_sealed)
+
+    # 3. 真实实验注册门禁校验（在写运行状态前）
     exp_spec = spec.get("experiment") or {}
     eid = exp_spec.get("experiment_id") or spec.get("experiment_id")
-    is_mechanism_test = bool(spec.get("is_mechanism_test") or spec.get("test_isolated"))
 
-    # 正式候选判定：显式 is_formal/mode=formal，或正式策略 candidate (WX_*) 且非机制测试
+    strat_name = str(getattr(candidate, "STRATEGY_ID", getattr(candidate, "strategy_id", candidate or "")))
+    is_wx_strategy = strat_name.startswith("WX_") or str(curr_norm_spec.get("strategy_id", "")).startswith("WX_")
+
+    # 任何正式策略候选（包含所有 WX_* 策略），严禁通过 is_mechanism_test=True / test_isolated 省略实验 ID 绕过门禁
     is_formal_candidate = (
         bool(spec.get("is_formal", False)) or
         str(spec.get("mode", "")).lower() == "formal" or
-        (isinstance(candidate, str) and candidate.startswith("WX_") and not is_mechanism_test)
+        is_wx_strategy
     )
 
     if is_formal_candidate:
-        effective_holdout_sealed = True  # 正式候选强制保持盲测封闭，严禁绕过
         if not eid:
             raise CandidateExecutionError(
-                "实验门禁阻断：正式候选必须显式绑定已批准并已冻结的 experiment_id（不得临时起意或省略 is_formal 绕过）！"
+                f"实验门禁阻断：正式策略候选 ({strat_name}) 必须显式绑定已批准并已冻结的 experiment_id"
+                f"（严禁通过 is_mechanism_test=True、test_isolated 或省略 is_formal 绕过门禁）！"
             )
-    else:
-        effective_holdout_sealed = holdout_sealed
 
     # 检查实验注册表
     if eid:
@@ -366,14 +392,28 @@ def run_candidate_backtest(
 
         scope_start = scope.get("window_start") or scope.get("start_ms")
         scope_end = scope.get("window_end") or scope.get("end_ms")
-        if scope_start and win_start_ms < int(scope_start):
-            raise CandidateExecutionError(f"实验门禁阻断：窗口起点 {win_start_ms} 超出实验批准范围（最早 {scope_start}）")
-        if scope_end and win_end_ms > int(scope_end):
-            raise CandidateExecutionError(f"实验门禁阻断：窗口终点 {win_end_ms} 超出实验批准范围（最晚 {scope_end}）")
 
-    # 3. 盲测保护门禁（门禁 6）
-    _verify_holdout_boundary(win_start_ms, win_end_ms, holdout_range=holdout_range,
-                             holdout_sealed=effective_holdout_sealed)
+        def _parse_scope_time(val: Any) -> Optional[int]:
+            if val is None:
+                return None
+            if isinstance(val, (int, float)):
+                return int(val)
+            s_val = str(val).strip()
+            if s_val.isdigit():
+                return int(s_val)
+            try:
+                dt = datetime.fromisoformat(s_val.replace("Z", "+00:00"))
+                return int(dt.timestamp() * 1000)
+            except Exception:
+                return None
+
+        scope_start_ms = _parse_scope_time(scope_start)
+        scope_end_ms = _parse_scope_time(scope_end)
+
+        if scope_start_ms and win_start_ms < scope_start_ms:
+            raise CandidateExecutionError(f"实验门禁阻断：窗口起点 {win_start_ms} 超出实验批准范围（最早 {scope_start_ms}）")
+        if scope_end_ms and win_end_ms > scope_end_ms:
+            raise CandidateExecutionError(f"实验门禁阻断：窗口终点 {win_end_ms} 超出实验批准范围（最晚 {scope_end_ms}）")
 
     # 4. 计算运行 ID 与预备窗口上下文
     iv_sig = BR_RUN.INTERVAL_MS.get(curr_norm_spec.get("signal_timeframe", "1h"), BR_RUN.HOUR_MS)
@@ -444,8 +484,22 @@ def run_candidate_backtest(
                         f"同运行编号复用凭据 inputs_manifest.json 损坏，拒绝继续：{ex}"
                     ) from ex
 
-                for hkey in ("signal_bars_sha256", "exec_bars_sha256", "funding_events_sha256"):
-                    if hkey in old_man and old_man[hkey] != input_hashes[hkey]:
+                if not isinstance(old_man, dict) or not old_man:
+                    raise CandidateExecutionError(
+                        f"同运行编号复用凭据为空（run_id={effective_run_id}）："
+                        f"旧运行 inputs_manifest.json 为空，凭据不完整，严禁覆盖！"
+                    )
+
+                required_hkeys = ("signal_bars_sha256", "exec_bars_sha256", "funding_events_sha256")
+                missing_hkeys = [k for k in required_hkeys if not old_man.get(k)]
+                if missing_hkeys:
+                    raise CandidateExecutionError(
+                        f"同运行编号复用凭据字段缺失（run_id={effective_run_id}）："
+                        f"旧运行 inputs_manifest.json 缺失身份字段 {missing_hkeys}，严禁覆盖！"
+                    )
+
+                for hkey in required_hkeys:
+                    if old_man[hkey] != input_hashes[hkey]:
                         raise CandidateExecutionError(
                             f"同运行编号拒绝更换输入快照（run_id={effective_run_id}）："
                             f"指纹 {hkey} 不一致（旧绑定: {old_man[hkey]}，新输入: {input_hashes[hkey]}）。"
@@ -567,91 +621,101 @@ def run_candidate_backtest(
 
         if execution_interceptor is not None:
             execution_interceptor({"run_id": effective_run_id, "stage": "after_execution", "res": res})
+
+        # 10. 账本落盘与原子清理残留行（门禁 4、门禁 5）
+        trades = res.get("trades") or []
+        orders = res.get("orders") or []
+        positions = res.get("positions") or []
+        funding_records = res.get("funding_records") or []
+        equity_curve = res.get("equity_curve") or []
+
+        p_trades = d_run / "trades.jsonl"
+        with open(p_trades, "w", encoding="utf-8") as f:
+            for t in trades:
+                f.write(json.dumps(t, ensure_ascii=False) + "\n")
+
+        p_orders = d_run / "orders.jsonl"
+        with open(p_orders, "w", encoding="utf-8") as f:
+            for o in orders:
+                f.write(json.dumps(o, ensure_ascii=False) + "\n")
+
+        p_pos = d_run / "positions.jsonl"
+        with open(p_pos, "w", encoding="utf-8") as f:
+            for p in positions:
+                f.write(json.dumps(p, ensure_ascii=False) + "\n")
+
+        p_funding = d_run / "funding.jsonl"
+        with open(p_funding, "w", encoding="utf-8") as f:
+            for r in funding_records:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+        p_eq = d_run / "equity_curve.jsonl"
+        with open(p_eq, "w", encoding="utf-8") as f:
+            for e in equity_curve:
+                f.write(json.dumps(e, ensure_ascii=False) + "\n")
+
+        ledger_db = S.ledger_path(effective_run_id)
+        with sqlite3.connect(str(ledger_db)) as con:
+            con.execute("PRAGMA journal_mode=WAL;")
+            con.executescript(S.LEDGER_SCHEMA)
+            # 恢复或重新执行时清空可能存在的中断残留行
+            con.execute("DELETE FROM trades WHERE run_id = ?;", (effective_run_id,))
+            con.execute("DELETE FROM equity WHERE run_id = ?;", (effective_run_id,))
+            init_eq = float(getattr(ep, "initial_equity", 10000.0))
+            con.execute("INSERT OR REPLACE INTO meta VALUES (?, 'initial_equity', ?);",
+                        (effective_run_id, str(init_eq)))
+
+            for t in trades:
+                con.execute("""
+                    INSERT OR REPLACE INTO trades (
+                        run_id, trade_id, signal_id, symbol, direction, signal_type,
+                        entry_time_ms, exit_time_ms, entry_price, exit_price, qty,
+                        gross_pnl, entry_fee, exit_fee, fees, funding_fee, net_pnl,
+                        exit_reason
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    effective_run_id, str(t.get("trade_id")), str(t.get("signal_id")),
+                    str(t.get("symbol")), str(t.get("direction")), int(t.get("signal_type") or 0),
+                    int(t.get("entry_time") or 0), int(t.get("exit_time") or 0),
+                    float(t.get("entry_price") or 0.0), float(t.get("exit_price") or 0.0),
+                    float(t.get("qty") or 0.0), float(t.get("gross_pnl") or 0.0),
+                    float(t.get("entry_fee") or 0.0), float(t.get("exit_fee") or 0.0),
+                    float(t.get("fees") or (float(t.get("entry_fee") or 0.0) + float(t.get("exit_fee") or 0.0))),
+                    float(t.get("funding_fee") or 0.0), float(t.get("net_pnl") or 0.0),
+                    str(t.get("exit_reason"))
+                ))
+
+            eq_rows = list(equity_curve)
+            if not eq_rows:
+                eq_rows = [
+                    {"timestamp": win_start_ms, "cash": init_eq, "equity": init_eq, "positions": 0},
+                    {"timestamp": win_end_ms, "cash": init_eq, "equity": init_eq, "positions": 0},
+                ]
+            for e in eq_rows:
+                ts = int(e.get("timestamp") or e.get("t") or e.get("ts_ms") or 0)
+                ce = float(e.get("cash") if e.get("cash") is not None else e.get("cash_equity", init_eq))
+                te = float(e.get("equity") if e.get("equity") is not None else e.get("total_equity", ce))
+                up = float(e.get("unrealized_pnl") or (te - ce))
+                pos_cnt = int(e.get("positions") if e.get("positions") is not None else e.get("open_positions_count", 0))
+                con.execute("""
+                    INSERT OR REPLACE INTO equity VALUES (?, ?, ?, ?, ?, ?, 0.0);
+                """, (effective_run_id, ts, ce, up, te, pos_cnt))
+
+        if execution_interceptor is not None:
+            execution_interceptor({
+                "run_id": effective_run_id,
+                "stage": "mid_persistence",
+                "d_run": d_run,
+                "trades": trades,
+                "ledger_db": ledger_db,
+            })
+
     except Exception as exc:
         tb = traceback.format_exc()
-        err_msg = f"候选执行异常（门禁 3）：{type(exc).__name__}: {exc}"
+        err_msg = f"候选执行异常（门禁 3/门禁 5）：{type(exc).__name__}: {exc}"
         S.set_status(effective_run_id, S.STATUS_FAILED, failure_reason=err_msg, traceback=tb[-4000:])
         _LOG.run_log("candidate_run_failed", run_id=effective_run_id, error=err_msg)
         return S.read_run(effective_run_id)
-
-    # 10. 账本落盘与原子清理残留行（门禁 4、门禁 5）
-    trades = res.get("trades") or []
-    orders = res.get("orders") or []
-    positions = res.get("positions") or []
-    funding_records = res.get("funding_records") or []
-    equity_curve = res.get("equity_curve") or []
-
-    p_trades = d_run / "trades.jsonl"
-    with open(p_trades, "w", encoding="utf-8") as f:
-        for t in trades:
-            f.write(json.dumps(t, ensure_ascii=False) + "\n")
-
-    p_orders = d_run / "orders.jsonl"
-    with open(p_orders, "w", encoding="utf-8") as f:
-        for o in orders:
-            f.write(json.dumps(o, ensure_ascii=False) + "\n")
-
-    p_pos = d_run / "positions.jsonl"
-    with open(p_pos, "w", encoding="utf-8") as f:
-        for p in positions:
-            f.write(json.dumps(p, ensure_ascii=False) + "\n")
-
-    p_funding = d_run / "funding.jsonl"
-    with open(p_funding, "w", encoding="utf-8") as f:
-        for r in funding_records:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
-
-    p_eq = d_run / "equity_curve.jsonl"
-    with open(p_eq, "w", encoding="utf-8") as f:
-        for e in equity_curve:
-            f.write(json.dumps(e, ensure_ascii=False) + "\n")
-
-    ledger_db = S.ledger_path(effective_run_id)
-    with sqlite3.connect(str(ledger_db)) as con:
-        con.execute("PRAGMA journal_mode=WAL;")
-        con.executescript(S.LEDGER_SCHEMA)
-        # 恢复或重新执行时清空可能存在的中断残留行
-        con.execute("DELETE FROM trades WHERE run_id = ?;", (effective_run_id,))
-        con.execute("DELETE FROM equity WHERE run_id = ?;", (effective_run_id,))
-        init_eq = float(getattr(ep, "initial_equity", 10000.0))
-        con.execute("INSERT OR REPLACE INTO meta VALUES (?, 'initial_equity', ?);",
-                    (effective_run_id, str(init_eq)))
-
-        for t in trades:
-            con.execute("""
-                INSERT OR REPLACE INTO trades (
-                    run_id, trade_id, signal_id, symbol, direction, signal_type,
-                    entry_time_ms, exit_time_ms, entry_price, exit_price, qty,
-                    gross_pnl, entry_fee, exit_fee, fees, funding_fee, net_pnl,
-                    exit_reason
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                effective_run_id, str(t.get("trade_id")), str(t.get("signal_id")),
-                str(t.get("symbol")), str(t.get("direction")), int(t.get("signal_type") or 0),
-                int(t.get("entry_time") or 0), int(t.get("exit_time") or 0),
-                float(t.get("entry_price") or 0.0), float(t.get("exit_price") or 0.0),
-                float(t.get("qty") or 0.0), float(t.get("gross_pnl") or 0.0),
-                float(t.get("entry_fee") or 0.0), float(t.get("exit_fee") or 0.0),
-                float(t.get("fees") or (float(t.get("entry_fee") or 0.0) + float(t.get("exit_fee") or 0.0))),
-                float(t.get("funding_fee") or 0.0), float(t.get("net_pnl") or 0.0),
-                str(t.get("exit_reason"))
-            ))
-
-        eq_rows = list(equity_curve)
-        if not eq_rows:
-            eq_rows = [
-                {"timestamp": win_start_ms, "cash": init_eq, "equity": init_eq, "positions": 0},
-                {"timestamp": win_end_ms, "cash": init_eq, "equity": init_eq, "positions": 0},
-            ]
-        for e in eq_rows:
-            ts = int(e.get("timestamp") or e.get("t") or e.get("ts_ms") or 0)
-            ce = float(e.get("cash") if e.get("cash") is not None else e.get("cash_equity", init_eq))
-            te = float(e.get("equity") if e.get("equity") is not None else e.get("total_equity", ce))
-            up = float(e.get("unrealized_pnl") or (te - ce))
-            pos_cnt = int(e.get("positions") if e.get("positions") is not None else e.get("open_positions_count", 0))
-            con.execute("""
-                INSERT OR REPLACE INTO equity VALUES (?, ?, ?, ?, ?, ?, 0.0);
-            """, (effective_run_id, ts, ce, up, te, pos_cnt))
 
     # 11. 指标计算与账本对账
     metrics = BR_RUN.compute_metrics(res, win, ep)
