@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10152e">
+  <title>GM · AI趋势研究系统</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<div class="root" id="app">
+  <nav class="nav" aria-label="主导航">
+    <div class="brand">GM 趋势研判系统</div>
+    <div id="nav-list"></div>
+    <div class="nav-foot">
+      <div>研究范围：USDT 永续</div>
+      <div>Binance 主源 / OKX 补位</div>
+      <div id="nav-status">正在检查只读数据接口</div>
+    </div>
+  </nav>
+  <div class="workspace">
+    <header class="top" id="overview"><div class="muted">正在读取系统状态…</div></header>
+    <div class="three-columns">
+      <aside class="left" id="left-panel"></aside>
+      <main class="main" id="main-panel" aria-live="polite"></main>
+      <aside class="right" id="right-panel"></aside>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/assets/app.js"></script>
+</body>
+</html>

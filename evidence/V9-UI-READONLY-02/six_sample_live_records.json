@@ -1,0 +1,868 @@
+{
+  "recorded_at": "2026-11-11T05:33:07.418Z",
+  "service_endpoint": "http://127.0.0.1:3010",
+  "sample_count": 6,
+  "description": "原六组真实响应与页面生产消费首末样本定点核验记录",
+  "records": [
+    {
+      "exchange": "Binance",
+      "symbol": "BTCUSDT",
+      "interval": "4h",
+      "units": {
+        "amount_unit": "标的币数(BTC)",
+        "usd_unit": "USD",
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=binance&symbol=BTCUSDT&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.418Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 700,
+          "sample_first": {
+            "open_time": "2026-07-12T12:00:00Z",
+            "close_time": "2026-07-12T15:59:59Z",
+            "open": 63993.8,
+            "high": 64271.9,
+            "low": 63928,
+            "close": 64149.9,
+            "base_volume": 9372.897,
+            "contract_volume": null,
+            "quote_volume": 600718180.5528,
+            "trades": 239280,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": null,
+            "available_at_known": false
+          },
+          "sample_last": {
+            "open_time": "2026-11-10T08:00:00Z",
+            "close_time": "2026-11-10T11:59:59Z",
+            "open": 74805.5,
+            "high": 74858.4,
+            "low": 74079.1,
+            "close": 74389.7,
+            "base_volume": 18926.837,
+            "contract_volume": null,
+            "quote_volume": 1407645860.8352,
+            "trades": 456090,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-11-10T12:00:02Z",
+            "available_at_known": true
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 700,
+          "first_point": {
+            "time": 1783857600000,
+            "open": 63993.8,
+            "high": 64271.9,
+            "low": 63928,
+            "close": 64149.9,
+            "volume": 9372.897,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1794297600000,
+            "open": 74805.5,
+            "high": 74858.4,
+            "low": 74079.1,
+            "close": 74389.7,
+            "volume": 18926.837,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=binance&symbol=BTCUSDT&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.459Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "5m",
+          "upstream_source": "binance.archive.metrics",
+          "sample_first": {
+            "event_time": "2025-09-18T23:55:00Z",
+            "period": "5m",
+            "open_interest": "91079.3610000000000000",
+            "open_interest_value": "10657880703.8667050000000000",
+            "oi_ccy": "91079.3610000000000000",
+            "oi_usd": "10657880703.8667050000000000",
+            "source": "binance.archive.metrics",
+            "fetched_at": null
+          },
+          "sample_last": {
+            "event_time": "2026-11-01T06:45:00Z",
+            "period": "snapshot",
+            "open_interest": "97317.52600000",
+            "open_interest_value": "7578709386.52860000",
+            "oi_ccy": "97317.52600000",
+            "oi_usd": "7578709386.52860000",
+            "source": "binance.fapi.openInterestHist",
+            "fetched_at": 1793515770343
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1758239700000,
+            "amount": 91079.361,
+            "usd": 10657880703.866705
+          },
+          "last_point": {
+            "time": 1793515500000,
+            "amount": 97317.526,
+            "usd": 7578709386.5286
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    },
+    {
+      "exchange": "Binance",
+      "symbol": "BTCUSDT",
+      "interval": "1h",
+      "units": {
+        "amount_unit": "标的币数(BTC)",
+        "usd_unit": "USD",
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=binance&symbol=BTCUSDT&interval=1h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "1h"
+          },
+          "captured_at": "2026-11-11T05:33:07.583Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 700,
+          "sample_first": {
+            "open_time": "2026-10-07T22:00:00Z",
+            "close_time": "2026-10-07T22:59:59Z",
+            "open": 83118.9,
+            "high": 83286,
+            "low": 83102.2,
+            "close": 83194,
+            "base_volume": 1618.556,
+            "contract_volume": null,
+            "quote_volume": 134679965.0613,
+            "trades": 46558,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-10-08T08:58:04Z",
+            "available_at_known": true
+          },
+          "sample_last": {
+            "open_time": "2026-11-10T11:00:00Z",
+            "close_time": "2026-11-10T11:59:59Z",
+            "open": 74200.4,
+            "high": 74432.9,
+            "low": 74100,
+            "close": 74389.7,
+            "base_volume": 2789.765,
+            "contract_volume": null,
+            "quote_volume": 207204001.1437,
+            "trades": 87636,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-11-10T12:00:02Z",
+            "available_at_known": true
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 700,
+          "first_point": {
+            "time": 1791410400000,
+            "open": 83118.9,
+            "high": 83286,
+            "low": 83102.2,
+            "close": 83194,
+            "volume": 1618.556,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1794308400000,
+            "open": 74200.4,
+            "high": 74432.9,
+            "low": 74100,
+            "close": 74389.7,
+            "volume": 2789.765,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=binance&symbol=BTCUSDT&interval=1h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "1h"
+          },
+          "captured_at": "2026-11-11T05:33:07.604Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "5m",
+          "upstream_source": "binance.archive.metrics",
+          "sample_first": {
+            "event_time": "2025-09-18T23:55:00Z",
+            "period": "5m",
+            "open_interest": "91079.3610000000000000",
+            "open_interest_value": "10657880703.8667050000000000",
+            "oi_ccy": "91079.3610000000000000",
+            "oi_usd": "10657880703.8667050000000000",
+            "source": "binance.archive.metrics",
+            "fetched_at": null
+          },
+          "sample_last": {
+            "event_time": "2026-11-01T06:45:00Z",
+            "period": "snapshot",
+            "open_interest": "97317.52600000",
+            "open_interest_value": "7578709386.52860000",
+            "oi_ccy": "97317.52600000",
+            "oi_usd": "7578709386.52860000",
+            "source": "binance.fapi.openInterestHist",
+            "fetched_at": 1793515770343
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1758239700000,
+            "amount": 91079.361,
+            "usd": 10657880703.866705
+          },
+          "last_point": {
+            "time": 1793515500000,
+            "amount": 97317.526,
+            "usd": 7578709386.5286
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    },
+    {
+      "exchange": "Binance",
+      "symbol": "BTCUSDT",
+      "interval": "1d",
+      "units": {
+        "amount_unit": "标的币数(BTC)",
+        "usd_unit": "USD",
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=binance&symbol=BTCUSDT&interval=1d",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "1d"
+          },
+          "captured_at": "2026-11-11T05:33:07.609Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 700,
+          "sample_first": {
+            "open_time": "2024-12-06T00:00:00Z",
+            "close_time": "2024-12-06T23:59:59Z",
+            "open": 97001.6,
+            "high": 101988.8,
+            "low": 96429.5,
+            "close": 99802.5,
+            "base_volume": 282369.608,
+            "contract_volume": null,
+            "quote_volume": 27983159150.5382,
+            "trades": 4877066,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": null,
+            "available_at_known": false
+          },
+          "sample_last": {
+            "open_time": "2026-11-05T00:00:00Z",
+            "close_time": "2026-11-05T23:59:59Z",
+            "open": 80466.4,
+            "high": 80888,
+            "low": 75158,
+            "close": 76050.1,
+            "base_volume": 267547.773,
+            "contract_volume": null,
+            "quote_volume": 20751735998.5904,
+            "trades": 5202335,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": null,
+            "available_at_known": false
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 700,
+          "first_point": {
+            "time": 1733443200000,
+            "open": 97001.6,
+            "high": 101988.8,
+            "low": 96429.5,
+            "close": 99802.5,
+            "volume": 282369.608,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1793836800000,
+            "open": 80466.4,
+            "high": 80888,
+            "low": 75158,
+            "close": 76050.1,
+            "volume": 267547.773,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=binance&symbol=BTCUSDT&interval=1d",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "BTCUSDT",
+            "interval": "1d"
+          },
+          "captured_at": "2026-11-11T05:33:07.636Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "5m",
+          "upstream_source": "binance.archive.metrics",
+          "sample_first": {
+            "event_time": "2025-09-18T23:55:00Z",
+            "period": "5m",
+            "open_interest": "91079.3610000000000000",
+            "open_interest_value": "10657880703.8667050000000000",
+            "oi_ccy": "91079.3610000000000000",
+            "oi_usd": "10657880703.8667050000000000",
+            "source": "binance.archive.metrics",
+            "fetched_at": null
+          },
+          "sample_last": {
+            "event_time": "2026-11-01T06:45:00Z",
+            "period": "snapshot",
+            "open_interest": "97317.52600000",
+            "open_interest_value": "7578709386.52860000",
+            "oi_ccy": "97317.52600000",
+            "oi_usd": "7578709386.52860000",
+            "source": "binance.fapi.openInterestHist",
+            "fetched_at": 1793515770343
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1758239700000,
+            "amount": 91079.361,
+            "usd": 10657880703.866705
+          },
+          "last_point": {
+            "time": 1793515500000,
+            "amount": 97317.526,
+            "usd": 7578709386.5286
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    },
+    {
+      "exchange": "Binance",
+      "symbol": "ETHUSDT",
+      "interval": "4h",
+      "units": {
+        "amount_unit": "标的币数(ETH)",
+        "usd_unit": "USD",
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=binance&symbol=ETHUSDT&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "ETHUSDT",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.640Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 700,
+          "sample_first": {
+            "open_time": "2026-07-12T12:00:00Z",
+            "close_time": "2026-07-12T15:59:59Z",
+            "open": 1802.99,
+            "high": 1826.2,
+            "low": 1802.16,
+            "close": 1819.95,
+            "base_volume": 478982.41,
+            "contract_volume": null,
+            "quote_volume": 869661104.76578,
+            "trades": 488548,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": null,
+            "available_at_known": false
+          },
+          "sample_last": {
+            "open_time": "2026-11-10T08:00:00Z",
+            "close_time": "2026-11-10T11:59:59Z",
+            "open": 2114.75,
+            "high": 2117.82,
+            "low": 2083.06,
+            "close": 2093.69,
+            "base_volume": 740628.62,
+            "contract_volume": null,
+            "quote_volume": 1554391148.6283,
+            "trades": 883156,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-11-10T12:00:02Z",
+            "available_at_known": true
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 700,
+          "first_point": {
+            "time": 1783857600000,
+            "open": 1802.99,
+            "high": 1826.2,
+            "low": 1802.16,
+            "close": 1819.95,
+            "volume": 478982.41,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1794297600000,
+            "open": 2114.75,
+            "high": 2117.82,
+            "low": 2083.06,
+            "close": 2093.69,
+            "volume": 740628.62,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=binance&symbol=ETHUSDT&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "ETHUSDT",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.672Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "5m",
+          "upstream_source": "binance.archive.metrics",
+          "sample_first": {
+            "event_time": "2025-09-18T23:55:00Z",
+            "period": "5m",
+            "open_interest": "1907710.6010000000000000",
+            "open_interest_value": "8747444495.8713100000000000",
+            "oi_ccy": "1907710.6010000000000000",
+            "oi_usd": "8747444495.8713100000000000",
+            "source": "binance.archive.metrics",
+            "fetched_at": null
+          },
+          "sample_last": {
+            "event_time": "2026-11-01T06:45:00Z",
+            "period": "snapshot",
+            "open_interest": "2379604.49300000",
+            "open_interest_value": "5393487592.59156800",
+            "oi_ccy": "2379604.49300000",
+            "oi_usd": "5393487592.59156800",
+            "source": "binance.fapi.openInterestHist",
+            "fetched_at": 1793515773186
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1758239700000,
+            "amount": 1907710.601,
+            "usd": 8747444495.87131
+          },
+          "last_point": {
+            "time": 1793515500000,
+            "amount": 2379604.493,
+            "usd": 5393487592.591568
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    },
+    {
+      "exchange": "Binance",
+      "symbol": "ETHUSDT",
+      "interval": "1h",
+      "units": {
+        "amount_unit": "标的币数(ETH)",
+        "usd_unit": "USD",
+        "upstream_period": "原生 5m 归档＋近端 snapshot",
+        "upstream_source": "Metrics 归档＋openInterestHist 接口快照",
+        "aggregation_note": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=binance&symbol=ETHUSDT&interval=1h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "ETHUSDT",
+            "interval": "1h"
+          },
+          "captured_at": "2026-11-11T05:33:07.779Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 700,
+          "sample_first": {
+            "open_time": "2026-10-07T22:00:00Z",
+            "close_time": "2026-10-07T22:59:59Z",
+            "open": 2566.37,
+            "high": 2569.94,
+            "low": 2563.2,
+            "close": 2568.52,
+            "base_volume": 34695.84,
+            "contract_volume": null,
+            "quote_volume": 89071907.9687,
+            "trades": 56776,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-10-08T07:56:46Z",
+            "available_at_known": true
+          },
+          "sample_last": {
+            "open_time": "2026-11-10T11:00:00Z",
+            "close_time": "2026-11-10T11:59:59Z",
+            "open": 2090.01,
+            "high": 2101.9,
+            "low": 2085.03,
+            "close": 2093.69,
+            "base_volume": 117076.927,
+            "contract_volume": null,
+            "quote_volume": 245107140.21972,
+            "trades": 163410,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-11-10T12:00:02Z",
+            "available_at_known": true
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 700,
+          "first_point": {
+            "time": 1791410400000,
+            "open": 2566.37,
+            "high": 2569.94,
+            "low": 2563.2,
+            "close": 2568.52,
+            "volume": 34695.84,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1794308400000,
+            "open": 2090.01,
+            "high": 2101.9,
+            "low": 2085.03,
+            "close": 2093.69,
+            "volume": 117076.927,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=binance&symbol=ETHUSDT&interval=1h",
+          "method": "GET",
+          "params": {
+            "exchange": "binance",
+            "symbol": "ETHUSDT",
+            "interval": "1h"
+          },
+          "captured_at": "2026-11-11T05:33:07.802Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "5m",
+          "upstream_source": "binance.archive.metrics",
+          "sample_first": {
+            "event_time": "2025-09-18T23:55:00Z",
+            "period": "5m",
+            "open_interest": "1907710.6010000000000000",
+            "open_interest_value": "8747444495.8713100000000000",
+            "oi_ccy": "1907710.6010000000000000",
+            "oi_usd": "8747444495.8713100000000000",
+            "source": "binance.archive.metrics",
+            "fetched_at": null
+          },
+          "sample_last": {
+            "event_time": "2026-11-01T06:45:00Z",
+            "period": "snapshot",
+            "open_interest": "2379604.49300000",
+            "open_interest_value": "5393487592.59156800",
+            "oi_ccy": "2379604.49300000",
+            "oi_usd": "5393487592.59156800",
+            "source": "binance.fapi.openInterestHist",
+            "fetched_at": 1793515773186
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1758239700000,
+            "amount": 1907710.601,
+            "usd": 8747444495.87131
+          },
+          "last_point": {
+            "time": 1793515500000,
+            "amount": 2379604.493,
+            "usd": 5393487592.591568
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    },
+    {
+      "exchange": "OKX",
+      "symbol": "CRO-USDT-SWAP",
+      "interval": "4h",
+      "units": {
+        "amount_unit": "合约张数(Contracts, CRO面值10币)",
+        "usd_unit": "USD",
+        "upstream_period": "定点快照 (snapshot)",
+        "upstream_source": "okx.v5 接口归档",
+        "aggregation_note": "OKX 官方原生 open_interest 为合约张数，已验证 CRO 合约每张面值 10 CRO"
+      },
+      "candles": {
+        "request": {
+          "url": "/api/local/candles?exchange=okx&symbol=CRO-USDT-SWAP&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "okx",
+            "symbol": "CRO-USDT-SWAP",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.806Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 370,
+          "sample_first": {
+            "open_time": "2026-09-09T20:00:00Z",
+            "close_time": "2026-09-09T23:59:59Z",
+            "open": 0.05872,
+            "high": 0.05904,
+            "low": 0.05807,
+            "close": 0.05893,
+            "base_volume": 4398060,
+            "contract_volume": null,
+            "quote_volume": 257481.0682,
+            "trades": 0,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": null,
+            "available_at_known": false
+          },
+          "sample_last": {
+            "open_time": "2026-11-10T08:00:00Z",
+            "close_time": "2026-11-10T11:59:59Z",
+            "open": 0.04794,
+            "high": 0.04794,
+            "low": 0.04708,
+            "close": 0.0471,
+            "base_volume": 2747270,
+            "contract_volume": null,
+            "quote_volume": 130485.1158,
+            "trades": 0,
+            "is_closed": true,
+            "row_kind": "traded",
+            "generation": null,
+            "tradeable": true,
+            "available_at": "2026-11-10T12:00:01Z",
+            "available_at_known": true
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeBars",
+          "consumed_count": 370,
+          "first_point": {
+            "time": 1788984000000,
+            "open": 0.05872,
+            "high": 0.05904,
+            "low": 0.05807,
+            "close": 0.05893,
+            "volume": 4398060,
+            "closed": true
+          },
+          "last_point": {
+            "time": 1794297600000,
+            "open": 0.04794,
+            "high": 0.04794,
+            "low": 0.04708,
+            "close": 0.0471,
+            "volume": 2747270,
+            "closed": true
+          },
+          "is_valid_series": true
+        }
+      },
+      "oi": {
+        "request": {
+          "url": "/api/local/oi?exchange=okx&symbol=CRO-USDT-SWAP&interval=4h",
+          "method": "GET",
+          "params": {
+            "exchange": "okx",
+            "symbol": "CRO-USDT-SWAP",
+            "interval": "4h"
+          },
+          "captured_at": "2026-11-11T05:33:07.826Z"
+        },
+        "response": {
+          "source": "本机封存历史数据网关（只读）",
+          "connected": true,
+          "total_count": 800,
+          "upstream_period": "snapshot",
+          "upstream_source": "okx.v5",
+          "sample_first": {
+            "event_time": "2026-10-22T08:07:51Z",
+            "period": "snapshot",
+            "open_interest": "2253544",
+            "open_interest_value": "1290153.94",
+            "oi_ccy": "22535440",
+            "oi_usd": "1290153.94",
+            "source": "okx.v5",
+            "fetched_at": 1792656471547
+          },
+          "sample_last": {
+            "event_time": "2026-11-10T12:11:25Z",
+            "period": "snapshot",
+            "open_interest": "1814774",
+            "open_interest_value": "855847.4184",
+            "oi_ccy": "18147740",
+            "oi_usd": "855847.4184",
+            "source": "okx.v5",
+            "fetched_at": 1794312687435
+          }
+        },
+        "page_consumption": {
+          "function_used": "normalizeOi",
+          "consumed_count": 800,
+          "first_point": {
+            "time": 1792656471000,
+            "amount": 2253544,
+            "usd": 1290153.94
+          },
+          "last_point": {
+            "time": 1794312685000,
+            "amount": 1814774,
+            "usd": 855847.4184
+          },
+          "all_amount_valid": true,
+          "all_usd_valid": true
+        }
+      }
+    }
+  ],
+  "verification_scope": "六组定点首末样本已核对",
+  "notes": "页面选择 1h／4h／1d，不代表 OI 已按该周期统一聚合；面值10币限定于已验证的 CRO 合约"
+}
