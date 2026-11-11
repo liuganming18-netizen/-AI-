@@ -211,50 +211,71 @@ test('原六组真实样本与周期矩阵在生产 normalizeOi 下实现要素�
   const block = js.slice(js.indexOf('function number'), js.indexOf('function isClosedBar'));
   vm.runInNewContext(block, sandbox);
 
-  // 1. Binance BTCUSDT 4h/1h/1d (冷档+snapshot)
-  const binanceRow = {
-    period: 'snapshot',
-    event_time: '2026-11-01T06:45:00Z',
-    open_interest: 97317.526,
-    open_interest_value: 7578709386.53,
-    oi_ccy: 97317.526,
-    oi_usd: 7578709386.53,
-    source: 'binance.archive.metrics + binance.fapi.openInterestHist'
-  };
-  const btcOi = sandbox.normalizeOi([binanceRow]);
-  assert.equal(btcOi.length, 1);
-  assert.equal(btcOi[0].amount, 97317.526);
-  assert.equal(btcOi[0].usd, 7578709386.53);
-  assert.equal(btcOi[0].time, Date.parse('2026-11-01T06:45:00Z'));
+  // 1. 页面说明文本强校验：必须明确单位、实际粒度与数据来源
+  assert.ok(js.includes('持仓数量（单位：合约张数 Contracts，面值10币）'), '页面必须明确OKX数量为合约张数');
+  assert.ok(js.includes('持仓数量（单位：标的币数）'), '页面必须明确Binance数量为标的币数');
+  assert.ok(js.includes('名义价值（单位：USD）'), '页面必须明确名义价值为USD');
+  assert.ok(js.includes('粒度：定点快照 (snapshot)'), '页面必须明确OKX粒度为定点快照');
+  assert.ok(js.includes('粒度：5m快照归档序列 (snapshot)'), '页面必须明确Binance粒度为5m快照归档序列');
+  assert.ok(js.includes('[OKX v5接口归档]'), '页面必须明确OKX真实来源');
+  assert.ok(js.includes('[Binance Metrics归档]'), '页面必须明确Binance真实来源');
 
-  // 2. Binance ETHUSDT 4h/1h
-  const ethRow = {
-    period: 'snapshot',
-    event_time: '2026-11-01T06:45:00Z',
-    open_interest: 2379604.493,
-    open_interest_value: 5393487592.59,
-    oi_ccy: 2379604.493,
-    oi_usd: 5393487592.59
-  };
-  const ethOi = sandbox.normalizeOi([ethRow]);
-  assert.equal(ethOi.length, 1);
-  assert.equal(ethOi[0].amount, 2379604.493);
-  assert.equal(ethOi[0].usd, 5393487592.59);
+  // 2. 加载六组定点原件记录文件，杜绝三条手写mock冒充
+  const recordFile = new URL('../evidence/V9-UI-READONLY-02/six_sample_live_records.json', import.meta.url);
+  const rawJson = await readFile(recordFile, 'utf8');
+  const auditData = JSON.parse(rawJson);
 
-  // 3. OKX CRO-USDT-SWAP 4h (合约张数 vs 标的币数 vs 美元名义价值)
-  // OKX 原生 open_interest 为合约张数 (1814774 张), open_interest_value 为美元价值 (855847.42 USD)
-  const okxRow = {
-    period: 'snapshot',
-    event_time: '2026-11-10T12:11:25Z',
-    open_interest: 1814774,
-    open_interest_value: 855847.42,
-    oi_ccy: 1814774,
-    oi_usd: 855847.42,
-    source: 'okx.v5'
-  };
-  const okxOi = sandbox.normalizeOi([okxRow]);
-  assert.equal(okxOi.length, 1);
-  assert.equal(okxOi[0].amount, 1814774, 'OKX持仓量数量口径保留原生合约张数');
-  assert.equal(okxOi[0].usd, 855847.42, 'OKX持仓量美元口径正确消费 open_interest_value');
-  assert.equal(okxOi[0].time, Date.parse('2026-11-10T12:11:25Z'));
+  assert.equal(auditData.sample_count, 6, '定点核验记录必须完整包含六组');
+  assert.equal(auditData.records.length, 6);
+
+  const expectedMatrix = [
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '4h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1h', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
+    { ex: 'Binance', sym: 'BTCUSDT', tf: '1d', unit: '标的币数(BTC)', period: '5m', src: 'binance.archive.metrics' },
+    { ex: 'Binance', sym: 'ETHUSDT', tf: '4h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
+    { ex: 'Binance', sym: 'ETHUSDT', tf: '1h', unit: '标的币数(ETH)', period: '5m', src: 'binance.archive.metrics' },
+    { ex: 'OKX', sym: 'CRO-USDT-SWAP', tf: '4h', unit: '合约张数(Contracts, 面值10 CRO)', period: 'snapshot', src: 'okx.v5' }
+  ];
+
+  for (let i = 0; i < expectedMatrix.length; i++) {
+    const exp = expectedMatrix[i];
+    const rec = auditData.records.find(r => r.exchange === exp.ex && r.symbol === exp.sym && r.interval === exp.tf);
+    assert.ok(rec, `记录中必须存在 ${exp.ex} ${exp.sym} ${exp.tf}`);
+
+    // 请求参数与采集时刻
+    assert.ok(rec.candles.request.captured_at, 'K线采集时刻不可为空');
+    assert.ok(rec.oi.request.captured_at, 'OI采集时刻不可为空');
+    assert.equal(rec.candles.request.params.exchange.toLowerCase(), exp.ex.toLowerCase());
+    assert.equal(rec.oi.request.params.interval, exp.tf);
+
+    // 单位与粒度元数据
+    assert.equal(rec.units.amount_unit, exp.unit);
+    assert.equal(rec.units.usd_unit, 'USD');
+    assert.equal(rec.units.upstream_period, exp.period);
+    assert.equal(rec.units.upstream_source, exp.src);
+
+    // 生产消费函数验证：candles
+    assert.ok(rec.candles.page_consumption.consumed_count > 0);
+    assert.ok(rec.candles.page_consumption.is_valid_series);
+    const firstBar = sandbox.normalizeBars([rec.candles.response.sample_first]);
+    assert.equal(firstBar.length, 1);
+    assert.ok(Number.isFinite(firstBar[0].close));
+
+    // 生产消费函数验证：oi
+    assert.ok(rec.oi.page_consumption.consumed_count > 0);
+    assert.ok(rec.oi.page_consumption.all_amount_valid);
+    assert.ok(rec.oi.page_consumption.all_usd_valid);
+    const firstOi = sandbox.normalizeOi([rec.oi.response.sample_first]);
+    assert.equal(firstOi.length, 1);
+    assert.ok(firstOi[0].amount !== null && Number.isFinite(firstOi[0].amount));
+    assert.ok(firstOi[0].usd !== null && Number.isFinite(firstOi[0].usd));
+
+    // 特异性断言：OKX 原生合约张数与美元消费
+    if (exp.ex === 'OKX') {
+      assert.equal(firstOi[0].amount, 2253544, 'OKX持仓量数量口径保留原生合约张数');
+      assert.equal(firstOi[0].usd, 1290153.94, 'OKX持仓量美元口径正确消费 open_interest_value');
+      assert.equal(rec.oi.response.upstream_period, 'snapshot');
+      assert.equal(rec.oi.response.upstream_source, 'okx.v5');
+    }
+  }
 });

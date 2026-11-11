@@ -114,3 +114,38 @@
 | **5. Binance ETHUSDT 1h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 2379604.493`, `open_interest_value: 5393487592.59` | K线: `time: 1794322800000, open: 2090.01, close: 2093.69`<br>OI: `time: 1793515500000, amount: 2379604.493, usd: 5393487592.59` | `drawK()` 绘制 1h 细节量价；OI 柱形无插值、无补零呈现真实观测 | K线: 1h 已收盘聚合（700根）；<br>OI: 1h/auto 分桶金字塔 | K线: `market_v2.sqlite3`<br>OI: 冷档日度 metrics + 热层快照 | Binance 标的币数（ETH），名义价值 USD。 |
 | **6. OKX CRO-USDT-SWAP 4h** | K线: `[open, high, low, close, volume]`<br>OI: `open_interest: 1814774`, `open_interest_value: 855847.42`, `oi_ccy: 1814774`, `source: "okx.v5"` | K线: `time: 1794312000000, open: 0.04794, close: 0.04710`<br>OI: `time: 1794322285000, amount: 1814774, usd: 855847.42` | `drawOi()` 在“数量”视图展示 181.47 万张；在“名义价值”视图展示 85.58 万美元 | K线: 4h 聚合（370根）；<br>OI: 4h/snapshot 轮询快照（800条） | K线: `market_v2.sqlite3`<br>OI: `okx.v5` 官方接口归档表 | ★ **OKX 数量单位保真**：OKX 官方原生 `open_interest` 是以**合约张数（contracts）**计（此处为 1814774 张），`oi_ccy` 为标的币数，`open_interest_value` 为 USD 价值。页面双单位切换严格区分张数与美元，不混淆两者。 |
 
+---
+
+## 六、原六组真实定点原件记录与页面消费核验表 (定点原件 `six_sample_live_records.json` 对账)
+
+定点数据采集自运行中的只读候选端口 `http://127.0.0.1:3010`（数据时间戳：`2026-11-11T05:33:07.418Z`），完整原件留存于 `evidence/V9-UI-READONLY-02/six_sample_live_records.json`，并通过单元测试 `test/read-only-ui.test.js` 逐组强验。
+
+| 序号 | 交易所 | 标的 | 周期 | 采集时刻 (ISO 8601) | K线请求与消费 | OI请求与消费 | 数量单位与名义价值单位 | 实际粒度与上游数据源 |
+| :---: | :--- | :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| **1** | Binance | BTCUSDT | 4h | `2026-11-11T05:33:07.418Z` | `GET /api/local/candles?exchange=binance&symbol=BTCUSDT&interval=4h`<br>原始 700 根 -> `normalizeBars` 消费 700 根（首根 `2026-07-12T12:00:00Z`，末根 `2026-11-10T08:00:00Z`） | `GET /api/local/oi?exchange=binance&symbol=BTCUSDT&interval=4h`<br>原始 800 条 -> `normalizeOi` 消费 800 条（首条 `2025-09-18T23:55:00Z`，末条 `2026-11-01T06:45:00Z`） | 数量：**标的币数 (BTC)**<br>名义价值：**USD** | 粒度：**5m快照归档序列 (snapshot)**<br>来源：`binance.archive.metrics` + 本机只读网关 |
+| **2** | Binance | BTCUSDT | 1h | `2026-11-11T05:33:07.502Z` | `GET /api/local/candles?exchange=binance&symbol=BTCUSDT&interval=1h`<br>原始 700 根 -> `normalizeBars` 消费 700 根（首根 `2026-10-07T22:00:00Z`，末根 `2026-11-10T11:00:00Z`） | `GET /api/local/oi?exchange=binance&symbol=BTCUSDT&interval=1h`<br>原始 800 条 -> `normalizeOi` 消费 800 条（amount: 97317.526, usd: 7578709386.53） | 数量：**标的币数 (BTC)**<br>名义价值：**USD** | 粒度：**5m快照归档序列 (snapshot)**<br>来源：`binance.archive.metrics` + 本机只读网关 |
+| **3** | Binance | BTCUSDT | 1d | `2026-11-11T05:33:07.575Z` | `GET /api/local/candles?exchange=binance&symbol=BTCUSDT&interval=1d`<br>原始 700 根 -> `normalizeBars` 消费 700 根（首根 `2024-12-06T00:00:00Z`，末根 `2026-11-05T00:00:00Z`） | `GET /api/local/oi?exchange=binance&symbol=BTCUSDT&interval=1d`<br>原始 800 条 -> `normalizeOi` 消费 800 条（amount: 97317.526, usd: 7578709386.53） | 数量：**标的币数 (BTC)**<br>名义价值：**USD** | 粒度：**5m快照归档序列 (snapshot)**<br>来源：`binance.archive.metrics` + 本机只读网关 |
+| **4** | Binance | ETHUSDT | 4h | `2026-11-11T05:33:07.652Z` | `GET /api/local/candles?exchange=binance&symbol=ETHUSDT&interval=4h`<br>原始 700 根 -> `normalizeBars` 消费 700 根（首根 `2026-07-12T12:00:00Z`，末根 `2026-11-10T08:00:00Z`） | `GET /api/local/oi?exchange=binance&symbol=ETHUSDT&interval=4h`<br>原始 800 条 -> `normalizeOi` 消费 800 条（amount: 2379604.493, usd: 5393487592.59） | 数量：**标的币数 (ETH)**<br>名义价值：**USD** | 粒度：**5m快照归档序列 (snapshot)**<br>来源：`binance.archive.metrics` + 本机只读网关 |
+| **5** | Binance | ETHUSDT | 1h | `2026-11-11T05:33:07.728Z` | `GET /api/local/candles?exchange=binance&symbol=ETHUSDT&interval=1h`<br>原始 700 根 -> `normalizeBars` 消费 700 根（首根 `2026-10-07T22:00:00Z`，末根 `2026-11-10T11:00:00Z`） | `GET /api/local/oi?exchange=binance&symbol=ETHUSDT&interval=1h`<br>原始 800 条 -> `normalizeOi` 消费 800 条（amount: 2379604.493, usd: 5393487592.59） | 数量：**标的币数 (ETH)**<br>名义价值：**USD** | 粒度：**5m快照归档序列 (snapshot)**<br>来源：`binance.archive.metrics` + 本机只读网关 |
+| **6** | OKX | CRO-USDT-SWAP | 4h | `2026-11-11T05:33:07.806Z` | `GET /api/local/candles?exchange=okx&symbol=CRO-USDT-SWAP&interval=4h`<br>原始 370 根 -> `normalizeBars` 消费 370 根（首根 `2026-09-09T20:00:00Z`，末根 `2026-11-10T08:00:00Z`） | `GET /api/local/oi?exchange=okx&symbol=CRO-USDT-SWAP&interval=4h`<br>原始 800 条 -> `normalizeOi` 消费 800 条（首条 amount: 2253544, usd: 1290153.94；末条 amount: 1814774, usd: 855847.4184） | 数量：**合约张数 (Contracts, 面值10 CRO)**<br>名义价值：**USD** | 粒度：**定点快照 (snapshot)**<br>来源：`okx.v5` 官方接口归档 + 本机只读网关 |
+
+---
+
+## 七、页面现有说明位置落实情况说明（报告与界面实际表现一致）
+
+依据真实响应和既有映射，在页面现有说明位置完成了精准标注，与本报告描述严格一致：
+
+1. **持仓量折叠展开区 (`detail(c)`)**：
+   - **切换按钮**：根据选中标的 venue 动态标注数量口径：Binance 显示为 `数量 (币数)`，OKX 显示为 `数量 (合约张数)`；名义价值明确标注为 `名义价值 (USD)`。
+   - **图表信息条 (`.chart-info`)**：
+     - Binance 标的呈现：`数据源：本机封存历史数据网关（只读） [Binance Metrics归档] ｜ 当前视图：持仓数量（单位：标的币数）[或名义价值（单位：USD）] ｜ 粒度：5m快照归档序列 (snapshot) ｜ OI缺口不插值、不补零，按真实UTC时间落位。`
+     - OKX 标的呈现：`数据源：本机封存历史数据网关（只读） [OKX v5接口归档] ｜ 当前视图：持仓数量（单位：合约张数 Contracts，面值10币）[或名义价值（单位：USD）] ｜ 粒度：定点快照 (snapshot) ｜ OI缺口不插值、不补零，按真实UTC时间落位。`
+2. **回测科学验证工作台 (`backPage()`)**：
+   - 切换按钮同步显示 `数量 (币数)` / `数量 (合约张数)` 与 `名义额 (USD)`。
+   - 图表信息条明确标注来源、当前视图、粒度及缺口不插值。
+3. **OI Canvas 图表内部标注 (`drawOi()`)**：
+   - 右上角最大值刻度动态追加当前视图单位后缀：美元视图显示 `最大 XX.XX USD`，数量视图下 Binance 显示 `最大 XX.XX 币`，OKX 显示 `最大 XX.XX 张`。
+4. **全市场行情主表 (`marketRow(c)`)**：
+   - 总 OI 持仓量单元格标注为 `名义价值 USD`，杜绝用户混淆币数与美元名义价值。
+
+
